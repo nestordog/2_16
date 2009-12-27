@@ -1,27 +1,16 @@
 package com.algoTrader.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
-import javax.xml.transform.TransformerException;
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.tidy.Tidy;
+import org.apache.commons.math.ConvergenceException;
+import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.analysis.UnivariateRealFunction;
+import org.apache.commons.math.analysis.solvers.UnivariateRealSolver;
+import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
-import com.algoTrader.entity.StockOptionImpl;
-import com.algoTrader.entity.Tick;
 import com.algoTrader.enumeration.OptionType;
 
 /*************************************************************************
@@ -47,19 +36,29 @@ public class StockOptionUtil {
     private static double volaPeriod = Double.parseDouble(PropertiesUtil.getProperty("volaPeriod"));
 
     // Black-Scholes formula
-    public static double callPrice(double spot, double strike, double volatility, double years, double intrest, double dividend) {
+    public static double getOptionPrice(double spot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
         double adjustedSpot = spot * Math.exp(-dividend * years);
         double d1 = (Math.log(adjustedSpot/strike) + (intrest + volatility * volatility/2) * years) / (volatility * Math.sqrt(years));
         double d2 = d1 - volatility * Math.sqrt(years);
-        return adjustedSpot * Gaussian.Phi(d1) - strike * Math.exp(-intrest * years) * Gaussian.Phi(d2);
+
+        if (OptionType.CALL.equals(type)) {
+            return adjustedSpot * Gaussian.Phi(d1) - strike * Math.exp(-intrest * years) * Gaussian.Phi(d2);
+        } else {
+            return strike * Math.exp(-intrest * years) * Gaussian.Phi(-d2) - adjustedSpot * Gaussian.Phi(-d1);
+        }
     }
 
-    // Black-Scholes formula
-    public static double putPrice(double spot, double strike, double volatility, double years, double intrest, double dividend) {
-        double adjustedSpot = spot * Math.exp(-dividend * years);
-        double d1 = (Math.log(adjustedSpot/strike) + (intrest + volatility * volatility/2) * years) / (volatility * Math.sqrt(years));
-        double d2 = d1 - volatility * Math.sqrt(years);
-        return strike * Math.exp(-intrest * years) * Gaussian.Phi(-d2) - adjustedSpot * Gaussian.Phi(-d1);
+    public static double getVolatility(final double spot, final double strike, final double optionValue, final double years, final double intrest, final double dividend, final OptionType type) throws ConvergenceException, FunctionEvaluationException {
+
+        UnivariateRealFunction function = new UnivariateRealFunction () {
+            public double value(double volatility) throws FunctionEvaluationException {
+                return getOptionPrice(spot, strike, volatility, years, intrest, dividend, type) - optionValue;
+            }};
+
+        UnivariateRealSolverFactory factory = UnivariateRealSolverFactory.newInstance();
+        UnivariateRealSolver solver = factory.newDefaultSolver();
+
+        return solver.solve(function, 0.1, 0.99, 0.2);
     }
 
     public static BigDecimal getFairValue(Security security, BigDecimal spot, BigDecimal vola) {
@@ -68,13 +67,7 @@ public class StockOptionUtil {
 
         double years = (option.getExpiration().getTime() - (new Date()).getTime()) / MILLISECONDS_PER_YEAR ;
 
-        if (option.getType().equals(OptionType.CALL)) {
-
-            return BigDecimalUtil.getBigDecimal(callPrice(spot.doubleValue(), option.getStrike().doubleValue(), vola.doubleValue(), years, intrest, dividend));
-        } else {
-
-            return BigDecimalUtil.getBigDecimal(putPrice(spot.doubleValue(), option.getStrike().doubleValue(), vola.doubleValue(), years, intrest, dividend));
-        }
+        return BigDecimalUtil.getBigDecimal(getOptionPrice(spot.doubleValue(), option.getStrike().doubleValue(), vola.doubleValue(), years, intrest, dividend, option.getType()));
     }
 
     public static BigDecimal getExitValue(Security security, BigDecimal spot, BigDecimal vola) {
@@ -87,8 +80,7 @@ public class StockOptionUtil {
 
     }
 
-
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
 
         /*
         double spot         = 23.75;
@@ -99,18 +91,22 @@ public class StockOptionUtil {
         double dividend     = 0.0;
         */
 
-        /*
-        double spot         = 6372;
-        double strike         = 6300;
-        double vola         = 0.227;
-        double years         = 0.05;
-        double intrest         = 0.018;
-        double dividend     = 0.02;
+
+        double spot         = 6579.98;
+        double strike         = 6550;
+        double vola         = 0.1406;
+        double years         = 0.0625;
+        double intrest         = 0.0025;
+        double dividend     = 0.039;
+
+        double callValue     = 100.6;
+        double putValue     = 84.7;
 
 
-        System.out.println(callPrice(spot, strike, vola, years, intrest, dividend));
-        System.out.println(putPrice(spot, strike, vola, years, intrest, dividend));
-        */
+        System.out.println(getOptionPrice(spot, strike, vola, years, intrest, dividend, OptionType.CALL));
+        System.out.println(getOptionPrice(spot, strike, vola, years, intrest, dividend, OptionType.PUT));
+        System.out.println(getVolatility(spot, strike, callValue, years, intrest, dividend, OptionType.CALL));
+        System.out.println(getVolatility(spot, strike, putValue, years, intrest, dividend, OptionType.PUT));
 
         /*
         ServiceLocator locator = ServiceLocator.instance();
