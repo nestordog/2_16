@@ -82,7 +82,7 @@ protected String escapeString(final String csvElem) {
                 else {
                     sb.append(quote);
                     sb.append(quote);
-                    needForEscape = true; // TODO review comments above
+                    needForEscape = true;
                 }
             }
             else
