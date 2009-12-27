@@ -12,6 +12,8 @@ import com.algoTrader.entity.Rule;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.TickImpl;
 import com.algoTrader.util.CustomDate;
+import com.algoTrader.util.DateUtil;
+import com.algoTrader.util.EntityUtil;
 import com.algoTrader.util.StockOptionUtil;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPAdministrator;
@@ -61,8 +63,13 @@ public class CepServiceImpl extends CepServiceBase {
     protected void init() {
 
         Configuration cepConfig = new Configuration();
+
         cepConfig.addEventType("Tick", TickImpl.class);
+
+        cepConfig.addImport(EntityUtil.class);
         cepConfig.addImport(StockOptionUtil.class);
+        cepConfig.addImport(DateUtil.class);
+
         cepConfig.addImport("com.algoTrader.entity.*");
 
         cep = EPServiceProviderManager.getDefaultProvider(cepConfig);
