@@ -1,10 +1,27 @@
 package com.algoTrader.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+
+import javax.xml.transform.TransformerException;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.tidy.Tidy;
 
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
+import com.algoTrader.entity.StockOptionImpl;
+import com.algoTrader.entity.Tick;
 import com.algoTrader.enumeration.OptionType;
 
 /*************************************************************************
@@ -23,7 +40,7 @@ import com.algoTrader.enumeration.OptionType;
 public class StockOptionUtil {
 
     private static final double MILLISECONDS_PER_YEAR = 1000l * 60l * 60l * 24l * 365l;
-    private static final double TRADING_DAYS_PER_YEAR = 256;
+    private static final double DAYS_PER_YEAR = 365;
 
     private static double intrest = Double.parseDouble(PropertiesUtil.getProperty("intrest"));
     private static double dividend = Double.parseDouble(PropertiesUtil.getProperty("dividend"));
@@ -64,11 +81,12 @@ public class StockOptionUtil {
 
         StockOption option = (StockOption)security;
 
-        BigDecimal exitLevel = new BigDecimal(spot.doubleValue() * (1 - vola.doubleValue() / Math.sqrt(TRADING_DAYS_PER_YEAR / volaPeriod)));
+        BigDecimal exitLevel = new BigDecimal(spot.doubleValue() * (1 - vola.doubleValue() / Math.sqrt(DAYS_PER_YEAR / volaPeriod)));
 
         return getFairValue(option, exitLevel, vola);
 
     }
+
 
     public static void main(String[] args) {
 
