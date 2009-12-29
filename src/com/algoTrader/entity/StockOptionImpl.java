@@ -14,15 +14,6 @@ public class StockOptionImpl
     /**
      * The serial version UID of this class. Needed for serialization.
      */
-    private static final long serialVersionUID = -50149026516063517L;
-
-    /**
-     * @see com.algoTrader.entity.StockOption#getMargin()
-     */
-    public java.math.BigDecimal getMargin()
-    {
-        // @todo implement public java.math.BigDecimal getMargin()
-        return null;
-    }
+    private static final long serialVersionUID = 1581674306048589655L;
 
 }
