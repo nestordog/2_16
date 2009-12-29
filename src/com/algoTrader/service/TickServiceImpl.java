@@ -28,6 +28,7 @@ import org.supercsv.exception.SuperCSVException;
 import org.supercsv.exception.SuperCSVReflectionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.tidy.Tidy;
 
 import com.algoTrader.entity.Security;
@@ -287,6 +288,93 @@ public class TickServiceImpl extends TickServiceBase {
 
 
 
+    protected void handleRetrieveAllStockOptions(Security underlaying) throws ParseException, TransformerException, IOException {
+
+        String url = optionUrl + "&underlying=" + underlaying.getIsin() + "&expiration=&strike=";
+
+        GetMethod get = new GetMethod(url);
+
+        String content;
+        try {
+            HttpClient standardClient = HttpClientUtil.getStandardClient(true);
+            int status = standardClient.executeMethod(get);
+
+            if (status == HttpStatus.SC_NOT_FOUND) {
+                logger.warn("invalid option request: underlying=" + underlaying.getIsin());
+                return;
+            }else if (status != HttpStatus.SC_OK) {
+                logger.warn("invalid option request: underlying=" + underlaying.getIsin());
+                return;
+            }
+
+            // get the content
+            InputStream in = get.getResponseBodyAsStream();
+            StringBuffer out = new StringBuffer();
+            byte[] b = new byte[1024];
+            for (int n; (n = in.read(b)) != -1;) {
+                out.append(new String(b, 0, n));
+            }
+            in.close();
+            content = out.toString();
+
+        } finally {
+            get.releaseConnection();
+        }
+
+        // parse the Document using Tidy
+        Tidy tidy = TidyUtil.getInstance();
+        Document listDocument = tidy.parseDOM(new ByteArrayInputStream(content.getBytes()), null);
+
+        // save the file
+        XmlUtil.saveDocumentToFile(listDocument, underlaying.getIsin() + "_all.xml", "results/options/", false);
+
+        NodeIterator iterator = XPathAPI.selectNodeIterator(listDocument, "//a[@class='list']/@href");
+
+        Node node;
+        while ((node = iterator.nextNode()) != null) {
+
+            StockOption option = new StockOptionImpl();
+
+            String param = node.getNodeValue().split("=")[1];
+
+            String isin = param.split("_")[0];
+            String market = param.split("_")[1];
+            String currency = param.split("_")[2];
+
+            option.setIsin(isin);
+            option.setMarket(Market.fromString(market));
+            option.setCurrency(Currency.fromString(currency));
+
+            Document optionDocument = getSecurityDocument(option);
+
+            String typeValue = getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[1]/strong");
+            OptionType type = OptionType.fromString(typeValue.split("\\s")[0].toUpperCase());
+
+            String strikeValue = getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[2]/strong");
+            BigDecimal strike = BigDecimalUtil.getBigDecimal(getAmount(strikeValue));
+
+            String dateValue = getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[4]/strong");
+            Date expirationDate = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss").parse(dateValue + " 13:00:00");
+
+            String symbolValue = XPathAPI.selectSingleNode(optionDocument, "//body/div[1]//h1/text()[2]").getNodeValue();
+            String symbol = symbolValue.split("\\(")[0].trim().substring(1);
+
+            String contractSizeValue = getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[3]/strong");
+            int contractSize = (int)Double.parseDouble(contractSizeValue);
+
+            option.setType(type);
+            option.setStrike(strike);
+            option.setExpiration(expirationDate);
+            option.setSymbol(symbol);
+            option.setContractSize(contractSize);
+
+            option.setUnderlaying(underlaying);
+
+            getSecurityDao().create(option);
+        }
+    }
+
+
     private void run() throws SuperCSVReflectionException, IOException, InterruptedException {
 
         getCepService().runAll();
@@ -367,7 +455,7 @@ public class TickServiceImpl extends TickServiceBase {
 
     private static double getAmount(String inputString) throws ParseException {
 
-        if ("-".equals(inputString)) return 0;
+        if (inputString.contains("-")) return 0;
 
         int index = inputString.indexOf(" ");
         if (index == -1) {
@@ -377,7 +465,7 @@ public class TickServiceImpl extends TickServiceBase {
     }
 
     private static Date getDate(String date) throws ParseException {
-
+        if (date.startsWith("null")) return null;
         return new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(date);
     }
 }
