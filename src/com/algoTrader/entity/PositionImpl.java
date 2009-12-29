@@ -5,6 +5,10 @@
  */
 package com.algoTrader.entity;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import com.algoTrader.util.CustomToStringStyle;
+
 /**
  * @see com.algoTrader.entity.Position
  */
@@ -14,33 +18,15 @@ public class PositionImpl
     /**
      * The serial version UID of this class. Needed for serialization.
      */
-    private static final long serialVersionUID = -896124434195796299L;
+    private static final long serialVersionUID = -886417007842623405L;
 
     /**
-     * @see com.algoTrader.entity.Position#getPrice()
+     * @see com.algoTrader.entity.Position#toString()
      */
-    public java.math.BigDecimal getPrice()
+    public java.lang.String toString()
     {
-        // @todo implement public java.math.BigDecimal getPrice()
-        return null;
-    }
+        return ToStringBuilder.reflectionToString(this, CustomToStringStyle.getInstance());
 
-    /**
-     * @see com.algoTrader.entity.Position#getChange()
-     */
-    public java.math.BigDecimal getChange()
-    {
-        // @todo implement public java.math.BigDecimal getChange()
-        return null;
-    }
-
-    /**
-     * @see com.algoTrader.entity.Position#getChangePercent()
-     */
-    public double getChangePercent()
-    {
-        // @todo implement public double getChangePercent()
-        return 0;
     }
 
 }
