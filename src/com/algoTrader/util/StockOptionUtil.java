@@ -9,6 +9,8 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolver;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
+import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.enumeration.OptionType;
@@ -34,6 +36,7 @@ public class StockOptionUtil {
     private static double intrest = Double.parseDouble(PropertiesUtil.getProperty("intrest"));
     private static double dividend = Double.parseDouble(PropertiesUtil.getProperty("dividend"));
     private static double volaPeriod = Double.parseDouble(PropertiesUtil.getProperty("volaPeriod"));
+    private static double marginParameter = Double.parseDouble(PropertiesUtil.getProperty("marginParameter"));
 
     // Black-Scholes formula
     public static double getOptionPrice(double spot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
@@ -80,6 +83,23 @@ public class StockOptionUtil {
 
     }
 
+    public static BigDecimal getMargin(StockOption option, BigDecimal settlement, BigDecimal underlaying) throws ConvergenceException, FunctionEvaluationException {
+
+        double marginLevel = underlaying.doubleValue() * (1.0 - marginParameter);
+
+        double strike = option.getStrike().doubleValue();
+
+        double years = (option.getExpiration().getTime() - (new Date()).getTime()) / MILLISECONDS_PER_YEAR ;
+
+        double volatility = StockOptionUtil.getVolatility(underlaying.doubleValue(), strike , settlement.doubleValue(), years, intrest, dividend, option.getType());
+
+        double margin = getOptionPrice(marginLevel, strike, volatility, years, intrest, dividend, option.getType());
+
+        int contractSize = option.getContractSize();
+
+        return BigDecimalUtil.getBigDecimal(margin * contractSize);
+    }
+
     public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
 
         /*
@@ -102,19 +122,26 @@ public class StockOptionUtil {
         double callValue     = 100.6;
         double putValue     = 84.7;
 
-
+        /*
         System.out.println(getOptionPrice(spot, strike, vola, years, intrest, dividend, OptionType.CALL));
         System.out.println(getOptionPrice(spot, strike, vola, years, intrest, dividend, OptionType.PUT));
         System.out.println(getVolatility(spot, strike, callValue, years, intrest, dividend, OptionType.CALL));
         System.out.println(getVolatility(spot, strike, putValue, years, intrest, dividend, OptionType.PUT));
-
-        /*
-        ServiceLocator locator = ServiceLocator.instance();
-        StockOption option = (StockOption)locator.getEntityService().getSecurity(1);
-
-        System.out.println(getFairValue(option, 6595, 0.1658));
-        System.out.println(getExitValue(option, 6595, 0.1658));
         */
+
+        ServiceLocator locator = ServiceLocator.instance();
+        StockOption option = (StockOption)locator.getEntityService().getSecurity(75);
+
+        //System.out.println(getFairValue(option, 6595, 0.1658));
+        //System.out.println(getExitValue(option, 6595, 0.1658));
+
+        Position position = option.getPosition();
+        BigDecimal settlement = new BigDecimal(49.70);
+        BigDecimal underlaying = new BigDecimal(6608.44);
+
+        //System.out.println(getMargin(option, settlement, underlaying));
+
+        locator.getTransactionService().setMargin(position, settlement, underlaying);
 
     }
 }
