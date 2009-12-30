@@ -1,5 +1,7 @@
 package com.algoTrader.service;
 
+import java.util.List;
+
 import com.algoTrader.entity.Account;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Rule;
@@ -57,5 +59,10 @@ public class EntityServiceImpl extends com.algoTrader.service.EntityServiceBase 
     protected Transaction[] handleGetAllTransactions() throws Exception {
 
         return (Transaction[])getTransactionDao().loadAll().toArray(new Transaction[0]);
+    }
+
+    protected Security[] handleGetAllSecuritiesInPortfolio() throws Exception {
+
+        return (Security[])getSecurityDao().findSecuritesInPortfolio().toArray(new Security[0]);
     }
 }
