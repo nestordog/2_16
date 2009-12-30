@@ -95,7 +95,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         return quantity;
     }
 
-    protected void handleExpireTransactions() throws Exception {
+    protected void handleExpireOptions() throws Exception {
 
         List list = getPositionDao().findExpiredPositions();
 
