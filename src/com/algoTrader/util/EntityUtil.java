@@ -5,9 +5,9 @@ import com.algoTrader.entity.Security;
 
 public class EntityUtil {
 
-    public static Security[] getAllSecurities() {
+    public static Security[] getSecuritiesInPortfolio() {
 
         ServiceLocator serviceLocator = ServiceLocator.instance();
-        return (Security[])serviceLocator.getEntityService().getAllSecurities();
+        return serviceLocator.getEntityService().getAllSecuritiesInPortfolio();
     }
 }
