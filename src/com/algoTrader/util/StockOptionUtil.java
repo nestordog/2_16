@@ -70,7 +70,7 @@ public class StockOptionUtil {
 
         double years = (option.getExpiration().getTime() - (new Date()).getTime()) / MILLISECONDS_PER_YEAR ;
 
-        return BigDecimalUtil.getBigDecimal(getOptionPrice(spot.doubleValue(), option.getStrike().doubleValue(), vola.doubleValue(), years, intrest, dividend, option.getType()));
+        return SwissquoteUtil.getBigDecimal(getOptionPrice(spot.doubleValue(), option.getStrike().doubleValue(), vola.doubleValue(), years, intrest, dividend, option.getType()));
     }
 
     public static BigDecimal getExitValue(Security security, BigDecimal spot, BigDecimal vola) {
@@ -97,7 +97,7 @@ public class StockOptionUtil {
 
         int contractSize = option.getContractSize();
 
-        return BigDecimalUtil.getBigDecimal(margin * contractSize);
+        return SwissquoteUtil.getBigDecimal(margin * contractSize);
     }
 
     public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
@@ -141,7 +141,7 @@ public class StockOptionUtil {
 
         //System.out.println(getMargin(option, settlement, underlaying));
 
-        locator.getTransactionService().setMargin(position, settlement, underlaying);
+        locator.getStockOptionService().setMargin(position, settlement, underlaying);
 
     }
 }
