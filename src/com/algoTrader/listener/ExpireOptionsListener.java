@@ -17,7 +17,7 @@ public class ExpireOptionsListener implements StatementAwareUpdateListener {
     public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement,
             EPServiceProvider epServiceProvider) {
 
-        ServiceLocator.instance().getTransactionService().expireOptions();
+        ServiceLocator.instance().getStockOptionService().expireStockOptions();
 
         logger.info(new Date(epServiceProvider.getEPRuntime().getCurrentTime()) + " expired options");
     }

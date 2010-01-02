@@ -19,8 +19,8 @@ public class ClosePositionSubscriber {
         ServiceLocator serviceLocator = ServiceLocator.instance();
         serviceLocator.getTransactionService().executeTransaction(quantity, security, current);
 
-        serviceLocator.getCepService().stop("closePosition");
-        serviceLocator.getCepService().stop("setExitValue");
+        serviceLocator.getRuleService().deactivate("closePosition");
+        serviceLocator.getRuleService().deactivate("setExitValue");
 
         logger.info(date + " close position " + security.getSymbol() + " at " + current);
 

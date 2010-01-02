@@ -15,7 +15,7 @@ public class SetMarginSubscriber {
     public void update(Date date, Position position, BigDecimal settlement, BigDecimal underlaying) {
 
         ServiceLocator serviceLocator = ServiceLocator.instance();
-        serviceLocator.getTransactionService().setMargin(position, settlement, underlaying);
+        serviceLocator.getStockOptionService().setMargin(position, settlement, underlaying);
 
         logger.info(date + " setMargin for " + position);
     }
