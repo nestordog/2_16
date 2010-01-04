@@ -1,11 +1,10 @@
 package com.algoTrader.service;
 
-import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Iterator;
 
 import com.algoTrader.entity.Rule;
-import com.algoTrader.util.CustomDate;
 import com.algoTrader.util.EsperService;
 import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPServiceProvider;
@@ -28,19 +27,34 @@ public class RuleServiceImpl extends RuleServiceBase {
     protected void handleActivate(String ruleName) throws Exception {
 
         Rule rule = getRuleDao().findByName(ruleName);
-        activate(rule);
+        activate(rule, rule.getDefinition());
+    }
+
+    protected void handleActivate(String ruleName, String[] parameters) throws Exception {
+
+        Rule rule = getRuleDao().findByName(ruleName);
+
+        MessageFormat format = new MessageFormat(rule.getDefinition());
+        String definition = format.format(parameters);
+
+        activate(rule, definition);
     }
 
     protected void handleActivate(Rule rule) throws java.lang.Exception {
+
+        activate(rule, rule.getDefinition());
+    }
+
+    private void activate(Rule rule, String definition) throws java.lang.Exception {
 
         EPServiceProvider cep = EsperService.getEPServiceInstance();
         EPAdministrator cepAdm = cep.getEPAdministrator();
 
         EPStatement cepStatement;
         if (rule.isPattern()) {
-            cepStatement = cepAdm.createPattern(rule.getDefinition(), rule.getName());
+            cepStatement = cepAdm.createPattern(definition, rule.getName());
         } else {
-            cepStatement = cepAdm.createEPL(rule.getDefinition(), rule.getName());
+            cepStatement = cepAdm.createEPL(definition, rule.getName());
         }
 
         if (rule.getSubscriber() != null) {
