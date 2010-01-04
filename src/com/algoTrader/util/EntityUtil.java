@@ -10,4 +10,11 @@ public class EntityUtil {
         ServiceLocator serviceLocator = ServiceLocator.instance();
         return serviceLocator.getEntityService().getAllSecuritiesInPortfolio();
     }
+
+    public static Security[] getDummySecurities() {
+
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        Security[] securities = serviceLocator.getEntityService().getDummySecurities();
+        return securities;
+    }
 }
