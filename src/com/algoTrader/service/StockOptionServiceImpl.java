@@ -19,6 +19,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.math.ConvergenceException;
 import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
@@ -39,6 +40,7 @@ import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.HttpClientUtil;
+import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.StockOptionUtil;
 import com.algoTrader.util.SwissquoteUtil;
 import com.algoTrader.util.TidyUtil;
@@ -47,6 +49,11 @@ import com.algoTrader.util.XmlUtil;
 public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionServiceBase {
 
     private static final String optionUrl = "http://www.swissquote.ch/sq_mi/market/derivatives/optionfuture/OptionFuture.action?market=eu&type=option&sector=&group=id&type=option";
+
+    private static Market market = Market.fromString(PropertiesUtil.getProperty("simulation.market"));
+    private static Currency currency = Currency.fromString(PropertiesUtil.getProperty("simulation.currency"));
+    private static OptionType optionType = OptionType.fromString(PropertiesUtil.getProperty("simulation.optionType"));
+    private static int contractSize = Integer.parseInt(PropertiesUtil.getProperty("simulation.contractSize"));
 
     private static Logger logger = Logger.getLogger(StockOptionServiceImpl.class.getName());
 
@@ -283,13 +290,47 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         getPositionDao().update(position);
     }
 
-    protected StockOption handleCreateStockOption(Security underlaying, Date expiration, BigDecimal strike,
-            OptionType type) throws Exception {
-        // TODO handleCreateStockOption
-        return null;
+    protected StockOption handleCreateDummyStockOption(Security underlaying, Date expiration, BigDecimal strike, OptionType type) throws Exception {
+
+        // set third Friday of the month
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(expiration);
+        cal.set(Calendar.WEEK_OF_MONTH, 3);
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+        expiration = cal.getTime();
+
+        // round to 50.-
+        double rounded = MathUtils.round(strike.doubleValue()/ 50.0, 0, BigDecimal.ROUND_FLOOR) * 50.0;
+        strike = new BigDecimal(rounded).setScale(2, BigDecimal.ROUND_HALF_UP);
+
+        // symbol
+        String symbol = "O" +
+        underlaying.getSymbol() + " " +
+        new SimpleDateFormat("MMM").format(cal.getTime()).toUpperCase() + "/" +
+        (cal.get(Calendar.YEAR) + "-").substring(2) +
+        type.toString().substring(0, 1) + " " +
+        strike.intValue() + " " +
+        contractSize;
+
+        StockOption stockOption = new StockOptionImpl();
+        stockOption.setIsin(null); // dummys don't have a isin
+        stockOption.setSymbol(symbol);
+        stockOption.setMarket(market);
+        stockOption.setCurrency(currency);
+        stockOption.setOnWatchlist(false);
+        stockOption.setDummy(true);
+        stockOption.setStrike(strike);
+        stockOption.setExpiration(expiration);
+        stockOption.setType(type);
+        stockOption.setContractSize(contractSize);
+        stockOption.setUnderlaying(underlaying);
+
+        getStockOptionDao().create(stockOption);
+
+        return stockOption;
     }
 
-    protected StockOption handleFindStockOption(Security underlaying, Date expiration, BigDecimal strike,
+    protected StockOption handleFindNearestStockOption(Security underlaying, Date expiration, BigDecimal strike,
             OptionType type) throws Exception {
 
            StockOptionCriteria criteria = new StockOptionCriteria(underlaying, expiration, strike, type);
