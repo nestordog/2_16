@@ -6,6 +6,7 @@ import com.algoTrader.entity.Account;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Rule;
 import com.algoTrader.entity.Security;
+import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Transaction;
 
 public class EntityServiceImpl extends com.algoTrader.service.EntityServiceBase {
@@ -64,5 +65,10 @@ public class EntityServiceImpl extends com.algoTrader.service.EntityServiceBase 
     protected Security[] handleGetAllSecuritiesInPortfolio() throws Exception {
 
         return (Security[])getSecurityDao().findSecuritesInPortfolio().toArray(new Security[0]);
+    }
+
+    protected Security[] handleGetDummySecurities() throws Exception {
+
+        return (Security[])getSecurityDao().findDummySecurities().toArray(new Security[0]);
     }
 }
