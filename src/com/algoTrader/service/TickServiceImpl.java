@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.xml.transform.TransformerException;
 
 import org.apache.log4j.Logger;
+import org.apache.xpath.XPathAPI;
 import org.supercsv.exception.SuperCSVReflectionException;
 import org.w3c.dom.Document;
 
@@ -82,9 +83,16 @@ public class TickServiceImpl extends TickServiceBase {
         securities.remove(security);
     }
 
-    protected Tick handleRetrieveTick(Security security) throws ParseException, TransformerException, IOException {
+    protected Tick handleRetrieveTick(Security security) throws Exception {
 
         Document document = SwissquoteUtil.getSecurityDocument(security);
+
+        if (XPathAPI.selectSingleNode(document, "//a[contains(.,'Der Markt ist geschlossen')]") != null) {
+            // market closed
+            return null;
+        } else if (XPathAPI.selectSingleNode(document, "//td[contains(.,'Error - Wrong instrument')]") != null) {
+            throw new Exception("Wrong Instrument returned for " + security);
+        }
 
         Tick tick = new TickImpl();
 
@@ -173,7 +181,7 @@ public class TickServiceImpl extends TickServiceBase {
         return tick;
     }
 
-    protected Tick handleRetrieveTick(String isin) throws IOException, ParseException, TransformerException {
+    protected Tick handleRetrieveTick(String isin) throws Exception {
 
         Security security = getSecurityDao().findByISIN(isin);
         return handleRetrieveTick(security);
