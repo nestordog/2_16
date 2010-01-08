@@ -1,11 +1,22 @@
 package com.algoTrader.util;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import org.w3c.tidy.Tidy;
 
 
 public class TidyUtil {
+
+    private static class NullOutputStream extends OutputStream {
+
+        public synchronized void write(byte[] b, int off, int len) {}
+
+        public synchronized void write(int b) {}
+
+        public void write(byte[] b) throws IOException {}
+    }
 
     private static Tidy _tidy;
 
