@@ -36,7 +36,7 @@ public class HttpClientUtil {
 
     private static String userAgent = PropertiesUtil.getProperty("userAgent");
 
-    private static Logger logger = Logger.getLogger(HttpClientUtil.class.getName());
+    private static Logger logger = MyLogger.getLogger(HttpClientUtil.class.getName());
 
     private static HttpClient _standardClient;
     private static Map _loggedInClients = new HashMap();

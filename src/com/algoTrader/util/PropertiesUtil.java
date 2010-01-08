@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 public class PropertiesUtil {
 
     private static Properties props;
-    private static Logger logger = Logger.getLogger(PropertiesUtil.class.getName());
+    private static Logger logger = MyLogger.getLogger(PropertiesUtil.class.getName());
     private static String fileName = "/conf.properties";
 
     public static String getProperty(String key) {

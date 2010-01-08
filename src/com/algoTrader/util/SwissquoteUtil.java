@@ -28,7 +28,7 @@ public class SwissquoteUtil {
     private static String userId = PropertiesUtil.getProperty("swissquote.userId");
     private static String password = PropertiesUtil.getProperty("swissquote.password");
 
-    private static Logger logger = Logger.getLogger(SwissquoteUtil.class.getName());
+    private static Logger logger = MyLogger.getLogger(SwissquoteUtil.class.getName());
 
     private static String tickUrl = "http://www.swissquote.ch/sq_mi/public/market/Detail.action?s=";
 
@@ -68,7 +68,7 @@ public class SwissquoteUtil {
         Document document = tidy.parseDOM(new ByteArrayInputStream(content.getBytes()), null);
 
         // save the file
-        XmlUtil.saveDocumentToFile(document, security.getIsin() + ".xml", "results/swissquote/", false);
+        XmlUtil.saveDocumentToFile(document, security.getIsin() + ".xml", "results/option/", false);
         return document;
     }
 

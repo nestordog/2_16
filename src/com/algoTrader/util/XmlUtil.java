@@ -30,7 +30,7 @@ public class XmlUtil {
 
     private static boolean saveToFile = new Boolean(PropertiesUtil.getProperty("saveToFile")).booleanValue();
 
-    private static Logger logger = Logger.getLogger(XmlUtil.class.getName());
+    private static Logger logger = MyLogger.getLogger(XmlUtil.class.getName());
 
     public static void saveDocumentToFile(Document node, String fileName, String directory, boolean force) {
 
