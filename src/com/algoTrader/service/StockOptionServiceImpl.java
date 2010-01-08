@@ -40,6 +40,7 @@ import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.HttpClientUtil;
+import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.StockOptionUtil;
 import com.algoTrader.util.SwissquoteUtil;
@@ -54,8 +55,115 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private static Currency currency = Currency.fromString(PropertiesUtil.getProperty("simulation.currency"));
     private static OptionType optionType = OptionType.fromString(PropertiesUtil.getProperty("simulation.optionType"));
     private static int contractSize = Integer.parseInt(PropertiesUtil.getProperty("simulation.contractSize"));
+    private static boolean simulation = new Boolean(PropertiesUtil.getProperty("simulation")).booleanValue();
+    private static String isin = PropertiesUtil.getProperty("simulation.isin");
 
-    private static Logger logger = Logger.getLogger(StockOptionServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
+
+    protected void handleExpireStockOptions() throws Exception {
+
+        List list = getPositionDao().findExpiredPositions();
+
+        for (Iterator it = list.iterator(); it.hasNext();) {
+
+            Position position = (Position) it.next();
+
+            // StockOption
+            StockOption stockOption = (StockOptionImpl) position.getSecurity();
+
+            // Account
+            Account account = getAccountDao().load(position.getAccount().getId());
+
+            // Transaction
+            Transaction transaction = new TransactionImpl();
+
+            transaction.setNumber(0); // we dont habe a number
+            transaction.setDateTime(stockOption.getExpiration());
+            transaction.setQuantity(-position.getQuantity());
+            transaction.setPrice(new BigDecimal(0));
+            transaction.setCommission(new BigDecimal(0));
+            transaction.setType(TransactionType.EXPIRATION);
+            transaction.setSecurity(stockOption);
+
+            transaction.setAccount(account);
+            account.getTransactions().add(transaction);
+
+            // attach the object
+            position.setQuantity(0);
+            position.setExitValue(new BigDecimal(0));
+            position.setMargin(new BigDecimal(0));
+
+            position.getTransactions().add(transaction);
+            transaction.setPosition(position);
+
+            getPositionDao().update(position);
+            getTransactionDao().create(transaction);
+            getAccountDao().update(account);
+
+            logger.info("expired " + stockOption.getSymbol());
+        }
+    }
+
+    protected void handleSetMargins() throws ConvergenceException, FunctionEvaluationException {
+
+        List list = getPositionDao().findOpenPositions();
+
+        for (Iterator it = list.iterator(); it.hasNext(); ) {
+
+            Position position = (Position)it.next();
+
+            StockOption stockOption$ = (StockOption) position.getSecurity();
+            BigDecimal settlement = stockOption$.getLastTick().getSettlement();
+            BigDecimal underlaying = stockOption$.getUnderlaying().getCurrentValue();
+
+            if (underlaying == null) continue; // we dont have a current value yet
+
+
+            BigDecimal margin = StockOptionUtil.getMargin(stockOption$, settlement, underlaying);
+
+            int quantity = Math.abs(position.getQuantity());
+            position.setMargin(margin.multiply(new BigDecimal(quantity)));
+
+            getPositionDao().update(position);
+
+            logger.info("set margin for " + stockOption$.getSymbol() + " to " + margin);
+        }
+    }
+
+    protected StockOption handlePutOnWatchlist() throws Exception {
+
+        Security underlaying = getSecurityDao().findByISIN(isin);
+        BigDecimal spot = underlaying.getCurrentValue();
+
+        if (spot == null) return null; // we dont have a current value yet
+
+        StockOption stockOption;
+        if (simulation) {
+
+            stockOption = findNearestStockOption(underlaying, new Date(), spot, optionType);
+            if (stockOption == null) stockOption = createDummyStockOption(underlaying, new Date(), spot, optionType);
+
+        } else {
+
+            stockOption = findNearestStockOption(underlaying, new Date(), spot, optionType);
+        }
+
+        stockOption.setOnWatchlist(true);
+        getStockOptionDao().update(stockOption);
+
+        logger.info("put stockOption on watchlist " + stockOption.getSymbol());
+
+        return stockOption;
+    }
+
+    protected void handleSetExitValue(Position position, BigDecimal exitValue) {
+
+        Position newpos = getPositionDao().load(position.getId());
+        newpos.setExitValue(exitValue);
+        getPositionDao().update(newpos);
+
+        logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + exitValue);
+    }
 
     protected StockOption handleRetrieveStockOption(Security underlaying, Date expiration, BigDecimal strike,
             OptionType type) throws ParseException, TransformerException, IOException {
@@ -108,7 +216,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         XmlUtil.saveDocumentToFile(listDocument, underlaying.getIsin() + "_" + exp + "_" + strike.longValue() + ".xml",
                 "results/options/", false);
 
-        StockOption option = new StockOptionImpl();
+        StockOption stockOption = new StockOptionImpl();
 
         String optionUrl = XPathAPI.selectSingleNode(listDocument,
                 "//td[contains(a/@class,'list')][" + (OptionType.CALL.equals(type) ? 1 : 2) + "]/a/@href")
@@ -118,14 +226,14 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         String market = param.split("_")[1];
         String currency = param.split("_")[2];
 
-        option.setIsin(isin);
-        option.setMarket(Market.fromString(market));
-        option.setCurrency(Currency.fromString(currency));
+        stockOption.setIsin(isin);
+        stockOption.setMarket(Market.fromString(market));
+        stockOption.setCurrency(Currency.fromString(currency));
 
-        option.setType(type);
-        option.setStrike(strike);
+        stockOption.setType(type);
+        stockOption.setStrike(strike);
 
-        Document optionDocument = SwissquoteUtil.getSecurityDocument(option);
+        Document optionDocument = SwissquoteUtil.getSecurityDocument(stockOption);
 
         String dateValue = SwissquoteUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[4]/strong");
         Date expirationDate = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss").parse(dateValue + " 13:00:00");
@@ -137,13 +245,15 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         String symbolValue = XPathAPI.selectSingleNode(optionDocument, "//body/div[1]//h1/text()[2]").getNodeValue();
         String symbol = symbolValue.split("\\(")[0].trim().substring(1);
 
-        option.setExpiration(expirationDate);
-        option.setSymbol(symbol);
-        option.setContractSize(contractSize);
+        stockOption.setExpiration(expirationDate);
+        stockOption.setSymbol(symbol);
+        stockOption.setContractSize(contractSize);
 
-        option.setUnderlaying(underlaying);
+        stockOption.setUnderlaying(underlaying);
 
-        return option;
+        logger.debug("retrieved option " + stockOption.getSymbol());
+
+        return stockOption;
     }
 
     protected void handleRetrieveAllStockOptions(Security underlaying) throws ParseException, TransformerException,
@@ -192,7 +302,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         Node node;
         while ((node = iterator.nextNode()) != null) {
 
-            StockOption option = new StockOptionImpl();
+            StockOption stockOption = new StockOptionImpl();
 
             String param = node.getNodeValue().split("=")[1];
 
@@ -200,11 +310,11 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             String market = param.split("_")[1];
             String currency = param.split("_")[2];
 
-            option.setIsin(isin);
-            option.setMarket(Market.fromString(market));
-            option.setCurrency(Currency.fromString(currency));
+            stockOption.setIsin(isin);
+            stockOption.setMarket(Market.fromString(market));
+            stockOption.setCurrency(Currency.fromString(currency));
 
-            Document optionDocument = SwissquoteUtil.getSecurityDocument(option);
+            Document optionDocument = SwissquoteUtil.getSecurityDocument(stockOption);
 
             String typeValue = SwissquoteUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[1]/strong");
             OptionType type = OptionType.fromString(typeValue.split("\\s")[0].toUpperCase());
@@ -223,74 +333,21 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
                     "//table[tr/td='Datum']/tr[10]/td[3]/strong");
             int contractSize = (int) Double.parseDouble(contractSizeValue);
 
-            option.setType(type);
-            option.setStrike(strike);
-            option.setExpiration(expirationDate);
-            option.setSymbol(symbol);
-            option.setContractSize(contractSize);
+            stockOption.setType(type);
+            stockOption.setStrike(strike);
+            stockOption.setExpiration(expirationDate);
+            stockOption.setSymbol(symbol);
+            stockOption.setContractSize(contractSize);
 
-            option.setUnderlaying(underlaying);
+            stockOption.setUnderlaying(underlaying);
 
-            getSecurityDao().create(option);
+            getSecurityDao().create(stockOption);
+
+            logger.debug("retrieved option " + stockOption.getSymbol());
         }
     }
 
-    protected void handleExpireStockOptions() throws Exception {
-
-        List list = getPositionDao().findExpiredPositions();
-
-        for (Iterator it = list.iterator(); it.hasNext();) {
-
-            Position position = (Position) it.next();
-
-            // StockOption
-            StockOption option = (StockOptionImpl) position.getSecurity();
-
-            // Account
-            Account account = getAccountDao().load(position.getAccount().getId());
-
-            // Transaction
-            Transaction transaction = new TransactionImpl();
-
-            transaction.setNumber(0); // we dont habe a number
-            transaction.setDateTime(option.getExpiration());
-            transaction.setQuantity(-position.getQuantity());
-            transaction.setPrice(new BigDecimal(0));
-            transaction.setCommission(new BigDecimal(0));
-            transaction.setType(TransactionType.EXPIRATION);
-            transaction.setSecurity(option);
-
-            transaction.setAccount(account);
-            account.getTransactions().add(transaction);
-
-            // attach the object
-            position.setQuantity(0);
-            position.setExitValue(new BigDecimal(0));
-            position.setMargin(new BigDecimal(0));
-
-            position.getTransactions().add(transaction);
-            transaction.setPosition(position);
-
-            getPositionDao().update(position);
-            getTransactionDao().create(transaction);
-            getAccountDao().update(account);
-        }
-    }
-
-    protected void handleSetMargin(Position position, BigDecimal settlement, BigDecimal underlaying)
-            throws ConvergenceException, FunctionEvaluationException {
-
-        StockOption option = (StockOption) position.getSecurity();
-
-        BigDecimal margin = StockOptionUtil.getMargin(option, settlement, underlaying);
-
-        int quantity = Math.abs(position.getQuantity());
-        position.setMargin(margin.multiply(new BigDecimal(quantity)));
-
-        getPositionDao().update(position);
-    }
-
-    protected StockOption handleCreateDummyStockOption(Security underlaying, Date expiration, BigDecimal strike, OptionType type) throws Exception {
+    private StockOption createDummyStockOption(Security underlaying, Date expiration, BigDecimal strike, OptionType type) throws Exception {
 
         // set third Friday of the month
         Calendar cal = new GregorianCalendar();
@@ -327,10 +384,12 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         getStockOptionDao().create(stockOption);
 
+        logger.info("created dummy option " + stockOption.getSymbol());
+
         return stockOption;
     }
 
-    protected StockOption handleFindNearestStockOption(Security underlaying, Date expiration, BigDecimal strike,
+    private StockOption findNearestStockOption(Security underlaying, Date expiration, BigDecimal strike,
             OptionType type) throws Exception {
 
            StockOptionCriteria criteria = new StockOptionCriteria(underlaying, expiration, strike, type);
@@ -338,5 +397,4 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
            return (StockOption)getStockOptionDao().findByCriteria(criteria).get(0);
     }
-
 }
