@@ -3,10 +3,11 @@ package com.algoTrader.subscriber;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.Tick;
+import com.algoTrader.util.MyLogger;
 
 public class PrintTickSubscriber {
 
-    private static Logger logger = Logger.getLogger(PrintTickSubscriber.class.getName());
+    private static Logger logger = MyLogger.getLogger(PrintTickSubscriber.class.getName());
 
     public void update(Tick tick) {
 
