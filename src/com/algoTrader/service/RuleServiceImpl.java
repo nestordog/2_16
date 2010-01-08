@@ -4,8 +4,11 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.log4j.Logger;
+
 import com.algoTrader.entity.Rule;
 import com.algoTrader.util.EsperService;
+import com.algoTrader.util.MyLogger;
 import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
@@ -13,6 +16,8 @@ import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
 
 public class RuleServiceImpl extends RuleServiceBase {
+
+    private static Logger logger = MyLogger.getLogger(RuleServiceImpl.class.getName());
 
     protected void handleActivateAll() throws java.lang.Exception {
 
@@ -75,24 +80,36 @@ public class RuleServiceImpl extends RuleServiceBase {
                 }
             }
         }
+
+        logger.debug("activated rule " + rule.getName());
     }
 
     protected void handleDeactivate(String ruleName) throws Exception {
 
         EPServiceProvider cep = EsperService.getEPServiceInstance();
         EPStatement statement = cep.getEPAdministrator().getStatement(ruleName);
-        statement.destroy();
+
+        if (statement != null) {
+            statement.destroy();
+            logger.debug("deactivated rule " + ruleName);
+        } else {
+            logger.debug("rule to be deactivated does not exist: " + ruleName);
+        }
     }
 
     protected void handleDeactivateAll() throws Exception {
 
         EPServiceProvider cep = EsperService.getEPServiceInstance();
         cep.destroy();
+
+        logger.debug("activated all rules");
     }
 
     protected void handleSendEvent(Object object) throws java.lang.Exception {
 
         EPServiceProvider cep = EsperService.getEPServiceInstance();
         cep.getEPRuntime().sendEvent(object);
+
+        logger.debug("sent event " + object);
     }
 }
