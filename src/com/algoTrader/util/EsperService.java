@@ -26,4 +26,9 @@ public class EsperService {
         }
         return cep;
     }
+
+    public static boolean hasInstance() {
+
+        return (cep != null);
+    }
 }
