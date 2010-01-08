@@ -7,10 +7,11 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.util.MyLogger;
 
 public class ServiceInvoker {
 
-    private static Logger logger = Logger.getLogger(ServiceInvoker.class.getName());
+    private static Logger logger = MyLogger.getLogger(ServiceInvoker.class.getName());
     private static ServiceInvoker invoker;
 
     public static void main(String[] args) throws Exception {
