@@ -2,26 +2,22 @@ package com.algoTrader.service;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
-import org.apache.commons.math.ConvergenceException;
-import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.Account;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.PositionImpl;
 import com.algoTrader.entity.Security;
-import com.algoTrader.entity.StockOption;
-import com.algoTrader.entity.StockOptionImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.util.StockOptionUtil;
+import com.algoTrader.util.MyLogger;
 
 
 public class TransactionServiceImpl extends com.algoTrader.service.TransactionServiceBase {
 
+    private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
 
     protected int handleExecuteTransaction(int quantity, Security security, BigDecimal current)
             throws Exception {
@@ -92,7 +88,20 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         getAccountDao().update(account);
         getSecurityDao().update(security);
 
+        logger.info("executed transaction " + transaction + " on " + security.getSymbol());
+
         return quantity;
     }
 
+    protected void handleClosePosition(Position position) throws Exception {
+
+        Security security = position.getSecurity();
+        BigDecimal current = security.getCurrentValue();
+
+        if (current == null) return; // we dont have a current value yet
+
+        int quantity = - position.getQuantity();
+
+        executeTransaction(quantity, position.getSecurity(), current);
+    }
 }
