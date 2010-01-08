@@ -16,7 +16,7 @@
 			<attribute name="javadoc_location" value="file:/D:/esper-3.3.0/esper/doc/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar" sourcepath="D:/log4j-1.2.15/src/main/java"/>
 	<classpathentry kind="lib" path="lib/mailapi-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.10-bin.jar"/>
 	<classpathentry kind="lib" path="lib/serializer-2.7.1.jar"/>
@@ -33,7 +33,11 @@
 	<classpathentry kind="lib" path="lib/asm-attrs.jar"/>
 	<classpathentry kind="lib" path="lib/asm.jar"/>
 	<classpathentry kind="lib" path="lib/cglib-2.1.3.jar"/>
-	<classpathentry kind="lib" path="lib/ehcache-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/ehcache-1.1.jar" sourcepath="D:/ehcache-1.1-src/ehcache-1.1-src.zip">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/ehcache-1.1-src/ehcache-1.1-javadoc/docs/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/hibernate3.jar" sourcepath="D:/hibernate-3.1/src"/>
 	<classpathentry kind="lib" path="lib/jta.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar"/>
