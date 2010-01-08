@@ -8,4 +8,9 @@ public class DateUtil {
 
         return new Date(time);
     }
+
+    public static Date getCurrentEPTime() {
+
+        return new Date(EsperService.getEPServiceInstance().getEPRuntime().getCurrentTime());
+    }
 }
