@@ -16,6 +16,11 @@ public class EntityServiceImpl extends com.algoTrader.service.EntityServiceBase 
         return getSecurityDao().load(id);
     }
 
+    protected Security handleGetSecurityByIsin(String isin) throws Exception {
+
+        return getSecurityByIsin(isin);
+    }
+
     protected com.algoTrader.entity.Account handleGetAccount(int id) throws java.lang.Exception {
 
         return getAccountDao().load(id);
