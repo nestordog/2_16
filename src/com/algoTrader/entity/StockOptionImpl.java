@@ -5,6 +5,10 @@
  */
 package com.algoTrader.entity;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import com.algoTrader.util.CustomToStringStyle;
+
 /**
  * @see com.algoTrader.entity.StockOption
  */
@@ -16,4 +20,7 @@ public class StockOptionImpl
      */
     private static final long serialVersionUID = 1581674306048589655L;
 
+    public java.lang.String toString() {
+        return ToStringBuilder.reflectionToString(this, CustomToStringStyle.getInstance());
+    }
 }
