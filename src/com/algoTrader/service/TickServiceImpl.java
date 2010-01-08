@@ -2,15 +2,12 @@ package com.algoTrader.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.transform.TransformerException;
 
 import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
@@ -23,6 +20,7 @@ import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
 import com.algoTrader.util.CsvWriter;
 import com.algoTrader.util.EsperService;
+import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.SwissquoteUtil;
 
@@ -30,7 +28,7 @@ public class TickServiceImpl extends TickServiceBase {
 
     private static int timeout = Integer.parseInt(PropertiesUtil.getProperty("swissquote.timeout"));
 
-    private static Logger logger = Logger.getLogger(TickServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(TickServiceImpl.class.getName());
 
     private List securities = new ArrayList();
     private Map csvWriters = new HashMap();
@@ -50,6 +48,8 @@ public class TickServiceImpl extends TickServiceBase {
         CsvWriter csvWriter = new CsvWriter(security.getIsin());
 
         csvWriters.put(security, csvWriter);
+
+        logger.debug("started retrieving ticks for " + security.getSymbol());
     }
 
     protected void handleStart(List isins) throws Exception {
@@ -75,12 +75,14 @@ public class TickServiceImpl extends TickServiceBase {
     protected void handleStop(String isin) throws Exception {
 
         Security security = getSecurityDao().findByISIN(isin);
-        securities.remove(security);
+        stop(security);
     }
 
     protected void handleStop(Security security) throws Exception {
 
         securities.remove(security);
+        logger.debug("stopped retrieving ticks for " + security.getSymbol());
+
     }
 
     protected Tick handleRetrieveTick(Security security) throws Exception {
@@ -176,7 +178,7 @@ public class TickServiceImpl extends TickServiceBase {
 
         tick.setSecurity(security);
 
-        logger.debug(tick);
+        logger.debug("retrieved tick " + tick);
 
         return tick;
     }
@@ -196,10 +198,12 @@ public class TickServiceImpl extends TickServiceBase {
 
                 Tick tick = retrieveTick(security);
 
-                EsperService.getEPServiceInstance().getEPRuntime().sendEvent(tick);
+                if (tick != null) {
+                    EsperService.getEPServiceInstance().getEPRuntime().sendEvent(tick);
 
-                CsvWriter csvWriter = (CsvWriter)csvWriters.get(security);
-                csvWriter.writeTick(tick);
+                    CsvWriter csvWriter = (CsvWriter)csvWriters.get(security);
+                    csvWriter.writeTick(tick);
+                }
             }
 
             Thread.sleep(timeout);
