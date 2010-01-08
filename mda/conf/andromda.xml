@@ -57,7 +57,8 @@
                 <property name="sessionFactory">org.springframework.orm.hibernate3.LocalSessionFactoryBean</property>
                 <property name="localTransactionManager">org.springframework.orm.hibernate3.HibernateTransactionManager</property>
                 <property name="hibernateCacheProvider">org.hibernate.cache.EhCacheProvider</property>
-                <property name="hibernateQueryCacheFactory">org.hibernate.cache.StandardQueryCacheFactory</property>
+                <property name="hibernateQueryCacheFactory">com.algoTrader.util.CustomQueryCacheFactory</property>
+                <property name="hibernateEnableCache">true</property>
                 <property name="hibernateInheritanceStrategy">${hibernate.inheritance.strategy}</property>
                 <property name="springTypesPackage">${application.package}</property>
                 <property name="daos">${maven.andromda.core.generated.dir}</property>
@@ -73,8 +74,9 @@
         </namespace>
         <namespace name="hibernate">
             <properties>
-                <property name="hibernateEnableCache">false</property>
-                <property name="hibernateEnableAssociationsCache">false</property>
+                <property name="hibernateEnableCache">true</property>
+                <property name="hibernateEnableAssociationsCache">true</property>
+                <property name="hibernateUseQueryCache">true</property>
                 <property name="hibernateTypeMappingsUri">Hibernate</property>
                 <property name="hibernateInheritanceStrategy">${hibernate.inheritance.strategy}</property>
                 <property name="defaultHibernateGeneratorClass">${hibernate.generatorClass}</property>
