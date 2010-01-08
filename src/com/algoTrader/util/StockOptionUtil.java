@@ -141,8 +141,6 @@ public class StockOptionUtil {
 
         //System.out.println(getMargin(option, settlement, underlaying));
 
-        locator.getStockOptionService().setMargin(position, settlement, underlaying);
-
     }
 }
 
