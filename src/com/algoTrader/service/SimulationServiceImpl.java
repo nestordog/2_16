@@ -8,9 +8,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.algoTrader.entity.Security;
 import com.algoTrader.util.CustomDate;
 import com.algoTrader.util.EsperService;
+import com.algoTrader.util.MyLogger;
 import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.time.CurrentTimeEvent;
@@ -22,9 +25,9 @@ import com.espertech.esperio.InputAdapter;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 import com.espertech.esperio.csv.TickCSVInputAdapter;
 
-public class SimulationServiceImpl
-    extends com.algoTrader.service.SimulationServiceBase
-{
+public class SimulationServiceImpl extends SimulationServiceBase {
+
+    private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
 
     private static String[] propertyOrder = {
     "dateTime",
@@ -40,7 +43,8 @@ public class SimulationServiceImpl
 
     private static Map propertyTypes = new HashMap();
 
-    static {
+    public SimulationServiceImpl() {
+
         SimulationServiceImpl.propertyTypes.put("dateTime", CustomDate.class);
         SimulationServiceImpl.propertyTypes.put("last", BigDecimal.class);
         SimulationServiceImpl.propertyTypes.put("lastDateTime", CustomDate.class);
@@ -77,6 +81,8 @@ public class SimulationServiceImpl
 
         InputAdapter inputAdapter = new TickCSVInputAdapter(cep, spec, security);
         inputAdapter.start();
+
+        logger.debug("started simulation for security " + security.getIsin());
     }
 
     protected void handleSimulate(long startTime, List isins) throws Exception {
@@ -119,6 +125,8 @@ public class SimulationServiceImpl
 
             InputAdapter inputAdapter = new TickCSVInputAdapter(cep, spec, security);
             coordinator.coordinate(inputAdapter);
+
+            logger.debug("started simulation for security " + security.getIsin());
         }
         coordinator.start();
     }
