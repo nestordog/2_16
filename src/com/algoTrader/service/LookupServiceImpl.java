@@ -1,15 +1,14 @@
 package com.algoTrader.service;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 import com.algoTrader.entity.Account;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Rule;
 import com.algoTrader.entity.Security;
-import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Transaction;
 
-public class EntityServiceImpl extends com.algoTrader.service.EntityServiceBase {
+public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase {
 
     protected com.algoTrader.entity.Security handleGetSecurity(int id) throws java.lang.Exception {
 
@@ -75,5 +74,16 @@ public class EntityServiceImpl extends com.algoTrader.service.EntityServiceBase 
     protected Security[] handleGetDummySecurities() throws Exception {
 
         return (Security[])getSecurityDao().findDummySecurities().toArray(new Security[0]);
+    }
+
+    protected BigDecimal[] handleGetStrikesOnWatchlist() throws Exception {
+
+        return (BigDecimal[])getStockOptionDao().findStrikesOnWatchlist().toArray(new BigDecimal[0]);
+    }
+
+    protected void handleTest() throws Exception {
+
+        Account account = getAccountDao().load(1);
+        System.out.println(account);
     }
 }
