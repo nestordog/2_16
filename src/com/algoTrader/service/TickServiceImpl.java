@@ -191,22 +191,30 @@ public class TickServiceImpl extends TickServiceBase {
 
     protected void handleRun() throws SuperCSVReflectionException, IOException, InterruptedException {
 
-        while(true) {
+        (new Thread("AlgoTraderTickService") {
+            public void run() {
 
-            for (Iterator it = securities.iterator(); it.hasNext();) {
-                Security security = (Security)it.next();
+                while(true) {
+                    try {
+                        for (Iterator it = securities.iterator(); it.hasNext();) {
+                            Security security = (Security)it.next();
 
-                Tick tick = retrieveTick(security);
+                            Tick tick = retrieveTick(security);
 
-                if (tick != null) {
-                    EsperService.getEPServiceInstance().getEPRuntime().sendEvent(tick);
+                            if (tick != null) {
+                                EsperService.getEPServiceInstance().getEPRuntime().sendEvent(tick);
 
-                    CsvWriter csvWriter = (CsvWriter)csvWriters.get(security);
-                    csvWriter.writeTick(tick);
+                                CsvWriter csvWriter = (CsvWriter)csvWriters.get(security);
+                                csvWriter.writeTick(tick);
+                            }
+                        }
+                        Thread.sleep(timeout);
+                    } catch (Exception ex) {
+                        logger.error("error retrieving ticks ", ex);
+                    }
                 }
-            }
 
-            Thread.sleep(timeout);
-        }
+            }
+        }).start();
     }
 }
