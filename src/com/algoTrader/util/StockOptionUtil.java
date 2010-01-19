@@ -8,6 +8,7 @@ import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolver;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
+import org.apache.commons.math.util.MathUtils;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
@@ -64,13 +65,19 @@ public class StockOptionUtil {
         return solver.solve(function, 0.1, 0.99, 0.2);
     }
 
-    public static BigDecimal getFairValue(Security security, BigDecimal spot, BigDecimal vola) {
+    public static BigDecimal getFairValue(Security security, BigDecimal spot, BigDecimal vola) throws RuntimeException {
 
         StockOption option = (StockOption)security;
+        Date current_time = DateUtil.getCurrentEPTime();
 
-        double years = (option.getExpiration().getTime() - (new Date()).getTime()) / MILLISECONDS_PER_YEAR ;
+        double years = (option.getExpiration().getTime() - current_time.getTime()) / MILLISECONDS_PER_YEAR ;
 
-        return SwissquoteUtil.getBigDecimal(getOptionPrice(spot.doubleValue(), option.getStrike().doubleValue(), vola.doubleValue(), years, intrest, dividend, option.getType()));
+        if (years <0 ) {
+            throw new RuntimeException("cannot calculate OptionPrice for a negative time-period");
+        }
+
+        double fairValue = getOptionPrice(spot.doubleValue(), option.getStrike().doubleValue(), vola.doubleValue(), years, intrest, dividend, option.getType());
+        return SwissquoteUtil.getBigDecimal(fairValue);
     }
 
     public static BigDecimal getExitValue(Security security, BigDecimal spot, BigDecimal vola) {
@@ -89,7 +96,7 @@ public class StockOptionUtil {
 
         double strike = option.getStrike().doubleValue();
 
-        double years = (option.getExpiration().getTime() - (new Date()).getTime()) / MILLISECONDS_PER_YEAR ;
+        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
 
         double volatility = StockOptionUtil.getVolatility(underlaying.doubleValue(), strike , settlement.doubleValue(), years, intrest, dividend, option.getType());
 
@@ -98,6 +105,12 @@ public class StockOptionUtil {
         int contractSize = option.getContractSize();
 
         return SwissquoteUtil.getBigDecimal(margin * contractSize);
+    }
+
+    public static BigDecimal roundTo50(BigDecimal input) {
+
+        double rounded = MathUtils.round(input.doubleValue()/ 50.0, 0, BigDecimal.ROUND_FLOOR) * 50.0;
+        return new BigDecimal(rounded).setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
     public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
@@ -130,7 +143,7 @@ public class StockOptionUtil {
         */
 
         ServiceLocator locator = ServiceLocator.instance();
-        StockOption option = (StockOption)locator.getEntityService().getSecurity(75);
+        StockOption option = (StockOption)locator.getLookupService().getSecurity(75);
 
         //System.out.println(getFairValue(option, 6595, 0.1658));
         //System.out.println(getExitValue(option, 6595, 0.1658));
