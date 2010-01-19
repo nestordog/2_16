@@ -25,12 +25,13 @@ public class CsvWriter {
 
     private static String[] header = new String[] { "dateTime", "last", "lastDateTime", "volBid", "volAsk", "bid", "ask", "vol", "openIntrest", "settlement" };
     private static CellProcessor[] processor = new CellProcessor[] { new DateConverter(), null, new DateConverter(), null, null, null, null, null, null, null };
+    private static String dataSet = PropertiesUtil.getProperty("simulation.dataSet");
 
     private CsvBeanWriter writer;
 
     public CsvWriter(String symbol ) throws SuperCSVException, IOException  {
 
-        File file = new File("results/tickdata/" + symbol + ".csv");
+        File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
         boolean exists = file.exists();
 
         writer = new CsvBeanWriter(new FileWriter(file, true), CsvPreference.EXCEL_PREFERENCE);
