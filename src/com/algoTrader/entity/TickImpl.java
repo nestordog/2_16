@@ -1,15 +1,30 @@
 package com.algoTrader.entity;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import java.math.BigDecimal;
 
-import com.algoTrader.util.CustomToStringStyle;
+import com.algoTrader.util.EsperService;
+import com.algoTrader.util.PropertiesUtil;
 
-public class TickImpl extends Tick {
+public class TickImpl extends com.algoTrader.entity.Tick {
 
-    private static final long serialVersionUID = -5959287168728366157L;
+    private static int lastTransactionAge = Integer.parseInt(PropertiesUtil.getProperty("lastTransactionAge"));
+    private static int minVol = Integer.parseInt(PropertiesUtil.getProperty("minVol"));
 
-    public String toString() {
+    private static final long serialVersionUID = 7518020445322413106L;
 
-        return ToStringBuilder.reflectionToString(this, CustomToStringStyle.getInstance());
-       }
+    public BigDecimal getCurrentValue() {
+
+        long currenttime = EsperService.getEPServiceInstance().getEPRuntime().getCurrentTime();
+
+        if (currenttime - getLastDateTime().getTime() > lastTransactionAge) {
+
+            if (getVolAsk() > minVol && getVolBid() > minVol) {
+                return (getAsk().add(getBid()).divide(new BigDecimal(2)));
+            } else {
+                return getLast();
+            }
+        } else {
+            return getLast();
+        }
+    }
 }
