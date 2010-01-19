@@ -5,8 +5,8 @@ import com.algoTrader.entity.Position;
 
 public class ClosePositionSubscriber {
 
-    public void update(Position position) {
+    public void update(int positionId) {
 
-        ServiceLocator.instance().getActionService().closePosition(position);
+        ServiceLocator.instance().getActionService().closePosition(positionId);
     }
 }
