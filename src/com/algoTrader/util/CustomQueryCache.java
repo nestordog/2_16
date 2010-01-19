@@ -31,7 +31,7 @@ import org.hibernate.type.TypeFactory;
  */
 public class CustomQueryCache implements QueryCache {
 
-    private static final Log log = LogFactory.getLog(CustomQueryCache.class);
+    private static final Log log = LogFactory.getLog(StandardQueryCache.class);
 
     private Cache queryCache;
     private UpdateTimestampsCache updateTimestampsCache;
@@ -133,7 +133,7 @@ public class CustomQueryCache implements QueryCache {
             }
             catch (UnresolvableObjectException uoe) {
                 if (isNaturalKeyLookup) {
-                    //TODO: not really completely correct, since
+                    //      not really completely correct, since
                     //      the uoe could occur while resolving
                     //      associations, leaving the PC in an
                     //      inconsistent state
