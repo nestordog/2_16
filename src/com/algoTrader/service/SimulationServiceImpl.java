@@ -14,10 +14,9 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.util.CustomDate;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
+import com.algoTrader.util.PropertiesUtil;
 import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.client.time.TimerControlEvent;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.AdapterInputSource;
@@ -28,6 +27,7 @@ import com.espertech.esperio.csv.TickCSVInputAdapter;
 public class SimulationServiceImpl extends SimulationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
+    private static String dataSet = PropertiesUtil.getProperty("simulation.dataSet");
 
     private static String[] propertyOrder = {
     "dateTime",
@@ -57,21 +57,19 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         SimulationServiceImpl.propertyTypes.put("settlement", BigDecimal.class);
     }
 
-    protected void handleSimulate(long startTime, String isin) throws Exception {
+    protected void handleSimulate(String isin) throws Exception {
 
 
         Security security = getSecurityDao().findByISIN(isin);
-        simulate(startTime, security);
+        simulate(security);
     }
 
-    protected void handleSimulate(long startTime, Security security) throws Exception {
+    protected void handleSimulate(Security security) throws Exception {
 
         EPServiceProvider cep = EsperService.getEPServiceInstance();
         EPRuntime cepRT = cep.getEPRuntime();
-        cepRT.sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_EXTERNAL));
-        cepRT.sendEvent(new CurrentTimeEvent(startTime)); // must send time event before first schedule pattern
 
-        File file = new File("results/tickdata/" + security.getIsin() + ".csv");
+        File file = new File("results/tickdata/" + dataSet + "/" + security.getIsin() + ".csv");
 
         CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
         spec.setPropertyOrder(propertyOrder);
@@ -85,7 +83,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         logger.debug("started simulation for security " + security.getIsin());
     }
 
-    protected void handleSimulate(long startTime, List isins) throws Exception {
+    protected void handleSimulate(List isins) throws Exception {
 
         List securities = new ArrayList();
         for (Iterator it = isins.iterator(); it.hasNext(); ) {
@@ -93,21 +91,19 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             Security security = getSecurityDao().findByISIN(isin);
             securities.add(security);
         }
-        simulateSecurites(startTime, securities);
+        simulateSecurites(securities);
     }
 
-    protected void handleSimulateWatchlist(long startTime) throws Exception {
+    protected void handleSimulateWatchlist() throws Exception {
 
         List securities = getSecurityDao().findOnWatchlist();
-        simulateSecurites(startTime, securities);
+        simulateSecurites(securities);
     }
 
-    private void simulateSecurites(long startTime, List securities) {
+    private void simulateSecurites(List securities) {
 
         EPServiceProvider cep = EsperService.getEPServiceInstance();
         EPRuntime cepRT = cep.getEPRuntime();
-        cepRT.sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_EXTERNAL));
-        cepRT.sendEvent(new CurrentTimeEvent(startTime)); // must send time event before first schedule pattern
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(cep, true, true);
 
@@ -115,7 +111,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             Security security = (Security)it.next();
 
-            File file = new File("results/tickdata/" + security.getIsin() + ".csv");
+            File file = new File("results/tickdata/" + dataSet + "/" + security.getIsin() + ".csv");
 
             CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
             spec.setPropertyOrder(propertyOrder);
