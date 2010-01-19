@@ -22,7 +22,11 @@
 	<classpathentry kind="lib" path="lib/serializer-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/smtp-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/spiffy-all-0.05.jar"/>
-	<classpathentry kind="lib" path="lib/spring-1.2.8.jar"/>
+	<classpathentry kind="lib" path="lib/spring-1.2.8.jar" sourcepath="D:/spring-framework-1.2.8/src">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/spring-framework-1.2.8/docs/api/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/SuperCSV-1.52.jar"/>
 	<classpathentry kind="lib" path="lib/tidy.jar"/>
 	<classpathentry kind="lib" path="lib/xalan-2.7.1.jar"/>
