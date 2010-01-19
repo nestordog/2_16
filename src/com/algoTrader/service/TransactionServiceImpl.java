@@ -9,10 +9,14 @@ import com.algoTrader.entity.Account;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.PositionImpl;
 import com.algoTrader.entity.Security;
+import com.algoTrader.entity.StockOption;
+import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
+import com.algoTrader.util.StockOptionUtil;
 
 
 public class TransactionServiceImpl extends com.algoTrader.service.TransactionServiceBase {
@@ -23,8 +27,8 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
             throws Exception {
 
         //TODO Execute SQ Transaction
+
         BigDecimal price = current;
-        int number = 1234;
 
         // Account
         Account account = getAccountDao().findByCurrency(security.getCurrency());
@@ -32,7 +36,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         // Transaction
         Transaction transaction = new TransactionImpl();
 
-        transaction.setNumber(number);
+        transaction.setNumber(0);
         transaction.setDateTime(new Date());
         transaction.setQuantity(quantity);
         transaction.setPrice(price.negate());
@@ -50,8 +54,6 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
 
             position = new PositionImpl();
             position.setQuantity(quantity);
-            position.setExitValue(current.multiply(new BigDecimal(2))); //TODO Set ExitValue
-            position.setMargin(new BigDecimal(0)); //TODO Set Margin
 
             position.setSecurity(security);
             security.setPosition(position);
@@ -74,8 +76,8 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
                 position.setExitValue(new BigDecimal(0));
                 position.setMargin(new BigDecimal(0));
             } else {
-                position.setExitValue(current.multiply(new BigDecimal(2))); //TODO Set ExitValue
-                position.setMargin(new BigDecimal(0)); //TODO Set Margin
+                position.setExitValue(null); //will be set to a correct value by a separate rule (very 30min)
+                position.setMargin(null); //will be set to a correct value by a separate rule
             }
 
             position.getTransactions().add(transaction);
@@ -88,20 +90,37 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         getAccountDao().update(account);
         getSecurityDao().update(security);
 
-        logger.info("executed transaction " + transaction + " on " + security.getSymbol());
+        logger.info("executed transaction quantity: " + transaction.getQuantity() + " of " + security.getSymbol() + " price: " + transaction.getPrice() + " commission: " + transaction.getCommission() + " new balance: " + account.getBalance());
+
+        EsperService.getEPServiceInstance().getEPRuntime().sendEvent(transaction);
 
         return quantity;
     }
 
-    protected void handleClosePosition(Position position) throws Exception {
+    protected void handleClosePosition(int positionId) throws Exception {
+
+        Position position = getPositionDao().load(positionId);
 
         Security security = position.getSecurity();
-        BigDecimal current = security.getCurrentValue();
-
-        if (current == null) return; // we dont have a current value yet
+        BigDecimal current = security.getLastTick().getCurrentValue();
 
         int quantity = - position.getQuantity();
 
         executeTransaction(quantity, position.getSecurity(), current);
+    }
+
+    protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlaying) throws Exception {
+
+        StockOption stockOption = (StockOption)getStockOptionDao().load(securityId);
+
+        Account account = getAccountDao().findByCurrency(stockOption.getCurrency());
+
+        double balance = account.getBalance().doubleValue();
+        double margin = StockOptionUtil.getMargin(stockOption, settlement, underlaying).doubleValue();
+        double current = currentValue.doubleValue();
+
+        int quantity = (int)(balance / (margin - current));
+
+        executeTransaction(-quantity, stockOption, currentValue);
     }
 }
