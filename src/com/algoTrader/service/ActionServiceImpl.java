@@ -2,7 +2,6 @@ package com.algoTrader.service;
 
 import java.math.BigDecimal;
 
-import com.algoTrader.entity.Position;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.util.PropertiesUtil;
 
@@ -10,9 +9,9 @@ public class ActionServiceImpl extends ActionServiceBase {
 
     private static boolean simulation = new Boolean(PropertiesUtil.getProperty("simulation")).booleanValue();
 
-    protected void handleSetExitValue(Position position, BigDecimal exitValue) throws java.lang.Exception {
+    protected void handleSetExitValue(int positionId, BigDecimal exitValue) throws java.lang.Exception {
 
-        getStockOptionService().setExitValue(position, exitValue);
+        getStockOptionService().setExitValue(positionId, exitValue);
     }
 
     protected void handleSetMargins() throws java.lang.Exception {
@@ -20,37 +19,44 @@ public class ActionServiceImpl extends ActionServiceBase {
         getStockOptionService().setMargins();
     }
 
-    protected void handleClosePosition(Position position) throws java.lang.Exception {
+    protected void handleClosePosition(int positionId) throws java.lang.Exception {
 
-        getTransactionService().closePosition(position);
-        startMarketTiming();
+        getTransactionService().closePosition(positionId);
+        startTimeTheMarket();
     }
 
     protected void handleExpireStockOptions() throws java.lang.Exception {
 
         getStockOptionService().expireStockOptions();
-        startMarketTiming();
+        startTimeTheMarket();
     }
 
-    protected void handleStartMarketTiming() throws java.lang.Exception {
+    protected void handleTimeTheMarket(int securityId,  BigDecimal spot) throws Exception {
 
-        StockOption stockOption = getStockOptionService().putOnWatchlist();
-
-        if (stockOption == null) return;
+        StockOption stockOption = getStockOptionService().putOnWatchlist(securityId, spot);
 
         if (!simulation) getTickService().start(stockOption);
 
-        getRuleService().deactivate("marketTiming");
-        getRuleService().activate("marketTiming", new String[] { String.valueOf(stockOption.getId())});
+        getRuleService().activate("openPosition", new String[] { String.valueOf(stockOption.getId())});
+
     }
 
-    protected void handlePutOnWatchlist() throws java.lang.Exception {
+    protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlaying) throws Exception {
 
-        getStockOptionService().putOnWatchlist();
+        getTransactionService().openPosition(securityId, settlement, currentValue, underlaying);
     }
 
-    protected void handleOpenPosition() throws java.lang.Exception {
+    private void startTimeTheMarket() throws java.lang.Exception {
 
-        //TODO implement open position
+        if (!getRuleService().isActive("timeTheMarket")) {
+            StockOption stockOption = getStockOptionService().defaultPutOnWatchlist();
+
+            if (stockOption != null) {
+
+                if (!simulation) getTickService().start(stockOption);
+
+                getRuleService().activate("timeTheMarket", new String[] { String.valueOf(stockOption.getId())});
+            }
+        }
     }
 }
