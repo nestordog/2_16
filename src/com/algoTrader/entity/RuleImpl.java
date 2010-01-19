@@ -1,32 +1,15 @@
-// license-header java merge-point
-/**
- * This is only generated once! It will never be overwritten.
- * You can (and have to!) safely modify it by hand.
- */
 package com.algoTrader.entity;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+public class RuleImpl extends com.algoTrader.entity.Rule {
 
-import com.algoTrader.util.CustomToStringStyle;
+    private static final long serialVersionUID = -8481295095357769646L;
 
-/**
- * @see com.algoTrader.entity.Rule
- */
-public class RuleImpl
-    extends com.algoTrader.entity.Rule
-{
-    /**
-     * The serial version UID of this class. Needed for serialization.
-     */
-    private static final long serialVersionUID = 7072177867034914204L;
+    public String getPrioritisedDefinition() {
 
-    /**
-     * @see com.algoTrader.entity.Rule#toString()
-     */
-    public java.lang.String toString()
-    {
-        return ToStringBuilder.reflectionToString(this, CustomToStringStyle.getInstance());
-
+        if (getPriority() != 0) {
+            return "@Priority(" + getPriority() + ")\n" + getDefinition();
+        } else {
+            return getDefinition();
+        }
     }
-
 }
