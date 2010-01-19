@@ -32,14 +32,15 @@ public class RuleServiceImpl extends RuleServiceBase {
     protected void handleActivate(String ruleName) throws Exception {
 
         Rule rule = getRuleDao().findByName(ruleName);
-        activate(rule, rule.getDefinition());
+        activate(rule, rule.getPrioritisedDefinition());
     }
 
     protected void handleActivate(String ruleName, String[] parameters) throws Exception {
 
         Rule rule = getRuleDao().findByName(ruleName);
+        if (rule == null) throw new Exception("no rule for the name" + ruleName + " was found");
 
-        MessageFormat format = new MessageFormat(rule.getDefinition());
+        MessageFormat format = new MessageFormat(rule.getPrioritisedDefinition());
         String definition = format.format(parameters);
 
         activate(rule, definition);
@@ -47,7 +48,7 @@ public class RuleServiceImpl extends RuleServiceBase {
 
     protected void handleActivate(Rule rule) throws java.lang.Exception {
 
-        activate(rule, rule.getDefinition());
+        activate(rule, rule.getPrioritisedDefinition());
     }
 
     private void activate(Rule rule, String definition) throws java.lang.Exception {
@@ -55,28 +56,37 @@ public class RuleServiceImpl extends RuleServiceBase {
         EPServiceProvider cep = EsperService.getEPServiceInstance();
         EPAdministrator cepAdm = cep.getEPAdministrator();
 
-        EPStatement cepStatement;
+        // deactivate the statement if it already exists
+        EPStatement oldStatement = cep.getEPAdministrator().getStatement(rule.getName());
+        if (oldStatement != null) {
+            oldStatement.destroy();
+        }
+
+        // create the new statement
+        EPStatement newStatement;
         if (rule.isPattern()) {
-            cepStatement = cepAdm.createPattern(definition, rule.getName());
+            newStatement = cepAdm.createPattern(definition, rule.getName());
         } else {
-            cepStatement = cepAdm.createEPL(definition, rule.getName());
+            newStatement = cepAdm.createEPL(definition, rule.getName());
         }
 
+        // add the subscribers
         if (rule.getSubscriber() != null) {
-            Class cl = Class.forName("com.algoTrader.subscriber." + rule.getSubscriber());
+            Class cl = Class.forName("com.algoTrader.subscriber." + rule.getSubscriber().trim());
             Object obj = cl.newInstance();
-            cepStatement.setSubscriber(obj);
+            newStatement.setSubscriber(obj);
         }
 
+        // add the listeners
         if (rule.getListeners() != null) {
             String[] listeners = rule.getListeners().split("\\s");
             for (int i = 0; i < listeners.length; i++) {
                 Class cl = Class.forName("com.algoTrader.listener." + listeners[i]);
                 Object obj = cl.newInstance();
                 if (obj instanceof StatementAwareUpdateListener) {
-                    cepStatement.addListener((StatementAwareUpdateListener)obj);
+                    newStatement.addListener((StatementAwareUpdateListener)obj);
                 } else {
-                    cepStatement.addListener((UpdateListener)obj);
+                    newStatement.addListener((UpdateListener)obj);
                 }
             }
         }
@@ -105,11 +115,15 @@ public class RuleServiceImpl extends RuleServiceBase {
         logger.debug("activated all rules");
     }
 
-    protected void handleSendEvent(Object object) throws java.lang.Exception {
+    protected boolean handleIsActive(String ruleName) throws Exception {
 
         EPServiceProvider cep = EsperService.getEPServiceInstance();
-        cep.getEPRuntime().sendEvent(object);
+        EPStatement statement = cep.getEPAdministrator().getStatement(ruleName);
 
-        logger.debug("sent event " + object);
+        if (statement != null && statement.isStarted()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
