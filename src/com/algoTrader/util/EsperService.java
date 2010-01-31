@@ -45,6 +45,7 @@ public class EsperService {
             //config.getEngineDefaults().getThreading().setThreadPoolOutbound(true);
             //config.getEngineDefaults().getThreading().setThreadPoolTimerExec(true);
             //config.getEngineDefaults().getThreading().setThreadPoolRouteExec(true);
+            //config.getEngineDefaults().getLogging().setEnableExecutionDebug(true);
 
             cep = EPServiceProviderManager.getDefaultProvider(config);
 
