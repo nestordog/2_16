@@ -27,4 +27,13 @@ public class TickImpl extends com.algoTrader.entity.Tick {
             return getLast();
         }
     }
+
+    public BigDecimal getSettlement() {
+
+        if ((new BigDecimal(0)).equals(super.getSettlement())) {
+            return getCurrentValue();
+        } else {
+            return super.getSettlement();
+        }
+    }
 }
