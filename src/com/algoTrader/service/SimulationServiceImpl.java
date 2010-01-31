@@ -96,7 +96,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
     protected void handleSimulateWatchlist() throws Exception {
 
-        List securities = getSecurityDao().findOnWatchlist();
+        List securities = getSecurityDao().findSecuritiesOnWatchlist();
         simulateSecurites(securities);
     }
 
