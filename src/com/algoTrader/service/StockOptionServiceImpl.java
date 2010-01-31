@@ -33,17 +33,15 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.StockOptionImpl;
 import com.algoTrader.entity.Tick;
-import com.algoTrader.entity.Transaction;
-import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.DateUtil;
-import com.algoTrader.util.EsperService;
 import com.algoTrader.util.HttpClientUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.StockOptionUtil;
 import com.algoTrader.util.SwissquoteUtil;
 import com.algoTrader.util.TidyUtil;
@@ -63,7 +61,40 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
     private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
 
-    private long ONE_MONTH = 2592000000l; //30 days
+    private long FORTY_FIVE_DAYS = 3888000000l;
+
+    protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlaying) throws Exception {
+
+        StockOption stockOption = (StockOption)getStockOptionDao().load(securityId);
+
+        Account account = getAccountDao().findByCurrency(stockOption.getCurrency());
+
+        double availableAmount = account.getAvailableAmount().doubleValue();
+        double margin = StockOptionUtil.getMargin(stockOption, settlement, underlaying).doubleValue();
+        double currentDouble = currentValue.doubleValue();
+        int contractSize = stockOption.getContractSize();
+
+        int numberOfContracts = (int)((availableAmount / (margin - currentDouble)) / contractSize); // i.e. 2 (for 20 stockOptions)
+        BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
+        BigDecimal commission = StockOptionUtil.getCommission(numberOfContracts);
+
+        getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, commission, TransactionType.SELL);
+    }
+
+    protected void handleClosePosition(int positionId) throws Exception {
+
+        Position position = getPositionDao().load(positionId);
+
+        StockOption stockOption = (StockOption)position.getSecurity();
+        double currentDouble = stockOption.getLastTick().getCurrentValue().doubleValue();
+        int contractSize = stockOption.getContractSize();
+
+        int numberOfContracts = Math.abs(position.getQuantity());
+        BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
+        BigDecimal commission = StockOptionUtil.getCommission(numberOfContracts);
+
+        getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, commission, TransactionType.BUY);
+    }
 
     protected void handleExpireStockOptions() throws Exception {
 
@@ -73,42 +104,15 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
             Position position = (Position) it.next();
 
-            // StockOption
-            StockOption stockOption = (StockOptionImpl) position.getSecurity();
+            StockOption stockOption = (StockOption)position.getSecurity();
+            double currentDouble = stockOption.getLastTick().getCurrentValue().doubleValue();
+            int contractSize = stockOption.getContractSize();
 
-            // Account
-            Account account = getAccountDao().load(position.getAccount().getId());
+            int numberOfContracts = Math.abs(position.getQuantity());
+            BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
+            BigDecimal commission = new BigDecimal(0);
 
-            // Transaction
-            Transaction transaction = new TransactionImpl();
-
-            transaction.setNumber(0); // we dont habe a number
-            transaction.setDateTime(stockOption.getExpiration());
-            transaction.setQuantity(-position.getQuantity());
-            transaction.setPrice(new BigDecimal(0));
-            transaction.setCommission(new BigDecimal(0));
-            transaction.setType(TransactionType.EXPIRATION);
-            transaction.setSecurity(stockOption);
-
-            transaction.setAccount(account);
-            account.getTransactions().add(transaction);
-
-            // attach the object
-            position.setQuantity(0);
-            position.setExitValue(new BigDecimal(0));
-            position.setMargin(new BigDecimal(0));
-
-            position.getTransactions().add(transaction);
-            transaction.setPosition(position);
-
-            getPositionDao().update(position);
-            getTransactionDao().create(transaction);
-            getAccountDao().update(account);
-
-            logger.info("expired " + stockOption.getSymbol());
-
-            EsperService.getEPServiceInstance().getEPRuntime().sendEvent(transaction);
-
+            getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, commission, TransactionType.EXPIRATION);
         }
 
         List stockOptions = getStockOptionDao().findExpiredStockOptions(DateUtil.getCurrentEPTime());
@@ -136,14 +140,21 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
                 BigDecimal settlement = stockOption.getLastTick().getSettlement();
                 BigDecimal underlaying = stockOption.getUnderlaying().getLastTick().getCurrentValue();
 
-                BigDecimal margin = StockOptionUtil.getMargin(stockOption, settlement, underlaying);
+                double marginPerContract = StockOptionUtil.getMargin(stockOption, settlement, underlaying).doubleValue() * stockOption.getContractSize();
+                int numberOfContracts = Math.abs(position.getQuantity());
+                BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
 
-                int quantity = Math.abs(position.getQuantity());
-                position.setMargin(margin.multiply(new BigDecimal(quantity)));
+                position.setMargin(totalMargin);
 
                 getPositionDao().update(position);
 
-                logger.info("set margin for " + stockOption.getSymbol() + " to " + margin + " total margin: " + position.getAccount().getMargin());
+                Account account = position.getAccount();
+
+                if (account.getAvailableAmount().doubleValue() >= 0) {
+                    logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount());
+                } else {
+                    logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount());
+                }
             }
         }
     }
@@ -343,7 +354,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             OptionType type = OptionType.fromString(typeValue.split("\\s")[0].toUpperCase());
 
             String strikeValue = SwissquoteUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[2]/strong");
-            BigDecimal strike = SwissquoteUtil.getBigDecimal(SwissquoteUtil.getAmount(strikeValue));
+            BigDecimal strike = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(strikeValue));
 
             String dateValue = SwissquoteUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[4]/strong");
             Date expirationDate = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss").parse(dateValue + " 13:00:00");
@@ -379,7 +390,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         StockOption stockOption = findNearestStockOption(underlaying, targetExpirationDate, spot, optionType);
 
         if (simulation) {
-            if ((stockOption == null) || ( stockOption.getExpiration().getTime() > (targetExpirationDate.getTime() + ONE_MONTH ))) {
+            if ((stockOption == null) || ( stockOption.getExpiration().getTime() > (targetExpirationDate.getTime() + FORTY_FIVE_DAYS ))) {
                 stockOption = createDummyStockOption(underlaying, targetExpirationDate, spot, optionType);
 
                 getStockOptionDao().create(stockOption);
