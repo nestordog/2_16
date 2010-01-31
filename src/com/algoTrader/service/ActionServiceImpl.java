@@ -29,32 +29,20 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         logger.info("closePosition event");
         getStockOptionService().closePosition(positionId);
-        startTimeTheMarket();
     }
 
-    protected void handleExpireStockOptions() throws java.lang.Exception {
+    protected void handleExpireStockOption(int positionId) throws java.lang.Exception {
 
         logger.info("expireStockOptions event");
-        getStockOptionService().expireStockOptions();
-        startTimeTheMarket();
+        getStockOptionService().expireStockOption(positionId);
     }
 
-    protected void handleTimeTheMarket(int securityId,  BigDecimal spot) throws Exception {
+    protected void handleStartTimeTheMarket(int underlayingId, BigDecimal spot) throws java.lang.Exception {
 
-        logger.info("timeTheMarket event");
-        StockOption stockOption = getStockOptionService().putOnWatchlist(securityId, spot);
-
-        if (!simulation) getTickService().start(stockOption);
-
-        getRuleService().activate("openPosition", new String[] { String.valueOf(stockOption.getId())});
-        getRuleService().deactivate("timeTheMarket");
-    }
-
-
-    private void startTimeTheMarket() throws java.lang.Exception {
-
+        logger.info("startTimeTheMarket event");
         if (!getRuleService().isActive("timeTheMarket") && !getRuleService().isActive("openPosition")) {
-            StockOption stockOption = getStockOptionService().defaultPutOnWatchlist();
+
+            StockOption stockOption = getStockOptionService().putOnWatchlist(underlayingId, spot);
 
             if (stockOption != null) {
 
@@ -64,6 +52,24 @@ public class ActionServiceImpl extends ActionServiceBase {
             }
         }
     }
+
+    protected void handleTimeTheMarket(int stockOptionId, int underlayingId,  BigDecimal spot) throws Exception {
+
+        logger.info("timeTheMarket event");
+        StockOption newStockOption = getStockOptionService().putOnWatchlist(underlayingId, spot);
+
+        if (newStockOption.getId() != stockOptionId) {
+
+            // if we got a different stockOption, remove the old one from the watchlist
+            getStockOptionService().removeFromWatchlist(stockOptionId);
+        }
+
+        if (!simulation) getTickService().start(newStockOption);
+
+        getRuleService().activate("openPosition", new String[] { String.valueOf(newStockOption.getId())});
+        getRuleService().deactivate("timeTheMarket");
+    }
+
 
     protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlaying) throws Exception {
 
