@@ -20,10 +20,10 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
 
-    protected int handleExecuteTransaction(int quantity, Security security, BigDecimal current, BigDecimal commission, TransactionType transactionType)
+    protected Transaction handleExecuteTransaction(int quantity, Security security, BigDecimal current, BigDecimal commission, TransactionType transactionType)
             throws Exception {
 
-        if (quantity == 0) return 0;
+        if (quantity == 0) return null;
 
         //TODO Execute SQ Transaction
 
@@ -73,7 +73,6 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         } else {
 
             // attach the object
-            position = getPositionDao().load(position.getId()); //TODO necessary?
             position.setQuantity(position.getQuantity() + quantity);
 
             position.setExitValue(new BigDecimal(0));
@@ -93,6 +92,6 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
 
         EsperService.getEPServiceInstance().getEPRuntime().sendEvent(transaction);
 
-        return quantity;
+        return transaction;
     }
 }
