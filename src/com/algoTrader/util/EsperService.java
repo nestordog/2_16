@@ -12,7 +12,6 @@ import com.espertech.esper.client.time.TimerControlEvent;
 public class EsperService {
 
     private static boolean simulation = new Boolean(PropertiesUtil.getProperty("simulation")).booleanValue();
-    private static long startTime = Long.parseLong(PropertiesUtil.getProperty("simulation.startTime"));
 
     private static EPServiceProvider cep;
 
@@ -51,7 +50,7 @@ public class EsperService {
 
             if (simulation) {
                 cep.getEPRuntime().sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_EXTERNAL));
-                cep.getEPRuntime().sendEvent(new CurrentTimeEvent(startTime)); // must send time event before first schedule pattern
+                cep.getEPRuntime().sendEvent(new CurrentTimeEvent(0)); // must send time event before first schedule pattern
             }
         }
         return cep;
