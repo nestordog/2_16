@@ -70,36 +70,39 @@ public class StockOptionUtil {
 
     public static BigDecimal getFairValue(Security security, BigDecimal spot, BigDecimal vola) throws RuntimeException {
 
-        StockOption option = (StockOption)security;
+        StockOption stockOption = (StockOption)security;
         Date currentTime = DateUtil.getCurrentEPTime();
 
-        double years = (option.getExpiration().getTime() - currentTime.getTime()) / MILLISECONDS_PER_YEAR ;
+        double years = (stockOption.getExpiration().getTime() - currentTime.getTime()) / MILLISECONDS_PER_YEAR ;
 
-        double fairValue = getOptionPrice(spot.doubleValue(), option.getStrike().doubleValue(), vola.doubleValue(), years, intrest, dividend, option.getType());
+        double fairValue = getOptionPrice(spot.doubleValue(), stockOption.getStrike().doubleValue(), vola.doubleValue(), years, intrest, dividend, stockOption.getType());
         return RoundUtil.getBigDecimal(fairValue);
     }
 
-    public static BigDecimal getExitValue(Security security, BigDecimal spot, BigDecimal vola) {
+    public static BigDecimal getExitValue(Security security, BigDecimal spot, BigDecimal optionValue) throws ConvergenceException, FunctionEvaluationException {
 
-        StockOption option = (StockOption)security;
+        StockOption stockOption = (StockOption)security;
 
-        BigDecimal exitLevel = RoundUtil.getBigDecimal(spot.doubleValue() * (1 - vola.doubleValue() / Math.sqrt(DAYS_PER_YEAR / volaPeriod)));
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
 
-        return getFairValue(option, exitLevel, vola);
+        double volatility = getVolatility(spot.doubleValue(), stockOption.getStrike().doubleValue(), optionValue.doubleValue(), years, intrest, dividend, stockOption.getType());
 
+        BigDecimal exitLevel = RoundUtil.getBigDecimal(spot.doubleValue() * (1 - volatility / Math.sqrt(DAYS_PER_YEAR / volaPeriod)));
+
+        return getFairValue(stockOption, exitLevel, RoundUtil.getBigDecimal(volatility));
     }
 
-    public static BigDecimal getMargin(StockOption option, BigDecimal settlement, BigDecimal underlaying) throws ConvergenceException, FunctionEvaluationException {
+    public static BigDecimal getMargin(StockOption stockOption, BigDecimal settlement, BigDecimal underlaying) throws ConvergenceException, FunctionEvaluationException {
 
         double marginLevel = underlaying.doubleValue() * (1.0 - marginParameter);
 
-        double strike = option.getStrike().doubleValue();
+        double strike = stockOption.getStrike().doubleValue();
 
-        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
 
-        double volatility = StockOptionUtil.getVolatility(underlaying.doubleValue(), strike , settlement.doubleValue(), years, intrest, dividend, option.getType());
+        double volatility = StockOptionUtil.getVolatility(underlaying.doubleValue(), strike , settlement.doubleValue(), years, intrest, dividend, stockOption.getType());
 
-        double margin = getOptionPrice(marginLevel, strike, volatility, years, intrest, dividend, option.getType());
+        double margin = getOptionPrice(marginLevel, strike, volatility, years, intrest, dividend, stockOption.getType());
 
         return RoundUtil.getBigDecimal(margin);
     }
@@ -149,12 +152,12 @@ public class StockOptionUtil {
         */
 
         ServiceLocator locator = ServiceLocator.instance();
-        StockOption option = (StockOption)locator.getLookupService().getSecurity(75);
+        StockOption stockOption = (StockOption)locator.getLookupService().getSecurity(75);
 
         //System.out.println(getFairValue(option, 6595, 0.1658));
         //System.out.println(getExitValue(option, 6595, 0.1658));
 
-        Position position = option.getPosition();
+        Position position = stockOption.getPosition();
         BigDecimal settlement = RoundUtil.getBigDecimal(49.70);
         BigDecimal underlaying = RoundUtil.getBigDecimal(6608.44);
 
