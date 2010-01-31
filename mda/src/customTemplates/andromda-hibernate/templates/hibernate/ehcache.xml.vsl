@@ -37,20 +37,20 @@
         eternal="false"
 ##        timeToIdleSeconds="120"
 ##        timeToLiveSeconds="120"
-##        overflowToDisk="true" 
-    />		
-        
+##        overflowToDisk="true"
+    />
+
     <cache
-        name="com.algoTrader.util.CustomQueryCache"
+        name="org.hibernate.cache.StandardQueryCache"
         maxElementsInMemory="10000"
         eternal="false"
     />
-    
+
     <cache
         name="org.hibernate.cache.UpdateTimestampsCache"
         maxElementsInMemory="10000"
         eternal="true"
-    />		
+    />
 
 #if($hibernateEnableCache == "true")
 #if($hibernateEnableDistributedCache == "true")
