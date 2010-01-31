@@ -1,11 +1,10 @@
 package com.algoTrader.service;
 
-import java.math.BigDecimal;
-
 import com.algoTrader.entity.Account;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Rule;
 import com.algoTrader.entity.Security;
+import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Transaction;
 
 public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase {
@@ -76,9 +75,14 @@ public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase 
         return (Security[])getSecurityDao().findDummySecurities().toArray(new Security[0]);
     }
 
-    protected BigDecimal[] handleGetStrikesOnWatchlist() throws Exception {
+    protected StockOption[] handleGetStockOptionsOnWatchlist() throws Exception {
 
-        return (BigDecimal[])getStockOptionDao().findStrikesOnWatchlist().toArray(new BigDecimal[0]);
+        return (StockOption[])getStockOptionDao().findStockOptionsOnWatchlist().toArray(new StockOption[0]);
+    }
+
+    protected Position[] handleGetOpenPositions() throws Exception {
+
+        return (Position[])getPositionDao().findOpenPositions().toArray(new Position[0]);
     }
 
     protected void handleTest() throws Exception {
