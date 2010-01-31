@@ -3,7 +3,6 @@ package com.algoTrader.util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -96,12 +95,6 @@ public class SwissquoteUtil {
             index = inputString.length();
         }
         return NumberFormat.getNumberInstance().parse(inputString.substring(0,index)).doubleValue();
-    }
-
-    public static BigDecimal getBigDecimal(double value) {
-
-        BigDecimal decimal = new BigDecimal(value);
-        return decimal.setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
     public  static Date getDate(String date) throws ParseException {
