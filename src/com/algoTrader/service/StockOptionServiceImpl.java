@@ -33,6 +33,7 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.StockOptionImpl;
 import com.algoTrader.entity.Tick;
+import com.algoTrader.entity.Transaction;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.OptionType;
@@ -55,7 +56,6 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private static Currency currency = Currency.fromString(PropertiesUtil.getProperty("simulation.currency"));
     private static OptionType optionType = OptionType.fromString(PropertiesUtil.getProperty("simulation.optionType"));
     private static int contractSize = Integer.parseInt(PropertiesUtil.getProperty("simulation.contractSize"));
-    private static String isin = PropertiesUtil.getProperty("simulation.isin");
     private static boolean simulation = new Boolean(PropertiesUtil.getProperty("simulation")).booleanValue();
     private static int minAge = Integer.parseInt(PropertiesUtil.getProperty("minAge"));
 
@@ -78,7 +78,9 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
         BigDecimal commission = StockOptionUtil.getCommission(numberOfContracts);
 
-        getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, commission, TransactionType.SELL);
+        Transaction transaction = getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, commission, TransactionType.SELL);
+
+        setMargin(transaction.getPosition());
     }
 
     protected void handleClosePosition(int positionId) throws Exception {
@@ -94,85 +96,62 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         BigDecimal commission = StockOptionUtil.getCommission(numberOfContracts);
 
         getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, commission, TransactionType.BUY);
+
+        removeFromWatchlist(stockOption.getId());
     }
 
-    protected void handleExpireStockOptions() throws Exception {
+    protected void handleExpireStockOption(int positionId) throws Exception {
 
-        List positions = getPositionDao().findExpiredPositions(DateUtil.getCurrentEPTime());
+        Position position = getPositionDao().load(positionId);
 
-        for (Iterator it = positions.iterator(); it.hasNext();) {
+        StockOption stockOption = (StockOption)position.getSecurity();
+        double currentDouble = stockOption.getLastTick().getCurrentValue().doubleValue();
+        int contractSize = stockOption.getContractSize();
 
-            Position position = (Position) it.next();
+        int numberOfContracts = Math.abs(position.getQuantity());
+        BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
+        BigDecimal commission = new BigDecimal(0);
 
-            StockOption stockOption = (StockOption)position.getSecurity();
-            double currentDouble = stockOption.getLastTick().getCurrentValue().doubleValue();
-            int contractSize = stockOption.getContractSize();
+        getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, commission, TransactionType.EXPIRATION);
 
-            int numberOfContracts = Math.abs(position.getQuantity());
-            BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
-            BigDecimal commission = new BigDecimal(0);
-
-            getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, commission, TransactionType.EXPIRATION);
-        }
-
-        List stockOptions = getStockOptionDao().findExpiredStockOptions(DateUtil.getCurrentEPTime());
-
-        for (Iterator it = stockOptions.iterator(); it.hasNext();) {
-
-            StockOption stockOption = (StockOption)it.next();
-            stockOption.setOnWatchlist(false);
-            getStockOptionDao().update(stockOption);
-
-            logger.info("removed " + stockOption.getSymbol() + " from watchlist");
-        }
+        removeFromWatchlist(stockOption.getId());
     }
 
-    protected void handleSetMargins() throws ConvergenceException, FunctionEvaluationException {
+    protected void handleSetMargins() throws Exception {
 
         List list = getPositionDao().findOpenPositions();
 
         for (Iterator it = list.iterator(); it.hasNext(); ) {
 
             Position position = (Position)it.next();
-
-            if (position.getSecurity() instanceof StockOption) {
-                StockOption stockOption = (StockOption) position.getSecurity();
-                BigDecimal settlement = stockOption.getLastTick().getSettlement();
-                BigDecimal underlaying = stockOption.getUnderlaying().getLastTick().getCurrentValue();
-
-                double marginPerContract = StockOptionUtil.getMargin(stockOption, settlement, underlaying).doubleValue() * stockOption.getContractSize();
-                int numberOfContracts = Math.abs(position.getQuantity());
-                BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
-
-                position.setMargin(totalMargin);
-
-                getPositionDao().update(position);
-
-                Account account = position.getAccount();
-
-                if (account.getAvailableAmount().doubleValue() >= 0) {
-                    logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount());
-                } else {
-                    logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount());
-                }
-            }
+            setMargin(position);
         }
     }
 
-    protected StockOption handleDefaultPutOnWatchlist() throws Exception {
+    private void setMargin(Position position) throws Exception {
 
-        if (getPositionDao().findOpenPositions().size() == 0) {
+        if (position.getSecurity() instanceof StockOption) {
 
-            Security underlaying = getSecurityDao().findByISIN(isin);
-            Tick lastTick = underlaying.getLastTick();
+            StockOption stockOption = (StockOption) position.getSecurity();
+            BigDecimal settlement = stockOption.getLastTick().getSettlement();
+            BigDecimal underlaying = stockOption.getUnderlaying().getLastTick().getCurrentValue();
 
-            if (lastTick != null) {
-                return putOnWatchlist(underlaying.getId(), lastTick.getCurrentValue());
+            double marginPerContract = StockOptionUtil.getMargin(stockOption, settlement, underlaying).doubleValue() * stockOption.getContractSize();
+            int numberOfContracts = Math.abs(position.getQuantity());
+            BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
+
+            position.setMargin(totalMargin);
+
+            getPositionDao().update(position);
+
+            Account account = position.getAccount();
+
+            if (account.getAvailableAmount().doubleValue() >= 0) {
+                logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount());
             } else {
-                return null;
+                int percent = (int)(-account.getAvailableAmount().doubleValue() / account.getBalance().doubleValue() * 100d);
+                logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount() + " (" + percent + "% of balance)");
             }
-        } else {
-            return null;
         }
     }
 
@@ -188,6 +167,18 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         }
 
         return stockOption;
+    }
+
+    protected void handleRemoveFromWatchlist(int securityId) throws Exception {
+
+        StockOption stockOption = (StockOption)getStockOptionDao().load(securityId);
+
+        if (stockOption.isOnWatchlist()) {
+            stockOption.setOnWatchlist(false);
+            getStockOptionDao().update(stockOption);
+
+            logger.info("removed stockOption from watchlist " + stockOption.getSymbol());
+        }
     }
 
     protected void handleSetExitValue(int positionId, BigDecimal exitValue) {
