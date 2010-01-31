@@ -1,4 +1,4 @@
-package com.algoTrader.util;
+package com.algoTrader.stockOption;
 
 /*************************************************************************
  *  Compilation:  javac StdRandom.java
