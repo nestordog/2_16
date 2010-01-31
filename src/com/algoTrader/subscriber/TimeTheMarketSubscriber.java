@@ -6,8 +6,8 @@ import com.algoTrader.ServiceLocator;
 
 public class TimeTheMarketSubscriber {
 
-    public void update(int securityId, BigDecimal spot) {
+    public void update(int stockOptionId, int underlayingId, BigDecimal spot) {
 
-        ServiceLocator.instance().getActionService().timeTheMarket(securityId, spot);
+        ServiceLocator.instance().getActionService().timeTheMarket(stockOptionId, underlayingId, spot);
     }
 }
