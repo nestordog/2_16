@@ -1,4 +1,5 @@
 // line 286: send CurrentTimeEvent for the currentEventTime not the lastEventTime
+// line 292: do not send final time processTimeEvent
 package com.espertech.esperio;
 
 import java.util.SortedSet;
@@ -289,7 +290,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
                 sendFirstEvent();
             }
             // send final time processTimeEvent
-            this.sender.sendEvent(null, new CurrentTimeEvent(lastEventTime));
+            //this.sender.sendEvent(null, new CurrentTimeEvent(lastEventTime));
         }
         else
         {
