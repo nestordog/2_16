@@ -111,6 +111,11 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             Security security = (Security)it.next();
 
+            if (security.getIsin() == null) {
+                logger.warn("not tickdata available for " + security.getSymbol());
+                continue;
+            }
+
             File file = new File("results/tickdata/" + dataSet + "/" + security.getIsin() + ".csv");
 
             CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
