@@ -8,12 +8,15 @@ where id in (
   from security
   where isin is null);
 
-delete from security
-where isin is null;
 
 delete from transaction;
 
 delete from position;
 
+delete from security
+where isin is null;
+
 INSERT INTO `transaction` (`id`, `NUMBER`, `DATE_TIME`, `QUANTITY`, `PRICE`, `COMMISSION`, `TYPE`, `SECURITY_FK`, `ACCOUNT_FK`, `POSITION_FK`) VALUES
-  (1,1111,'2010-01-14 18:04:31',1,10000,0,'CREDIT',NULL,1,NULL);
+  (-1,1111,'1999-01-01 00:00:00',-1,10000,0,'CREDIT',NULL,1,NULL);
+
+
