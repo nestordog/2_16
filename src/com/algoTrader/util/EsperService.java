@@ -39,7 +39,7 @@ public class EsperService {
             config.addVariable("var_isin", String.class, PropertiesUtil.getProperty("simulation.isin"));
 
             // Settings
-            //config.getEngineDefaults().getExpression().setUdfCache(false); // some Methods hit the DB!
+            config.getEngineDefaults().getExpression().setUdfCache(false); // some Methods hit the DB!
             config.getEngineDefaults().getExecution().setPrioritized(true); // execute according to the rule priority
             //config.getEngineDefaults().getThreading().setThreadPoolInbound(true);
             //config.getEngineDefaults().getThreading().setThreadPoolOutbound(true);
