@@ -22,6 +22,7 @@ import com.algoTrader.util.CsvWriter;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.SwissquoteUtil;
 
 public class TickServiceImpl extends TickServiceBase {
@@ -111,7 +112,7 @@ public class TickServiceImpl extends TickServiceBase {
 
             // last
             String lastValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[4]/td[4]/strong");
-            BigDecimal last = SwissquoteUtil.getBigDecimal(SwissquoteUtil.getAmount(lastValue));
+            BigDecimal last = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(lastValue));
 
             // volBid
             String volBidValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[6]/td[1]/strong");
@@ -123,11 +124,11 @@ public class TickServiceImpl extends TickServiceBase {
 
             // bid
             String bidValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[6]/td[3]/strong");
-            BigDecimal bid = SwissquoteUtil.getBigDecimal(SwissquoteUtil.getAmount(bidValue));
+            BigDecimal bid = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(bidValue));
 
             // ask
             String askValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[6]/td[4]/strong");
-            BigDecimal ask = SwissquoteUtil.getBigDecimal(SwissquoteUtil.getAmount(askValue));
+            BigDecimal ask = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(askValue));
 
 
             // openIntrest
@@ -136,7 +137,7 @@ public class TickServiceImpl extends TickServiceBase {
 
             // settlement
             String settlementValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[12]/td[2]/strong");
-            BigDecimal settlement = SwissquoteUtil.getBigDecimal(SwissquoteUtil.getAmount(settlementValue));
+            BigDecimal settlement = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(settlementValue));
 
             tick.setDateTime(new Date());
             tick.setLast(last);
@@ -162,18 +163,18 @@ public class TickServiceImpl extends TickServiceBase {
 
             // last
             String lastValue = SwissquoteUtil.getValue(document, "//table[tr/td='Date']/tr[4]/td[4]/strong");
-            BigDecimal last = SwissquoteUtil.getBigDecimal(SwissquoteUtil.getAmount(lastValue));
+            BigDecimal last = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(lastValue));
 
             tick.setDateTime(new Date());
             tick.setLast(last);
             tick.setLastDateTime(lastDateTime);
             tick.setVolAsk(0);
             tick.setVolBid(0);
-            tick.setAsk(SwissquoteUtil.getBigDecimal(0));
-            tick.setBid(SwissquoteUtil.getBigDecimal(0));
+            tick.setAsk(RoundUtil.getBigDecimal(0));
+            tick.setBid(RoundUtil.getBigDecimal(0));
             tick.setVol(volume);
             tick.setOpenIntrest(0);
-            tick.setSettlement(SwissquoteUtil.getBigDecimal(0));
+            tick.setSettlement(RoundUtil.getBigDecimal(0));
         }
 
         tick.setSecurity(security);
