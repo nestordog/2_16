@@ -1,9 +1,8 @@
 package com.algoTrader.util;
 
-import java.math.BigDecimal;
-
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Security;
+import com.algoTrader.entity.StockOption;
 
 public class LookupUtil {
 
@@ -19,9 +18,21 @@ public class LookupUtil {
         return serviceLocator.getLookupService().getDummySecurities();
     }
 
-    public static BigDecimal[] getStrikesOnWatchlist() {
+    public static StockOption[] getStockOptionsOnWatchlist() {
 
         ServiceLocator serviceLocator = ServiceLocator.instance();
-        return serviceLocator.getLookupService().getStrikesOnWatchlist();
+        return serviceLocator.getLookupService().getStockOptionsOnWatchlist();
+    }
+
+    public static boolean hasStockOptionsOnWatchlist() {
+
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        return (serviceLocator.getLookupService().getStockOptionsOnWatchlist().length != 0);
+    }
+
+    public static boolean hasOpenPositions() {
+
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        return (serviceLocator.getLookupService().getOpenPositions().length != 0);
     }
 }
