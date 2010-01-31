@@ -63,15 +63,15 @@ public class CsvWriter {
 
         Tick tick = new TickImpl();
         tick.setDateTime(new Date());
-        tick.setLast(getBigDecimal(18.4));
+        tick.setLast(RoundUtil.getBigDecimal(18.4));
         tick.setLastDateTime(new Date());
         tick.setVolBid(50);
         tick.setVolAsk(100);
-        tick.setBid(getBigDecimal(16.5));
-        tick.setAsk(getBigDecimal(17.4));
+        tick.setBid(RoundUtil.getBigDecimal(16.5));
+        tick.setAsk(RoundUtil.getBigDecimal(17.4));
         tick.setVol(1000);
         tick.setOpenIntrest(16000);
-        tick.setSettlement(getBigDecimal(20));
+        tick.setSettlement(RoundUtil.getBigDecimal(20));
 
         CsvWriter csvWriter = new CsvWriter("osmi");
 
@@ -88,11 +88,5 @@ public class CsvWriter {
     public void close() throws IOException {
 
         writer.close();
-    }
-
-    private static BigDecimal getBigDecimal(double value) {
-
-        BigDecimal decimal = new BigDecimal(value);
-        return decimal.setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 }
