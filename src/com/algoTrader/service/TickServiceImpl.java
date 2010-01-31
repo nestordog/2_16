@@ -64,7 +64,7 @@ public class TickServiceImpl extends TickServiceBase {
 
     protected void handleStartWatchlist() throws Exception {
 
-        List securities = getSecurityDao().findOnWatchlist();
+        List securities = getSecurityDao().findSecuritiesOnWatchlist();
 
         for (Iterator it = securities.iterator(); it.hasNext(); ) {
 
