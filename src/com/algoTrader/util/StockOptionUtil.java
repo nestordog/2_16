@@ -41,6 +41,9 @@ public class StockOptionUtil {
 
     // Black-Scholes formula
     public static double getOptionPrice(double spot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
+
+        if (years < 0 ) years = 0;
+
         double adjustedSpot = spot * Math.exp(-dividend * years);
         double d1 = (Math.log(adjustedSpot/strike) + (intrest + volatility * volatility/2) * years) / (volatility * Math.sqrt(years));
         double d2 = d1 - volatility * Math.sqrt(years);
@@ -68,23 +71,19 @@ public class StockOptionUtil {
     public static BigDecimal getFairValue(Security security, BigDecimal spot, BigDecimal vola) throws RuntimeException {
 
         StockOption option = (StockOption)security;
-        Date current_time = DateUtil.getCurrentEPTime();
+        Date currentTime = DateUtil.getCurrentEPTime();
 
-        double years = (option.getExpiration().getTime() - current_time.getTime()) / MILLISECONDS_PER_YEAR ;
-
-        if (years <0 ) {
-            throw new RuntimeException("cannot calculate OptionPrice for a negative time-period");
-        }
+        double years = (option.getExpiration().getTime() - currentTime.getTime()) / MILLISECONDS_PER_YEAR ;
 
         double fairValue = getOptionPrice(spot.doubleValue(), option.getStrike().doubleValue(), vola.doubleValue(), years, intrest, dividend, option.getType());
-        return SwissquoteUtil.getBigDecimal(fairValue);
+        return RoundUtil.getBigDecimal(fairValue);
     }
 
     public static BigDecimal getExitValue(Security security, BigDecimal spot, BigDecimal vola) {
 
         StockOption option = (StockOption)security;
 
-        BigDecimal exitLevel = new BigDecimal(spot.doubleValue() * (1 - vola.doubleValue() / Math.sqrt(DAYS_PER_YEAR / volaPeriod)));
+        BigDecimal exitLevel = RoundUtil.getBigDecimal(spot.doubleValue() * (1 - vola.doubleValue() / Math.sqrt(DAYS_PER_YEAR / volaPeriod)));
 
         return getFairValue(option, exitLevel, vola);
 
@@ -102,15 +101,22 @@ public class StockOptionUtil {
 
         double margin = getOptionPrice(marginLevel, strike, volatility, years, intrest, dividend, option.getType());
 
-        int contractSize = option.getContractSize();
-
-        return SwissquoteUtil.getBigDecimal(margin * contractSize);
+        return RoundUtil.getBigDecimal(margin);
     }
 
     public static BigDecimal roundTo50(BigDecimal input) {
 
         double rounded = MathUtils.round(input.doubleValue()/ 50.0, 0, BigDecimal.ROUND_FLOOR) * 50.0;
-        return new BigDecimal(rounded).setScale(2, BigDecimal.ROUND_HALF_UP);
+        return RoundUtil.getBigDecimal(rounded);
+    }
+
+    public static BigDecimal getCommission(int numberOfContracts) {
+
+        if (numberOfContracts < 4) {
+            return RoundUtil.getBigDecimal(numberOfContracts * 1.5 + 5);
+        } else {
+            return RoundUtil.getBigDecimal(numberOfContracts * 3);
+        }
     }
 
     public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
@@ -149,8 +155,8 @@ public class StockOptionUtil {
         //System.out.println(getExitValue(option, 6595, 0.1658));
 
         Position position = option.getPosition();
-        BigDecimal settlement = new BigDecimal(49.70);
-        BigDecimal underlaying = new BigDecimal(6608.44);
+        BigDecimal settlement = RoundUtil.getBigDecimal(49.70);
+        BigDecimal underlaying = RoundUtil.getBigDecimal(6608.44);
 
         //System.out.println(getMargin(option, settlement, underlaying));
 
