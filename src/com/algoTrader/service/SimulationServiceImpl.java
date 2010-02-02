@@ -2,7 +2,6 @@ package com.algoTrader.service;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,16 +29,16 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private static String dataSet = PropertiesUtil.getProperty("simulation.dataSet");
 
     private static String[] propertyOrder = {
-    "dateTime",
-    "last",
-    "lastDateTime",
-    "volBid",
-    "volAsk",
-    "bid",
-    "ask",
-    "vol",
-    "openIntrest",
-    "settlement"};
+        "dateTime",
+        "last",
+        "lastDateTime",
+        "volBid",
+        "volAsk",
+        "bid",
+        "ask",
+        "vol",
+        "openIntrest",
+        "settlement"};
 
     private static Map propertyTypes = new HashMap();
 
@@ -57,56 +56,14 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         SimulationServiceImpl.propertyTypes.put("settlement", BigDecimal.class);
     }
 
-    protected void handleSimulate(String isin) throws Exception {
-
-
-        Security security = getSecurityDao().findByISIN(isin);
-        simulate(security);
-    }
-
-    protected void handleSimulate(Security security) throws Exception {
-
-        EPServiceProvider cep = EsperService.getEPServiceInstance();
-        EPRuntime cepRT = cep.getEPRuntime();
-
-        File file = new File("results/tickdata/" + dataSet + "/" + security.getIsin() + ".csv");
-
-        CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
-        spec.setPropertyOrder(propertyOrder);
-        spec.setPropertyTypes(propertyTypes);
-        spec.setTimestampColumn("dateTime");
-        spec.setUsingExternalTimer(true);
-
-        InputAdapter inputAdapter = new TickCSVInputAdapter(cep, spec, security);
-        inputAdapter.start();
-
-        logger.debug("started simulation for security " + security.getIsin());
-    }
-
-    protected void handleSimulate(List isins) throws Exception {
-
-        List securities = new ArrayList();
-        for (Iterator it = isins.iterator(); it.hasNext(); ) {
-            String isin = (String)it.next();
-            Security security = getSecurityDao().findByISIN(isin);
-            securities.add(security);
-        }
-        simulateSecurites(securities);
-    }
-
-    protected void handleSimulateWatchlist() throws Exception {
-
-        List securities = getSecurityDao().findSecuritiesOnWatchlist();
-        simulateSecurites(securities);
-    }
-
-    private void simulateSecurites(List securities) {
+    protected void handleSimulate() throws Exception {
 
         EPServiceProvider cep = EsperService.getEPServiceInstance();
         EPRuntime cepRT = cep.getEPRuntime();
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(cep, true, true);
 
+        List securities = getSecurityDao().findSecuritiesOnWatchlist();
         for (Iterator it = securities.iterator(); it.hasNext(); ) {
 
             Security security = (Security)it.next();
@@ -131,5 +88,4 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         }
         coordinator.start();
     }
-
 }

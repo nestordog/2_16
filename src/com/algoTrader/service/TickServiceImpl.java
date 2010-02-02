@@ -2,15 +2,17 @@ package com.algoTrader.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
+import org.supercsv.exception.SuperCSVException;
 import org.supercsv.exception.SuperCSVReflectionException;
 import org.w3c.dom.Document;
 
@@ -31,60 +33,7 @@ public class TickServiceImpl extends TickServiceBase {
 
     private static Logger logger = MyLogger.getLogger(TickServiceImpl.class.getName());
 
-    private List securities = new ArrayList();
     private Map csvWriters = new HashMap();
-
-
-    protected void handleStart(String isin) throws InterruptedException, SuperCSVReflectionException, IOException {
-
-        Security security = getSecurityDao().findByISIN(isin);
-
-        start(security);
-    }
-
-    protected void handleStart(Security security) throws SuperCSVReflectionException, IOException, InterruptedException {
-
-        securities.add(security);
-
-        CsvWriter csvWriter = new CsvWriter(security.getIsin());
-
-        csvWriters.put(security, csvWriter);
-
-        logger.debug("started retrieving ticks for " + security.getSymbol());
-    }
-
-    protected void handleStart(List isins) throws Exception {
-
-        for (Iterator it = isins.iterator(); it.hasNext(); ) {
-
-            String isin = (String)it.next();
-            start(isin);
-        }
-    }
-
-    protected void handleStartWatchlist() throws Exception {
-
-        List securities = getSecurityDao().findSecuritiesOnWatchlist();
-
-        for (Iterator it = securities.iterator(); it.hasNext(); ) {
-
-            Security security = (Security)it.next();
-            start(security);
-        }
-    }
-
-    protected void handleStop(String isin) throws Exception {
-
-        Security security = getSecurityDao().findByISIN(isin);
-        stop(security);
-    }
-
-    protected void handleStop(Security security) throws Exception {
-
-        securities.remove(security);
-        logger.debug("stopped retrieving ticks for " + security.getSymbol());
-
-    }
 
     protected Tick handleRetrieveTick(Security security) throws Exception {
 
@@ -184,38 +133,33 @@ public class TickServiceImpl extends TickServiceBase {
         return tick;
     }
 
-    protected Tick handleRetrieveTick(String isin) throws Exception {
+    protected void handleRun() {
 
-        Security security = getSecurityDao().findByISIN(isin);
-        return handleRetrieveTick(security);
-    }
+        while(true) {
+            try {
+                List securities = getSecurityDao().findSecuritiesOnWatchlist();
+                for (Iterator it = securities.iterator(); it.hasNext();) {
+                    Security security = (Security)it.next();
 
-    protected void handleRun() throws SuperCSVReflectionException, IOException, InterruptedException {
+                    Tick tick = retrieveTick(security);
 
-        (new Thread("AlgoTraderTickService") {
-            public void run() {
+                    if (tick != null) {
+                        EsperService.getEPServiceInstance().getEPRuntime().sendEvent(tick);
 
-                while(true) {
-                    try {
-                        for (Iterator it = securities.iterator(); it.hasNext();) {
-                            Security security = (Security)it.next();
-
-                            Tick tick = retrieveTick(security);
-
-                            if (tick != null) {
-                                EsperService.getEPServiceInstance().getEPRuntime().sendEvent(tick);
-
-                                CsvWriter csvWriter = (CsvWriter)csvWriters.get(security);
-                                csvWriter.writeTick(tick);
-                            }
+                        CsvWriter csvWriter;
+                        if (csvWriters.containsKey(security)) {
+                            csvWriter = (CsvWriter)csvWriters.get(security);
+                        } else {
+                            csvWriter = new CsvWriter(security.getIsin());
+                            csvWriters.put(security, csvWriter);
                         }
-                        Thread.sleep(timeout);
-                    } catch (Exception ex) {
-                        logger.error("error retrieving ticks ", ex);
+                        csvWriter.writeTick(tick);
                     }
                 }
-
+                Thread.sleep(timeout);
+            } catch (Exception ex) {
+                logger.error("error retrieving ticks ", ex);
             }
-        }).start();
+        }
     }
 }
