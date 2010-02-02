@@ -10,7 +10,6 @@ import com.algoTrader.util.PropertiesUtil;
 
 public class ActionServiceImpl extends ActionServiceBase {
 
-    private static boolean simulation = new Boolean(PropertiesUtil.getProperty("simulation")).booleanValue();
     private static Logger logger = MyLogger.getLogger(ActionServiceImpl.class.getName());
 
     protected void handleSetExitValue(int positionId, BigDecimal exitValue) throws java.lang.Exception {
@@ -42,12 +41,10 @@ public class ActionServiceImpl extends ActionServiceBase {
         logger.info("startTimeTheMarket event");
         if (!getRuleService().isActive("timeTheMarket") && !getRuleService().isActive("openPosition")) {
 
-            StockOption stockOption = getStockOptionService().putOnWatchlist(underlayingId, spot);
+            StockOption stockOption = getStockOptionService().getStockOption(underlayingId, spot);
 
             if (stockOption != null) {
-
-                if (!simulation) getTickService().start(stockOption);
-
+                getWatchlistService().putOnWatchlist(stockOption);
                 getRuleService().activate("timeTheMarket", new String[] { String.valueOf(stockOption.getId())});
             }
         }
@@ -56,15 +53,13 @@ public class ActionServiceImpl extends ActionServiceBase {
     protected void handleTimeTheMarket(int stockOptionId, int underlayingId,  BigDecimal spot) throws Exception {
 
         logger.info("timeTheMarket event");
-        StockOption newStockOption = getStockOptionService().putOnWatchlist(underlayingId, spot);
+        StockOption newStockOption = getStockOptionService().getStockOption(underlayingId, spot);
 
+        // if we got a different stockOption, remove the old one from the watchlist
         if (newStockOption.getId() != stockOptionId) {
-
-            // if we got a different stockOption, remove the old one from the watchlist
-            getStockOptionService().removeFromWatchlist(stockOptionId);
+            getWatchlistService().putOnWatchlist(newStockOption);
+            getWatchlistService().removeFromWatchlist(stockOptionId);
         }
-
-        if (!simulation) getTickService().start(newStockOption);
 
         getRuleService().activate("openPosition", new String[] { String.valueOf(newStockOption.getId())});
         getRuleService().deactivate("timeTheMarket");
