@@ -2,7 +2,7 @@
 
 cd /usr/local/AlgoTrader
 
-CP=webroot/WEB-INF/classes
+CP=classes
 for name in lib/*.jar ; do
   CP=$CP:$name
 done
