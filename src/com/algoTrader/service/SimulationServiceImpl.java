@@ -56,7 +56,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         SimulationServiceImpl.propertyTypes.put("settlement", BigDecimal.class);
     }
 
-    protected void handleSimulate() throws Exception {
+    protected void handleRun() throws Exception {
 
         EPServiceProvider cep = EsperService.getEPServiceInstance();
         EPRuntime cepRT = cep.getEPRuntime();
@@ -81,7 +81,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             spec.setTimestampColumn("dateTime");
             spec.setUsingExternalTimer(true);
 
-            InputAdapter inputAdapter = new TickCSVInputAdapter(cep, spec, security);
+            InputAdapter inputAdapter = new TickCSVInputAdapter(cep, spec, security.getId());
             coordinator.coordinate(inputAdapter);
 
             logger.debug("started simulation for security " + security.getIsin());

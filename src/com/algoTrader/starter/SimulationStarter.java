@@ -7,6 +7,6 @@ public class SimulationStarter {
     public static void main(String[] args) {
 
         ServiceLocator.instance().getRuleService().activateAll();
-        ServiceLocator.instance().getSimulationService().simulate();
+        ServiceLocator.instance().getSimulationService().run();
     }
 }
