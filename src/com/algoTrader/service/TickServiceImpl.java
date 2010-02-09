@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Tick;
@@ -97,16 +98,16 @@ public class TickServiceImpl extends TickServiceBase {
         } else if (security instanceof Security ) {
 
             // date
-            String dateValue = SwissquoteUtil.getValue(document, "//table[tr/td='Date']/tr[2]/td[1]/strong");
-            String timeValue = SwissquoteUtil.getValue(document, "//table[tr/td='Date']/tr[2]/td[2]/strong");
+            String dateValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[2]/td[1]/strong");
+            String timeValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[2]/td[2]/strong");
             Date lastDateTime = SwissquoteUtil.getDate(dateValue + " " + (timeValue != null ? timeValue : "00:00:00"));
 
             // volume
-            String volumeValue = SwissquoteUtil.getValue(document, "//table[tr/td='Date']/tr[4]/td[1]/strong");
+            String volumeValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[4]/td[1]/strong");
             int volume = SwissquoteUtil.getNumber(volumeValue);
 
             // last
-            String lastValue = SwissquoteUtil.getValue(document, "//table[tr/td='Date']/tr[4]/td[4]/strong");
+            String lastValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[4]/td[4]/strong");
             BigDecimal last = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(lastValue));
 
             tick.setDateTime(new Date());
@@ -134,7 +135,7 @@ public class TickServiceImpl extends TickServiceBase {
             public void run() {
                 while(true) {
                     try {
-                        processSecuritiesOnWatchlist();
+                        ServiceLocator.instance().getTickService().processSecuritiesOnWatchlist();
                         Thread.sleep(timeout);
                     } catch (Exception ex) {
                         logger.error("error retrieving ticks ", ex);
