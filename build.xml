@@ -6,8 +6,7 @@
     <property name="hibernate.db.dialect" value="org.hibernate.dialect.MySQLDialect"/>
 
     <path id="classpath">
-        <pathelement location="webroot/WEB-INF/classes"/>
-        <pathelement location="/usr/local/tomcat5.5/common/lib/servlet-api.jar"/>
+        <pathelement location="classes"/>
         <fileset dir="lib/">
             <include name="**/*.jar"/>
         </fileset>
@@ -20,13 +19,13 @@
     <pathconvert refid="hibernate.mapping.files" property="hibernate.mappings" pathsep=" "/>
 
     <target name="compile">
-        <javac destdir="webroot/WEB-INF/classes" debug="true" debuglevel="lines,vars,source">
+        <javac destdir="classes" debug="true" debuglevel="lines,vars,source">
             <src path="src"/>
             <src path="target"/>
             <classpath refid="classpath"/>
         </javac>
 
-        <copy todir="webroot/WEB-INF/classes">
+        <copy todir="classes">
             <fileset dir="src" excludes="**/*.java"/>
             <fileset dir="target" excludes="**/*.java"/>
         </copy>
