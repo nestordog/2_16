@@ -19,7 +19,7 @@
     <property name="show_sql">false</property>
     <!-- <property name="hibernate.hbm2ddl.auto">update</property> -->
     <property name="cache.provider_class">org.hibernate.cache.EhCacheProvider</property>
-    <property name="hibernate.cache.query_cache_factory">com.algoTrader.util.CustomQueryCacheFactory</property>
+    <property name="hibernate.cache.query_cache_factory">org.hibernate.cache.StandardQueryCacheFactory</property>
     <property name="hibernate.cache.use_query_cache">true</property>
     <property name="current_session_context_class">thread</property>
     <property name="hibernate.jdbc.batch_size">50</property>
