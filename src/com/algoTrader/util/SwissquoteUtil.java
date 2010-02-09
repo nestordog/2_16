@@ -81,6 +81,7 @@ public class SwissquoteUtil {
 
     public static int getNumber(String inputString) throws ParseException {
 
+        if (inputString == null) return 0;
         if ("-".equals(inputString)) return 0;
 
         return NumberFormat.getNumberInstance().parse(inputString).intValue();
