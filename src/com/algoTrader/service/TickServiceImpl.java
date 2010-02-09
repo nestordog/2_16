@@ -1,19 +1,14 @@
 package com.algoTrader.service;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
-import org.supercsv.exception.SuperCSVException;
-import org.supercsv.exception.SuperCSVReflectionException;
 import org.w3c.dom.Document;
 
 import com.algoTrader.entity.Security;
@@ -135,30 +130,39 @@ public class TickServiceImpl extends TickServiceBase {
 
     protected void handleRun() {
 
-        while(true) {
-            try {
-                List securities = getSecurityDao().findSecuritiesOnWatchlist();
-                for (Iterator it = securities.iterator(); it.hasNext();) {
-                    Security security = (Security)it.next();
-
-                    Tick tick = retrieveTick(security);
-
-                    if (tick != null) {
-                        EsperService.getEPServiceInstance().getEPRuntime().sendEvent(tick);
-
-                        CsvWriter csvWriter;
-                        if (csvWriters.containsKey(security)) {
-                            csvWriter = (CsvWriter)csvWriters.get(security);
-                        } else {
-                            csvWriter = new CsvWriter(security.getIsin());
-                            csvWriters.put(security, csvWriter);
-                        }
-                        csvWriter.writeTick(tick);
+        (new Thread("AlgoTraderTickService") {
+            public void run() {
+                while(true) {
+                    try {
+                        processSecuritiesOnWatchlist();
+                        Thread.sleep(timeout);
+                    } catch (Exception ex) {
+                        logger.error("error retrieving ticks ", ex);
                     }
                 }
-                Thread.sleep(timeout);
-            } catch (Exception ex) {
-                logger.error("error retrieving ticks ", ex);
+            }
+        }).start();
+    }
+
+    protected void handleProcessSecuritiesOnWatchlist() throws Exception {
+
+        List securities = getSecurityDao().findSecuritiesOnWatchlist();
+        for (Iterator it = securities.iterator(); it.hasNext();) {
+            Security security = (Security)it.next();
+
+            Tick tick = retrieveTick(security);
+
+            if (tick != null) {
+                EsperService.getEPServiceInstance().getEPRuntime().sendEvent(tick);
+
+                CsvWriter csvWriter;
+                if (csvWriters.containsKey(security)) {
+                    csvWriter = (CsvWriter)csvWriters.get(security);
+                } else {
+                    csvWriter = new CsvWriter(security.getIsin());
+                    csvWriters.put(security, csvWriter);
+                }
+                csvWriter.writeTick(tick);
             }
         }
     }
