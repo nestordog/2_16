@@ -75,6 +75,11 @@ public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase 
         return (Security[])getSecurityDao().findDummySecurities().toArray(new Security[0]);
     }
 
+    protected Security[] handleGetSecuritiesOnWatchlist() throws Exception {
+
+        return (Security[])getSecurityDao().findSecuritiesOnWatchlist().toArray(new Security[0]);
+    }
+
     protected StockOption[] handleGetStockOptionsOnWatchlist() throws Exception {
 
         return (StockOption[])getStockOptionDao().findStockOptionsOnWatchlist().toArray(new StockOption[0]);
@@ -87,7 +92,10 @@ public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase 
 
     protected void handleTest() throws Exception {
 
-        Account account = getAccountDao().load(1);
-        System.out.println(account);
+        while (true) {
+            Security security = getDummySecurities()[0];
+            System.out.println(security.getPosition().getExitValue());
+            Thread.sleep(2000);
+        }
     }
 }
