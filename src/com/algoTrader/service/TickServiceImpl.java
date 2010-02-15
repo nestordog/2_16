@@ -35,10 +35,7 @@ public class TickServiceImpl extends TickServiceBase {
 
         Document document = SwissquoteUtil.getSecurityDocument(security);
 
-        if (XPathAPI.selectSingleNode(document, "//a[contains(.,'Der Markt ist geschlossen')]") != null) {
-            // market closed
-            return null;
-        } else if (XPathAPI.selectSingleNode(document, "//td[contains(.,'Error - Wrong instrument')]") != null) {
+        if (XPathAPI.selectSingleNode(document, "//td[contains(.,'Error - Wrong instrument')]") != null) {
             throw new Exception("Wrong Instrument returned for " + security);
         }
 
@@ -46,7 +43,7 @@ public class TickServiceImpl extends TickServiceBase {
 
         if (security instanceof StockOption ) {
 
-            // date
+            // lastDateTime
             String dateValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[2]/td[1]/strong");
             String timeValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[2]/td[2]/strong");
             Date lastDateTime = SwissquoteUtil.getDate(dateValue + " " + (timeValue != null ? timeValue : "00:00:00"));
@@ -66,6 +63,9 @@ public class TickServiceImpl extends TickServiceBase {
             // volAsk
             String volAskValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[6]/td[2]/strong");
             int volAsk = SwissquoteUtil.getNumber(volAskValue);
+
+            // check if market is closed
+            if (volBid == 0 || volAsk == 0) return null;
 
             // bid
             String bidValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[6]/td[3]/strong");
@@ -97,9 +97,13 @@ public class TickServiceImpl extends TickServiceBase {
 
         } else if (security instanceof Security ) {
 
-            // date
+            // lastDateTime
             String dateValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[2]/td[1]/strong");
             String timeValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[2]/td[2]/strong");
+
+            // check if market is closed
+            if (timeValue != null && Integer.parseInt(timeValue.replace(":", "")) > 173000) return null;
+
             Date lastDateTime = SwissquoteUtil.getDate(dateValue + " " + (timeValue != null ? timeValue : "00:00:00"));
 
             // volume
