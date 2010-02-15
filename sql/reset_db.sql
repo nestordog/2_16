@@ -13,6 +13,10 @@ delete from transaction;
 
 delete from position;
 
+update SECURITY
+set position_fk = null
+where not position_fk is null;
+
 delete from security
 where isin is null;
 
