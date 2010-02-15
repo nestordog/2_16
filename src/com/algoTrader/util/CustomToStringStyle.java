@@ -10,7 +10,7 @@ import com.algoTrader.entity.Entity;
 
 public class CustomToStringStyle extends StandardToStringStyle {
 
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss,SSS");
+    private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss,SSS");
 
     private static CustomToStringStyle style;
 
@@ -34,7 +34,8 @@ public class CustomToStringStyle extends StandardToStringStyle {
         if ( value instanceof Entity ) {
             return;
         } else if (value instanceof Date) {
-            buffer.append(format.format(value));
+            String out = format.format(value);
+            buffer.append(out);
         } else {
             super.appendDetail(buffer, fieldName, value);
         }
