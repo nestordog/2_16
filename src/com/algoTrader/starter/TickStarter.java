@@ -4,9 +4,8 @@ import com.algoTrader.ServiceLocator;
 
 public class TickStarter {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         ServiceLocator.instance().getRuleService().activateAll();
-        ServiceLocator.instance().getTickService().run();
     }
 }
