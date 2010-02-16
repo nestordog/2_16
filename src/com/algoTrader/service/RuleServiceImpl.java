@@ -1,15 +1,17 @@
 package com.algoTrader.service;
 
-import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.Rule;
+import com.algoTrader.entity.Security;
+import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.espertech.esper.client.EPAdministrator;
+import com.espertech.esper.client.EPPreparedStatement;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.StatementAwareUpdateListener;
@@ -29,45 +31,51 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
-    protected void handleActivate(String ruleName) throws Exception {
+    protected void handleActivate(RuleName ruleName) throws Exception {
 
         Rule rule = getRuleDao().findByName(ruleName);
-        activate(rule, rule.getPrioritisedDefinition());
+        activate(rule);
     }
 
-    protected void handleActivate(String ruleName, String[] parameters) throws Exception {
+    protected void handleActivate(RuleName ruleName, Security target) throws Exception {
 
         Rule rule = getRuleDao().findByName(ruleName);
-        if (rule == null) throw new Exception("no rule for the name" + ruleName + " was found");
 
-        MessageFormat format = new MessageFormat(rule.getPrioritisedDefinition());
-        String definition = format.format(parameters);
-
-        activate(rule, definition);
+        if (!rule.isPrepared()) throw new RuleServiceException("target is allowed only on prepared rules");
+        rule.setTarget(target);
+        activate(rule);
     }
 
     protected void handleActivate(Rule rule) throws java.lang.Exception {
 
-        activate(rule, rule.getPrioritisedDefinition());
-    }
+        String definition = rule.getPrioritisedDefinition();
+        String name = rule.getName().getValue();
 
-    private void activate(Rule rule, String definition) throws java.lang.Exception {
+        //update the entity
+        rule.setActive(true);
+        getRuleDao().update(rule);
 
         EPServiceProvider cep = EsperService.getEPServiceInstance();
         EPAdministrator cepAdm = cep.getEPAdministrator();
 
         // deactivate the statement if it already exists
-        EPStatement oldStatement = cep.getEPAdministrator().getStatement(rule.getName());
+        EPStatement oldStatement = cep.getEPAdministrator().getStatement(name);
         if (oldStatement != null) {
             oldStatement.destroy();
         }
 
         // create the new statement
         EPStatement newStatement;
-        if (rule.isPattern()) {
-            newStatement = cepAdm.createPattern(definition, rule.getName());
+        if (rule.isPrepared()) {
+            EPPreparedStatement prepared = cepAdm.prepareEPL(definition);
+            prepared.setObject(1, rule.getTarget().getId());
+            newStatement = cepAdm.create(prepared, name);
         } else {
-            newStatement = cepAdm.createEPL(definition, rule.getName());
+            if (rule.isPattern()) {
+                newStatement = cepAdm.createPattern(definition, name);
+            } else {
+                newStatement = cepAdm.createEPL(definition, name);
+            }
         }
 
         // add the subscribers
@@ -94,31 +102,44 @@ public class RuleServiceImpl extends RuleServiceBase {
         logger.debug("activated rule " + rule.getName());
     }
 
-    protected void handleDeactivate(String ruleName) throws Exception {
+    protected void handleDeactivate(RuleName ruleName) throws Exception {
 
+        // update the rule entity
+        Rule rule = getRuleDao().findByName(ruleName);
+        rule.setTarget(null);
+        rule.setActive(false);
+        getRuleDao().update(rule);
+
+        // destroy the statement
         EPServiceProvider cep = EsperService.getEPServiceInstance();
-        EPStatement statement = cep.getEPAdministrator().getStatement(ruleName);
+        EPStatement statement = cep.getEPAdministrator().getStatement(ruleName.getValue());
 
-        if (statement != null) {
-            statement.destroy();
-            logger.debug("deactivated rule " + ruleName);
-        } else {
-            logger.debug("rule to be deactivated does not exist: " + ruleName);
-        }
+        statement.destroy();
+        logger.debug("deactivated rule " + ruleName);
     }
 
     protected void handleDeactivateAll() throws Exception {
 
+        // deactivate all entities
+        Collection col = getRuleDao().loadAll();
+        for (Iterator it = col.iterator(); it.hasNext();) {
+            Rule rule = (Rule)it.next();
+            rule.setTarget(null);
+            rule.setActive(false);
+        }
+        getRuleDao().update(col);
+
+        // destroy all statements
         EPServiceProvider cep = EsperService.getEPServiceInstance();
         cep.destroy();
 
         logger.debug("activated all rules");
     }
 
-    protected boolean handleIsActive(String ruleName) throws Exception {
+    protected boolean handleIsActive(RuleName ruleName) throws Exception {
 
         EPServiceProvider cep = EsperService.getEPServiceInstance();
-        EPStatement statement = cep.getEPAdministrator().getStatement(ruleName);
+        EPStatement statement = cep.getEPAdministrator().getStatement(ruleName.getValue());
 
         if (statement != null && statement.isStarted()) {
             return true;
