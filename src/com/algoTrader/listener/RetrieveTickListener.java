@@ -11,6 +11,6 @@ public class RetrieveTickListener  implements StatementAwareUpdateListener {
     public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement,
             EPServiceProvider epServiceProvider) {
 
-        ServiceLocator.instance().getTickService().processSecuritiesOnWatchlist();
+        ServiceLocator.instance().getActionService().retrieveTicks();
     }
 }
