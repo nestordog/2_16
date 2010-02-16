@@ -5,12 +5,23 @@ import java.math.BigDecimal;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.StockOption;
+import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 
 public class ActionServiceImpl extends ActionServiceBase {
 
+    private static boolean simulation = new Boolean(PropertiesUtil.getProperty("simulation")).booleanValue();
+
     private static Logger logger = MyLogger.getLogger(ActionServiceImpl.class.getName());
+
+    protected void handleRetrieveTicks() {
+
+        if (simulation) return; // unfortunately timer.at pattern get's executed in simulation
+
+        logger.info("retrieveTicks event");
+        getTickService().processSecuritiesOnWatchlist();
+    }
 
     protected void handleSetExitValue(int positionId, BigDecimal exitValue) throws java.lang.Exception {
 
@@ -39,13 +50,13 @@ public class ActionServiceImpl extends ActionServiceBase {
     protected void handleStartTimeTheMarket(int underlayingId, BigDecimal spot) throws java.lang.Exception {
 
         logger.info("startTimeTheMarket event");
-        if (!getRuleService().isActive("timeTheMarket") && !getRuleService().isActive("openPosition")) {
+        if (!getRuleService().isActive(RuleName.TIME_THE_MARKET) && !getRuleService().isActive(RuleName.OPEN_POSITION)) {
 
             StockOption stockOption = getStockOptionService().getStockOption(underlayingId, spot);
 
             if (stockOption != null) {
                 getWatchlistService().putOnWatchlist(stockOption);
-                getRuleService().activate("timeTheMarket", new String[] { String.valueOf(stockOption.getId())});
+                getRuleService().activate(RuleName.TIME_THE_MARKET, stockOption);
             }
         }
     }
@@ -61,8 +72,8 @@ public class ActionServiceImpl extends ActionServiceBase {
             getWatchlistService().removeFromWatchlist(stockOptionId);
         }
 
-        getRuleService().activate("openPosition", new String[] { String.valueOf(newStockOption.getId())});
-        getRuleService().deactivate("timeTheMarket");
+        getRuleService().activate(RuleName.OPEN_POSITION, newStockOption);
+        getRuleService().deactivate(RuleName.TIME_THE_MARKET);
     }
 
 
@@ -70,6 +81,6 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         logger.info("openPosition event");
         getStockOptionService().openPosition(securityId, settlement, currentValue, underlaying);
-        getRuleService().deactivate("openPosition");
+        getRuleService().deactivate(RuleName.OPEN_POSITION);
     }
 }
