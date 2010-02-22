@@ -24,8 +24,6 @@ import com.algoTrader.entity.Security;
 
 public class SwissquoteUtil {
 
-    private static String userId = PropertiesUtil.getProperty("swissquote.userId");
-    private static String password = PropertiesUtil.getProperty("swissquote.password");
 
     private static Logger logger = MyLogger.getLogger(SwissquoteUtil.class.getName());
 
@@ -35,39 +33,26 @@ public class SwissquoteUtil {
 
         GetMethod get = new GetMethod(tickUrl + security.getIsin() + "_" + security.getMarket() + "_" + security.getCurrency());
 
-        String content;
-        try {
-            HttpClient standardClient = HttpClientUtil.getSwissquotePremiumClient(userId, password, true);
-            int status = standardClient.executeMethod(get);
+        HttpClient standardClient = HttpClientUtil.getSwissquotePremiumClient();
+        int status = standardClient.executeMethod(get);
 
-            if (status == HttpStatus.SC_NOT_FOUND) {
-                logger.warn("invalid security: " + security.getIsin());
-                return null;
-            }else if (status != HttpStatus.SC_OK) {
-                logger.error("could not retrieve security: " + security.getIsin() + ", status: " + get.getStatusLine());
-                return null;
-            }
-
-            // get the content
-            InputStream in = get.getResponseBodyAsStream();
-            StringBuffer out = new StringBuffer();
-            byte[] b = new byte[1024];
-            for (int n; (n = in.read(b)) != -1;) {
-                out.append(new String(b, 0, n));
-            }
-            in.close();
-            content = out.toString();
-
-        } finally {
-            get.releaseConnection();
+        if (status == HttpStatus.SC_NOT_FOUND) {
+            logger.warn("invalid security: " + security.getIsin());
+            return null;
+        }else if (status != HttpStatus.SC_OK) {
+            logger.error("could not retrieve security: " + security.getIsin() + ", status: " + get.getStatusLine());
+            return null;
         }
 
-        // parse the Document using Tidy
+        // parse the content using Tidy
         Tidy tidy = TidyUtil.getInstance();
-        Document document = tidy.parseDOM(new ByteArrayInputStream(content.getBytes()), null);
+        Document document = tidy.parseDOM(get.getResponseBodyAsStream(), null);
+
+        get.releaseConnection();
 
         // save the file
         XmlUtil.saveDocumentToFile(document, security.getIsin() + ".xml", "results/option/", false);
+
         return document;
     }
 
