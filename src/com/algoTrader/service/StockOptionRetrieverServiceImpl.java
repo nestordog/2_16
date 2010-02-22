@@ -57,7 +57,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
 
         String content;
         try {
-            HttpClient standardClient = HttpClientUtil.getStandardClient(true);
+            HttpClient standardClient = HttpClientUtil.getStandardClient();
             int status = standardClient.executeMethod(get);
 
             if (status == HttpStatus.SC_NOT_FOUND) {
@@ -141,7 +141,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
 
         String content;
         try {
-            HttpClient standardClient = HttpClientUtil.getStandardClient(true);
+            HttpClient standardClient = HttpClientUtil.getStandardClient();
             int status = standardClient.executeMethod(get);
 
             if (status == HttpStatus.SC_NOT_FOUND) {
