@@ -16,6 +16,7 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.StockOptionImpl;
+import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Market;
@@ -176,24 +177,29 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         if (position.getSecurity() instanceof StockOption) {
 
             StockOption stockOption = (StockOption) position.getSecurity();
-            BigDecimal settlement = stockOption.getLastTick().getSettlement();
-            BigDecimal underlaying = stockOption.getUnderlaying().getLastTick().getCurrentValue();
+            Tick tick = stockOption.getLastTick();
+            if (tick != null) {
+                BigDecimal settlement = tick.getSettlement();
+                BigDecimal underlaying = stockOption.getUnderlaying().getLastTick().getCurrentValue();
 
-            double marginPerContract = StockOptionUtil.getMargin(stockOption, settlement, underlaying).doubleValue() * stockOption.getContractSize();
-            int numberOfContracts = Math.abs(position.getQuantity());
-            BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
+                double marginPerContract = StockOptionUtil.getMargin(stockOption, settlement, underlaying).doubleValue() * stockOption.getContractSize();
+                int numberOfContracts = Math.abs(position.getQuantity());
+                BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
 
-            position.setMargin(totalMargin);
+                position.setMargin(totalMargin);
 
-            getPositionDao().update(position);
+                getPositionDao().update(position);
 
-            Account account = position.getAccount();
+                Account account = position.getAccount();
 
-            if (account.getAvailableAmount().doubleValue() >= 0) {
-                logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount());
+                if (account.getAvailableAmount().doubleValue() >= 0) {
+                    logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount());
+                } else {
+                    int percent = (int)(-account.getAvailableAmount().doubleValue() / account.getBalance().doubleValue() * 100d);
+                    logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount() + " (" + percent + "% of balance)");
+                }
             } else {
-                int percent = (int)(-account.getAvailableAmount().doubleValue() / account.getBalance().doubleValue() * 100d);
-                logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount() + " (" + percent + "% of balance)");
+                logger.warn("no last tick available to set margin on " + stockOption.getSymbol());
             }
         }
     }
