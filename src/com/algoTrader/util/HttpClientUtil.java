@@ -1,8 +1,12 @@
 package com.algoTrader.util;
 
+import java.io.BufferedReader;
+import java.io.Console;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HostConfiguration;
@@ -20,30 +24,39 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
-import org.apache.log4j.Logger;
+import org.apache.xpath.XPathAPI;
+import org.w3c.dom.Document;
+import org.w3c.tidy.Tidy;
 
 public class HttpClientUtil {
 
-    private static String ebaySiteId = PropertiesUtil.getProperty("ebay.siteId");
-    private static String ebayLoginUrl = PropertiesUtil.getProperty("ebay.loginUrl");
-    private static String swissquoteLoginUrl = PropertiesUtil.getProperty("swissquote.loginUrl");
+    private static String premiumUserId = PropertiesUtil.getProperty("swissquote.premium.userId");
+    private static String premiumPassword = PropertiesUtil.getProperty("swissquote.premium.password");
+    private static String premiumHost = PropertiesUtil.getProperty("swissquote.premium.loginUrl");
+
+    private static String tradeHost = PropertiesUtil.getProperty("swissquote.trade.host");
+    private static String tradeLoginUrl = PropertiesUtil.getProperty("swissquote.trade.loginUrl");
+    private static String tradePasswordUrl = PropertiesUtil.getProperty("swissquote.trade.passwordUrl");
+    private static String tradeLevel3Url = PropertiesUtil.getProperty("swissquote.trade.level3Url");
+    private static String tradeUserId = PropertiesUtil.getProperty("swissquote.trade.userId");
+    private static String tradePassword;
 
     private static String proxyHost = System.getProperty("http.proxyHost");
     private static String proxyPort = System.getProperty("http.proxyPort");
     private static boolean useProxy = (proxyHost != null) ? true : false;
 
     private static int workers = Integer.parseInt(PropertiesUtil.getProperty("workers"));
-
     private static String userAgent = PropertiesUtil.getProperty("userAgent");
+    private static boolean retry = new Boolean(PropertiesUtil.getProperty("retry")).booleanValue();
 
-    private static Logger logger = MyLogger.getLogger(HttpClientUtil.class.getName());
+    private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_hh:mm:ss");
 
-    private static HttpClient _standardClient;
-    private static Map _loggedInClients = new HashMap();
+    private static HttpClient standardClient;
+    private static HttpClient loggedInClient;
 
-    public static HttpClient getStandardClient(boolean retry) {
+    public static HttpClient getStandardClient() {
 
-        if (_standardClient != null) return _standardClient;
+        if (standardClient != null) return standardClient;
 
         // EasySSLProtocolSocketFactory if testing with proxomitron
         if (useProxy) {
@@ -59,91 +72,176 @@ public class HttpClientUtil {
         connectionManager.setParams(params);
 
         // init the client
-        _standardClient = new HttpClient(new MultiThreadedHttpConnectionManager());
+        standardClient = new HttpClient(new MultiThreadedHttpConnectionManager());
         if (useProxy) {
-            _standardClient.getHostConfiguration().setProxy(proxyHost, Integer.parseInt(proxyPort)); // proxomitron
+            standardClient.getHostConfiguration().setProxy(proxyHost, Integer.parseInt(proxyPort)); // proxomitron
         }
 
         // set the retry Handler
         if (retry) {
-            _standardClient.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(5, true));
+            standardClient.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(5, true));
         }
 
         // cookie settings http.protocol.cookie-policy
-        _standardClient.getParams().setParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, new Boolean(true));
-        _standardClient.getParams().setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+        standardClient.getParams().setParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, new Boolean(true));
+        standardClient.getParams().setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
 
         // user agent
-        _standardClient.getParams().setParameter(HttpMethodParams.USER_AGENT, userAgent);
+        standardClient.getParams().setParameter(HttpMethodParams.USER_AGENT, userAgent);
 
-        return _standardClient;
+        return standardClient;
     }
 
-    public static HttpClient getEbayLoggedInClient(String userId, String password, boolean retry, boolean forceLogin) {
+    public static HttpClient getSwissquotePremiumClient() {
 
-        if (!forceLogin && _loggedInClients.containsKey(userId))
-            return (HttpClient)_loggedInClients.get(userId);
+        if (loggedInClient != null) return loggedInClient;
 
-        HttpClient client = getStandardClient(retry);
+        HttpClient loggedInClient = getStandardClient();
 
-        // get the login screen
-        GetMethod loginScreenGet = new GetMethod(ebayLoginUrl + "?SignIn");
-        try {
-            int loginScreenStatus = client.executeMethod(loginScreenGet);
-
-            if (loginScreenStatus != HttpStatus.SC_OK) {
-                logger.error("could not get login screen: " + loginScreenGet.getStatusLine());
-                return client; // no need to go any further
-            }
-        } catch (IOException e) {
-            logger.error("could not get login screen", e);
-            return client; // no need to go any further
-        } finally {
-            loginScreenGet.releaseConnection();
-        }
-
-        // log in
-        PostMethod loginPost = new PostMethod(ebayLoginUrl);
-        loginPost.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-        NameValuePair[] loginData = {
-                new NameValuePair("MfcISAPICommand", "SignInWelcome"),
-                new NameValuePair("siteid", ebaySiteId),
-                new NameValuePair("UsingSSL", "1"),
-                new NameValuePair("userid", userId),
-                new NameValuePair("pass", password)
-            };
-        loginPost.setRequestBody(loginData);
-        try {
-            int loginPostStatus = client.executeMethod(loginPost);
-
-            if (loginPostStatus != HttpStatus.SC_OK) {
-                logger.error("could not log in: " + loginPost.getStatusLine());
-            }
-        } catch (IOException e) {
-            logger.error("could not log in ", e);
-        } finally {
-            loginPost.releaseConnection();
-        }
-
-        _loggedInClients.put(userId, client);
-
-        return client;
-    }
-
-    public static HttpClient getSwissquotePremiumClient(String userId, String password, boolean retry) {
-
-        if (_loggedInClients.containsKey(userId))
-            return (HttpClient)_loggedInClients.get(userId);
-
-        HttpClient client = getStandardClient(retry);
-
-        client.getState().setCredentials(
-                new AuthScope(swissquoteLoginUrl, 80),
-                new UsernamePasswordCredentials(userId, password)
+        loggedInClient.getState().setCredentials(
+                new AuthScope(premiumHost, 80),
+                new UsernamePasswordCredentials(premiumUserId, premiumPassword)
         );
 
-        _loggedInClients.put(userId, client);
+        return loggedInClient;
+    }
+
+    public static HttpClient getSwissquoteTradeClient() throws Exception {
+
+        if (tradePassword == null) initTradePassword();
+
+        HttpClient client = getStandardClient();
+        Tidy tidy = TidyUtil.getInstance();
+
+        // set the Basic-Auth credentials
+        client.getState().setCredentials(
+                new AuthScope(tradeHost, 443, "Online Trading"),
+                new UsernamePasswordCredentials(tradeUserId, tradePassword)
+        );
+
+        // login screen
+        String loginPath = null;
+        Document loginDocument = null;
+        {
+            GetMethod method = new GetMethod(tradeLoginUrl);
+            int status = client.executeMethod(method);
+
+            if (status != HttpStatus.SC_OK) {
+                throw new LoginException("error on login screen: " + method.getStatusLine());
+            }
+
+            loginPath = method.getPath();
+            loginDocument = tidy.parseDOM(method.getResponseBodyAsStream(), null);
+            XmlUtil.saveDocumentToFile(loginDocument, "loginGet_" + format.format(new Date()) + ".xml", "results/login/", false);
+
+            method.releaseConnection();
+        }
+
+        // password screen
+        String passwordPath = null;
+        Document passwordDocument = null;
+        if (tradePasswordUrl.contains(loginPath)) {
+
+            String redirectUrl;
+            {
+                PostMethod method = new PostMethod(tradePasswordUrl);
+                method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+                NameValuePair[] loginData = {
+                        new NameValuePair("language", "1"),
+                        new NameValuePair("pr", "1"),
+                        new NameValuePair("st", "1"),
+                        new NameValuePair("passwd", tradePassword)
+                    };
+
+                method.setRequestBody(loginData);
+                int status = client.executeMethod(method);
+
+                if ((status != HttpStatus.SC_MOVED_TEMPORARILY) ||
+                    !method.getResponseHeader("location").getValue().contains(tradeLevel3Url)) {
+                        throw new LoginException("after password screen did not get redirect");
+                }
+
+                redirectUrl = method.getResponseHeader("location").getValue();
+                method.releaseConnection();
+            }
+
+            {
+                GetMethod method = new GetMethod(redirectUrl);
+                int status = client.executeMethod(method);
+
+                if (status != HttpStatus.SC_OK) {
+                    throw new LoginException("error on password screen: " + method.getStatusLine());
+                }
+
+                passwordPath = method.getPath();
+                passwordDocument = tidy.parseDOM(method.getResponseBodyAsStream(), null);
+                XmlUtil.saveDocumentToFile(passwordDocument, "passwordPost_" + format.format(new Date()) + ".xml", "results/login/", false);
+
+                method.releaseConnection();
+            }
+        }
+
+        // level3 screen
+        if (tradeLevel3Url.contains(loginPath) || tradeLevel3Url.contains(passwordPath)) {
+
+            Document document = tradeLevel3Url.contains(loginPath) ? loginDocument : passwordDocument;
+
+            String rec = XPathAPI.selectSingleNode(document, "//input[@name='rec']/@value").getNodeValue();
+            String rqu = XPathAPI.selectSingleNode(document, "//input[@name='rqu']/@value").getNodeValue();
+            String rse = XPathAPI.selectSingleNode(document, "//input[@name='rse']/@value").getNodeValue();
+            String level3Key = XPathAPI.selectSingleNode(document, "//strong[2]").getFirstChild().getNodeValue();
+
+            PostMethod method = new PostMethod(tradeLevel3Url);
+
+            method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+            NameValuePair[] loginData = {
+                    new NameValuePair("rec", rec),
+                    new NameValuePair("rqu", rqu),
+                    new NameValuePair("rse", rse),
+                    new NameValuePair("tpw", getLevel3Code(level3Key))
+                };
+            method.setRequestBody(loginData);
+
+            int status = client.executeMethod(method);
+
+            if ((status != HttpStatus.SC_MOVED_TEMPORARILY) ||
+                !method.getResponseHeader("location").getValue().contains(tradeLoginUrl)) {
+                    throw new LoginException("after level-3 screen did not get redirect");
+            }
+
+            method.releaseConnection();
+        }
 
         return client;
+    }
+
+    public static void initTradePassword() throws IOException {
+
+        Console console = System.console();
+        System.out.println("Enter Trade password: ");
+        if (console == null) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            tradePassword = reader.readLine();
+        } else {
+            tradePassword = String.copyValueOf(console.readPassword());
+        }
+    }
+
+    private static String getLevel3Code(String level3Key) throws IOException {
+
+        int h = level3Key.charAt(0)-97;
+        int v = Integer.parseInt(level3Key.substring(1)) - 1;
+
+        InputStream in = HttpClientUtil.class.getResourceAsStream("/level3.txt");
+        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+        String[][] level3Card = new String[10][10];
+
+        for (int i = 0; i < level3Card.length; i++){
+            level3Card[i] = br.readLine().split("\\s");
+        }
+        in.close();
+
+        return level3Card[v][h];
     }
 }
