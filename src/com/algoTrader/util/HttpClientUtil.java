@@ -48,6 +48,7 @@ public class HttpClientUtil {
     private static int workers = Integer.parseInt(PropertiesUtil.getProperty("workers"));
     private static String userAgent = PropertiesUtil.getProperty("userAgent");
     private static boolean retry = new Boolean(PropertiesUtil.getProperty("retry")).booleanValue();
+    private static boolean swissquoteTransactions = new Boolean(PropertiesUtil.getProperty("swissquoteTransactions")).booleanValue();
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_hh:mm:ss");
 
@@ -108,15 +109,13 @@ public class HttpClientUtil {
 
     public static HttpClient getSwissquoteTradeClient() throws Exception {
 
-        if (tradePassword == null) initTradePassword();
-
         HttpClient client = getStandardClient();
         Tidy tidy = TidyUtil.getInstance();
 
         // set the Basic-Auth credentials
         client.getState().setCredentials(
                 new AuthScope(tradeHost, 443, "Online Trading"),
-                new UsernamePasswordCredentials(tradeUserId, tradePassword)
+                new UsernamePasswordCredentials(tradeUserId, getTradePassword())
         );
 
         // login screen
@@ -150,7 +149,7 @@ public class HttpClientUtil {
                         new NameValuePair("language", "1"),
                         new NameValuePair("pr", "1"),
                         new NameValuePair("st", "1"),
-                        new NameValuePair("passwd", tradePassword)
+                        new NameValuePair("passwd", getTradePassword())
                     };
 
                 method.setRequestBody(loginData);
@@ -215,18 +214,6 @@ public class HttpClientUtil {
         return client;
     }
 
-    public static void initTradePassword() throws IOException {
-
-        Console console = System.console();
-        System.out.println("Enter Trade password: ");
-        if (console == null) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            tradePassword = reader.readLine();
-        } else {
-            tradePassword = String.copyValueOf(console.readPassword());
-        }
-    }
-
     private static String getLevel3Code(String level3Key) throws IOException {
 
         int h = level3Key.charAt(0)-97;
@@ -243,5 +230,23 @@ public class HttpClientUtil {
         in.close();
 
         return level3Card[v][h];
+    }
+
+    private static String getTradePassword() throws IOException {
+
+        if (tradePassword != null) return tradePassword;
+
+        System.out.println("Enter Trade password: ");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        tradePassword = reader.readLine();
+
+        return tradePassword;
+    }
+
+    public static void initTradePassword() throws IOException {
+
+        if (swissquoteTransactions) {
+            getTradePassword();
+        }
     }
 }
