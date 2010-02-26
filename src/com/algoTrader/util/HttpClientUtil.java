@@ -38,7 +38,7 @@ public class HttpClientUtil {
     private static String tradePasswordUrl = PropertiesUtil.getProperty("swissquote.trade.passwordUrl");
     private static String tradeLevel3Url = PropertiesUtil.getProperty("swissquote.trade.level3Url");
     private static String tradeUserId = PropertiesUtil.getProperty("swissquote.trade.userId");
-    private static String tradePassword;
+    private static String tradePassword = PropertiesUtil.getProperty("swissquote.trade.password");
 
     private static String proxyHost = System.getProperty("http.proxyHost");
     private static String proxyPort = System.getProperty("http.proxyPort");
@@ -47,7 +47,6 @@ public class HttpClientUtil {
     private static int workers = Integer.parseInt(PropertiesUtil.getProperty("workers"));
     private static String userAgent = PropertiesUtil.getProperty("userAgent");
     private static boolean retry = new Boolean(PropertiesUtil.getProperty("retry")).booleanValue();
-    private static boolean swissquoteTransactions = new Boolean(PropertiesUtil.getProperty("swissquoteTransactions")).booleanValue();
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_hh:mm:ss");
 
@@ -114,7 +113,7 @@ public class HttpClientUtil {
         // set the Basic-Auth credentials
         client.getState().setCredentials(
                 new AuthScope(tradeHost, 443, "Online Trading"),
-                new UsernamePasswordCredentials(tradeUserId, getTradePassword())
+                new UsernamePasswordCredentials(tradeUserId, tradePassword)
         );
 
         // login screen
@@ -148,7 +147,7 @@ public class HttpClientUtil {
                         new NameValuePair("language", "1"),
                         new NameValuePair("pr", "1"),
                         new NameValuePair("st", "1"),
-                        new NameValuePair("passwd", getTradePassword())
+                        new NameValuePair("passwd", tradePassword)
                     };
 
                 method.setRequestBody(loginData);
@@ -229,23 +228,5 @@ public class HttpClientUtil {
         in.close();
 
         return level3Card[v][h];
-    }
-
-    private static String getTradePassword() throws IOException {
-
-        if (tradePassword != null) return tradePassword;
-
-        System.out.println("Enter Trade password: ");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        tradePassword = reader.readLine();
-
-        return tradePassword;
-    }
-
-    public static void initTradePassword() throws IOException {
-
-        if (swissquoteTransactions) {
-            getTradePassword();
-        }
     }
 }
