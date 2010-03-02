@@ -29,6 +29,9 @@ public class TickServiceImpl extends TickServiceBase {
 
     private static Logger logger = MyLogger.getLogger(TickServiceImpl.class.getName());
 
+    private static String partialMatch = "//tr/td[contains(.,'%1$s')]/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[contains(.,'%1$s')]/preceding-sibling::td)+1 and //tr/td[contains(.,'%1$s')]]/strong";
+    private static String exactMatch = "//tr/td[.='%1$s']/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[.='%1$s']/preceding-sibling::td)+1 and //tr/td[.='%1$s']]/strong";
+
     private Map csvWriters = new HashMap();
 
     protected Tick handleRetrieveTick(Security security) throws Exception {
@@ -44,44 +47,44 @@ public class TickServiceImpl extends TickServiceBase {
         if (security instanceof StockOption ) {
 
             // lastDateTime
-            String dateValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[2]/td[1]/strong");
-            String timeValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[2]/td[2]/strong");
+            String dateValue = SwissquoteUtil.getValue(document, String.format(exactMatch, "Datum"));
+            String timeValue = SwissquoteUtil.getValue(document, String.format(exactMatch, "Zeit"));
             Date lastDateTime = SwissquoteUtil.getDate(dateValue + " " + (timeValue != null ? timeValue : "00:00:00"));
 
             // volume
-            String volumeValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[4]/td[1]/strong");
+            String volumeValue = SwissquoteUtil.getValue(document, String.format(exactMatch, "Volumen"));
             int volume = SwissquoteUtil.getNumber(volumeValue);
 
             // last
-            String lastValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[4]/td[4]/strong");
+            String lastValue = SwissquoteUtil.getValue(document, String.format(partialMatch, "Letzter"));
             BigDecimal last = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(lastValue));
 
             // volBid
-            String volBidValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[6]/td[1]/strong");
+            String volBidValue = SwissquoteUtil.getValue(document, String.format(exactMatch, "Vol. Geld"));
             int volBid = SwissquoteUtil.getNumber(volBidValue);
 
             // volAsk
-            String volAskValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[6]/td[2]/strong");
+            String volAskValue = SwissquoteUtil.getValue(document, String.format(exactMatch, "Vol. Brief"));
             int volAsk = SwissquoteUtil.getNumber(volAskValue);
 
             // check if market is closed
             if (volBid == 0 || volAsk == 0) return null;
 
             // bid
-            String bidValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[6]/td[3]/strong");
+            String bidValue = SwissquoteUtil.getValue(document, String.format(partialMatch, "Geldkurs"));
             BigDecimal bid = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(bidValue));
 
             // ask
-            String askValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[6]/td[4]/strong");
+            String askValue = SwissquoteUtil.getValue(document, String.format(partialMatch, "Briefkurs"));
             BigDecimal ask = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(askValue));
 
 
             // openIntrest
-            String openIntrestValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[12]/td[1]/strong");
+            String openIntrestValue = SwissquoteUtil.getValue(document, String.format(exactMatch, "Open Interest"));
             int openIntrest = SwissquoteUtil.getNumber(openIntrestValue);
 
             // settlement
-            String settlementValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[12]/td[2]/strong");
+            String settlementValue = SwissquoteUtil.getValue(document, String.format(exactMatch, "Abrechnungspreis"));
             BigDecimal settlement = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(settlementValue));
 
             tick.setDateTime(new Date());
@@ -98,8 +101,8 @@ public class TickServiceImpl extends TickServiceBase {
         } else if (security instanceof Security ) {
 
             // lastDateTime
-            String dateValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[2]/td[1]/strong");
-            String timeValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[2]/td[2]/strong");
+            String dateValue = SwissquoteUtil.getValue(document, String.format(exactMatch, "Datum"));
+            String timeValue = SwissquoteUtil.getValue(document, String.format(exactMatch, "Zeit"));
 
             // check if market is closed
             if (timeValue != null && Integer.parseInt(timeValue.replace(":", "")) > 173000) return null;
@@ -107,11 +110,11 @@ public class TickServiceImpl extends TickServiceBase {
             Date lastDateTime = SwissquoteUtil.getDate(dateValue + " " + (timeValue != null ? timeValue : "00:00:00"));
 
             // volume
-            String volumeValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[4]/td[1]/strong");
+            String volumeValue = SwissquoteUtil.getValue(document, String.format(exactMatch, "Volumen"));
             int volume = SwissquoteUtil.getNumber(volumeValue);
 
             // last
-            String lastValue = SwissquoteUtil.getValue(document, "//table[tr/td='Datum']/tr[4]/td[4]/strong");
+            String lastValue = SwissquoteUtil.getValue(document, String.format(exactMatch, "Letzter"));
             BigDecimal last = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(lastValue));
 
             tick.setDateTime(new Date());
