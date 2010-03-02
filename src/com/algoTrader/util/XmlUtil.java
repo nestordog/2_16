@@ -1,14 +1,11 @@
 package com.algoTrader.util;
 
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -21,9 +18,9 @@ public class XmlUtil {
 
     private static Logger logger = MyLogger.getLogger(XmlUtil.class.getName());
 
-    public static void saveDocumentToFile(Document node, String fileName, String directory, boolean force) {
+    public static void saveDocumentToFile(Document node, String fileName, String directory) {
 
-        if (!force && !saveToFile) return;
+        if (!saveToFile) return;
 
         try {
             TransformerFactory factory = TransformerFactory.newInstance();
@@ -36,14 +33,8 @@ public class XmlUtil {
             StreamResult result = new StreamResult(out);
             transformer.transform(source, result);
             out.close();
-        } catch (IllegalArgumentException ex) {
-            logger.warn(fileName + " could not be written to the file");
-        } catch (TransformerFactoryConfigurationError ex) {
-            logger.warn(fileName + " could not be written to the file");
-        } catch (TransformerException ex) {
-            logger.warn(fileName + " could not be written to the file");
-        } catch (IOException ex) {
-            logger.warn(fileName + " could not be written to the file");
+        } catch (Exception ex) {
+            logger.warn(fileName + " could not be written to the file (" + ex.getClass().getName() + ")");
         }
     }
 }
