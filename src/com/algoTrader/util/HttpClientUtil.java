@@ -25,7 +25,6 @@ import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
-import org.w3c.tidy.Tidy;
 
 public class HttpClientUtil {
 
@@ -48,7 +47,7 @@ public class HttpClientUtil {
     private static String userAgent = PropertiesUtil.getProperty("userAgent");
     private static boolean retry = new Boolean(PropertiesUtil.getProperty("retry")).booleanValue();
 
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_hh:mm:ss");
+    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
     private static HttpClient standardClient;
     private static HttpClient loggedInClient;
@@ -108,7 +107,6 @@ public class HttpClientUtil {
     public static HttpClient getSwissquoteTradeClient() throws Exception {
 
         HttpClient client = getStandardClient();
-        Tidy tidy = TidyUtil.getInstance();
 
         // set the Basic-Auth credentials
         client.getState().setCredentials(
@@ -128,8 +126,8 @@ public class HttpClientUtil {
             }
 
             loginPath = method.getPath();
-            loginDocument = tidy.parseDOM(method.getResponseBodyAsStream(), null);
-            XmlUtil.saveDocumentToFile(loginDocument, "loginGet_" + format.format(new Date()) + ".xml", "results/login/", false);
+            loginDocument = TidyUtil.parse(method.getResponseBodyAsStream());
+            XmlUtil.saveDocumentToFile(loginDocument, format.format(new Date()) + "_loginGet.xml", "results/login/");
 
             method.releaseConnection();
         }
@@ -171,15 +169,16 @@ public class HttpClientUtil {
                 }
 
                 passwordPath = method.getPath();
-                passwordDocument = tidy.parseDOM(method.getResponseBodyAsStream(), null);
-                XmlUtil.saveDocumentToFile(passwordDocument, "passwordPost_" + format.format(new Date()) + ".xml", "results/login/", false);
+                passwordDocument = TidyUtil.parse(method.getResponseBodyAsStream());
+                XmlUtil.saveDocumentToFile(passwordDocument, format.format(new Date()) + "_passwordPost.xml", "results/login/");
 
                 method.releaseConnection();
             }
         }
 
         // level3 screen
-        if (tradeLevel3Url.contains(loginPath) || tradeLevel3Url.contains(passwordPath)) {
+        if (((loginPath != null) && tradeLevel3Url.contains(loginPath)) ||
+                ((passwordPath != null) &&tradeLevel3Url.contains(passwordPath))) {
 
             Document document = tradeLevel3Url.contains(loginPath) ? loginDocument : passwordDocument;
 
