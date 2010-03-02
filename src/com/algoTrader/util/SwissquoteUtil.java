@@ -1,8 +1,6 @@
 package com.algoTrader.util;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,7 +16,6 @@ import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.tidy.Tidy;
 
 import com.algoTrader.entity.Security;
 
@@ -45,13 +42,12 @@ public class SwissquoteUtil {
         }
 
         // parse the content using Tidy
-        Tidy tidy = TidyUtil.getInstance();
-        Document document = tidy.parseDOM(get.getResponseBodyAsStream(), null);
+        Document document = TidyUtil.parse(get.getResponseBodyAsStream());
 
         get.releaseConnection();
 
         // save the file
-        XmlUtil.saveDocumentToFile(document, security.getIsin() + ".xml", "results/option/", false);
+        XmlUtil.saveDocumentToFile(document, security.getIsin() + ".xml", "results/option/");
 
         return document;
     }
@@ -86,6 +82,6 @@ public class SwissquoteUtil {
     public  static Date getDate(String date) throws ParseException {
 
         if (date.startsWith("null")) return null;
-        return new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(date);
+        return new SimpleDateFormat("dd-MM-yyyy kk:mm:ss").parse(date);
     }
 }
