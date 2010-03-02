@@ -19,7 +19,7 @@
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar" sourcepath="D:/log4j-1.2.15/src/main/java"/>
 	<classpathentry kind="lib" path="lib/mailapi-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.10-bin.jar"/>
-	<classpathentry kind="lib" path="lib/serializer-2.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/serializer-2.7.1.jar" sourcepath="D:/xalan-2.7.1_src"/>
 	<classpathentry kind="lib" path="lib/smtp-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/spiffy-all-0.05.jar"/>
 	<classpathentry kind="lib" path="lib/spring-1.2.8.jar" sourcepath="D:/spring-framework-1.2.8/src">
@@ -29,7 +29,7 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/SuperCSV-1.52.jar"/>
 	<classpathentry kind="lib" path="lib/tidy.jar"/>
-	<classpathentry kind="lib" path="lib/xalan-2.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/xalan-2.7.1.jar" sourcepath="D:/xalan-2.7.1_src"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/activation-1.1.1.jar"/>
