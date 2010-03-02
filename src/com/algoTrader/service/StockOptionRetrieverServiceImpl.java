@@ -55,42 +55,24 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
 
         GetMethod get = new GetMethod(url);
 
-        String content;
-        try {
-            HttpClient standardClient = HttpClientUtil.getStandardClient();
-            int status = standardClient.executeMethod(get);
+        HttpClient standardClient = HttpClientUtil.getStandardClient();
+        int status = standardClient.executeMethod(get);
 
-            if (status == HttpStatus.SC_NOT_FOUND) {
-                logger.warn("invalid option request: underlying=" + underlaying.getIsin() + " expiration=" + exp
-                        + " strike=" + strike.longValue());
-                return null;
-            } else if (status != HttpStatus.SC_OK) {
-                logger.warn("invalid option request: underlying=" + underlaying.getIsin() + " expiration=" + exp
-                        + " strike=" + strike.longValue());
-                return null;
-            }
-
-            // get the content
-            InputStream in = get.getResponseBodyAsStream();
-            StringBuffer out = new StringBuffer();
-            byte[] b = new byte[1024];
-            for (int n; (n = in.read(b)) != -1;) {
-                out.append(new String(b, 0, n));
-            }
-            in.close();
-            content = out.toString();
-
-        } finally {
-            get.releaseConnection();
+        if (status == HttpStatus.SC_NOT_FOUND) {
+            logger.warn("invalid option request: underlying=" + underlaying.getIsin() + " expiration=" + exp
+                    + " strike=" + strike.longValue());
+            return null;
+        } else if (status != HttpStatus.SC_OK) {
+            logger.warn("invalid option request: underlying=" + underlaying.getIsin() + " expiration=" + exp
+                    + " strike=" + strike.longValue());
+            return null;
         }
 
-        // parse the Document using Tidy
-        Tidy tidy = TidyUtil.getInstance();
-        Document listDocument = tidy.parseDOM(new ByteArrayInputStream(content.getBytes()), null);
+        get.releaseConnection();
 
-        // save the file
-        XmlUtil.saveDocumentToFile(listDocument, underlaying.getIsin() + "_" + exp + "_" + strike.longValue() + ".xml",
-                "results/options/", false);
+        Document listDocument = TidyUtil.parse(get.getResponseBodyAsStream());
+
+        XmlUtil.saveDocumentToFile(listDocument, underlaying.getIsin() + "_" + exp + "_" + strike.longValue() + ".xml", "results/options/");
 
         StockOption stockOption = new StockOptionImpl();
 
@@ -112,7 +94,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
         Document optionDocument = SwissquoteUtil.getSecurityDocument(stockOption);
 
         String dateValue = SwissquoteUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[4]/strong");
-        Date expirationDate = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss").parse(dateValue + " 13:00:00");
+        Date expirationDate = new SimpleDateFormat("dd-MM-yyyy kk:mm:ss").parse(dateValue + " 13:00:00");
 
         String contractSizeValue = SwissquoteUtil
                 .getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[3]/strong");
@@ -139,39 +121,22 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
 
         GetMethod get = new GetMethod(url);
 
-        String content;
-        try {
-            HttpClient standardClient = HttpClientUtil.getStandardClient();
-            int status = standardClient.executeMethod(get);
+        HttpClient standardClient = HttpClientUtil.getStandardClient();
+        int status = standardClient.executeMethod(get);
 
-            if (status == HttpStatus.SC_NOT_FOUND) {
-                logger.warn("invalid option request: underlying=" + underlaying.getIsin());
-                return;
-            } else if (status != HttpStatus.SC_OK) {
-                logger.warn("invalid option request: underlying=" + underlaying.getIsin());
-                return;
-            }
-
-            // get the content
-            InputStream in = get.getResponseBodyAsStream();
-            StringBuffer out = new StringBuffer();
-            byte[] b = new byte[1024];
-            for (int n; (n = in.read(b)) != -1;) {
-                out.append(new String(b, 0, n));
-            }
-            in.close();
-            content = out.toString();
-
-        } finally {
-            get.releaseConnection();
+        if (status == HttpStatus.SC_NOT_FOUND) {
+            logger.warn("invalid option request: underlying=" + underlaying.getIsin());
+            return;
+        } else if (status != HttpStatus.SC_OK) {
+            logger.warn("invalid option request: underlying=" + underlaying.getIsin());
+            return;
         }
 
-        // parse the Document using Tidy
-        Tidy tidy = TidyUtil.getInstance();
-        Document listDocument = tidy.parseDOM(new ByteArrayInputStream(content.getBytes()), null);
+        get.releaseConnection();
 
-        // save the file
-        XmlUtil.saveDocumentToFile(listDocument, underlaying.getIsin() + "_all.xml", "results/options/", false);
+        Document listDocument = TidyUtil.parse(get.getResponseBodyAsStream());
+
+        XmlUtil.saveDocumentToFile(listDocument, underlaying.getIsin() + "_all.xml", "results/options/");
 
         NodeIterator iterator = XPathAPI.selectNodeIterator(listDocument, "//a[@class='list']/@href");
 
@@ -199,7 +164,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
             BigDecimal strike = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(strikeValue));
 
             String dateValue = SwissquoteUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[4]/strong");
-            Date expirationDate = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss").parse(dateValue + " 13:00:00");
+            Date expirationDate = new SimpleDateFormat("dd-MM-yyyy kk:mm:ss").parse(dateValue + " 13:00:00");
 
             String symbolValue = XPathAPI.selectSingleNode(optionDocument, "//body/div[1]//h1/text()[2]")
                     .getNodeValue();
