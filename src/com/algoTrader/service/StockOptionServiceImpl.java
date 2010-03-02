@@ -120,9 +120,8 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         int numberOfContracts = (int)((availableAmount / (margin - currentDouble)) / contractSize); // i.e. 2 (for 20 stockOptions)
         BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
-        BigDecimal commission = StockOptionUtil.getCommission(numberOfContracts);
 
-        Transaction transaction = getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, commission, TransactionType.SELL);
+        Transaction transaction = getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, TransactionType.SELL);
 
         setMargin(transaction.getPosition());
     }
@@ -137,9 +136,8 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         int numberOfContracts = Math.abs(position.getQuantity());
         BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
-        BigDecimal commission = StockOptionUtil.getCommission(numberOfContracts);
 
-        getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, commission, TransactionType.BUY);
+        getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, TransactionType.BUY);
 
         getWatchlistService().removeFromWatchlist(stockOption);
     }
@@ -154,9 +152,8 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         int numberOfContracts = Math.abs(position.getQuantity());
         BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
-        BigDecimal commission = new BigDecimal(0);
 
-        getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, commission, TransactionType.EXPIRATION);
+        getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, TransactionType.EXPIRATION);
 
         getWatchlistService().removeFromWatchlist(stockOption);
     }
