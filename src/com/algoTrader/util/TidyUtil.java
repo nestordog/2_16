@@ -15,6 +15,8 @@ import org.w3c.tidy.Tidy;
 
 public class TidyUtil {
 
+    private static String[] regex = new String[] {"<script(.*?)</script>", "<noscript(.*?)</noscript>", "<style(.*?)</style>", "<!--(.*?)-->", "<!(.*?)>", "<\\?(.*?)\\?>"};
+
     private static class NullOutputStream extends OutputStream {
 
         public synchronized void write(byte[] b, int off, int len) {}
@@ -50,7 +52,7 @@ public class TidyUtil {
         return getInstance().parseDOM(in, null);
     }
 
-    public static Document parseWithRegex(InputStream in, String[] regex) throws UnsupportedEncodingException, IOException {
+    public static Document parseAndFilter(InputStream in) throws UnsupportedEncodingException, IOException {
 
         // get the content
         StringBuffer out = new StringBuffer();
