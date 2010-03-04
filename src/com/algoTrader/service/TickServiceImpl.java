@@ -29,8 +29,8 @@ public class TickServiceImpl extends TickServiceBase {
 
     private static Logger logger = MyLogger.getLogger(TickServiceImpl.class.getName());
 
-    private static String partialMatch = "//tr/td[contains(.,'%1$s')]/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[contains(.,'%1$s')]/preceding-sibling::td)+1 and //tr/td[contains(.,'%1$s')]]/strong";
-    private static String exactMatch = "//tr/td[.='%1$s']/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[.='%1$s']/preceding-sibling::td)+1 and //tr/td[.='%1$s']]/strong";
+    private static String exactMatch = "//tr/td[.='%1$s']/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[.='%1$s']/preceding-sibling::td)+1]/strong";
+    private static String partialMatch = "//tr/td[contains(.,'%1$s')]/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[contains(.,'%1$s')]/preceding-sibling::td)+1]/strong";
 
     private Map csvWriters = new HashMap();
 
@@ -136,6 +136,9 @@ public class TickServiceImpl extends TickServiceBase {
         return tick;
     }
 
+    /**
+     * Not used at the moment (handled by esper timer)
+     */
     protected void handleRun() {
 
         (new Thread("AlgoTraderTickService") {
@@ -161,8 +164,12 @@ public class TickServiceImpl extends TickServiceBase {
             Tick tick = retrieveTick(security);
 
             if (tick != null) {
-                EsperService.getEPServiceInstance().getEPRuntime().sendEvent(tick);
 
+                if (tick.isValid()) {
+                    EsperService.getEPServiceInstance().getEPRuntime().sendEvent(tick);
+                }
+
+                // write the tick to file (even if not valid)
                 CsvWriter csvWriter;
                 if (csvWriters.containsKey(security)) {
                     csvWriter = (CsvWriter)csvWriters.get(security);
