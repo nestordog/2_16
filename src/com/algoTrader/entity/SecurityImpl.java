@@ -1,8 +1,11 @@
 package com.algoTrader.entity;
 
+import java.math.BigDecimal;
 import java.util.Iterator;
 
 import com.algoTrader.enumeration.RuleName;
+import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.EsperService;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
@@ -29,5 +32,15 @@ public class SecurityImpl extends com.algoTrader.entity.Security {
 
     public boolean hasOpenPositions() {
         return getPosition().getQuantity() > 0;
+    }
+
+    public BigDecimal getCommission(int quantity, TransactionType transactionType) {
+
+        if (this instanceof StockOption &&
+                (TransactionType.SELL.equals(transactionType) || TransactionType.BUY.equals(transactionType))) {
+            return StockOptionUtil.getCommission(quantity);
+        } else {
+            return new BigDecimal(0);
+        }
     }
 }
