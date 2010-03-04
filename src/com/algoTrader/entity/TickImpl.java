@@ -9,6 +9,8 @@ public class TickImpl extends com.algoTrader.entity.Tick {
 
     private static int lastTransactionAge = Integer.parseInt(PropertiesUtil.getProperty("lastTransactionAge"));
     private static int minVol = Integer.parseInt(PropertiesUtil.getProperty("minVol"));
+    private static double maxSpreadPercent = Double.parseDouble(PropertiesUtil.getProperty("maxSpreadPercent"));
+    private static double maxSpreadDelta = Double.parseDouble(PropertiesUtil.getProperty("maxSpreadDelta"));
 
     private static final long serialVersionUID = 7518020445322413106L;
 
@@ -16,13 +18,9 @@ public class TickImpl extends com.algoTrader.entity.Tick {
 
         long currenttime = EsperService.getEPServiceInstance().getEPRuntime().getCurrentTime();
 
-        if (currenttime - getLastDateTime().getTime() > lastTransactionAge) {
+        if (getLastDateTime() == null || currenttime - getLastDateTime().getTime() > lastTransactionAge) {
 
-            if (getVolAsk() > minVol && getVolBid() > minVol) {
-                return (getAsk().add(getBid()).divide(new BigDecimal(2)));
-            } else {
-                return getLast();
-            }
+            return (getAsk().add(getBid()).divide(new BigDecimal(2)));
         } else {
             return getLast();
         }
@@ -35,5 +33,20 @@ public class TickImpl extends com.algoTrader.entity.Tick {
         } else {
             return super.getSettlement();
         }
+    }
+
+    public boolean isValid() {
+
+        if (getSecurity() instanceof StockOption) {
+            if (getVolAsk() <= minVol || getVolBid() <= minVol) return false;
+
+            double average = getAsk().doubleValue() * getBid().doubleValue() / 2.0;
+            double spread = getAsk().doubleValue() - getBid().doubleValue();
+            double maxSpread = average * maxSpreadPercent + maxSpreadDelta;
+
+            if (spread > maxSpread) return false;
+        }
+
+        return true;
     }
 }
