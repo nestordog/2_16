@@ -1,12 +1,8 @@
 package com.algoTrader.util;
 
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.math.BigDecimal;
 import java.util.Date;
 
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
@@ -19,7 +15,6 @@ import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
 import com.algoTrader.entity.Tick;
-import com.algoTrader.entity.TickImpl;
 
 public class CsvWriter {
 
@@ -57,28 +52,6 @@ public class CsvWriter {
                 return next.execute(result, context);
             }
         }
-
-    public static void main(String[] args) throws SuperCSVException, IOException {
-
-
-        Tick tick = new TickImpl();
-        tick.setDateTime(new Date());
-        tick.setLast(RoundUtil.getBigDecimal(18.4));
-        tick.setLastDateTime(new Date());
-        tick.setVolBid(50);
-        tick.setVolAsk(100);
-        tick.setBid(RoundUtil.getBigDecimal(16.5));
-        tick.setAsk(RoundUtil.getBigDecimal(17.4));
-        tick.setVol(1000);
-        tick.setOpenIntrest(16000);
-        tick.setSettlement(RoundUtil.getBigDecimal(20));
-
-        CsvWriter csvWriter = new CsvWriter("osmi");
-
-        csvWriter.writeTick(tick);
-
-        csvWriter.close();
-    }
 
     public void writeTick(Tick tick) throws SuperCSVReflectionException, IOException {
 
