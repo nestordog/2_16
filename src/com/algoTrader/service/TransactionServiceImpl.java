@@ -21,10 +21,11 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.PositionImpl;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
+import com.algoTrader.entity.Tick;
+import com.algoTrader.entity.TickImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.HttpClientUtil;
@@ -39,39 +40,42 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
 
-    private static boolean swissquoteTransactions = new Boolean(PropertiesUtil.getProperty("swissquoteTransactions")).booleanValue();
+    private static boolean swissquoteTransactionsEnabled = new Boolean(PropertiesUtil.getProperty("swissquoteTransactions")).booleanValue();
     private static boolean simulation = new Boolean(PropertiesUtil.getProperty("simulation")).booleanValue();
     private static int confirmationTimeout = Integer.parseInt(PropertiesUtil.getProperty("confirmationTimeout"));
     private static int confirmationRetries = Integer.parseInt(PropertiesUtil.getProperty("confirmationRetries"));
+    private static double maxDifferenceToCurrent = Double.parseDouble(PropertiesUtil.getProperty("maxDifferenceToCurrent"));
 
     private static String dispatchUrl = "https://trade.swissquote.ch/sqb_core/DispatchCtrl";
     private static String tradeUrl = "https://trade.swissquote.ch/sqb_core/TradeCtrl";
-    private static String accountUrl = "https://trade.swissquote.ch/sqb_core/AccountCtrl?commandName=myOrders&client=" + PropertiesUtil.getProperty("swissquote.trade.clientNumber");
+    private static String myOrdersUrl = "https://trade.swissquote.ch/sqb_core/AccountCtrl?commandName=myOrders&client=" + PropertiesUtil.getProperty("swissquote.trade.clientNumber");
     private static String transactionsUrl = "https://trade.swissquote.ch/sqb_core/TransactionsCtrl?commandName=viewTransactions";
 
-    private static String[] regex = new String[] {"<script(.*?)</script>", "<noscript(.*?)</noscript>", "<style(.*?)</style>", "<!--(.*?)-->", "<!(.*?)>", "<\\?(.*?)\\?>"};
     private static String dailyTransactionsMatch = "//table[@class='trading']/tbody/tr[1]/td[count(//table[@class='trading']/thead/tr/td[.='%1$s']/preceding-sibling::td)+1]";
     private static String executedTransactionsMatch = "//tr[td/a='%1$s']/td[count(//table[@class='trading']/thead/tr/td[.='%2$s']/preceding-sibling::td)+1]";
+    private static String tickMatch = "//tr[td/font/strong='%1$s']/following-sibling::tr[1]/td[count(//tr/td[font/strong='%1$s']/preceding-sibling::td)+1]/font";
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
     protected Transaction handleExecuteTransaction(int quantity, Security security, BigDecimal current, TransactionType transactionType)
             throws Exception {
 
-        if (quantity == 0) throw new TransactionServiceException("quantity = 0 not allowed");
-        if (quantity < 0) throw new TransactionServiceException("negative quantity not allowed");
+        if (quantity == 0) throw new IllegalArgumentException("quantity = 0 not allowed");
 
-        // execute the transaction at swissquote
-        Transaction transaction = executeSwissquoteTransaction(quantity, security, current, transactionType);
+        if (quantity < 0) throw new IllegalArgumentException("negative quantity not allowed");
 
-        // TODO handle Expiration
+        Transaction transaction;
+        if (!simulation && swissquoteTransactionsEnabled &&
+                (TransactionType.BUY.equals(transactionType) || TransactionType.SELL.equals(transactionType))) {
 
-        // if swissquoteTransactions are disabled create a fake transaction
-        if (transaction == null) {
+            transaction = executeSwissquoteTransaction(quantity, security, current, transactionType);
+
+        } else {
+
             transaction = new TransactionImpl();
             transaction.setDateTime(DateUtil.getCurrentEPTime());
             transaction.setPrice(current.abs());
-            transaction.setCommission(getCommission(security, quantity, transactionType));
+            transaction.setCommission(security.getCommission(quantity, transactionType));
             transaction.setNumber(0);
         }
 
@@ -126,15 +130,14 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         getSecurityDao().update(security);
 
         logger.info("executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() + " of " + security.getSymbol() + " price: " + transaction.getPrice() + " commission: " + transaction.getCommission() + " balance: " + account.getBalance());
+        // TODO log porfolio value instead of balance
 
         EsperService.getEPServiceInstance().getEPRuntime().sendEvent(transaction);
 
-        return getSwissquoteTransactionConfirmation(security);
+        return transaction;
     }
 
     private static Transaction executeSwissquoteTransaction(int quantity, Security security, BigDecimal current, TransactionType transactionType) throws Exception {
-
-        if (simulation || !swissquoteTransactions) return null;
 
         HttpClient client = HttpClientUtil.getSwissquoteTradeClient();
 
@@ -154,11 +157,40 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
             throw new TransactionServiceException("could not get transaction screen: " + security.getIsin() + ", status: " + get.getStatusLine());
         }
 
-        Document document = TidyUtil.parseWithRegex(get.getResponseBodyAsStream(), regex);
+        Document document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
         get.releaseConnection();
         XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_" + security.getIsin() + "_transaction.xml", "results/trade/");
 
-        // TODO checks (volume, Bid/Ask spread, difference to current)
+        // create a temporary tick
+        String volBidValue = SwissquoteUtil.getValue(document, String.format(tickMatch, "Geldkurs-Volumen"));
+        int volBid = SwissquoteUtil.getNumber(volBidValue);
+
+        String volAskValue = SwissquoteUtil.getValue(document, String.format(tickMatch, "Briefkurs-Volumen"));
+        int volAsk = SwissquoteUtil.getNumber(volAskValue);
+
+        String bidValue = SwissquoteUtil.getValue(document, String.format(tickMatch, "Geldkurs"));
+        BigDecimal bid = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(bidValue));
+
+        String askValue = SwissquoteUtil.getValue(document, String.format(tickMatch, "Briefkurs"));
+        BigDecimal ask = RoundUtil.getBigDecimal(SwissquoteUtil.getAmount(askValue));
+
+        Tick tick = new TickImpl();
+        tick.setVolBid(volBid);
+        tick.setVolAsk(volAsk);
+        tick.setBid(bid);
+        tick.setAsk(ask);
+
+        // validity check (volume and bid/ask spread)
+        if (!tick.isValid()) {
+            throw new TransactionServiceException("tickdata is not valid for transaction on " + security.getIsin() + ", tick: " + tick);
+        }
+
+        // validity check (difference to current) // TODO verify maxDifferenceToCurrent
+        if (TransactionType.BUY.equals(transactionType) && ask.doubleValue() > current.doubleValue() * (1 + maxDifferenceToCurrent)) {
+            throw new TransactionServiceException("ask price (" + ask + ") is too high compared to the last price (" + current + ") for a transaction on " + security.getIsin());
+        } else if (TransactionType.SELL.equals(transactionType) && bid.doubleValue() > current.doubleValue() * (1- maxDifferenceToCurrent)) {
+            throw new TransactionServiceException("bid price (" + bid + ") is too low compared to the last price (" + current + ") for a transaction on " + security.getIsin());
+        }
 
         // process the hidden fields
         NodeIterator nodeIterator = XPathAPI.selectNodeIterator(document, "//input[@type='hidden']");
@@ -174,7 +206,9 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         }
 
         // transactionType
-        String transactionTypeString = getTransactionTypeString(security, transactionType);
+        Position position = security.getPosition();
+        String openClose = (position != null && position.getQuantity() != 0) ? "CLOSE" : "OPEN";
+        String transactionTypeString = TransactionType.SELL.equals(transactionType) ? "SELL to " + openClose : "BUY to " + openClose;
         String orderTransactionValue = XPathAPI.selectSingleNode(document, "//tr[td/font/strong='" + transactionTypeString + "']/td/input/@value").getNodeValue();
         paramSet.add(new NameValuePair("order.transaction", orderTransactionValue));
 
@@ -182,8 +216,11 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         paramSet.add(new NameValuePair("order.quantity", String.valueOf(quantity)));
 
         // price
-        // TODO select the limit
-        paramSet.add(new NameValuePair("order.price", current.toString()));
+        if (TransactionType.BUY.equals(transactionType)) {
+            paramSet.add(new NameValuePair("order.price", ask.toString()));
+        } else if (TransactionType.SELL.equals(transactionType)) {
+            paramSet.add(new NameValuePair("order.price", bid.toString()));
+        }
 
         // stockExchange
         String stockExchangeValue = XPathAPI.selectSingleNode(document, "//select[@name='stockExchange']/option[@selected='selected']/@value").getNodeValue();
@@ -197,9 +234,9 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         String expirationValue  = XPathAPI.selectSingleNode(document, "//select[@name='order.str_expiration']/option[1]/@value").getNodeValue();
         paramSet.add(new NameValuePair("order.str_expiration", expirationValue));
 
-        // get the transaction screen
         params = (NameValuePair[])paramSet.toArray(new NameValuePair[0]);
 
+        // get the transaction screen
         get = new GetMethod(tradeUrl);
         get.setQueryString(params);
         status = client.executeMethod(get);
@@ -208,7 +245,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
             throw new TransactionServiceException("could not get confirmation screen: " + security.getIsin() + ", status: " + get.getStatusLine());
         }
 
-        document = TidyUtil.parseWithRegex(get.getResponseBodyAsStream(), regex);
+        document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
         get.releaseConnection();
         XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_" + security.getIsin() + "_confirmation.xml", "results/trade/");
 
@@ -235,7 +272,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
             throw new TransactionServiceException("could not get ack screen: " + security.getIsin() + ", status: " + get.getStatusLine());
         }
 
-        document = TidyUtil.parseWithRegex(get.getResponseBodyAsStream(), regex);
+        document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
         get.releaseConnection();
         XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_" + security.getIsin() + "_ack.xml", "results/trade/");
 
@@ -247,7 +284,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         HttpClient client = HttpClientUtil.getSwissquoteTradeClient();
 
         // get the open/daily transactions screen
-        GetMethod get = new GetMethod(accountUrl);
+        GetMethod get = new GetMethod(myOrdersUrl);
 
         Document document = null;
         int status = 0;
@@ -260,7 +297,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
                 throw new TransactionServiceException("could not get open / daily transaction screen, status: " + get.getStatusLine());
             }
 
-            document = TidyUtil.parseWithRegex(get.getResponseBodyAsStream(), regex);
+            document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
             get.releaseConnection();
             XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_open_daily_transactions.xml", "results/trade/");
 
@@ -285,7 +322,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
             get.setQueryString(params);
             status = client.executeMethod(get);
 
-            document = TidyUtil.parseWithRegex(get.getResponseBodyAsStream(), regex);
+            document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
             get.releaseConnection();
             XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_delete_transaction_" + tradeId + ".xml", "results/trade/");
 
@@ -314,7 +351,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
             throw new TransactionServiceException("could not get executed transaction screen, status: " + get.getStatusLine());
         }
 
-        document = TidyUtil.parseWithRegex(get.getResponseBodyAsStream(), regex);
+        document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
         get.releaseConnection();
         XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_executed_transactions.xml", "results/trade/");
 
@@ -333,37 +370,5 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         transaction.setNumber(number);
 
         return transaction;
-    }
-
-    private static String getTransactionTypeString(Security security, TransactionType transactionType) {
-
-        Position position = security.getPosition();
-        String openClose = (position != null && position.getQuantity() != 0) ? "CLOSE" : "OPEN";
-
-        if (transactionType.equals(TransactionType.SELL)) {
-            return "SELL to " + openClose;
-        } else if (transactionType.equals(TransactionType.BUY)) {
-            return "BUY to " + openClose;
-        } else if (transactionType.equals(TransactionType.EXPIRATION)) {
-            if (position == null || position.getQuantity() == 0) {
-                throw new TransactionServiceException("expiration not allowed. as there is no open position");
-            } else if (position.getQuantity() > 0) {
-                return "SELL to CLOSE";
-            } else {
-                return "BUY to CLOSE";
-            }
-        } else {
-            throw new TransactionServiceException("unsupported transactionType");
-        }
-    }
-
-    private static BigDecimal getCommission(Security security, int quantity, TransactionType transactionType) {
-
-        if (security instanceof StockOption &&
-                (TransactionType.SELL.equals(transactionType) || TransactionType.BUY.equals(transactionType))) {
-            return StockOptionUtil.getCommission(quantity);
-        } else {
-            return new BigDecimal(0);
-        }
     }
 }
