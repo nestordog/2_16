@@ -12,7 +12,6 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -20,9 +19,6 @@ import org.w3c.dom.Node;
 import com.algoTrader.entity.Security;
 
 public class SwissquoteUtil {
-
-
-    private static Logger logger = MyLogger.getLogger(SwissquoteUtil.class.getName());
 
     private static String tickUrl = "http://www.swissquote.ch/sq_mi/public/market/Detail.action?s=";
 
@@ -33,12 +29,8 @@ public class SwissquoteUtil {
         HttpClient standardClient = HttpClientUtil.getSwissquotePremiumClient();
         int status = standardClient.executeMethod(get);
 
-        if (status == HttpStatus.SC_NOT_FOUND) {
-            logger.warn("invalid security: " + security.getIsin());
-            return null;
-        }else if (status != HttpStatus.SC_OK) {
-            logger.error("could not retrieve security: " + security.getIsin() + ", status: " + get.getStatusLine());
-            return null;
+        if (status != HttpStatus.SC_OK) {
+            throw new HttpException("could not retrieve security: " + security.getIsin() + ", status: " + get.getStatusLine());
         }
 
         // parse the content using Tidy
@@ -47,7 +39,7 @@ public class SwissquoteUtil {
         get.releaseConnection();
 
         // save the file
-        XmlUtil.saveDocumentToFile(document, security.getIsin() + ".xml", "results/option/");
+        XmlUtil.saveDocumentToFile(document, security.getIsin() + ".xml", "results/security/");
 
         return document;
     }
