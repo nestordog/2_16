@@ -118,24 +118,6 @@ public class RuleServiceImpl extends RuleServiceBase {
         logger.debug("deactivated rule " + ruleName);
     }
 
-    protected void handleDeactivateAll() throws Exception {
-
-        // deactivate all entities
-        Collection col = getRuleDao().loadAll();
-        for (Iterator it = col.iterator(); it.hasNext();) {
-            Rule rule = (Rule)it.next();
-            rule.setTarget(null);
-            rule.setActive(false);
-        }
-        getRuleDao().update(col);
-
-        // destroy all statements
-        EPServiceProvider cep = EsperService.getEPServiceInstance();
-        cep.destroy();
-
-        logger.debug("activated all rules");
-    }
-
     protected boolean handleIsActive(RuleName ruleName) throws Exception {
 
         EPServiceProvider cep = EsperService.getEPServiceInstance();
