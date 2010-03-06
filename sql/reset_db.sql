@@ -23,4 +23,13 @@ where isin is null;
 INSERT INTO `transaction` (`id`, `NUMBER`, `DATE_TIME`, `QUANTITY`, `PRICE`, `COMMISSION`, `TYPE`, `SECURITY_FK`, `ACCOUNT_FK`, `POSITION_FK`) VALUES
   (-1,1111,'1999-01-01 00:00:00',-1,10000,0,'CREDIT',NULL,1,NULL);
 
+UPDATE rule
+set target_fk = NULL;
+
+UPDATE rule
+set active = false
+where prepared = true;
+
+
+
 
