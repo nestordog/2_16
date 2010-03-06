@@ -27,11 +27,4 @@ public class PropertiesUtil {
 
         return props.getProperty(key);
     }
-
-    public static String getOsSpecificProperty(String key) {
-        String osName = System.getProperty("os.name");
-        if (osName.startsWith("Windows")) return getProperty(key + ".windows");
-        if (osName.startsWith("FreeBSD")) return getProperty(key + ".freebsd");
-        return null;
-    }
 }
