@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Iterator;
 
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.util.RoundUtil;
 
 public class AccountImpl extends com.algoTrader.entity.Account {
 
@@ -11,44 +12,44 @@ public class AccountImpl extends com.algoTrader.entity.Account {
 
     public BigDecimal getBalance() {
 
-        BigDecimal balance = new BigDecimal(0);
+        double balance = 0.0;
         for (Iterator it = getTransactions().iterator(); it.hasNext(); ) {
             Transaction transaction = (Transaction)it.next();
             if (transaction.getType().equals(TransactionType.BUY) ||
                 transaction.getType().equals(TransactionType.SELL) ||
                 transaction.getType().equals(TransactionType.EXPIRATION)) {
 
-                balance = balance.subtract(transaction.getPrice().multiply(new BigDecimal(transaction.getQuantity())));
-                balance = balance.subtract(transaction.getCommission());
+                balance -= (transaction.getPrice().doubleValue() * (double)transaction.getQuantity());
+                balance -= transaction.getCommission().doubleValue();
 
             } else if (transaction.getType().equals(TransactionType.CREDIT) ||
                     transaction.getType().equals(TransactionType.DIVIDEND) ||
                     transaction.getType().equals(TransactionType.INTREST)) {
 
-                balance = balance.add(transaction.getPrice());
+                balance += transaction.getPrice().doubleValue();
 
             } else if (transaction.getType().equals(TransactionType.DEBIT) ||
                     transaction.getType().equals(TransactionType.FEES)) {
 
-                balance = balance.subtract(transaction.getPrice());
+                balance -= transaction.getPrice().doubleValue();
             }
         }
-        return balance;
+        return RoundUtil.getBigDecimal(balance);
     }
 
     public BigDecimal getMargin() {
 
-        BigDecimal margin = new BigDecimal(0);
+        double margin = 0.0;
         for (Iterator it = getPositions().iterator(); it.hasNext(); ) {
             Position position = (Position)it.next();
             if (position.getQuantity() != 0) {
                 if (position.getMargin() == null) {
                     break;
                 }
-                margin = margin.add(position.getMargin());
+                margin += position.getMargin().doubleValue();
             }
         }
-        return margin;
+        return RoundUtil.getBigDecimal(margin);
     }
 
     public BigDecimal getAvailableAmount() {
@@ -68,4 +69,22 @@ public class AccountImpl extends com.algoTrader.entity.Account {
         return count;
     }
 
+    public BigDecimal getPortfolioValue() {
+
+        double portfolioValue = getBalance().doubleValue();
+        for (Iterator it = getPositions().iterator(); it.hasNext(); ) {
+            Position position = (Position)it.next();
+            Security security = position.getSecurity();
+            Tick tick = security.getLastTick();
+            if (position.getQuantity() != 0 && tick != null) {
+                if (security instanceof StockOption) {
+                    StockOption stockOption = (StockOption)security;
+                    portfolioValue += position.getQuantity() * stockOption.getContractSize() * tick.getCurrentValue().doubleValue();
+                } else {
+                    portfolioValue += position.getQuantity() * tick.getCurrentValue().doubleValue();
+                }
+            }
+        }
+        return RoundUtil.getBigDecimal(portfolioValue);
+    }
 }
