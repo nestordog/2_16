@@ -129,8 +129,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         getAccountDao().update(account);
         getSecurityDao().update(security);
 
-        logger.info("executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() + " of " + security.getSymbol() + " price: " + transaction.getPrice() + " commission: " + transaction.getCommission() + " balance: " + account.getBalance());
-        // TODO log porfolio value instead of balance
+        logger.info("executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() + " of " + security.getSymbol() + " price: " + transaction.getPrice() + " commission: " + transaction.getCommission() + " portfolioValue: " + account.getPortfolioValue());
 
         EsperService.getEPServiceInstance().getEPRuntime().sendEvent(transaction);
 
@@ -185,11 +184,18 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
             throw new TransactionServiceException("tickdata is not valid for transaction on " + security.getIsin() + ", tick: " + tick);
         }
 
-        // validity check (difference to current) // TODO verify maxDifferenceToCurrent
+        // validity check (difference to current)
         if (TransactionType.BUY.equals(transactionType) && ask.doubleValue() > current.doubleValue() * (1 + maxDifferenceToCurrent)) {
             throw new TransactionServiceException("ask price (" + ask + ") is too high compared to the last price (" + current + ") for a transaction on " + security.getIsin());
         } else if (TransactionType.SELL.equals(transactionType) && bid.doubleValue() > current.doubleValue() * (1- maxDifferenceToCurrent)) {
             throw new TransactionServiceException("bid price (" + bid + ") is too low compared to the last price (" + current + ") for a transaction on " + security.getIsin());
+        }
+
+        // check available volume
+        if (TransactionType.BUY.equals(transactionType) && volAsk < quantity) {
+            logger.warn("available volume (" + volAsk + ") is smaler than requested quantity (" + quantity + ") for a transaction on " + security.getIsin());
+        } else if (TransactionType.SELL.equals(transactionType) && volBid < quantity) {
+            logger.warn("available volume (" + volBid + ") is smaler than requested quantity (" + quantity + ") for a transaction on " + security.getIsin());
         }
 
         // process the hidden fields
