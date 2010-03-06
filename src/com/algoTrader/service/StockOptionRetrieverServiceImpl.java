@@ -1,8 +1,6 @@
 package com.algoTrader.service;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -13,6 +11,7 @@ import java.util.GregorianCalendar;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
@@ -20,7 +19,6 @@ import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
-import org.w3c.tidy.Tidy;
 
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
@@ -28,6 +26,7 @@ import com.algoTrader.entity.StockOptionImpl;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.OptionType;
+import com.algoTrader.service.StockOptionRetrieverServiceBase;
 import com.algoTrader.util.HttpClientUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -50,35 +49,25 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
         int month = cal.get(Calendar.MONTH);
         int exp = ((year - 2000) * 100 + month);
 
-        String url = optionUrl + "&underlying=" + underlaying.getIsin() + "&expiration=" + exp + "&strike="
-                + strike.longValue();
+        String url = optionUrl + "&underlying=" + underlaying.getIsin() + "&expiration=" + exp + "&strike=" + strike.longValue();
 
         GetMethod get = new GetMethod(url);
 
         HttpClient standardClient = HttpClientUtil.getStandardClient();
         int status = standardClient.executeMethod(get);
 
-        if (status == HttpStatus.SC_NOT_FOUND) {
-            logger.warn("invalid option request: underlying=" + underlaying.getIsin() + " expiration=" + exp
-                    + " strike=" + strike.longValue());
-            return null;
-        } else if (status != HttpStatus.SC_OK) {
-            logger.warn("invalid option request: underlying=" + underlaying.getIsin() + " expiration=" + exp
-                    + " strike=" + strike.longValue());
-            return null;
+        if (status != HttpStatus.SC_OK) {
+            throw new HttpException("invalid option request: underlying=" + underlaying.getIsin() + " expiration=" + exp + " strike=" + strike.longValue());
         }
 
-        get.releaseConnection();
-
         Document listDocument = TidyUtil.parse(get.getResponseBodyAsStream());
+        get.releaseConnection();
 
         XmlUtil.saveDocumentToFile(listDocument, underlaying.getIsin() + "_" + exp + "_" + strike.longValue() + ".xml", "results/options/");
 
         StockOption stockOption = new StockOptionImpl();
 
-        String optionUrl = XPathAPI.selectSingleNode(listDocument,
-                "//td[contains(a/@class,'list')][" + (OptionType.CALL.equals(type) ? 1 : 2) + "]/a/@href")
-                .getNodeValue();
+        String optionUrl = XPathAPI.selectSingleNode(listDocument, "//td[contains(a/@class,'list')][" + (OptionType.CALL.equals(type) ? 1 : 2) + "]/a/@href").getNodeValue();
         String param = optionUrl.split("=")[1];
         String isin = param.split("_")[0];
         String market = param.split("_")[1];
@@ -96,8 +85,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
         String dateValue = SwissquoteUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[4]/strong");
         Date expirationDate = new SimpleDateFormat("dd-MM-yyyy kk:mm:ss").parse(dateValue + " 13:00:00");
 
-        String contractSizeValue = SwissquoteUtil
-                .getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[3]/strong");
+        String contractSizeValue = SwissquoteUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[3]/strong");
         int contractSize = (int) Double.parseDouble(contractSizeValue);
 
         String symbolValue = XPathAPI.selectSingleNode(optionDocument, "//body/div[1]//h1/text()[2]").getNodeValue();
@@ -124,18 +112,12 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
         HttpClient standardClient = HttpClientUtil.getStandardClient();
         int status = standardClient.executeMethod(get);
 
-        if (status == HttpStatus.SC_NOT_FOUND) {
-            logger.warn("invalid option request: underlying=" + underlaying.getIsin());
-            return;
-        } else if (status != HttpStatus.SC_OK) {
-            logger.warn("invalid option request: underlying=" + underlaying.getIsin());
-            return;
+        if (status != HttpStatus.SC_OK) {
+            throw new HttpException("invalid option request: underlying=" + underlaying.getIsin());
         }
 
-        get.releaseConnection();
-
         Document listDocument = TidyUtil.parse(get.getResponseBodyAsStream());
-
+        get.releaseConnection();
         XmlUtil.saveDocumentToFile(listDocument, underlaying.getIsin() + "_all.xml", "results/options/");
 
         NodeIterator iterator = XPathAPI.selectNodeIterator(listDocument, "//a[@class='list']/@href");
@@ -148,6 +130,9 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
             String param = node.getNodeValue().split("=")[1];
 
             String isin = param.split("_")[0];
+
+            if (getSecurityDao().findByISIN(isin) != null) continue;
+
             String market = param.split("_")[1];
             String currency = param.split("_")[2];
 
@@ -166,12 +151,10 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
             String dateValue = SwissquoteUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[4]/strong");
             Date expirationDate = new SimpleDateFormat("dd-MM-yyyy kk:mm:ss").parse(dateValue + " 13:00:00");
 
-            String symbolValue = XPathAPI.selectSingleNode(optionDocument, "//body/div[1]//h1/text()[2]")
-                    .getNodeValue();
+            String symbolValue = XPathAPI.selectSingleNode(optionDocument, "//body/div[1]//h1/text()[2]").getNodeValue();
             String symbol = symbolValue.split("\\(")[0].trim().substring(1);
 
-            String contractSizeValue = SwissquoteUtil.getValue(optionDocument,
-                    "//table[tr/td='Datum']/tr[10]/td[3]/strong");
+            String contractSizeValue = SwissquoteUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[3]/strong");
             int contractSize = (int) Double.parseDouble(contractSizeValue);
 
             stockOption.setType(type);
