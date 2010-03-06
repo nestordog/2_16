@@ -7,41 +7,22 @@
 
 SET FOREIGN_KEY_CHECKS=0;
 
-USE `AlgoTrader`;
-
-#
-# Structure for the `rule` table :
-#
-
-DROP TABLE IF EXISTS `rule`;
-
-CREATE TABLE `rule` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `NAME` varchar(255) NOT NULL,
-  `PRIORITY` tinyint(4) NOT NULL,
-  `DEFINITION` text NOT NULL,
-  `SUBSCRIBER` varchar(255) DEFAULT NULL,
-  `LISTENERS` varchar(255) DEFAULT NULL,
-  `PATTERN` bit(1) NOT NULL,
-  `ACTIVE` bit(1) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
-
 #
 # Data for the `rule` table  (LIMIT 0,500)
 #
 
-INSERT INTO `rule` (`id`, `NAME`, `PRIORITY`, `DEFINITION`, `SUBSCRIBER`, `LISTENERS`, `PATTERN`, `ACTIVE`) VALUES
-  (1,'setExitValue',0,'select \r\noption.position.id as positionId,\r\nStockOptionUtil.getExitValue(option, indexTick.last, volaTick.last / 100) as exitValue\r\nfrom pattern [every (indexTick=Tick(security.volatility!=null) -> volaTick=Tick(security.id=indexTick.security.volatility.id) where timer:within(2 min))],\r\nmethod:EntityUtil.getSecuritiesInPortfolio() as option \r\nwhere option.underlaying.id = indexTick.security.id \r\nand StockOptionUtil.getExitValue(option, indexTick.last, volaTick.last / 100) < option.position.exitValue\r\noutput last every 30 minutes\r\n','SetExitValueSubscriber',NULL,False,False),
-  (2,'closePosition',0,'select  \r\noptionTick.security.position\r\nfrom Tick as optionTick\r\nwhere optionTick.volBid > 10 and optionTick.volAsk > 10\r\nand (optionTick.bid + optionTick.ask)/2  > optionTick.security.position.exitValue','ClosePositionSubscriber',NULL,False,False),
-  (3,'printTick',0,'select *\r\nfrom Tick','PrintTickSubscriber',NULL,False,True),
-  (7,'setMargin',0,'every timer:at(0, 1, *, *, *)\r\n\r\n//select DateUtil.toDate(current_timestamp()), \r\n//optionTick.security.position as position\r\n//from pattern [every (optionTick=Tick(security.underlaying!=null) -> indexTick=Tick(security.id=optionTick.security.underlaying.id) where timer:within(2 min))]\r\n//where optionTick.security.position.quantity != 0\r\n//output last at(0, 1, *, *, *)',NULL,'SetMarginListener',True,False),
-  (8,'expireOptions',2,'every timer:at(0, 14, *, *, *)',NULL,'ExpireStockOptionsListener',True,False),
-  (9,'getLastTick',0,'select tick.security.id as securityId, tick.* as tick \r\nfrom Tick.std:groupby(security.id).win:length(1) as tick',NULL,NULL,False,True),
-  (10,'simulateDummySecurities',1,'insert into Tick\r\nselect DateUtil.toDate(current_timestamp()) as dateTime,\r\nStockOptionUtil.getFairValue(option, indexTick.last, volaTick.last / 100) as last,\r\nDateUtil.toDate(current_timestamp()) as lastDateTime,\r\n0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,\r\noption as security\r\nfrom pattern [every (indexTick=Tick(security.isin = var_isin) -> volaTick=Tick(security.id=indexTick.security.volatility.id))],\r\nmethod:LookupUtil.getDummySecurities() as option \r\nwhere option.underlaying.id = indexTick.security.id ',NULL,NULL,False,True),
-  (11,'putOnWatchlist\r\n',0,'select tick.security.isin,\r\nStockOptionUtil.roundTo50(tick.currentValue) as current\r\nfrom Tick(tick.security.isin = var_isin) as tick\r\nwhere StockOptionUtil.roundTo50(tick.currentValue) not in (LookupUtil.getStrikesOnWatchlist())','PutOnWatchlistSubscriber\r\n',NULL,False,False),
-  (12,'timeTheMarket',0,'select indexTick.security.id,\r\nindexTick.currentValue\r\nfrom pattern [(stockOptionTick=Tick(security.id = {0}) -> indexTick=Tick(security.id=stockOptionTick.security.underlaying.id))]\r\n\r\n// TODO implement markettiming. At the moment the first event showing up is selected','TimeTheMarketSubscriber',NULL,False,False),
-  (13,'openPosition',0,'select security.id,\r\ncurrentValue\r\nfrom Tick(security.id={0}).std:firstevent()','OpenPositionSubscriber',NULL,False,False);
+INSERT INTO `rule` (`id`, `NAME`, `PRIORITY`, `DEFINITION`, `SUBSCRIBER`, `LISTENERS`, `PATTERN`, `ACTIVE`, `PREPARED`, `TARGET_FK`) VALUES
+  (1,'SET_EXIT_VALUE',4,'select \r\noptionTick.security.position.id as positionId,\r\nStockOptionUtil.getExitValue(optionTick.security, indexTick.currentValue, optionTick.currentValue) as exitValue\r\nfrom pattern [every (indexTick=Tick(security.isin = var_isin) -> optionTick=Tick(security.underlaying.id=indexTick.security.id))]\r\nwhere optionTick.security.position != null \r\nand optionTick.security.position.quantity != 0\r\nand (cast(optionTick.security.position.exitValue,int) = 0 \r\n          or StockOptionUtil.getExitValue(optionTick.security, indexTick.currentValue, optionTick.currentValue) < optionTick.security.position.exitValue)\r\noutput last every 30 minutes\r\n','SetExitValueSubscriber',NULL,False,True,False,NULL),
+  (2,'CLOSE_POSITION',6,'select\r\ntick.security.position.id\r\nfrom Tick as tick\r\nwhere cast(tick.security.position.exitValue,int) != 0\r\nand tick.currentValue  > tick.security.position.exitValue','ClosePositionSubscriber',NULL,False,True,False,NULL),
+  (3,'SET_MARGIN',0,'every timer:at(0, 1, *, *, *)',NULL,'SetMarginListener',True,True,False,NULL),
+  (4,'EXPIRE_OPTIONS',7,'select option.position.id as positionId\r\nfrom Tick as tick,\r\nmethod:LookupUtil.getStockOptionsOnWatchlist() as option \r\nwhere option.expiration.time < current_timestamp()\r\nand option.position != null\r\nand option.position.quantity != 0\r\n','ExpireStockOptionsSubscriber',NULL,False,True,False,NULL),
+  (5,'GET_LAST_TICK',3,'select tick.security.id as securityId, tick.* as tick \r\nfrom Tick.std:groupby(security.id).win:length(1) as tick',NULL,NULL,False,True,False,NULL),
+  (6,'SIMULATE_DUMMY_SECURITIES',5,'insert into Tick\r\nselect DateUtil.toDate(current_timestamp()) as dateTime,\r\nStockOptionUtil.getFairValue(option, indexTick.last, volaTick.last / 100) as last,\r\nDateUtil.toDate(current_timestamp()) as lastDateTime,\r\n0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,\r\noption as security\r\nfrom pattern [every (indexTick=Tick(security.isin = var_isin) -> volaTick=Tick(security.id=indexTick.security.volatility.id))],\r\nmethod:LookupUtil.getDummySecurities() as option \r\nwhere option.underlaying.id = indexTick.security.id\r\nand var_simulation=true ',NULL,NULL,False,True,False,NULL),
+  (7,'TIME_THE_MARKET',1,'select stockOptionTick.security.id,\r\nindexTick.security.id,\r\nindexTick.currentValue\r\nfrom pattern [(indexTick=Tick(security.isin = var_isin) -> stockOptionTick=Tick(security.id = ?,security.underlaying.id=indexTick.security.id))]\r\n','TimeTheMarketSubscriber',NULL,False,False,True,NULL),
+  (8,'OPEN_POSITION',1,'select stockOptionTick.security.id,\r\nstockOptionTick.settlement,\r\nstockOptionTick.currentValue,\r\nindexTick.currentValue\r\nfrom pattern [(indexTick=Tick(security.isin = var_isin) -> stockOptionTick=Tick(security.id = ?,security.underlaying.id=indexTick.security.id))]','OpenPositionSubscriber',NULL,False,False,True,NULL),
+  (10,'PRINT_TICK',8,'select *\r\nfrom Tick','PrintTickSubscriber',NULL,False,True,False,NULL),
+  (11,'START_TIME_THE_MARKET',2,'select indexTick.security.id,\r\nindexTick.currentValue\r\nfrom Tick as indexTick\r\nwhere not LookupUtil.hasStockOptionsOnWatchlist()\r\nand indexTick.security.isin = var_isin','StartTimeTheMarketSubscriber',NULL,False,True,False,NULL),
+  (12,'RETRIEVE_TICKS',0,'every timer:at (*, 9:21, *, *, 1:5,*/10)',NULL,'RetrieveTickListener',True,True,False,NULL);
 
 COMMIT;
 
