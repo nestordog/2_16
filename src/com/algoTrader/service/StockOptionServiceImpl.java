@@ -65,7 +65,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         expiration = DateUtil.getNextThirdFriday(expiration);
 
         // round to 50.-
-        strike = StockOptionUtil.roundTo50(strike);
+        strike = RoundUtil.roundTo50(strike);
 
         // symbol
         GregorianCalendar cal = new GregorianCalendar();
