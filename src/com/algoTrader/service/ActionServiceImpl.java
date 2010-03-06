@@ -19,37 +19,37 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         if (simulation) return; // unfortunately timer.at pattern get's executed in simulation
 
-        logger.info("retrieveTicks event");
+        logger.debug("retrieveTicks event");
         getTickService().processSecuritiesOnWatchlist();
     }
 
     protected void handleSetExitValue(int positionId, BigDecimal exitValue) throws java.lang.Exception {
 
-        logger.info("setExitValue event");
+        logger.debug("setExitValue event");
         getStockOptionService().setExitValue(positionId, exitValue);
     }
 
     protected void handleSetMargins() throws java.lang.Exception {
 
-        logger.info("setMargins event");
+        logger.debug("setMargins event");
         getStockOptionService().setMargins();
     }
 
     protected void handleClosePosition(int positionId) throws java.lang.Exception {
 
-        logger.info("closePosition event");
+        logger.debug("closePosition event");
         getStockOptionService().closePosition(positionId);
     }
 
     protected void handleExpireStockOption(int positionId) throws java.lang.Exception {
 
-        logger.info("expireStockOptions event");
+        logger.debug("expireStockOptions event");
         getStockOptionService().expireStockOption(positionId);
     }
 
     protected void handleStartTimeTheMarket(int underlayingId, BigDecimal spot) throws java.lang.Exception {
 
-        logger.info("startTimeTheMarket event");
+        logger.debug("startTimeTheMarket event");
         if (!getRuleService().isActive(RuleName.TIME_THE_MARKET) && !getRuleService().isActive(RuleName.OPEN_POSITION)) {
 
             StockOption stockOption = getStockOptionService().getStockOption(underlayingId, spot);
@@ -63,7 +63,7 @@ public class ActionServiceImpl extends ActionServiceBase {
 
     protected void handleTimeTheMarket(int stockOptionId, int underlayingId,  BigDecimal spot) throws Exception {
 
-        logger.info("timeTheMarket event");
+        logger.debug("timeTheMarket event");
         StockOption newStockOption = getStockOptionService().getStockOption(underlayingId, spot);
 
         // if we got a different stockOption, remove the old one from the watchlist
@@ -79,7 +79,7 @@ public class ActionServiceImpl extends ActionServiceBase {
 
     protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlaying) throws Exception {
 
-        logger.info("openPosition event");
+        logger.debug("openPosition event");
         getStockOptionService().openPosition(securityId, settlement, currentValue, underlaying);
         getRuleService().deactivate(RuleName.OPEN_POSITION);
     }

@@ -11,6 +11,6 @@ public class PrintTickSubscriber {
 
     public void update(Tick tick) {
 
-        logger.info(tick.getSecurity().getSymbol() + " " + tick);
+        logger.debug(tick.getSecurity().getSymbol() + " " + tick);
     }
 }
