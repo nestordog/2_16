@@ -5,8 +5,8 @@ import java.util.Iterator;
 
 import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.EsperService;
+import com.algoTrader.util.RoundUtil;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 
@@ -38,7 +38,11 @@ public class SecurityImpl extends com.algoTrader.entity.Security {
 
         if (this instanceof StockOption &&
                 (TransactionType.SELL.equals(transactionType) || TransactionType.BUY.equals(transactionType))) {
-            return StockOptionUtil.getCommission(quantity);
+            if (quantity < 4) {
+                return RoundUtil.getBigDecimal(quantity * 1.5 + 5);
+            } else {
+                return RoundUtil.getBigDecimal(quantity * 3);
+            }
         } else {
             return new BigDecimal(0);
         }
