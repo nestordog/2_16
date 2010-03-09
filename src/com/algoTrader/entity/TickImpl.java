@@ -7,7 +7,6 @@ import com.algoTrader.util.PropertiesUtil;
 
 public class TickImpl extends com.algoTrader.entity.Tick {
 
-    private static boolean simulation = new Boolean(PropertiesUtil.getProperty("simulation")).booleanValue();
     private static int lastTransactionAge = Integer.parseInt(PropertiesUtil.getProperty("lastTransactionAge"));
     private static int minVol = Integer.parseInt(PropertiesUtil.getProperty("minVol"));
     private static double maxSpreadPercent = Double.parseDouble(PropertiesUtil.getProperty("maxSpreadPercent"));
@@ -17,11 +16,13 @@ public class TickImpl extends com.algoTrader.entity.Tick {
 
     public BigDecimal getCurrentValue() {
 
-        if (simulation) {
-            return getLast();
-        } else if (getLastDateTime() == null ||
+        if (getLastDateTime() == null ||
                 EsperService.getEPServiceInstance().getEPRuntime().getCurrentTime() - getLastDateTime().getTime() > lastTransactionAge) {
-            return (getAsk().add(getBid()).divide(new BigDecimal(2)));
+            if (getVolAsk() > minVol && getVolBid() > minVol) {
+                return (getAsk().add(getBid()).divide(new BigDecimal(2)));
+            } else {
+                return getLast();
+            }
         } else {
             return getLast();
         }
