@@ -19,37 +19,48 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         if (simulation) return; // unfortunately timer.at pattern get's executed in simulation
 
-        logger.debug("retrieveTicks event");
+        long startTime = System.currentTimeMillis();
+        logger.debug("retrieveTicks start");
         getTickService().processSecuritiesOnWatchlist();
+        logger.debug("retrieveTicks end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
     protected void handleSetExitValue(int positionId, BigDecimal exitValue) throws java.lang.Exception {
 
-        logger.debug("setExitValue event");
+        long startTime = System.currentTimeMillis();
+        logger.debug("setExitValue start");
         getStockOptionService().setExitValue(positionId, exitValue);
+        logger.debug("setExitValue end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
     protected void handleSetMargins() throws java.lang.Exception {
 
-        logger.debug("setMargins event");
+        long startTime = System.currentTimeMillis();
+        logger.debug("setMargins start");
         getStockOptionService().setMargins();
+        logger.debug("setMargins end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
     protected void handleClosePosition(int positionId) throws java.lang.Exception {
 
-        logger.debug("closePosition event");
+        long startTime = System.currentTimeMillis();
+        logger.debug("closePosition start");
         getStockOptionService().closePosition(positionId);
+        logger.debug("closePosition end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
     protected void handleExpireStockOption(int positionId) throws java.lang.Exception {
 
-        logger.debug("expireStockOptions event");
+        long startTime = System.currentTimeMillis();
+        logger.debug("expireStockOptions start");
         getStockOptionService().expireStockOption(positionId);
+        logger.debug("expireStockOptions end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
     protected void handleStartTimeTheMarket(int underlayingId, BigDecimal spot) throws java.lang.Exception {
 
-        logger.debug("startTimeTheMarket event");
+        long startTime = System.currentTimeMillis();
+        logger.debug("startTimeTheMarket start");
         if (!getRuleService().isActive(RuleName.TIME_THE_MARKET) && !getRuleService().isActive(RuleName.OPEN_POSITION)) {
 
             StockOption stockOption = getStockOptionService().getStockOption(underlayingId, spot);
@@ -59,11 +70,13 @@ public class ActionServiceImpl extends ActionServiceBase {
                 getRuleService().activate(RuleName.TIME_THE_MARKET, stockOption);
             }
         }
+        logger.debug("startTimeTheMarket end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
     protected void handleTimeTheMarket(int stockOptionId, int underlayingId,  BigDecimal spot) throws Exception {
 
-        logger.debug("timeTheMarket event");
+        long startTime = System.currentTimeMillis();
+        logger.debug("timeTheMarket start");
         StockOption newStockOption = getStockOptionService().getStockOption(underlayingId, spot);
 
         // if we got a different stockOption, remove the old one from the watchlist
@@ -74,13 +87,16 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         getRuleService().activate(RuleName.OPEN_POSITION, newStockOption);
         getRuleService().deactivate(RuleName.TIME_THE_MARKET);
+        logger.debug("timeTheMarket end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
 
     protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlaying) throws Exception {
 
-        logger.debug("openPosition event");
+        long startTime = System.currentTimeMillis();
+        logger.debug("openPosition start");
         getStockOptionService().openPosition(securityId, settlement, currentValue, underlaying);
         getRuleService().deactivate(RuleName.OPEN_POSITION);
+        logger.debug("openPosition end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 }
