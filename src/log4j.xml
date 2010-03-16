@@ -5,8 +5,7 @@
     <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
         <param name="Target" value="System.out" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern"
-              value="%d %-5p %c{1} %m %n" />
+            <param name="ConversionPattern" value="%d %-5p %c{1} %m %n" />
         </layout>
         <filter class="org.apache.log4j.varia.LevelRangeFilter">
             <param name="LevelMin" value="DEBUG"/>
@@ -17,8 +16,7 @@
     <appender name="STDERR"  class="org.apache.log4j.ConsoleAppender">
         <param name="Target" value="System.err" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern"
-              value="%d %-5p %c{1} %m %n" />
+            <param name="ConversionPattern" value="%d %-5p %c{1} %m %n" />
         </layout>
         <filter class="org.apache.log4j.varia.LevelRangeFilter">
             <param name="LevelMin" value="WARN"/>
@@ -43,8 +41,21 @@
         <param name="To" value="andy_flury@yahoo.com" />
         <param name="Subject" value="AlgoTrader Error message" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern"
-              value="[%d{ISO8601}]%n%n%-5p%n%n%c%n%n%m%n%n" />
+            <param name="ConversionPattern" value="[%d{ISO8601}]%n%n%-5p%n%n%c%n%n%m%n%n" />
+        </layout>
+    </appender>
+
+    <appender name="SMS"  class="com.algoTrader.util.SMSAppender">
+        <param name="SMTPHost" value="plus.smtp.mail.yahoo.com" />
+        <param name="SMTPUsername" value="andy_flury" />
+        <param name="SMTPPassword" value="franklin91" />
+        <param name="From" value="andy_flury@yahoo.com" />
+        <param name="To" value="0794080420@sms.mail2sms.ch" />
+        <param name="Subject" value="" />
+        <param name="TimeFrame" value="60" />
+        <param name="MaxEMails" value="3" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value=" " />
         </layout>
     </appender>
 
@@ -57,8 +68,22 @@
         <param name="To" value="andy_flury@yahoo.com" />
         <param name="Subject" value="AlgoTrader Transaction message" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern"
-              value="[%d{ISO8601}]%n%n%-5p%n%n%c%n%n%m%n%n" />
+            <param name="ConversionPattern" value="[%d{ISO8601}]%n%n%-5p%n%n%c%n%n%m%n%n" />
+        </layout>
+    </appender>
+
+    <appender name="TRANSACTION_SMS"  class="com.algoTrader.util.SMSAppender">
+        <param name="EvaluatorClass" value="com.algoTrader.util.CustomEvaluator"/>
+        <param name="SMTPHost" value="plus.smtp.mail.yahoo.com" />
+        <param name="SMTPUsername" value="andy_flury" />
+        <param name="SMTPPassword" value="franklin91" />
+        <param name="From" value="andy_flury@yahoo.com" />
+        <param name="To" value="0794080420@sms.mail2sms.ch" />
+        <param name="Subject" value="" />
+        <param name="TimeFrame" value="60" />
+        <param name="MaxEMails" value="3" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m" />
         </layout>
     </appender>
 
@@ -88,6 +113,7 @@
 
     <logger name="com.algoTrader.service.TransactionServiceImpl">
         <appender-ref ref="TRANSACTION_EMAIL" />
+        <appender-ref ref="TRANSACTION_SMS" />
     </logger>
 
     <root>
@@ -96,6 +122,7 @@
         <!-- <appender-ref ref="STDERR"/> -->
         <appender-ref ref="FILE"/>
         <appender-ref ref="EMAIL"/>
+        <appender-ref ref="SMS"/>
     </root>
 
 </log4j:configuration>
