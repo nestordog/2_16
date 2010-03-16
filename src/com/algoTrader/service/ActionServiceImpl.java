@@ -57,39 +57,15 @@ public class ActionServiceImpl extends ActionServiceBase {
         logger.debug("expireStockOptions end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
-    protected void handleStartTimeTheMarket(int underlayingId, BigDecimal spot) throws java.lang.Exception {
-
-        long startTime = System.currentTimeMillis();
-        logger.debug("startTimeTheMarket start");
-        if (!getRuleService().isActive(RuleName.TIME_THE_MARKET) && !getRuleService().isActive(RuleName.OPEN_POSITION)) {
-
-            StockOption stockOption = getStockOptionService().getStockOption(underlayingId, spot);
-
-            if (stockOption != null) {
-                getWatchlistService().putOnWatchlist(stockOption);
-                getRuleService().activate(RuleName.TIME_THE_MARKET, stockOption);
-            }
-        }
-        logger.debug("startTimeTheMarket end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
-    }
-
-    protected void handleTimeTheMarket(int stockOptionId, int underlayingId,  BigDecimal spot) throws Exception {
+    protected void handleBuySignal(int underlayingId,  BigDecimal spot) throws Exception {
 
         long startTime = System.currentTimeMillis();
         logger.debug("timeTheMarket start");
-        StockOption newStockOption = getStockOptionService().getStockOption(underlayingId, spot);
-
-        // if we got a different stockOption, remove the old one from the watchlist
-        if (newStockOption.getId() != stockOptionId) {
-            getWatchlistService().putOnWatchlist(newStockOption);
-            getWatchlistService().removeFromWatchlist(stockOptionId);
-        }
-
-        getRuleService().activate(RuleName.OPEN_POSITION, newStockOption);
-        getRuleService().deactivate(RuleName.TIME_THE_MARKET);
+        StockOption stockOption = getStockOptionService().getStockOption(underlayingId, spot);
+        getWatchlistService().putOnWatchlist(stockOption);
+        getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
         logger.debug("timeTheMarket end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
-
 
     protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlaying) throws Exception {
 
