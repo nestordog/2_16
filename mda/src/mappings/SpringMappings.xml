@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<mappings name="Java">
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/SpringDao.vsl"
+        outputPattern="$generatedFile"
+        outlet="daos"
+        overwrite="true">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to><![CDATA[<template
+        path="templates/spring/SpringDao.vsl"
+        outputPattern="$generatedFile"
+        outlet="daos"
+        overwrite="true"
+        outputCondition="$stringUtils.isBlank($entity.findTaggedValue('@algoTrader.entity.nonPersistent'))">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></to>
+        </mapping>
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/hibernate/SpringHibernateDaoBase.vsl"
+        outputPattern="$generatedFile"
+        outlet="daos"
+        overwrite="true">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to><![CDATA[<template
+        path="templates/spring/hibernate/SpringHibernateDaoBase.vsl"
+        outputPattern="$generatedFile"
+        outlet="daos"
+        overwrite="true"
+        outputCondition="$stringUtils.isBlank($entity.findTaggedValue('@algoTrader.entity.nonPersistent'))">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></to>
+        </mapping>
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/hibernate/SpringHibernateDaoImpl.vsl"
+        outputPattern="$generatedFile"
+        outlet="daos"
+        overwrite="true">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity">
+                    <property name="daoImplementationRequired">false</property>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to><![CDATA[<template
+        path="templates/spring/hibernate/SpringHibernateDaoImpl.vsl"
+        outputPattern="$generatedFile"
+        outlet="daos"
+        overwrite="true"
+        outputCondition="$stringUtils.isBlank($entity.findTaggedValue('@algoTrader.entity.nonPersistent'))">
+        <modelElements variable="entity">
+            <modelElement>
+                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity">
+                    <property name="daoImplementationRequired">false</property>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>]]></to>
+        </mapping>
+</mappings>
