@@ -26,8 +26,8 @@ import com.algoTrader.entity.TickImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
-import com.algoTrader.util.EsperService;
 import com.algoTrader.util.HttpClientUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
@@ -60,9 +60,9 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
     protected Transaction handleExecuteTransaction(int quantity, Security security, BigDecimal current, TransactionType transactionType)
             throws Exception {
 
-        if (quantity == 0) throw new IllegalArgumentException("quantity = 0 not allowed");
-
-        if (quantity < 0) throw new IllegalArgumentException("negative quantity not allowed");
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("quantity must be greater than 0");
+        }
 
         Transaction transaction;
         if (!simulation && swissquoteTransactionsEnabled &&
@@ -74,9 +74,17 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
 
             transaction = new TransactionImpl();
             transaction.setDateTime(DateUtil.getCurrentEPTime());
-            transaction.setPrice(current.abs());
+
+            if (TransactionType.BUY.equals(transactionType)) {
+                transaction.setPrice(StockOptionUtil.getDummyAsk(current.abs()));
+            } else if (TransactionType.SELL.equals(transactionType)) {
+                transaction.setPrice(StockOptionUtil.getDummyBid(current.abs()));
+            } else {
+                transaction.setPrice(current.abs());
+            }
+
             transaction.setCommission(security.getCommission(quantity, transactionType));
-            transaction.setNumber(0);
+            transaction.setNumber(null);
         }
 
         int signedQuantity = TransactionType.SELL.equals(transactionType) ? -Math.abs(quantity) : Math.abs(quantity);
@@ -97,8 +105,8 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
             position = new PositionImpl();
             position.setQuantity(signedQuantity);
 
-            position.setExitValue(new BigDecimal(0));
-            position.setMargin(new BigDecimal(0));
+            position.setExitValue(null);
+            position.setMargin(null);
 
             position.setSecurity(security);
             security.setPosition(position);
@@ -131,7 +139,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
 
         logger.info("executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() + " of " + security.getSymbol() + " price: " + transaction.getPrice() + " commission: " + transaction.getCommission() + " portfolioValue: " + account.getPortfolioValue());
 
-        EsperService.getEPServiceInstance().getEPRuntime().sendEvent(transaction);
+        //EsperService.getEPServiceInstance().getEPRuntime().sendEvent(transaction);
 
         return transaction;
     }
@@ -346,8 +354,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         String timeValue = SwissquoteUtil.getValue(document, String.format(dailyTransactionsMatch, "Zeit"));
         Date dateTime = SwissquoteUtil.getDate(dateValue + " " + timeValue);
 
-        String numberValue = SwissquoteUtil.getValue(document, String.format(dailyTransactionsMatch, "Auftrag"));
-        int number = Integer.parseInt(numberValue);
+        String number = SwissquoteUtil.getValue(document, String.format(dailyTransactionsMatch, "Auftrag"));
 
         // get the executed transactions screen
         get = new GetMethod(transactionsUrl);
@@ -361,12 +368,12 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         get.releaseConnection();
         XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_executed_transactions.xml", "results/trade/");
 
-        String pricePerItemValue = SwissquoteUtil.getValue(document, String.format(executedTransactionsMatch, numberValue, "Stückpreis"));
+        String pricePerItemValue = SwissquoteUtil.getValue(document, String.format(executedTransactionsMatch, number, "Stückpreis"));
         double pricePerItem = Double.parseDouble(pricePerItemValue);
         int contractSize = (security instanceof StockOption) ? ((StockOption)security).getContractSize() : 1;
         BigDecimal price = RoundUtil.getBigDecimal(pricePerItem * contractSize);
 
-        String commissionValue = SwissquoteUtil.getValue(document, String.format(executedTransactionsMatch + "/a", numberValue, "Kommission"));
+        String commissionValue = SwissquoteUtil.getValue(document, String.format(executedTransactionsMatch + "/a", number, "Kommission"));
         BigDecimal commission = RoundUtil.getBigDecimal(Double.parseDouble(commissionValue));
 
         Transaction transaction = new TransactionImpl();
