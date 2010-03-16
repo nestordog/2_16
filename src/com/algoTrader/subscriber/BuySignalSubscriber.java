@@ -4,10 +4,10 @@ import java.math.BigDecimal;
 
 import com.algoTrader.ServiceLocator;
 
-public class TimeTheMarketSubscriber {
+public class BuySignalSubscriber {
 
     public void update(int stockOptionId, int underlayingId, BigDecimal spot) {
 
-        ServiceLocator.instance().getActionService().timeTheMarket(stockOptionId, underlayingId, spot);
+        ServiceLocator.instance().getActionService().buySignal(underlayingId, spot);
     }
 }
