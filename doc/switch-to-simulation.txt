@@ -1,5 +1,6 @@
 1. conf.properties: simulation = true
 2. conf.properties: simulation.dataSet = ...
 3. esper.cfg.xml: var_simulation = true
+3. esper.cfg.xml: var_events_per_hour = 1
 4. run reset.db
 5. enable watchlist for smi and vsmi
