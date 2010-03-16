@@ -9,8 +9,8 @@ public class TickImpl extends com.algoTrader.entity.Tick {
 
     private static int lastTransactionAge = Integer.parseInt(PropertiesUtil.getProperty("lastTransactionAge"));
     private static int minVol = Integer.parseInt(PropertiesUtil.getProperty("minVol"));
-    private static double maxSpreadPercent = Double.parseDouble(PropertiesUtil.getProperty("maxSpreadPercent"));
-    private static double maxSpreadDelta = Double.parseDouble(PropertiesUtil.getProperty("maxSpreadDelta"));
+    private static double spreadSlope = Double.parseDouble(PropertiesUtil.getProperty("spreadSlope"));
+    private static double maxSpreadConstant = Double.parseDouble(PropertiesUtil.getProperty("maxSpreadConstant"));
 
     private static final long serialVersionUID = 7518020445322413106L;
 
@@ -44,11 +44,16 @@ public class TickImpl extends com.algoTrader.entity.Tick {
 
             double average = getAsk().doubleValue() * getBid().doubleValue() / 2.0;
             double spread = getAsk().doubleValue() - getBid().doubleValue();
-            double maxSpread = average * maxSpreadPercent + maxSpreadDelta;
+            double maxSpread = average * spreadSlope + maxSpreadConstant;
 
             if (spread > maxSpread) return false;
         }
 
         return true;
+    }
+
+    public double getCurrentValueDouble() {
+
+        return getCurrentValue().doubleValue();
     }
 }
