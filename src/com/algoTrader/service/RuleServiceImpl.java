@@ -106,16 +106,20 @@ public class RuleServiceImpl extends RuleServiceBase {
 
         // update the rule entity
         Rule rule = getRuleDao().findByName(ruleName);
-        rule.setTarget(null);
-        rule.setActive(false);
-        getRuleDao().update(rule);
+        if (rule != null) {
+            rule.setTarget(null);
+            rule.setActive(false);
+            getRuleDao().update(rule);
+        }
 
         // destroy the statement
         EPServiceProvider cep = EsperService.getEPServiceInstance();
         EPStatement statement = cep.getEPAdministrator().getStatement(ruleName.getValue());
 
-        statement.destroy();
-        logger.debug("deactivated rule " + ruleName);
+        if (statement != null) {
+            statement.destroy();
+            logger.debug("deactivated rule " + ruleName);
+        }
     }
 
     protected boolean handleIsActive(RuleName ruleName) throws Exception {
