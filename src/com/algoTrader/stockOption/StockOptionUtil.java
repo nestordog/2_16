@@ -25,6 +25,8 @@ public class StockOptionUtil {
     private static double dividend = Double.parseDouble(PropertiesUtil.getProperty("dividend"));
     private static double volaPeriod = Double.parseDouble(PropertiesUtil.getProperty("volaPeriod"));
     private static double marginParameter = Double.parseDouble(PropertiesUtil.getProperty("marginParameter"));
+    private static double spreadSlope = Double.parseDouble(PropertiesUtil.getProperty("spreadSlope"));
+    private static double spreadConstant = Double.parseDouble(PropertiesUtil.getProperty("spreadConstant"));
 
     // Black-Scholes formula
     public static double getOptionPrice(double spot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
@@ -93,5 +95,20 @@ public class StockOptionUtil {
 
         return RoundUtil.getBigDecimal(margin);
     }
-}
 
+    public static BigDecimal getDummyBid(BigDecimal meanValue) {
+
+        double spread = meanValue.doubleValue() * spreadSlope + spreadConstant;
+        double bid = meanValue.doubleValue() - (spread / 2.0);
+
+        return RoundUtil.getBigDecimal(bid);
+    }
+
+    public static BigDecimal getDummyAsk(BigDecimal meanValue) {
+
+        double spread = meanValue.doubleValue() * spreadSlope + spreadConstant;
+        double ask = meanValue.doubleValue() + (spread / 2.0);
+
+        return RoundUtil.getBigDecimal(ask);
+    }
+}
