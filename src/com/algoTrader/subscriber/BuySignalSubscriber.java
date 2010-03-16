@@ -6,7 +6,7 @@ import com.algoTrader.ServiceLocator;
 
 public class BuySignalSubscriber {
 
-    public void update(int stockOptionId, int underlayingId, BigDecimal spot) {
+    public void update(int underlayingId, BigDecimal spot) {
 
         ServiceLocator.instance().getActionService().buySignal(underlayingId, spot);
     }
