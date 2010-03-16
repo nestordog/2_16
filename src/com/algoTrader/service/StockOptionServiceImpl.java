@@ -50,7 +50,10 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         StockOption stockOption = findNearestStockOption(underlaying, targetExpirationDate, spot, optionType);
 
         if (simulation) {
-            if ((stockOption == null) || ( stockOption.getExpiration().getTime() > (targetExpirationDate.getTime() + FORTY_FIVE_DAYS ))) {
+            if ((stockOption == null)
+                    || (stockOption.getExpiration().getTime() > (targetExpirationDate.getTime() + FORTY_FIVE_DAYS ))
+                    || (stockOption.getStrike().compareTo(spot.subtract(RoundUtil.getBigDecimal(50))) < 0 )) {
+
                 stockOption = createDummyStockOption(underlaying, targetExpirationDate, spot, optionType);
 
                 getStockOptionDao().create(stockOption);
@@ -119,6 +122,14 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         int contractSize = stockOption.getContractSize();
 
         int numberOfContracts = (int)((availableAmount / (margin - currentDouble)) / contractSize); // i.e. 2 (for 20 stockOptions)
+
+        if (numberOfContracts <= 0) {
+            if (stockOption.getPosition() == null || stockOption.getPosition().getQuantity() == 0) {
+                getWatchlistService().removeFromWatchlist(securityId);
+            }
+            return; // there is no money available
+        }
+
         BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
 
         Transaction transaction = getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, TransactionType.SELL);
@@ -204,9 +215,12 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     protected void handleSetExitValue(int positionId, BigDecimal exitValue) {
 
         Position position = getPositionDao().load(positionId);
-        position.setExitValue(exitValue);
-        getPositionDao().update(position);
+        if (position != null && exitValue.doubleValue() > 0.0) {
 
-        logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + exitValue);
+            position.setExitValue(exitValue);
+            getPositionDao().update(position);
+
+            logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + exitValue);
+        }
     }
 }
