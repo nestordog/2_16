@@ -1,4 +1,6 @@
 ## only assign a transaction if specified using tagged-value
+## only output EntityDao if tag @algoTrader.entity.nonPersistent is not set
+## only output hbm.xml if tag @algoTrader.entity.nonPersistent is not set
 <?xml version="1.0" encoding="$xmlEncoding"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
@@ -22,7 +24,7 @@
         <property name="mappingResources">
             <list>
 #foreach($entity in $entities)
-#if ($entity.requiresHibernateMapping)
+#if ($entity.requiresHibernateMapping && $stringUtils.isBlank($entity.findTaggedValue('@algoTrader.entity.nonPersistent')))
                 <value>${entity.packagePath}/${entity.entityName}.hbm.xml</value>
 #end
 #end
@@ -101,6 +103,7 @@
     </bean>
 
 #foreach($entity in $entities)
+#if ($stringUtils.isBlank($entity.findTaggedValue('@algoTrader.entity.nonPersistent')))
     <!-- $entity.name Entity Proxy with inner $entity.name Entity implementation -->
     <bean id="$entity.getBeanName(false)" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="target">
@@ -146,6 +149,7 @@
 
 #end
 #end
+#end
     <!-- ========================= Start of SERVICE DEFINITIONS ========================= -->
 
 #set ($enableSpringTransactions = ($enableSpringTransactionsWhenEjbsEnabled.equalsIgnoreCase("true") || !$ejbsEnabled) && !$services.empty)
@@ -159,7 +163,7 @@
 #foreach ($operation in $springUtils.filterUniqueByName($service.implementationOperations))
 #if ($operation.findTaggedValue("@andromda.spring.transaction.type"))
                 ${service.fullyQualifiedName}.${operation.name}=${operation.transactionType}
-#end				
+#end
 #end
 #end
             </value>
