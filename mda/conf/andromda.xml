@@ -70,6 +70,7 @@
                 <property name="criteria">${maven.andromda.common.generated.dir}</property>
                 <property name="value-objects">${maven.andromda.common.generated.dir}</property>
                 <property name="mergeLocation">${maven.src.dir}/customTemplates/andromda-spring</property>
+                <property name="mergeMappingsUri">file:${maven.src.dir}/mappings/SpringMappings.xml</property>
             </properties>
         </namespace>
         <namespace name="hibernate">
@@ -89,6 +90,7 @@
                 <property name="compositionDefinesEagerLoading">true</property>
                 <property name="cache">${maven.andromda.core.generated.dir}</property>
                 <property name="mergeLocation">${maven.src.dir}/customTemplates/andromda-hibernate</property>
+                <property name="mergeMappingsUri">file:${maven.src.dir}/mappings/HibernateMappings.xml</property>
             </properties>
         </namespace>
         <namespace name="java">
