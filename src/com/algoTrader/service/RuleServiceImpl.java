@@ -16,6 +16,7 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
+import com.espertech.esper.client.time.TimerControlEvent;
 
 public class RuleServiceImpl extends RuleServiceBase {
 
@@ -23,7 +24,7 @@ public class RuleServiceImpl extends RuleServiceBase {
 
     protected void handleActivateAll() throws java.lang.Exception {
 
-        Collection col = getRuleDao().findActiveRules();
+        Collection col = getRuleDao().findActivatableRules();
 
         for (Iterator it = col.iterator(); it.hasNext();) {
             Rule rule = (Rule)it.next();
@@ -42,7 +43,9 @@ public class RuleServiceImpl extends RuleServiceBase {
         Rule rule = getRuleDao().findByName(ruleName);
 
         if (!rule.isPrepared()) throw new RuleServiceException("target is allowed only on prepared rules");
+
         rule.setTarget(target);
+        getRuleDao().update(rule);
         activate(rule);
     }
 
@@ -51,17 +54,13 @@ public class RuleServiceImpl extends RuleServiceBase {
         String definition = rule.getPrioritisedDefinition();
         String name = rule.getName().getValue();
 
-        //update the entity
-        rule.setActive(true);
-        getRuleDao().update(rule);
-
         EPServiceProvider cep = EsperService.getEPServiceInstance();
         EPAdministrator cepAdm = cep.getEPAdministrator();
 
-        // deactivate the statement if it already exists
+        // do nothing if the statement already exists
         EPStatement oldStatement = cep.getEPAdministrator().getStatement(name);
-        if (oldStatement != null) {
-            oldStatement.destroy();
+        if (oldStatement != null && oldStatement.isStarted()) {
+            return;
         }
 
         // create the new statement
@@ -106,9 +105,8 @@ public class RuleServiceImpl extends RuleServiceBase {
 
         // update the rule entity
         Rule rule = getRuleDao().findByName(ruleName);
-        if (rule != null) {
+        if (rule != null && rule.isPrepared()) {
             rule.setTarget(null);
-            rule.setActive(false);
             getRuleDao().update(rule);
         }
 
@@ -132,5 +130,10 @@ public class RuleServiceImpl extends RuleServiceBase {
         } else {
             return false;
         }
+    }
+
+    protected void handleSetInternalClock() {
+
+        EsperService.getEPServiceInstance().getEPRuntime().sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_INTERNAL));
     }
 }
