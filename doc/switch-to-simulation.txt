@@ -1,6 +1,8 @@
-1. conf.properties: simulation = true
-2. conf.properties: simulation.dataSet = ...
-3. esper.cfg.xml: var_simulation = true
-3. esper.cfg.xml: var_events_per_hour = 1
-4. run reset.db
-5. enable watchlist for smi and vsmi
+                                             real                simulation
+--------------------------------------------------------------------------------
+1. conf.properties: simulation               false               true
+2. conf.properties: simulation.dataSet       current             historical
+3. esper.cfg.xml: var_simulation             false               true
+4. esper.cfg.xml: var_events_per_hour        60                  1
+5. enable watchlist                          smi                 smi and vsmi
+6. run reset.db
