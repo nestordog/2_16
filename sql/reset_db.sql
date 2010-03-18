@@ -27,5 +27,5 @@ UPDATE rule
 set target_fk = NULL;
 
 UPDATE rule
-set active = false
+set activatable = false
 where prepared = true;
