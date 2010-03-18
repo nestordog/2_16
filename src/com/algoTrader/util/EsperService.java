@@ -4,11 +4,8 @@ import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.client.time.TimerControlEvent;
 
 public class EsperService {
-
-    private static boolean simulation = new Boolean(PropertiesUtil.getProperty("simulation")).booleanValue();
 
     private static EPServiceProvider cep;
 
@@ -21,10 +18,8 @@ public class EsperService {
 
             cep = EPServiceProviderManager.getDefaultProvider(config);
 
-            if (simulation) {
-                cep.getEPRuntime().sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_EXTERNAL));
-                cep.getEPRuntime().sendEvent(new CurrentTimeEvent(0)); // must send time event before first schedule pattern
-            }
+            // must send time event (1.1.1990) before first schedule pattern
+            cep.getEPRuntime().sendEvent(new CurrentTimeEvent(631148400000l));
         }
         return cep;
     }
