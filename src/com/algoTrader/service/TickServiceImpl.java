@@ -131,8 +131,6 @@ public class TickServiceImpl extends TickServiceBase {
 
         tick.setSecurity(security);
 
-        logger.debug("retrieved tick " + tick);
-
         return tick;
     }
 
