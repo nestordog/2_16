@@ -14,7 +14,6 @@ import com.algoTrader.util.CustomDate;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
-import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
@@ -59,7 +58,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     protected void handleRun() throws Exception {
 
         EPServiceProvider cep = EsperService.getEPServiceInstance();
-        EPRuntime cepRT = cep.getEPRuntime();
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(cep, true, true);
 

@@ -60,11 +60,11 @@ public class ActionServiceImpl extends ActionServiceBase {
     protected void handleBuySignal(int underlayingId,  BigDecimal spot) throws Exception {
 
         long startTime = System.currentTimeMillis();
-        logger.debug("timeTheMarket start");
+        logger.debug("buySignal start");
         StockOption stockOption = getStockOptionService().getStockOption(underlayingId, spot);
         getWatchlistService().putOnWatchlist(stockOption);
         getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
-        logger.debug("timeTheMarket end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+        logger.debug("buySignal end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
     protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlaying) throws Exception {
