@@ -219,7 +219,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         // check if new exit-value is higher than old one and greater than 0.0
         if (position != null && exitValue.doubleValue() > 0.0) {
 
-            if (exitValue.doubleValue() > position.getExitValue().doubleValue()) {
+            if (position.getExitValue() != null && exitValue.doubleValue() > position.getExitValue().doubleValue()) {
                 logger.warn("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of " + position.getSecurity().getSymbol());
                 return;
             }
