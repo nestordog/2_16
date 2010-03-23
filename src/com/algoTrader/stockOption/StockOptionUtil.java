@@ -57,18 +57,17 @@ public class StockOptionUtil {
         return solver.solve(function, 0.1, 0.99, 0.2);
     }
 
-    public static BigDecimal getFairValue(Security security, BigDecimal spot, BigDecimal vola) throws RuntimeException {
+    public static double getFairValue(Security security, BigDecimal spot, BigDecimal vola) throws RuntimeException {
 
         StockOption stockOption = (StockOption)security;
         Date currentTime = DateUtil.getCurrentEPTime();
 
         double years = (stockOption.getExpiration().getTime() - currentTime.getTime()) / MILLISECONDS_PER_YEAR ;
 
-        double fairValue = getOptionPrice(spot.doubleValue(), stockOption.getStrike().doubleValue(), vola.doubleValue(), years, intrest, dividend, stockOption.getType());
-        return RoundUtil.getBigDecimal(fairValue);
+        return getOptionPrice(spot.doubleValue(), stockOption.getStrike().doubleValue(), vola.doubleValue(), years, intrest, dividend, stockOption.getType());
     }
 
-    public static BigDecimal getExitValue(Security security, BigDecimal spot, BigDecimal optionValue) throws ConvergenceException, FunctionEvaluationException {
+    public static double getExitValue(Security security, BigDecimal spot, BigDecimal optionValue) throws ConvergenceException, FunctionEvaluationException {
 
         StockOption stockOption = (StockOption)security;
 
