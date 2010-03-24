@@ -21,7 +21,9 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         long startTime = System.currentTimeMillis();
         logger.debug("retrieveTicks start");
+
         getTickService().processSecuritiesOnWatchlist();
+
         logger.debug("retrieveTicks end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
@@ -29,7 +31,9 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         long startTime = System.currentTimeMillis();
         logger.debug("setExitValue start");
+
         getStockOptionService().setExitValue(positionId, exitValue);
+
         logger.debug("setExitValue end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
@@ -37,7 +41,9 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         long startTime = System.currentTimeMillis();
         logger.debug("setMargins start");
+
         getStockOptionService().setMargins();
+
         logger.debug("setMargins end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
@@ -45,15 +51,19 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         long startTime = System.currentTimeMillis();
         logger.debug("closePosition start");
+
         getStockOptionService().closePosition(positionId);
+
         logger.debug("closePosition end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
-    protected void handleExpireStockOption(int positionId) throws java.lang.Exception {
+    protected void handleExpirePosition(int positionId) throws java.lang.Exception {
 
         long startTime = System.currentTimeMillis();
         logger.debug("expireStockOptions start");
-        getStockOptionService().expireStockOption(positionId);
+
+        getStockOptionService().expirePosition(positionId);
+
         logger.debug("expireStockOptions end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
@@ -61,9 +71,11 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         long startTime = System.currentTimeMillis();
         logger.debug("buySignal start");
+
         StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot);
         getWatchlistService().putOnWatchlist(stockOption);
         getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
+
         logger.debug("buySignal end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
@@ -71,8 +83,23 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         long startTime = System.currentTimeMillis();
         logger.debug("openPosition start");
+
         getStockOptionService().openPosition(securityId, settlement, currentValue, underlayingSpot);
         getRuleService().deactivate(RuleName.OPEN_POSITION);
+
         logger.debug("openPosition end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+    }
+
+    protected void handleRollPosition(int positionId, int underlayingId, BigDecimal underlayingSpot) {
+
+        long startTime = System.currentTimeMillis();
+        logger.debug("rollPosition start");
+
+        getStockOptionService().closePosition(positionId);
+        StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot);
+        getWatchlistService().putOnWatchlist(stockOption);
+        getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
+
+        logger.debug("rollPosition end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 }

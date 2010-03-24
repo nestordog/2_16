@@ -154,7 +154,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         getWatchlistService().removeFromWatchlist(stockOption);
     }
 
-    protected void handleExpireStockOption(int positionId) throws Exception {
+    protected void handleExpirePosition(int positionId) throws Exception {
 
         Position position = getPositionDao().load(positionId);
 

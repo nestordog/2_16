@@ -16,7 +16,7 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
-import com.algoTrader.util.CsvWriter;
+import com.algoTrader.util.TickCsvWriter;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
@@ -134,25 +134,6 @@ public class TickServiceImpl extends TickServiceBase {
         return tick;
     }
 
-    /**
-     * Not used at the moment (handled by esper timer)
-     */
-    protected void handleRun() {
-
-        (new Thread("AlgoTraderTickService") {
-            public void run() {
-                while(true) {
-                    try {
-                        ServiceLocator.instance().getTickService().processSecuritiesOnWatchlist();
-                        Thread.sleep(timeout);
-                    } catch (Exception ex) {
-                        logger.error("error retrieving ticks ", ex);
-                    }
-                }
-            }
-        }).start();
-    }
-
     protected void handleProcessSecuritiesOnWatchlist() throws Exception {
 
         List securities = getSecurityDao().findSecuritiesOnWatchlist();
@@ -168,14 +149,14 @@ public class TickServiceImpl extends TickServiceBase {
                 }
 
                 // write the tick to file (even if not valid)
-                CsvWriter csvWriter;
+                TickCsvWriter csvWriter;
                 if (csvWriters.containsKey(security)) {
-                    csvWriter = (CsvWriter)csvWriters.get(security);
+                    csvWriter = (TickCsvWriter)csvWriters.get(security);
                 } else {
-                    csvWriter = new CsvWriter(security.getIsin());
+                    csvWriter = new TickCsvWriter(security.getIsin());
                     csvWriters.put(security, csvWriter);
                 }
-                csvWriter.writeTick(tick);
+                csvWriter.write(tick);
             }
         }
     }

@@ -18,7 +18,7 @@ public class CsvInterpolator {
     public static void main(String[] args) throws SuperCSVException, IOException {
 
         CsvReader csvReader = new CsvReader(args[0]);
-        CsvWriter csvWriter = new CsvWriter(args[1]);
+        TickCsvWriter csvWriter = new TickCsvWriter(args[1]);
 
         Tick oldTick = csvReader.readTick();
 
@@ -42,7 +42,7 @@ public class CsvInterpolator {
                 tick.setOpenIntrest(0);
                 tick.setSettlement(new BigDecimal(0));
 
-                csvWriter.writeTick(tick);
+                csvWriter.write(tick);
             }
             oldTick = newTick;
         }
