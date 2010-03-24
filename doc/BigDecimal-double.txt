@@ -1,0 +1,2 @@
+use BigDecimal in Subscribers, Services and Entities
+use double in all calculations (i.e. StockOptionUtil)
