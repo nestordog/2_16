@@ -42,20 +42,20 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
     private long FORTY_FIVE_DAYS = 3888000000l;
 
-    protected StockOption handleGetStockOption(int securityId, BigDecimal spot) throws Exception {
+    protected StockOption handleGetStockOption(int securityId, BigDecimal underlayingSpot) throws Exception {
 
         Security underlaying = getSecurityDao().load(securityId);
 
         Date targetExpirationDate = new Date(DateUtil.getCurrentEPTime().getTime() + minAge);
 
-        StockOption stockOption = findNearestStockOption(underlaying, targetExpirationDate, spot, optionType);
+        StockOption stockOption = findNearestStockOption(underlaying, targetExpirationDate, underlayingSpot, optionType);
 
         if (simulation) {
             if ((stockOption == null)
                     || (stockOption.getExpiration().getTime() > (targetExpirationDate.getTime() + FORTY_FIVE_DAYS ))
-                    || (stockOption.getStrike().doubleValue() < spot.doubleValue() - 50)) {
+                    || (stockOption.getStrike().doubleValue() < underlayingSpot.doubleValue() - 50)) {
 
-                stockOption = createDummyStockOption(underlaying, targetExpirationDate, spot, optionType);
+                stockOption = createDummyStockOption(underlaying, targetExpirationDate, underlayingSpot, optionType);
 
                 getStockOptionDao().create(stockOption);
             }
@@ -111,14 +111,14 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
            return (StockOption)getStockOptionDao().findByCriteria(criteria).get(0);
     }
 
-    protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlaying) throws Exception {
+    protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlayingSpot) throws Exception {
 
         StockOption stockOption = (StockOption)getStockOptionDao().load(securityId);
 
         Account account = getAccountDao().findByCurrency(stockOption.getCurrency());
 
         double availableAmount = account.getAvailableAmount().doubleValue();
-        double margin = StockOptionUtil.getMargin(stockOption, settlement.doubleValue(), underlaying.doubleValue());
+        double margin = StockOptionUtil.getMargin(stockOption, settlement.doubleValue(), underlayingSpot.doubleValue());
         double currentDouble = currentValue.doubleValue();
         int contractSize = stockOption.getContractSize();
 
@@ -188,9 +188,9 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             StockOption stockOption = (StockOption) position.getSecurity();
             Tick tick = stockOption.getLastTick();
             if (tick != null) {
-                BigDecimal underlaying = stockOption.getUnderlaying().getLastTick().getCurrentValue();
+                BigDecimal underlayingSpot = stockOption.getUnderlaying().getLastTick().getCurrentValue();
 
-                double marginPerContract = StockOptionUtil.getMargin(stockOption, tick.getSettlementDouble(), underlaying.doubleValue()) * stockOption.getContractSize();
+                double marginPerContract = StockOptionUtil.getMargin(stockOption, tick.getSettlementDouble(), underlayingSpot.doubleValue()) * stockOption.getContractSize();
                 int numberOfContracts = Math.abs(position.getQuantity());
                 BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
 
