@@ -111,6 +111,10 @@
         <level value="warn"/>
     </logger>
 
+    <logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog">
+        <level value="error"/>
+    </logger>
+
     <logger name="com.algoTrader.service.TransactionServiceImpl">
         <appender-ref ref="TRANSACTION_EMAIL" />
         <appender-ref ref="TRANSACTION_SMS" />
