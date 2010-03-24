@@ -40,11 +40,11 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
 
-    private static boolean swissquoteTransactionsEnabled = new Boolean(PropertiesUtil.getProperty("swissquoteTransactions")).booleanValue();
-    private static boolean simulation = new Boolean(PropertiesUtil.getProperty("simulation")).booleanValue();
-    private static int confirmationTimeout = Integer.parseInt(PropertiesUtil.getProperty("confirmationTimeout"));
-    private static int confirmationRetries = Integer.parseInt(PropertiesUtil.getProperty("confirmationRetries"));
-    private static double maxDifferenceToCurrent = Double.parseDouble(PropertiesUtil.getProperty("maxDifferenceToCurrent"));
+    private static boolean swissquoteTransactionsEnabled = PropertiesUtil.getBooleanProperty("swissquoteTransactions");
+    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
+    private static int confirmationTimeout = PropertiesUtil.getIntProperty("confirmationTimeout");
+    private static int confirmationRetries = PropertiesUtil.getIntProperty("confirmationRetries");
+    private static double maxDifferenceToCurrent = PropertiesUtil.getDoubleProperty("maxDifferenceToCurrent");
 
     private static String dispatchUrl = "https://trade.swissquote.ch/sqb_core/DispatchCtrl";
     private static String tradeUrl = "https://trade.swissquote.ch/sqb_core/TradeCtrl";
@@ -75,10 +75,14 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
             transaction = new TransactionImpl();
             transaction.setDateTime(DateUtil.getCurrentEPTime());
 
+            double meanValue = current.abs().doubleValue();
+
             if (TransactionType.BUY.equals(transactionType)) {
-                transaction.setPrice(StockOptionUtil.getDummyAsk(current.abs()));
+                BigDecimal dummyAsk = RoundUtil.getBigDecimal(StockOptionUtil.getDummyAsk(meanValue));
+                transaction.setPrice(dummyAsk);
             } else if (TransactionType.SELL.equals(transactionType)) {
-                transaction.setPrice(StockOptionUtil.getDummyBid(current.abs()));
+                BigDecimal dummyBid = RoundUtil.getBigDecimal(StockOptionUtil.getDummyBid(meanValue));
+                transaction.setPrice(dummyBid);
             } else {
                 transaction.setPrice(current.abs());
             }

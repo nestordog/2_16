@@ -4,13 +4,14 @@ import java.math.BigDecimal;
 
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.RoundUtil;
 
 public class TickImpl extends com.algoTrader.entity.Tick {
 
-    private static int lastTransactionAge = Integer.parseInt(PropertiesUtil.getProperty("lastTransactionAge"));
-    private static int minVol = Integer.parseInt(PropertiesUtil.getProperty("minVol"));
-    private static double spreadSlope = Double.parseDouble(PropertiesUtil.getProperty("spreadSlope"));
-    private static double maxSpreadConstant = Double.parseDouble(PropertiesUtil.getProperty("maxSpreadConstant"));
+    private static int lastTransactionAge = PropertiesUtil.getIntProperty("lastTransactionAge");
+    private static int minVol = PropertiesUtil.getIntProperty("minVol");
+    private static double spreadSlope = PropertiesUtil.getDoubleProperty("spreadSlope");
+    private static double maxSpreadConstant = PropertiesUtil.getDoubleProperty("maxSpreadConstant");
 
     private static final long serialVersionUID = 7518020445322413106L;
 
@@ -19,7 +20,7 @@ public class TickImpl extends com.algoTrader.entity.Tick {
         if (getLastDateTime() == null ||
                 EsperService.getEPServiceInstance().getEPRuntime().getCurrentTime() - getLastDateTime().getTime() > lastTransactionAge) {
             if (getVolAsk() > minVol && getVolBid() > minVol) {
-                return (getAsk().add(getBid()).divide(new BigDecimal(2)));
+                return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2d);
             } else {
                 return getLast();
             }
@@ -30,11 +31,16 @@ public class TickImpl extends com.algoTrader.entity.Tick {
 
     public BigDecimal getSettlement() {
 
-        if ((new BigDecimal(0)).equals(super.getSettlement())) {
+        if (super.getSettlement().doubleValue() == 0) {
             return getCurrentValue();
         } else {
             return super.getSettlement();
         }
+    }
+
+    public double getSettlementDouble() {
+
+        return getSettlement().doubleValue();
     }
 
     public boolean isValid() {

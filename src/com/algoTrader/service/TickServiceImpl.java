@@ -25,7 +25,7 @@ import com.algoTrader.util.SwissquoteUtil;
 
 public class TickServiceImpl extends TickServiceBase {
 
-    private static int timeout = Integer.parseInt(PropertiesUtil.getProperty("retrieval.timeout"));
+    private static int timeout = PropertiesUtil.getIntProperty("retrieval.timeout");
 
     private static Logger logger = MyLogger.getLogger(TickServiceImpl.class.getName());
 

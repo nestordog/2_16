@@ -1,6 +1,5 @@
 package com.algoTrader.stockOption;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 import org.apache.commons.math.ConvergenceException;
@@ -14,19 +13,21 @@ import com.algoTrader.entity.StockOption;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.PropertiesUtil;
-import com.algoTrader.util.RoundUtil;
 
 public class StockOptionUtil {
 
-    private static final double MILLISECONDS_PER_YEAR = 1000l * 60l * 60l * 24l * 365l;
+    private static final double MILLISECONDS_PER_YEAR = 31536000000l;
     private static final double DAYS_PER_YEAR = 365;
 
-    private static double intrest = Double.parseDouble(PropertiesUtil.getProperty("intrest"));
-    private static double dividend = Double.parseDouble(PropertiesUtil.getProperty("dividend"));
-    private static double volaPeriod = Double.parseDouble(PropertiesUtil.getProperty("volaPeriod"));
-    private static double marginParameter = Double.parseDouble(PropertiesUtil.getProperty("marginParameter"));
-    private static double spreadSlope = Double.parseDouble(PropertiesUtil.getProperty("spreadSlope"));
-    private static double spreadConstant = Double.parseDouble(PropertiesUtil.getProperty("spreadConstant"));
+    private static double intrest = PropertiesUtil.getDoubleProperty("intrest");
+    private static double dividend = PropertiesUtil.getDoubleProperty("dividend");
+    private static double volaPeriod = PropertiesUtil.getDoubleProperty("volaPeriod");
+    private static double marginParameter = PropertiesUtil.getDoubleProperty("marginParameter");
+    private static double spreadSlope = PropertiesUtil.getDoubleProperty("spreadSlope");
+    private static double spreadConstant = PropertiesUtil.getDoubleProperty("spreadConstant");
+    private static double expirationTimeFactor = PropertiesUtil.getDoubleProperty("expirationTimeFactor");
+    private static double expectedProfit = PropertiesUtil.getDoubleProperty("expectedProfit");
+    private static long minExpirationTime = PropertiesUtil.getIntProperty("minExpirationTime");
 
     // Black-Scholes formula
     public static double getOptionPrice(double spot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
@@ -57,57 +58,79 @@ public class StockOptionUtil {
         return solver.solve(function, 0.1, 0.99, 0.2);
     }
 
-    public static double getFairValue(Security security, BigDecimal spot, BigDecimal vola) throws RuntimeException {
+    public static double getFairValue(Security security, double spot, double vola) throws RuntimeException {
 
         StockOption stockOption = (StockOption)security;
         Date currentTime = DateUtil.getCurrentEPTime();
 
         double years = (stockOption.getExpiration().getTime() - currentTime.getTime()) / MILLISECONDS_PER_YEAR ;
 
-        return getOptionPrice(spot.doubleValue(), stockOption.getStrike().doubleValue(), vola.doubleValue(), years, intrest, dividend, stockOption.getType());
+        return getOptionPrice(spot, stockOption.getStrike().doubleValue(), vola, years, intrest, dividend, stockOption.getType());
     }
 
-    public static double getExitValue(Security security, BigDecimal spot, BigDecimal optionValue) throws ConvergenceException, FunctionEvaluationException {
+    public static double getExitValue(Security security, double spot, double optionValue) throws ConvergenceException, FunctionEvaluationException {
 
         StockOption stockOption = (StockOption)security;
 
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
 
-        double volatility = getVolatility(spot.doubleValue(), stockOption.getStrike().doubleValue(), optionValue.doubleValue(), years, intrest, dividend, stockOption.getType());
+        double volatility = getVolatility(spot, stockOption.getStrike().doubleValue(), optionValue, years, intrest, dividend, stockOption.getType());
 
-        BigDecimal exitLevel = RoundUtil.getBigDecimal(spot.doubleValue() * (1 - volatility / Math.sqrt(DAYS_PER_YEAR / volaPeriod)));
+        double exitLevel = spot * (1 - volatility / Math.sqrt(DAYS_PER_YEAR / volaPeriod));
 
-        return getFairValue(stockOption, exitLevel, RoundUtil.getBigDecimal(volatility));
+        return getFairValue(stockOption, exitLevel, volatility);
     }
 
-    public static BigDecimal getMargin(StockOption stockOption, BigDecimal settlement, BigDecimal underlaying) throws ConvergenceException, FunctionEvaluationException {
+    public static double getMargin(StockOption stockOption, double settlement, double underlaying) throws ConvergenceException, FunctionEvaluationException {
 
-        double marginLevel = underlaying.doubleValue() * (1.0 - marginParameter);
+        double marginLevel = underlaying * (1.0 - marginParameter);
 
         double strike = stockOption.getStrike().doubleValue();
 
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
 
-        double volatility = StockOptionUtil.getVolatility(underlaying.doubleValue(), strike , settlement.doubleValue(), years, intrest, dividend, stockOption.getType());
+        double volatility = StockOptionUtil.getVolatility(underlaying, strike , settlement, years, intrest, dividend, stockOption.getType());
 
-        double margin = getOptionPrice(marginLevel, strike, volatility, years, intrest, dividend, stockOption.getType());
-
-        return RoundUtil.getBigDecimal(margin);
+        return getOptionPrice(marginLevel, strike, volatility, years, intrest, dividend, stockOption.getType());
     }
 
-    public static BigDecimal getDummyBid(BigDecimal meanValue) {
+    public static double getDummyBid(double meanValue) {
 
-        double spread = meanValue.doubleValue() * spreadSlope + spreadConstant;
-        double bid = meanValue.doubleValue() - (spread / 2.0);
-
-        return RoundUtil.getBigDecimal(bid);
+        double spread = meanValue * spreadSlope + spreadConstant;
+        return meanValue - (spread / 2.0);
     }
 
-    public static BigDecimal getDummyAsk(BigDecimal meanValue) {
+    public static double getDummyAsk(double meanValue) {
 
-        double spread = meanValue.doubleValue() * spreadSlope + spreadConstant;
-        double ask = meanValue.doubleValue() + (spread / 2.0);
+        double spread = meanValue * spreadSlope + spreadConstant;
+        return meanValue + (spread / 2.0);
+    }
 
-        return RoundUtil.getBigDecimal(ask);
+    public static boolean isExpirationTimeToLong(Security security, double currentValue, double settlement, double underlaying) throws ConvergenceException, FunctionEvaluationException {
+
+        StockOption stockOption = (StockOption)security;
+
+        OptionType type = stockOption.getType();
+        double strike = stockOption.getStrike().doubleValue();
+        long expirationMillis = stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime();
+        double expirationYears = expirationMillis / MILLISECONDS_PER_YEAR ;
+
+        double volatility = getVolatility(underlaying, strike , settlement, expirationYears, intrest, dividend, type);
+        double margin = getMargin(stockOption, settlement, underlaying);
+        double intrinsicValue = getOptionPrice(underlaying, strike, volatility, 0, intrest, dividend, type);
+
+        long expectedExpirationMillis = (long)(Math.log((margin - intrinsicValue) / (margin - currentValue)) / expectedProfit * MILLISECONDS_PER_YEAR);
+
+        if (expectedExpirationMillis < 0) {
+            return false;
+        } else if (expirationMillis < minExpirationTime) {
+            return false;
+        } else if (strike > underlaying) {
+            return false;
+        } else if (expectedExpirationMillis > expirationTimeFactor * expirationMillis ) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

@@ -43,9 +43,9 @@ public class HttpClientUtil {
     private static String proxyPort = System.getProperty("http.proxyPort");
     private static boolean useProxy = (proxyHost != null) ? true : false;
 
-    private static int workers = Integer.parseInt(PropertiesUtil.getProperty("workers"));
+    private static int workers = PropertiesUtil.getIntProperty("workers");
     private static String userAgent = PropertiesUtil.getProperty("userAgent");
-    private static boolean retry = new Boolean(PropertiesUtil.getProperty("retry")).booleanValue();
+    private static boolean retry = PropertiesUtil.getBooleanProperty("retry");
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 

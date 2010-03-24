@@ -1,19 +1,30 @@
-// license-header java merge-point
-/**
- * This is only generated once! It will never be overwritten.
- * You can (and have to!) safely modify it by hand.
- */
 package com.algoTrader.entity;
 
-/**
- * @see com.algoTrader.entity.StockOption
- */
-public class StockOptionImpl
-    extends com.algoTrader.entity.StockOption
-{
-    /**
-     * The serial version UID of this class. Needed for serialization.
-     */
+import java.math.BigDecimal;
+
+import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.util.RoundUtil;
+
+public class StockOptionImpl extends com.algoTrader.entity.StockOption {
+
     private static final long serialVersionUID = -3168298592370987085L;
 
+    public BigDecimal getCommission(int quantity, TransactionType transactionType) {
+
+        if (TransactionType.SELL.equals(transactionType) || TransactionType.BUY.equals(transactionType)) {
+            if (quantity < 4) {
+                return RoundUtil.getBigDecimal(quantity * 1.5 + 5);
+            } else {
+                return RoundUtil.getBigDecimal(quantity * 3);
+            }
+        } else {
+            return new BigDecimal(0);
+        }
+    }
+
+    public BigDecimal getCurrentValuePerContract() {
+
+        double currentValuePerContract = getContractSize() * getLastTick().getCurrentValue().doubleValue();
+        return RoundUtil.getBigDecimal(currentValuePerContract);
+    }
 }

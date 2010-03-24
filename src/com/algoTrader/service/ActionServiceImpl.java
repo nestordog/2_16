@@ -11,7 +11,7 @@ import com.algoTrader.util.PropertiesUtil;
 
 public class ActionServiceImpl extends ActionServiceBase {
 
-    private static boolean simulation = new Boolean(PropertiesUtil.getProperty("simulation")).booleanValue();
+    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
 
     private static Logger logger = MyLogger.getLogger(ActionServiceImpl.class.getName());
 

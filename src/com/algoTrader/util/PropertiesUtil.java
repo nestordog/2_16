@@ -27,4 +27,19 @@ public class PropertiesUtil {
 
         return props.getProperty(key);
     }
+
+    public static int getIntProperty(String key) {
+
+        return Integer.parseInt(getProperty(key));
+    }
+
+    public static double getDoubleProperty(String key){
+
+        return Double.parseDouble(getProperty(key));
+    }
+
+    public static boolean getBooleanProperty (String key) {
+
+        return new Boolean(getProperty(key)).booleanValue();
+    }
 }

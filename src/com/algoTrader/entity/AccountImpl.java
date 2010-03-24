@@ -54,7 +54,8 @@ public class AccountImpl extends com.algoTrader.entity.Account {
 
     public BigDecimal getAvailableAmount() {
 
-        return getBalance().subtract(getMargin());
+        double availableAmount = getBalance().doubleValue() - getMargin().doubleValue();
+        return RoundUtil.getBigDecimal(availableAmount);
     }
 
     public int getPositionCount() {
@@ -77,12 +78,7 @@ public class AccountImpl extends com.algoTrader.entity.Account {
             Security security = position.getSecurity();
             Tick tick = security.getLastTick();
             if (position.getQuantity() != 0 && tick != null) {
-                if (security instanceof StockOption) {
-                    StockOption stockOption = (StockOption)security;
-                    portfolioValue += position.getQuantity() * stockOption.getContractSize() * tick.getCurrentValue().doubleValue();
-                } else {
-                    portfolioValue += position.getQuantity() * tick.getCurrentValue().doubleValue();
-                }
+                portfolioValue += position.getQuantity() * security.getCurrentValuePerContract().doubleValue();
             }
         }
         return RoundUtil.getBigDecimal(portfolioValue);
