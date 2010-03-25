@@ -1,0 +1,7 @@
+15.03        with stochastic (but with Tick.win.length bug)
+spread        simulate spread
+40-24-40    fix Tick.win.length bug
+20-12-12    change to shorter stochastic interval
++roll        add rollPosition
+volaPeriod    change to 1.5 days
+long        change transaction / position quantity to long
