@@ -33,7 +33,7 @@ public class SecurityImpl extends com.algoTrader.entity.Security {
         return getPosition().getQuantity() > 0;
     }
 
-    public BigDecimal getCommission(int quantity, TransactionType transactionType) {
+    public BigDecimal getCommission(long quantity, TransactionType transactionType) {
 
         return new BigDecimal(0);
     }

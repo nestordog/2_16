@@ -57,7 +57,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
-    protected Transaction handleExecuteTransaction(int quantity, Security security, BigDecimal current, TransactionType transactionType)
+    protected Transaction handleExecuteTransaction(long quantity, Security security, BigDecimal current, TransactionType transactionType)
             throws Exception {
 
         if (quantity <= 0) {
@@ -91,7 +91,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
             transaction.setNumber(null);
         }
 
-        int signedQuantity = TransactionType.SELL.equals(transactionType) ? -Math.abs(quantity) : Math.abs(quantity);
+        long signedQuantity = TransactionType.SELL.equals(transactionType) ? -Math.abs(quantity) : Math.abs(quantity);
 
         transaction.setQuantity(signedQuantity);
         transaction.setType(transactionType);
@@ -148,7 +148,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         return transaction;
     }
 
-    private static Transaction executeSwissquoteTransaction(int quantity, Security security, BigDecimal current, TransactionType transactionType) throws Exception {
+    private static Transaction executeSwissquoteTransaction(long quantity, Security security, BigDecimal current, TransactionType transactionType) throws Exception {
 
         HttpClient client = HttpClientUtil.getSwissquoteTradeClient();
 

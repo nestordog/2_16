@@ -9,7 +9,7 @@ public class StockOptionImpl extends com.algoTrader.entity.StockOption {
 
     private static final long serialVersionUID = -3168298592370987085L;
 
-    public BigDecimal getCommission(int quantity, TransactionType transactionType) {
+    public BigDecimal getCommission(long quantity, TransactionType transactionType) {
 
         if (TransactionType.SELL.equals(transactionType) || TransactionType.BUY.equals(transactionType)) {
             if (quantity < 4) {

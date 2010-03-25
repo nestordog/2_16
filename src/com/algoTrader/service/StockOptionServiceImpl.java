@@ -122,7 +122,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         double currentDouble = currentValue.doubleValue();
         int contractSize = stockOption.getContractSize();
 
-        int numberOfContracts = (int)((availableAmount / (margin - currentDouble)) / contractSize); // i.e. 2 (for 20 stockOptions)
+        long numberOfContracts = (long)((availableAmount / (margin - currentDouble)) / contractSize); // i.e. 2 (for 20 stockOptions)
 
         if (numberOfContracts <= 0) {
             if (stockOption.getPosition() == null || stockOption.getPosition().getQuantity() == 0) {
@@ -146,7 +146,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         double currentDouble = stockOption.getLastTick().getCurrentValue().doubleValue();
         int contractSize = stockOption.getContractSize();
 
-        int numberOfContracts = Math.abs(position.getQuantity());
+        long numberOfContracts = Math.abs(position.getQuantity());
         BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
 
         getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, TransactionType.BUY);
@@ -158,11 +158,15 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         Position position = getPositionDao().load(positionId);
 
+        if (position.getExitValue() == null || position.getExitValue().doubleValue() == 0d) {
+            logger.warn(position.getSecurity().getSymbol() + " expired but did not have a exit value specified");
+        }
+
         StockOption stockOption = (StockOption)position.getSecurity();
         double currentDouble = stockOption.getLastTick().getCurrentValue().doubleValue();
         int contractSize = stockOption.getContractSize();
 
-        int numberOfContracts = Math.abs(position.getQuantity());
+        long numberOfContracts = Math.abs(position.getQuantity());
         BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
 
         getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, TransactionType.EXPIRATION);
@@ -191,7 +195,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
                 BigDecimal underlayingSpot = stockOption.getUnderlaying().getLastTick().getCurrentValue();
 
                 double marginPerContract = StockOptionUtil.getMargin(stockOption, tick.getSettlementDouble(), underlayingSpot.doubleValue()) * stockOption.getContractSize();
-                int numberOfContracts = Math.abs(position.getQuantity());
+                long numberOfContracts = Math.abs(position.getQuantity());
                 BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
 
                 position.setMargin(totalMargin);
