@@ -1,0 +1,293 @@
+<?xml version="1.0"?>
+<mysqldump xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<database name="algotrader">
+    <table_data name="rule">
+    <row>
+        <field name="id">1</field>
+        <field name="NAME">CREATE_EXIT_VALUE</field>
+        <field name="PRIORITY">4</field>
+        <field name="DEFINITION">insert into ExitValue
+select optionTick.security as security,
+StockOptionUtil.getExitValue(optionTick.security, indexTick.currentValueDouble, optionTick.currentValueDouble) as value
+from pattern [every indexTick=Tick(security.isin = var_isin) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = var_isin)]
+where optionTick.security.position != null
+and optionTick.security.position.quantity != 0</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">2</field>
+        <field name="NAME">CLOSE_POSITION</field>
+        <field name="PRIORITY">6</field>
+        <field name="DEFINITION">select
+tick.security.position.id
+from Tick as tick
+where tick.security.position.quantity != 0
+and tick.security.position.exitValue != null
+and tick.currentValue  &gt; tick.security.position.exitValue</field>
+        <field name="SUBSCRIBER">ClosePositionSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">3</field>
+        <field name="NAME">SET_MARGIN</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">every timer:at(0, 1, *, *, *)</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS">SetMarginListener</field>
+        <field name="PATTERN" xsi:type="xs:hexBinary">01</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">4</field>
+        <field name="NAME">EXPIRE_POSITIONS</field>
+        <field name="PRIORITY">7</field>
+        <field name="DEFINITION">select option.position.id as positionId
+from Tick as tick,
+method:LookupUtil.getStockOptionsOnWatchlist() as option
+where option.expiration.time &lt; current_timestamp()
+and option.position != null
+and option.position.quantity != 0
+</field>
+        <field name="SUBSCRIBER">ExpirePositionsSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">5</field>
+        <field name="NAME">GET_LAST_TICK</field>
+        <field name="PRIORITY">3</field>
+        <field name="DEFINITION">select tick.security.id as securityId, tick.* as tick
+from Tick.std:groupby(security.id).win:length(1) as tick</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">6</field>
+        <field name="NAME">SIMULATE_DUMMY_SECURITIES</field>
+        <field name="PRIORITY">5</field>
+        <field name="DEFINITION">insert into Tick
+select DateUtil.toDate(current_timestamp()) as dateTime,
+RoundUtil.getBigDecimal(StockOptionUtil.getFairValue(option, indexTick.currentValueDouble, volaTick.currentValueDouble / 100)) as last,
+DateUtil.toDate(current_timestamp()) as lastDateTime,
+0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
+option as security
+from pattern [every (indexTick=Tick(security.isin = var_isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id))],
+method:LookupUtil.getDummySecurities() as option
+where option.underlaying.id = indexTick.security.id
+and var_simulation=true
+</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">7</field>
+        <field name="NAME">OPEN_POSITION</field>
+        <field name="PRIORITY">1</field>
+        <field name="DEFINITION">select stockOptionTick.security.id,
+stockOptionTick.settlement,
+stockOptionTick.currentValue,
+indexTick.currentValue
+from pattern [(indexTick=Tick(security.isin = var_isin) -&gt; stockOptionTick=Tick(security.id = ?,security.underlaying.id=indexTick.security.id))]</field>
+        <field name="SUBSCRIBER">OpenPositionSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">00</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">01</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">8</field>
+        <field name="NAME">PRINT_TICK</field>
+        <field name="PRIORITY">8</field>
+        <field name="DEFINITION">select *
+from Tick</field>
+        <field name="SUBSCRIBER">PrintTickSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">9</field>
+        <field name="NAME">RETRIEVE_TICKS</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">every timer:at (*, 9:21, *, *, 1:5)</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS">RetrieveTickListener</field>
+        <field name="PATTERN" xsi:type="xs:hexBinary">01</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">10</field>
+        <field name="NAME">CREATE_K_FAST</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">insert into KFast
+select security,
+(last(currentValueDouble) - min(currentValueDouble))/(max(currentValueDouble) - min(currentValueDouble)) as value
+from Tick(security.isin = var_isin).win:length(var_kFast_hours * var_events_per_hour)
+having max(currentValueDouble) != min(currentValueDouble)
+</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">11</field>
+        <field name="NAME">CREATE_K_SLOW</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">insert into KSlow
+select security,
+avg(value) as value
+from KFast.win:length(var_kSlow_hours * var_events_per_hour)
+having avg(value) != null</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">12</field>
+        <field name="NAME">CREATE_D_SLOW</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">insert into DSlow
+select security,
+avg(value) as value
+from KSlow.win:length(var_dSlow_hours * var_events_per_hour)
+having avg(value) != null</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">13</field>
+        <field name="NAME">GET_BUY_SIGNAL</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">select
+indexTick.security.id,
+indexTick.currentValue
+from pattern [every (indexTick=Tick(security.isin=var_isin) -&gt; k=KSlow -&gt; d=DSlow)]
+where k.value &gt; d.value
+and prior(1, k.value) &lt; prior(1, d.value)
+and d.value &lt; 0.3</field>
+        <field name="SUBSCRIBER">BuySignalSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">14</field>
+        <field name="NAME">PRINT_STOCHASTIC</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">select kFast,
+kSlow,
+dSlow
+from pattern [every (kFast=KFast -&gt; kSlow=KSlow -&gt; dSlow=DSlow)]</field>
+        <field name="SUBSCRIBER">PrintStochasticSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">15</field>
+        <field name="NAME">IMMEDIATE_BUY_SIGNAL</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">select security.id,
+currentValue
+from Tick(security.isin=var_isin).std:firstevent()</field>
+        <field name="SUBSCRIBER">BuySignalSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">16</field>
+        <field name="NAME">SET_EXIT_VALUE</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">select
+security.position.id as positionId,
+RoundUtil.getBigDecimal(value) as exitValue
+from ExitValue
+where (security.position.exitValue is null)
+or (value &lt; security.position.exitValue)</field>
+        <field name="SUBSCRIBER">SetExitValueSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">17</field>
+        <field name="NAME">ROLL_POSITION</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">select
+optionTick.security.position.id,
+indexTick.security.id,
+indexTick.currentValue
+from pattern [every indexTick=Tick(security.isin = var_isin) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = var_isin)]
+where StockOptionUtil.isExpirationTimeToLong(optionTick.security, optionTick.currentValueDouble, optionTick.settlementDouble, indexTick.currentValueDouble)
+and optionTick.security.position != null
+and optionTick.security.position.quantity != 0</field>
+        <field name="SUBSCRIBER">RollPositionSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">18</field>
+        <field name="NAME">TEST</field>
+        <field name="PRIORITY">1</field>
+        <field name="DEFINITION">select security.symbol,
+value
+from ExitValue</field>
+        <field name="SUBSCRIBER">TestSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">00</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    </table_data>
+</database>
+</mysqldump>
