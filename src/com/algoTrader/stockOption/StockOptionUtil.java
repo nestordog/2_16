@@ -32,7 +32,13 @@ public class StockOptionUtil {
     // Black-Scholes formula
     public static double getOptionPrice(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
 
-        if (years < 0 ) years = 0;
+        if (years <= 0 ) {
+            if (OptionType.CALL.equals(type)) {
+                return Math.max(underlayingSpot - strike, 0d) ;
+            } else {
+                return Math.max(strike  - underlayingSpot, 0d);
+            }
+        }
 
         double adjustedSpot = underlayingSpot * Math.exp(-dividend * years);
         double d1 = (Math.log(adjustedSpot/strike) + (intrest + volatility * volatility/2) * years) / (volatility * Math.sqrt(years));
