@@ -1,0 +1,4 @@
+long -> date: =((A2/1000+3600)/86400+25569)
+date -> long: =((A2-25569)*86400-3600)*1000
+
+breakpoint: com.algoTrader.util.DateUtil.getCurrentEPTime().getTime() > 1133341200000l
