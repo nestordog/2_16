@@ -108,7 +108,12 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
            StockOptionCriteria criteria = new StockOptionCriteria(underlaying, expiration, strike, type);
            criteria.setMaximumResultSize(new Integer(1));
 
-           return (StockOption)getStockOptionDao().findByCriteria(criteria).get(0);
+           List list = getStockOptionDao().findByCriteria(criteria);
+           if (list.size() > 0) {
+               return (StockOption)list.get(0);
+           } else {
+               return null;
+           }
     }
 
     protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlayingSpot) throws Exception {
