@@ -50,16 +50,17 @@ and tick.currentValue  &gt; tick.security.position.exitValue</field>
     </row>
     <row>
         <field name="id">4</field>
-        <field name="NAME">EXPIRE_POSITIONS</field>
+        <field name="NAME">EXPIRE_POSITION</field>
         <field name="PRIORITY">7</field>
-        <field name="DEFINITION">select option.position.id as positionId
-from Tick as tick,
+        <field name="DEFINITION">select option.position.id as positionId,
+indexTick.security.id,
+indexTick.currentValue
+from Tick(security.isin = var_isin) as indexTick,
 method:LookupUtil.getStockOptionsOnWatchlist() as option
 where option.expiration.time &lt; current_timestamp()
 and option.position != null
-and option.position.quantity != 0
-</field>
-        <field name="SUBSCRIBER">ExpirePositionsSubscriber</field>
+and option.position.quantity != 0</field>
+        <field name="SUBSCRIBER">ExpirePositionSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -134,7 +135,7 @@ from Tick</field>
         <field name="id">9</field>
         <field name="NAME">RETRIEVE_TICKS</field>
         <field name="PRIORITY">0</field>
-        <field name="DEFINITION">every timer:at (*, 9:21, *, *, 1:5)</field>
+        <field name="DEFINITION">every timer:at (*, 9:17, *, *, 1:5)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS">RetrieveTickListener</field>
         <field name="PATTERN" xsi:type="xs:hexBinary">01</field>
@@ -234,7 +235,7 @@ from Tick(security.isin=var_isin).std:firstevent()</field>
         <field name="SUBSCRIBER">BuySignalSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
-        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">00</field>
         <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
@@ -246,8 +247,8 @@ from Tick(security.isin=var_isin).std:firstevent()</field>
 security.position.id as positionId,
 RoundUtil.getBigDecimal(value) as exitValue
 from ExitValue
-where (security.position.exitValue is null)
-or (value &lt; security.position.exitValue)</field>
+where security.position.quantity != 0
+and (security.position.exitValue is null or value &lt; security.position.exitValue)</field>
         <field name="SUBSCRIBER">SetExitValueSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
