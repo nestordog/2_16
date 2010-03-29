@@ -57,12 +57,18 @@ public class ActionServiceImpl extends ActionServiceBase {
         logger.debug("closePosition end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
-    protected void handleExpirePosition(int positionId) throws java.lang.Exception {
+    protected void handleExpirePosition(int positionId, int underlayingId, BigDecimal underlayingSpot) throws java.lang.Exception {
 
         long startTime = System.currentTimeMillis();
         logger.debug("expireStockOptions start");
 
         getStockOptionService().expirePosition(positionId);
+
+        if (!getRuleService().isActive(RuleName.OPEN_POSITION)) {
+            StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot);
+            getWatchlistService().putOnWatchlist(stockOption);
+            getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
+        }
 
         logger.debug("expireStockOptions end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
@@ -72,9 +78,11 @@ public class ActionServiceImpl extends ActionServiceBase {
         long startTime = System.currentTimeMillis();
         logger.debug("buySignal start");
 
-        StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot);
-        getWatchlistService().putOnWatchlist(stockOption);
-        getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
+        if (!getRuleService().isActive(RuleName.OPEN_POSITION)) {
+            StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot);
+            getWatchlistService().putOnWatchlist(stockOption);
+            getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
+        }
 
         logger.debug("buySignal end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
