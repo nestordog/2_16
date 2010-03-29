@@ -40,7 +40,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
 
-    private static boolean swissquoteTransactionsEnabled = PropertiesUtil.getBooleanProperty("swissquoteTransactions");
+    private static boolean swissquoteTransactionsEnabled = PropertiesUtil.getBooleanProperty("swissquoteTransactionsEnabled");
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static int confirmationTimeout = PropertiesUtil.getIntProperty("confirmationTimeout");
     private static int confirmationRetries = PropertiesUtil.getIntProperty("confirmationRetries");
@@ -61,7 +61,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
             throws Exception {
 
         if (quantity <= 0) {
-            throw new IllegalArgumentException("quantity must be greater than 0");
+            throw new IllegalArgumentException("quantity must be greater than 0 ");
         }
 
         Transaction transaction;
@@ -128,8 +128,10 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
             // attach the object
             position.setQuantity(position.getQuantity() + signedQuantity);
 
-            position.setExitValue(new BigDecimal(0));
-            position.setMargin(new BigDecimal(0));
+            if (position.getQuantity() == 0) {
+                position.setExitValue(null);
+                position.setMargin(null);
+            }
 
             position.getTransactions().add(transaction);
             transaction.setPosition(position);
@@ -312,7 +314,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
             status = client.executeMethod(get);
 
             if (status != HttpStatus.SC_OK) {
-                throw new TransactionServiceException("could not get open / daily transaction screen, status: " + get.getStatusLine());
+                throw new TransactionServiceException(" could not get open / daily transaction screen, status: " + get.getStatusLine());
             }
 
             document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
@@ -347,7 +349,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
             Node node = XPathAPI.selectSingleNode(document, "//strong[.='Löschauftrag']");
 
             if (status != HttpStatus.SC_INTERNAL_SERVER_ERROR || node == null) {
-                throw new TransactionServiceException("could not delete transaction after reaching timelimit: " + security.getIsin() + ", status: " + get.getStatusLine());
+                throw new TransactionServiceException("could not delete transaction after reaching timelimit: " + security.getSymbol() + ", status: " + get.getStatusLine());
             } else {
                 throw new TransactionServiceException("transaction did not execute within timelimit: " + security.getSymbol());
             }
