@@ -73,16 +73,19 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             File file = new File("results/tickdata/" + dataSet + "/" + security.getIsin() + ".csv");
 
-            CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
-            spec.setPropertyOrder(propertyOrder);
-            spec.setPropertyTypes(propertyTypes);
-            spec.setTimestampColumn("dateTime");
-            spec.setUsingExternalTimer(true);
+            if (file != null) {
 
-            InputAdapter inputAdapter = new TickCSVInputAdapter(cep, spec, security.getId());
-            coordinator.coordinate(inputAdapter);
+                CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
+                spec.setPropertyOrder(propertyOrder);
+                spec.setPropertyTypes(propertyTypes);
+                spec.setTimestampColumn("dateTime");
+                spec.setUsingExternalTimer(true);
 
-            logger.debug("started simulation for security " + security.getIsin());
+                InputAdapter inputAdapter = new TickCSVInputAdapter(cep, spec, security.getId());
+                coordinator.coordinate(inputAdapter);
+
+                logger.debug("started simulation for security " + security.getIsin());
+            }
         }
         coordinator.start();
     }
