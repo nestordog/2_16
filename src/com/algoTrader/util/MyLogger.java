@@ -4,16 +4,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
 
-/**
- * A simple example showing logger subclassing.
- *
- * <p>
- * See <b><a href="doc-files/MyLogger.java">source code</a></b> for more
- * details.
- *
- * <p>
- * See {@link MyLoggerTest} for a usage example.
- */
+
 public class MyLogger extends Logger {
 
     // It's usually a good idea to add a dot suffix to the fully
