@@ -289,6 +289,18 @@ from ExitValue</field>
         <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
+    <row>
+        <field name="id">19</field>
+        <field name="NAME">PRINT_PORTFOLIO_VALUE</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">every timer:at (0, 0, 1, *, *)</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS">PrintPortfolioValueListener</field>
+        <field name="PATTERN" xsi:type="xs:hexBinary">01</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
     </table_data>
 </database>
 </mysqldump>
