@@ -73,7 +73,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             File file = new File("results/tickdata/" + dataSet + "/" + security.getIsin() + ".csv");
 
-            if (file != null) {
+            if (file != null && file.exists()) {
 
                 CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
                 spec.setPropertyOrder(propertyOrder);
