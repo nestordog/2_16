@@ -105,7 +105,7 @@ public class TickServiceImpl extends TickServiceBase {
             String timeValue = SwissquoteUtil.getValue(document, String.format(exactMatch, "Zeit"));
 
             // check if market is closed
-            if (timeValue != null && Integer.parseInt(timeValue.replace(":", "")) > 173000) return null;
+            if (timeValue != null && Integer.parseInt(timeValue.replace(":", "")) >= 173000) return null;
 
             Date lastDateTime = SwissquoteUtil.getDate(dateValue + " " + (timeValue != null ? timeValue : "00:00:00"));
 
