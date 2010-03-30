@@ -25,6 +25,11 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>net.sourceforge.metrics.builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>com.genuitec.eclipse.hibernate.hibernatenature</nature>
@@ -35,5 +40,6 @@
 		<nature>com.genuitec.eclipse.jsf.jsfnature</nature>
 		<nature>org.mevenide.ui.mavennature</nature>
 		<nature>org.hibernate.eclipse.console.hibernateNature</nature>
+		<nature>net.sourceforge.metrics.nature</nature>
 	</natures>
 </projectDescription>
