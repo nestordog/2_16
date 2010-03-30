@@ -20,6 +20,13 @@ public class PrintStochasticSubscriber {
 
     public void update(Characteristic kFast, Characteristic kSlow, Characteristic dSlow) throws SuperCSVException, IOException {
 
+        writeToCsv(kFast, kSlow, dSlow);
+
+        logger.debug(kFast.getSecurity().getSymbol() + " [kFast=" + kFast.getValue() + ",kSlow=" + kSlow.getValue() + ",dSlow=" + dSlow.getValue() + "]");
+    }
+
+    private void writeToCsv(Characteristic kFast, Characteristic kSlow, Characteristic dSlow) throws SuperCSVException, IOException {
+
         StochasticCsvWriter csvWriter;
         if (csvWriters.containsKey(kFast.getSecurity())) {
             csvWriter = (StochasticCsvWriter)csvWriters.get(kFast.getSecurity());
@@ -35,7 +42,5 @@ public class PrintStochasticSubscriber {
         stochastic.put("dSlow", dSlow.getValue());
 
         csvWriter.write(stochastic);
-
-        logger.debug(kFast.getSecurity().getSymbol() + " [kFast=" + kFast.getValue() + ",kSlow=" + kSlow.getValue() + ",dSlow=" + dSlow.getValue() + "]");
     }
 }
