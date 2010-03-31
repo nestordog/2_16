@@ -14,12 +14,11 @@ public class SecurityImpl extends com.algoTrader.entity.Security {
     private static final long serialVersionUID = -6631052475125813394L;
 
     public Tick getLastTick() {
-        EPStatement statement = EsperService.getEPServiceInstance().getEPAdministrator().getStatement(RuleName.GET_LAST_TICK.getValue());
+        EPStatement statement = EsperService.getStatement(RuleName.GET_LAST_TICK);
 
         if (statement != null) {
-            Iterator it = statement.iterator();
-            while (it.hasNext()) {
-                EventBean bean = (EventBean) it.next();
+            for (Iterator<EventBean> it = statement.iterator(); it.hasNext(); ) {
+                EventBean bean = it.next();
                 Integer securityId = (Integer) bean.get("securityId");
                 if (securityId.equals(getId())) {
                     return (Tick)bean.get("tick");
