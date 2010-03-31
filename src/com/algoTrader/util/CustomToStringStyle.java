@@ -24,6 +24,7 @@ public class CustomToStringStyle extends StandardToStringStyle {
         return style;
     }
 
+    @SuppressWarnings("unchecked")
     protected void appendDetail(StringBuffer buffer, String fieldName, Collection col) {
 
         buffer.append(col.size());

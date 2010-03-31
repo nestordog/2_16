@@ -28,7 +28,7 @@ public class StochasticCsvWriter {
         }
     }
 
-    public void write(Map stochastic) throws SuperCSVReflectionException, IOException {
+    public void write(Map<String, Number> stochastic) throws SuperCSVReflectionException, IOException {
 
         writer.write(stochastic, header);
     }

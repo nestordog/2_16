@@ -15,7 +15,7 @@ import org.w3c.tidy.Tidy;
 
 public class TidyUtil {
 
-    private static String[] regex = new String[] {"<script(.*?)</script>", "<noscript(.*?)</noscript>", "<style(.*?)</style>", "<!--(.*?)-->", "<!(.*?)>", "<\\?(.*?)\\?>"};
+    private static String[] regexs = new String[] {"<script(.*?)</script>", "<noscript(.*?)</noscript>", "<style(.*?)</style>", "<!--(.*?)-->", "<!(.*?)>", "<\\?(.*?)\\?>"};
 
     private static class NullOutputStream extends OutputStream {
 
@@ -64,8 +64,8 @@ public class TidyUtil {
         String content = out.toString();
 
         // parse using the regex
-        for (int i = 0; i < regex.length; i++) {
-            Pattern noIndexPattern = Pattern.compile(regex[i], Pattern.DOTALL);
+        for (String regex : regexs) {
+            Pattern noIndexPattern = Pattern.compile(regex, Pattern.DOTALL);
             Matcher noIndexMatcher = noIndexPattern.matcher(content);
             content = noIndexMatcher.replaceAll("");
         }
