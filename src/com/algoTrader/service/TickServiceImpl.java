@@ -3,36 +3,27 @@ package com.algoTrader.service;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
-import com.algoTrader.util.TickCsvWriter;
 import com.algoTrader.util.EsperService;
-import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.SwissquoteUtil;
+import com.algoTrader.util.TickCsvWriter;
 
 public class TickServiceImpl extends TickServiceBase {
-
-    private static int timeout = PropertiesUtil.getIntProperty("retrieval.timeout");
-
-    private static Logger logger = MyLogger.getLogger(TickServiceImpl.class.getName());
 
     private static String exactMatch = "//tr/td[.='%1$s']/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[.='%1$s']/preceding-sibling::td)+1]/strong";
     private static String partialMatch = "//tr/td[contains(.,'%1$s')]/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[contains(.,'%1$s')]/preceding-sibling::td)+1]/strong";
 
-    private Map csvWriters = new HashMap();
+    private Map<Security, TickCsvWriter> csvWriters = new HashMap<Security, TickCsvWriter>();
 
     protected Tick handleRetrieveTick(Security security) throws Exception {
 
@@ -134,18 +125,18 @@ public class TickServiceImpl extends TickServiceBase {
         return tick;
     }
 
+    @SuppressWarnings("unchecked")
     protected void handleProcessSecuritiesOnWatchlist() throws Exception {
 
-        List securities = getSecurityDao().findSecuritiesOnWatchlist();
-        for (Iterator it = securities.iterator(); it.hasNext();) {
-            Security security = (Security)it.next();
+        List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
+        for (Security security : securities) {
 
             Tick tick = retrieveTick(security);
 
             if (tick != null) {
 
                 if (tick.isValid()) {
-                    EsperService.getEPServiceInstance().getEPRuntime().sendEvent(tick);
+                    EsperService.sendEvent(tick);
                 }
 
                 // write the tick to file (even if not valid)
