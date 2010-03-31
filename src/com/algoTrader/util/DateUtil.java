@@ -13,7 +13,7 @@ public class DateUtil {
 
     public static Date getCurrentEPTime() {
 
-        return new Date(EsperService.getEPServiceInstance().getEPRuntime().getCurrentTime());
+        return new Date(EsperService.getCurrentTime());
     }
 
     public static Date getNextThirdFriday(Date input) {
