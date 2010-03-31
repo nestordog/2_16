@@ -1,8 +1,10 @@
 package com.algoTrader.util;
 
+import com.algoTrader.enumeration.RuleName;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
+import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 
 public class EsperService {
@@ -27,5 +29,20 @@ public class EsperService {
     public static boolean hasInstance() {
 
         return (cep != null);
+    }
+
+    public static EPStatement getStatement(RuleName ruleName) {
+
+        return getEPServiceInstance().getEPAdministrator().getStatement(ruleName.getValue());
+    }
+
+    public static long getCurrentTime() {
+
+        return getEPServiceInstance().getEPRuntime().getCurrentTime();
+    }
+
+    public static void sendEvent(Object obj) {
+
+        getEPServiceInstance().getEPRuntime().sendEvent(obj);
     }
 }
