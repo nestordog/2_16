@@ -91,7 +91,7 @@ DateUtil.toDate(current_timestamp()) as lastDateTime,
 0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
 option as security
 from pattern [every (indexTick=Tick(security.isin = var_isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id))],
-method:LookupUtil.getDummySecurities() as option
+method:LookupUtil.getDummySecuritiesOnWatchlist() as option
 where option.underlaying.id = indexTick.security.id
 and var_simulation=true
 </field>
@@ -277,26 +277,29 @@ and optionTick.security.position.quantity != 0</field>
     </row>
     <row>
         <field name="id">18</field>
-        <field name="NAME">TEST</field>
-        <field name="PRIORITY">1</field>
-        <field name="DEFINITION">select security.symbol,
-value
-from ExitValue</field>
-        <field name="SUBSCRIBER">TestSubscriber</field>
-        <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
-        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">00</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
-    </row>
-    <row>
-        <field name="id">19</field>
         <field name="NAME">PRINT_PORTFOLIO_VALUE</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">every timer:at (0, 0, 1, *, *)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS">PrintPortfolioValueListener</field>
         <field name="PATTERN" xsi:type="xs:hexBinary">01</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">00</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">19</field>
+        <field name="NAME">CREATE_INTERPOLATION</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">insert into Interpolation
+select Math.exp(linest.YIntercept) as a,
+linest.slope as b,
+Math.pow(correl.correlation,2) as r
+from Transaction.win:keepall().stat:linest(current_timestamp() / 31536000000, Math.log(account.portfolioValueDouble)) as linest,
+Transaction.win:keepall().stat:correl(current_timestamp() / 31536000000, Math.log(account.portfolioValueDouble)) as correl</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
         <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
