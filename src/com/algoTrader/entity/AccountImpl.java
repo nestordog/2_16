@@ -1,7 +1,7 @@
 package com.algoTrader.entity;
 
 import java.math.BigDecimal;
-import java.util.Iterator;
+import java.util.Collection;
 
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.RoundUtil;
@@ -10,11 +10,12 @@ public class AccountImpl extends com.algoTrader.entity.Account {
 
     private static final long serialVersionUID = -2271735085273721632L;
 
+    @SuppressWarnings("unchecked")
     public BigDecimal getBalance() {
 
         double balance = 0.0;
-        for (Iterator it = getTransactions().iterator(); it.hasNext(); ) {
-            Transaction transaction = (Transaction)it.next();
+        Collection<Transaction> transactions = getTransactions();
+        for (Transaction transaction : transactions) {
             if (transaction.getType().equals(TransactionType.BUY) ||
                 transaction.getType().equals(TransactionType.SELL) ||
                 transaction.getType().equals(TransactionType.EXPIRATION)) {
@@ -37,11 +38,12 @@ public class AccountImpl extends com.algoTrader.entity.Account {
         return RoundUtil.getBigDecimal(balance);
     }
 
+    @SuppressWarnings("unchecked")
     public BigDecimal getMargin() {
 
         double margin = 0.0;
-        for (Iterator it = getPositions().iterator(); it.hasNext(); ) {
-            Position position = (Position)it.next();
+        Collection<Position> positions = getPositions();
+        for (Position position : positions) {
             if (position.getQuantity() != 0) {
                 if (position.getMargin() == null) {
                     break;
@@ -58,11 +60,12 @@ public class AccountImpl extends com.algoTrader.entity.Account {
         return RoundUtil.getBigDecimal(availableAmount);
     }
 
+    @SuppressWarnings("unchecked")
     public int getPositionCount() {
 
         int count = 0;
-        for (Iterator it = getPositions().iterator(); it.hasNext(); ) {
-            Position position = (Position)it.next();
+        Collection<Position> positions = getPositions();
+        for (Position position : positions) {
             if (position.getQuantity() != 0) {
                 count++;
             }
@@ -70,11 +73,12 @@ public class AccountImpl extends com.algoTrader.entity.Account {
         return count;
     }
 
+    @SuppressWarnings("unchecked")
     public BigDecimal getPortfolioValue() {
 
         double portfolioValue = getBalance().doubleValue();
-        for (Iterator it = getPositions().iterator(); it.hasNext(); ) {
-            Position position = (Position)it.next();
+        Collection<Position> positions = getPositions();
+        for (Position position : positions) {
             Security security = position.getSecurity();
             Tick tick = security.getLastTick();
             if (position.getQuantity() != 0 && tick != null) {
@@ -82,5 +86,10 @@ public class AccountImpl extends com.algoTrader.entity.Account {
             }
         }
         return RoundUtil.getBigDecimal(portfolioValue);
+    }
+
+    public double getPortfolioValueDouble() {
+
+        return getPortfolioValue().doubleValue();
     }
 }
