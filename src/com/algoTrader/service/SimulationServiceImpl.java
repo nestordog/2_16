@@ -2,19 +2,28 @@ package com.algoTrader.service;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.Transformer;
 import org.apache.log4j.Logger;
 
+import com.algoTrader.entity.Interpolation;
+import com.algoTrader.entity.Rule;
 import com.algoTrader.entity.Security;
+import com.algoTrader.entity.Transaction;
+import com.algoTrader.enumeration.RuleName;
+import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.CustomDate;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.client.EPStatement;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.AdapterInputSource;
@@ -39,7 +48,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         "openIntrest",
         "settlement"};
 
-    private static Map propertyTypes = new HashMap();
+    private static Map<String, Object> propertyTypes = new HashMap<String, Object>();
 
     public SimulationServiceImpl() {
 
@@ -55,19 +64,18 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         SimulationServiceImpl.propertyTypes.put("settlement", BigDecimal.class);
     }
 
+    @SuppressWarnings("unchecked")
     protected void handleRun() throws Exception {
 
         EPServiceProvider cep = EsperService.getEPServiceInstance();
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(cep, true, true);
 
-        List securities = getSecurityDao().findSecuritiesOnWatchlist();
-        for (Iterator it = securities.iterator(); it.hasNext(); ) {
-
-            Security security = (Security)it.next();
+        List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
+        for (Security security : securities) {
 
             if (security.getIsin() == null) {
-                logger.warn("not tickdata available for " + security.getSymbol());
+                logger.warn("no tickdata available for " + security.getSymbol());
                 continue;
             }
 
@@ -88,5 +96,40 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             }
         }
         coordinator.start();
+    }
+
+
+    protected Interpolation handleGetInterpolation() throws Exception {
+
+        EPStatement statement = EsperService.getStatement(RuleName.CREATE_INTERPOLATION);
+
+        return (Interpolation)statement.iterator().next().getUnderlying();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void handleInit() throws Exception {
+
+        // delete all dummySecurities
+        getSecurityDao().remove(getSecurityDao().findDummySecurities());
+
+        // delete all transactions except the initial CREDIT
+        Collection<Transaction> transactions = getTransactionDao().loadAll();
+        CollectionUtils.filter(transactions, new Predicate(){
+            public boolean evaluate(Object obj) {
+                return ((Transaction)obj).getType().equals(TransactionType.CREDIT) ? false : true;
+            }});
+        getTransactionDao().remove(transactions);
+
+        // delete al positions
+        getPositionDao().remove(getPositionDao().loadAll());
+
+        // remove all the targets from preparedRules
+        Collection<Rule> rules = getRuleDao().findPreparedRules();
+        CollectionUtils.transform(rules, new Transformer() {
+            public Object transform(Object arg) {
+                ((Rule)arg).setTarget(null);
+                return arg;
+            }});
+        getRuleDao().update(rules);
     }
 }
