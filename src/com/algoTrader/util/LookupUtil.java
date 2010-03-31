@@ -12,10 +12,10 @@ public class LookupUtil {
         return serviceLocator.getLookupService().getAllSecuritiesInPortfolio();
     }
 
-    public static Security[] getDummySecurities() {
+    public static Security[] getDummySecuritiesOnWatchlist() {
 
         ServiceLocator serviceLocator = ServiceLocator.instance();
-        return serviceLocator.getLookupService().getDummySecurities();
+        return serviceLocator.getLookupService().getDummySecuritiesOnWatchlist();
     }
 
     public static StockOption[] getStockOptionsOnWatchlist() {
