@@ -28,6 +28,7 @@ import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
+import com.algoTrader.util.EsperService;
 import com.algoTrader.util.HttpClientUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
@@ -57,6 +58,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
+    @SuppressWarnings("unchecked")
     protected Transaction handleExecuteTransaction(long quantity, Security security, BigDecimal current, TransactionType transactionType)
             throws Exception {
 
@@ -145,7 +147,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
 
         logger.info("executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() + " of " + security.getSymbol() + " price: " + transaction.getPrice() + " commission: " + transaction.getCommission() + " portfolioValue: " + account.getPortfolioValue());
 
-        //EsperService.getEPServiceInstance().getEPRuntime().sendEvent(transaction);
+        EsperService.sendEvent(transaction);
 
         return transaction;
     }
@@ -215,7 +217,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
         // process the hidden fields
         NodeIterator nodeIterator = XPathAPI.selectNodeIterator(document, "//input[@type='hidden']");
         Node node;
-        Set paramSet = new HashSet();
+        Set<NameValuePair> paramSet = new HashSet<NameValuePair>();
         while ((node = nodeIterator.nextNode()) != null) {
             String name = XPathAPI.selectSingleNode(node, "@name").getNodeValue();
             String value = XPathAPI.selectSingleNode(node, "@value").getNodeValue();
@@ -271,7 +273,7 @@ public class TransactionServiceImpl extends com.algoTrader.service.TransactionSe
 
         // process the hidden fields
         nodeIterator = XPathAPI.selectNodeIterator(document, "//input[@type='hidden']");
-        paramSet = new HashSet();
+        paramSet = new HashSet<NameValuePair>();
         while ((node = nodeIterator.nextNode()) != null) {
             String name = XPathAPI.selectSingleNode(node, "@name").getNodeValue();
             String value = XPathAPI.selectSingleNode(node, "@value").getNodeValue();
