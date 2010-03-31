@@ -16,8 +16,8 @@ public class ServiceInvoker {
 
     public static void main(String[] args) throws Exception {
 
-        for (int i=0; i < args.length; i++) {
-            getInstance().invoke(args[i]);
+        for (String arg : args) {
+            getInstance().invoke(arg);
         }
     }
 
@@ -48,10 +48,10 @@ public class ServiceInvoker {
         ServiceLocator serviceLocator = ServiceLocator.instance();
 
         try {
-            Method getServiceMethod = serviceLocator.getClass().getMethod("get" + serviceName, null);
+            Method getServiceMethod = serviceLocator.getClass().getMethod("get" + serviceName, (Class[])null);
             Object service = getServiceMethod.invoke(serviceLocator, new Object[] {});
 
-            Class[] signature = new Class[len - 2];
+            Class<?>[] signature = new Class<?>[len - 2];
             String[] params = new String[len - 2];
             int i = 0;
             while (tokenizer.hasMoreTokens()) {
@@ -61,7 +61,7 @@ public class ServiceInvoker {
             }
 
             Method method = service.getClass().getMethod(methodName, signature);
-            return method.invoke(service, params);
+            return method.invoke(service, (Object[])params);
 
         } catch (NoSuchMethodException e) {
             logger.error("the specified service or method does not exist");
