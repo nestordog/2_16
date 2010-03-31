@@ -38,7 +38,7 @@ public class MyLogger extends Logger {
 
         long time;
         if (EsperService.hasInstance()) {
-            time = EsperService.getEPServiceInstance().getEPRuntime().getCurrentTime();
+            time = EsperService.getCurrentTime();
         } else {
             time = System.currentTimeMillis();
         }
