@@ -7,7 +7,6 @@ import java.util.Date;
 
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.cellprocessor.ift.LongCellProcessor;
 import org.supercsv.exception.SuperCSVException;
 import org.supercsv.exception.SuperCSVReflectionException;
 import org.supercsv.io.CsvBeanWriter;
@@ -40,10 +39,6 @@ public class TickCsvWriter {
 
              public DateConverter() {
                 super();
-            }
-
-            public DateConverter(final LongCellProcessor next) {
-                super(next);
             }
 
             public Object execute(final Object value, final CSVContext context) throws NumberFormatException {
