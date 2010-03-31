@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -102,15 +101,16 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         return stockOption;
     }
 
+    @SuppressWarnings("unchecked")
     private StockOption findNearestStockOption(Security underlaying, Date expiration, BigDecimal strike,
             OptionType type) throws Exception {
 
            StockOptionCriteria criteria = new StockOptionCriteria(underlaying, expiration, strike, type);
            criteria.setMaximumResultSize(new Integer(1));
 
-           List list = getStockOptionDao().findByCriteria(criteria);
+           List<StockOption> list = getStockOptionDao().findByCriteria(criteria);
            if (list.size() > 0) {
-               return (StockOption)list.get(0);
+               return list.get(0);
            } else {
                return null;
            }
@@ -179,13 +179,12 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         getWatchlistService().removeFromWatchlist(stockOption);
     }
 
+    @SuppressWarnings("unchecked")
     protected void handleSetMargins() throws Exception {
 
-        List list = getPositionDao().findOpenPositions();
+        List<Position> positions = getPositionDao().findOpenPositions();
 
-        for (Iterator it = list.iterator(); it.hasNext(); ) {
-
-            Position position = (Position)it.next();
+        for (Position position : positions) {
             setMargin(position);
         }
     }
