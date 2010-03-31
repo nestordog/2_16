@@ -7,6 +7,7 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Transaction;
 
+@SuppressWarnings("unchecked")
 public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase {
 
     protected com.algoTrader.entity.Security handleGetSecurity(int id) throws java.lang.Exception {
@@ -70,9 +71,9 @@ public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase 
         return (Security[])getSecurityDao().findSecuritesInPortfolio().toArray(new Security[0]);
     }
 
-    protected Security[] handleGetDummySecurities() throws Exception {
+    protected Security[] handleGetDummySecuritiesOnWatchlist() throws Exception {
 
-        return (Security[])getSecurityDao().findDummySecurities().toArray(new Security[0]);
+        return (Security[])getSecurityDao().findDummySecuritiesOnWatchlist().toArray(new Security[0]);
     }
 
     protected Security[] handleGetSecuritiesOnWatchlist() throws Exception {
@@ -92,10 +93,5 @@ public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase 
 
     protected void handleTest() throws Exception {
 
-        while (true) {
-            Security security = getDummySecurities()[0];
-            System.out.println(security.getPosition().getExitValue());
-            Thread.sleep(2000);
-        }
     }
 }
