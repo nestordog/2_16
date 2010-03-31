@@ -10,7 +10,6 @@ import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.ParseBigDecimal;
 import org.supercsv.cellprocessor.ParseInt;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.cellprocessor.ift.LongCellProcessor;
 import org.supercsv.exception.SuperCSVException;
 import org.supercsv.exception.SuperCSVReflectionException;
 import org.supercsv.io.CsvBeanReader;
@@ -53,25 +52,9 @@ public class CsvReader {
                 super();
             }
 
-            public ParseDate(final LongCellProcessor next) {
-                super(next);
-            }
-
             public Object execute(final Object value, final CSVContext context) throws NumberFormatException {
 
                 Date date = new Date(Long.parseLong((String)value));
-
-                /*
-                SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", new Locale("en"));
-
-                Date result = null;
-                try {
-                    result = format.parse((String)value);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                return next.execute(result, context);
-                */
 
                 return next.execute(date, context);
             }
