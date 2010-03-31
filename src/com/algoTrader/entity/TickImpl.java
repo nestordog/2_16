@@ -18,7 +18,7 @@ public class TickImpl extends com.algoTrader.entity.Tick {
     public BigDecimal getCurrentValue() {
 
         if (getLastDateTime() == null ||
-                EsperService.getEPServiceInstance().getEPRuntime().getCurrentTime() - getLastDateTime().getTime() > lastTransactionAge) {
+                EsperService.getCurrentTime() - getLastDateTime().getTime() > lastTransactionAge) {
             if (getVolAsk() > minVol && getVolBid() > minVol) {
                 return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2d);
             } else {
