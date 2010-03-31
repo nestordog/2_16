@@ -10,7 +10,7 @@ public class TestSubscriber {
 
     private static Logger logger = MyLogger.getLogger(TestSubscriber.class.getName());
 
-    public void update(Map map) {
+    public void update(Map<?, ?> map) {
 
         logger.info(map);
     }
