@@ -207,6 +207,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
             while ((underlyingNode = underlyingIterator.nextNode()) != null) {
 
                 String title = underlyingNode.getFirstChild().getNodeValue();
+
                 String underlayingIsin = XPathAPI.selectSingleNode(underlyingNode, "@value").getNodeValue();
 
                 String detailUrl = url + "&underlying=" + underlayingIsin;
@@ -251,6 +252,9 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
                     throw new RuntimeException("unrecognized isin");
                 }
 
+                List<Security> securities = new ArrayList<Security>();
+                List<Tick> ticks = new ArrayList<Tick>();
+
                 Security underlaying = getSecurityDao().findByISIN(underlayingIsin);
                 if (underlaying == null) {
 
@@ -270,8 +274,8 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
                     underlayingTick.setSecurity(underlaying);
                     underlayingTick.setSettlement(new BigDecimal(0.0));
 
-                    getSecurityDao().create(underlaying);
-                    getTickDao().create(underlayingTick);
+                    securities.add(underlaying);
+                    ticks.add(underlayingTick);
                 }
 
                 // get the contract size
@@ -292,8 +296,6 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
 
                 Node optionNode;
                 Date optionExpiration = null;
-                List securities = new ArrayList();
-                List ticks = new ArrayList();
                 while ((optionNode = optionIterator.nextNode()) != null) {
 
                     String align = XPathAPI.selectSingleNode(optionNode, "@align").getNodeValue();
