@@ -1,7 +1,6 @@
 package com.algoTrader.service;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -12,7 +11,6 @@ import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPPreparedStatement;
-import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
@@ -22,12 +20,11 @@ public class RuleServiceImpl extends RuleServiceBase {
 
     private static Logger logger = MyLogger.getLogger(RuleServiceImpl.class.getName());
 
+    @SuppressWarnings("unchecked")
     protected void handleActivateAll() throws java.lang.Exception {
 
-        Collection col = getRuleDao().findActivatableRules();
-
-        for (Iterator it = col.iterator(); it.hasNext();) {
-            Rule rule = (Rule)it.next();
+        List<Rule> list = getRuleDao().findActivatableRules();
+        for (Rule rule : list) {
             activate(rule);
         }
     }
@@ -49,16 +46,16 @@ public class RuleServiceImpl extends RuleServiceBase {
         activate(rule);
     }
 
+    @SuppressWarnings("unchecked")
     protected void handleActivate(Rule rule) throws java.lang.Exception {
 
         String definition = rule.getPrioritisedDefinition();
         String name = rule.getName().getValue();
 
-        EPServiceProvider cep = EsperService.getEPServiceInstance();
-        EPAdministrator cepAdm = cep.getEPAdministrator();
+        EPAdministrator cepAdm = EsperService.getEPServiceInstance().getEPAdministrator();
 
         // do nothing if the statement already exists
-        EPStatement oldStatement = cep.getEPAdministrator().getStatement(name);
+        EPStatement oldStatement = cepAdm.getStatement(name);
         if (oldStatement != null && oldStatement.isStarted()) {
             return;
         }
@@ -87,8 +84,8 @@ public class RuleServiceImpl extends RuleServiceBase {
         // add the listeners
         if (rule.getListeners() != null) {
             String[] listeners = rule.getListeners().split("\\s");
-            for (int i = 0; i < listeners.length; i++) {
-                Class cl = Class.forName("com.algoTrader.listener." + listeners[i]);
+            for (String listener : listeners) {
+                Class cl = Class.forName("com.algoTrader.listener." + listener);
                 Object obj = cl.newInstance();
                 if (obj instanceof StatementAwareUpdateListener) {
                     newStatement.addListener((StatementAwareUpdateListener)obj);
@@ -111,8 +108,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
 
         // destroy the statement
-        EPServiceProvider cep = EsperService.getEPServiceInstance();
-        EPStatement statement = cep.getEPAdministrator().getStatement(ruleName.getValue());
+        EPStatement statement = EsperService.getStatement(ruleName);
 
         if (statement != null) {
             statement.destroy();
@@ -122,8 +118,7 @@ public class RuleServiceImpl extends RuleServiceBase {
 
     protected boolean handleIsActive(RuleName ruleName) throws Exception {
 
-        EPServiceProvider cep = EsperService.getEPServiceInstance();
-        EPStatement statement = cep.getEPAdministrator().getStatement(ruleName.getValue());
+        EPStatement statement = EsperService.getStatement(ruleName);
 
         if (statement != null && statement.isStarted()) {
             return true;
@@ -134,6 +129,6 @@ public class RuleServiceImpl extends RuleServiceBase {
 
     protected void handleSetInternalClock() {
 
-        EsperService.getEPServiceInstance().getEPRuntime().sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_INTERNAL));
+        EsperService.sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_INTERNAL));
     }
 }
