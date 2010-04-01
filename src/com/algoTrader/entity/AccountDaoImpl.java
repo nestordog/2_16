@@ -1,13 +1,22 @@
-// license-header java merge-point
-/**
- * This is only generated once! It will never be overwritten.
- * You can (and have to!) safely modify it by hand.
- */
 package com.algoTrader.entity;
-/**
- * @see com.algoTrader.entity.Account
- */
-public class AccountDaoImpl
-    extends com.algoTrader.entity.AccountDaoBase
-{
+
+import java.math.BigDecimal;
+import java.util.Collection;
+
+import com.algoTrader.util.RoundUtil;
+
+public class AccountDaoImpl extends com.algoTrader.entity.AccountDaoBase {
+
+    @SuppressWarnings("unchecked")
+    protected BigDecimal handleGetPortfolioValueAllAccounts() throws Exception {
+
+        Collection<Account> accounts = loadAll();
+
+        double portfolioValue = 0;
+        for (Account account : accounts) {
+            portfolioValue += account.getPortfolioValueDouble();
+        }
+
+        return RoundUtil.getBigDecimal(portfolioValue);
+    }
 }

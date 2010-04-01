@@ -1,5 +1,7 @@
 package com.algoTrader.service;
 
+import java.math.BigDecimal;
+
 import com.algoTrader.entity.Account;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Rule;
@@ -91,7 +93,8 @@ public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase 
         return (Position[])getPositionDao().findOpenPositions().toArray(new Position[0]);
     }
 
-    protected void handleTest() throws Exception {
+    protected BigDecimal handleGetPortfolioValueAllAccounts() throws Exception {
 
+        return getAccountDao().getPortfolioValueAllAccounts();
     }
 }
