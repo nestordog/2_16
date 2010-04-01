@@ -33,6 +33,13 @@
         </layout>
     </appender>
 
+    <appender name="STOCHASTIC" class="org.apache.log4j.FileAppender">
+        <param name="file" value="log/stochastic.log" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %m %n"/>
+        </layout>
+    </appender>
+
     <appender name="PORTFOLIO" class="org.apache.log4j.FileAppender">
         <param name="file" value="log/portfolio.log" />
         <layout class="org.apache.log4j.PatternLayout">
@@ -127,8 +134,13 @@
         <appender-ref ref="TRANSACTION_SMS" />
     </logger>
 
+    <logger name="com.algoTrader.subscriber.PrintStochasticSubscriber">
+        <level value="debug"/>
+        <appender-ref ref="STOCHASTIC" />
+    </logger>
+
     <logger name="com.algoTrader.listener.PrintPortfolioValueListener">
-        <level value="info"/>
+        <level value="debug"/>
         <appender-ref ref="PORTFOLIO" />
     </logger>
 
