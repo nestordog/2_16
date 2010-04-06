@@ -13,7 +13,11 @@ public class DateUtil {
 
     public static Date getCurrentEPTime() {
 
-        return new Date(EsperService.getCurrentTime());
+        if (EsperService.hasInstance()) {
+            return new Date(EsperService.getCurrentTime());
+        } else {
+            return new Date();
+        }
     }
 
     public static Date getNextThirdFriday(Date input) {
