@@ -16,6 +16,12 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.math.ConvergenceException;
+import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
+import org.apache.commons.math.optimization.fitting.PolynomialFitter;
+import org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer;
+import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
@@ -31,6 +37,8 @@ import com.algoTrader.entity.TickImpl;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.OptionType;
+import com.algoTrader.stockOption.StockOptionUtil;
+import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HttpClientUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -46,6 +54,8 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
 
     private static String [] markets = new String[] {"ud", " eu", "eu", "eu", "eu", "eu", "eu", "eu"};
     private static String [] groups = new String[] {null, "sw", "id", "de", "fr", "it", "sk", "xx" };
+
+    private static SimpleDateFormat format = new SimpleDateFormat("yyMM");
 
     protected StockOption handleRetrieveStockOption(Security underlaying, Date expiration, BigDecimal strike,
             OptionType type) throws ParseException, TransformerException, IOException {
@@ -341,6 +351,92 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
                 System.out.println(title);
             }
             System.out.println("done with " + market + " " + group);
+        }
+    }
+
+    protected boolean handleVerifyVolatility(StockOption stockOption) throws HttpException, IOException, TransformerException, ParseException, ConvergenceException, FunctionEvaluationException {
+
+        String isin = stockOption.getUnderlaying().getIsin();
+        String expirationString = format.format(stockOption.getExpiration());
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / 31536000000l;
+
+        String url = optionUrl + "&underlying=" + isin + "&market=eu&group=id" + "&expiration=" + expirationString;
+
+        GetMethod get = new GetMethod(url);
+
+        HttpClient standardClient = HttpClientUtil.getStandardClient();
+        int status = standardClient.executeMethod(get);
+
+        if (status != HttpStatus.SC_OK) {
+            throw new HttpException("invalid option request: underlying=" + isin + " expiration=" + expirationString);
+        }
+        Document document = TidyUtil.parse(get.getResponseBodyAsStream());
+        get.releaseConnection();
+        XmlUtil.saveDocumentToFile(document, isin + "_" + expirationString + ".xml", "results/options/");
+
+        //FileInputStream in = new FileInputStream("results/options/CH0008616382_1004.xml");
+        //Document document = TidyUtil.parse(in);
+
+        String underlayingSpotValue = XPathAPI.selectSingleNode(document, "//table[tr/td/strong='Symbol']/tr/td/strong/a").getFirstChild().getNodeValue();
+        double underlayingSpot = SwissquoteUtil.getAmount(underlayingSpotValue);
+
+        NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//table[tr/@align='CENTER']/tr[count(td)=12]");
+
+        Node node;
+        double lastVolatility = Double.MAX_VALUE;
+        List<Double> strikes = new ArrayList<Double>();
+        List<Double> volatilities = new ArrayList<Double>();
+        PolynomialFitter fitter = new PolynomialFitter(4, new LevenbergMarquardtOptimizer());
+
+        while ((node = iterator.nextNode()) != null) {
+
+            String strikeValue = XPathAPI.selectSingleNode(node, "td/strong/a").getFirstChild().getNodeValue();
+            String bidValue = XPathAPI.selectSingleNode(node, "td[9]").getFirstChild().getNodeValue();
+            String askValue = XPathAPI.selectSingleNode(node, "td[10]").getFirstChild().getNodeValue();
+
+            double strike = SwissquoteUtil.getAmount(strikeValue);
+            double bid = SwissquoteUtil.getAmount(bidValue);
+            double ask = SwissquoteUtil.getAmount(askValue);
+
+            if (bid != 0 && ask != 0) {
+
+                double currentValue = (bid + ask) / 2.0;
+
+                double volatility = StockOptionUtil.getVolatility(underlayingSpot, strike, currentValue, years, stockOption.getType());
+
+                if (volatility > lastVolatility) break;
+
+                fitter.addObservedPoint(1, strike, volatility);
+
+                strikes.add(strike);
+                volatilities.add(volatility);
+
+                lastVolatility = volatility;
+            }
+        }
+
+        PolynomialFunction function = fitter.fit();
+        SummaryStatistics stats = new SummaryStatistics();
+
+        for (int i = 0; i < strikes.size(); i++) {
+
+            double estimate = function.value(strikes.get(i));
+            double difference = Math.abs(volatilities.get(i) - estimate);
+
+            stats.addValue(difference);
+        }
+
+        double std = stats.getStandardDeviation();
+
+        int i = strikes.indexOf(stockOption.getStrike().doubleValue());
+
+        double estimate = function.value(strikes.get(i));
+        double difference = Math.abs(volatilities.get(i) - estimate);
+
+        if (difference > 2.0 * std) {
+            return false;
+        } else {
+            return true;
         }
     }
 }
