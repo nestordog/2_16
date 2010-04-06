@@ -15,6 +15,6 @@ public class PrintPortfolioValueListener implements StatementAwareUpdateListener
 
     public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPServiceProvider epServiceProvider) {
 
-        logger.debug(ServiceLocator.instance().getLookupService().getPortfolioValueAllAccounts());
+        logger.info(ServiceLocator.instance().getLookupService().getPortfolioValueAllAccounts());
     }
 }

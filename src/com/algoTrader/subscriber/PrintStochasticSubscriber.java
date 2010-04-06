@@ -14,6 +14,6 @@ public class PrintStochasticSubscriber {
 
     public void update(Characteristic kFast, Characteristic kSlow, Characteristic dSlow) throws SuperCSVException, IOException {
 
-        logger.debug(kFast.getSecurity().getSymbol() + " kFast=" + kFast.getValue() + " kSlow=" + kSlow.getValue() + " dSlow=" + dSlow.getValue());
+        logger.info(kFast.getSecurity().getSymbol() + " kFast=" + kFast.getValue() + " kSlow=" + kSlow.getValue() + " dSlow=" + dSlow.getValue());
     }
 }
