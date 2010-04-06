@@ -31,6 +31,10 @@
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d %-5p %c{1} %m %n"/>
         </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="LevelMin" value="INFO"/>
+            <param name="LevelMax" value="FATAL"/>
+        </filter>
     </appender>
 
     <appender name="STOCHASTIC" class="org.apache.log4j.FileAppender">
@@ -135,12 +139,10 @@
     </logger>
 
     <logger name="com.algoTrader.subscriber.PrintStochasticSubscriber">
-        <level value="debug"/>
         <appender-ref ref="STOCHASTIC" />
     </logger>
 
     <logger name="com.algoTrader.listener.PrintPortfolioValueListener">
-        <level value="debug"/>
         <appender-ref ref="PORTFOLIO" />
     </logger>
 
