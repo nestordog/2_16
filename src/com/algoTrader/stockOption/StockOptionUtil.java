@@ -64,6 +64,11 @@ public class StockOptionUtil {
         return solver.solve(function, 0.1, 0.99, 0.2);
     }
 
+    public static double getVolatility(final double underlayingSpot, final double strike, final double optionValue, final double years, final OptionType type) throws ConvergenceException, FunctionEvaluationException {
+
+        return getVolatility(underlayingSpot, strike, optionValue, years, intrest, dividend, type);
+    }
+
     public static double getFairValue(Security security, double underlayingSpot, double vola) throws RuntimeException {
 
         StockOption stockOption = (StockOption)security;
