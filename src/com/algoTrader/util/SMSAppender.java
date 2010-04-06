@@ -99,7 +99,10 @@ public class SMSAppender extends SMTPAppender {
                     sbuf.append(t);
                 }
 
-                part.setContent(sbuf.toString(), layout.getContentType());
+                String content = sbuf.toString();
+                if (content.length() > 160) content = content.substring(0, 160);
+
+                part.setContent(content, layout.getContentType());
                 Multipart mp = new MimeMultipart();
                 mp.addBodyPart(part);
                 msg.setContent(mp);
