@@ -15,7 +15,6 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -58,9 +57,12 @@ public class HttpClientUtil {
 
         // EasySSLProtocolSocketFactory if testing with proxomitron
         if (useProxy) {
-            ProtocolSocketFactory factory = new EasySSLProtocolSocketFactory();
-            Protocol protocol = new Protocol("https", factory, 443);
-            Protocol.registerProtocol("https", protocol);
+
+            // if needed copy new EasySSLProtocolSocketFactory and EasyX509TrustManager from GetTheTicket
+
+            //ProtocolSocketFactory factory = new EasySSLProtocolSocketFactory();
+            //Protocol protocol = new Protocol("https", factory, 443);
+            //Protocol.registerProtocol("https", protocol);
         }
 
         // allow the same number of connections as we have workers
