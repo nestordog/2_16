@@ -1,5 +1,6 @@
 package com.algoTrader.service;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -37,6 +38,7 @@ import com.algoTrader.entity.TickImpl;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.OptionType;
+import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HttpClientUtil;
@@ -354,11 +356,11 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
         }
     }
 
-    protected boolean handleVerifyVolatility(StockOption stockOption) throws HttpException, IOException, TransformerException, ParseException, ConvergenceException, FunctionEvaluationException {
+    protected boolean handleVerifyVolatility(StockOption stockOption, TransactionType transactionType) throws HttpException, IOException, TransformerException, ParseException, ConvergenceException, FunctionEvaluationException {
 
         String isin = stockOption.getUnderlaying().getIsin();
         String expirationString = format.format(stockOption.getExpiration());
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / 31536000000l;
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / 31536000000.0;
 
         String url = optionUrl + "&underlying=" + isin + "&market=eu&group=id" + "&expiration=" + expirationString;
 
@@ -386,6 +388,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
         double lastVolatility = Double.MAX_VALUE;
         List<Double> strikes = new ArrayList<Double>();
         List<Double> volatilities = new ArrayList<Double>();
+        List<Double> currentValues = new ArrayList<Double>();
         PolynomialFitter fitter = new PolynomialFitter(4, new LevenbergMarquardtOptimizer());
 
         while ((node = iterator.nextNode()) != null) {
@@ -410,6 +413,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
 
                 strikes.add(strike);
                 volatilities.add(volatility);
+                currentValues.add(currentValue);
 
                 lastVolatility = volatility;
             }
@@ -430,10 +434,17 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
 
         int i = strikes.indexOf(stockOption.getStrike().doubleValue());
 
+        double currentValue = currentValues.get(i);
         double estimate = function.value(strikes.get(i));
-        double difference = Math.abs(volatilities.get(i) - estimate);
+        double volatility = volatilities.get(i);
 
-        if (difference > 2.0 * std) {
+        if (TransactionType.BUY.equals(transactionType) && volatility < (estimate - 3.0 * std)) {
+            double fairValue = StockOptionUtil.getFairValue(stockOption, underlayingSpot, volatility);
+            logger.warn("current price (" + currentValue + ") is to high compared to fair-value (" + fairValue + ") in regards to the volatility-curve");
+            return false;
+        } else if (TransactionType.SELL.equals(transactionType) && volatility > (estimate + 3.0 * std)) {
+            double fairValue = StockOptionUtil.getFairValue(stockOption, underlayingSpot, volatility);
+            logger.warn("current price (" + currentValue + ") is to low compared to fair-value (" + fairValue + ") in regards to the volatility-curve");
             return false;
         } else {
             return true;
