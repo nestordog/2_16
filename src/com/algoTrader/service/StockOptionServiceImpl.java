@@ -3,6 +3,7 @@ package com.algoTrader.service;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -11,6 +12,8 @@ import org.apache.log4j.Logger;
 
 import com.algoTrader.criteria.StockOptionCriteria;
 import com.algoTrader.entity.Account;
+import com.algoTrader.entity.Order;
+import com.algoTrader.entity.OrderImpl;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
@@ -20,6 +23,7 @@ import com.algoTrader.entity.Transaction;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.OptionType;
+import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
@@ -36,14 +40,15 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private static int contractSize = PropertiesUtil.getIntProperty("simulation.contractSize");
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static int minAge = PropertiesUtil.getIntProperty("minAge");
+    private static int openPositionRetries = PropertiesUtil.getIntProperty("openPositionRetries");
 
     private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
 
     private long FORTY_FIVE_DAYS = 3888000000l;
 
-    protected StockOption handleGetStockOption(int securityId, BigDecimal underlayingSpot) throws Exception {
+    protected StockOption handleGetStockOption(int underlayingSecurityId, BigDecimal underlayingSpot) throws Exception {
 
-        Security underlaying = getSecurityDao().load(securityId);
+        Security underlaying = getSecurityDao().load(underlayingSecurityId);
 
         Date targetExpirationDate = new Date(DateUtil.getCurrentEPTime().getTime() + minAge);
 
@@ -116,9 +121,9 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
            }
     }
 
-    protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlayingSpot) throws Exception {
+    protected void handleOpenPosition(int stockOptionId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlayingSpot) throws Exception {
 
-        StockOption stockOption = (StockOption)getStockOptionDao().load(securityId);
+        StockOption stockOption = (StockOption)getStockOptionDao().load(stockOptionId);
 
         Account account = getAccountDao().findByCurrency(stockOption.getCurrency());
 
@@ -131,32 +136,70 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         if (numberOfContracts <= 0) {
             if (stockOption.getPosition() == null || stockOption.getPosition().getQuantity() == 0) {
-                getWatchlistService().removeFromWatchlist(securityId);
+                getWatchlistService().removeFromWatchlist(stockOptionId);
             }
             return; // there is no money available
         }
 
-        BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
+        for (int i = 0; i < openPositionRetries ; i++) {
 
-        Transaction transaction = getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, TransactionType.SELL);
+            Order order = new OrderImpl();
+            order.setSecurity(stockOption);
+            order.setRequestedQuantity(numberOfContracts);
+            order.setTransactionType(TransactionType.SELL);
 
-        setMargin(transaction.getPosition());
+            try {
+                getTransactionService().executeTransaction(order);
+            } catch (TransactionServiceException e) {
+                // something went wrong executing the transaction -> keep going
+                continue;
+            }
+
+            if (OrderStatus.EXECUTED.equals(order.getStatus()) ||
+                    OrderStatus.AUTOMATIC.equals(order.getStatus())) {
+
+                // we are done!
+                setMargin(order);
+                break;
+
+            } else if (OrderStatus.PARTIALLY_EXECUTED.equals(order.getStatus())) {
+
+                // only part of the order has gone through, so reduce the requested
+                // numberOfContracts by this number and keep going
+                numberOfContracts -= Math.abs(order.getExecutedQuantity());
+
+                setMargin(order);
+                continue;
+            }
+        }
     }
 
     protected void handleClosePosition(int positionId) throws Exception {
 
         Position position = getPositionDao().load(positionId);
 
+        // due to a bug in esper, this might be executed twice if more than one position is valid for closing
+        // so check again for the quantity
+        if (position.getQuantity() == 0) return;
+
         StockOption stockOption = (StockOption)position.getSecurity();
-        double currentDouble = stockOption.getLastTick().getCurrentValue().doubleValue();
-        int contractSize = stockOption.getContractSize();
 
         long numberOfContracts = Math.abs(position.getQuantity());
-        BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
 
-        getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, TransactionType.BUY);
+        Order order = new OrderImpl();
+        order.setSecurity(stockOption);
+        order.setRequestedQuantity(numberOfContracts);
+        order.setTransactionType(TransactionType.BUY);
 
-        getWatchlistService().removeFromWatchlist(stockOption);
+        getTransactionService().executeTransaction(order);
+
+        // only remove the stockOption from the watchlist, if the transaction did execute fully.
+        // otherwise the next tick will execute the reminder of the order
+        if (OrderStatus.EXECUTED.equals(order.getStatus()) ||
+                OrderStatus.AUTOMATIC.equals(order.getStatus())) {
+
+            getWatchlistService().removeFromWatchlist(stockOption);
+        }
     }
 
     protected void handleExpirePosition(int positionId) throws Exception {
@@ -168,15 +211,23 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         }
 
         StockOption stockOption = (StockOption)position.getSecurity();
-        double currentDouble = stockOption.getLastTick().getCurrentValue().doubleValue();
-        int contractSize = stockOption.getContractSize();
 
         long numberOfContracts = Math.abs(position.getQuantity());
-        BigDecimal currentValuePerContract =  RoundUtil.getBigDecimal(currentDouble * contractSize); // CHF 160.- per contract (= CHF 16 per stockOptions)
 
-        getTransactionService().executeTransaction(numberOfContracts, stockOption, currentValuePerContract, TransactionType.EXPIRATION);
+        Order order = new OrderImpl();
+        order.setSecurity(stockOption);
+        order.setRequestedQuantity(numberOfContracts);
+        order.setTransactionType(TransactionType.EXPIRATION);
 
-        getWatchlistService().removeFromWatchlist(stockOption);
+        getTransactionService().executeTransaction(order);
+
+        // only remove the stockOption from the watchlist, if the transaction did execute fully.
+        // otherwise the next tick will execute the reminder of the order
+        if (OrderStatus.EXECUTED.equals(order.getStatus()) ||
+                OrderStatus.AUTOMATIC.equals(order.getStatus())) {
+
+            getWatchlistService().removeFromWatchlist(stockOption);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -186,37 +237,6 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         for (Position position : positions) {
             setMargin(position);
-        }
-    }
-
-    private void setMargin(Position position) throws Exception {
-
-        if (position.getSecurity() instanceof StockOption) {
-
-            StockOption stockOption = (StockOption) position.getSecurity();
-            Tick tick = stockOption.getLastTick();
-            if (tick != null) {
-                BigDecimal underlayingSpot = stockOption.getUnderlaying().getLastTick().getCurrentValue();
-
-                double marginPerContract = StockOptionUtil.getMargin(stockOption, tick.getSettlementDouble(), underlayingSpot.doubleValue()) * stockOption.getContractSize();
-                long numberOfContracts = Math.abs(position.getQuantity());
-                BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
-
-                position.setMargin(totalMargin);
-
-                getPositionDao().update(position);
-
-                Account account = position.getAccount();
-
-                if (account.getAvailableAmount().doubleValue() >= 0) {
-                    logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount());
-                } else {
-                    int percent = (int)(-account.getAvailableAmount().doubleValue() / account.getBalance().doubleValue() * 100d);
-                    logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount() + " (" + percent + "% of balance)");
-                }
-            } else {
-                logger.warn("no last tick available to set margin on " + stockOption.getSymbol());
-            }
         }
     }
 
@@ -236,5 +256,43 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
             logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + exitValue);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void setMargin(Order order) throws Exception {
+
+        Collection<Transaction> transactions = order.getTransactions();
+
+        for (Transaction transaction : transactions) {
+            setMargin(transaction.getPosition());
+        }
+    }
+    private void setMargin(Position position) throws Exception {
+
+        StockOption stockOption = (StockOption) position.getSecurity();
+        Tick tick = stockOption.getLastTick();
+        if (tick != null) {
+            double underlayingSpot = stockOption.getUnderlaying().getLastTick().getCurrentValueDouble();
+
+            double marginPerContract = StockOptionUtil.getMargin(stockOption, tick.getSettlementDouble(), underlayingSpot) * stockOption.getContractSize();
+            long numberOfContracts = Math.abs(position.getQuantity());
+            BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
+
+            position.setMargin(totalMargin);
+
+            getPositionDao().update(position);
+
+            Account account = position.getAccount();
+
+            int percent = (int)(account.getAvailableAmount().doubleValue() / account.getBalance().doubleValue() * 100d);
+            if (account.getAvailableAmount().doubleValue() >= 0) {
+                logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount() + " (" + percent + "% of balance)");
+            } else {
+                logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount() + " (" + percent + "% of balance)");
+            }
+        } else {
+            logger.warn("no last tick available to set margin on " + stockOption.getSymbol());
+        }
+
     }
 }
