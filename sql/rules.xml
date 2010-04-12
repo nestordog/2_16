@@ -5,7 +5,7 @@
     <row>
         <field name="id">1</field>
         <field name="NAME">CREATE_EXIT_VALUE</field>
-        <field name="PRIORITY">4</field>
+        <field name="PRIORITY">3</field>
         <field name="DEFINITION">insert into ExitValue
 select optionTick.security as security,
 StockOptionUtil.getExitValue(optionTick.security, indexTick.currentValueDouble, optionTick.currentValueDouble) as value
@@ -22,7 +22,7 @@ and optionTick.security.position.quantity != 0</field>
     <row>
         <field name="id">2</field>
         <field name="NAME">CLOSE_POSITION</field>
-        <field name="PRIORITY">6</field>
+        <field name="PRIORITY">4</field>
         <field name="DEFINITION">select
 tick.security.position.id
 from Tick as tick
@@ -51,7 +51,7 @@ and tick.currentValue  &gt; tick.security.position.exitValue</field>
     <row>
         <field name="id">4</field>
         <field name="NAME">EXPIRE_POSITION</field>
-        <field name="PRIORITY">7</field>
+        <field name="PRIORITY">5</field>
         <field name="DEFINITION">select option.position.id as positionId,
 indexTick.security.id,
 indexTick.currentValue
@@ -70,7 +70,7 @@ and option.position.quantity != 0</field>
     <row>
         <field name="id">5</field>
         <field name="NAME">GET_LAST_TICK</field>
-        <field name="PRIORITY">3</field>
+        <field name="PRIORITY">8</field>
         <field name="DEFINITION">select tick.security.id as securityId, tick.* as tick
 from Tick.std:groupby(security.id).win:length(1) as tick</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
@@ -83,7 +83,7 @@ from Tick.std:groupby(security.id).win:length(1) as tick</field>
     <row>
         <field name="id">6</field>
         <field name="NAME">SIMULATE_DUMMY_SECURITIES</field>
-        <field name="PRIORITY">5</field>
+        <field name="PRIORITY">6</field>
         <field name="DEFINITION">insert into Tick
 select DateUtil.toDate(current_timestamp()) as dateTime,
 RoundUtil.getBigDecimal(StockOptionUtil.getFairValue(option, indexTick.currentValueDouble, volaTick.currentValueDouble / 100)) as last,
@@ -121,7 +121,7 @@ from pattern [(indexTick=Tick(security.isin = var_isin) -&gt; stockOptionTick=Ti
     <row>
         <field name="id">8</field>
         <field name="NAME">PRINT_TICK</field>
-        <field name="PRIORITY">8</field>
+        <field name="PRIORITY">7</field>
         <field name="DEFINITION">select *
 from Tick</field>
         <field name="SUBSCRIBER">PrintTickSubscriber</field>
@@ -259,7 +259,7 @@ and (security.position.exitValue is null or value &lt; security.position.exitVal
     <row>
         <field name="id">17</field>
         <field name="NAME">ROLL_POSITION</field>
-        <field name="PRIORITY">0</field>
+        <field name="PRIORITY">2</field>
         <field name="DEFINITION">select
 optionTick.security.position.id,
 indexTick.security.id,
@@ -279,11 +279,11 @@ and optionTick.security.position.quantity != 0</field>
         <field name="id">18</field>
         <field name="NAME">PRINT_PORTFOLIO_VALUE</field>
         <field name="PRIORITY">0</field>
-        <field name="DEFINITION">every timer:at (0, 0, 1, *, *)</field>
+        <field name="DEFINITION">every timer:at (0, 9:17, *, *, 1:5)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS">PrintPortfolioValueListener</field>
         <field name="PATTERN" xsi:type="xs:hexBinary">01</field>
-        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
         <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
