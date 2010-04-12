@@ -1,6 +1,5 @@
 package com.algoTrader.service;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -86,7 +85,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
 
         StockOption stockOption = new StockOptionImpl();
 
-        String optionUrl = XPathAPI.selectSingleNode(listDocument, "//td[contains(a/@class,'list')][" + (OptionType.CALL.equals(type) ? 1 : 2) + "]/a/@href").getNodeValue();
+        String optionUrl = SwissquoteUtil.getValue(listDocument, "//td[contains(a/@class,'list')][" + (OptionType.CALL.equals(type) ? 1 : 2) + "]/a/@href");
         String param = optionUrl.split("=")[1];
         String isin = param.split("_")[0];
         String market = param.split("_")[1];
@@ -107,7 +106,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
         String contractSizeValue = SwissquoteUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[3]/strong");
         int contractSize = (int) Double.parseDouble(contractSizeValue);
 
-        String symbolValue = XPathAPI.selectSingleNode(optionDocument, "//body/div[1]//h1/text()[2]").getNodeValue();
+        String symbolValue = SwissquoteUtil.getValue(optionDocument, "//body/div[1]//h1/text()[2]");
         String symbol = symbolValue.split("\\(")[0].trim().substring(1);
 
         stockOption.setExpiration(expirationDate);
@@ -170,7 +169,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
             String dateValue = SwissquoteUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[4]/strong");
             Date expirationDate = new SimpleDateFormat("dd-MM-yyyy kk:mm:ss").parse(dateValue + " 13:00:00");
 
-            String symbolValue = XPathAPI.selectSingleNode(optionDocument, "//body/div[1]//h1/text()[2]").getNodeValue();
+            String symbolValue = SwissquoteUtil.getValue(optionDocument, "//body/div[1]//h1/text()[2]");
             String symbol = symbolValue.split("\\(")[0].trim().substring(1);
 
             String contractSizeValue = SwissquoteUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[3]/strong");
@@ -220,7 +219,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
 
                 String title = underlyingNode.getFirstChild().getNodeValue();
 
-                String underlayingIsin = XPathAPI.selectSingleNode(underlyingNode, "@value").getNodeValue();
+                String underlayingIsin = SwissquoteUtil.getValue(underlyingNode, "@value");
 
                 String detailUrl = url + "&underlying=" + underlayingIsin;
 
@@ -239,7 +238,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
 
                 if (underlayingTable == null) continue;
 
-                String underlayingUrl = XPathAPI.selectSingleNode(underlayingTable, "td[1]/a/@href").getNodeValue();
+                String underlayingUrl = SwissquoteUtil.getValue(underlayingTable, "td[1]/a/@href");
 
                 String underlayingMarketId = null;
                 String underlayingCurreny = null;
@@ -270,8 +269,8 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
                 Security underlaying = getSecurityDao().findByISIN(underlayingIsin);
                 if (underlaying == null) {
 
-                    String underlayingSymbol = XPathAPI.selectSingleNode(underlayingTable, "td[1]/a").getFirstChild().getNodeValue();
-                    String underlayingLast = XPathAPI.selectSingleNode(underlayingTable, "td[3]/strong/a").getFirstChild().getNodeValue();
+                    String underlayingSymbol = SwissquoteUtil.getValue(underlayingTable, "td[1]/a");
+                    String underlayingLast = SwissquoteUtil.getValue(underlayingTable, "td[3]/strong/a");
 
                     underlaying = new SecurityImpl();
                     underlaying.setSymbol(underlayingSymbol);
@@ -291,7 +290,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
                 }
 
                 // get the contract size
-                String optionCode = XPathAPI.selectSingleNode(listDocument, "//table[tr/@align='CENTER']/tr[@align='LEFT']/td[8]/a/@href").getNodeValue().split("=")[1];
+                String optionCode = SwissquoteUtil.getValue(listDocument, "//table[tr/@align='CENTER']/tr[@align='LEFT']/td[8]/a/@href").split("=")[1];
                 String optionIsin = optionCode.split("_")[0];
                 String optionMarketId = optionCode.split("_")[1];
                 String optionCurreny = optionCode.split("_")[2];
@@ -310,20 +309,20 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
                 Date optionExpiration = null;
                 while ((optionNode = optionIterator.nextNode()) != null) {
 
-                    String align = XPathAPI.selectSingleNode(optionNode, "@align").getNodeValue();
+                    String align = SwissquoteUtil.getValue(optionNode, "@align");
                     if (align.equals("CENTER")) {
-                        String monthUrl = XPathAPI.selectSingleNode(optionNode, "td/strong/a/@href").getNodeValue();
+                        String monthUrl = SwissquoteUtil.getValue(optionNode, "td/strong/a/@href");
                         String month = monthUrl.split("\\?")[1].split("&")[1].split("=")[1] + "01";
                         optionExpiration = new SimpleDateFormat("yyMMdd").parse(month);
 
                     } else {
-                        optionCode = XPathAPI.selectSingleNode(optionNode, "td[8]/a/@href").getNodeValue().split("=")[1];
+                        optionCode = SwissquoteUtil.getValue(optionNode, "td[8]/a/@href").split("=")[1];
                         optionIsin = optionCode.split("_")[0];
 
-                        String optionStrike = XPathAPI.selectSingleNode(optionNode, "td[6]/strong/a").getFirstChild().getNodeValue();
-                        String optionLast = XPathAPI.selectSingleNode(optionNode, "td[8]/a/strong").getFirstChild().getNodeValue();
-                        String optionVol = XPathAPI.selectSingleNode(optionNode, "td[11]").getFirstChild().getNodeValue();
-                        String optionOpenIntrest = XPathAPI.selectSingleNode(optionNode, "td[12]").getFirstChild().getNodeValue();
+                        String optionStrike = SwissquoteUtil.getValue(optionNode, "td[6]/strong/a");
+                        String optionLast = SwissquoteUtil.getValue(optionNode, "td[8]/a/strong");
+                        String optionVol = SwissquoteUtil.getValue(optionNode, "td[11]");
+                        String optionOpenIntrest = SwissquoteUtil.getValue(optionNode, "td[12]");
 
                         stockOption = new StockOptionImpl();
                         stockOption.setIsin(optionIsin);
@@ -379,7 +378,7 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
         //FileInputStream in = new FileInputStream("results/options/CH0008616382_1004.xml");
         //Document document = TidyUtil.parse(in);
 
-        String underlayingSpotValue = XPathAPI.selectSingleNode(document, "//table[tr/td/strong='Symbol']/tr/td/strong/a").getFirstChild().getNodeValue();
+        String underlayingSpotValue = SwissquoteUtil.getValue(document, "//table[tr/td/strong='Symbol']/tr/td/strong/a");
         double underlayingSpot = SwissquoteUtil.getAmount(underlayingSpotValue);
 
         NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//table[tr/@align='CENTER']/tr[count(td)=12]");
@@ -393,9 +392,9 @@ public class StockOptionRetrieverServiceImpl extends StockOptionRetrieverService
 
         while ((node = iterator.nextNode()) != null) {
 
-            String strikeValue = XPathAPI.selectSingleNode(node, "td/strong/a").getFirstChild().getNodeValue();
-            String bidValue = XPathAPI.selectSingleNode(node, "td[9]").getFirstChild().getNodeValue();
-            String askValue = XPathAPI.selectSingleNode(node, "td[10]").getFirstChild().getNodeValue();
+            String strikeValue = SwissquoteUtil.getValue(node, "td/strong/a");
+            String bidValue = SwissquoteUtil.getValue(node, "td[9]");
+            String askValue = SwissquoteUtil.getValue(node, "td[10]");
 
             double strike = SwissquoteUtil.getAmount(strikeValue);
             double bid = SwissquoteUtil.getAmount(bidValue);
