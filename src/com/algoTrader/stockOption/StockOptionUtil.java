@@ -29,15 +29,13 @@ public class StockOptionUtil {
     private static double expectedProfit = PropertiesUtil.getDoubleProperty("expectedProfit");
     private static long minExpirationTime = PropertiesUtil.getIntProperty("minExpirationTime");
 
-    // Black-Scholes formula
+    /**
+    /*Black-Scholes formula
+     */
     public static double getOptionPrice(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
 
         if (years <= 0 ) {
-            if (OptionType.CALL.equals(type)) {
-                return Math.max(underlayingSpot - strike, 0d) ;
-            } else {
-                return Math.max(strike  - underlayingSpot, 0d);
-            }
+            return getIntrinsicPrice(underlayingSpot, strike, type);
         }
 
         double adjustedSpot = underlayingSpot * Math.exp(-dividend * years);
@@ -48,6 +46,15 @@ public class StockOptionUtil {
             return adjustedSpot * Gaussian.Phi(d1) - strike * Math.exp(-intrest * years) * Gaussian.Phi(d2);
         } else {
             return strike * Math.exp(-intrest * years) * Gaussian.Phi(-d2) - adjustedSpot * Gaussian.Phi(-d1);
+        }
+    }
+
+    public static double getIntrinsicPrice(double underlayingSpot, double strike, OptionType type) {
+
+        if (OptionType.CALL.equals(type)) {
+            return Math.max(underlayingSpot - strike, 0d) ;
+        } else {
+            return Math.max(strike  - underlayingSpot, 0d);
         }
     }
 
@@ -77,6 +84,13 @@ public class StockOptionUtil {
         double years = (stockOption.getExpiration().getTime() - currentTime.getTime()) / MILLISECONDS_PER_YEAR ;
 
         return getOptionPrice(underlayingSpot, stockOption.getStrike().doubleValue(), vola, years, intrest, dividend, stockOption.getType());
+    }
+
+    public static double getIntrinsicValue(Security security, double underlayingSpot) throws RuntimeException {
+
+        StockOption stockOption = (StockOption)security;
+
+        return getIntrinsicPrice(underlayingSpot, stockOption.getStrike().doubleValue(), stockOption.getType());
     }
 
     public static double getExitValue(Security security, double underlayingSpot, double optionValue) throws ConvergenceException, FunctionEvaluationException {
