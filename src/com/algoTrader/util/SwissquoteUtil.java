@@ -47,9 +47,14 @@ public class SwissquoteUtil {
     public static String getValue(Node document, String expression) throws TransformerException {
 
         Node node = XPathAPI.selectSingleNode(document, expression);
-        if (node == null || node.getFirstChild() == null) return null;
 
-        return node.getFirstChild().getNodeValue();
+        if (node == null ) {
+            return null;
+        } else if (node.getFirstChild() != null) {
+            return node.getFirstChild().getNodeValue();
+        } else {
+            return node.getNodeValue();
+        }
     }
 
     public static int getNumber(String inputString) throws ParseException {
@@ -61,6 +66,8 @@ public class SwissquoteUtil {
     }
 
     public static double getAmount(String inputString) throws ParseException {
+
+        if (inputString == null) return 0;
 
         if (inputString.contains("-")) return 0;
 
