@@ -1,4 +1,4 @@
 long -> date: =((A2/1000+3600)/86400+25569)
 date -> long: =((A2-25569)*86400-3600)*1000
 
-breakpoint: com.algoTrader.util.DateUtil.getCurrentEPTime().getTime() > 1133341200000l
+breakpoint: com.algoTrader.util.DateUtil.getCurrentEPTime().getTime() > (new java.text.SimpleDateFormat("dd-MM-yyyy kk:mm:ss")).parse("07-04-1999 12:00:00").getTime()
