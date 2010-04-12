@@ -44,7 +44,7 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/hibernate3.jar" sourcepath="D:/hibernate-3.1/src"/>
 	<classpathentry kind="lib" path="lib/jta.jar"/>
-	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar" sourcepath="D:/httpclient-3.0.1/src/java"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/esperio-3.3.0.jar" sourcepath="D:/esper-3.3.0/src/esperio/java">
 		<attributes>
