@@ -19,7 +19,11 @@ public class TickImpl extends com.algoTrader.entity.Tick {
         if (simulation) {
             return getLast();
         } else {
-            return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0);
+            if (this.getSecurity() instanceof StockOption) {
+                return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0);
+            } else {
+                return getLast();
+            }
         }
     }
 
