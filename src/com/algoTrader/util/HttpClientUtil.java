@@ -20,9 +20,6 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
-import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
 
 public class HttpClientUtil {
@@ -43,13 +40,14 @@ public class HttpClientUtil {
     private static boolean useProxy = (proxyHost != null) ? true : false;
 
     private static int workers = PropertiesUtil.getIntProperty("workers");
-    private static String userAgent = PropertiesUtil.getProperty("userAgent");
+    private static String standardUserAgent = PropertiesUtil.getProperty("standardUserAgent");
+    private static String tradeUserAgent = PropertiesUtil.getProperty("tradeUserAgent");
     private static boolean retry = PropertiesUtil.getBooleanProperty("retry");
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
     private static HttpClient standardClient;
-    private static HttpClient loggedInClient;
+    private static HttpClient premiumClient;
 
     public static HttpClient getStandardClient() {
 
@@ -87,31 +85,32 @@ public class HttpClientUtil {
         standardClient.getParams().setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
 
         // user agent
-        standardClient.getParams().setParameter(HttpMethodParams.USER_AGENT, userAgent);
+        standardClient.getParams().setParameter(HttpMethodParams.USER_AGENT, standardUserAgent);
 
         return standardClient;
     }
 
     public static HttpClient getSwissquotePremiumClient() {
 
-        if (loggedInClient != null) return loggedInClient;
+        if (premiumClient != null) return premiumClient;
 
-        HttpClient loggedInClient = getStandardClient();
+        premiumClient = getStandardClient();
 
-        loggedInClient.getState().setCredentials(
+        premiumClient.getState().setCredentials(
                 new AuthScope(premiumHost, 80),
                 new UsernamePasswordCredentials(premiumUserId, premiumPassword)
         );
 
-        return loggedInClient;
+        return premiumClient;
     }
 
     public static HttpClient getSwissquoteTradeClient() throws Exception {
 
-        HttpClient client = getStandardClient();
+        HttpClient tradeClient = getStandardClient();
+        tradeClient.getParams().setParameter(HttpMethodParams.USER_AGENT, tradeUserAgent);
 
         // set the Basic-Auth credentials
-        client.getState().setCredentials(
+        tradeClient.getState().setCredentials(
                 new AuthScope(tradeHost, 443, "Online Trading"),
                 new UsernamePasswordCredentials(tradeUserId, tradePassword)
         );
@@ -121,7 +120,7 @@ public class HttpClientUtil {
         Document loginDocument = null;
         {
             GetMethod method = new GetMethod(tradeLoginUrl);
-            int status = client.executeMethod(method);
+            int status = tradeClient.executeMethod(method);
 
             if (status != HttpStatus.SC_OK) {
                 throw new LoginException("error on login screen: " + method.getStatusLine());
@@ -151,7 +150,7 @@ public class HttpClientUtil {
                     };
 
                 method.setRequestBody(loginData);
-                int status = client.executeMethod(method);
+                int status = tradeClient.executeMethod(method);
 
                 if ((status != HttpStatus.SC_MOVED_TEMPORARILY) ||
                     !method.getResponseHeader("location").getValue().contains(tradeLevel3Url)) {
@@ -164,7 +163,7 @@ public class HttpClientUtil {
 
             {
                 GetMethod method = new GetMethod(redirectUrl);
-                int status = client.executeMethod(method);
+                int status = tradeClient.executeMethod(method);
 
                 if (status != HttpStatus.SC_OK) {
                     throw new LoginException("error on password screen: " + method.getStatusLine());
@@ -184,10 +183,10 @@ public class HttpClientUtil {
 
             Document document = tradeLevel3Url.contains(loginPath) ? loginDocument : passwordDocument;
 
-            String rec = XPathAPI.selectSingleNode(document, "//input[@name='rec']/@value").getNodeValue();
-            String rqu = XPathAPI.selectSingleNode(document, "//input[@name='rqu']/@value").getNodeValue();
-            String rse = XPathAPI.selectSingleNode(document, "//input[@name='rse']/@value").getNodeValue();
-            String level3Key = XPathAPI.selectSingleNode(document, "//strong[2]").getFirstChild().getNodeValue();
+            String rec = SwissquoteUtil.getValue(document, "//input[@name='rec']/@value");
+            String rqu = SwissquoteUtil.getValue(document, "//input[@name='rqu']/@value");
+            String rse = SwissquoteUtil.getValue(document, "//input[@name='rse']/@value");
+            String level3Key = SwissquoteUtil.getValue(document, "//strong[2]");
 
             PostMethod method = new PostMethod(tradeLevel3Url);
 
@@ -200,7 +199,7 @@ public class HttpClientUtil {
                 };
             method.setRequestBody(loginData);
 
-            int status = client.executeMethod(method);
+            int status = tradeClient.executeMethod(method);
 
             if ((status != HttpStatus.SC_MOVED_TEMPORARILY) ||
                 !method.getResponseHeader("location").getValue().contains(tradeLoginUrl)) {
@@ -210,7 +209,7 @@ public class HttpClientUtil {
             method.releaseConnection();
         }
 
-        return client;
+        return tradeClient;
     }
 
     private static String getLevel3Code(String level3Key) throws IOException {
