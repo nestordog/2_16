@@ -104,9 +104,12 @@ public class ActionServiceImpl extends ActionServiceBase {
         logger.debug("rollPosition start");
 
         getStockOptionService().closePosition(positionId);
-        StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot);
-        getWatchlistService().putOnWatchlist(stockOption);
-        getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
+
+        if (!getRuleService().isActive(RuleName.OPEN_POSITION)) {
+            StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot);
+            getWatchlistService().putOnWatchlist(stockOption);
+            getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
+        }
 
         logger.debug("rollPosition end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
