@@ -22,7 +22,7 @@ public class ActionServiceImpl extends ActionServiceBase {
         long startTime = System.currentTimeMillis();
         logger.debug("retrieveTicks start");
 
-        getTickService().processSecuritiesOnWatchlist();
+        getDispatcherService().getTickService().processSecuritiesOnWatchlist();
 
         logger.debug("retrieveTicks end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }

@@ -16,6 +16,6 @@ public class StockOptionRetrievalStarter {
 
         Security underlaying = ServiceLocator.instance().getLookupService().getSecurity(4);
 
-        ServiceLocator.instance().getStockOptionRetrieverService().retrieveAllStockOptions(underlaying);
+        ServiceLocator.instance().getDispatcherService().getStockOptionRetrieverService().retrieveAllStockOptions(underlaying);
     }
 }

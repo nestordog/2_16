@@ -1,4 +1,4 @@
-package com.algoTrader.util;
+package com.algoTrader.service.swissquote;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,6 +22,11 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.w3c.dom.Document;
 
+import com.algoTrader.util.LoginException;
+import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.TidyUtil;
+import com.algoTrader.util.XmlUtil;
+
 public class HttpClientUtil {
 
     private static String premiumUserId = PropertiesUtil.getProperty("swissquote.premium.userId");
@@ -35,14 +40,10 @@ public class HttpClientUtil {
     private static String tradeUserId = PropertiesUtil.getProperty("swissquote.trade.userId");
     private static String tradePassword = PropertiesUtil.getProperty("swissquote.trade.password");
 
-    private static String proxyHost = System.getProperty("http.proxyHost");
-    private static String proxyPort = System.getProperty("http.proxyPort");
-    private static boolean useProxy = (proxyHost != null) ? true : false;
-
-    private static int workers = PropertiesUtil.getIntProperty("workers");
-    private static String standardUserAgent = PropertiesUtil.getProperty("standardUserAgent");
-    private static String tradeUserAgent = PropertiesUtil.getProperty("tradeUserAgent");
-    private static boolean retry = PropertiesUtil.getBooleanProperty("retry");
+    private static int workers = PropertiesUtil.getIntProperty("swissquote.http-workers");
+    private static boolean retry = PropertiesUtil.getBooleanProperty("swissquote.http-retry");
+    private static String standardUserAgent = PropertiesUtil.getProperty("swissquote.standardUserAgent");
+    private static String tradeUserAgent = PropertiesUtil.getProperty("swissquote.tradeUserAgent");
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
@@ -53,16 +54,6 @@ public class HttpClientUtil {
 
         if (standardClient != null) return standardClient;
 
-        // EasySSLProtocolSocketFactory if testing with proxomitron
-        if (useProxy) {
-
-            // if needed copy new EasySSLProtocolSocketFactory and EasyX509TrustManager from GetTheTicket
-
-            //ProtocolSocketFactory factory = new EasySSLProtocolSocketFactory();
-            //Protocol protocol = new Protocol("https", factory, 443);
-            //Protocol.registerProtocol("https", protocol);
-        }
-
         // allow the same number of connections as we have workers
         MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
         HttpConnectionManagerParams params = new HttpConnectionManagerParams();
@@ -71,9 +62,6 @@ public class HttpClientUtil {
 
         // init the client
         standardClient = new HttpClient(new MultiThreadedHttpConnectionManager());
-        if (useProxy) {
-            standardClient.getHostConfiguration().setProxy(proxyHost, Integer.parseInt(proxyPort)); // proxomitron
-        }
 
         // set the retry Handler
         if (retry) {

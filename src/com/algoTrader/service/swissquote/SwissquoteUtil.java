@@ -1,4 +1,4 @@
-package com.algoTrader.util;
+package com.algoTrader.service.swissquote;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -17,6 +17,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import com.algoTrader.entity.Security;
+import com.algoTrader.util.TidyUtil;
+import com.algoTrader.util.XmlUtil;
 
 public class SwissquoteUtil {
 
@@ -48,24 +50,23 @@ public class SwissquoteUtil {
 
         Node node = XPathAPI.selectSingleNode(document, expression);
 
-        if (node == null ) {
-            return null;
-        } else if (node.getFirstChild() != null) {
-            return node.getFirstChild().getNodeValue();
-        } else {
-            return node.getNodeValue();
-        }
+        if (node == null ) return null;
+
+        if (node.getFirstChild() != null) return node.getFirstChild().getNodeValue();
+
+        return node.getNodeValue();
     }
 
-    public static int getNumber(String inputString) throws ParseException {
+    public static int getInt(String inputString) throws ParseException {
 
         if (inputString == null) return 0;
+
         if ("-".equals(inputString)) return 0;
 
         return NumberFormat.getNumberInstance().parse(inputString).intValue();
     }
 
-    public static double getAmount(String inputString) throws ParseException {
+    public static double getDouble(String inputString) throws ParseException {
 
         if (inputString == null) return 0;
 

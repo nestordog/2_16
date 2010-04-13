@@ -149,7 +149,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             order.setTransactionType(TransactionType.SELL);
 
             try {
-                getTransactionService().executeTransaction(order);
+                getDispatcherService().getTransactionService().executeTransaction(order);
             } catch (TransactionServiceException e) {
                 // something went wrong executing the transaction -> keep going
                 continue;
@@ -191,7 +191,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         order.setRequestedQuantity(numberOfContracts);
         order.setTransactionType(TransactionType.BUY);
 
-        getTransactionService().executeTransaction(order);
+        getDispatcherService().getTransactionService().executeTransaction(order);
 
         // only remove the stockOption from the watchlist, if the transaction did execute fully.
         // otherwise the next tick will execute the reminder of the order
@@ -219,7 +219,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         order.setRequestedQuantity(numberOfContracts);
         order.setTransactionType(TransactionType.EXPIRATION);
 
-        getTransactionService().executeTransaction(order);
+        getDispatcherService().getTransactionService().executeTransaction(order);
 
         // only remove the stockOption from the watchlist, if the transaction did execute fully.
         // otherwise the next tick will execute the reminder of the order
