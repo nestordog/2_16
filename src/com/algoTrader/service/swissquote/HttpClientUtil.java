@@ -31,7 +31,7 @@ public class HttpClientUtil {
 
     private static String premiumUserId = PropertiesUtil.getProperty("swissquote.premium.userId");
     private static String premiumPassword = PropertiesUtil.getProperty("swissquote.premium.password");
-    private static String premiumHost = PropertiesUtil.getProperty("swissquote.premium.loginUrl");
+    private static String premiumHost = PropertiesUtil.getProperty("swissquote.premium.host");
 
     private static String tradeHost = PropertiesUtil.getProperty("swissquote.trade.host");
     private static String tradeLoginUrl = PropertiesUtil.getProperty("swissquote.trade.loginUrl");
