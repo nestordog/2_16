@@ -23,6 +23,8 @@ public class SwissquoteTickServiceImpl extends SwissquoteTickServiceBase {
 
         if (XPathAPI.selectSingleNode(document, "//td[contains(.,'Error - Wrong instrument')]") != null) {
             throw new Exception("Wrong Instrument returned for " + security);
+        } else if (XPathAPI.selectSingleNode(document, "//div[@id='msgDiv' and contains(.,'verzögert')]") != null) {
+            throw new Exception("Delayed quote returned for " + security);
         }
 
         Tick tick = new TickImpl();
