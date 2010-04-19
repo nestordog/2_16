@@ -14,9 +14,10 @@ public class SecurityImpl extends com.algoTrader.entity.Security {
     private static final long serialVersionUID = -6631052475125813394L;
 
     public Tick getLastTick() {
+
         EPStatement statement = EsperService.getStatement(RuleName.GET_LAST_TICK);
 
-        if (statement != null) {
+        if (statement != null && statement.isStarted()) {
             for (Iterator<EventBean> it = statement.iterator(); it.hasNext(); ) {
                 EventBean bean = it.next();
                 Integer securityId = (Integer) bean.get("securityId");
