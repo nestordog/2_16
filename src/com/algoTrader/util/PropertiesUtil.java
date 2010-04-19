@@ -25,7 +25,11 @@ public class PropertiesUtil {
             }
         }
 
-        return props.getProperty(key);
+        String property = props.getProperty(key);
+
+        if (property == null) logger.warn("property was not found: " + key);
+
+        return property;
     }
 
     public static int getIntProperty(String key) {
