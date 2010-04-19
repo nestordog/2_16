@@ -1,13 +1,34 @@
-// license-header java merge-point
-/**
- * This is only generated once! It will never be overwritten.
- * You can (and have to!) safely modify it by hand.
- */
 package com.algoTrader.entity;
-/**
- * @see com.algoTrader.entity.Position
- */
-public class PositionDaoImpl
-    extends com.algoTrader.entity.PositionDaoBase
-{
+
+import com.algoTrader.vo.PositionVO;
+
+public class PositionDaoImpl extends PositionDaoBase {
+
+    public void toPositionVO(Position position, PositionVO positionVO) {
+
+        super.toPositionVO(position, positionVO);
+
+        completePositionVO(position, positionVO);
+    }
+
+    public PositionVO toPositionVO(final Position position) {
+
+        PositionVO positionVO = super.toPositionVO(position);
+
+        completePositionVO(position, positionVO);
+
+        return positionVO;
+    }
+
+    private void completePositionVO(Position position, PositionVO positionVO) {
+
+        positionVO.setSymbol(position.getSecurity().getSymbol());
+        positionVO.setCurrency(position.getAccount().getCurrency());
+        positionVO.setCurrentValue(position.getSecurity().getLastTick().getCurrentValue());
+    }
+
+    public Position positionVOToEntity(PositionVO positionVO) {
+
+        throw new UnsupportedOperationException("positionVOToEntity not yet implemented.");
+    }
 }

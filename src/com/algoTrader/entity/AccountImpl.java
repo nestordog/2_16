@@ -60,18 +60,6 @@ public class AccountImpl extends com.algoTrader.entity.Account {
         return RoundUtil.getBigDecimal(availableAmount);
     }
 
-    @SuppressWarnings("unchecked")
-    public int getPositionCount() {
-
-        int count = 0;
-        Collection<Position> positions = getPositions();
-        for (Position position : positions) {
-            if (position.getQuantity() != 0) {
-                count++;
-            }
-        }
-        return count;
-    }
 
     @SuppressWarnings("unchecked")
     public BigDecimal getPortfolioValue() {

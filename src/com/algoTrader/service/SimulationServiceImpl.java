@@ -12,7 +12,6 @@ import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 import org.apache.log4j.Logger;
 
-import com.algoTrader.entity.Interpolation;
 import com.algoTrader.entity.Rule;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Transaction;
@@ -22,6 +21,7 @@ import com.algoTrader.util.CustomDate;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.vo.InterpolationVO;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esperio.AdapterCoordinator;
@@ -99,11 +99,11 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     }
 
 
-    protected Interpolation handleGetInterpolation() throws Exception {
+    protected InterpolationVO handleGetInterpolation() throws Exception {
 
         EPStatement statement = EsperService.getStatement(RuleName.CREATE_INTERPOLATION);
 
-        return (Interpolation)statement.iterator().next().getUnderlying();
+        return (InterpolationVO)statement.iterator().next().getUnderlying();
     }
 
     @SuppressWarnings("unchecked")

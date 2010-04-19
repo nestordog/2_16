@@ -51,5 +51,6 @@
 			<attribute name="javadoc_location" value="file:/D:/esper-3.3.0/esperio/doc/api/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/esper-jmx-3.3.0.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

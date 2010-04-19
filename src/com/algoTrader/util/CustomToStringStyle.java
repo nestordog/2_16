@@ -6,7 +6,7 @@ import java.util.Date;
 
 import org.apache.commons.lang.builder.StandardToStringStyle;
 
-import com.algoTrader.entity.Entity;
+import com.algoTrader.BaseObject;
 
 public class CustomToStringStyle extends StandardToStringStyle {
 
@@ -32,7 +32,7 @@ public class CustomToStringStyle extends StandardToStringStyle {
 
     protected void appendDetail(StringBuffer buffer, String fieldName, Object value) {
 
-        if ( value instanceof Entity ) {
+        if ( value instanceof BaseObject ) {
             return;
         } else if (value instanceof Date) {
             String out = format.format(value);
@@ -44,7 +44,7 @@ public class CustomToStringStyle extends StandardToStringStyle {
 
     public void append(StringBuffer buffer, String fieldName, Object value, Boolean fullDetail) {
 
-        if ( value instanceof Entity ) {
+        if ( value instanceof BaseObject ) {
             return;
         } else {
             super.append(buffer, fieldName, value, fullDetail);

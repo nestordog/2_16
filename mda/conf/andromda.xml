@@ -99,6 +99,7 @@
                 <property name="exceptions">${maven.andromda.common.generated.dir}</property>
                 <property name="value-objects">${maven.andromda.common.generated.dir}</property>
                 <property name="interfaces">${maven.andromda.common.generated.dir}</property>
+                <property name="mergeLocation">${maven.src.dir}/customTemplates/andromda-java</property>
             </properties>
         </namespace>
     </namespaces>

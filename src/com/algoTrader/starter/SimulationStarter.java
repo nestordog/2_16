@@ -1,7 +1,7 @@
 package com.algoTrader.starter;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Interpolation;
+import com.algoTrader.vo.InterpolationVO;
 
 public class SimulationStarter {
 
@@ -17,7 +17,7 @@ public class SimulationStarter {
         ServiceLocator.instance().getRuleService().activateAll();
         ServiceLocator.instance().getSimulationService().run();
 
-        Interpolation interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
+        InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
 
         System.out.print("a=" + interpolation.getA());
         System.out.print(" b=" + interpolation.getB());

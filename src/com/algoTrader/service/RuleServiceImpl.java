@@ -14,7 +14,6 @@ import com.espertech.esper.client.EPPreparedStatement;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
-import com.espertech.esper.client.time.TimerControlEvent;
 
 public class RuleServiceImpl extends RuleServiceBase {
 
@@ -27,6 +26,11 @@ public class RuleServiceImpl extends RuleServiceBase {
         for (Rule rule : list) {
             activate(rule);
         }
+    }
+
+    protected void handleActivate(String ruleName) throws Exception {
+
+        activate(RuleName.fromString(ruleName));
     }
 
     protected void handleActivate(RuleName ruleName) throws Exception {
@@ -98,6 +102,11 @@ public class RuleServiceImpl extends RuleServiceBase {
         logger.debug("activated rule " + rule.getName());
     }
 
+    protected void handleDeactivate(String ruleName) throws Exception {
+
+        deactivate(RuleName.fromString(ruleName));
+    }
+
     protected void handleDeactivate(RuleName ruleName) throws Exception {
 
         // update the rule entity
@@ -129,6 +138,7 @@ public class RuleServiceImpl extends RuleServiceBase {
 
     protected void handleSetInternalClock() {
 
-        EsperService.sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_INTERNAL));
+        EsperService.setInternalClock();
+        EsperService.enableJmx();
     }
 }

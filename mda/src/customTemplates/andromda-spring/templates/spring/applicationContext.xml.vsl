@@ -269,4 +269,33 @@
     <!-- ================== End of ACEGI SERVICE SECURITY DEFINITIONS ================= -->
 
 #end
+
+	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
+		<property name="beans">
+#foreach($service in $services)
+#if($stringUtils.isNotBlank($service.findTaggedValue('@algoTrader.service.manageable')))
+			<map>
+				<entry key="$service.getPackageName(false):name=$service.getBeanName(false)" value-ref="$service.getBeanName(false)" />
+			</map>
+#end
+#end
+		</property>
+		<property name="assembler">
+			<bean class="org.springframework.jmx.export.assembler.MethodNameBasedMBeanInfoAssembler">
+				<property name="methodMappings">
+#foreach($service in $services)
+#if($stringUtils.isNotBlank($service.findTaggedValue('@algoTrader.service.manageable')))
+					<props>
+						<prop key="$service.getPackageName(false):name=$service.getBeanName(false)">
+							#foreach($operation in $service.operations)$operation.name,#end
+
+						</prop>
+					</props>
+#end
+#end
+				</property>
+			</bean>
+		</property>
+	</bean>
+
 </beans>

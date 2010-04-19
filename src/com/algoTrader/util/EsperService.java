@@ -9,6 +9,10 @@ import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.time.CurrentTimeEvent;
+import com.espertech.esper.client.time.TimerControlEvent;
+import com.espertech.esper.jmx.client.ConnectorConfigPlatform;
+import com.espertech.esper.jmx.client.JMXEndpoint;
+import com.espertech.esper.jmx.client.JMXEndpointConfiguration;
 
 public class EsperService {
 
@@ -59,5 +63,26 @@ public class EsperService {
             }
         }
         return null;
+    }
+
+    public static void setInternalClock() {
+
+        EsperService.sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_INTERNAL));
+    }
+
+    public static void enableJmx() {
+
+        // Indicate that the platform MBeanServer should be used
+        EPServiceProvider cep = EsperService.getEPServiceInstance();
+        ConnectorConfigPlatform platformConfig = new ConnectorConfigPlatform();
+
+        // Configure EsperJMX endpoint
+        JMXEndpointConfiguration jmxConfig = new JMXEndpointConfiguration();
+        jmxConfig.setConnectorConfiguration(platformConfig);
+        jmxConfig.setCreateStmtListenerMBean(true);
+
+        // Start EsperJMX endpoint
+        JMXEndpoint endpoint = new JMXEndpoint(cep, jmxConfig);
+        endpoint.start();
     }
 }
