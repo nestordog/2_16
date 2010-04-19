@@ -1,9 +1,9 @@
-package com.algoTrader.entity;
+package com.algoTrader;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import com.algoTrader.util.CustomToStringStyle;
 
-public class Entity {
+public class BaseObject {
 
     public String toString() {
 
