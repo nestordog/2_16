@@ -17,19 +17,26 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import com.algoTrader.entity.Security;
+import com.algoTrader.entity.StockOption;
 import com.algoTrader.util.TidyUtil;
 import com.algoTrader.util.XmlUtil;
 
 public class SwissquoteUtil {
 
-    private static String tickUrl = "http://www.swissquote.ch/sq_mi/public/market/Detail.action?s=";
+    private static String stockOptionUrl = "http://premium.swissquote.ch/sq_mi/market/Detail.action?s=";
+    private static String indexUrl = "http://premium.swissquote.ch/fcgi-bin/stockfquote?symbols=";
 
     public static Document getSecurityDocument(Security security) throws IOException, HttpException {
 
-        GetMethod get = new GetMethod(tickUrl + security.getIsin() + "_" + security.getMarket() + "_" + security.getCurrency());
+        GetMethod get;
+        if (security instanceof StockOption) {
+            get = new GetMethod(stockOptionUrl + security.getIsin() + "_" + security.getMarket() + "_" + security.getCurrency());
+        } else {
+            get = new GetMethod(indexUrl + security.getSymbol() + "&language=d");
+        }
 
-        HttpClient standardClient = HttpClientUtil.getSwissquotePremiumClient();
-        int status = standardClient.executeMethod(get);
+        HttpClient client = HttpClientUtil.getSwissquotePremiumClient();
+        int status = client.executeMethod(get);
 
         if (status != HttpStatus.SC_OK) {
             throw new HttpException("could not retrieve security: " + security.getIsin() + ", status: " + get.getStatusLine());
