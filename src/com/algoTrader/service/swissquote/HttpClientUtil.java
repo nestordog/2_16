@@ -43,7 +43,8 @@ public class HttpClientUtil {
     private static int workers = PropertiesUtil.getIntProperty("swissquote.http-workers");
     private static boolean retry = PropertiesUtil.getBooleanProperty("swissquote.http-retry");
     private static String standardUserAgent = PropertiesUtil.getProperty("swissquote.standardUserAgent");
-    private static String tradeUserAgent = PropertiesUtil.getProperty("swissquote.tradeUserAgent");
+    private static String loggedInUserAgent = PropertiesUtil.getProperty("swissquote.loggedInUserAgent");
+    private static boolean useProxy = PropertiesUtil.getBooleanProperty("swissquote.useProxy");
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
@@ -62,6 +63,14 @@ public class HttpClientUtil {
 
         // init the client
         standardClient = new HttpClient(new MultiThreadedHttpConnectionManager());
+
+        if (useProxy) {
+            standardClient.getHostConfiguration().setProxy("localhost", 8082); // proxomitron
+            standardClient.getState().setProxyCredentials(
+                    new AuthScope("localhost", 8082),
+                    new UsernamePasswordCredentials("","")
+            );
+        }
 
         // set the retry Handler
         if (retry) {
@@ -84,6 +93,9 @@ public class HttpClientUtil {
 
         premiumClient = getStandardClient();
 
+        premiumClient.getParams().setParameter(HttpMethodParams.USER_AGENT, loggedInUserAgent);
+
+        premiumClient.getParams().setAuthenticationPreemptive(true);
         premiumClient.getState().setCredentials(
                 new AuthScope(premiumHost, 80),
                 new UsernamePasswordCredentials(premiumUserId, premiumPassword)
@@ -95,9 +107,10 @@ public class HttpClientUtil {
     public static HttpClient getSwissquoteTradeClient() throws Exception {
 
         HttpClient tradeClient = getStandardClient();
-        tradeClient.getParams().setParameter(HttpMethodParams.USER_AGENT, tradeUserAgent);
+        tradeClient.getParams().setParameter(HttpMethodParams.USER_AGENT, loggedInUserAgent);
 
         // set the Basic-Auth credentials
+        tradeClient.getParams().setAuthenticationPreemptive(true);
         tradeClient.getState().setCredentials(
                 new AuthScope(tradeHost, 443, "Online Trading"),
                 new UsernamePasswordCredentials(tradeUserId, tradePassword)
