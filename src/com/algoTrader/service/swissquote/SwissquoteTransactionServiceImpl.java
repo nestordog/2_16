@@ -212,19 +212,20 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
             get.releaseConnection();
             XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_open_daily_orders.xml", "results/trade/");
 
-            Node openNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr/td[.='Offen']|//table[@class='trading maskMe']/tbody/tr/td[.='Unreleased']");
-            Node partiallyExecutedNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr/td[.='Teilweise Ausgeführt']");
-            Node executedNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr/td[.='Sie haben keine Aufträge']");
+            Node openNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[td='Offen' and contains(td/a/@href, '" + security.getIsin()+ "')]");
+            Node unreleasedNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[td='Unreleased' and contains(td/a/@href, '" + security.getIsin()+ "')]");
+            Node partiallyExecutedNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[td='Teilweise Ausgeführt' and contains(td/a/@href, '" + security.getIsin()+ "')]");
+            Node unknownStateNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[contains(td/a/@href, '" + security.getIsin()+ "') and td[10]!='Ausgeführt']/td[10]");
 
-            if (openNode != null) {
+            if (openNode != null || unreleasedNode != null) {
                 order.setStatus(OrderStatus.OPEN);
             } else if (partiallyExecutedNode != null) {
                 order.setStatus(OrderStatus.PARTIALLY_EXECUTED);
-            } else if (executedNode != null) {
+            } else if (unknownStateNode != null ) {
+                throw new TransactionServiceException("unknown order status " + unknownStateNode.getFirstChild().getNodeValue() + " for order on: " + security.getSymbol());
+            } else {
                 order.setStatus(OrderStatus.EXECUTED);
                 break;
-            } else {
-                throw new TransactionServiceException("unknown order status for order on: " + security.getSymbol());
             }
 
             Thread.sleep(confirmationTimeout);
@@ -233,7 +234,10 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
         // if the order did not execute fully, delete it
         if (!OrderStatus.EXECUTED.equals(order.getStatus())) {
 
-            String orderNumber = SwissquoteUtil.getValue(document, "//table[@class='trading maskMe']/tbody/tr/td[count(//table[@class='trading maskMe']/thead/tr/td[.='Auftrag']/preceding-sibling::td)+1]");
+            String orderNumber = SwissquoteUtil.getValue(document, "//table[@class='trading maskMe']/tbody/tr[contains(td/a/@href, '" + security.getIsin()+ "')]/td[11]");
+
+            if (orderNumber == null) throw new TransactionServiceException("could not retrieve orderNumber to delete order: " + security.getSymbol());
+
             order.setNumber(orderNumber);
 
             // 4B. get the delete screen
@@ -255,7 +259,7 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
             if (status != HttpStatus.SC_INTERNAL_SERVER_ERROR || node == null) {
                 throw new TransactionServiceException("could not delete order after reaching timelimit: " + security.getSymbol() + ", status: " + get.getStatusLine());
             } else if (OrderStatus.OPEN.equals(order.getStatus())) {
-                throw new TransactionServiceException("orrer did not execute at all within timelimit: " + security.getSymbol());
+                throw new TransactionServiceException("order did not execute at all within timelimit: " + security.getSymbol());
             }
         }
 
