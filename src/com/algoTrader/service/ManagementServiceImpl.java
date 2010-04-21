@@ -15,6 +15,7 @@ import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.vo.PositionVO;
+import com.algoTrader.vo.TickVO;
 import com.algoTrader.vo.TransactionVO;
 
 public class ManagementServiceImpl extends ManagementServiceBase {
@@ -79,6 +80,14 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @SuppressWarnings("unchecked")
+    protected List<TickVO> handleGetLastTicks() throws Exception {
+
+        List ticks = getTickDao().getLastTicks();
+        getTickDao().toTickVOCollection(ticks);
+        return ticks;
+    }
+
+    @SuppressWarnings("unchecked")
     protected List<PositionVO> handleGetOpenPositions() throws Exception {
 
         return getPositionDao().findOpenPositions(PositionDao.TRANSFORM_POSITIONVO);
@@ -108,5 +117,10 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected void handleDeactivate(String ruleName) throws Exception {
 
         getRuleService().deactivate(ruleName);
+    }
+
+    protected void handleKillVM() throws Exception {
+
+        System.exit(0);
     }
 }
