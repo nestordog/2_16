@@ -53,6 +53,11 @@ public class EsperService {
         getEPServiceInstance().getEPRuntime().sendEvent(obj);
     }
 
+    public static void route(Object obj) {
+
+        getEPServiceInstance().getEPRuntime().route(obj);
+    }
+
     public static Object getLastEvent(RuleName ruleName) {
 
         EPStatement statement = getStatement(ruleName);
