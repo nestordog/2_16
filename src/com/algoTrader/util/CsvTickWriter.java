@@ -15,7 +15,7 @@ import org.supercsv.util.CSVContext;
 
 import com.algoTrader.entity.Tick;
 
-public class TickCsvWriter {
+public class CsvTickWriter {
 
     private static String[] header = new String[] { "dateTime", "last", "lastDateTime", "volBid", "volAsk", "bid", "ask", "vol", "openIntrest", "settlement" };
     private static CellProcessor[] processor = new CellProcessor[] { new DateConverter(), null, new DateConverter(), null, null, null, null, null, null, null };
@@ -23,7 +23,7 @@ public class TickCsvWriter {
 
     private CsvBeanWriter writer;
 
-    public TickCsvWriter(String symbol ) throws SuperCSVException, IOException  {
+    public CsvTickWriter(String symbol ) throws SuperCSVException, IOException  {
 
         File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
         boolean exists = file.exists();
