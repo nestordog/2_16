@@ -24,6 +24,7 @@ import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.OrderStatus;
+import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
@@ -141,6 +142,11 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             return; // there is no money available
         }
 
+        // the stockOption might have been removed from the watchlist by another statement (i.e. closePosition)
+        if (!stockOption.isOnWatchlist()) {
+            getWatchlistService().putOnWatchlist(stockOptionId);
+        }
+
         for (int i = 0; i < openPositionRetries ; i++) {
 
             Order order = new OrderImpl();
@@ -178,10 +184,6 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         Position position = getPositionDao().load(positionId);
 
-        // due to a bug in esper, this might be executed twice if more than one position is valid for closing
-        // so check again for the quantity
-        if (position.getQuantity() == 0) return;
-
         StockOption stockOption = (StockOption)position.getSecurity();
 
         long numberOfContracts = Math.abs(position.getQuantity());
@@ -199,6 +201,9 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
                 OrderStatus.AUTOMATIC.equals(order.getStatus())) {
 
             getWatchlistService().removeFromWatchlist(stockOption);
+
+            // if there is a and OPEN_POSITION rule acitve for this stockOption deactivate it
+            getRuleService().deactivate(RuleName.OPEN_POSITION, stockOption);
         }
     }
 
