@@ -8,11 +8,11 @@ import java.util.Map;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.util.EsperService;
-import com.algoTrader.util.TickCsvWriter;
+import com.algoTrader.util.CsvTickWriter;
 
 public abstract class TickServiceImpl extends TickServiceBase {
 
-    private Map<Security, TickCsvWriter> csvWriters = new HashMap<Security, TickCsvWriter>();
+    private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
 
     @SuppressWarnings("unchecked")
     protected void handleProcessSecuritiesOnWatchlist() throws Exception {
@@ -29,11 +29,11 @@ public abstract class TickServiceImpl extends TickServiceBase {
                 }
 
                 // write the tick to file (even if not valid)
-                TickCsvWriter csvWriter;
+                CsvTickWriter csvWriter;
                 if (csvWriters.containsKey(security)) {
-                    csvWriter = (TickCsvWriter)csvWriters.get(security);
+                    csvWriter = (CsvTickWriter)csvWriters.get(security);
                 } else {
-                    csvWriter = new TickCsvWriter(security.getIsin());
+                    csvWriter = new CsvTickWriter(security.getIsin());
                     csvWriters.put(security, csvWriter);
                 }
                 csvWriter.write(tick);
