@@ -99,7 +99,7 @@ public class RuleServiceImpl extends RuleServiceBase {
             }
         }
 
-        logger.debug("activated rule " + rule.getName());
+        logger.debug("activated rule " + rule.getName() + (rule.isPrepared() ? " on " + rule.getTarget().getSymbol() : ""));
     }
 
     protected void handleDeactivate(String ruleName) throws Exception {
@@ -122,6 +122,17 @@ public class RuleServiceImpl extends RuleServiceBase {
         if (statement != null) {
             statement.destroy();
             logger.debug("deactivated rule " + ruleName);
+        }
+    }
+
+    protected void handleDeactivate(RuleName ruleName, Security target) throws Exception {
+
+        // only deactivte if the rule is active, is prepared and has he specified target
+        if (isActive(ruleName)) {
+            Rule rule = getRuleDao().findByName(ruleName);
+            if (rule.isPrepared() && rule.getTarget().equals(target)) {
+                deactivate(ruleName);
+            }
         }
     }
 
