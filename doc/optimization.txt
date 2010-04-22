@@ -7,3 +7,4 @@ volaPeriod        change to 1.5 days
 long            change transaction / position quantity to long
 exitValueNull     check that we are not exiting on position with no exitValue
 dummyBidAsk        correct bug in dummyBid / dummy Ask
+end-of-day        switch to just one event per day
