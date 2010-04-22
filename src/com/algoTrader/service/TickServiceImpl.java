@@ -8,7 +8,7 @@ import java.util.Map;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.util.EsperService;
-import com.algoTrader.util.CsvTickWriter;
+import com.algoTrader.util.csv.CsvTickWriter;
 
 public abstract class TickServiceImpl extends TickServiceBase {
 
