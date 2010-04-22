@@ -19,7 +19,7 @@ import org.supercsv.util.CSVContext;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
 
-public class CsvReader {
+public class CsvTickReader {
 
     private static String dataSet = PropertiesUtil.getProperty("simulation.dataSet");
 
@@ -38,7 +38,7 @@ public class CsvReader {
     private String[] header;
     private CsvBeanReader reader;
 
-    public CsvReader(String symbol ) throws SuperCSVException, IOException  {
+    public CsvTickReader(String symbol ) throws SuperCSVException, IOException  {
 
         File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
         Reader inFile = new FileReader(file);
@@ -62,7 +62,7 @@ public class CsvReader {
 
     public static void main(String[] args) throws SuperCSVException, IOException {
 
-        CsvReader csvReader = new CsvReader("CH00099808949");
+        CsvTickReader csvReader = new CsvTickReader("CH00099808949");
 
         Tick tick;
         while ((tick = csvReader.readTick()) != null) {
