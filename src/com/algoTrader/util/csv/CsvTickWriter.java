@@ -1,4 +1,4 @@
-package com.algoTrader.util;
+package com.algoTrader.util.csv;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -14,6 +14,7 @@ import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
 import com.algoTrader.entity.Tick;
+import com.algoTrader.util.PropertiesUtil;
 
 public class CsvTickWriter {
 

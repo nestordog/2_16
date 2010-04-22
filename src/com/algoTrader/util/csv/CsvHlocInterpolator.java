@@ -1,4 +1,4 @@
-package com.algoTrader.util;
+package com.algoTrader.util.csv;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -8,6 +8,7 @@ import org.supercsv.exception.SuperCSVException;
 
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
+import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.HlocVO;
 
 public class CsvHlocInterpolator {

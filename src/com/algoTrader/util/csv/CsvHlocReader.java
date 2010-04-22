@@ -1,4 +1,4 @@
-package com.algoTrader.util;
+package com.algoTrader.util.csv;
 
 import java.io.File;
 import java.io.FileReader;
@@ -8,7 +8,6 @@ import java.util.Date;
 
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.ParseBigDecimal;
-import org.supercsv.cellprocessor.ParseInt;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.exception.SuperCSVException;
 import org.supercsv.exception.SuperCSVReflectionException;
@@ -16,29 +15,24 @@ import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
-import com.algoTrader.entity.Tick;
-import com.algoTrader.entity.TickImpl;
+import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.vo.HlocVO;
 
-public class CsvTickReader {
+public class CsvHlocReader {
 
     private static String dataSet = PropertiesUtil.getProperty("simulation.dataSet");
 
     private static CellProcessor[] processor = new CellProcessor[] {
         new ParseDate(),
         new ParseBigDecimal(),
-        new ParseDate(),
-        new ParseInt(),
-        new ParseInt(),
         new ParseBigDecimal(),
         new ParseBigDecimal(),
-        new ParseInt(),
-        new ParseInt(),
         new ParseBigDecimal()};
 
     private String[] header;
     private CsvBeanReader reader;
 
-    public CsvTickReader(String symbol ) throws SuperCSVException, IOException  {
+    public CsvHlocReader(String symbol ) throws SuperCSVException, IOException  {
 
         File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
         Reader inFile = new FileReader(file);
@@ -52,7 +46,7 @@ public class CsvTickReader {
                 super();
             }
 
-            public Object execute(final Object value, final CSVContext context) throws NumberFormatException {
+            public Object execute(final Object value, final CSVContext context) {
 
                 Date date = new Date(Long.parseLong((String)value));
 
@@ -62,19 +56,19 @@ public class CsvTickReader {
 
     public static void main(String[] args) throws SuperCSVException, IOException {
 
-        CsvTickReader csvReader = new CsvTickReader("CH00099808949");
+        CsvHlocReader csvReader = new CsvHlocReader("SMI-HLOC");
 
-        Tick tick;
-        while ((tick = csvReader.readTick()) != null) {
-                System.out.print(tick);
+        HlocVO hloc;
+        while ((hloc = csvReader.readHloc()) != null) {
+                System.out.println(hloc);
         }
     }
 
-    public Tick readTick() throws SuperCSVReflectionException, IOException {
+    public HlocVO readHloc() throws SuperCSVReflectionException, IOException {
 
-          Tick tick;
-          if ( (tick = reader.read(TickImpl.class, header, processor)) != null) {
-              return tick;
+        HlocVO hloc;
+          if ( (hloc = reader.read(HlocVO.class, header, processor)) != null) {
+              return hloc;
           } else {
               reader.close();
               return null;
