@@ -72,7 +72,7 @@ and option.position.quantity != 0</field>
         <field name="NAME">GET_LAST_TICK</field>
         <field name="PRIORITY">8</field>
         <field name="DEFINITION">select tick.security.id as securityId, tick.* as tick
-from Tick.std:groupby(security.id).win:length(1) as tick</field>
+from Tick.std:groupby(security.id).win:time(7 days).win:length(1) as tick</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
