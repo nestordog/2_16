@@ -100,9 +100,9 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
             getAccountDao().update(account);
             getSecurityDao().update(security);
 
-            logger.info("executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() + " of " + security.getSymbol() + " price: " + transaction.getPrice() + " commission: " + transaction.getCommission() + " portfolioValue: " + account.getPortfolioValue());
+            logger.info("executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() + " of " + security.getSymbol() + " price: " + transaction.getPrice() + " commission: " + transaction.getCommission() + " portfolioValue: " + account.getTotalValue());
 
-            EsperService.sendEvent(transaction);
+            EsperService.route(transaction);
         }
     }
 
@@ -114,6 +114,21 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
 
         StockOption stockOption = (StockOption)order.getSecurity();
         double currentValue = stockOption.getLastTick().getCurrentValueDouble();
+
+        // if exitValue is reached exit intraday!
+        if (simulation &&
+                TransactionType.BUY.equals(order.getTransactionType()) &&
+                stockOption.getPosition() != null &&
+                stockOption.getPosition().getExitValue() != null) {
+
+            double exitValue = stockOption.getPosition().getExitValue().doubleValue();
+            if (currentValue > exitValue) {
+
+                logger.info("adjusted currentValue (" + currentValue + ") to exitValue (" + exitValue+ ") in closePosition for order on " + order.getSecurity().getSymbol());
+                currentValue = exitValue;
+            }
+        }
+
         int contractSize = stockOption.getContractSize();
 
         if (TransactionType.SELL.equals(order.getTransactionType())) {
