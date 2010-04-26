@@ -24,6 +24,7 @@ import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.vo.InterpolationVO;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
+import com.espertech.esper.client.EventBean;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.AdapterInputSource;
@@ -103,7 +104,13 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         EPStatement statement = EsperService.getStatement(RuleName.CREATE_INTERPOLATION);
 
-        return (InterpolationVO)statement.iterator().next().getUnderlying();
+        if (statement == null) return null;
+
+        EventBean bean = statement.iterator().next();
+
+        if (bean == null) return null;
+
+        return (InterpolationVO)bean.getUnderlying();
     }
 
     @SuppressWarnings("unchecked")
