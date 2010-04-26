@@ -20,6 +20,13 @@ public class DateUtil {
         }
     }
 
+    public static int toHour(long time) {
+
+        Calendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(time);
+        return cal.get(Calendar.HOUR_OF_DAY);
+    }
+
     public static Date getNextThirdFriday(Date input) {
 
         Calendar cal = new GregorianCalendar();
