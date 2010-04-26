@@ -95,6 +95,6 @@ public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase 
 
     protected BigDecimal handleGetPortfolioValueAllAccounts() throws Exception {
 
-        return getAccountDao().getPortfolioValueAllAccounts();
+        return getAccountDao().getTotalValueAllAccounts();
     }
 }

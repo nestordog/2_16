@@ -31,13 +31,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected BigDecimal handleGetPortfolioValue() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
-        return account.getPortfolioValue();
+        return account.getTotalValue();
     }
 
     protected BigDecimal handleGetBalance() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
-        return account.getBalance();
+        return account.getCashBalance();
     }
 
     protected BigDecimal handleGetMargin() throws Exception {

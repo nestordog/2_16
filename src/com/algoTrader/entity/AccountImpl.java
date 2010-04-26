@@ -3,81 +3,92 @@ package com.algoTrader.entity;
 import java.math.BigDecimal;
 import java.util.Collection;
 
-import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.RoundUtil;
 
-public class AccountImpl extends com.algoTrader.entity.Account {
+public class AccountImpl extends Account {
 
     private static final long serialVersionUID = -2271735085273721632L;
 
+    public BigDecimal getCashBalance() {
+        return RoundUtil.getBigDecimal(getCashBalanceDouble());
+    }
+
     @SuppressWarnings("unchecked")
-    public BigDecimal getBalance() {
+    public double getCashBalanceDouble() {
 
         double balance = 0.0;
         Collection<Transaction> transactions = getTransactions();
         for (Transaction transaction : transactions) {
-            if (transaction.getType().equals(TransactionType.BUY) ||
-                transaction.getType().equals(TransactionType.SELL) ||
-                transaction.getType().equals(TransactionType.EXPIRATION)) {
-
-                balance -= (transaction.getPrice().doubleValue() * (double)transaction.getQuantity());
-                balance -= transaction.getCommission().doubleValue();
-
-            } else if (transaction.getType().equals(TransactionType.CREDIT) ||
-                    transaction.getType().equals(TransactionType.DIVIDEND) ||
-                    transaction.getType().equals(TransactionType.INTREST)) {
-
-                balance += transaction.getPrice().doubleValue();
-
-            } else if (transaction.getType().equals(TransactionType.DEBIT) ||
-                    transaction.getType().equals(TransactionType.FEES)) {
-
-                balance -= transaction.getPrice().doubleValue();
-            }
+            balance += transaction.getValueDouble();
         }
-        return RoundUtil.getBigDecimal(balance);
+        return balance;
+    }
+
+    public BigDecimal getMargin() {
+        return RoundUtil.getBigDecimal(getMarginDouble());
     }
 
     @SuppressWarnings("unchecked")
-    public BigDecimal getMargin() {
+    public double getMarginDouble() {
 
         double margin = 0.0;
-        Collection<Position> positions = getPositions();
+        Collection<Position> positions = getOpenPositions();
         for (Position position : positions) {
-            if (position.getQuantity() != 0) {
-                if (position.getMargin() == null) {
-                    break;
-                }
-                margin += position.getMargin().doubleValue();
-            }
+            margin += position.getMarginDouble();
         }
-        return RoundUtil.getBigDecimal(margin);
+        return margin;
     }
 
     public BigDecimal getAvailableAmount() {
 
-        double availableAmount = getBalance().doubleValue() - getMargin().doubleValue();
-        return RoundUtil.getBigDecimal(availableAmount);
+        return RoundUtil.getBigDecimal(getAvailableAmountDouble());
     }
 
+    public double getAvailableAmountDouble() {
+
+        return getCashBalanceDouble() - getMarginDouble();
+    }
+
+    public BigDecimal getSecuritiesValue() {
+
+        return RoundUtil.getBigDecimal(getSecuritiesValueDouble());
+    }
 
     @SuppressWarnings("unchecked")
-    public BigDecimal getPortfolioValue() {
+    public double getSecuritiesValueDouble() {
 
-        double portfolioValue = getBalance().doubleValue();
-        Collection<Position> positions = getPositions();
+        double securitiesValue = 0.0;
+        Collection<Position> positions = getOpenPositions();
         for (Position position : positions) {
-            Security security = position.getSecurity();
-            Tick tick = security.getLastTick();
-            if (position.getQuantity() != 0 && tick != null) {
-                portfolioValue += position.getQuantity() * security.getCurrentValuePerContract().doubleValue();
-            }
+            securitiesValue += position.getValueDouble();
         }
-        return RoundUtil.getBigDecimal(portfolioValue);
+        return securitiesValue;
     }
 
-    public double getPortfolioValueDouble() {
+    public BigDecimal getTotalValue() {
 
-        return getPortfolioValue().doubleValue();
+        return RoundUtil.getBigDecimal(getTotalValueDouble());
+    }
+
+    public double getTotalValueDouble() {
+
+        return getCashBalanceDouble() + getSecuritiesValueDouble();
+    }
+
+    @SuppressWarnings("unchecked")
+    public double getRedemptionValue() {
+
+        double redemptionValue = 0.0;
+        System.currentTimeMillis();
+        Collection<Position> positions = getOpenPositions();
+        for (Position position : positions) {
+            redemptionValue += position.getRedemptionValue();
+        }
+        return redemptionValue;
+    }
+
+    public double getAtRiskRatio() {
+
+        return getRedemptionValue() / getCashBalanceDouble();
     }
 }
