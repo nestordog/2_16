@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import org.apache.commons.math.ConvergenceException;
+import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.criteria.StockOptionCriteria;
@@ -42,6 +44,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static int minAge = PropertiesUtil.getIntProperty("minAge");
     private static int openPositionRetries = PropertiesUtil.getIntProperty("openPositionRetries");
+    private static double maxAtRiskRatio = PropertiesUtil.getDoubleProperty("maxAtRiskRatio");
 
     private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
 
@@ -128,12 +131,22 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         Account account = getAccountDao().findByCurrency(stockOption.getCurrency());
 
-        double availableAmount = account.getAvailableAmount().doubleValue();
-        double margin = StockOptionUtil.getMargin(stockOption, settlement.doubleValue(), underlayingSpot.doubleValue());
-        double currentDouble = currentValue.doubleValue();
+        double availableAmount = account.getAvailableAmountDouble();
         int contractSize = stockOption.getContractSize();
+        double currentValueDouble = currentValue.doubleValue();
+        double underlayingValue = underlayingSpot.doubleValue();
 
-        long numberOfContracts = (long)((availableAmount / (margin - currentDouble)) / contractSize); // i.e. 2 (for 20 stockOptions)
+        double margin = StockOptionUtil.getMargin(stockOption, settlement.doubleValue(), underlayingValue);
+        double exitValue = StockOptionUtil.getExitValue(stockOption, underlayingValue, currentValueDouble);
+
+        // get numberOfContracts based on margin
+        long numberOfContractsByMargin = (long)((availableAmount / (margin - currentValueDouble)) / contractSize); // i.e. 2 (for 20 stockOptions)
+
+        // get maxNumberOfContracts based on RedemptionValue
+        long numberOfContractsByRedemptionValue = (long)((maxAtRiskRatio * account.getCashBalanceDouble() - account.getRedemptionValue()) / (contractSize *(exitValue - maxAtRiskRatio * currentValueDouble)));
+
+        // choose which ever is lower
+        long numberOfContracts = Math.min(numberOfContractsByMargin, numberOfContractsByRedemptionValue);
 
         if (numberOfContracts <= 0) {
             if (stockOption.getPosition() == null || stockOption.getPosition().getQuantity() == 0) {
@@ -166,6 +179,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
                 // we are done!
                 setMargin(order);
+                setExitValue(stockOption.getPosition(), RoundUtil.getBigDecimal(exitValue));
                 break;
 
             } else if (OrderStatus.PARTIALLY_EXECUTED.equals(order.getStatus())) {
@@ -175,6 +189,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
                 numberOfContracts -= Math.abs(order.getExecutedQuantity());
 
                 setMargin(order);
+                setExitValue(stockOption.getPosition(), RoundUtil.getBigDecimal(exitValue));
                 continue;
             }
         }
@@ -245,22 +260,30 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         }
     }
 
-    protected void handleSetExitValue(int positionId, BigDecimal exitValue) {
+    protected void handleSetExitValue(int positionId, BigDecimal exitValue) throws ConvergenceException, FunctionEvaluationException {
+
+        // we don't want to set the exitValue to Zero
+        if (exitValue.doubleValue() == 0.0) {
+            return;
+        }
 
         Position position = getPositionDao().load(positionId);
 
-        // check if new exit-value is higher than old one and greater than 0.0
-        if (position != null && exitValue.doubleValue() > 0.0) {
-
-            if (position.getExitValue() != null && exitValue.doubleValue() > position.getExitValue().doubleValue()) {
-                logger.warn("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of " + position.getSecurity().getSymbol());
-                return;
-            }
-            position.setExitValue(exitValue);
-            getPositionDao().update(position);
-
-            logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + exitValue);
+        if (position == null) {
+            throw new StockOptionServiceException("position does not exist: " + positionId);
         }
+
+
+        if (position.getExitValue() == null) {
+            throw new StockOptionServiceException("no exitValue was set for position: " + positionId);
+        }
+
+        if (exitValue.doubleValue() > position.getExitValue().doubleValue()) {
+            throw new StockOptionServiceException("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of position " + positionId);
+        }
+
+        setExitValue(position, exitValue);
+
     }
 
     @SuppressWarnings("unchecked")
@@ -272,6 +295,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             setMargin(transaction.getPosition());
         }
     }
+
     private void setMargin(Position position) throws Exception {
 
         StockOption stockOption = (StockOption) position.getSecurity();
@@ -289,8 +313,8 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
             Account account = position.getAccount();
 
-            int percent = (int)(account.getAvailableAmount().doubleValue() / account.getBalance().doubleValue() * 100d);
-            if (account.getAvailableAmount().doubleValue() >= 0) {
+            int percent = (int)(account.getAvailableAmountDouble() / account.getCashBalanceDouble() * 100.0);
+            if (account.getAvailableAmountDouble() >= 0) {
                 logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount() + " (" + percent + "% of balance)");
             } else {
                 logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount() + " (" + percent + "% of balance)");
@@ -299,5 +323,19 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             logger.warn("no last tick available to set margin on " + stockOption.getSymbol());
         }
 
+    }
+
+
+    private void setExitValue(Position position, BigDecimal exitValue) throws ConvergenceException, FunctionEvaluationException {
+
+        double currentValue = position.getSecurity().getLastTick().getCurrentValueDouble();
+        if (exitValue.doubleValue() < currentValue ) {
+            throw new StockOptionServiceException("ExitValue (" + exitValue + ") for position " + position.getId() + " is lower than currentValue: " + currentValue);
+        }
+
+        position.setExitValue(exitValue);
+        getPositionDao().update(position);
+
+        logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + exitValue);
     }
 }
