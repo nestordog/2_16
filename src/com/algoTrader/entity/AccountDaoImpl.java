@@ -5,18 +5,18 @@ import java.util.Collection;
 
 import com.algoTrader.util.RoundUtil;
 
-public class AccountDaoImpl extends com.algoTrader.entity.AccountDaoBase {
+public class AccountDaoImpl extends AccountDaoBase {
 
     @SuppressWarnings("unchecked")
-    protected BigDecimal handleGetPortfolioValueAllAccounts() throws Exception {
+    protected BigDecimal handleGetTotalValueAllAccounts() throws Exception {
 
         Collection<Account> accounts = loadAll();
 
-        double portfolioValue = 0;
+        double totalValue = 0;
         for (Account account : accounts) {
-            portfolioValue += account.getPortfolioValueDouble();
+            totalValue += account.getTotalValueDouble();
         }
 
-        return RoundUtil.getBigDecimal(portfolioValue);
+        return RoundUtil.getBigDecimal(totalValue);
     }
 }
