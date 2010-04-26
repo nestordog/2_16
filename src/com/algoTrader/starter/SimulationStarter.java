@@ -19,8 +19,10 @@ public class SimulationStarter {
 
         InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
 
-        System.out.print("a=" + interpolation.getA());
-        System.out.print(" b=" + interpolation.getB());
-        System.out.println(" r=" + interpolation.getR());
+        if (interpolation != null) {
+            System.out.print("a=" + interpolation.getA());
+            System.out.print(" b=" + interpolation.getB());
+            System.out.println(" r=" + interpolation.getR());
+        }
     }
 }
