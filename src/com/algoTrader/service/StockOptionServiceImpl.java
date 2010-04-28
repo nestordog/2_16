@@ -149,7 +149,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         long numberOfContracts = Math.min(numberOfContractsByMargin, numberOfContractsByRedemptionValue);
 
         if (numberOfContracts <= 0) {
-            if (stockOption.getPosition() == null || stockOption.getPosition().getQuantity() == 0) {
+            if (stockOption.getPosition() == null || !stockOption.getPosition().isOpen()) {
                 getWatchlistService().removeFromWatchlist(stockOptionId);
             }
             return; // there is no money available
@@ -179,7 +179,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
                 // we are done!
                 setMargin(order);
-                setExitValue(stockOption.getPosition(), RoundUtil.getBigDecimal(exitValue));
+                setExitValue(stockOption.getPosition(), exitValue);
                 break;
 
             } else if (OrderStatus.PARTIALLY_EXECUTED.equals(order.getStatus())) {
@@ -189,7 +189,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
                 numberOfContracts -= Math.abs(order.getExecutedQuantity());
 
                 setMargin(order);
-                setExitValue(stockOption.getPosition(), RoundUtil.getBigDecimal(exitValue));
+                setExitValue(stockOption.getPosition(), exitValue);
                 continue;
             }
         }
@@ -260,10 +260,10 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         }
     }
 
-    protected void handleSetExitValue(int positionId, BigDecimal exitValue) throws ConvergenceException, FunctionEvaluationException {
+    protected void handleSetExitValue(int positionId, double exitValue) throws ConvergenceException, FunctionEvaluationException {
 
         // we don't want to set the exitValue to Zero
-        if (exitValue.doubleValue() == 0.0) {
+        if (exitValue == 0.0) {
             return;
         }
 
@@ -278,7 +278,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             throw new StockOptionServiceException("no exitValue was set for position: " + positionId);
         }
 
-        if (exitValue.doubleValue() > position.getExitValue().doubleValue()) {
+        if (exitValue > position.getExitValue().doubleValue()) {
             throw new StockOptionServiceException("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of position " + positionId);
         }
 
@@ -326,14 +326,14 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     }
 
 
-    private void setExitValue(Position position, BigDecimal exitValue) throws ConvergenceException, FunctionEvaluationException {
+    private void setExitValue(Position position, double exitValue) throws ConvergenceException, FunctionEvaluationException {
 
         double currentValue = position.getSecurity().getLastTick().getCurrentValueDouble();
-        if (exitValue.doubleValue() < currentValue ) {
+        if (exitValue < currentValue ) {
             throw new StockOptionServiceException("ExitValue (" + exitValue + ") for position " + position.getId() + " is lower than currentValue: " + currentValue);
         }
 
-        position.setExitValue(exitValue);
+        position.setExitValue(RoundUtil.getBigDecimal(exitValue));
         getPositionDao().update(position);
 
         logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + exitValue);
