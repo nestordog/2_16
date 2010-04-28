@@ -27,7 +27,7 @@ public class ActionServiceImpl extends ActionServiceBase {
         logger.debug("retrieveTicks end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
-    protected void handleSetExitValue(int positionId, BigDecimal exitValue) throws java.lang.Exception {
+    protected void handleSetExitValue(int positionId, double exitValue) throws java.lang.Exception {
 
         long startTime = System.currentTimeMillis();
         logger.debug("setExitValue start");
