@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Account;
 import com.algoTrader.entity.DSlow;
 import com.algoTrader.entity.KFast;
@@ -14,6 +15,7 @@ import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.vo.InterpolationVO;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.TickVO;
 import com.algoTrader.vo.TransactionVO;
@@ -122,5 +124,32 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected void handleKillVM() throws Exception {
 
         System.exit(0);
+    }
+
+    protected double handleGetA() throws Exception {
+
+        InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
+
+        if (interpolation == null) return 0;
+
+        return interpolation.getA();
+    }
+
+    protected double handleGetB() throws Exception {
+
+        InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
+
+        if (interpolation == null) return 0;
+
+        return interpolation.getB();
+    }
+
+    protected double handleGetR() throws Exception {
+
+        InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
+
+        if (interpolation == null) return 0;
+
+        return interpolation.getR();
     }
 }
