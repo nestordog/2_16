@@ -32,7 +32,7 @@ public class AccountImpl extends Account {
     public double getMarginDouble() {
 
         double margin = 0.0;
-        Collection<Position> positions = getOpenPositions();
+        Collection<Position> positions = getPositions();
         for (Position position : positions) {
             margin += position.getMarginDouble();
         }
@@ -58,7 +58,7 @@ public class AccountImpl extends Account {
     public double getSecuritiesValueDouble() {
 
         double securitiesValue = 0.0;
-        Collection<Position> positions = getOpenPositions();
+        Collection<Position> positions = getPositions();
         for (Position position : positions) {
             securitiesValue += position.getValueDouble();
         }
@@ -80,7 +80,7 @@ public class AccountImpl extends Account {
 
         double redemptionValue = 0.0;
         System.currentTimeMillis();
-        Collection<Position> positions = getOpenPositions();
+        Collection<Position> positions = getPositions();
         for (Position position : positions) {
             redemptionValue += position.getRedemptionValue();
         }
