@@ -8,6 +8,11 @@ public class PositionImpl extends com.algoTrader.entity.Position {
 
     private static final long serialVersionUID = -2679980079043322328L;
 
+    public boolean isOpen() {
+
+        return (getQuantity() != 0);
+    }
+
     public BigDecimal getValue() {
 
         return RoundUtil.getBigDecimal(getValueDouble());
@@ -15,7 +20,7 @@ public class PositionImpl extends com.algoTrader.entity.Position {
 
     public double getValueDouble() {
 
-        if (getQuantity() != 0) {
+        if (isOpen()) {
             return (double)getQuantity() * getSecurity().getCurrentValuePerContractDouble();
         } else {
             return 0.0;
@@ -24,7 +29,7 @@ public class PositionImpl extends com.algoTrader.entity.Position {
 
     public double getMarginDouble() {
 
-        if (getQuantity() != 0 && getMargin() != null) {
+        if (isOpen() && getMargin() != null) {
                 return getMargin().doubleValue();
         } else {
             return 0.0;
@@ -33,7 +38,7 @@ public class PositionImpl extends com.algoTrader.entity.Position {
 
     public double getRedemptionValue() {
 
-        if (getQuantity() != 0 && getExitValue() != null) {
+        if (isOpen() && getExitValue() != null) {
 
             return -(double)getQuantity() * getSecurity().getContractSize() * getExitValue().doubleValue();
         } else {

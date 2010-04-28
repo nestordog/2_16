@@ -30,7 +30,7 @@ public class SecurityImpl extends com.algoTrader.entity.Security {
     }
 
     public boolean hasOpenPositions() {
-        return getPosition().getQuantity() > 0;
+        return getPosition().isOpen();
     }
 
     public BigDecimal getCommission(long quantity, TransactionType transactionType) {

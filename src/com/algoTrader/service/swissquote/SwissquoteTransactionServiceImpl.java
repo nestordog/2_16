@@ -127,7 +127,7 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
 
         // transactionType
         Position position = security.getPosition();
-        String openClose = (position != null && position.getQuantity() != 0) ? "CLOSE" : "OPEN";
+        String openClose = (position != null && position.isOpen()) ? "CLOSE" : "OPEN";
         String transactionTypeString = TransactionType.SELL.equals(transactionType) ? "SELL to " + openClose : "BUY to " + openClose;
         String orderTransactionValue = SwissquoteUtil.getValue(document, "//tr[td/font/strong='" + transactionTypeString + "']/td/input/@value");
         paramSet.add(new NameValuePair("order.transaction", orderTransactionValue));

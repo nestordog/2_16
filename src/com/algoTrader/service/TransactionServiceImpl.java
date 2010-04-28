@@ -85,7 +85,7 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
                 // attach the object
                 position.setQuantity(position.getQuantity() + transaction.getQuantity());
 
-                if (position.getQuantity() == 0) {
+                if (!position.isOpen()) {
                     position.setExitValue(null);
                     position.setMargin(null);
                 }
@@ -116,10 +116,7 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
         double currentValue = stockOption.getLastTick().getCurrentValueDouble();
 
         // if exitValue is reached exit intraday!
-        if (simulation &&
-                TransactionType.BUY.equals(order.getTransactionType()) &&
-                stockOption.getPosition() != null &&
-                stockOption.getPosition().getExitValue() != null) {
+        if (simulation && TransactionType.BUY.equals(order.getTransactionType())) {
 
             double exitValue = stockOption.getPosition().getExitValue().doubleValue();
             if (currentValue > exitValue) {
