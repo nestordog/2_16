@@ -30,59 +30,86 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         return format.format(new Date(EsperService.getCurrentTime()));
     }
 
-    protected BigDecimal handleGetPortfolioValue() throws Exception {
+    protected BigDecimal handleGetAccountTotalValue() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
         return account.getTotalValue();
     }
 
-    protected BigDecimal handleGetBalance() throws Exception {
+    protected BigDecimal handleGetAccountBalance() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
         return account.getCashBalance();
     }
 
-    protected BigDecimal handleGetMargin() throws Exception {
+    protected BigDecimal handleGetAccountMargin() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
         return account.getMargin();
     }
 
-    protected BigDecimal handleGetAvailableAmount() throws Exception {
+    protected BigDecimal handleGetAccountAvailableAmount() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
         return account.getAvailableAmount();
     }
 
-    protected int handleGetOpenPositionCount() throws Exception {
+    protected int handleGetAccountOpenPositionCount() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
         return account.getOpenPositions().size();
     }
 
-    protected double handleGetKFast() throws Exception {
+    protected double handleGetStochasticKFast() throws Exception {
 
         KFast kFast = (KFast)EsperService.getLastEvent(RuleName.CREATE_K_FAST);
 
         return (kFast != null) ? kFast.getValue() : 0;
     }
 
-    protected double handleGetKSlow() throws Exception {
+    protected double handleGetStochasticKSlow() throws Exception {
 
         KSlow kSlow = (KSlow)EsperService.getLastEvent(RuleName.CREATE_K_SLOW);
 
         return (kSlow != null) ? kSlow.getValue() : 0;
     }
 
-    protected double handleGetDSlow() throws Exception {
+    protected double handleGetStochasticDSlow() throws Exception {
 
         DSlow dSlow = (DSlow)EsperService.getLastEvent(RuleName.CREATE_D_SLOW);
 
         return (dSlow != null) ? dSlow.getValue() : 0;
     }
 
+    protected double handleGetInterpolationA() throws Exception {
+
+        InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
+
+        if (interpolation == null) return 0;
+
+        return interpolation.getA();
+    }
+
+    protected double handleGetInterpolationB() throws Exception {
+
+        InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
+
+        if (interpolation == null) return 0;
+
+        return interpolation.getB();
+    }
+
+    protected double handleGetInterpolationR() throws Exception {
+
+        InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
+
+        if (interpolation == null) return 0;
+
+        return interpolation.getR();
+    }
+
     @SuppressWarnings("unchecked")
-    protected List<TickVO> handleGetLastTicks() throws Exception {
+    protected List<TickVO> handleGetDataLastTicks() throws Exception {
 
         List ticks = getTickDao().getLastTicks();
         getTickDao().toTickVOCollection(ticks);
@@ -90,13 +117,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @SuppressWarnings("unchecked")
-    protected List<PositionVO> handleGetOpenPositions() throws Exception {
+    protected List<PositionVO> handleGetDataOpenPositions() throws Exception {
 
         return getPositionDao().findOpenPositions(PositionDao.TRANSFORM_POSITIONVO);
     }
 
     @SuppressWarnings("unchecked")
-    protected List<TransactionVO> handleGetTransactions() throws Exception {
+    protected List<TransactionVO> handleGetDataTransactions() throws Exception {
 
         return getTransactionDao().getTransactionsWithinTimerange(null, null, 10);
     }
@@ -124,32 +151,5 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected void handleKillVM() throws Exception {
 
         System.exit(0);
-    }
-
-    protected double handleGetA() throws Exception {
-
-        InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
-
-        if (interpolation == null) return 0;
-
-        return interpolation.getA();
-    }
-
-    protected double handleGetB() throws Exception {
-
-        InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
-
-        if (interpolation == null) return 0;
-
-        return interpolation.getB();
-    }
-
-    protected double handleGetR() throws Exception {
-
-        InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
-
-        if (interpolation == null) return 0;
-
-        return interpolation.getR();
     }
 }
