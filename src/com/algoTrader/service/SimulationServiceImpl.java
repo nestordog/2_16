@@ -106,11 +106,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         if (statement == null) return null;
 
-        EventBean bean = statement.iterator().next();
+        if (!statement.iterator().hasNext()) return null;
 
-        if (bean == null) return null;
-
-        return (InterpolationVO)bean.getUnderlying();
+        return (InterpolationVO)statement.iterator().next().getUnderlying();
     }
 
     @SuppressWarnings("unchecked")
