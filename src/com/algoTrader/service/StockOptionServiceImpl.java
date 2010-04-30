@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.commons.math.ConvergenceException;
 import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.criteria.StockOptionCriteria;
@@ -45,6 +46,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private static int minAge = PropertiesUtil.getIntProperty("minAge");
     private static int openPositionRetries = PropertiesUtil.getIntProperty("openPositionRetries");
     private static double maxAtRiskRatio = PropertiesUtil.getDoubleProperty("maxAtRiskRatio");
+    private static int strikeOffset = PropertiesUtil.getIntProperty("strikeOffset");
 
     private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
 
@@ -61,7 +63,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         if (simulation) {
             if ((stockOption == null)
                     || (stockOption.getExpiration().getTime() > (targetExpirationDate.getTime() + FORTY_FIVE_DAYS ))
-                    || (stockOption.getStrike().doubleValue() < underlayingSpot.doubleValue() - 50)) {
+                    || (stockOption.getStrike().doubleValue() < underlayingSpot.doubleValue() - (50 + strikeOffset))) {
 
                 stockOption = createDummyStockOption(underlaying, targetExpirationDate, underlayingSpot, optionType);
 
@@ -71,13 +73,13 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         return stockOption;
     }
 
-    private StockOption createDummyStockOption(Security underlaying, Date expiration, BigDecimal strike, OptionType type) throws Exception {
+    private StockOption createDummyStockOption(Security underlaying, Date targetExpirationDate, BigDecimal underlayingSpot, OptionType type) throws Exception {
 
         // set third Friday of the month
-        expiration = DateUtil.getNextThirdFriday(expiration);
+        Date expiration = DateUtil.getNextThirdFriday(targetExpirationDate);
 
-        // round to 50.-
-        strike = RoundUtil.roundTo50(strike);
+        // reduce by strikeOffset and round to lower 50
+        BigDecimal strike = RoundUtil.getBigDecimal(MathUtils.round((underlayingSpot.doubleValue() - strikeOffset)/ 50.0, 0, BigDecimal.ROUND_FLOOR) * 50.0);
 
         // symbol
         GregorianCalendar cal = new GregorianCalendar();
@@ -111,18 +113,20 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     }
 
     @SuppressWarnings("unchecked")
-    private StockOption findNearestStockOption(Security underlaying, Date expiration, BigDecimal strike,
+    private StockOption findNearestStockOption(Security underlaying, Date targetExpirationDate, BigDecimal underlayingSpot,
             OptionType type) throws Exception {
 
-           StockOptionCriteria criteria = new StockOptionCriteria(underlaying, expiration, strike, type);
-           criteria.setMaximumResultSize(new Integer(1));
+        BigDecimal targetStrike = RoundUtil.getBigDecimal(underlayingSpot.doubleValue() - strikeOffset);
 
-           List<StockOption> list = getStockOptionDao().findByCriteria(criteria);
-           if (list.size() > 0) {
-               return list.get(0);
-           } else {
-               return null;
-           }
+        StockOptionCriteria criteria = new StockOptionCriteria(underlaying, targetExpirationDate, targetStrike, type);
+        criteria.setMaximumResultSize(new Integer(1));
+
+        List<StockOption> list = getStockOptionDao().findByCriteria(criteria);
+        if (list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
     }
 
     protected void handleOpenPosition(int stockOptionId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlayingSpot) throws Exception {
@@ -147,6 +151,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         // choose which ever is lower
         long numberOfContracts = Math.min(numberOfContractsByMargin, numberOfContractsByRedemptionValue);
+
 
         if (numberOfContracts <= 0) {
             if (stockOption.getPosition() == null || !stockOption.getPosition().isOpen()) {
@@ -263,7 +268,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     protected void handleSetExitValue(int positionId, double exitValue) throws ConvergenceException, FunctionEvaluationException {
 
         // we don't want to set the exitValue to Zero
-        if (exitValue == 0.0) {
+        if (exitValue <= 0.05) {
             return;
         }
 

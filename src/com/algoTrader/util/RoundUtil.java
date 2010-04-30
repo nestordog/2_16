@@ -2,8 +2,6 @@ package com.algoTrader.util;
 
 import java.math.BigDecimal;
 
-import org.apache.commons.math.util.MathUtils;
-
 public class RoundUtil {
 
     public static BigDecimal roundTo5Cent(BigDecimal decimal) {
@@ -16,11 +14,5 @@ public class RoundUtil {
 
         BigDecimal decimal = new BigDecimal(value);
         return decimal.setScale(2, BigDecimal.ROUND_HALF_UP);
-    }
-
-    public static BigDecimal roundTo50(BigDecimal input) {
-
-        double rounded = MathUtils.round(input.doubleValue()/ 50.0, 0, BigDecimal.ROUND_FLOOR) * 50.0;
-        return getBigDecimal(rounded);
     }
 }
