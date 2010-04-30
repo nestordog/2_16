@@ -211,7 +211,7 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
 
             document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
             get.releaseConnection();
-            XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_open_daily_orders.xml", "results/trade/");
+            XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_" + security.getIsin() + "_open_daily_orders.xml", "results/trade/");
 
             Node openNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[td='Offen' and contains(td/a/@href, '" + security.getIsin()+ "')]");
             Node unreleasedNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[td='Unreleased' and contains(td/a/@href, '" + security.getIsin()+ "')]");
@@ -258,7 +258,7 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
 
             document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
             get.releaseConnection();
-            XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_delete_order_" + orderNumber + ".xml", "results/trade/");
+            XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_" + security.getIsin() + "_delete_order.xml", "results/trade/");
 
             node = XPathAPI.selectSingleNode(document, "//strong[.='Löschauftrag']");
 
@@ -296,7 +296,7 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
 
         document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
         get.releaseConnection();
-        XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_executed_transactions.xml", "results/trade/");
+        XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_" + security.getIsin() + "_executed_transactions.xml", "results/trade/");
 
         nodeIterator = XPathAPI.selectNodeIterator(document, "//tr[td/a='" + orderNumber + "']");
         while ((node = nodeIterator.nextNode()) != null) {
