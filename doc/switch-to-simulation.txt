@@ -3,6 +3,6 @@
 1. conf.properties: simulation                       false               true
 2. conf.properties: simulation.dataSet               current             historical
 3. esper.cfg.xml: var_simulation                     false               true
-4. esper.cfg.xml: var_events_per_hour                60                  1
+4. esper.cfg.xml: var_events_per_day                500                 1/9
 5. run reset.db
 6. Rule: PRINT_PORTFOLIO_VALUE / PRINT_STOCHASTIC    enabled                disabled
