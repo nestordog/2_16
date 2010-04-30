@@ -27,6 +27,7 @@ import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.service.TransactionServiceException;
+import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
@@ -39,14 +40,14 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
 
     private static int confirmationTimeout = PropertiesUtil.getIntProperty("swissquote.confirmationTimeout");
     private static int confirmationRetries = PropertiesUtil.getIntProperty("swissquote.confirmationRetries");
+    private static int maxTransactionAge = PropertiesUtil.getIntProperty("swissquote.maxTransactionAge");
 
     private static String dispatchUrl = "https://trade.swissquote.ch/sqb_core/DispatchCtrl";
     private static String tradeUrl = "https://trade.swissquote.ch/sqb_core/TradeCtrl";
     private static String ordersUrl = "https://trade.swissquote.ch/sqb_core/AccountCtrl?commandName=myOrders&client=" + PropertiesUtil.getProperty("swissquote.trade.clientNumber");
     private static String transactionsUrl = "https://trade.swissquote.ch/sqb_core/TransactionsCtrl?commandName=viewTransactions";
 
-    private static String dailyOrdersMatch = "//table[@class='trading']/tbody/tr[1]/td[count(//table[@class='trading']/thead/tr/td[.='%1$s']/preceding-sibling::td)+1]";
-    private static String executedTransactionsMatch = "td[count(//table[@class='trading']/thead/tr/td[.='%1$s']/preceding-sibling::td)+1]";
+    private static String columnMatch = "td[//table[@class='trading']/thead/tr/td[.='%1$s']][count(//table[@class='trading']/thead/tr/td[.='%1$s']/preceding-sibling::td)+1]";
     private static String tickMatch = "//tr[td/font/strong='%1$s']/following-sibling::tr[1]/td[count(//tr/td[font/strong='%1$s']/preceding-sibling::td)+1]/font";
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
@@ -215,15 +216,20 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
             Node openNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[td='Offen' and contains(td/a/@href, '" + security.getIsin()+ "')]");
             Node unreleasedNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[td='Unreleased' and contains(td/a/@href, '" + security.getIsin()+ "')]");
             Node partiallyExecutedNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[td='Teilweise Ausgeführt' and contains(td/a/@href, '" + security.getIsin()+ "')]");
-            Node unknownStateNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[contains(td/a/@href, '" + security.getIsin()+ "') and td[10]!='Ausgeführt']/td[10]");
+            Node executedNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[td='Ausgeführt' and contains(td/a/@href, '" + security.getIsin()+ "')]");
+            Node unknownStateNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[contains(td/a/@href, '" + security.getIsin()+ "')]/td[10]");
 
             if (openNode != null || unreleasedNode != null) {
                 order.setStatus(OrderStatus.OPEN);
             } else if (partiallyExecutedNode != null) {
                 order.setStatus(OrderStatus.PARTIALLY_EXECUTED);
+            } else if (executedNode != null) {
+                order.setStatus(OrderStatus.EXECUTED);
+                // keep going, the transaction ist executed but has not showed up under executed transactions yet
             } else if (unknownStateNode != null ) {
                 throw new TransactionServiceException("unknown order status " + unknownStateNode.getFirstChild().getNodeValue() + " for order on: " + security.getSymbol());
             } else {
+                // the transaction has executed
                 order.setStatus(OrderStatus.EXECUTED);
                 break;
             }
@@ -263,12 +269,21 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
             }
         }
 
+        Node dailyOrderNode = XPathAPI.selectSingleNode(document, "//table[@class='trading']/tbody/tr[contains(td/a/@href, '" + security.getIsin() + "')][1]");
+        if (dailyOrderNode == null) {
+            throw new TransactionServiceException("transaction on " + security.getSymbol() + " did execute but did not show up under daily-orders within timelimit");
+        }
+
         // parse the rest of the open/daily order screen
-        String dateValue = SwissquoteUtil.getValue(document, String.format(dailyOrdersMatch, "Datum"));
-        String timeValue = SwissquoteUtil.getValue(document, String.format(dailyOrdersMatch, "Zeit"));
+        String dateValue = SwissquoteUtil.getValue(dailyOrderNode, String.format(columnMatch, "Datum"));
+        String timeValue = SwissquoteUtil.getValue(dailyOrderNode, String.format(columnMatch, "Zeit"));
         Date dateTime = SwissquoteUtil.getDate(dateValue + " " + timeValue);
 
-        String orderNumber = SwissquoteUtil.getValue(document, String.format(dailyOrdersMatch, "Auftrag"));
+        if (DateUtil.getCurrentEPTime().getTime() - dateTime.getTime() > maxTransactionAge ) {
+            throw new TransactionServiceException("transaction on " + security.getSymbol() + " did execute, but the selected transaction under daily orders is too old");
+        }
+
+        String orderNumber = SwissquoteUtil.getValue(dailyOrderNode, String.format(columnMatch, "Auftrag"));
         order.setNumber(orderNumber);
 
         // 5. get the executed transactions screen
@@ -286,18 +301,18 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
         nodeIterator = XPathAPI.selectNodeIterator(document, "//tr[td/a='" + orderNumber + "']");
         while ((node = nodeIterator.nextNode()) != null) {
 
-            String transactionNumber = SwissquoteUtil.getValue(node, String.format(executedTransactionsMatch + "/a/@href", "Auftrag #"));
+            String transactionNumber = SwissquoteUtil.getValue(node, String.format(columnMatch + "/a/@href", "Auftrag #"));
             transactionNumber = transactionNumber.split("contractNumber=")[1];
 
-            String executedQuantityValue = SwissquoteUtil.getValue(node, String.format(executedTransactionsMatch, "Anzahl"));
+            String executedQuantityValue = SwissquoteUtil.getValue(node, String.format(columnMatch, "Anzahl"));
             int executedQuantity = Math.abs(SwissquoteUtil.getInt(executedQuantityValue));
             executedQuantity = TransactionType.SELL.equals(transactionType) ? -executedQuantity : executedQuantity;
 
-            String pricePerItemValue = SwissquoteUtil.getValue(node, String.format(executedTransactionsMatch, "Stückpreis"));
+            String pricePerItemValue = SwissquoteUtil.getValue(node, String.format(columnMatch, "Stückpreis"));
             double pricePerItem = SwissquoteUtil.getDouble(pricePerItemValue);
             BigDecimal price = RoundUtil.getBigDecimal(pricePerItem * ((StockOption)security).getContractSize());
 
-            String commissionValue = SwissquoteUtil.getValue(node, String.format(executedTransactionsMatch + "/a", "Kommission"));
+            String commissionValue = SwissquoteUtil.getValue(node, String.format(columnMatch + "/a", "Kommission"));
             BigDecimal commission = RoundUtil.getBigDecimal(SwissquoteUtil.getDouble(commissionValue));
 
             Transaction transaction = new TransactionImpl();
