@@ -1,7 +1,7 @@
                                                      real                simulation
 ----------------------------------------------------------------------------------
 1. conf.properties: simulation                       false               true
-2. conf.properties: simulation.dataSet               current             historical
+2. conf.properties: simulation.dataSet               current             ???
 3. esper.cfg.xml: var_simulation                     false               true
 4. esper.cfg.xml: var_events_per_day                500                 1/9
 5. run reset.db
