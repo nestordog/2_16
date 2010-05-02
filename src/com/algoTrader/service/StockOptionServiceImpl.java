@@ -46,6 +46,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private static int minAge = PropertiesUtil.getIntProperty("minAge");
     private static int openPositionRetries = PropertiesUtil.getIntProperty("openPositionRetries");
     private static double maxAtRiskRatio = PropertiesUtil.getDoubleProperty("maxAtRiskRatio");
+    private static double maxAtRiskRatioPerTrade = PropertiesUtil.getDoubleProperty("maxAtRiskRatioPerTrade");
     private static int strikeOffset = PropertiesUtil.getIntProperty("strikeOffset");
 
     private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
@@ -143,6 +144,11 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         double margin = StockOptionUtil.getMargin(stockOption, settlement.doubleValue(), underlayingValue);
         double exitValue = StockOptionUtil.getExitValue(stockOption, underlayingValue, currentValueDouble);
 
+        double ratio = (exitValue - currentValueDouble) / (margin - currentValueDouble);
+        if(ratio > maxAtRiskRatioPerTrade) {
+            exitValue = maxAtRiskRatioPerTrade * (margin - currentValueDouble) + currentValueDouble;
+        }
+
         // get numberOfContracts based on margin
         long numberOfContractsByMargin = (long)((availableAmount / (margin - currentValueDouble)) / contractSize); // i.e. 2 (for 20 stockOptions)
 
@@ -159,6 +165,9 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             }
             return; // there is no money available
         }
+
+        logger.info("OpenPositionKeys numberOfContracts " + numberOfContracts + " currentValue " + currentValue + " exitValue " + exitValue + " margin " + margin);
+
 
         // the stockOption might have been removed from the watchlist by another statement (i.e. closePosition)
         if (!stockOption.isOnWatchlist()) {
