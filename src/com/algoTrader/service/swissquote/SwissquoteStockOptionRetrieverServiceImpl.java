@@ -50,8 +50,8 @@ public class SwissquoteStockOptionRetrieverServiceImpl extends SwissquoteStockOp
 
     private static final String optionUrl = "http://www.swissquote.ch/sq_mi/market/derivatives/optionfuture/OptionFuture.action?&type=option";
     private static Logger logger = MyLogger.getLogger(StockOptionRetrieverServiceImpl.class.getName());
-    private static String [] markets = new String[] {"ud", " eu", "eu", "eu", "eu", "eu", "eu", "eu"};
-    private static String [] groups = new String[] {null, "sw", "id", "de", "fr", "it", "sk", "xx" };
+    private static String [] markets = new String[] {"eu", "eu", "eu", "eu", "eu", "eu", "eu", "ud"};
+    private static String [] groups = new String[] {"sw", "id", "de", "fr", "it", "sk", "xx", null };
     private static SimpleDateFormat format = new SimpleDateFormat("yyMM");
 
     protected StockOption handleRetrieveStockOption(Security underlaying, Date expiration, BigDecimal strike,
