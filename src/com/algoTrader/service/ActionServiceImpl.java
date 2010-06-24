@@ -84,6 +84,10 @@ public class ActionServiceImpl extends ActionServiceBase {
             getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
         }
 
+        if (getRuleService().isActive(RuleName.IMMEDIATE_BUY_SIGNAL)) {
+            getRuleService().deactivate(RuleName.IMMEDIATE_BUY_SIGNAL);
+        }
+
         logger.debug("buySignal end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
