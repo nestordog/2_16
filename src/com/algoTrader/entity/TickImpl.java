@@ -2,6 +2,7 @@ package com.algoTrader.entity;
 
 import java.math.BigDecimal;
 
+import com.algoTrader.service.TickServiceException;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 
@@ -51,18 +52,26 @@ public class TickImpl extends com.algoTrader.entity.Tick {
         return getSettlement().doubleValue();
     }
 
-    public boolean isValid() {
+
+    public void validate() {
 
         if (getSecurity() instanceof StockOption) {
-            if (getVolAsk() <= minVol || getVolBid() <= minVol) return false;
+            if (getVolAsk() <= minVol ) {
+                throw new TickServiceException("vol ask (" + getVolAsk() + ") ist too low for security " + getSecurity());
+            }
+
+            if (getVolBid() <= minVol) {
+                throw new TickServiceException("vol bid (" + getVolBid() + ") ist too low for security " + getSecurity());
+            }
 
             double average = getAsk().doubleValue() * getBid().doubleValue() / 2.0;
             double spread = getAsk().doubleValue() - getBid().doubleValue();
             double maxSpread = average * spreadSlope + maxSpreadConstant;
 
-            if (spread > maxSpread) return false;
+            if (spread > maxSpread) {
+                //throw new TickServiceException("spread (" + spread + ") is higher than maxSpread (" + maxSpread + ") for security " + getSecurity());
+                // TODO remove
+            }
         }
-
-        return true;
     }
 }
