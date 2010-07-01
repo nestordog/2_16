@@ -1,9 +1,11 @@
 package com.algoTrader.service;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.supercsv.exception.SuperCSVException;
 
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Tick;
@@ -15,7 +17,7 @@ public abstract class TickServiceImpl extends TickServiceBase {
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
 
     @SuppressWarnings("unchecked")
-    protected void handleProcessSecuritiesOnWatchlist() throws Exception {
+    protected void handleProcessSecuritiesOnWatchlist() throws SuperCSVException, IOException  {
 
         List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
         for (Security security : securities) {
@@ -24,8 +26,11 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
             if (tick != null) {
 
-                if (tick.isValid()) {
+                try {
+                    tick.validate();
                     EsperService.sendEvent(tick);
+                } catch (Exception e) {
+                    // do nothing, just ignore invalideTicks
                 }
 
                 // write the tick to file (even if not valid)
