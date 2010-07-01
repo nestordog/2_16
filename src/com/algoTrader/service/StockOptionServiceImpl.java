@@ -44,7 +44,6 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private static int contractSize = PropertiesUtil.getIntProperty("simulation.contractSize");
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static int minAge = PropertiesUtil.getIntProperty("minAge");
-    private static int openPositionRetries = PropertiesUtil.getIntProperty("openPositionRetries");
     private static double maxAtRiskRatio = PropertiesUtil.getDoubleProperty("maxAtRiskRatio");
     private static double maxAtRiskRatioPerTrade = PropertiesUtil.getDoubleProperty("maxAtRiskRatioPerTrade");
     private static int strikeOffset = PropertiesUtil.getIntProperty("strikeOffset");
@@ -166,47 +165,20 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             return; // there is no money available
         }
 
-        logger.info("OpenPositionKeys numberOfContracts " + numberOfContracts + " currentValue " + currentValue + " exitValue " + exitValue + " margin " + margin);
-
-
         // the stockOption might have been removed from the watchlist by another statement (i.e. closePosition)
         if (!stockOption.isOnWatchlist()) {
             getWatchlistService().putOnWatchlist(stockOptionId);
         }
 
-        for (int i = 0; i < openPositionRetries ; i++) {
+        Order order = new OrderImpl();
+        order.setSecurity(stockOption);
+        order.setRequestedQuantity(numberOfContracts);
+        order.setTransactionType(TransactionType.SELL);
 
-            Order order = new OrderImpl();
-            order.setSecurity(stockOption);
-            order.setRequestedQuantity(numberOfContracts);
-            order.setTransactionType(TransactionType.SELL);
+        getDispatcherService().getTransactionService().executeTransaction(order);
 
-            try {
-                getDispatcherService().getTransactionService().executeTransaction(order);
-            } catch (TransactionServiceException e) {
-                // something went wrong executing the transaction -> keep going
-                continue;
-            }
-
-            if (OrderStatus.EXECUTED.equals(order.getStatus()) ||
-                    OrderStatus.AUTOMATIC.equals(order.getStatus())) {
-
-                // we are done!
-                setMargin(order);
-                setExitValue(stockOption.getPosition(), exitValue);
-                break;
-
-            } else if (OrderStatus.PARTIALLY_EXECUTED.equals(order.getStatus())) {
-
-                // only part of the order has gone through, so reduce the requested
-                // numberOfContracts by this number and keep going
-                numberOfContracts -= Math.abs(order.getExecutedQuantity());
-
-                setMargin(order);
-                setExitValue(stockOption.getPosition(), exitValue);
-                continue;
-            }
-        }
+        setMargin(order);
+        setExitValue(stockOption.getPosition(), exitValue);
     }
 
     protected void handleClosePosition(int positionId) throws Exception {
