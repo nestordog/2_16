@@ -68,16 +68,22 @@ public class SwissquoteStockOptionRetrieverServiceImpl extends SwissquoteStockOp
         GetMethod get = new GetMethod(url);
 
         HttpClient standardClient = HttpClientUtil.getStandardClient();
-        int status = standardClient.executeMethod(get);
 
-        if (status != HttpStatus.SC_OK) {
-            throw new HttpException("invalid option request: underlying=" + underlaying.getIsin() + " expiration=" + exp + " strike=" + strike.longValue());
+        Document listDocument;
+        try {
+            int status = standardClient.executeMethod(get);
+
+            listDocument = TidyUtil.parse(get.getResponseBodyAsStream());
+
+            XmlUtil.saveDocumentToFile(listDocument, underlaying.getIsin() + "_" + exp + "_" + strike.longValue() + ".xml", "results/options/");
+
+            if (status != HttpStatus.SC_OK) {
+                throw new HttpException("invalid option request: underlying=" + underlaying.getIsin() + " expiration=" + exp + " strike=" + strike.longValue());
+            }
+
+        } finally {
+            get.releaseConnection();
         }
-
-        Document listDocument = TidyUtil.parse(get.getResponseBodyAsStream());
-        get.releaseConnection();
-
-        XmlUtil.saveDocumentToFile(listDocument, underlaying.getIsin() + "_" + exp + "_" + strike.longValue() + ".xml", "results/options/");
 
         StockOption stockOption = new StockOptionImpl();
 
@@ -124,15 +130,22 @@ public class SwissquoteStockOptionRetrieverServiceImpl extends SwissquoteStockOp
         GetMethod get = new GetMethod(url);
 
         HttpClient standardClient = HttpClientUtil.getStandardClient();
-        int status = standardClient.executeMethod(get);
 
-        if (status != HttpStatus.SC_OK) {
-            throw new HttpException("invalid option request: underlying=" + underlaying.getIsin());
+        Document listDocument;
+        try {
+            int status = standardClient.executeMethod(get);
+
+            listDocument = TidyUtil.parse(get.getResponseBodyAsStream());
+
+            XmlUtil.saveDocumentToFile(listDocument, underlaying.getIsin() + "_all.xml", "results/options/");
+
+            if (status != HttpStatus.SC_OK) {
+                throw new HttpException("invalid option request: underlying=" + underlaying.getIsin());
+            }
+
+        } finally {
+            get.releaseConnection();
         }
-
-        Document listDocument = TidyUtil.parse(get.getResponseBodyAsStream());
-        get.releaseConnection();
-        XmlUtil.saveDocumentToFile(listDocument, underlaying.getIsin() + "_all.xml", "results/options/");
 
         NodeIterator iterator = XPathAPI.selectNodeIterator(listDocument, "//a[@class='list']/@href");
 
@@ -198,15 +211,23 @@ public class SwissquoteStockOptionRetrieverServiceImpl extends SwissquoteStockOp
             GetMethod get = new GetMethod(url);
 
             HttpClient standardClient = HttpClientUtil.getStandardClient();
-            int status = standardClient.executeMethod(get);
 
-            if (status != HttpStatus.SC_OK) {
-                throw new HttpException("invalid option request, market=" + market + ((group != null)? ", group=" + group : ""));
+            int status;
+            Document listDocument;
+            try {
+                status = standardClient.executeMethod(get);
+
+                listDocument = TidyUtil.parse(get.getResponseBodyAsStream());
+
+                XmlUtil.saveDocumentToFile(listDocument, market + ((group != null)? "_" + group : "") + "_all.xml", "results/options/");
+
+                if (status != HttpStatus.SC_OK) {
+                    throw new HttpException("invalid option request, market=" + market + ((group != null)? ", group=" + group : ""));
+                }
+
+            } finally {
+                get.releaseConnection();
             }
-
-            Document listDocument = TidyUtil.parse(get.getResponseBodyAsStream());
-            get.releaseConnection();
-            XmlUtil.saveDocumentToFile(listDocument, market + ((group != null)? "_" + group : "") + "_all.xml", "results/options/");
 
             NodeIterator underlyingIterator = XPathAPI.selectNodeIterator(listDocument, "//select[@name='underlying']/option");
 
@@ -220,15 +241,21 @@ public class SwissquoteStockOptionRetrieverServiceImpl extends SwissquoteStockOp
                 String detailUrl = url + "&underlying=" + underlayingIsin;
 
                 get = new GetMethod(detailUrl);
-                status = standardClient.executeMethod(get);
 
-                if (status != HttpStatus.SC_OK) {
-                    throw new HttpException("invalid option request, isin=" + underlayingIsin);
+                try {
+                    status = standardClient.executeMethod(get);
+
+                    listDocument = TidyUtil.parse(get.getResponseBodyAsStream());
+
+                    XmlUtil.saveDocumentToFile(listDocument, underlayingIsin + "_all.xml", "results/options/");
+
+                    if (status != HttpStatus.SC_OK) {
+                        throw new HttpException("invalid option request, isin=" + underlayingIsin);
+                    }
+
+                } finally {
+                    get.releaseConnection();
                 }
-
-                listDocument = TidyUtil.parse(get.getResponseBodyAsStream());
-                get.releaseConnection();
-                XmlUtil.saveDocumentToFile(listDocument, underlayingIsin + "_all.xml", "results/options/");
 
                 Node underlayingTable = XPathAPI.selectSingleNode(listDocument, "//table[tr/td/strong='Symbol']/tr[2]");
 
@@ -312,34 +339,63 @@ public class SwissquoteStockOptionRetrieverServiceImpl extends SwissquoteStockOp
                         optionExpiration = new SimpleDateFormat("yyMMdd").parse(month);
 
                     } else {
-                        optionCode = SwissquoteUtil.getValue(optionNode, "td[8]/a/@href").split("=")[1];
-                        optionIsin = optionCode.split("_")[0];
-
                         String optionStrike = SwissquoteUtil.getValue(optionNode, "td[6]/strong/a");
-                        String optionLast = SwissquoteUtil.getValue(optionNode, "td[8]/a/strong");
-                        String optionVol = SwissquoteUtil.getValue(optionNode, "td[11]");
-                        String optionOpenIntrest = SwissquoteUtil.getValue(optionNode, "td[12]");
 
-                        stockOption = new StockOptionImpl();
-                        stockOption.setIsin(optionIsin);
-                        stockOption.setMarket(Market.fromString(optionMarketId));
-                        stockOption.setCurrency(Currency.fromString(optionCurreny));
-                        stockOption.setStrike(RoundUtil.getBigDecimal(SwissquoteUtil.getDouble(optionStrike)));
-                        stockOption.setContractSize(SwissquoteUtil.getInt(contractSize));
-                        stockOption.setType(OptionType.PUT);
-                        stockOption.setExpiration(optionExpiration);
-                        stockOption.setUnderlaying(underlaying);
-                        securities.add(stockOption);
+                        String callOptionIsin = SwissquoteUtil.getValue(optionNode, "td[5]/a/@href").split("=")[1].split("_")[0];
+                        String putOptionIsin = SwissquoteUtil.getValue(optionNode, "td[8]/a/@href").split("=")[1].split("_")[0];
 
-                        Tick optionTick = new TickImpl();
-                        optionTick.setDateTime(new Date());
-                        optionTick.setLast(RoundUtil.getBigDecimal(SwissquoteUtil.getDouble(optionLast)));
-                        optionTick.setLastDateTime(new Date());
-                        optionTick.setVol(SwissquoteUtil.getInt(optionVol));
-                        optionTick.setOpenIntrest(SwissquoteUtil.getInt(optionOpenIntrest));
-                        optionTick.setSecurity(stockOption);
-                        optionTick.setSettlement(new BigDecimal(0.0));
-                        ticks.add(optionTick);
+                        String callOptionOpenIntrest = SwissquoteUtil.getValue(optionNode, "td[1]");
+                        String callOptionVol = SwissquoteUtil.getValue(optionNode, "td[2]");
+                        String callOptionlLast = SwissquoteUtil.getValue(optionNode, "td[5]/a/strong");
+                        String putOptionLast = SwissquoteUtil.getValue(optionNode, "td[8]/a/strong");
+                        String putOptionVol = SwissquoteUtil.getValue(optionNode, "td[11]");
+                        String putOptionOpenIntrest = SwissquoteUtil.getValue(optionNode, "td[12]");
+
+                        StockOption callOption = new StockOptionImpl();
+                        callOption.setIsin(callOptionIsin);
+                        callOption.setMarket(Market.fromString(optionMarketId));
+                        callOption.setCurrency(Currency.fromString(optionCurreny));
+                        callOption.setStrike(RoundUtil.getBigDecimal(SwissquoteUtil.getDouble(optionStrike)));
+                        callOption.setContractSize(SwissquoteUtil.getInt(contractSize));
+                        callOption.setType(OptionType.CALL);
+                        callOption.setExpiration(optionExpiration);
+                        callOption.setUnderlaying(underlaying);
+                        securities.add(callOption);
+
+                        Tick callOptionTick = new TickImpl();
+                        callOptionTick.setDateTime(new Date());
+                        callOptionTick.setBid(new BigDecimal(0));
+                        callOptionTick.setAsk(new BigDecimal(0));
+                        callOptionTick.setLast(RoundUtil.getBigDecimal(SwissquoteUtil.getDouble(callOptionlLast)));
+                        callOptionTick.setLastDateTime(new Date());
+                        callOptionTick.setVol(SwissquoteUtil.getInt(callOptionVol));
+                        callOptionTick.setOpenIntrest(SwissquoteUtil.getInt(callOptionOpenIntrest));
+                        callOptionTick.setSecurity(callOption);
+                        callOptionTick.setSettlement(new BigDecimal(0.0));
+                        ticks.add(callOptionTick);
+
+                        StockOption putOption = new StockOptionImpl();
+                        putOption.setIsin(putOptionIsin);
+                        putOption.setMarket(Market.fromString(optionMarketId));
+                        putOption.setCurrency(Currency.fromString(optionCurreny));
+                        putOption.setStrike(RoundUtil.getBigDecimal(SwissquoteUtil.getDouble(optionStrike)));
+                        putOption.setContractSize(SwissquoteUtil.getInt(contractSize));
+                        putOption.setType(OptionType.PUT);
+                        putOption.setExpiration(optionExpiration);
+                        putOption.setUnderlaying(underlaying);
+                        securities.add(putOption);
+
+                        Tick putOptionTick = new TickImpl();
+                        putOptionTick.setDateTime(new Date());
+                        putOptionTick.setBid(new BigDecimal(0));
+                        putOptionTick.setAsk(new BigDecimal(0));
+                        putOptionTick.setLast(RoundUtil.getBigDecimal(SwissquoteUtil.getDouble(putOptionLast)));
+                        putOptionTick.setLastDateTime(new Date());
+                        putOptionTick.setVol(SwissquoteUtil.getInt(putOptionVol));
+                        putOptionTick.setOpenIntrest(SwissquoteUtil.getInt(putOptionOpenIntrest));
+                        putOptionTick.setSecurity(putOption);
+                        putOptionTick.setSettlement(new BigDecimal(0.0));
+                        ticks.add(putOptionTick);
                     }
                 }
                 getSecurityDao().create(securities);
@@ -362,14 +418,22 @@ public class SwissquoteStockOptionRetrieverServiceImpl extends SwissquoteStockOp
         GetMethod get = new GetMethod(url);
 
         HttpClient standardClient = HttpClientUtil.getStandardClient();
-        int status = standardClient.executeMethod(get);
 
-        if (status != HttpStatus.SC_OK) {
-            throw new HttpException("invalid option request: underlying=" + isin + " expiration=" + expirationString);
+        Document document;
+        try {
+            int status = standardClient.executeMethod(get);
+
+            document = TidyUtil.parse(get.getResponseBodyAsStream());
+
+            XmlUtil.saveDocumentToFile(document, isin + "_" + expirationString + ".xml", "results/options/");
+
+            if (status != HttpStatus.SC_OK) {
+                throw new HttpException("invalid option request: underlying=" + isin + " expiration=" + expirationString);
+            }
+
+        } finally {
+            get.releaseConnection();
         }
-        Document document = TidyUtil.parse(get.getResponseBodyAsStream());
-        get.releaseConnection();
-        XmlUtil.saveDocumentToFile(document, isin + "_" + expirationString + ".xml", "results/options/");
 
         //FileInputStream in = new FileInputStream("results/options/CH0008616382_1004.xml");
         //Document document = TidyUtil.parse(in);
