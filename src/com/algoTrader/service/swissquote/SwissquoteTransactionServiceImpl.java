@@ -1,12 +1,18 @@
 package com.algoTrader.service.swissquote;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.transform.TransformerException;
+
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -41,6 +47,7 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
     private static int confirmationTimeout = PropertiesUtil.getIntProperty("swissquote.confirmationTimeout");
     private static int confirmationRetries = PropertiesUtil.getIntProperty("swissquote.confirmationRetries");
     private static int maxTransactionAge = PropertiesUtil.getIntProperty("swissquote.maxTransactionAge");
+    private static String[] bidAskSpreadPositions = PropertiesUtil.getProperty("swissquote.bidAskSpreadPositions").split("\\s");
 
     private static String dispatchUrl = "https://trade.swissquote.ch/sqb_core/DispatchCtrl";
     private static String tradeUrl = "https://trade.swissquote.ch/sqb_core/TradeCtrl";
@@ -52,35 +59,390 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
-    @SuppressWarnings("unchecked")
     protected void handleExecuteExternalTransaction(Order order) throws Exception {
+
+        HttpClient client = HttpClientUtil.getSwissquoteTradeClient();
+
+        double bid = 0.0;
+        double ask = Double.POSITIVE_INFINITY;
+        for (String bidAskSpreadPosition : bidAskSpreadPositions) {
+
+            Document orderScreen = getOrderScreen(order, client);
+
+            if (bidAskSpreadPosition.equals(bidAskSpreadPositions[0])) {
+
+                // only validate price and volum the first time, because our orders will show up in the orderbook as well
+                validateTick(order, orderScreen);
+
+                // also only get the bid and ask the first time
+                bid = SwissquoteUtil.getDouble(SwissquoteUtil.getValue(orderScreen, String.format(tickMatch, "Geldkurs")));
+                ask = SwissquoteUtil.getDouble(SwissquoteUtil.getValue(orderScreen, String.format(tickMatch, "Briefkurs")));
+            }
+
+            Document confirmationScreen = getConfirmationScreen(order, client, orderScreen, Double.parseDouble(bidAskSpreadPosition), bid, ask);
+
+            getAckScreen(order, client, confirmationScreen);
+
+            Document openAndDailyOrdersScreen = getOpenAndDailyOrdersScreen(order, client);
+
+            // if the order did not execute fully, delete it
+            if (!OrderStatus.EXECUTED.equals(order.getStatus())) {
+
+                getDeleteScreen(order, client, openAndDailyOrdersScreen);
+
+                if (OrderStatus.OPEN.equals(order.getStatus())) {
+
+                    // nothing went through, so continue with the next higher
+                    // bidAskSpreadPosition
+                    continue;
+                }
+            }
+
+            getExecutedTransactionsScreen(order, client, openAndDailyOrdersScreen, bidAskSpreadPosition);
+
+            if (OrderStatus.EXECUTED.equals(order.getStatus())) {
+
+                // we are done!
+                break;
+
+            } else if (OrderStatus.PARTIALLY_EXECUTED.equals(order.getStatus())) {
+
+                // only part of the order has gone through, so reduce the
+                // requested
+                // numberOfContracts by this number and keep going
+                order.setRequestedQuantity(-Math.abs(order.getExecutedQuantity()));
+                continue;
+            }
+        }
+    }
+
+    private Document getOrderScreen(Order order, HttpClient client) throws IOException, HttpException, UnsupportedEncodingException,
+            TransformerException, ParseException {
+
+        Security security = order.getSecurity();
+
+        // get the order screen
+        NameValuePair[] params = new NameValuePair[] {
+                new NameValuePair("commandName", "trade"),
+                new NameValuePair("isin", security.getIsin()),
+                new NameValuePair("currency", security.getCurrency().getValue()),
+                new NameValuePair("stockExchange", security.getMarket().getValue()) };
+
+        GetMethod get = new GetMethod(dispatchUrl);
+        get.setQueryString(params);
+
+        Document orderScreen;
+        try {
+            int status = client.executeMethod(get);
+
+            orderScreen = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
+
+            XmlUtil.saveDocumentToFile(orderScreen, format.format(new Date()) + "_" + security.getIsin() + "_order.xml", "results/trade/");
+
+            if (status != HttpStatus.SC_OK) {
+                throw new TransactionServiceException("could not get order screen: " + security.getIsin() + ", status: " + get.getStatusLine());
+            }
+
+        } finally {
+            get.releaseConnection();
+        }
+
+        return orderScreen;
+    }
+
+    private Document getConfirmationScreen(Order order, HttpClient client, Document orderScreen, double bidAskSpreadPosition, double bid, double ask )
+            throws TransformerException, ParseException, IOException, HttpException, UnsupportedEncodingException {
 
         Security security = order.getSecurity();
         TransactionType transactionType = order.getTransactionType();
         long requestedQuantity = order.getRequestedQuantity();
 
-        HttpClient client = HttpClientUtil.getSwissquoteTradeClient();
+        // process the hidden fields
+        NodeIterator nodeIterator = XPathAPI.selectNodeIterator(orderScreen, "//input[@type='hidden']");
+        Node node;
+        Set<NameValuePair> paramSet = new HashSet<NameValuePair>();
+        while ((node = nodeIterator.nextNode()) != null) {
+            String name = SwissquoteUtil.getValue(node, "@name");
+            String value = SwissquoteUtil.getValue(node, "@value");
 
+            if (name.equals("phase"))
+                value = "confirm";
 
-        // 1. get the order screen
-        NameValuePair[] params = new NameValuePair[] {
-                new NameValuePair("commandName", "trade"),
-                new NameValuePair("isin", security.getIsin()),
-                new NameValuePair("currency", security.getCurrency().getValue()),
-                new NameValuePair("stockExchange", security.getMarket().getValue())
-            };
+            paramSet.add(new NameValuePair(name, value));
+        }
+
+        // transactionType
+        Position position = security.getPosition();
+        String openClose = (position != null && position.isOpen()) ? "CLOSE" : "OPEN";
+        String transactionTypeString = TransactionType.SELL.equals(transactionType) ? "SELL to " + openClose : "BUY to " + openClose;
+        String orderTransactionValue = SwissquoteUtil.getValue(orderScreen, "//tr[td/font/strong='" + transactionTypeString + "']/td/input/@value");
+        paramSet.add(new NameValuePair("order.transaction", orderTransactionValue));
+
+        // quantity
+        paramSet.add(new NameValuePair("order.quantity", String.valueOf(requestedQuantity)));
+
+        // price
+        double price = 0.0;
+        if (TransactionType.BUY.equals(transactionType)) {
+            price = bid + bidAskSpreadPosition * (ask - bid);
+        } else if (TransactionType.SELL.equals(transactionType)) {
+            price = ask - bidAskSpreadPosition * (ask - bid);
+        }
+        BigDecimal roundedPrice = RoundUtil.roundTo10Cent(RoundUtil.getBigDecimal(price));
+        paramSet.add(new NameValuePair("order.price", roundedPrice.toString()));
+
+        // stockExchange
+        String stockExchangeValue = SwissquoteUtil.getValue(orderScreen, "//select[@name='stockExchange']/option[@selected='selected']/@value");
+        paramSet.add(new NameValuePair("stockExchange", stockExchangeValue));
+
+        // orderType
+        String orderTypeValue = SwissquoteUtil.getValue(orderScreen, "//select[@name='order.orderType']/option[.='Limit']/@value");
+        paramSet.add(new NameValuePair("order.orderType", orderTypeValue));
+
+        // expiration
+        String expirationValue = SwissquoteUtil.getValue(orderScreen, "//select[@name='order.str_expiration']/option[1]/@value");
+        paramSet.add(new NameValuePair("order.str_expiration", expirationValue));
+
+        NameValuePair[] params = (NameValuePair[]) paramSet.toArray(new NameValuePair[0]);
+
+        // get the confirmation screen
+        GetMethod get = new GetMethod(tradeUrl);
+        get.setQueryString(params);
+
+        Document confirmationScreen;
+        try {
+            int status = client.executeMethod(get);
+
+            confirmationScreen = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
+
+            XmlUtil.saveDocumentToFile(confirmationScreen, format.format(new Date()) + "_" + security.getIsin() + "_confirmation.xml", "results/trade/");
+
+            if (status != HttpStatus.SC_OK) {
+                throw new TransactionServiceException("could not get confirmation screen: " + security.getIsin() + ", status: " + get.getStatusLine());
+            }
+
+        } finally {
+            get.releaseConnection();
+        }
+
+        logger.debug("place order at bidAskSpreadPosition: " + bidAskSpreadPosition + ", bid: " + bid + ", ask: " + ask + ", price: " + roundedPrice);
+
+        return confirmationScreen;
+    }
+
+    private void getAckScreen(Order order, HttpClient client, Document confirmationScreen) throws TransformerException, IOException, HttpException,
+            UnsupportedEncodingException, InterruptedException {
+
+        Security security = order.getSecurity();
+
+        // process the hidden fields
+        NodeIterator nodeIterator = XPathAPI.selectNodeIterator(confirmationScreen, "//input[@type='hidden']");
+        Set<NameValuePair> paramSet = new HashSet<NameValuePair>();
+        Node node;
+        while ((node = nodeIterator.nextNode()) != null) {
+            String name = SwissquoteUtil.getValue(node, "@name");
+            String value = SwissquoteUtil.getValue(node, "@value");
+
+            if (name.equals("phase"))
+                value = "ack";
+
+            paramSet.add(new NameValuePair(name, value));
+        }
+
+        NameValuePair[] params = (NameValuePair[]) paramSet.toArray(new NameValuePair[0]);
+
+        // get the ack screen
+        GetMethod get = new GetMethod(tradeUrl);
+        get.setQueryString(params);
+
+        try {
+            int status = client.executeMethod(get);
+
+            Document ackScreen = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
+
+            XmlUtil.saveDocumentToFile(ackScreen, format.format(new Date()) + "_" + security.getIsin() + "_ack.xml", "results/trade/");
+
+            if (status != HttpStatus.SC_OK) {
+                throw new TransactionServiceException("could not get ack screen: " + security.getIsin() + ", status: " + get.getStatusLine());
+            }
+
+        } finally {
+            get.releaseConnection();
+        }
+
+        Thread.sleep(confirmationTimeout);
+    }
+
+    private Document getOpenAndDailyOrdersScreen(Order order, HttpClient client) throws IOException, HttpException,
+            UnsupportedEncodingException, TransformerException, InterruptedException {
+
+        Security security = order.getSecurity();
+
+        Document openAndDailyOrdersScreen = null;
+        for (int i = 0; i < confirmationRetries; i++) {
+
+            GetMethod get = new GetMethod(ordersUrl);
+
+            try {
+                int status = client.executeMethod(get);
+
+                openAndDailyOrdersScreen = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
+
+                XmlUtil.saveDocumentToFile(openAndDailyOrdersScreen, format.format(new Date()) + "_" + security.getIsin() + "_open_daily_orders.xml", "results/trade/");
+
+                if (status != HttpStatus.SC_OK) {
+                    throw new TransactionServiceException("could not get open / daily orders screen, status: " + get.getStatusLine());
+                }
+
+            } finally {
+                get.releaseConnection();
+            }
+
+            Node openNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[td='Offen' and contains(td/a/@href, '" + security.getIsin() + "')]");
+            Node unreleasedNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[td='Unreleased' and contains(td/a/@href, '" + security.getIsin() + "')]");
+            Node partiallyExecutedNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[td='Teilweise Ausgeführt' and contains(td/a/@href, '" + security.getIsin() + "')]");
+            Node executedNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[td='Ausgeführt' and contains(td/a/@href, '" + security.getIsin() + "')]");
+            Node unknownStateNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[contains(td/a/@href, '" + security.getIsin() + "')]/td[10]");
+
+            if (openNode != null || unreleasedNode != null) {
+                order.setStatus(OrderStatus.OPEN);
+            } else if (partiallyExecutedNode != null) {
+                order.setStatus(OrderStatus.PARTIALLY_EXECUTED);
+            } else if (executedNode != null) {
+                order.setStatus(OrderStatus.EXECUTED);
+                // keep going, the transaction ist executed but has not showed
+                // up under executed transactions yet
+            } else if (unknownStateNode != null) {
+                throw new TransactionServiceException("unknown order status " + unknownStateNode.getFirstChild().getNodeValue() + " for order on: " + security.getSymbol());
+            } else {
+                // the transaction has executed
+                order.setStatus(OrderStatus.EXECUTED);
+                break;
+            }
+
+            Thread.sleep(confirmationTimeout);
+        }
+        return openAndDailyOrdersScreen;
+    }
+
+    private void getDeleteScreen(Order order, HttpClient client, Document openAndDailyOrdersScreen) throws TransformerException, IOException, HttpException,
+            UnsupportedEncodingException {
+
+        Security security = order.getSecurity();
+
+        String orderNumber = SwissquoteUtil.getValue(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[contains(td/a/@href, '" + security.getIsin() + "')]/td[11]");
+
+        if (orderNumber == null)
+            throw new TransactionServiceException("could not retrieve orderNumber to delete order: " + security.getSymbol());
+
+        order.setNumber(orderNumber);
+
+        // get the delete screen
+        NameValuePair[] params = new NameValuePair[] { new NameValuePair("commandName", "delete"), new NameValuePair("tradeId", orderNumber) };
 
         GetMethod get = new GetMethod(dispatchUrl);
         get.setQueryString(params);
-        int status = client.executeMethod(get);
 
-        if (status != HttpStatus.SC_OK) {
-            throw new TransactionServiceException("could not get order screen: " + security.getIsin() + ", status: " + get.getStatusLine());
+        int status;
+        Document deleteScreen;
+        try {
+            status = client.executeMethod(get);
+
+            deleteScreen = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
+
+            XmlUtil.saveDocumentToFile(deleteScreen, format.format(new Date()) + "_" + security.getIsin() + "_delete_order.xml", "results/trade/");
+
+            Node node = XPathAPI.selectSingleNode(deleteScreen, "//strong[.='Löschauftrag']");
+
+            if (status != HttpStatus.SC_INTERNAL_SERVER_ERROR || node == null) {
+                throw new TransactionServiceException("could not delete order after reaching timelimit: " + security.getSymbol() + ", status: " + get.getStatusLine());
+            }
+
+        } finally {
+            get.releaseConnection();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void getExecutedTransactionsScreen(Order order, HttpClient client, Document openAndDailyOrdersScreen, String bidAskSpreadPosition)
+            throws TransformerException, ParseException, IOException, HttpException, UnsupportedEncodingException {
+
+        Security security = order.getSecurity();
+        TransactionType transactionType = order.getTransactionType();
+
+        // check if transaction shows up under daily-orders
+        Node dailyOrderNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading']/tbody/tr[contains(td/a/@href, '" + security.getIsin() + "')][1]");
+        if (dailyOrderNode == null) {
+            throw new TransactionServiceException("transaction on " + security.getSymbol() + " did execute but did not show up under daily-orders within timelimit");
         }
 
-        Document document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
-        get.releaseConnection();
-        XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_" + security.getIsin() + "_order.xml", "results/trade/");
+        // parse the rest of the open/daily order screen
+        String dateValue = SwissquoteUtil.getValue(dailyOrderNode, String.format(columnMatch, "Datum"));
+        String timeValue = SwissquoteUtil.getValue(dailyOrderNode, String.format(columnMatch, "Zeit"));
+        Date dateTime = SwissquoteUtil.getDate(dateValue + " " + timeValue);
+
+        if (DateUtil.getCurrentEPTime().getTime() - dateTime.getTime() > maxTransactionAge) {
+            throw new TransactionServiceException("transaction on " + security.getSymbol() + " did execute, but the selected transaction under daily orders is too old");
+        }
+
+        String orderNumber = SwissquoteUtil.getValue(dailyOrderNode, String.format(columnMatch, "Auftrag"));
+        order.setNumber(orderNumber);
+
+        // get the executed transactions screen
+        GetMethod get = new GetMethod(transactionsUrl);
+
+        Document executedTransactionsScreen = null;
+        try {
+            int status = client.executeMethod(get);
+
+            executedTransactionsScreen = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
+
+            XmlUtil.saveDocumentToFile(executedTransactionsScreen, format.format(new Date()) + "_" + security.getIsin() + "_executed_transactions.xml", "results/trade/");
+
+            if (status != HttpStatus.SC_OK) {
+                throw new TransactionServiceException("could not get executed transaction screen, status: " + get.getStatusLine());
+            }
+
+        } catch (Exception e) {
+            get.releaseConnection();
+        }
+
+        NodeIterator nodeIterator = XPathAPI.selectNodeIterator(executedTransactionsScreen, "//tr[td/a='" + orderNumber + "']");
+        Node node;
+        while ((node = nodeIterator.nextNode()) != null) {
+
+            String transactionNumber = SwissquoteUtil.getValue(node, String.format(columnMatch + "/a/@href", "Auftrag #"));
+            transactionNumber = transactionNumber.split("contractNumber=")[1];
+
+            String executedQuantityValue = SwissquoteUtil.getValue(node, String.format(columnMatch, "Anzahl"));
+            int executedQuantity = Math.abs(SwissquoteUtil.getInt(executedQuantityValue));
+            executedQuantity = TransactionType.SELL.equals(transactionType) ? -executedQuantity : executedQuantity;
+
+            String pricePerItemValue = SwissquoteUtil.getValue(node, String.format(columnMatch, "Stückpreis"));
+            double pricePerItem = SwissquoteUtil.getDouble(pricePerItemValue);
+            BigDecimal price = RoundUtil.getBigDecimal(pricePerItem * ((StockOption) security).getContractSize());
+
+            String commissionValue = SwissquoteUtil.getValue(node, String.format(columnMatch + "/a", "Kommission"));
+            BigDecimal commission = RoundUtil.getBigDecimal(SwissquoteUtil.getDouble(commissionValue));
+
+            Transaction transaction = new TransactionImpl();
+            transaction.setDateTime(dateTime);
+            transaction.setNumber(transactionNumber);
+            transaction.setQuantity(executedQuantity);
+            transaction.setPrice(price);
+            transaction.setCommission(commission);
+
+            order.getTransactions().add(transaction);
+        }
+
+        logger.info("executed " + order.getExecutedQuantity() + " transactions at bidAskSpreadPosition: " + bidAskSpreadPosition);
+    }
+
+    private void validateTick(Order order, Document document) throws TransformerException, ParseException {
+
+        Security security = order.getSecurity();
+        TransactionType transactionType = order.getTransactionType();
+        long requestedQuantity = order.getRequestedQuantity();
 
         // create a temporary tick
         String volBidValue = SwissquoteUtil.getValue(document, String.format(tickMatch, "Geldkurs-Volumen"));
@@ -96,233 +458,20 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
         BigDecimal ask = RoundUtil.getBigDecimal(SwissquoteUtil.getDouble(askValue));
 
         Tick tick = new TickImpl();
+        tick.setSecurity(security);
         tick.setVolBid(volBid);
         tick.setVolAsk(volAsk);
         tick.setBid(bid);
         tick.setAsk(ask);
 
         // validity check (volume and bid/ask spread)
-        if (!tick.isValid()) {
-            throw new TransactionServiceException("tickdata is not valid for order on " + security.getIsin() + ", tick: " + tick);
-        }
+        tick.validate();
 
         // validity check (available volume)
         if (TransactionType.BUY.equals(transactionType) && volAsk < requestedQuantity) {
             logger.warn("available volume (" + volAsk + ") is smaler than requested quantity (" + requestedQuantity + ") for a order on " + security.getIsin());
         } else if (TransactionType.SELL.equals(transactionType) && volBid < requestedQuantity) {
             logger.warn("available volume (" + volBid + ") is smaler than requested quantity (" + requestedQuantity + ") for a order on " + security.getIsin());
-        }
-
-        // process the hidden fields
-        NodeIterator nodeIterator = XPathAPI.selectNodeIterator(document, "//input[@type='hidden']");
-        Node node;
-        Set<NameValuePair> paramSet = new HashSet<NameValuePair>();
-        while ((node = nodeIterator.nextNode()) != null) {
-            String name = SwissquoteUtil.getValue(node, "@name");
-            String value = SwissquoteUtil.getValue(node, "@value");
-
-            if (name.equals("phase")) value = "confirm";
-
-            paramSet.add(new NameValuePair(name, value));
-        }
-
-        // transactionType
-        Position position = security.getPosition();
-        String openClose = (position != null && position.isOpen()) ? "CLOSE" : "OPEN";
-        String transactionTypeString = TransactionType.SELL.equals(transactionType) ? "SELL to " + openClose : "BUY to " + openClose;
-        String orderTransactionValue = SwissquoteUtil.getValue(document, "//tr[td/font/strong='" + transactionTypeString + "']/td/input/@value");
-        paramSet.add(new NameValuePair("order.transaction", orderTransactionValue));
-
-        // quantity
-        paramSet.add(new NameValuePair("order.quantity", String.valueOf(requestedQuantity)));
-
-        // price
-        if (TransactionType.BUY.equals(transactionType)) {
-            paramSet.add(new NameValuePair("order.price", ask.toString()));
-        } else if (TransactionType.SELL.equals(transactionType)) {
-            paramSet.add(new NameValuePair("order.price", bid.toString()));
-        }
-
-        // stockExchange
-        String stockExchangeValue = SwissquoteUtil.getValue(document, "//select[@name='stockExchange']/option[@selected='selected']/@value");
-        paramSet.add(new NameValuePair("stockExchange", stockExchangeValue));
-
-        // orderType
-        String orderTypeValue = SwissquoteUtil.getValue(document, "//select[@name='order.orderType']/option[.='Limit']/@value");
-        paramSet.add(new NameValuePair("order.orderType", orderTypeValue));
-
-        // expiration
-        String expirationValue  = SwissquoteUtil.getValue(document, "//select[@name='order.str_expiration']/option[1]/@value");
-        paramSet.add(new NameValuePair("order.str_expiration", expirationValue));
-
-        params = (NameValuePair[])paramSet.toArray(new NameValuePair[0]);
-
-        // 2. get the confirmation screen
-        get = new GetMethod(tradeUrl);
-        get.setQueryString(params);
-        status = client.executeMethod(get);
-
-        if (status != HttpStatus.SC_OK) {
-            throw new TransactionServiceException("could not get confirmation screen: " + security.getIsin() + ", status: " + get.getStatusLine());
-        }
-
-        document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
-        get.releaseConnection();
-        XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_" + security.getIsin() + "_confirmation.xml", "results/trade/");
-
-        // process the hidden fields
-        nodeIterator = XPathAPI.selectNodeIterator(document, "//input[@type='hidden']");
-        paramSet = new HashSet<NameValuePair>();
-        while ((node = nodeIterator.nextNode()) != null) {
-            String name = SwissquoteUtil.getValue(node, "@name");
-            String value = SwissquoteUtil.getValue(node, "@value");
-
-            if (name.equals("phase")) value = "ack";
-
-            paramSet.add(new NameValuePair(name, value));
-        }
-
-        // 3. get the ack screen
-        params = (NameValuePair[])paramSet.toArray(new NameValuePair[0]);
-
-        get = new GetMethod(tradeUrl);
-        get.setQueryString(params);
-        status = client.executeMethod(get);
-
-        if (status != HttpStatus.SC_OK) {
-            throw new TransactionServiceException("could not get ack screen: " + security.getIsin() + ", status: " + get.getStatusLine());
-        }
-
-        document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
-        get.releaseConnection();
-        XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_" + security.getIsin() + "_ack.xml", "results/trade/");
-
-
-        // 4. get the open/daily orders screen
-        get = new GetMethod(ordersUrl);
-
-        for (int i = 0; i < confirmationRetries ; i++) {
-
-            status = client.executeMethod(get);
-
-            if (status != HttpStatus.SC_OK) {
-                throw new TransactionServiceException("could not get open / daily orders screen, status: " + get.getStatusLine());
-            }
-
-            document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
-            get.releaseConnection();
-            XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_" + security.getIsin() + "_open_daily_orders.xml", "results/trade/");
-
-            Node openNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[td='Offen' and contains(td/a/@href, '" + security.getIsin()+ "')]");
-            Node unreleasedNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[td='Unreleased' and contains(td/a/@href, '" + security.getIsin()+ "')]");
-            Node partiallyExecutedNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[td='Teilweise Ausgeführt' and contains(td/a/@href, '" + security.getIsin()+ "')]");
-            Node executedNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[td='Ausgeführt' and contains(td/a/@href, '" + security.getIsin()+ "')]");
-            Node unknownStateNode = XPathAPI.selectSingleNode(document, "//table[@class='trading maskMe']/tbody/tr[contains(td/a/@href, '" + security.getIsin()+ "')]/td[10]");
-
-            if (openNode != null || unreleasedNode != null) {
-                order.setStatus(OrderStatus.OPEN);
-            } else if (partiallyExecutedNode != null) {
-                order.setStatus(OrderStatus.PARTIALLY_EXECUTED);
-            } else if (executedNode != null) {
-                order.setStatus(OrderStatus.EXECUTED);
-                // keep going, the transaction ist executed but has not showed up under executed transactions yet
-            } else if (unknownStateNode != null ) {
-                throw new TransactionServiceException("unknown order status " + unknownStateNode.getFirstChild().getNodeValue() + " for order on: " + security.getSymbol());
-            } else {
-                // the transaction has executed
-                order.setStatus(OrderStatus.EXECUTED);
-                break;
-            }
-
-            Thread.sleep(confirmationTimeout);
-        }
-
-        // if the order did not execute fully, delete it
-        if (!OrderStatus.EXECUTED.equals(order.getStatus())) {
-
-            String orderNumber = SwissquoteUtil.getValue(document, "//table[@class='trading maskMe']/tbody/tr[contains(td/a/@href, '" + security.getIsin()+ "')]/td[11]");
-
-            if (orderNumber == null) throw new TransactionServiceException("could not retrieve orderNumber to delete order: " + security.getSymbol());
-
-            order.setNumber(orderNumber);
-
-            // 4B. get the delete screen
-            params = new NameValuePair[] {
-                    new NameValuePair("commandName", "delete"),
-                    new NameValuePair("tradeId", orderNumber)
-                };
-
-            get = new GetMethod(dispatchUrl);
-            get.setQueryString(params);
-            status = client.executeMethod(get);
-
-            document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
-            get.releaseConnection();
-            XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_" + security.getIsin() + "_delete_order.xml", "results/trade/");
-
-            node = XPathAPI.selectSingleNode(document, "//strong[.='Löschauftrag']");
-
-            if (status != HttpStatus.SC_INTERNAL_SERVER_ERROR || node == null) {
-                throw new TransactionServiceException("could not delete order after reaching timelimit: " + security.getSymbol() + ", status: " + get.getStatusLine());
-            } else if (OrderStatus.OPEN.equals(order.getStatus())) {
-                throw new TransactionServiceException("order did not execute at all within timelimit: " + security.getSymbol());
-            }
-        }
-
-        Node dailyOrderNode = XPathAPI.selectSingleNode(document, "//table[@class='trading']/tbody/tr[contains(td/a/@href, '" + security.getIsin() + "')][1]");
-        if (dailyOrderNode == null) {
-            throw new TransactionServiceException("transaction on " + security.getSymbol() + " did execute but did not show up under daily-orders within timelimit");
-        }
-
-        // parse the rest of the open/daily order screen
-        String dateValue = SwissquoteUtil.getValue(dailyOrderNode, String.format(columnMatch, "Datum"));
-        String timeValue = SwissquoteUtil.getValue(dailyOrderNode, String.format(columnMatch, "Zeit"));
-        Date dateTime = SwissquoteUtil.getDate(dateValue + " " + timeValue);
-
-        if (DateUtil.getCurrentEPTime().getTime() - dateTime.getTime() > maxTransactionAge ) {
-            throw new TransactionServiceException("transaction on " + security.getSymbol() + " did execute, but the selected transaction under daily orders is too old");
-        }
-
-        String orderNumber = SwissquoteUtil.getValue(dailyOrderNode, String.format(columnMatch, "Auftrag"));
-        order.setNumber(orderNumber);
-
-        // 5. get the executed transactions screen
-        get = new GetMethod(transactionsUrl);
-        status = client.executeMethod(get);
-
-        if (status != HttpStatus.SC_OK) {
-            throw new TransactionServiceException("could not get executed transaction screen, status: " + get.getStatusLine());
-        }
-
-        document = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
-        get.releaseConnection();
-        XmlUtil.saveDocumentToFile(document, format.format(new Date()) + "_" + security.getIsin() + "_executed_transactions.xml", "results/trade/");
-
-        nodeIterator = XPathAPI.selectNodeIterator(document, "//tr[td/a='" + orderNumber + "']");
-        while ((node = nodeIterator.nextNode()) != null) {
-
-            String transactionNumber = SwissquoteUtil.getValue(node, String.format(columnMatch + "/a/@href", "Auftrag #"));
-            transactionNumber = transactionNumber.split("contractNumber=")[1];
-
-            String executedQuantityValue = SwissquoteUtil.getValue(node, String.format(columnMatch, "Anzahl"));
-            int executedQuantity = Math.abs(SwissquoteUtil.getInt(executedQuantityValue));
-            executedQuantity = TransactionType.SELL.equals(transactionType) ? -executedQuantity : executedQuantity;
-
-            String pricePerItemValue = SwissquoteUtil.getValue(node, String.format(columnMatch, "Stückpreis"));
-            double pricePerItem = SwissquoteUtil.getDouble(pricePerItemValue);
-            BigDecimal price = RoundUtil.getBigDecimal(pricePerItem * ((StockOption)security).getContractSize());
-
-            String commissionValue = SwissquoteUtil.getValue(node, String.format(columnMatch + "/a", "Kommission"));
-            BigDecimal commission = RoundUtil.getBigDecimal(SwissquoteUtil.getDouble(commissionValue));
-
-            Transaction transaction = new TransactionImpl();
-            transaction.setDateTime(dateTime);
-            transaction.setNumber(transactionNumber);
-            transaction.setQuantity(executedQuantity);
-            transaction.setPrice(price);
-            transaction.setCommission(commission);
-
-            order.getTransactions().add(transaction);
         }
     }
 }
