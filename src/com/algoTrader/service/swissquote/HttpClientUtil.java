@@ -121,17 +121,22 @@ public class HttpClientUtil {
         Document loginDocument = null;
         {
             GetMethod method = new GetMethod(tradeLoginUrl);
-            int status = tradeClient.executeMethod(method);
 
-            if (status != HttpStatus.SC_OK) {
-                throw new LoginException("error on login screen: " + method.getStatusLine());
+            try {
+                int status = tradeClient.executeMethod(method);
+
+                loginPath = method.getPath();
+                loginDocument = TidyUtil.parse(method.getResponseBodyAsStream());
+
+                XmlUtil.saveDocumentToFile(loginDocument, format.format(new Date()) + "_loginGet.xml", "results/login/");
+
+                if (status != HttpStatus.SC_OK) {
+                    throw new LoginException("error on login screen: " + method.getStatusLine());
+                }
+
+            } finally {
+                method.releaseConnection();
             }
-
-            loginPath = method.getPath();
-            loginDocument = TidyUtil.parse(method.getResponseBodyAsStream());
-            XmlUtil.saveDocumentToFile(loginDocument, format.format(new Date()) + "_loginGet.xml", "results/login/");
-
-            method.releaseConnection();
         }
 
         // password screen
@@ -151,30 +156,36 @@ public class HttpClientUtil {
                     };
 
                 method.setRequestBody(loginData);
-                int status = tradeClient.executeMethod(method);
 
-                if ((status != HttpStatus.SC_MOVED_TEMPORARILY) ||
-                    !method.getResponseHeader("location").getValue().contains(tradeLevel3Url)) {
+                try {
+                    int status = tradeClient.executeMethod(method);
+
+                    if ((status != HttpStatus.SC_MOVED_TEMPORARILY) || !method.getResponseHeader("location").getValue().contains(tradeLevel3Url)) {
                         throw new LoginException("after password screen did not get redirect");
-                }
+                    }
 
-                redirectUrl = method.getResponseHeader("location").getValue();
-                method.releaseConnection();
+                    redirectUrl = method.getResponseHeader("location").getValue();
+                } finally {
+                    method.releaseConnection();
+                }
             }
 
             {
                 GetMethod method = new GetMethod(redirectUrl);
-                int status = tradeClient.executeMethod(method);
+                try {
+                    int status = tradeClient.executeMethod(method);
 
-                if (status != HttpStatus.SC_OK) {
-                    throw new LoginException("error on password screen: " + method.getStatusLine());
+                    passwordPath = method.getPath();
+                    passwordDocument = TidyUtil.parse(method.getResponseBodyAsStream());
+
+                    XmlUtil.saveDocumentToFile(passwordDocument, format.format(new Date()) + "_passwordPost.xml", "results/login/");
+
+                    if (status != HttpStatus.SC_OK) {
+                        throw new LoginException("error on password screen: " + method.getStatusLine());
+                    }
+                } finally {
+                    method.releaseConnection();
                 }
-
-                passwordPath = method.getPath();
-                passwordDocument = TidyUtil.parse(method.getResponseBodyAsStream());
-                XmlUtil.saveDocumentToFile(passwordDocument, format.format(new Date()) + "_passwordPost.xml", "results/login/");
-
-                method.releaseConnection();
             }
         }
 
@@ -200,14 +211,16 @@ public class HttpClientUtil {
                 };
             method.setRequestBody(loginData);
 
-            int status = tradeClient.executeMethod(method);
+            try {
+                int status = tradeClient.executeMethod(method);
 
-            if ((status != HttpStatus.SC_MOVED_TEMPORARILY) ||
-                !method.getResponseHeader("location").getValue().contains(tradeLoginUrl)) {
+                if ((status != HttpStatus.SC_MOVED_TEMPORARILY) || !method.getResponseHeader("location").getValue().contains(tradeLoginUrl)) {
                     throw new LoginException("after level-3 screen did not get redirect");
-            }
+                }
 
-            method.releaseConnection();
+            } finally {
+                method.releaseConnection();
+            }
         }
 
         return tradeClient;

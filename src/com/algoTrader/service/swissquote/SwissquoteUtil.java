@@ -26,7 +26,7 @@ public class SwissquoteUtil {
     private static String stockOptionUrl = "http://premium.swissquote.ch/sq_mi/market/Detail.action?s=";
     private static String indexUrl = "http://premium.swissquote.ch/fcgi-bin/stockfquote?symbols=";
 
-    public static Document getSecurityDocument(Security security) throws IOException, HttpException {
+    public static Document getSecurityDocument(Security security) throws HttpException, IOException  {
 
         GetMethod get;
         if (security instanceof StockOption) {
@@ -36,19 +36,22 @@ public class SwissquoteUtil {
         }
 
         HttpClient client = HttpClientUtil.getSwissquotePremiumClient();
-        int status = client.executeMethod(get);
 
-        if (status != HttpStatus.SC_OK) {
-            throw new HttpException("could not retrieve security: " + security.getIsin() + ", status: " + get.getStatusLine());
+        Document document;
+        try {
+            int status = client.executeMethod(get);
+
+            document = TidyUtil.parse(get.getResponseBodyAsStream());
+
+            XmlUtil.saveDocumentToFile(document, security.getIsin() + ".xml", "results/security/");
+
+            if (status != HttpStatus.SC_OK) {
+                throw new HttpException("could not retrieve security: " + security.getIsin() + ", status: " + get.getStatusLine());
+            }
+
+        } finally {
+            get.releaseConnection();
         }
-
-        // parse the content using Tidy
-        Document document = TidyUtil.parse(get.getResponseBodyAsStream());
-
-        get.releaseConnection();
-
-        // save the file
-        XmlUtil.saveDocumentToFile(document, security.getIsin() + ".xml", "results/security/");
 
         return document;
     }
