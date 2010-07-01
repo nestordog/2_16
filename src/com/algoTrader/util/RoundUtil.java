@@ -10,6 +10,12 @@ public class RoundUtil {
         return getBigDecimal(rounded);
     }
 
+    public static BigDecimal roundTo10Cent(BigDecimal decimal) {
+
+        double rounded = Math.round(decimal.doubleValue() * 10.0) / 10.0;
+        return getBigDecimal(rounded);
+    }
+
     public static BigDecimal getBigDecimal(double value) {
 
         BigDecimal decimal = new BigDecimal(value);
