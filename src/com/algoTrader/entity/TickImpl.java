@@ -69,8 +69,7 @@ public class TickImpl extends com.algoTrader.entity.Tick {
             double maxSpread = average * spreadSlope + maxSpreadConstant;
 
             if (spread > maxSpread) {
-                //throw new TickServiceException("spread (" + spread + ") is higher than maxSpread (" + maxSpread + ") for security " + getSecurity());
-                // TODO remove
+                throw new TickServiceException("spread (" + spread + ") is higher than maxSpread (" + maxSpread + ") for security " + getSecurity());
             }
         }
     }
