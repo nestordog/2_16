@@ -52,7 +52,6 @@ public class TickImpl extends com.algoTrader.entity.Tick {
         return getSettlement().doubleValue();
     }
 
-
     public void validate() {
 
         if (getSecurity() instanceof StockOption) {
