@@ -5,16 +5,22 @@
 
     <event-type name="Tick" class="com.algoTrader.entity.TickImpl"/>
     <event-type name="Transaction" class="com.algoTrader.entity.TransactionImpl"/>
+
     <event-type name="KFast" class="com.algoTrader.entity.KFastImpl"/>
     <event-type name="KSlow" class="com.algoTrader.entity.KSlowImpl"/>
     <event-type name="DSlow" class="com.algoTrader.entity.DSlowImpl"/>
     <event-type name="ExitValue" class="com.algoTrader.entity.ExitValueImpl"/>
+    <event-type name="MonthlyPerformance" class="com.algoTrader.entity.MonthlyPerformanceImpl"/>
+
     <event-type name="Interpolation" class="com.algoTrader.vo.InterpolationVO"/>
+    <event-type name="PerformanceKeys" class="com.algoTrader.vo.PerformanceKeysVO"/>
+    <event-type name="MaxDrawDown" class="com.algoTrader.vo.MaxDrawDownVO"/>
 
     <auto-import import-name="com.algoTrader.util.LookupUtil"/>
     <auto-import import-name="com.algoTrader.stockOption.StockOptionUtil"/>
     <auto-import import-name="com.algoTrader.util.DateUtil"/>
     <auto-import import-name="com.algoTrader.util.RoundUtil"/>
+    <auto-import import-name="com.algoTrader.util.DrawDownUtil"/>
 
     <auto-import import-name="com.algoTrader.entity.*"/>
     <auto-import import-name="java.lang.*"/>
@@ -24,11 +30,18 @@
 
     <variable name="var_simulation" type="boolean" initialization-value="false"/>
     <variable name="var_isin" type="string" initialization-value="CH0008616382"/>
+    <variable name="var_intrest" type="double" initialization-value="0.0025"/>
+
     <variable name="var_events_per_day" type="double" initialization-value="500"/>
     <variable name="var_kFast_days" type="double" initialization-value="2.5"/>
     <variable name="var_kSlow_days" type="double" initialization-value="1"/>
     <variable name="var_dSlow_days" type="double" initialization-value="1.5"/>
-    <variable name="var_buy_trigger" type="double" initialization-value="0.8"/>
+
+    <variable name="var_call_trigger" type="double" initialization-value="0.4"/>
+    <variable name="var_put_trigger" type="double" initialization-value="0.25"/>
+
+    <variable name="var_call_enabled" type="boolean" initialization-value="false"/>
+    <variable name="var_put_enabled" type="boolean" initialization-value="true"/>
 
     <engine-settings>
         <defaults>
