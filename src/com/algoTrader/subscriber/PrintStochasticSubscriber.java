@@ -11,6 +11,6 @@ public class PrintStochasticSubscriber {
 
     public void update(Characteristic kFast, Characteristic kSlow, Characteristic dSlow)  {
 
-        logger.debug(kFast.getSecurity().getSymbol() + " kFast=" + kFast.getValue() + " kSlow=" + kSlow.getValue() + " dSlow=" + dSlow.getValue());
+        logger.debug(kFast.getSecurity().getSymbol() + "," + kFast.getValue() + "," + kSlow.getValue() + "," + dSlow.getValue());
     }
 }
