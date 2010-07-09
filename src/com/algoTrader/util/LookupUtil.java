@@ -35,4 +35,10 @@ public class LookupUtil {
         ServiceLocator serviceLocator = ServiceLocator.instance();
         return (serviceLocator.getLookupService().getOpenPositions().length != 0);
     }
+
+    public static double getPortfolioValueAllAccounts() {
+
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        return serviceLocator.getLookupService().getPortfolioValueAllAccounts().doubleValue();
+    }
 }
