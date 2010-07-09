@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 import org.apache.log4j.Logger;
 
+import com.algoTrader.entity.MonthlyPerformance;
 import com.algoTrader.entity.Rule;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Transaction;
@@ -22,9 +24,10 @@ import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.vo.InterpolationVO;
+import com.algoTrader.vo.MaxDrawDownVO;
+import com.algoTrader.vo.PerformanceKeysVO;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EventBean;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.AdapterInputSource;
@@ -109,6 +112,40 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         if (!statement.iterator().hasNext()) return null;
 
         return (InterpolationVO)statement.iterator().next().getUnderlying();
+    }
+
+    protected PerformanceKeysVO handleGetPerformanceKeys() throws Exception {
+
+        EPStatement statement = EsperService.getStatement(RuleName.CREATE_PERFORMANCE_KEYS);
+
+        if (statement == null) return null;
+
+        if (!statement.iterator().hasNext()) return null;
+
+        return (PerformanceKeysVO)statement.iterator().next().getUnderlying();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<MonthlyPerformance> handleGetMonthlyPerformances() throws Exception {
+
+        EPStatement statement = EsperService.getStatement(RuleName.KEEP_MONTHLY_PERFORMANCE);
+
+        if (statement == null) return null;
+
+        if (!statement.iterator().hasNext()) return null;
+
+        return IteratorUtils.toList(statement.iterator());
+    }
+
+    protected MaxDrawDownVO handleGetMaxDrawDown() throws Exception {
+
+        EPStatement statement = EsperService.getStatement(RuleName.CREATE_MAX_DRAW_DOWN);
+
+        if (statement == null) return null;
+
+        if (!statement.iterator().hasNext()) return null;
+
+        return (MaxDrawDownVO)statement.iterator().next().getUnderlying();
     }
 
     @SuppressWarnings("unchecked")
