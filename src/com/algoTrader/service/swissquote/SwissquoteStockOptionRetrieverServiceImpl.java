@@ -498,11 +498,11 @@ public class SwissquoteStockOptionRetrieverServiceImpl extends SwissquoteStockOp
         double volatility = volatilities.get(i);
 
         if (TransactionType.BUY.equals(transactionType) && volatility < (estimate - 3.0 * std)) {
-            double fairValue = StockOptionUtil.getFairValue(stockOption, underlayingSpot, volatility);
+            double fairValue = StockOptionUtil.getOptionPrice(stockOption, underlayingSpot, volatility);
             logger.warn("current price (" + currentValue + ") is to high compared to fair-value (" + fairValue + ") in regards to the volatility-curve");
             return false;
         } else if (TransactionType.SELL.equals(transactionType) && volatility > (estimate + 3.0 * std)) {
-            double fairValue = StockOptionUtil.getFairValue(stockOption, underlayingSpot, volatility);
+            double fairValue = StockOptionUtil.getOptionPrice(stockOption, underlayingSpot, volatility);
             logger.warn("current price (" + currentValue + ") is to low compared to fair-value (" + fairValue + ") in regards to the volatility-curve");
             return false;
         } else {
