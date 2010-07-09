@@ -128,16 +128,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         return getTransactionDao().getTransactionsWithinTimerange(null, null, 10);
     }
 
-    protected void handleImmediateBuySignal() throws Exception {
-
-        getRuleService().activate(RuleName.IMMEDIATE_BUY_SIGNAL);
-    }
-
-    protected void handleClosePosition(int positionId) throws Exception {
-
-        getStockOptionService().closePosition(positionId);
-    }
-
     protected void handleActivate(String ruleName) throws Exception {
 
         getRuleService().activate(ruleName);
