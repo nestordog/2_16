@@ -21,7 +21,8 @@ public class StockOptionUtil {
 
     private static double intrest = PropertiesUtil.getDoubleProperty("intrest");
     private static double dividend = PropertiesUtil.getDoubleProperty("dividend");
-    private static double volaPeriod = PropertiesUtil.getDoubleProperty("volaPeriod");
+    private static double volaPeriodCall = PropertiesUtil.getDoubleProperty("volaPeriodCall");
+    private static double volaPeriodPut = PropertiesUtil.getDoubleProperty("volaPeriodPut");
     private static double marginParameter = PropertiesUtil.getDoubleProperty("marginParameter");
     private static double spreadSlope = PropertiesUtil.getDoubleProperty("spreadSlope");
     private static double spreadConstant = PropertiesUtil.getDoubleProperty("spreadConstant");
@@ -35,7 +36,7 @@ public class StockOptionUtil {
     public static double getOptionPrice(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
 
         if (years <= 0 ) {
-            return getIntrinsicPrice(underlayingSpot, strike, type);
+            return getIntrinsicValue(underlayingSpot, strike, type);
         }
 
         double adjustedSpot = underlayingSpot * Math.exp(-dividend * years);
@@ -49,13 +50,14 @@ public class StockOptionUtil {
         }
     }
 
-    public static double getIntrinsicPrice(double underlayingSpot, double strike, OptionType type) {
+    public static double getOptionPrice(Security security, double underlayingSpot, double vola) throws RuntimeException {
 
-        if (OptionType.CALL.equals(type)) {
-            return Math.max(underlayingSpot - strike, 0d) ;
-        } else {
-            return Math.max(strike  - underlayingSpot, 0d);
-        }
+        StockOption stockOption = (StockOption)security;
+        Date currentTime = DateUtil.getCurrentEPTime();
+
+        double years = (stockOption.getExpiration().getTime() - currentTime.getTime()) / MILLISECONDS_PER_YEAR ;
+
+        return getOptionPrice(underlayingSpot, stockOption.getStrike().doubleValue(), vola, years, intrest, dividend, stockOption.getType());
     }
 
     public static double getVolatility(final double underlayingSpot, final double strike, final double optionValue, final double years, final double intrest, final double dividend, final OptionType type) throws ConvergenceException, FunctionEvaluationException {
@@ -76,21 +78,20 @@ public class StockOptionUtil {
         return getVolatility(underlayingSpot, strike, optionValue, years, intrest, dividend, type);
     }
 
-    public static double getFairValue(Security security, double underlayingSpot, double vola) throws RuntimeException {
+    public static double getIntrinsicValue(double underlayingSpot, double strike, OptionType type) {
 
-        StockOption stockOption = (StockOption)security;
-        Date currentTime = DateUtil.getCurrentEPTime();
-
-        double years = (stockOption.getExpiration().getTime() - currentTime.getTime()) / MILLISECONDS_PER_YEAR ;
-
-        return getOptionPrice(underlayingSpot, stockOption.getStrike().doubleValue(), vola, years, intrest, dividend, stockOption.getType());
+        if (OptionType.CALL.equals(type)) {
+            return Math.max(underlayingSpot - strike, 0d) ;
+        } else {
+            return Math.max(strike  - underlayingSpot, 0d);
+        }
     }
 
     public static double getIntrinsicValue(Security security, double underlayingSpot) throws RuntimeException {
 
         StockOption stockOption = (StockOption)security;
 
-        return getIntrinsicPrice(underlayingSpot, stockOption.getStrike().doubleValue(), stockOption.getType());
+        return getIntrinsicValue(underlayingSpot, stockOption.getStrike().doubleValue(), stockOption.getType());
     }
 
     public static double getExitValue(Security security, double underlayingSpot, double optionValue) throws ConvergenceException, FunctionEvaluationException {
@@ -101,22 +102,37 @@ public class StockOptionUtil {
 
         double volatility = getVolatility(underlayingSpot, stockOption.getStrike().doubleValue(), optionValue, years, intrest, dividend, stockOption.getType());
 
-        double exitLevel = underlayingSpot * (1 - volatility / Math.sqrt(DAYS_PER_YEAR / volaPeriod));
+        double exitLevel;
+        if (OptionType.CALL.equals(stockOption.getType())) {
+            exitLevel = underlayingSpot * (1 + volatility / Math.sqrt(DAYS_PER_YEAR / volaPeriodCall));
+        } else {
+            exitLevel = underlayingSpot * (1 - volatility / Math.sqrt(DAYS_PER_YEAR / volaPeriodPut));
+        }
 
-        return getFairValue(stockOption, exitLevel, volatility);
+        return getOptionPrice(stockOption, exitLevel, volatility);
+    }
+
+    public static double getMargin(double underlayingSpot, double strike, double settlement, double years, OptionType type) throws ConvergenceException, FunctionEvaluationException {
+
+        double marginLevel;
+        if (OptionType.CALL.equals(type)) {
+            marginLevel = underlayingSpot * (1.0 + marginParameter);
+        } else {
+            marginLevel = underlayingSpot * (1.0 - marginParameter);
+        }
+
+        // in margin calculations the dividend is not used!
+
+        double volatility = StockOptionUtil.getVolatility(underlayingSpot, strike , settlement, years, intrest, 0, type);
+
+        return getOptionPrice(marginLevel, strike, volatility, years, intrest, 0, type);
     }
 
     public static double getMargin(StockOption stockOption, double settlement, double underlayingSpot) throws ConvergenceException, FunctionEvaluationException {
 
-        double marginLevel = underlayingSpot * (1.0 - marginParameter);
-
-        double strike = stockOption.getStrike().doubleValue();
-
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
 
-        double volatility = StockOptionUtil.getVolatility(underlayingSpot, strike , settlement, years, intrest, dividend, stockOption.getType());
-
-        return getOptionPrice(marginLevel, strike, volatility, years, intrest, dividend, stockOption.getType());
+        return getMargin(underlayingSpot, stockOption.getStrike().doubleValue(), settlement, years, stockOption.getType());
     }
 
     public static double getDummyBid(double meanValue) {

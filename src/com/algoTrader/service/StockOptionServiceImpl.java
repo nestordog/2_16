@@ -13,7 +13,8 @@ import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 
-import com.algoTrader.criteria.StockOptionCriteria;
+import com.algoTrader.criteria.CallOptionCriteria;
+import com.algoTrader.criteria.PutOptionCriteria;
 import com.algoTrader.entity.Account;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.OrderImpl;
@@ -37,12 +38,11 @@ import com.algoTrader.util.RoundUtil;
 
 public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionServiceBase {
 
+    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static Market market = Market.fromString(PropertiesUtil.getProperty("simulation.market"));
     private static Currency currency = Currency.fromString(PropertiesUtil.getProperty("simulation.currency"));
-    private static OptionType optionType = OptionType.fromString(PropertiesUtil.getProperty("simulation.optionType"));
-
     private static int contractSize = PropertiesUtil.getIntProperty("simulation.contractSize");
-    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
+
     private static int minAge = PropertiesUtil.getIntProperty("minAge");
     private static double maxAtRiskRatio = PropertiesUtil.getDoubleProperty("maxAtRiskRatio");
     private static double maxAtRiskRatioPerTrade = PropertiesUtil.getDoubleProperty("maxAtRiskRatioPerTrade");
@@ -52,7 +52,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
     private long FORTY_FIVE_DAYS = 3888000000l;
 
-    protected StockOption handleGetStockOption(int underlayingSecurityId, BigDecimal underlayingSpot) throws Exception {
+    protected StockOption handleGetStockOption(int underlayingSecurityId, BigDecimal underlayingSpot, OptionType optionType) throws Exception {
 
         Security underlaying = getSecurityDao().load(underlayingSecurityId);
 
@@ -63,7 +63,8 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         if (simulation) {
             if ((stockOption == null)
                     || (stockOption.getExpiration().getTime() > (targetExpirationDate.getTime() + FORTY_FIVE_DAYS ))
-                    || (stockOption.getStrike().doubleValue() < underlayingSpot.doubleValue() - (50 + strikeOffset))) {
+                    || (OptionType.CALL.equals(optionType) && stockOption.getStrike().doubleValue() > underlayingSpot.doubleValue() + (50 + strikeOffset))
+                    || (OptionType.PUT.equals(optionType) && stockOption.getStrike().doubleValue() < underlayingSpot.doubleValue() - (50 + strikeOffset))  ) {
 
                 stockOption = createDummyStockOption(underlaying, targetExpirationDate, underlayingSpot, optionType);
 
@@ -78,8 +79,15 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         // set third Friday of the month
         Date expiration = DateUtil.getNextThirdFriday(targetExpirationDate);
 
-        // reduce by strikeOffset and round to lower 50
-        BigDecimal strike = RoundUtil.getBigDecimal(MathUtils.round((underlayingSpot.doubleValue() - strikeOffset)/ 50.0, 0, BigDecimal.ROUND_FLOOR) * 50.0);
+
+        BigDecimal strike;
+        if (OptionType.CALL.equals(type)) {
+            // increase by strikeOffset and round to upper 50
+            strike = RoundUtil.getBigDecimal(MathUtils.round((underlayingSpot.doubleValue() + strikeOffset)/ 50.0, 0, BigDecimal.ROUND_CEILING) * 50.0);
+        } else {
+            // reduce by strikeOffset and round to lower 50
+            strike = RoundUtil.getBigDecimal(MathUtils.round((underlayingSpot.doubleValue() - strikeOffset)/ 50.0, 0, BigDecimal.ROUND_FLOOR) * 50.0);
+        }
 
         // symbol
         GregorianCalendar cal = new GregorianCalendar();
@@ -116,12 +124,20 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private StockOption findNearestStockOption(Security underlaying, Date targetExpirationDate, BigDecimal underlayingSpot,
             OptionType type) throws Exception {
 
-        BigDecimal targetStrike = RoundUtil.getBigDecimal(underlayingSpot.doubleValue() - strikeOffset);
+        List<StockOption> list;
+        if (OptionType.CALL.equals(type)) {
+            BigDecimal targetStrike = RoundUtil.getBigDecimal(underlayingSpot.doubleValue() + strikeOffset);
+            CallOptionCriteria criteria = new CallOptionCriteria(underlaying, targetExpirationDate, targetStrike, type);
+            criteria.setMaximumResultSize(new Integer(1));
+            list = getStockOptionDao().findCallOptionByCriteria(criteria);
 
-        StockOptionCriteria criteria = new StockOptionCriteria(underlaying, targetExpirationDate, targetStrike, type);
-        criteria.setMaximumResultSize(new Integer(1));
+        } else {
+            BigDecimal targetStrike = RoundUtil.getBigDecimal(underlayingSpot.doubleValue() - strikeOffset);
+            PutOptionCriteria criteria = new PutOptionCriteria(underlaying, targetExpirationDate, targetStrike, type);
+            criteria.setMaximumResultSize(new Integer(1));
+            list = getStockOptionDao().findPutOptionByCriteria(criteria);
+        }
 
-        List<StockOption> list = getStockOptionDao().findByCriteria(criteria);
         if (list.size() > 0) {
             return list.get(0);
         } else {
