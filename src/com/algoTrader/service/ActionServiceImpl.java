@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 
 import org.apache.log4j.Logger;
 
+import com.algoTrader.entity.Position;
 import com.algoTrader.entity.StockOption;
+import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
@@ -64,8 +66,13 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         getStockOptionService().expirePosition(positionId);
 
+        // immediately roll into a new option
         if (!getRuleService().isActive(RuleName.OPEN_POSITION)) {
-            StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot);
+
+            Position position = getPositionDao().load(positionId);
+            StockOption oldStockOption = (StockOption)position.getSecurity();
+
+            StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot, oldStockOption.getType());
             getWatchlistService().putOnWatchlist(stockOption);
             getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
         }
@@ -79,16 +86,26 @@ public class ActionServiceImpl extends ActionServiceBase {
         logger.debug("buySignal start");
 
         if (!getRuleService().isActive(RuleName.OPEN_POSITION)) {
-            StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot);
+            StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot, OptionType.PUT);
             getWatchlistService().putOnWatchlist(stockOption);
             getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
         }
 
-        if (getRuleService().isActive(RuleName.IMMEDIATE_BUY_SIGNAL)) {
-            getRuleService().deactivate(RuleName.IMMEDIATE_BUY_SIGNAL);
+        logger.debug("buySignal end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+    }
+
+    protected void handleSellSignal(int underlayingId,  BigDecimal underlayingSpot) throws Exception {
+
+        long startTime = System.currentTimeMillis();
+        logger.debug("sellSignal start");
+
+        if (!getRuleService().isActive(RuleName.OPEN_POSITION)) {
+            StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot, OptionType.CALL);
+            getWatchlistService().putOnWatchlist(stockOption);
+            getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
         }
 
-        logger.debug("buySignal end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+        logger.debug("sellSignal end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
     protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlayingSpot) throws Exception {
@@ -110,7 +127,10 @@ public class ActionServiceImpl extends ActionServiceBase {
         getStockOptionService().closePosition(positionId);
 
         if (!getRuleService().isActive(RuleName.OPEN_POSITION)) {
-            StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot);
+            Position position = getPositionDao().load(positionId);
+            StockOption oldStockOption = (StockOption)position.getSecurity();
+
+            StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot, oldStockOption.getType());
             getWatchlistService().putOnWatchlist(stockOption);
             getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
         }
