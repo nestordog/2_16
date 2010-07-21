@@ -371,7 +371,7 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
         TransactionType transactionType = order.getTransactionType();
 
         // check if transaction shows up under daily-orders
-        Node dailyOrderNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading']/tbody/tr[contains(td/a/@href, '" + security.getIsin() + "')][1]");
+        Node dailyOrderNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading']/tbody/tr[contains(td/a/@href, '" + security.getIsin() + "') and td='Ausgeführt'][1]");
         if (dailyOrderNode == null) {
             throw new TransactionServiceException("transaction on " + security.getSymbol() + " did execute but did not show up under daily-orders within timelimit");
         }
