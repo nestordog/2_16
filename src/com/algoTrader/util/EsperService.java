@@ -78,7 +78,7 @@ public class EsperService {
     public static void enableJmx() {
 
         // Indicate that the platform MBeanServer should be used
-        EPServiceProvider cep = EsperService.getEPServiceInstance();
+        EPServiceProvider cep = getEPServiceInstance();
         ConnectorConfigPlatform platformConfig = new ConnectorConfigPlatform();
 
         // Configure EsperJMX endpoint
@@ -89,5 +89,10 @@ public class EsperService {
         // Start EsperJMX endpoint
         JMXEndpoint endpoint = new JMXEndpoint(cep, jmxConfig);
         endpoint.start();
+    }
+
+    public static Object getVariableValue(String variableName) {
+
+        return getEPServiceInstance().getEPRuntime().getVariableValue(variableName);
     }
 }
