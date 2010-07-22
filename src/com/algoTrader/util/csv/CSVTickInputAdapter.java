@@ -1,4 +1,4 @@
-package com.espertech.esperio.csv;
+package com.algoTrader.util.csv;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Security;
@@ -7,12 +7,14 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esperio.SendableBeanEvent;
 import com.espertech.esperio.SendableEvent;
+import com.espertech.esperio.csv.CSVInputAdapter;
+import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
-public class TickCSVInputAdapter extends CSVInputAdapter {
+public class CSVTickInputAdapter extends CSVInputAdapter {
 
     private int securityId;
 
-    public TickCSVInputAdapter(EPServiceProvider epService, CSVInputAdapterSpec spec, int id) {
+    public CSVTickInputAdapter(EPServiceProvider epService, CSVInputAdapterSpec spec, int id) {
 
         super(epService, spec);
         securityId = id;
