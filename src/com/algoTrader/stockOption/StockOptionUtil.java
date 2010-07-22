@@ -1,7 +1,5 @@
 package com.algoTrader.stockOption;
 
-import java.util.Date;
-
 import org.apache.commons.math.ConvergenceException;
 import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
@@ -29,11 +27,37 @@ public class StockOptionUtil {
     private static double expirationTimeFactor = PropertiesUtil.getDoubleProperty("expirationTimeFactor");
     private static double expectedProfit = PropertiesUtil.getDoubleProperty("expectedProfit");
     private static long minExpirationTime = PropertiesUtil.getIntProperty("minExpirationTime");
+    private static boolean sabrEnabled = PropertiesUtil.getBooleanProperty("sabrEnabled");
+
+    public static double getOptionPrice(Security security, double underlayingSpot, double vola) throws ConvergenceException, FunctionEvaluationException, IllegalArgumentException  {
+
+        if (sabrEnabled) {
+            return getOptionPriceSabr(security, underlayingSpot, vola);
+        } else {
+            return getOptionPriceBS(security, underlayingSpot, vola);
+        }
+    }
+
+    public static double getOptionPriceSabr(Security security, double underlayingSpot, double vola) throws ConvergenceException, FunctionEvaluationException, IllegalArgumentException  {
+
+        StockOption stockOption = (StockOption)security;
+
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
+        if (years <= 0 ) {
+            return getIntrinsicValue(underlayingSpot, stockOption.getStrike().doubleValue(), stockOption.getType());
+        }
+
+        double atmVola = Volatility.getAtmVola(underlayingSpot, vola, years);
+        double forward = underlayingSpot * (1 - years * dividend) * Math.exp(years * intrest);
+        double sabrVola = Sabr.getSabrVolatility(stockOption.getStrike().doubleValue(), forward, years, atmVola);
+
+        return getOptionPriceBS(underlayingSpot, stockOption.getStrike().doubleValue(), sabrVola, years, intrest, dividend, stockOption.getType());
+    }
 
     /**
     /*Black-Scholes formula
      */
-    public static double getOptionPrice(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
+    public static double getOptionPriceBS(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
 
         if (years <= 0 ) {
             return getIntrinsicValue(underlayingSpot, strike, type);
@@ -50,21 +74,20 @@ public class StockOptionUtil {
         }
     }
 
-    public static double getOptionPrice(Security security, double underlayingSpot, double vola) throws RuntimeException {
+    public static double getOptionPriceBS(Security security, double underlayingSpot, double vola) {
 
         StockOption stockOption = (StockOption)security;
-        Date currentTime = DateUtil.getCurrentEPTime();
 
-        double years = (stockOption.getExpiration().getTime() - currentTime.getTime()) / MILLISECONDS_PER_YEAR ;
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
 
-        return getOptionPrice(underlayingSpot, stockOption.getStrike().doubleValue(), vola, years, intrest, dividend, stockOption.getType());
+        return getOptionPriceBS(underlayingSpot, stockOption.getStrike().doubleValue(), vola, years, intrest, dividend, stockOption.getType());
     }
 
     public static double getVolatility(final double underlayingSpot, final double strike, final double optionValue, final double years, final double intrest, final double dividend, final OptionType type) throws ConvergenceException, FunctionEvaluationException {
 
         UnivariateRealFunction function = new UnivariateRealFunction () {
             public double value(double volatility) throws FunctionEvaluationException {
-                return getOptionPrice(underlayingSpot, strike, volatility, years, intrest, dividend, type) - optionValue;
+                return getOptionPriceBS(underlayingSpot, strike, volatility, years, intrest, dividend, type) - optionValue;
             }};
 
         UnivariateRealSolverFactory factory = UnivariateRealSolverFactory.newInstance();
@@ -125,7 +148,7 @@ public class StockOptionUtil {
 
         double volatility = StockOptionUtil.getVolatility(underlayingSpot, strike , settlement, years, intrest, 0, type);
 
-        return getOptionPrice(marginLevel, strike, volatility, years, intrest, 0, type);
+        return getOptionPriceBS(marginLevel, strike, volatility, years, intrest, 0, type);
     }
 
     public static double getMargin(StockOption stockOption, double settlement, double underlayingSpot) throws ConvergenceException, FunctionEvaluationException {
@@ -158,7 +181,7 @@ public class StockOptionUtil {
 
         double volatility = getVolatility(underlayingSpot, strike , settlement, expirationYears, intrest, dividend, type);
         double margin = getMargin(stockOption, settlement, underlayingSpot);
-        double intrinsicValue = getOptionPrice(underlayingSpot, strike, volatility, 0, intrest, dividend, type);
+        double intrinsicValue = getOptionPriceBS(underlayingSpot, strike, volatility, 0, intrest, dividend, type);
 
         long expectedExpirationMillis = (long)(Math.log((margin - intrinsicValue) / (margin - currentValue)) / expectedProfit * MILLISECONDS_PER_YEAR);
 
