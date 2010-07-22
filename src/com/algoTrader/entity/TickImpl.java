@@ -9,7 +9,7 @@ import com.algoTrader.util.RoundUtil;
 public class TickImpl extends com.algoTrader.entity.Tick {
 
     private static int minVol = PropertiesUtil.getIntProperty("minVol");
-    private static double spreadSlope = PropertiesUtil.getDoubleProperty("spreadSlope");
+    private static double maxSpreadSlope = PropertiesUtil.getDoubleProperty("maxSpreadSlope");
     private static double maxSpreadConstant = PropertiesUtil.getDoubleProperty("maxSpreadConstant");
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
 
@@ -63,9 +63,9 @@ public class TickImpl extends com.algoTrader.entity.Tick {
                 throw new TickServiceException("vol bid (" + getVolBid() + ") ist too low for security " + getSecurity());
             }
 
-            double average = getAsk().doubleValue() * getBid().doubleValue() / 2.0;
+            double mean = getAsk().doubleValue() * getBid().doubleValue() / 2.0;
             double spread = getAsk().doubleValue() - getBid().doubleValue();
-            double maxSpread = average * spreadSlope + maxSpreadConstant;
+            double maxSpread = mean * maxSpreadSlope + maxSpreadConstant;
 
             if (spread > maxSpread) {
                 throw new TickServiceException("spread (" + spread + ") is higher than maxSpread (" + maxSpread + ") for security " + getSecurity());
