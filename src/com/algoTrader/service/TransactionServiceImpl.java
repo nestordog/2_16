@@ -1,8 +1,10 @@
 package com.algoTrader.service;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Collection;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.Account;
@@ -23,6 +25,8 @@ import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 
 public abstract class TransactionServiceImpl extends com.algoTrader.service.TransactionServiceBase {
+
+    private static final int firstTradingHour = PropertiesUtil.getIntProperty("simulation.firstTradingHour");;
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
 
@@ -115,11 +119,14 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
         StockOption stockOption = (StockOption)order.getSecurity();
         double currentValue = stockOption.getLastTick().getCurrentValueDouble();
 
-        // if exitValue is reached exit intraday!
-        if (simulation && TransactionType.BUY.equals(order.getTransactionType())) {
+        // in daily or (half)hourly simulation, if exitValue is reached during the day, take the exitValue
+        // instead of the currentValue! because we will have passed the exitValue in the meantime
+        long eventsPerDay = (Long)EsperService.getVariableValue("var_events_per_day");
+        if (simulation && TransactionType.BUY.equals(order.getTransactionType()) && (eventsPerDay <= 17)) {
 
             double exitValue = stockOption.getPosition().getExitValue().doubleValue();
-            if (currentValue > exitValue) {
+            long currentHour = DateUtils.getFragmentInHours(DateUtil.getCurrentEPTime(), Calendar.DAY_OF_YEAR);
+            if (currentValue > exitValue && currentHour > firstTradingHour) {
 
                 logger.info("adjusted currentValue (" + currentValue + ") to exitValue (" + exitValue+ ") in closePosition for order on " + order.getSecurity().getSymbol());
                 currentValue = exitValue;
