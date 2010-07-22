@@ -56,7 +56,7 @@ public class CsvHlocReader {
 
     public static void main(String[] args) throws SuperCSVException, IOException {
 
-        CsvHlocReader csvReader = new CsvHlocReader("SMI-HLOC");
+        CsvHlocReader csvReader = new CsvHlocReader("CH0008616382");
 
         HlocVO hloc;
         while ((hloc = csvReader.readHloc()) != null) {
