@@ -34,7 +34,6 @@ import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esperio.AbstractCoordinatedAdapter;
 import com.espertech.esperio.AdapterInputSource;
 import com.espertech.esperio.AdapterState;
-import com.espertech.esperio.DirectSender;
 import com.espertech.esperio.InputAdapter;
 import com.espertech.esperio.SendableBeanEvent;
 import com.espertech.esperio.SendableEvent;
