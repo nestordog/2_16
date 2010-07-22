@@ -46,4 +46,9 @@ public class PropertiesUtil {
 
         return new Boolean(getProperty(key)).booleanValue();
     }
+
+    public static long getLongProperty(String key){
+
+        return Long.parseLong(getProperty(key));
+    }
 }
