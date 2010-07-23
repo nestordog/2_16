@@ -54,7 +54,7 @@ public class SimulationStarter {
         ruleService.activate(RuleName.KEEP_MONTHLY_PERFORMANCE);
         ruleService.activate(RuleName.CREATE_DRAW_DOWN);
         ruleService.activate(RuleName.CREATE_MAX_DRAW_DOWN);
-        ruleService.activate(RuleName.RERUN_ORDERS);
+        ruleService.activate(RuleName.PROCESS_PREARRANGED_ORDERS);
 
         ServiceLocator.instance().getSimulationService().simulateByActualTransactions(existingTransactions);
 
