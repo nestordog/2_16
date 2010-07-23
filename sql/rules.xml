@@ -172,7 +172,7 @@ and optionTick.security.position.quantity != 0</field>
         <field name="SUBSCRIBER">RollPositionSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
-        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
         <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
@@ -384,6 +384,18 @@ select max(drawDown.amount) as amount,
 max(drawDown.period) as period
 from DrawDown as drawDown</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">45</field>
+        <field name="NAME">PROCESS_PREARRANGED_ORDERS</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">select * from PrearrangedOrder</field>
+        <field name="SUBSCRIBER">RerunOrderSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
