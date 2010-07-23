@@ -38,16 +38,16 @@
     </appender>
 
     <appender name="STOCHASTIC" class="org.apache.log4j.FileAppender">
-        <param name="file" value="log/stochastic.log" />
+        <param name="file" value="log/stochastic.csv" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %m %n"/>
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss},%m %n"/>
         </layout>
     </appender>
 
     <appender name="PORTFOLIO" class="org.apache.log4j.FileAppender">
-        <param name="file" value="log/portfolio.log" />
+        <param name="file" value="log/portfolio.csv" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %m %n"/>
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss},%m %n"/>
         </layout>
     </appender>
 
@@ -142,7 +142,7 @@
         <appender-ref ref="STOCHASTIC" />
     </logger>
 
-    <logger name="com.algoTrader.listener.PrintPortfolioValueListener">
+    <logger name="com.algoTrader.subscriber.PrintPortfolioValueSubscriber">
         <appender-ref ref="PORTFOLIO" />
     </logger>
 
