@@ -5,6 +5,7 @@
 
     <event-type name="Tick" class="com.algoTrader.entity.TickImpl"/>
     <event-type name="Transaction" class="com.algoTrader.entity.TransactionImpl"/>
+    <event-type name="PrearrangedOrder" class="com.algoTrader.entity.OrderImpl"/>
 
     <event-type name="KFast" class="com.algoTrader.entity.KFastImpl"/>
     <event-type name="KSlow" class="com.algoTrader.entity.KSlowImpl"/>
@@ -12,7 +13,6 @@
     <event-type name="ExitValue" class="com.algoTrader.entity.ExitValueImpl"/>
     <event-type name="MonthlyPerformance" class="com.algoTrader.entity.MonthlyPerformanceImpl"/>
 
-    <event-type name="OrderVO" class="com.algoTrader.vo.OrderVO"/>
     <event-type name="Interpolation" class="com.algoTrader.vo.InterpolationVO"/>
     <event-type name="PerformanceKeys" class="com.algoTrader.vo.PerformanceKeysVO"/>
     <event-type name="MaxDrawDown" class="com.algoTrader.vo.MaxDrawDownVO"/>
