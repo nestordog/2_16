@@ -23,7 +23,7 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/currency-converter.jar"/>
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/esper-3.3.0.jar" sourcepath="D:/esper-3.3.0/src/esper/java/">
+	<classpathentry kind="lib" path="lib/esper-3.3.0.jar" sourcepath="D:/esper-3.3.0/src/esper/java.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="file:/D:/esper-3.3.0/esper/doc/api/"/>
 		</attributes>
@@ -70,7 +70,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/esperio-3.3.0.jar" sourcepath="D:/esper-3.3.0/src/esperio/java/">
+	<classpathentry kind="lib" path="lib/esperio-3.3.0.jar" sourcepath="D:/esper-3.3.0/src/esperio/java.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="file:/D:/esper-3.3.0/esperio/doc/api/"/>
 		</attributes>
