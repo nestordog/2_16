@@ -1,6 +1,7 @@
-                                                     real                simulation
-----------------------------------------------------------------------------------
-1. conf.properties: simulation                       false               true
-2. conf.properties: simulation.dataSet               current             ???
-3. esper.cfg.xml: var_simulation                     false               true
-4. esper.cfg.xml: var_events_per_day                500                 1/9/500
+                                                     real                simulation            rerun
+-------------------------------------------------------------------------------------------------
+1. conf.properties: simulation                       false               true                false
+2. conf.properties: simulation.dataSet               current             ???                    current
+3. conf.properties: externalTransactionsEnabled        true                false                false
+3. esper.cfg.xml: var_simulation                     false               true                false
+4. esper.cfg.xml: var_events_per_day                500                 1/9/500                500
