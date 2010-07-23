@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.MonthlyPerformance;
+import com.algoTrader.enumeration.RuleName;
+import com.algoTrader.service.RuleService;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.InterpolationVO;
 import com.algoTrader.vo.MaxDrawDownVO;
@@ -14,16 +16,49 @@ public class SimulationStarter {
 
     public static void main(String[] args) {
 
-        start();
+        if (args[0].equals("simulateByUnderlayings")) {
+            simulateByUnderlayings();
+        } else if (args[0].equals("simulateByActualOrders")) {
+            simulateByActualOrders();
+        } else {
+            System.out.println("please specify simulateByUnderlayings or simulateByActualOrders on the commandline");
+        }
     }
 
-    @SuppressWarnings("unchecked")
-    public static void start() {
+    public static void simulateByUnderlayings() {
 
         ServiceLocator.instance().getSimulationService().init();
 
         ServiceLocator.instance().getRuleService().activateAll();
-        ServiceLocator.instance().getSimulationService().run();
+        ServiceLocator.instance().getSimulationService().simulateByUnderlayings();
+
+        printStatistics();
+    }
+
+    public static void simulateByActualOrders() {
+
+        ServiceLocator.instance().getSimulationService().init();
+
+        RuleService ruleService = ServiceLocator.instance().getRuleService();
+
+        ruleService.activate(RuleName.CREATE_PORTFOLIO_VALUE);
+        ruleService.activate(RuleName.CREATE_MONTHLY_PERFORMANCE);
+        ruleService.activate(RuleName.GET_LAST_TICK);
+        ruleService.activate(RuleName.PRINT_TICK);
+        ruleService.activate(RuleName.CREATE_INTERPOLATION);
+        ruleService.activate(RuleName.CREATE_PERFORMANCE_KEYS);
+        ruleService.activate(RuleName.KEEP_MONTHLY_PERFORMANCE);
+        ruleService.activate(RuleName.CREATE_DRAW_DOWN);
+        ruleService.activate(RuleName.CREATE_MAX_DRAW_DOWN);
+        ruleService.activate(RuleName.RERUN_ORDERS);
+
+        ServiceLocator.instance().getSimulationService().simulateByActualTransactions();
+
+        printStatistics();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void printStatistics() {
 
         BigDecimal totalValue = ServiceLocator.instance().getManagementService().getAccountTotalValue();
         System.out.println("totalValue=" + totalValue);
