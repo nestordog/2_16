@@ -22,7 +22,7 @@ public class TickStarter {
         ruleService.activate(RuleName.CREATE_D_SLOW);
         //ruleService.activate(RuleName.PRINT_STOCHASTIC);
 
-        simulationService.run();
+        simulationService.simulateByUnderlayings();
 
         // switch to internalClock and activate the rest of the rules
         ruleService.setInternalClock();
