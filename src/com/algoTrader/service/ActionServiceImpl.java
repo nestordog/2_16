@@ -8,12 +8,15 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.RuleName;
+import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 
 public class ActionServiceImpl extends ActionServiceBase {
 
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
+    private static long firstBuyTime = PropertiesUtil.getLongProperty("simulation.firstBuyTime");
+    private static long lastBuyTime = PropertiesUtil.getLongProperty("simulation.lastBuyTime");
 
     private static Logger logger = MyLogger.getLogger(ActionServiceImpl.class.getName());
 
@@ -69,7 +72,7 @@ public class ActionServiceImpl extends ActionServiceBase {
         // immediately roll into a new option
         if (!getRuleService().isActive(RuleName.OPEN_POSITION)) {
 
-            Position position = getPositionDao().load(positionId);
+            Position position = getLookupService().getPosition(positionId);
             StockOption oldStockOption = (StockOption)position.getSecurity();
 
             StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot, oldStockOption.getType());
@@ -81,6 +84,16 @@ public class ActionServiceImpl extends ActionServiceBase {
     }
 
     protected void handleBuySignal(int underlayingId,  BigDecimal underlayingSpot) throws Exception {
+
+        if (firstBuyTime != 0 && EsperService.getCurrentTime() < firstBuyTime) {
+            logger.debug("ignoring buySignal, because we are before firstBuyTime");
+            return;
+        }
+
+        if (lastBuyTime != 0 && EsperService.getCurrentTime() > lastBuyTime) {
+            logger.debug("ignoring buySignal, because we are after lastBuyTime");
+            return;
+        }
 
         long startTime = System.currentTimeMillis();
         logger.debug("buySignal start");
@@ -127,7 +140,7 @@ public class ActionServiceImpl extends ActionServiceBase {
         getStockOptionService().closePosition(positionId);
 
         if (!getRuleService().isActive(RuleName.OPEN_POSITION)) {
-            Position position = getPositionDao().load(positionId);
+            Position position = getLookupService().getPosition(positionId);
             StockOption oldStockOption = (StockOption)position.getSecurity();
 
             StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot, oldStockOption.getType());
