@@ -1,10 +1,13 @@
 package com.algoTrader.starter;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.MonthlyPerformance;
+import com.algoTrader.entity.Transaction;
 import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.service.RuleService;
 import com.algoTrader.util.RoundUtil;
@@ -37,6 +40,8 @@ public class SimulationStarter {
 
     public static void simulateByActualOrders() {
 
+        Collection<Transaction> existingTransactions = Arrays.asList(ServiceLocator.instance().getLookupService().getAllTrades());
+
         ServiceLocator.instance().getSimulationService().init();
 
         RuleService ruleService = ServiceLocator.instance().getRuleService();
@@ -44,7 +49,6 @@ public class SimulationStarter {
         ruleService.activate(RuleName.CREATE_PORTFOLIO_VALUE);
         ruleService.activate(RuleName.CREATE_MONTHLY_PERFORMANCE);
         ruleService.activate(RuleName.GET_LAST_TICK);
-        ruleService.activate(RuleName.PRINT_TICK);
         ruleService.activate(RuleName.CREATE_INTERPOLATION);
         ruleService.activate(RuleName.CREATE_PERFORMANCE_KEYS);
         ruleService.activate(RuleName.KEEP_MONTHLY_PERFORMANCE);
@@ -52,7 +56,7 @@ public class SimulationStarter {
         ruleService.activate(RuleName.CREATE_MAX_DRAW_DOWN);
         ruleService.activate(RuleName.RERUN_ORDERS);
 
-        ServiceLocator.instance().getSimulationService().simulateByActualTransactions();
+        ServiceLocator.instance().getSimulationService().simulateByActualTransactions(existingTransactions);
 
         printStatistics();
     }
