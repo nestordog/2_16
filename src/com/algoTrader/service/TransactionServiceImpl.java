@@ -44,12 +44,13 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
             throw new IllegalArgumentException("quantity must be greater than 0");
         }
 
-        if (!simulation && externalTransactionsEnabled &&
-                (TransactionType.BUY.equals(transactionType) || TransactionType.SELL.equals(transactionType))) {
-
-            executeExternalTransaction(order);
-        } else {
-            executeInternalTransaction(order);
+        if (!OrderStatus.PREARRANGED.equals(order.getStatus())) {
+            if (!simulation && externalTransactionsEnabled &&
+                    (TransactionType.BUY.equals(transactionType) || TransactionType.SELL.equals(transactionType))) {
+                executeExternalTransaction(order);
+            } else {
+                executeInternalTransaction(order);
+            }
         }
 
         Collection<Transaction> transactions = order.getTransactions();
@@ -111,7 +112,7 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
     }
 
     @SuppressWarnings("unchecked")
-    protected void handleExecuteInternalTransaction(Order order) {
+    private void executeInternalTransaction(Order order) {
 
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(DateUtil.getCurrentEPTime());
