@@ -68,6 +68,11 @@ public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase 
         return (Transaction[])getTransactionDao().loadAll().toArray(new Transaction[0]);
     }
 
+    protected Transaction[] handleGetAllTrades() throws Exception {
+
+        return (Transaction[])getTransactionDao().findAllTrades().toArray(new Transaction[0]);
+    }
+
     protected Security[] handleGetAllSecuritiesInPortfolio() throws Exception {
 
         return (Security[])getSecurityDao().findSecuritesInPortfolio().toArray(new Security[0]);
