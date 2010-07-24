@@ -86,19 +86,21 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             File file = new File("results/tickdata/" + dataSet + "/" + security.getIsin() + ".csv");
 
-            if (file != null && file.exists()) {
-
-                CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
-                spec.setPropertyOrder(tickPropertyOrder);
-                spec.setPropertyTypes(tickPropertyTypes);
-                spec.setTimestampColumn("dateTime");
-                spec.setUsingExternalTimer(true);
-
-                InputAdapter inputAdapter = new CsvTickInputAdapter(EsperService.getEPServiceInstance(), spec, security.getId());
-                coordinator.coordinate(inputAdapter);
-
-                logger.debug("started simulation for security " + security.getIsin());
+            if (file == null || !file.exists()) {
+                logger.warn("no tickdata available for " + security.getSymbol());
+                continue;
             }
+
+            CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
+            spec.setPropertyOrder(tickPropertyOrder);
+            spec.setPropertyTypes(tickPropertyTypes);
+            spec.setTimestampColumn("dateTime");
+            spec.setUsingExternalTimer(true);
+
+            InputAdapter inputAdapter = new CsvTickInputAdapter(EsperService.getEPServiceInstance(), spec, security.getId());
+            coordinator.coordinate(inputAdapter);
+
+            logger.debug("started simulation for security " + security.getIsin());
         }
         coordinator.start();
     }
