@@ -123,7 +123,7 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
         // in daily or (half)hourly simulation, if exitValue is reached during the day, take the exitValue
         // instead of the currentValue! because we will have passed the exitValue in the meantime
         long eventsPerDay = (Long)EsperService.getVariableValue("var_events_per_day");
-        if (simulation && TransactionType.BUY.equals(order.getTransactionType()) && (eventsPerDay <= 17)) {
+        if (simulation && TransactionType.BUY.equals(order.getTransactionType()) && (eventsPerDay <= 33)) {
 
             double exitValue = stockOption.getPosition().getExitValue().doubleValue();
             long currentHour = DateUtils.getFragmentInHours(DateUtil.getCurrentEPTime(), Calendar.DAY_OF_YEAR);
