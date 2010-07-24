@@ -13,7 +13,7 @@ import com.algoTrader.entity.TickImpl;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 
-public class CsvTickInterpolator {
+public class CsvCloseInterpolator {
 
     private static String dataSet = PropertiesUtil.getProperty("simulation.dataSet");
 
