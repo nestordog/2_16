@@ -21,6 +21,9 @@ public class CsvHlocInterpolator {
     private static double recordsPerDay = 17.0;
      private static double recordsPerHour = 2.0;
      private static double startHour = 9.0;
+     private static boolean random = false;
+     private static boolean swapHighLow = false;
+     private static boolean spreadEven = true;
 
     public static void main(String[] args) throws SuperCSVException, IOException {
 
@@ -39,16 +42,39 @@ public class CsvHlocInterpolator {
 
             NavigableMap<Integer, Double> map = new TreeMap<Integer, Double>();
 
-            int lowHour = (int)(Math.random() * (recordsPerDay - 2.0));
-            int highHour = (int)(Math.random() * (recordsPerDay - 3.0));
+            int lowHour = 0;
+            int highHour = 0;
+            if (random) {
+                lowHour = (int)(Math.random() * (recordsPerDay - 2.0));
+                highHour = (int)(Math.random() * (recordsPerDay - 3.0));
 
-            if (highHour >= lowHour) highHour++;
+                if (highHour >= lowHour) highHour++;
 
-            if ((open < close) && (lowHour > highHour) ||
-                (open > close) && (lowHour < highHour)) {
-                int tempHour = lowHour;
-                lowHour = highHour;
-                highHour = tempHour;
+                if (swapHighLow) {
+                    if ((open < close) && (lowHour > highHour) ||
+                        (open > close) && (lowHour < highHour)) {
+                        int tempHour = lowHour;
+                        lowHour = highHour;
+                        highHour = tempHour;
+                    }
+                }
+            }
+
+            if (spreadEven) {
+                double totalMovement = 0.0;
+                if (open > close) {
+                    totalMovement = high - open + high - low + close - low;
+                } else {
+                    totalMovement = open - low + high - low + high - close;
+                }
+                double movementPerRecord = totalMovement / recordsPerDay;
+                if (open > close) {
+                    highHour = (int)((high - open) / movementPerRecord);
+                    lowHour = (int)((high - open + high - low) / movementPerRecord);
+                } else {
+                    lowHour = (int)((open - low) / movementPerRecord);
+                    highHour = (int)((open - low + high - low) / movementPerRecord);
+                }
             }
 
             map.put(0, open);
