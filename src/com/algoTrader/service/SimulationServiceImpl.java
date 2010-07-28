@@ -156,7 +156,11 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         if (!statement.iterator().hasNext()) return null;
 
-        return (PerformanceKeysVO)statement.iterator().next().getUnderlying();
+        PerformanceKeysVO performanceKeys = (PerformanceKeysVO)statement.iterator().next().getUnderlying();
+
+        if (performanceKeys.getStdY() == 0.0) return null;
+
+        return performanceKeys;
     }
 
     protected List<MonthlyPerformance> handleGetMonthlyPerformances() throws Exception {
