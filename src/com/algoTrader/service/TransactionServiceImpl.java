@@ -120,7 +120,7 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
         StockOption stockOption = (StockOption)order.getSecurity();
         double currentValue = stockOption.getLastTick().getCurrentValueDouble();
 
-        // in daily or (half)hourly simulation, if exitValue is reached during the day, take the exitValue
+        // in daily / hourly / 30min / 15min simulation, if exitValue is reached during the day, take the exitValue
         // instead of the currentValue! because we will have passed the exitValue in the meantime
         long eventsPerDay = (Long)EsperService.getVariableValue("var_events_per_day");
         if (simulation && TransactionType.BUY.equals(order.getTransactionType()) && (eventsPerDay <= 33)) {
