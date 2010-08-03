@@ -44,7 +44,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private static int contractSize = PropertiesUtil.getIntProperty("simulation.contractSize");
 
     private static int minAge = PropertiesUtil.getIntProperty("minAge");
-    private static double maxAtRiskRatio = PropertiesUtil.getDoubleProperty("maxAtRiskRatio");
+    private static double maxAtRiskRatioOfPortfolio = PropertiesUtil.getDoubleProperty("maxAtRiskRatioOfPortfolio");
     private static double maxAtRiskRatioPerTrade = PropertiesUtil.getDoubleProperty("maxAtRiskRatioPerTrade");
     private static int strikeOffset = PropertiesUtil.getIntProperty("strikeOffset");
 
@@ -106,7 +106,6 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         stockOption.setMarket(market);
         stockOption.setCurrency(currency);
         stockOption.setOnWatchlist(false);
-        stockOption.setDummy(true);
         stockOption.setStrike(strike);
         stockOption.setExpiration(expiration);
         stockOption.setType(type);
@@ -159,20 +158,29 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         double margin = StockOptionUtil.getMargin(stockOption, settlement.doubleValue(), underlayingValue);
         double exitValue = StockOptionUtil.getExitValue(stockOption, underlayingValue, currentValueDouble);
 
-        double ratio = (exitValue - currentValueDouble) / (margin - currentValueDouble);
-        if(ratio > maxAtRiskRatioPerTrade) {
+        // we do not want to loose more than the atRiskRatioPerTrade for this new trade
+        //         invested capital: margin - currentValue (in a short option deal)
+        //         max risk: exitValue - current Value
+        //         atRiskRatioPerTrade = max risk / invested capital
+        double atRiskRatioPerTrade = (exitValue - currentValueDouble) / (margin - currentValueDouble);
+        if(atRiskRatioPerTrade > maxAtRiskRatioPerTrade) {
             exitValue = maxAtRiskRatioPerTrade * (margin - currentValueDouble) + currentValueDouble;
         }
 
-        // get numberOfContracts based on margin
+        // get numberOfContracts based on margin (how may option can we sell for the available amount of cash
         long numberOfContractsByMargin = (long)((availableAmount / (margin - currentValueDouble)) / contractSize); // i.e. 2 (for 20 stockOptions)
 
         // get maxNumberOfContracts based on RedemptionValue
-        long numberOfContractsByRedemptionValue = (long)((maxAtRiskRatio * account.getCashBalanceDouble() - account.getRedemptionValue()) / (contractSize *(exitValue - maxAtRiskRatio * currentValueDouble)));
+        //         available cash after this trade: cashbalance now + quantity * contractSize * currentValue
+        //        total redemptionValue = quantity * contractSize * exitValue + RedemptionValue of the other positions
+        //        atRiskRatioOfPortfolio = total redemptionValue / available cash after this trade
+        //        (we could adjust the exitValue or the quantity, but we trust the exitValue set above and only adjust the quantity)
+        long numberOfContractsByRedemptionValue =
+            (long)((maxAtRiskRatioOfPortfolio * account.getCashBalanceDouble() - account.getRedemptionValue()) /
+            (contractSize *(exitValue - maxAtRiskRatioOfPortfolio * currentValueDouble)));
 
         // choose which ever is lower
-        long numberOfContracts = Math.min(numberOfContractsByMargin, numberOfContractsByRedemptionValue);
-
+        long numberOfContracts= Math.min(numberOfContractsByMargin, numberOfContractsByRedemptionValue);
 
         if (numberOfContracts <= 0) {
             if (stockOption.getPosition() == null || !stockOption.getPosition().isOpen()) {
