@@ -2,6 +2,8 @@ package com.algoTrader.util;
 
 import java.util.Iterator;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.algoTrader.enumeration.RuleName;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
@@ -13,6 +15,7 @@ import com.espertech.esper.client.time.TimerControlEvent;
 import com.espertech.esper.jmx.client.ConnectorConfigPlatform;
 import com.espertech.esper.jmx.client.JMXEndpoint;
 import com.espertech.esper.jmx.client.JMXEndpointConfiguration;
+import com.espertech.esper.util.JavaClassHelper;
 
 public class EsperService {
 
@@ -93,6 +96,26 @@ public class EsperService {
 
     public static Object getVariableValue(String variableName) {
 
-        return getEPServiceInstance().getEPRuntime().getVariableValue(variableName);
+        return getEPServiceInstance().getEPRuntime().getVariableValue(convertCamelCase(variableName));
+    }
+
+    public static void setVariableValue(String variableName, String value) {
+
+        Class<?> variableClass = getVariableValue(variableName).getClass();
+
+        Object castedValue = JavaClassHelper.parse(variableClass, value);
+
+        getEPServiceInstance().getEPRuntime().setVariableValue(convertCamelCase(variableName), castedValue);
+    }
+
+    private static  String convertCamelCase(String input) {
+
+        String[] parts = StringUtils.splitByCharacterTypeCamelCase(input);
+        StringBuffer buffer = new StringBuffer("var");
+        for (String part : parts) {
+            buffer.append("_");
+            buffer.append(part.toLowerCase());
+        }
+        return buffer.toString();
     }
 }
