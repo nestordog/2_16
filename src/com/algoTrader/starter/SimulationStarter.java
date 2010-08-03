@@ -1,6 +1,7 @@
 package com.algoTrader.starter;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +20,8 @@ public class SimulationStarter {
 
     public static void main(String[] args) {
 
+        long startTime = System.currentTimeMillis();
+
         if (args[0].equals("simulateByUnderlayings")) {
             simulateByUnderlayings();
         } else if (args[0].equals("simulateByActualOrders")) {
@@ -26,6 +29,8 @@ public class SimulationStarter {
         } else {
             System.out.println("please specify simulateByUnderlayings or simulateByActualOrders on the commandline");
         }
+
+        System.out.println("execution time (min): " + ((double)(System.currentTimeMillis() - startTime)) / 60000);
     }
 
     public static void simulateByUnderlayings() {
@@ -65,7 +70,7 @@ public class SimulationStarter {
     private static void printStatistics() {
 
         BigDecimal totalValue = ServiceLocator.instance().getManagementService().getAccountTotalValue();
-        System.out.println("totalValue=" + totalValue);
+        System.out.println("totalValue=" + (new DecimalFormat("#,##0.00")).format(totalValue));
 
         InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
 
@@ -79,7 +84,7 @@ public class SimulationStarter {
 
         System.out.print("monthlyPerformance: ");
         double maxDrawDownM = 0d;
-        double bestMonthlyPerformance = 0d;
+        double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
         for (MonthlyPerformance monthlyPerformance : monthlyPerformances) {
             maxDrawDownM = Math.min(maxDrawDownM, monthlyPerformance.getValue());
             bestMonthlyPerformance = Math.max(bestMonthlyPerformance, monthlyPerformance.getValue());
@@ -103,6 +108,8 @@ public class SimulationStarter {
             System.out.print(" maxDrawDown: " + RoundUtil.getBigDecimal(maxDrawDownVO.getAmount() * 100) + "%");
             System.out.print(" maxDrawDownPeriod: " + RoundUtil.getBigDecimal(maxDrawDownVO.getPeriod() / 86400000) + "days");
             System.out.println(" colmarRatio: " + RoundUtil.getBigDecimal(performanceKeys.getAvgY() / maxDrawDownVO.getAmount()));
+        } else {
+            System.out.println("statistic not available because there was no performance");
         }
     }
 }
