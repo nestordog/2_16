@@ -10,7 +10,6 @@
     <event-type name="KFast" class="com.algoTrader.entity.KFastImpl"/>
     <event-type name="KSlow" class="com.algoTrader.entity.KSlowImpl"/>
     <event-type name="DSlow" class="com.algoTrader.entity.DSlowImpl"/>
-    <event-type name="ExitValue" class="com.algoTrader.entity.ExitValueImpl"/>
     <event-type name="MonthlyPerformance" class="com.algoTrader.entity.MonthlyPerformanceImpl"/>
 
     <event-type name="Interpolation" class="com.algoTrader.vo.InterpolationVO"/>
@@ -29,20 +28,29 @@
     <auto-import import-name="java.text.*"/>
     <auto-import import-name="java.util.*"/>
 
+    <plugin-aggregation-function name="ema" function-class="com.algoTrader.util.ExponentialMovingAverageFunction"/>
+
     <variable name="var_simulation" type="boolean" initialization-value="false"/>
     <variable name="var_isin" type="string" initialization-value="CH0008616382"/>
-    <variable name="var_intrest" type="double" initialization-value="0.0025"/>
+    <variable name="var_intrest" type="double" initialization-value="0.0005"/>
 
     <variable name="var_events_per_day" type="long" initialization-value="500"/>
-    <variable name="var_kFast_days" type="double" initialization-value="2.5"/>
-    <variable name="var_kSlow_days" type="double" initialization-value="1"/>
-    <variable name="var_dSlow_days" type="double" initialization-value="1.5"/>
+    <variable name="var_k_fast_days" type="double" initialization-value="2.5"/>
+    <variable name="var_k_slow_days" type="double" initialization-value="1"/>
+    <variable name="var_d_slow_days" type="double" initialization-value="1.5"/>
 
-    <variable name="var_call_trigger" type="double" initialization-value="0.4"/>
-    <variable name="var_put_trigger" type="double" initialization-value="0.25"/>
+    <variable name="var_macd_fast" type="int" initialization-value="120"/>
+    <variable name="var_macd_slow" type="int" initialization-value="260"/>
+    <variable name="var_macd_signal" type="int" initialization-value="90"/>
+
+    <variable name="var_call_vola_period" type="double" initialization-value="0.0"/>
+    <variable name="var_put_vola_period" type="double" initialization-value="0.0"/>
+
+    <variable name="var_call_trigger" type="double" initialization-value="0.0"/>
+    <variable name="var_put_trigger" type="double" initialization-value="0.0"/>
 
     <variable name="var_call_enabled" type="boolean" initialization-value="false"/>
-    <variable name="var_put_enabled" type="boolean" initialization-value="true"/>
+    <variable name="var_put_enabled" type="boolean" initialization-value="false"/>
 
     <engine-settings>
         <defaults>
