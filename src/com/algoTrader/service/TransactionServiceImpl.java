@@ -32,6 +32,7 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
 
     private static boolean externalTransactionsEnabled = PropertiesUtil.getBooleanProperty("externalTransactionsEnabled");
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
+    private static long eventsPerDay = (Long)EsperService.getVariableValue("eventsPerDay");
 
     @SuppressWarnings("unchecked")
     protected void handleExecuteTransaction(Order order) throws Exception {
@@ -122,7 +123,6 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
 
         // in daily / hourly / 30min / 15min simulation, if exitValue is reached during the day, take the exitValue
         // instead of the currentValue! because we will have passed the exitValue in the meantime
-        long eventsPerDay = (Long)EsperService.getVariableValue("var_events_per_day");
         if (simulation && TransactionType.BUY.equals(order.getTransactionType()) && (eventsPerDay <= 33)) {
 
             double exitValue = stockOption.getPosition().getExitValue().doubleValue();
