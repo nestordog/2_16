@@ -2,42 +2,45 @@ package com.algoTrader.service;
 
 import org.apache.log4j.Logger;
 
-import com.algoTrader.entity.Security;
+import com.algoTrader.entity.StockOption;
 import com.algoTrader.util.MyLogger;
 
 public class WatchlistServiceImpl extends WatchlistServiceBase {
 
     private static Logger logger = MyLogger.getLogger(WatchlistServiceImpl.class.getName());
 
-    protected void handlePutOnWatchlist(Security security) throws Exception {
+    @SuppressWarnings("unchecked")
+    protected void handlePutOnWatchlist(StockOption stockOption) throws Exception {
 
-        if (!security.isOnWatchlist()) {
-            security.setOnWatchlist(true);
-            getSecurityDao().update(security);
+        if (!stockOption.isOnWatchlist()) {
+            stockOption.setOnWatchlist(true);
+            getStockOptionDao().update(stockOption);
+            getStockOptionDao().findStockOptionsOnWatchlist().add(stockOption);
 
-            logger.info("put stockOption on watchlist " + security.getSymbol());
+            logger.info("put stockOption on watchlist " + stockOption.getSymbol());
         }
     }
 
-    protected void handleRemoveFromWatchlist(Security security) throws Exception {
+    protected void handleRemoveFromWatchlist(StockOption stockOption) throws Exception {
 
-        if (security.isOnWatchlist()) {
-            security.setOnWatchlist(false);
-            getSecurityDao().update(security);
+        if (stockOption.isOnWatchlist()) {
+            stockOption.setOnWatchlist(false);
+            getStockOptionDao().update(stockOption);
+            getStockOptionDao().findStockOptionsOnWatchlist().remove(stockOption);
 
-            logger.info("removed stockOption from watchlist " + security.getSymbol());
+            logger.info("removed stockOption from watchlist " + stockOption.getSymbol());
         }
     }
 
-    protected void handlePutOnWatchlist(int securityId) throws Exception {
+    protected void handlePutOnWatchlist(int stockOptionId) throws Exception {
 
-        Security security = getSecurityDao().load(securityId);
-        putOnWatchlist(security);
+        StockOption stockOption = (StockOption)getStockOptionDao().load(stockOptionId);
+        putOnWatchlist(stockOption);
     }
 
-    protected void handleRemoveFromWatchlist(int securityId) throws Exception {
+    protected void handleRemoveFromWatchlist(int stockOptionId) throws Exception {
 
-        Security security = getSecurityDao().load(securityId);
-        removeFromWatchlist(security);
+        StockOption stockOption = (StockOption)getStockOptionDao().load(stockOptionId);
+        removeFromWatchlist(stockOption);
     }
 }
