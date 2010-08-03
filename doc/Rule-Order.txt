@@ -4,7 +4,8 @@ Id's:
 10: Based on Tick
 20: Based on EndOfDayTick
 30: Based on Characteristic
-40: Based on Transaction
+40: Based on Transaction (or other Statistic Events)
+50: Based on Orders
 
 Order:
 --------------------------
