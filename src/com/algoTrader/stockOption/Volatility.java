@@ -73,7 +73,8 @@ public class Volatility {
         UnivariateRealSolverFactory factory = UnivariateRealSolverFactory.newInstance();
         UnivariateRealSolver solver = factory.newDefaultSolver();
 
-        return solver.solve(function, 0.10, 0.99, 0.2);
+
+        return solver.solve(function, indexVola * 0.7 , indexVola * 1.1, indexVola);
     }
 
     public static double getAtmVola(final double underlayingSpot, final double indexVola, final double years) throws ConvergenceException, FunctionEvaluationException, IllegalArgumentException {
