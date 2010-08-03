@@ -10,6 +10,7 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.DateUtil;
+import com.algoTrader.util.EsperService;
 import com.algoTrader.util.PropertiesUtil;
 
 public class StockOptionUtil {
@@ -19,8 +20,6 @@ public class StockOptionUtil {
 
     private static double intrest = PropertiesUtil.getDoubleProperty("intrest");
     private static double dividend = PropertiesUtil.getDoubleProperty("dividend");
-    private static double volaPeriodCall = PropertiesUtil.getDoubleProperty("volaPeriodCall");
-    private static double volaPeriodPut = PropertiesUtil.getDoubleProperty("volaPeriodPut");
     private static double marginParameter = PropertiesUtil.getDoubleProperty("marginParameter");
     private static double spreadSlope = PropertiesUtil.getDoubleProperty("spreadSlope");
     private static double spreadConstant = PropertiesUtil.getDoubleProperty("spreadConstant");
@@ -45,6 +44,8 @@ public class StockOptionUtil {
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
         if (years <= 0 ) {
             return getIntrinsicValue(underlayingSpot, stockOption.getStrike().doubleValue(), stockOption.getType());
+        } else if (years < 1.0/365.0){
+            return getOptionPriceBS(security, underlayingSpot, vola); //sabr
         }
 
         double atmVola = Volatility.getAtmVola(underlayingSpot, vola, years);
@@ -93,7 +94,7 @@ public class StockOptionUtil {
         UnivariateRealSolverFactory factory = UnivariateRealSolverFactory.newInstance();
         UnivariateRealSolver solver = factory.newDefaultSolver();
 
-        return solver.solve(function, 0.1, 0.99, 0.2);
+        return solver.solve(function, 0.08, 0.90, 0.2);
     }
 
     public static double getVolatility(final double underlayingSpot, final double strike, final double optionValue, final double years, final OptionType type) throws ConvergenceException, FunctionEvaluationException {
@@ -127,9 +128,11 @@ public class StockOptionUtil {
 
         double exitLevel;
         if (OptionType.CALL.equals(stockOption.getType())) {
-            exitLevel = underlayingSpot * (1 + volatility / Math.sqrt(DAYS_PER_YEAR / volaPeriodCall));
+            double callVolaPeriod = (Double)EsperService.getVariableValue("callVolaPeriod");
+            exitLevel = underlayingSpot * (1 + volatility / Math.sqrt(DAYS_PER_YEAR / callVolaPeriod));
         } else {
-            exitLevel = underlayingSpot * (1 - volatility / Math.sqrt(DAYS_PER_YEAR / volaPeriodPut));
+            double putVolaPeriod = (Double)EsperService.getVariableValue("putVolaPeriod");
+            exitLevel = underlayingSpot * (1 - volatility / Math.sqrt(DAYS_PER_YEAR / putVolaPeriod));
         }
 
         return getOptionPrice(stockOption, exitLevel, volatility);
