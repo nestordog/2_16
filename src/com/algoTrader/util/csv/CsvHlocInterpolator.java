@@ -18,12 +18,15 @@ import com.algoTrader.vo.HlocVO;
 public class CsvHlocInterpolator {
 
     private static String dataSet = PropertiesUtil.getProperty("simulation.dataSet");
-    private static double recordsPerDay = 17.0;
+
+    private static double recordsPerInput = 17.0;
      private static double recordsPerHour = 2.0;
-     private static double startHour = 9.0;
+     private static double offsetHour = 9.0;
+
      private static boolean random = false;
      private static boolean swapHighLow = false;
      private static boolean spreadEven = true;
+    private static boolean enforceHighLow = true;
 
     public static void main(String[] args) throws SuperCSVException, IOException {
 
@@ -45,8 +48,8 @@ public class CsvHlocInterpolator {
             int lowHour = 0;
             int highHour = 0;
             if (random) {
-                lowHour = (int)(Math.random() * (recordsPerDay - 2.0));
-                highHour = (int)(Math.random() * (recordsPerDay - 3.0));
+                lowHour = (int)(Math.random() * (recordsPerInput - 2.0));
+                highHour = (int)(Math.random() * (recordsPerInput - 3.0));
 
                 if (highHour >= lowHour) highHour++;
 
@@ -67,7 +70,7 @@ public class CsvHlocInterpolator {
                 } else {
                     totalMovement = open - low + high - low + high - close;
                 }
-                double movementPerRecord = totalMovement / recordsPerDay;
+                double movementPerRecord = totalMovement / recordsPerInput;
                 if (open > close) {
                     highHour = (int)((high - open) / movementPerRecord);
                     lowHour = (int)((high - open + high - low) / movementPerRecord);
@@ -77,12 +80,19 @@ public class CsvHlocInterpolator {
                 }
             }
 
-            map.put(0, open);
-            map.put((int)(recordsPerDay), close);
-            map.put(highHour, high);
-            map.put(lowHour, low);
+            if (enforceHighLow) {
+                map.put(0, open);
+                map.put((int)(recordsPerInput), close);
+                map.put(highHour, high);
+                map.put(lowHour, low);
+            } else {
+                map.put(highHour, high);
+                map.put(lowHour, low);
+                map.put(0, open);
+                map.put((int)(recordsPerInput), close);
+            }
 
-            for (int currentHour = 0; currentHour < recordsPerDay; currentHour++) {
+            for (int currentHour = 0; currentHour < recordsPerInput; currentHour++) {
 
                 int prevHour = map.floorKey(currentHour);
                 double prevValue = map.get(prevHour);
@@ -100,7 +110,7 @@ public class CsvHlocInterpolator {
                 }
 
                 Tick tick = new TickImpl();
-                tick.setDateTime(new Date(hloc.getDateTime().getTime() + (int)((currentHour / recordsPerHour + startHour) * 60 * 60 * 1000)));
+                tick.setDateTime(new Date(hloc.getDateTime().getTime() + (int)((currentHour / recordsPerHour + offsetHour) * 60 * 60 * 1000)));
                 tick.setLast(RoundUtil.getBigDecimal(value));
                 tick.setLastDateTime(tick.getDateTime());
 
