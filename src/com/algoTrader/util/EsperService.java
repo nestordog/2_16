@@ -1,7 +1,5 @@
 package com.algoTrader.util;
 
-import java.util.Iterator;
-
 import org.apache.commons.lang.StringUtils;
 
 import com.algoTrader.enumeration.RuleName;
@@ -10,6 +8,7 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.SafeIterator;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.TimerControlEvent;
 import com.espertech.esper.jmx.client.ConnectorConfigPlatform;
@@ -65,9 +64,14 @@ public class EsperService {
 
         EPStatement statement = getStatement(ruleName);
         if (statement != null && statement.isStarted()) {
-            for (Iterator<EventBean> it = statement.iterator(); it.hasNext(); ) {
-                EventBean bean = it.next();
-                return bean.getUnderlying();
+            SafeIterator<EventBean> it = statement.safeIterator();
+            try {
+                while (it.hasNext()) {
+                    EventBean bean = it.next();
+                    return bean.getUnderlying();
+                }
+            } finally {
+                it.close();
             }
         }
         return null;
