@@ -93,6 +93,7 @@ public class StockOptionUtil {
 
         UnivariateRealSolverFactory factory = UnivariateRealSolverFactory.newInstance();
         UnivariateRealSolver solver = factory.newDefaultSolver();
+        solver.setAbsoluteAccuracy(0.0001);
 
         return solver.solve(function, 0.08, 0.90, 0.2);
     }

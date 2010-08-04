@@ -72,7 +72,7 @@ public class Volatility {
 
         UnivariateRealSolverFactory factory = UnivariateRealSolverFactory.newInstance();
         UnivariateRealSolver solver = factory.newDefaultSolver();
-
+        solver.setAbsoluteAccuracy(0.0001);
 
         return solver.solve(function, indexVola * 0.7 , indexVola * 1.1, indexVola);
     }
