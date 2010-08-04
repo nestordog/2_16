@@ -1,7 +1,6 @@
 package com.algoTrader.entity;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.algoTrader.enumeration.RuleName;
@@ -9,6 +8,7 @@ import com.algoTrader.util.EsperService;
 import com.algoTrader.vo.TickVO;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.SafeIterator;
 
 public class TickDaoImpl extends TickDaoBase {
 
@@ -39,15 +39,20 @@ public class TickDaoImpl extends TickDaoBase {
 
     }
 
-    protected List<Tick> handleGetLastTicks() throws Exception {
+    protected synchronized List<Tick> handleGetLastTicks() throws Exception {
 
         EPStatement statement = EsperService.getStatement(RuleName.GET_LAST_TICK);
 
         List<Tick> ticks = new ArrayList<Tick>();
         if (statement != null && statement.isStarted()) {
-            for (Iterator<EventBean> it = statement.iterator(); it.hasNext(); ) {
-                EventBean bean = it.next();
-                ticks.add((Tick)bean.get("tick"));
+            SafeIterator<EventBean> it = statement.safeIterator();
+            try {
+                while (it.hasNext()) {
+                    EventBean bean = it.next();
+                    ticks.add((Tick)bean.get("tick"));
+                }
+            } finally {
+                it.close();
             }
         }
         return ticks;

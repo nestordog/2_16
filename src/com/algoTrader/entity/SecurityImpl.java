@@ -1,13 +1,13 @@
 package com.algoTrader.entity;
 
 import java.math.BigDecimal;
-import java.util.Iterator;
 
 import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.EsperService;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.SafeIterator;
 
 public class SecurityImpl extends com.algoTrader.entity.Security {
 
@@ -18,12 +18,18 @@ public class SecurityImpl extends com.algoTrader.entity.Security {
         EPStatement statement = EsperService.getStatement(RuleName.GET_LAST_TICK);
 
         if (statement != null && statement.isStarted()) {
-            for (Iterator<EventBean> it = statement.iterator(); it.hasNext(); ) {
-                EventBean bean = it.next();
-                Integer securityId = (Integer) bean.get("securityId");
-                if (securityId.equals(getId())) {
-                    return (Tick)bean.get("tick");
+
+            SafeIterator<EventBean> it = statement.safeIterator();
+            try {
+                while (it.hasNext()) {
+                    EventBean bean = it.next();
+                    Integer securityId = (Integer) bean.get("securityId");
+                    if (securityId.equals(getId())) {
+                        return (Tick)bean.get("tick");
+                    }
                 }
+            } finally {
+                it.close();
             }
         }
         return null;
