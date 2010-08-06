@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <mysqldump xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-<database name="algotrader">
+<database name="algotradermemory">
     <table_data name="rule">
     <row>
         <field name="id">1</field>
@@ -32,7 +32,7 @@
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into PortfolioValue
 select current_timestamp as timestamp,
-LookupUtil.getPortfolioValueAllAccounts() as totalValue
+LookupUtil.getTotalValueAllAccounts() as totalValue
 from pattern[every timer:at (0, 9:17, *, *, 1:5)]</field>
         <field name="SUBSCRIBER">PrintPortfolioValueSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
@@ -75,8 +75,8 @@ from Tick.std:groupby(security.id).win:time(7 days).win:length(1) as tick</field
         <field name="id">11</field>
         <field name="NAME">PRINT_TICK</field>
         <field name="PRIORITY">9</field>
-        <field name="DEFINITION">select *
-from Tick</field>
+        <field name="DEFINITION">select * from Tick
+</field>
         <field name="SUBSCRIBER">PrintTickSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
@@ -292,7 +292,7 @@ where ((select last(size) from MACD_Signal.std:size()) = 1) or
         <field name="SUBSCRIBER">TrendSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
-        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">00</field>
         <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
