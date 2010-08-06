@@ -28,6 +28,15 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
+    protected void handleDeactivateAll() throws java.lang.Exception {
+
+        EPAdministrator cepAdm = EsperService.getEPServiceInstance().getEPAdministrator();
+        cepAdm.getStatementNames();
+        for (String statementName : cepAdm.getStatementNames()) {
+            deactivate(statementName);
+        }
+    }
+
     protected void handleActivate(String ruleName) throws Exception {
 
         activate(RuleName.fromString(ruleName));
