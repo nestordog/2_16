@@ -73,4 +73,11 @@ public class PropertiesUtil {
             logger.error("could not load properties", e);
         }
     }
+
+    public static void setProperty(String param, String value) {
+
+        if (props == null) loadProps();
+
+        props.put(param, value);
+    }
 }
