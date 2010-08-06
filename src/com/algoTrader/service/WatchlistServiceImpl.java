@@ -15,7 +15,7 @@ public class WatchlistServiceImpl extends WatchlistServiceBase {
         if (!stockOption.isOnWatchlist()) {
             stockOption.setOnWatchlist(true);
             getStockOptionDao().update(stockOption);
-            getStockOptionDao().findStockOptionsOnWatchlist().add(stockOption);
+            getStockOptionDao().getStockOptionsOnWatchlist(false).add(stockOption);
 
             logger.info("put stockOption on watchlist " + stockOption.getSymbol());
         }
@@ -26,7 +26,7 @@ public class WatchlistServiceImpl extends WatchlistServiceBase {
         if (stockOption.isOnWatchlist()) {
             stockOption.setOnWatchlist(false);
             getStockOptionDao().update(stockOption);
-            getStockOptionDao().findStockOptionsOnWatchlist().remove(stockOption);
+            getStockOptionDao().getStockOptionsOnWatchlist(false).remove(stockOption);
 
             logger.info("removed stockOption from watchlist " + stockOption.getSymbol());
         }
