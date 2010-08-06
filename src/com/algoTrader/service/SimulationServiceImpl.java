@@ -2,18 +2,29 @@ package com.algoTrader.service;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
+import org.apache.commons.math.ConvergenceException;
+import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.analysis.UnivariateRealFunction;
+import org.apache.commons.math.optimization.GoalType;
+import org.apache.commons.math.optimization.UnivariateRealOptimizer;
+import org.apache.commons.math.optimization.univariate.BrentOptimizer;
 import org.apache.log4j.Logger;
 
+import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.Account;
 import com.algoTrader.entity.MonthlyPerformance;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Rule;
@@ -42,99 +53,212 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
     private static String dataSet = PropertiesUtil.getProperty("simulation.dataSet");
+    private static DecimalFormat format = (new DecimalFormat("#,##0.00"));
 
-    private static String[] tickPropertyOrder = {
-        "dateTime",
-        "last",
-        "lastDateTime",
-        "volBid",
-        "volAsk",
-        "bid",
-        "ask",
-        "vol",
-        "openIntrest",
-        "settlement"};
-
-    private static Map<String, Object> tickPropertyTypes = new HashMap<String, Object>();
+    private static String[] tickPropertyOrder;
+    private static Map<String, Object> tickPropertyTypes;
 
     public SimulationServiceImpl() {
 
-        SimulationServiceImpl.tickPropertyTypes.put("dateTime", CustomDate.class);
-        SimulationServiceImpl.tickPropertyTypes.put("last", BigDecimal.class);
-        SimulationServiceImpl.tickPropertyTypes.put("lastDateTime", CustomDate.class);
-        SimulationServiceImpl.tickPropertyTypes.put("volBid", int.class);
-        SimulationServiceImpl.tickPropertyTypes.put("volAsk", int.class);
-        SimulationServiceImpl.tickPropertyTypes.put("bid", BigDecimal.class);
-        SimulationServiceImpl.tickPropertyTypes.put("ask", BigDecimal.class);
-        SimulationServiceImpl.tickPropertyTypes.put("vol", int.class);
-        SimulationServiceImpl.tickPropertyTypes.put("openIntrest", int.class);
-        SimulationServiceImpl.tickPropertyTypes.put("settlement", BigDecimal.class);
+        tickPropertyOrder = new String[] {
+                "dateTime",
+                "last",
+                "lastDateTime",
+                "volBid",
+                "volAsk",
+                "bid",
+                "ask",
+                "vol",
+                "openIntrest",
+                "settlement"};
+
+        tickPropertyTypes = new HashMap<String, Object>();
+
+        tickPropertyTypes.put("dateTime", CustomDate.class);
+        tickPropertyTypes.put("last", BigDecimal.class);
+        tickPropertyTypes.put("lastDateTime", CustomDate.class);
+        tickPropertyTypes.put("volBid", int.class);
+        tickPropertyTypes.put("volAsk", int.class);
+        tickPropertyTypes.put("bid", BigDecimal.class);
+        tickPropertyTypes.put("ask", BigDecimal.class);
+        tickPropertyTypes.put("vol", int.class);
+        tickPropertyTypes.put("openIntrest", int.class);
+        tickPropertyTypes.put("settlement", BigDecimal.class);
     }
 
     @SuppressWarnings("unchecked")
-    protected void handleSimulateByUnderlayings() {
+    protected void handleInit() throws Exception {
 
-        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(EsperService.getEPServiceInstance(), true, true);
+        // process all accounts
+        Collection<Account> accounts = getAccountDao().loadAll();
+        for (Account account : accounts) {
 
-        List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
-        for (Security security : securities) {
-
-            if (security.getIsin() == null) {
-                logger.warn("no tickdata available for " + security.getSymbol());
-                continue;
+            // delete all transactions except the initial CREDIT
+            Collection<Transaction> transactions = account.getTransactions();
+            Set<Transaction> toRemoveTransactions = new HashSet<Transaction>();
+            Set<Transaction> toKeepTransactions = new HashSet<Transaction>();
+            for (Transaction transaction : transactions) {
+                if (transaction.getType().equals(TransactionType.CREDIT)) {
+                    toKeepTransactions.add(transaction);
+                } else {
+                    toRemoveTransactions.add(transaction);
+                }
             }
+            getTransactionDao().remove(toRemoveTransactions);
+            account.setTransactions(toKeepTransactions);
 
-            File file = new File("results/tickdata/" + dataSet + "/" + security.getIsin() + ".csv");
-
-            if (file == null || !file.exists()) {
-                logger.warn("no tickdata available for " + security.getSymbol());
-                continue;
+            // delete all positions and references to them
+            Collection<Position> positions = account.getPositions();
+            Set<Security> toUpdateSecurities = new HashSet<Security>();
+            for (Position position : positions) {
+                Security security = position.getSecurity();
+                security.setPosition(null);
+                toUpdateSecurities.add(security);
             }
+            getSecurityDao().update(toUpdateSecurities);
+            getPositionDao().remove(positions);
+            account.setPositions(new HashSet());
 
-            CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
-            spec.setPropertyOrder(tickPropertyOrder);
-            spec.setPropertyTypes(tickPropertyTypes);
-            spec.setTimestampColumn("dateTime");
-            spec.setUsingExternalTimer(true);
-
-            InputAdapter inputAdapter = new CsvTickInputAdapter(EsperService.getEPServiceInstance(), spec, security.getId());
-            coordinator.coordinate(inputAdapter);
-
-            logger.debug("started simulation for security " + security.getIsin());
+            getAccountDao().update(account);
         }
-        coordinator.start();
+
+        // remove all the targets from preparedRules
+        Collection<Rule> rules = getRuleDao().findPreparedRules();
+        CollectionUtils.transform(rules, new Transformer() {
+            public Object transform(Object arg) {
+                ((Rule)arg).setTarget(null);
+                return arg;
+            }});
+        getRuleDao().update(rules);
+
+        // delete all dummySecurities
+        getSecurityDao().remove(getSecurityDao().findDummySecurities());
+
+        // force reload the collection StockOptionsOnWatchlist, because this might have been cached
+        getStockOptionDao().getStockOptionsOnWatchlist(true);
+    }
+
+    protected void handleDestroy() throws Exception {
+
+        getRuleService().deactivateAll();
+        EsperService.destroyEPServiceInstance();
     }
 
     @SuppressWarnings("unchecked")
-    protected void handleSimulateByActualTransactions(Collection existingTransactions) {
+    protected double handleSimulateByUnderlayings() {
 
-        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(EsperService.getEPServiceInstance(), true, true);
+        long startTime = System.currentTimeMillis();
 
-        File[] files = (new File("results/tickdata/" + dataSet)).listFiles();
-        for (File file : files) {
+        init();
 
-            String isin = file.getName().split("\\.")[0];
+        getRuleService().activateAll();
 
-            Security security = getSecurityDao().findByISIN(isin);
+        // run cvs files through
+        {
+            AdapterCoordinator coordinator = new AdapterCoordinatorImpl(EsperService.getEPServiceInstance(), true, true);
 
-            CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
-            spec.setPropertyOrder(tickPropertyOrder);
-            spec.setPropertyTypes(tickPropertyTypes);
-            spec.setTimestampColumn("dateTime");
-            spec.setUsingExternalTimer(true);
+            List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
+            for (Security security : securities) {
 
-            InputAdapter inputAdapter = new CsvTickInputAdapter(EsperService.getEPServiceInstance(), spec, security.getId());
-            coordinator.coordinate(inputAdapter);
+                if (security.getIsin() == null) {
+                    logger.warn("no tickdata available for " + security.getSymbol());
+                    continue;
+                }
 
-            logger.debug("started simulation for security " + security.getIsin());
+                File file = new File("results/tickdata/" + dataSet + "/" + security.getIsin() + ".csv");
+
+                if (file == null || !file.exists()) {
+                    logger.warn("no tickdata available for " + security.getSymbol());
+                    continue;
+                }
+
+                CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
+                spec.setPropertyOrder(tickPropertyOrder);
+                spec.setPropertyTypes(tickPropertyTypes);
+                spec.setTimestampColumn("dateTime");
+                spec.setUsingExternalTimer(true);
+
+                InputAdapter inputAdapter = new CsvTickInputAdapter(EsperService.getEPServiceInstance(), spec, security.getId());
+                coordinator.coordinate(inputAdapter);
+
+                logger.debug("started simulation for security " + security.getIsin());
+            }
+            coordinator.start();
         }
 
-        InputAdapter inputAdapter = new TransactionInputAdapter(existingTransactions);
-        coordinator.coordinate(inputAdapter);
+        double mins = ((double)(System.currentTimeMillis() - startTime)) / 60000;
+        logger.info("execution time (min): " + (new DecimalFormat("0.00")).format(mins));
 
-        logger.debug("started simulation for transactions");
+        double result = getStatistics();
 
-        coordinator.start();
+        destroy();
+
+        return result;
+    }
+
+    protected void handleSimulateByActualTransactions() {
+
+        // get the existingTransactions before they are deleted
+        Collection<Transaction> existingTransactions = Arrays.asList(ServiceLocator.instance().getLookupService().getAllTrades());
+
+        init();
+
+        // activate the necessary rules
+        getRuleService().activate(RuleName.CREATE_PORTFOLIO_VALUE);
+        getRuleService().activate(RuleName.CREATE_MONTHLY_PERFORMANCE);
+        getRuleService().activate(RuleName.GET_LAST_TICK);
+        getRuleService().activate(RuleName.CREATE_INTERPOLATION);
+        getRuleService().activate(RuleName.CREATE_PERFORMANCE_KEYS);
+        getRuleService().activate(RuleName.KEEP_MONTHLY_PERFORMANCE);
+        getRuleService().activate(RuleName.CREATE_DRAW_DOWN);
+        getRuleService().activate(RuleName.CREATE_MAX_DRAW_DOWN);
+        getRuleService().activate(RuleName.PROCESS_PREARRANGED_ORDERS);
+
+        // runt the cvs files through
+        {
+            AdapterCoordinator coordinator = new AdapterCoordinatorImpl(EsperService.getEPServiceInstance(), true, true);
+
+            File[] files = (new File("results/tickdata/" + dataSet)).listFiles();
+            for (File file : files) {
+
+                String isin = file.getName().split("\\.")[0];
+
+                Security security = getSecurityDao().findByISIN(isin);
+
+                CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
+                spec.setPropertyOrder(tickPropertyOrder);
+                spec.setPropertyTypes(tickPropertyTypes);
+                spec.setTimestampColumn("dateTime");
+                spec.setUsingExternalTimer(true);
+
+                InputAdapter inputAdapter = new CsvTickInputAdapter(EsperService.getEPServiceInstance(), spec, security.getId());
+                coordinator.coordinate(inputAdapter);
+
+                logger.debug("started simulation for security " + security.getIsin());
+            }
+
+            InputAdapter inputAdapter = new TransactionInputAdapter(existingTransactions);
+            coordinator.coordinate(inputAdapter);
+
+            logger.debug("started simulation for transactions");
+
+            coordinator.start();
+        }
+
+        getStatistics();
+
+        destroy();
+    }
+
+    protected void handleOptimize(String parameter, double min, double max, double accuracy) throws ConvergenceException, FunctionEvaluationException {
+
+        UnivariateRealFunction function = new SharpRatioFunction(parameter);
+        UnivariateRealOptimizer optimizer = new BrentOptimizer();
+        optimizer.setAbsoluteAccuracy(accuracy);
+        double result = optimizer.optimize(function, GoalType.MAXIMIZE, min, max);
+
+        logger.info("optimal value for " + parameter + ": " + format.format(result));
+        logger.info("needed iterations: " + optimizer.getIterationCount());
     }
 
     protected InterpolationVO handleGetInterpolation() throws Exception {
@@ -190,42 +314,80 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     }
 
     @SuppressWarnings("unchecked")
-    protected void handleInit() throws Exception {
+    private double getStatistics() {
 
-        // delete all transactions except the initial CREDIT
-        Collection<Transaction> transactions = getTransactionDao().loadAll();
-        CollectionUtils.filter(transactions, new Predicate(){
-            public boolean evaluate(Object obj) {
-                return ((Transaction)obj).getType().equals(TransactionType.CREDIT) ? false : true;
-            }});
+        BigDecimal totalValue = getAccountDao().getTotalValueAllAccounts();
+        logger.info("totalValue=" + format.format(totalValue));
 
-        // remove all existing transaction from the db
-        getTransactionDao().remove(transactions);
+        InterpolationVO interpolation = getInterpolation();
 
-
-        // remove all position associations from securities (especially from the non dummy ones)
-        Collection<Position> positions = getPositionDao().loadAll();
-        List<Security> securities = new ArrayList<Security>();
-        for (Position position : positions) {
-            Security security = position.getSecurity();
-            security.setPosition(null);
-            securities.add(security);
+        if (interpolation != null) {
+            StringBuffer buffer = new StringBuffer("interpolation: ");
+            buffer.append("a=" + format.format(interpolation.getA()));
+            buffer.append(" b=" + format.format(interpolation.getB()));
+            buffer.append(" r=" + format.format(interpolation.getR()));
+            logger.info(buffer.toString());
         }
-        getSecurityDao().update(securities);
 
-        // delete al positions
-        getPositionDao().remove(positions);
+        List<MonthlyPerformance> monthlyPerformances = getMonthlyPerformances();
+        double maxDrawDownM = 0d;
+        double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
+        if (monthlyPerformances != null) {
+            StringBuffer buffer = new StringBuffer("monthlyPerformance: ");
+            for (MonthlyPerformance monthlyPerformance : monthlyPerformances) {
+                maxDrawDownM = Math.min(maxDrawDownM, monthlyPerformance.getValue());
+                bestMonthlyPerformance = Math.max(bestMonthlyPerformance, monthlyPerformance.getValue());
+                buffer.append(format.format(monthlyPerformance.getValue() * 100) + "% " );
+            }
+            logger.info(buffer.toString());
+        }
 
-        // remove all the targets from preparedRules
-        Collection<Rule> rules = getRuleDao().findPreparedRules();
-        CollectionUtils.transform(rules, new Transformer() {
-            public Object transform(Object arg) {
-                ((Rule)arg).setTarget(null);
-                return arg;
-            }});
-        getRuleDao().update(rules);
+        PerformanceKeysVO performanceKeys = getPerformanceKeys();
+        MaxDrawDownVO maxDrawDownVO = getMaxDrawDown();
+        if (performanceKeys != null && maxDrawDownVO != null) {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append("n=" + performanceKeys.getN());
+            buffer.append(" avgM=" + format.format(performanceKeys.getAvgM() * 100) + "%");
+            buffer.append(" stdM=" + format.format(performanceKeys.getStdM() * 100) + "%");
+            buffer.append(" avgY=" + format.format(performanceKeys.getAvgY() * 100) + "%");
+            buffer.append(" stdY=" + format.format(performanceKeys.getStdY() * 100) + "%");
+            buffer.append(" sharpRatio=" + format.format(performanceKeys.getSharpRatio()));
+            logger.info(buffer.toString());
 
-        // delete all dummySecurities
-        getSecurityDao().remove(getSecurityDao().findDummySecurities());
+            buffer = new StringBuffer();
+            buffer.append("maxDrawDownM: " + format.format(-maxDrawDownM * 100) + "%");
+            buffer.append(" bestMonthlyPerformance: " + format.format(bestMonthlyPerformance * 100) + "%");
+            buffer.append(" maxDrawDown: " + format.format(maxDrawDownVO.getAmount() * 100) + "%");
+            buffer.append(" maxDrawDownPeriod: " + format.format(maxDrawDownVO.getPeriod() / 86400000) + "days");
+            buffer.append(" colmarRatio: " + format.format(performanceKeys.getAvgY() / maxDrawDownVO.getAmount()));
+            logger.info(buffer.toString());
+
+            return performanceKeys.getSharpRatio();
+        } else {
+            logger.info("statistic not available because there was no performance");
+            return 0;
+        }
+    }
+
+    private static class SharpRatioFunction implements UnivariateRealFunction {
+
+        private String param;
+
+        public SharpRatioFunction(String parameter) {
+            super();
+            this.param = parameter;
+        }
+
+        public double value(double input) throws FunctionEvaluationException {
+
+            PropertiesUtil.setProperty(param, String.valueOf(input));
+
+            logger.info("optimize on " + param + " value " + format.format(input));
+
+            double result = ServiceLocator.instance().getSimulationService().simulateByUnderlayings();
+
+            logger.info("");
+            return result;
+        }
     }
 }
