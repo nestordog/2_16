@@ -155,10 +155,4 @@ public class RuleServiceImpl extends RuleServiceBase {
             return false;
         }
     }
-
-    protected void handleSetInternalClock() {
-
-        EsperService.setInternalClock();
-        EsperService.enableJmx();
-    }
 }

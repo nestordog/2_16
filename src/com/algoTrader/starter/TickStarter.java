@@ -4,6 +4,7 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.service.RuleService;
 import com.algoTrader.service.SimulationService;
+import com.algoTrader.util.EsperService;
 
 public class TickStarter {
 
@@ -24,8 +25,11 @@ public class TickStarter {
 
         simulationService.simulateByUnderlayings();
 
-        // switch to internalClock and activate the rest of the rules
-        ruleService.setInternalClock();
+        // switch to internalClock
+        EsperService.setInternalClock();
+        EsperService.enableJmx();
+
+        //activate the rest of the rules
         ruleService.activateAll();
     }
 }
