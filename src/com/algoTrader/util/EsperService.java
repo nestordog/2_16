@@ -35,6 +35,15 @@ public class EsperService {
         return cep;
     }
 
+    public static void destroyEPServiceInstance() {
+
+        if (cep != null) {
+
+            cep.destroy();
+            cep = null;
+        }
+    }
+
     public static boolean hasInstance() {
 
         return (cep != null);
