@@ -44,8 +44,6 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private static int contractSize = PropertiesUtil.getIntProperty("simulation.contractSize");
 
     private static int minAge = PropertiesUtil.getIntProperty("minAge");
-    private static double maxAtRiskRatioOfPortfolio = PropertiesUtil.getDoubleProperty("maxAtRiskRatioOfPortfolio");
-    private static double maxAtRiskRatioPerTrade = PropertiesUtil.getDoubleProperty("maxAtRiskRatioPerTrade");
     private static int strikeOffset = PropertiesUtil.getIntProperty("strikeOffset");
 
     private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
@@ -162,6 +160,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         //         invested capital: margin - currentValue (in a short option deal)
         //         max risk: exitValue - current Value
         //         atRiskRatioPerTrade = max risk / invested capital
+        double maxAtRiskRatioPerTrade = PropertiesUtil.getDoubleProperty("maxAtRiskRatioPerTrade");
         double atRiskRatioPerTrade = (exitValue - currentValueDouble) / (margin - currentValueDouble);
         if(atRiskRatioPerTrade > maxAtRiskRatioPerTrade) {
             exitValue = maxAtRiskRatioPerTrade * (margin - currentValueDouble) + currentValueDouble;
@@ -175,6 +174,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         //        total redemptionValue = quantity * contractSize * exitValue + RedemptionValue of the other positions
         //        atRiskRatioOfPortfolio = total redemptionValue / available cash after this trade
         //        (we could adjust the exitValue or the quantity, but we trust the exitValue set above and only adjust the quantity)
+        double maxAtRiskRatioOfPortfolio = PropertiesUtil.getDoubleProperty("maxAtRiskRatioOfPortfolio");
         long numberOfContractsByRedemptionValue =
             (long)((maxAtRiskRatioOfPortfolio * account.getCashBalanceDouble() - account.getRedemptionValue()) /
             (contractSize *(exitValue - maxAtRiskRatioOfPortfolio * currentValueDouble)));
