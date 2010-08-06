@@ -80,7 +80,7 @@ public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase 
 
     protected StockOption[] handleGetStockOptionsOnWatchlist() throws Exception {
 
-        return (StockOption[])getStockOptionDao().findStockOptionsOnWatchlist().toArray(new StockOption[0]);
+        return (StockOption[])getStockOptionDao().getStockOptionsOnWatchlist(false).toArray(new StockOption[0]);
     }
 
     protected Position[] handleGetOpenPositions() throws Exception {
@@ -88,7 +88,7 @@ public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase 
         return (Position[])getPositionDao().findOpenPositions().toArray(new Position[0]);
     }
 
-    protected BigDecimal handleGetPortfolioValueAllAccounts() throws Exception {
+    protected BigDecimal handleGetTotalValueAllAccounts() throws Exception {
 
         return getAccountDao().getTotalValueAllAccounts();
     }
