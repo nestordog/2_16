@@ -21,7 +21,7 @@ delete from security
 where isin is null;
 
 INSERT INTO `transaction` (`id`, `DATE_TIME`, `QUANTITY`, `PRICE`, `COMMISSION`, `TYPE`, `SECURITY_FK`, `ACCOUNT_FK`, `POSITION_FK`) VALUES
-  (-1,'1999-01-01 00:00:00',-1,10000,0,'CREDIT',NULL,1,NULL);
+  (-1,'1999-01-01 00:00:00',-1,1000000,0,'CREDIT',NULL,1,NULL);
 
 UPDATE rule
 set target_fk = NULL;
