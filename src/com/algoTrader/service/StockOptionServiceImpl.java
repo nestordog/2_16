@@ -44,7 +44,6 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private static int contractSize = PropertiesUtil.getIntProperty("simulation.contractSize");
 
     private static int minAge = PropertiesUtil.getIntProperty("minAge");
-    private static int strikeOffset = PropertiesUtil.getIntProperty("strikeOffset");
 
     private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
 
@@ -60,9 +59,9 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         if (simulation) {
             if ((stockOption == null)
-                    || (stockOption.getExpiration().getTime() > (targetExpirationDate.getTime() + this.FORTY_FIVE_DAYS ))
-                    || (OptionType.CALL.equals(optionType) && stockOption.getStrike().doubleValue() > underlayingSpot.doubleValue() + (50 + strikeOffset))
-                    || (OptionType.PUT.equals(optionType) && stockOption.getStrike().doubleValue() < underlayingSpot.doubleValue() - (50 + strikeOffset))  ) {
+                    || (stockOption.getExpiration().getTime() > (targetExpirationDate.getTime() + FORTY_FIVE_DAYS ))
+                    || (OptionType.CALL.equals(optionType) && stockOption.getStrike().doubleValue() > underlayingSpot.doubleValue() + 50)
+                    || (OptionType.PUT.equals(optionType) && stockOption.getStrike().doubleValue() < underlayingSpot.doubleValue() - 50)) {
 
                 stockOption = createDummyStockOption(underlaying, targetExpirationDate, underlayingSpot, optionType);
 
@@ -81,10 +80,10 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         BigDecimal strike;
         if (OptionType.CALL.equals(type)) {
             // increase by strikeOffset and round to upper 50
-            strike = RoundUtil.getBigDecimal(MathUtils.round((underlayingSpot.doubleValue() + strikeOffset)/ 50.0, 0, BigDecimal.ROUND_CEILING) * 50.0);
+            strike = RoundUtil.getBigDecimal(MathUtils.round((underlayingSpot.doubleValue()) / 50.0, 0, BigDecimal.ROUND_CEILING) * 50.0);
         } else {
             // reduce by strikeOffset and round to lower 50
-            strike = RoundUtil.getBigDecimal(MathUtils.round((underlayingSpot.doubleValue() - strikeOffset)/ 50.0, 0, BigDecimal.ROUND_FLOOR) * 50.0);
+            strike = RoundUtil.getBigDecimal(MathUtils.round((underlayingSpot.doubleValue()) / 50.0, 0, BigDecimal.ROUND_FLOOR) * 50.0);
         }
 
         // symbol
@@ -123,13 +122,13 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         List<StockOption> list;
         if (OptionType.CALL.equals(type)) {
-            BigDecimal targetStrike = RoundUtil.getBigDecimal(underlayingSpot.doubleValue() + strikeOffset);
+            BigDecimal targetStrike = RoundUtil.getBigDecimal(underlayingSpot.doubleValue());
             CallOptionCriteria criteria = new CallOptionCriteria(underlaying, targetExpirationDate, targetStrike, type);
             criteria.setMaximumResultSize(new Integer(1));
             list = getStockOptionDao().findCallOptionByCriteria(criteria);
 
         } else {
-            BigDecimal targetStrike = RoundUtil.getBigDecimal(underlayingSpot.doubleValue() - strikeOffset);
+            BigDecimal targetStrike = RoundUtil.getBigDecimal(underlayingSpot.doubleValue());
             PutOptionCriteria criteria = new PutOptionCriteria(underlaying, targetExpirationDate, targetStrike, type);
             criteria.setMaximumResultSize(new Integer(1));
             list = getStockOptionDao().findPutOptionByCriteria(criteria);
