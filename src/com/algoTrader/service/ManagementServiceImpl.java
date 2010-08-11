@@ -60,25 +60,46 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         return account.getOpenPositions().size();
     }
 
-    protected double handleGetStochasticKFast() throws Exception {
+    protected double handleGetStochasticCallKFast() throws Exception {
 
         KFast kFast = (KFast)EsperService.getLastEvent(RuleName.CREATE_K_FAST);
 
-        return (kFast != null) ? kFast.getValue() : 0;
+        return (kFast != null) ? kFast.getCall() : 0;
     }
 
-    protected double handleGetStochasticKSlow() throws Exception {
+    protected double handleGetStochasticCallKSlow() throws Exception {
 
         KSlow kSlow = (KSlow)EsperService.getLastEvent(RuleName.CREATE_K_SLOW);
 
-        return (kSlow != null) ? kSlow.getValue() : 0;
+        return (kSlow != null) ? kSlow.getCall() : 0;
     }
 
-    protected double handleGetStochasticDSlow() throws Exception {
+    protected double handleGetStochasticCallDSlow() throws Exception {
 
         DSlow dSlow = (DSlow)EsperService.getLastEvent(RuleName.CREATE_D_SLOW);
 
-        return (dSlow != null) ? dSlow.getValue() : 0;
+        return (dSlow != null) ? dSlow.getCall() : 0;
+    }
+
+    protected double handleGetStochasticPutKFast() throws Exception {
+
+        KFast kFast = (KFast)EsperService.getLastEvent(RuleName.CREATE_K_FAST);
+
+        return (kFast != null) ? kFast.getPut() : 0;
+    }
+
+    protected double handleGetStochasticPutKSlow() throws Exception {
+
+        KSlow kSlow = (KSlow)EsperService.getLastEvent(RuleName.CREATE_K_SLOW);
+
+        return (kSlow != null) ? kSlow.getPut() : 0;
+    }
+
+    protected double handleGetStochasticPutDSlow() throws Exception {
+
+        DSlow dSlow = (DSlow)EsperService.getLastEvent(RuleName.CREATE_D_SLOW);
+
+        return (dSlow != null) ? dSlow.getPut() : 0;
     }
 
     protected double handleGetInterpolationA() throws Exception {
