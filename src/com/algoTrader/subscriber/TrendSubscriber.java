@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
-import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 
@@ -21,7 +20,7 @@ public class TrendSubscriber {
 
         for (String key : keys) {
             String value = PropertiesUtil.getProperty(parentKey, key);
-            EsperService.setVariableValue(key, value);
+            PropertiesUtil.setEsperOrConfigProperty(key, value);
         }
 
         logger.info("switched trend to " + (bullish ? "bullish" : "bearish"));
