@@ -31,7 +31,7 @@ public class StockOptionImpl extends com.algoTrader.entity.StockOption {
 
         Tick tick = getLastTick();
         if (tick != null) {
-            return (double)getContractSize() * getLastTick().getCurrentValueDouble();
+            return getContractSize() * getLastTick().getCurrentValueDouble();
         } else {
             return 0.0;
         }

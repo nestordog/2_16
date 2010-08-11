@@ -22,7 +22,7 @@ public class TransactionImpl extends Transaction {
             if (getType().equals(TransactionType.BUY) ||
                     getType().equals(TransactionType.SELL) ||
                     getType().equals(TransactionType.EXPIRATION)) {
-                value = -getPrice().doubleValue() * (double) getQuantity() - getCommission().doubleValue();
+                value = -getPrice().doubleValue() * getQuantity() - getCommission().doubleValue();
             } else if (getType().equals(TransactionType.CREDIT) ||
                     getType().equals(TransactionType.INTREST)) {
                 value = getPrice().doubleValue();

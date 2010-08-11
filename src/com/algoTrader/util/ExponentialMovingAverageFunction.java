@@ -25,7 +25,7 @@ public class ExponentialMovingAverageFunction extends AggregationSupport {
         Object[] params = (Object[]) obj;
         double value = (Double) params[0];
         int periods = (Integer) params[1];
-        double exponent = 2.0 / ((double) periods + 1.0);
+        double exponent = 2.0 / (periods + 1.0);
 
         n++;
         if (n == 1) {

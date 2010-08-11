@@ -203,7 +203,7 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
         String expirationValue = SwissquoteUtil.getValue(orderScreen, "//select[@name='order.str_expiration']/option[1]/@value");
         paramSet.add(new NameValuePair("order.str_expiration", expirationValue));
 
-        NameValuePair[] params = (NameValuePair[]) paramSet.toArray(new NameValuePair[0]);
+        NameValuePair[] params = paramSet.toArray(new NameValuePair[0]);
 
         // get the confirmation screen
         GetMethod get = new GetMethod(tradeUrl);
@@ -249,7 +249,7 @@ public class SwissquoteTransactionServiceImpl extends SwissquoteTransactionServi
             paramSet.add(new NameValuePair(name, value));
         }
 
-        NameValuePair[] params = (NameValuePair[]) paramSet.toArray(new NameValuePair[0]);
+        NameValuePair[] params = paramSet.toArray(new NameValuePair[0]);
 
         // get the ack screen
         GetMethod get = new GetMethod(tradeUrl);

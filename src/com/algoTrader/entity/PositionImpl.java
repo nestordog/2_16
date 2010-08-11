@@ -21,7 +21,7 @@ public class PositionImpl extends com.algoTrader.entity.Position {
     public double getValueDouble() {
 
         if (isOpen()) {
-            return (double)getQuantity() * getSecurity().getCurrentValuePerContractDouble();
+            return getQuantity() * getSecurity().getCurrentValuePerContractDouble();
         } else {
             return 0.0;
         }
