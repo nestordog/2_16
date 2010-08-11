@@ -5,20 +5,24 @@ package com.espertech.esperio;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.core.*;
+import com.espertech.esper.core.EPServiceProviderSPI;
+import com.espertech.esper.core.EPStatementHandle;
+import com.espertech.esper.core.EPStatementHandleCallback;
+import com.espertech.esper.core.ExtensionServicesContext;
+import com.espertech.esper.core.StatementFilterVersion;
+import com.espertech.esper.epl.metric.StatementMetricHandle;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.schedule.SchedulingService;
-import com.espertech.esper.util.ManagedLockImpl;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import com.espertech.esper.epl.metric.StatementMetricHandle;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.espertech.esper.util.ManagedLockImpl;
 
 /**
  * A skeleton implementation for coordinated adapter reading, for adapters that

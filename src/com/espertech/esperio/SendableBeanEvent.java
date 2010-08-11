@@ -10,10 +10,10 @@ package com.espertech.esperio;
 
 import java.util.Map;
 
+import org.apache.commons.beanutils.BeanUtils;
+
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.schedule.ScheduleSlot;
-
-import org.apache.commons.beanutils.BeanUtils;
 
 /**
  * An implementation of SendableEvent that wraps a Map event for
