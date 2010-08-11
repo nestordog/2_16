@@ -18,21 +18,21 @@ public class TransactionImpl extends Transaction {
 
     public double getValueDouble() {
 
-        if (value == null) {
+        if (this.value == null) {
             if (getType().equals(TransactionType.BUY) ||
                     getType().equals(TransactionType.SELL) ||
                     getType().equals(TransactionType.EXPIRATION)) {
-                value = -getPrice().doubleValue() * getQuantity() - getCommission().doubleValue();
+                this.value = -getPrice().doubleValue() * getQuantity() - getCommission().doubleValue();
             } else if (getType().equals(TransactionType.CREDIT) ||
                     getType().equals(TransactionType.INTREST)) {
-                value = getPrice().doubleValue();
+                this.value = getPrice().doubleValue();
             } else if (getType().equals(TransactionType.DEBIT) ||
                     getType().equals(TransactionType.FEES)) {
-                value = -getPrice().doubleValue();
+                this.value = -getPrice().doubleValue();
             } else {
                 throw new IllegalArgumentException("unsupported transactionType: " + getType());
             }
         }
-        return value;
+        return this.value;
     }
 }

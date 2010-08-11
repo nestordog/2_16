@@ -442,9 +442,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         public double value(double input) throws FunctionEvaluationException {
 
-            PropertiesUtil.setEsperOrConfigProperty(param, String.valueOf(input));
+            PropertiesUtil.setEsperOrConfigProperty(this.param, String.valueOf(input));
 
-            logger.info("optimize on " + param + " value " + threeDigitFormat.format(input));
+            logger.info("optimize on " + this.param + " value " + threeDigitFormat.format(input));
 
             double result = ServiceLocator.instance().getSimulationService().simulateByUnderlayings();
 
@@ -469,7 +469,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             StringBuffer buffer = new StringBuffer("optimize on ");
             for (int i =0; i < input.length; i++) {
 
-                String param = params[i];
+                String param = this.params[i];
                 double value = input[i];
 
                 PropertiesUtil.setEsperOrConfigProperty(param, String.valueOf(value));

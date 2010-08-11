@@ -60,7 +60,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         if (simulation) {
             if ((stockOption == null)
-                    || (stockOption.getExpiration().getTime() > (targetExpirationDate.getTime() + FORTY_FIVE_DAYS ))
+                    || (stockOption.getExpiration().getTime() > (targetExpirationDate.getTime() + this.FORTY_FIVE_DAYS ))
                     || (OptionType.CALL.equals(optionType) && stockOption.getStrike().doubleValue() > underlayingSpot.doubleValue() + (50 + strikeOffset))
                     || (OptionType.PUT.equals(optionType) && stockOption.getStrike().doubleValue() < underlayingSpot.doubleValue() - (50 + strikeOffset))  ) {
 
