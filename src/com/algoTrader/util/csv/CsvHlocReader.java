@@ -36,8 +36,8 @@ public class CsvHlocReader {
 
         File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
         Reader inFile = new FileReader(file);
-        reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
-        header = reader.getCSVHeader(true);
+        this.reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
+        this.header = this.reader.getCSVHeader(true);
     }
 
      private static class ParseDate extends CellProcessorAdaptor {
@@ -50,7 +50,7 @@ public class CsvHlocReader {
 
                 Date date = new Date(Long.parseLong((String)value));
 
-                return next.execute(date, context);
+                return this.next.execute(date, context);
             }
         }
 
@@ -67,10 +67,10 @@ public class CsvHlocReader {
     public HlocVO readHloc() throws SuperCSVReflectionException, IOException {
 
         HlocVO hloc;
-          if ( (hloc = reader.read(HlocVO.class, header, processor)) != null) {
+          if ( (hloc = this.reader.read(HlocVO.class, this.header, processor)) != null) {
               return hloc;
           } else {
-              reader.close();
+              this.reader.close();
               return null;
           }
     }
