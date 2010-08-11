@@ -8,14 +8,10 @@
  **************************************************************************************/
 package com.espertech.esperio;
 
-import java.beans.PropertyDescriptor;
 import java.util.Map;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.schedule.ScheduleSlot;
-
-import net.sf.cglib.core.ReflectUtils;
-import net.sf.cglib.reflect.FastClass;
 
 import org.apache.commons.beanutils.BeanUtils;
 
