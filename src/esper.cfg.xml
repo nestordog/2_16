@@ -35,22 +35,28 @@
     <variable name="var_intrest" type="double" initialization-value="0.0005"/>
 
     <variable name="var_events_per_day" type="long" initialization-value="500"/>
-    <variable name="var_k_fast_days" type="double" initialization-value="2.5"/>
-    <variable name="var_k_slow_days" type="double" initialization-value="1"/>
-    <variable name="var_d_slow_days" type="double" initialization-value="1.5"/>
 
-    <variable name="var_macd_fast" type="int" initialization-value="120"/>
-    <variable name="var_macd_slow" type="int" initialization-value="260"/>
-    <variable name="var_macd_signal" type="int" initialization-value="90"/>
+    <variable name="var_macd_fast" type="int" initialization-value="88"/>
+    <variable name="var_macd_slow" type="int" initialization-value="183"/>
+    <variable name="var_macd_signal" type="int" initialization-value="64"/>
 
-    <variable name="var_call_vola_period" type="double" initialization-value="0.0"/>
-    <variable name="var_put_vola_period" type="double" initialization-value="0.0"/>
-
-    <variable name="var_call_trigger" type="double" initialization-value="0.0"/>
-    <variable name="var_put_trigger" type="double" initialization-value="0.0"/>
+    <!-- BEAR MARKET / CALL FOCUSED -->
+    <variable name="var_call_k_fast_days" type="double" initialization-value="3.52"/>
+    <variable name="var_call_k_slow_days" type="double" initialization-value="0.98"/>
+    <variable name="var_call_d_slow_days" type="double" initialization-value="1.80"/>
 
     <variable name="var_call_enabled" type="boolean" initialization-value="false"/>
+    <variable name="var_call_vola_period" type="double" initialization-value="0"/>
+    <variable name="var_call_trigger" type="double" initialization-value="0"/>
+
+    <!-- BULL MARKET / PUT FOCUSED -->
+    <variable name="var_put_k_fast_days" type="double" initialization-value="2.68"/>
+    <variable name="var_put_k_slow_days" type="double" initialization-value="0.86"/>
+    <variable name="var_put_d_slow_days" type="double" initialization-value="0.52"/>
+
     <variable name="var_put_enabled" type="boolean" initialization-value="false"/>
+    <variable name="var_put_vola_period" type="double" initialization-value="0"/>
+    <variable name="var_put_trigger" type="double" initialization-value="0"/>
 
     <engine-settings>
         <defaults>
