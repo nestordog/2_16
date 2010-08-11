@@ -80,4 +80,22 @@ public class PropertiesUtil {
 
         props.put(param, value);
     }
+
+    public static void setEsperOrConfigProperty(String param, String value) {
+
+        if (PropertiesUtil.hasProperty(param)) {
+            PropertiesUtil.setProperty(param, value);
+        } else if (EsperService.hasVariable(param)) {
+            EsperService.setVariableValue(param, value);
+        } else {
+            throw new IllegalArgumentException("param " + param + " was not found");
+        }
+    }
+
+    public static boolean hasProperty(String param) {
+
+        if (props == null) loadProps();
+
+        return props.containsKey(param);
+    }
 }
