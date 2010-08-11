@@ -23,9 +23,9 @@ public class StockOptionUtil {
     private static double marginParameter = PropertiesUtil.getDoubleProperty("marginParameter");
     private static double spreadSlope = PropertiesUtil.getDoubleProperty("spreadSlope");
     private static double spreadConstant = PropertiesUtil.getDoubleProperty("spreadConstant");
-    private static double expirationTimeFactor = PropertiesUtil.getDoubleProperty("expirationTimeFactor");
-    private static double expectedProfit = PropertiesUtil.getDoubleProperty("expectedProfit");
-    private static long minExpirationTime = PropertiesUtil.getIntProperty("minExpirationTime");
+
+    private static double minExpirationYears = PropertiesUtil.getDoubleProperty("minExpirationYears");
+
     private static boolean sabrEnabled = PropertiesUtil.getBooleanProperty("sabrEnabled");
 
     public static double getOptionPrice(Security security, double underlayingSpot, double vola) throws ConvergenceException, FunctionEvaluationException, IllegalArgumentException  {
@@ -37,27 +37,30 @@ public class StockOptionUtil {
         }
     }
 
+    public static double getOptionPriceSabr(double underlayingSpot, double strike, double vola, double years, double intrest, double dividend, OptionType type) throws ConvergenceException, FunctionEvaluationException, IllegalArgumentException  {
+
+        if (years <= 0 ) {
+            return getIntrinsicValue(underlayingSpot, strike, type);
+        } else if (years < 1.0/365.0){
+            return getOptionPriceBS(underlayingSpot, strike, vola, years, intrest, dividend, type); //sabr evaluates to zero on the last day before expiration
+        }
+
+        double atmVola = Volatility.getAtmVola(underlayingSpot, vola, years);
+        double forward = underlayingSpot * (1 - years * dividend) * Math.exp(years * intrest);
+        double sabrVola = Sabr.getSabrVolatility(strike, forward, years, atmVola);
+
+        return getOptionPriceBS(underlayingSpot, strike, sabrVola, years, intrest, dividend, type);
+    }
+
     public static double getOptionPriceSabr(Security security, double underlayingSpot, double vola) throws ConvergenceException, FunctionEvaluationException, IllegalArgumentException  {
 
         StockOption stockOption = (StockOption)security;
 
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
-        if (years <= 0 ) {
-            return getIntrinsicValue(underlayingSpot, stockOption.getStrike().doubleValue(), stockOption.getType());
-        } else if (years < 1.0/365.0){
-            return getOptionPriceBS(security, underlayingSpot, vola); //sabr
-        }
 
-        double atmVola = Volatility.getAtmVola(underlayingSpot, vola, years);
-        double forward = underlayingSpot * (1 - years * dividend) * Math.exp(years * intrest);
-        double sabrVola = Sabr.getSabrVolatility(stockOption.getStrike().doubleValue(), forward, years, atmVola);
-
-        return getOptionPriceBS(underlayingSpot, stockOption.getStrike().doubleValue(), sabrVola, years, intrest, dividend, stockOption.getType());
+        return getOptionPriceSabr(underlayingSpot, stockOption.getStrike().doubleValue(), vola, years, intrest, dividend, stockOption.getType());
     }
 
-    /**
-    /*Black-Scholes formula
-     */
     public static double getOptionPriceBS(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
 
         if (years <= 0 ) {
@@ -119,6 +122,17 @@ public class StockOptionUtil {
         return getIntrinsicValue(underlayingSpot, stockOption.getStrike().doubleValue(), stockOption.getType());
     }
 
+    public static double getDelta(double underlayingSpot, double strike, double volatility, double years, double intrest, OptionType type) {
+
+        double d1 = (Math.log(underlayingSpot/strike) + (intrest + volatility * volatility/2) * years) / (volatility * Math.sqrt(years));
+
+        if (OptionType.CALL.equals(type)) {
+            return Gaussian.Phi(d1);
+        } else {
+            return Gaussian.Phi(d1) -1;
+        }
+    }
+
     public static double getExitValue(Security security, double underlayingSpot, double optionValue) throws ConvergenceException, FunctionEvaluationException {
 
         StockOption stockOption = (StockOption)security;
@@ -174,28 +188,20 @@ public class StockOptionUtil {
         return meanValue + (spread / 2.0);
     }
 
-    public static boolean isExpirationTimeToLong(Security security, double currentValue, double settlement, double underlayingSpot) throws ConvergenceException, FunctionEvaluationException {
+    public static boolean isDeltaTooLow(Security security, double currentValue, double underlayingSpot) throws ConvergenceException, FunctionEvaluationException {
 
         StockOption stockOption = (StockOption)security;
 
-        OptionType type = stockOption.getType();
         double strike = stockOption.getStrike().doubleValue();
-        long expirationMillis = stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime();
-        double expirationYears = expirationMillis / MILLISECONDS_PER_YEAR ;
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
+        double volatility = getVolatility(underlayingSpot, strike , currentValue, years, intrest, dividend, stockOption.getType());
+        double delta = StockOptionUtil.getDelta(underlayingSpot, strike, volatility, years, intrest, stockOption.getType());
 
-        double volatility = getVolatility(underlayingSpot, strike , settlement, expirationYears, intrest, dividend, type);
-        double margin = getMargin(stockOption, settlement, underlayingSpot);
-        double intrinsicValue = getOptionPriceBS(underlayingSpot, strike, volatility, 0, intrest, dividend, type);
+        double minDelta = PropertiesUtil.getDoubleProperty("minDelta");
 
-        long expectedExpirationMillis = (long)(Math.log((margin - intrinsicValue) / (margin - currentValue)) / expectedProfit * MILLISECONDS_PER_YEAR);
-
-        if (expectedExpirationMillis < 0) {
+        if (years < minExpirationYears) {
             return false;
-        } else if (expirationMillis < minExpirationTime) {
-            return false;
-        } else if (strike > underlayingSpot) {
-            return false;
-        } else if (expectedExpirationMillis > expirationTimeFactor * expirationMillis ) {
+        } else if (Math.abs(delta) > minDelta) {
             return false;
         } else {
             return true;
