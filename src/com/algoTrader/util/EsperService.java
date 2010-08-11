@@ -116,9 +116,16 @@ public class EsperService {
 
         Class<?> variableClass = getVariableValue(variableName).getClass();
 
+        if (JavaClassHelper.isNumericNonFP(variableClass)) value = value.split("\\.")[0];
+
         Object castedValue = JavaClassHelper.parse(variableClass, value);
 
         getEPServiceInstance().getEPRuntime().setVariableValue(convertCamelCase(variableName), castedValue);
+    }
+
+    public static boolean hasVariable(String variableName) {
+
+        return getEPServiceInstance().getEPRuntime().getVariableValueAll().containsKey((convertCamelCase(variableName)));
     }
 
     private static  String convertCamelCase(String input) {
