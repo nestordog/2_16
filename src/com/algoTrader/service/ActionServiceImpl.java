@@ -121,12 +121,12 @@ public class ActionServiceImpl extends ActionServiceBase {
         logger.debug("sellSignal end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
-    protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlayingSpot) throws Exception {
+    protected void handleOpenPosition(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlayingSpot, double vola) throws Exception {
 
         long startTime = System.currentTimeMillis();
         logger.debug("openPosition start");
 
-        getStockOptionService().openPosition(securityId, settlement, currentValue, underlayingSpot);
+        getStockOptionService().openPosition(securityId, settlement, currentValue, underlayingSpot, vola);
         getRuleService().deactivate(RuleName.OPEN_POSITION);
 
         logger.debug("openPosition end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
