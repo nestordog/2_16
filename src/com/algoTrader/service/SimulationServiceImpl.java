@@ -2,7 +2,9 @@ package com.algoTrader.service;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,11 +17,17 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.ConvergenceException;
 import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.analysis.MultivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.optimization.GoalType;
+import org.apache.commons.math.optimization.MultivariateRealOptimizer;
+import org.apache.commons.math.optimization.RealPointValuePair;
+import org.apache.commons.math.optimization.SimpleScalarValueChecker;
 import org.apache.commons.math.optimization.UnivariateRealOptimizer;
+import org.apache.commons.math.optimization.direct.MultiDirectional;
 import org.apache.commons.math.optimization.univariate.BrentOptimizer;
 import org.apache.log4j.Logger;
 
@@ -40,6 +48,7 @@ import com.algoTrader.util.csv.CsvTickInputAdapter;
 import com.algoTrader.util.csv.TransactionInputAdapter;
 import com.algoTrader.vo.InterpolationVO;
 import com.algoTrader.vo.MaxDrawDownVO;
+import com.algoTrader.vo.OptimizationResultVO;
 import com.algoTrader.vo.PerformanceKeysVO;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
@@ -53,7 +62,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
     private static String dataSet = PropertiesUtil.getProperty("simulation.dataSet");
-    private static DecimalFormat format = (new DecimalFormat("#,##0.00"));
+    private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
+    private static DecimalFormat threeDigitFormat = new DecimalFormat("#,##0.000");
+    private static DateFormat dateFormat = new SimpleDateFormat(" MMM-yy ");
 
     private static String[] tickPropertyOrder;
     private static Map<String, Object> tickPropertyTypes;
@@ -109,13 +120,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             // delete all positions and references to them
             Collection<Position> positions = account.getPositions();
-            Set<Security> toUpdateSecurities = new HashSet<Security>();
-            for (Position position : positions) {
-                Security security = position.getSecurity();
-                security.setPosition(null);
-                toUpdateSecurities.add(security);
-            }
-            getSecurityDao().update(toUpdateSecurities);
             getPositionDao().remove(positions);
             account.setPositions(new HashSet());
 
@@ -131,8 +135,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             }});
         getRuleDao().update(rules);
 
-        // delete all dummySecurities
-        getSecurityDao().remove(getSecurityDao().findDummySecurities());
+        // delete all StockOptions
+        getSecurityDao().remove(getStockOptionDao().loadAll());
 
         // force reload the collection StockOptionsOnWatchlist, because this might have been cached
         getStockOptionDao().getStockOptionsOnWatchlist(true);
@@ -140,7 +144,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
     protected void handleDestroy() throws Exception {
 
-        getRuleService().deactivateAll();
         EsperService.destroyEPServiceInstance();
     }
 
@@ -250,15 +253,71 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         destroy();
     }
 
-    protected void handleOptimize(String parameter, double min, double max, double accuracy) throws ConvergenceException, FunctionEvaluationException {
+    protected void handleOptimizeLinear(String parameter, double min, double max, double increment) throws Exception {
 
-        UnivariateRealFunction function = new SharpRatioFunction(parameter);
+        double result = min;
+        double functionValue = 0;
+        for (double i = min; i <= max; i += increment ) {
+
+            logger.info("optimize on " + parameter + " value " + threeDigitFormat.format(i));
+            PropertiesUtil.setEsperOrConfigProperty(parameter, String.valueOf(i));
+
+            double value = ServiceLocator.instance().getSimulationService().simulateByUnderlayings();
+            if (value > functionValue) {
+                functionValue = value;
+                result = i;
+            }
+            logger.info("");
+        }
+        logger.info("optimal value of " + parameter + " is " + threeDigitFormat.format(result) + "(functionValue: " + threeDigitFormat.format(functionValue) + ")");
+    }
+
+    protected void handleOptimizeSingles(String[] parameter, double[] min, double[] max, double[] accuracies) {
+
+        List<OptimizationResultVO> optimizationResults = new ArrayList<OptimizationResultVO>();
+        for (int i = 0; i < parameter.length; i++) {
+
+            OptimizationResultVO optimizationResult = optimizeSingle(parameter[i], min[i], max[i], accuracies[i]);
+            optimizationResults.add(optimizationResult);
+        }
+
+        for (OptimizationResultVO optimizationResult : optimizationResults) {
+
+            logger.info("optimal value for " + optimizationResult.getParameter()
+                    + ": " + threeDigitFormat.format(optimizationResult.getResult()) +
+                    " (sharpRatio: " + threeDigitFormat.format(optimizationResult.getFunctionValue()) +
+                    " needed iterations: " + optimizationResult.getIterations() + ")");
+        }
+
+    }
+
+    protected OptimizationResultVO handleOptimizeSingle(String parameter, double min, double max, double accuracy) throws ConvergenceException, FunctionEvaluationException {
+
+        UnivariateRealFunction function = new UnivariateFunction(parameter);
         UnivariateRealOptimizer optimizer = new BrentOptimizer();
         optimizer.setAbsoluteAccuracy(accuracy);
-        double result = optimizer.optimize(function, GoalType.MAXIMIZE, min, max);
+        optimizer.optimize(function, GoalType.MAXIMIZE, min, max);
 
-        logger.info("optimal value for " + parameter + ": " + format.format(result));
-        logger.info("needed iterations: " + optimizer.getIterationCount());
+        OptimizationResultVO optimizationResult = new OptimizationResultVO();
+        optimizationResult.setParameter(parameter);
+        optimizationResult.setResult(optimizer.getResult());
+        optimizationResult.setFunctionValue(optimizer.getFunctionValue());
+        optimizationResult.setIterations(optimizer.getIterationCount());
+
+        return optimizationResult;
+    }
+
+    protected void handleOptimizeMulti(String[] parameters, double[] starts) throws ConvergenceException, FunctionEvaluationException {
+
+        MultivariateRealFunction function = new MultivariateFunction(parameters);
+        MultivariateRealOptimizer optimizer = new MultiDirectional();
+        optimizer.setConvergenceChecker(new SimpleScalarValueChecker(0.0, 0.01));
+        RealPointValuePair result = optimizer.optimize(function, GoalType.MAXIMIZE, starts);
+
+        for (int i = 0; i < result.getPoint().length; i++) {
+            logger.info("optimal value for " + parameters[i] + ": " + twoDigitFormat.format(result.getPoint()[i]));
+        }
+        logger.info("functionValue: " + twoDigitFormat.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
     }
 
     protected InterpolationVO handleGetInterpolation() throws Exception {
@@ -317,15 +376,15 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private double getStatistics() {
 
         BigDecimal totalValue = getAccountDao().getTotalValueAllAccounts();
-        logger.info("totalValue=" + format.format(totalValue));
+        logger.info("totalValue: " + twoDigitFormat.format(totalValue));
 
         InterpolationVO interpolation = getInterpolation();
 
         if (interpolation != null) {
             StringBuffer buffer = new StringBuffer("interpolation: ");
-            buffer.append("a=" + format.format(interpolation.getA()));
-            buffer.append(" b=" + format.format(interpolation.getB()));
-            buffer.append(" r=" + format.format(interpolation.getR()));
+            buffer.append("a=" + twoDigitFormat.format(interpolation.getA()));
+            buffer.append(" b=" + twoDigitFormat.format(interpolation.getB()));
+            buffer.append(" r=" + twoDigitFormat.format(interpolation.getR()));
             logger.info(buffer.toString());
         }
 
@@ -333,13 +392,16 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         double maxDrawDownM = 0d;
         double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
         if (monthlyPerformances != null) {
-            StringBuffer buffer = new StringBuffer("monthlyPerformance: ");
+            StringBuffer dateBuffer= new StringBuffer("month-year:         ");
+            StringBuffer performanceBuffer  = new StringBuffer("monthlyPerformance: ");
             for (MonthlyPerformance monthlyPerformance : monthlyPerformances) {
                 maxDrawDownM = Math.min(maxDrawDownM, monthlyPerformance.getValue());
                 bestMonthlyPerformance = Math.max(bestMonthlyPerformance, monthlyPerformance.getValue());
-                buffer.append(format.format(monthlyPerformance.getValue() * 100) + "% " );
+                dateBuffer.append(dateFormat.format(monthlyPerformance.getDate()));
+                performanceBuffer.append(StringUtils.leftPad(twoDigitFormat.format(monthlyPerformance.getValue() * 100),6) + "% " );
             }
-            logger.info(buffer.toString());
+            logger.info(dateBuffer.toString());
+            logger.info(performanceBuffer.toString());
         }
 
         PerformanceKeysVO performanceKeys = getPerformanceKeys();
@@ -347,19 +409,19 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         if (performanceKeys != null && maxDrawDownVO != null) {
             StringBuffer buffer = new StringBuffer();
             buffer.append("n=" + performanceKeys.getN());
-            buffer.append(" avgM=" + format.format(performanceKeys.getAvgM() * 100) + "%");
-            buffer.append(" stdM=" + format.format(performanceKeys.getStdM() * 100) + "%");
-            buffer.append(" avgY=" + format.format(performanceKeys.getAvgY() * 100) + "%");
-            buffer.append(" stdY=" + format.format(performanceKeys.getStdY() * 100) + "%");
-            buffer.append(" sharpRatio=" + format.format(performanceKeys.getSharpRatio()));
+            buffer.append(" avgM=" + twoDigitFormat.format(performanceKeys.getAvgM() * 100) + "%");
+            buffer.append(" stdM=" + twoDigitFormat.format(performanceKeys.getStdM() * 100) + "%");
+            buffer.append(" avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100) + "%");
+            buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "%");
+            buffer.append(" sharpRatio=" + threeDigitFormat.format(performanceKeys.getSharpRatio()));
             logger.info(buffer.toString());
 
             buffer = new StringBuffer();
-            buffer.append("maxDrawDownM: " + format.format(-maxDrawDownM * 100) + "%");
-            buffer.append(" bestMonthlyPerformance: " + format.format(bestMonthlyPerformance * 100) + "%");
-            buffer.append(" maxDrawDown: " + format.format(maxDrawDownVO.getAmount() * 100) + "%");
-            buffer.append(" maxDrawDownPeriod: " + format.format(maxDrawDownVO.getPeriod() / 86400000) + "days");
-            buffer.append(" colmarRatio: " + format.format(performanceKeys.getAvgY() / maxDrawDownVO.getAmount()));
+            buffer.append("maxDrawDownM=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
+            buffer.append(" bestMonthlyPerformance=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
+            buffer.append(" maxDrawDown=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100) + "%");
+            buffer.append(" maxDrawDownPeriod=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000) + "days");
+            buffer.append(" colmarRatio=" + twoDigitFormat.format(performanceKeys.getAvgY() / maxDrawDownVO.getAmount()));
             logger.info(buffer.toString());
 
             return performanceKeys.getSharpRatio();
@@ -369,20 +431,52 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         }
     }
 
-    private static class SharpRatioFunction implements UnivariateRealFunction {
+    private static class UnivariateFunction implements UnivariateRealFunction {
 
         private String param;
 
-        public SharpRatioFunction(String parameter) {
+        public UnivariateFunction(String parameter) {
             super();
             this.param = parameter;
         }
 
         public double value(double input) throws FunctionEvaluationException {
 
-            PropertiesUtil.setProperty(param, String.valueOf(input));
+            PropertiesUtil.setEsperOrConfigProperty(param, String.valueOf(input));
 
-            logger.info("optimize on " + param + " value " + format.format(input));
+            logger.info("optimize on " + param + " value " + threeDigitFormat.format(input));
+
+            double result = ServiceLocator.instance().getSimulationService().simulateByUnderlayings();
+
+            logger.info("");
+            return result;
+        }
+    }
+
+
+    private static class MultivariateFunction implements MultivariateRealFunction {
+
+        private String[] params;
+
+        public MultivariateFunction(String[] parameters) {
+            super();
+            this.params = parameters;
+        }
+
+        public double value(double[] input) throws FunctionEvaluationException {
+
+
+            StringBuffer buffer = new StringBuffer("optimize on ");
+            for (int i =0; i < input.length; i++) {
+
+                String param = params[i];
+                double value = input[i];
+
+                PropertiesUtil.setEsperOrConfigProperty(param, String.valueOf(value));
+
+                buffer.append(param + ": " + threeDigitFormat.format(value) + " ");
+            }
+            logger.info(buffer.toString());
 
             double result = ServiceLocator.instance().getSimulationService().simulateByUnderlayings();
 
