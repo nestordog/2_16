@@ -142,7 +142,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         }
     }
 
-    protected void handleOpenPosition(int stockOptionId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlayingSpot) throws Exception {
+    protected void handleOpenPosition(int stockOptionId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlayingSpot, double vola) throws Exception {
 
         StockOption stockOption = (StockOption)getStockOptionDao().load(stockOptionId);
 
@@ -154,7 +154,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         double underlayingValue = underlayingSpot.doubleValue();
 
         double margin = StockOptionUtil.getMargin(stockOption, settlement.doubleValue(), underlayingValue);
-        double exitValue = StockOptionUtil.getExitValue(stockOption, underlayingValue, currentValueDouble);
+        double exitValue = StockOptionUtil.getExitValue(stockOption, underlayingValue, vola);
 
         // we do not want to loose more than the atRiskRatioPerTrade for this new trade
         //         invested capital: margin - currentValue (in a short option deal)
