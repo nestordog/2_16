@@ -36,9 +36,9 @@ public class AccountDaoImpl extends AccountDaoBase {
     @SuppressWarnings("unchecked")
     public Collection<Account> loadAll() {
 
-        if (this.accounts == null) {
-            this.accounts = super.loadAll();
+        if (accounts == null) {
+            accounts = super.loadAll();
         }
-        return this.accounts;
+        return accounts;
     }
 }

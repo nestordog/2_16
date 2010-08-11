@@ -12,18 +12,18 @@ public class OrderSendableEvent extends AbstractSendableEvent {
     public OrderSendableEvent(Order order, long timestamp, ScheduleSlot scheduleSlot) {
         super(timestamp, scheduleSlot);
 
-        this.eventToSend = order;
+        eventToSend = order;
     }
 
     public void send(AbstractSender sender) {
-        sender.sendEvent(this, this.eventToSend);
+        sender.sendEvent(this, eventToSend);
     }
 
     public String toString() {
-        return this.eventToSend.toString();
+        return eventToSend.toString();
     }
 
     public Object getBeanToSend() {
-        return this.eventToSend;
+        return eventToSend;
     }
 }

@@ -17,7 +17,7 @@ public class CsvTickInputAdapter extends CSVInputAdapter {
     public CsvTickInputAdapter(EPServiceProvider epService, CSVInputAdapterSpec spec, int id) {
 
         super(epService, spec);
-        this.securityId = id;
+        securityId = id;
     }
 
     public SendableEvent read() throws EPException {
@@ -25,7 +25,7 @@ public class CsvTickInputAdapter extends CSVInputAdapter {
 
         if (event != null) {
             Tick tick = (Tick)event.getBeanToSend();
-            Security security = ServiceLocator.instance().getLookupService().getSecurity(this.securityId);
+            Security security = ServiceLocator.instance().getLookupService().getSecurity(securityId);
             tick.setSecurity(security);
         }
 

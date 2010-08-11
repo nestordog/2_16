@@ -22,7 +22,7 @@ public class SMSAppender extends SMTPAppender {
     protected List<Date> exceptionDates = new ArrayList<Date>();
 
     public int getTimeFrame() {
-        return this.timeFrame;
+        return timeFrame;
     }
 
     public void setTimeFrame(int timeFrame) {
@@ -30,7 +30,7 @@ public class SMSAppender extends SMTPAppender {
     }
 
     public int getMaxEMails() {
-        return this.maxEMails;
+        return maxEMails;
     }
 
     public void setMaxEMails(int maxEMails) {
@@ -41,7 +41,7 @@ public class SMSAppender extends SMTPAppender {
     public void activateOptions() {
 
         super.activateOptions();
-        this.timeFrameMillis = this.timeFrame * 60 * 1000;
+        timeFrameMillis = timeFrame * 60 * 1000;
         setBufferSize(1);
     }
 
@@ -50,11 +50,11 @@ public class SMSAppender extends SMTPAppender {
         Date current = new Date();
 
         // Remove timedout exceptions
-        Iterator<Date> itr = this.exceptionDates.iterator();
+        Iterator<Date> itr = exceptionDates.iterator();
 
         while (itr.hasNext()) {
             Date exceptionDate = itr.next();
-            if (current.getTime() - exceptionDate.getTime() > this.timeFrameMillis) {
+            if (current.getTime() - exceptionDate.getTime() > timeFrameMillis) {
                 itr.remove();
             } else {
                 break;
@@ -63,11 +63,11 @@ public class SMSAppender extends SMTPAppender {
     }
 
     protected void addException() {
-        this.exceptionDates.add(new Date());
+        exceptionDates.add(new Date());
     }
 
     protected boolean isSendMailAllowed() {
-        return this.exceptionDates.size() < this.maxEMails;
+        return exceptionDates.size() < maxEMails;
     }
 
     protected void sendBuffer() {
@@ -78,21 +78,21 @@ public class SMSAppender extends SMTPAppender {
             try {
                 MimeBodyPart part = new MimeBodyPart();
                 StringBuffer sbuf = new StringBuffer();
-                String t = this.layout.getHeader();
+                String t = layout.getHeader();
 
                 if (t != null) {
                     sbuf.append(t);
                 }
 
-                LoggingEvent event = this.cb.get();
-                sbuf.append(this.layout.format(event));
+                LoggingEvent event = cb.get();
+                sbuf.append(layout.format(event));
 
-                if (this.layout.ignoresThrowable()) {
+                if (layout.ignoresThrowable()) {
                     String[] s = event.getThrowableStrRep();
                     if (s != null && s.length > 0) {
                         sbuf.append(s[0]);
                     }
-                    t = this.layout.getFooter();
+                    t = layout.getFooter();
                 }
 
                 if (t != null) {
@@ -102,13 +102,13 @@ public class SMSAppender extends SMTPAppender {
                 String content = sbuf.toString();
                 if (content.length() > 160) content = content.substring(0, 160);
 
-                part.setContent(content, this.layout.getContentType());
+                part.setContent(content, layout.getContentType());
                 Multipart mp = new MimeMultipart();
                 mp.addBodyPart(part);
-                this.msg.setContent(mp);
-                this.msg.setSentDate(new Date());
+                msg.setContent(mp);
+                msg.setSentDate(new Date());
 
-                Transport.send(this.msg);
+                Transport.send(msg);
                 addException();
 
             } catch (Exception e) {

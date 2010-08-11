@@ -9,10 +9,10 @@ public class StockOptionDaoImpl extends StockOptionDaoBase {
     @SuppressWarnings("unchecked")
     public List<StockOption> handleGetStockOptionsOnWatchlist(boolean forceReload) {
 
-        if (this.stockOptionsOnWatchlist == null || forceReload) {
-            this.stockOptionsOnWatchlist = super.findStockOptionsOnWatchlist();
+        if (stockOptionsOnWatchlist == null || forceReload) {
+            stockOptionsOnWatchlist = super.findStockOptionsOnWatchlist();
         }
 
-        return this.stockOptionsOnWatchlist;
+        return stockOptionsOnWatchlist;
     }
 }

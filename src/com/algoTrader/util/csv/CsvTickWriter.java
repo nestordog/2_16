@@ -29,10 +29,10 @@ public class CsvTickWriter {
         File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
         boolean exists = file.exists();
 
-        this.writer = new CsvBeanWriter(new FileWriter(file, true), CsvPreference.EXCEL_PREFERENCE);
+        writer = new CsvBeanWriter(new FileWriter(file, true), CsvPreference.EXCEL_PREFERENCE);
 
         if (!exists) {
-            this.writer.writeHeader(header);
+            writer.writeHeader(header);
         }
     }
 
@@ -45,17 +45,17 @@ public class CsvTickWriter {
             public Object execute(final Object value, final CSVContext context) throws NumberFormatException {
                 final Date date = (Date) value;
                 Long result = Long.valueOf(date.getTime());
-                return this.next.execute(result, context);
+                return next.execute(result, context);
             }
         }
 
     public void write(Tick tick) throws SuperCSVReflectionException, IOException {
 
-        this.writer.write(tick, header, processor);
+        writer.write(tick, header, processor);
     }
 
     public void close() throws IOException {
 
-        this.writer.close();
+        writer.close();
     }
 }

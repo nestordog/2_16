@@ -9,8 +9,8 @@ public class ExponentialMovingAverageFunction extends AggregationSupport {
 
     public ExponentialMovingAverageFunction() {
         super();
-        this.n = 0;
-        this.emaValue = 0.0;
+        n = 0;
+        emaValue = 0.0;
     }
 
     @SuppressWarnings("unchecked")
@@ -27,13 +27,13 @@ public class ExponentialMovingAverageFunction extends AggregationSupport {
         int periods = (Integer) params[1];
         double exponent = 2.0 / (periods + 1.0);
 
-        this.n++;
-        if (this.n == 1) {
-            this.emaValue = value;
-        } else if (this.n <= periods) {
-            this.emaValue = (this.emaValue * (this.n - 1) + value) / this.n;
+        n++;
+        if (n == 1) {
+            emaValue = value;
+        } else if (n <= periods) {
+            emaValue = (emaValue * (n - 1) + value) / n;
         } else {
-            this.emaValue = value * exponent + (1 - exponent) * this.emaValue;
+            emaValue = value * exponent + (1 - exponent) * emaValue;
         }
     }
 
@@ -46,7 +46,7 @@ public class ExponentialMovingAverageFunction extends AggregationSupport {
     }
 
     public Object getValue() {
-        return this.emaValue;
+        return emaValue;
     }
 
     public void clear() {

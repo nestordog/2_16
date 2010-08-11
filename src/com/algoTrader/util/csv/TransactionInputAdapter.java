@@ -24,7 +24,7 @@ public class TransactionInputAdapter extends AbstractCoordinatedAdapter {
 
         super(EsperService.getEPServiceInstance(), true, true);
 
-        this.transactiontIterator = transactions.iterator();
+        transactiontIterator = transactions.iterator();
     }
 
     protected void close() {
@@ -32,10 +32,10 @@ public class TransactionInputAdapter extends AbstractCoordinatedAdapter {
     }
 
     protected void replaceFirstEventToSend() {
-        this.eventsToSend.remove(this.eventsToSend.first());
+        eventsToSend.remove(eventsToSend.first());
         SendableEvent event = read();
         if(event != null) {
-            this.eventsToSend.add(event);
+            eventsToSend.add(event);
         }
     }
 
@@ -45,14 +45,14 @@ public class TransactionInputAdapter extends AbstractCoordinatedAdapter {
 
     @SuppressWarnings("unchecked")
     public SendableEvent read() throws EPException {
-        if(this.stateManager.getState() == AdapterState.DESTROYED) {
+        if(stateManager.getState() == AdapterState.DESTROYED) {
             return null;
         }
 
-        if(this.eventsToSend.isEmpty()) {
+        if(eventsToSend.isEmpty()) {
 
-            if (this.transactiontIterator.hasNext()) {
-                Transaction transaction = this.transactiontIterator.next();
+            if (transactiontIterator.hasNext()) {
+                Transaction transaction = transactiontIterator.next();
 
                 Order order = new OrderImpl();
                 order.setRequestedQuantity(Math.abs(transaction.getQuantity()));
@@ -65,14 +65,14 @@ public class TransactionInputAdapter extends AbstractCoordinatedAdapter {
                 order.setSecurity(security);
                 transaction.setSecurity(security);
 
-                return new OrderSendableEvent(order, transaction.getDateTime().getTime(), this.scheduleSlot);
+                return new OrderSendableEvent(order, transaction.getDateTime().getTime(), scheduleSlot);
 
             } else {
                 return null;
             }
         } else {
-            SendableEvent event = this.eventsToSend.first();
-            this.eventsToSend.remove(event);
+            SendableEvent event = eventsToSend.first();
+            eventsToSend.remove(event);
             return event;
         }
     }
