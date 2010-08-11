@@ -84,6 +84,13 @@
         </layout>
     </appender>
 
+    <appender name="SIMULATION" class="org.apache.log4j.ConsoleAppender">
+        <param name="Target" value="System.out" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m %n" />
+        </layout>
+    </appender>
+
     <appender name="TRANSACTION_EMAIL"  class="org.apache.log4j.net.SMTPAppender">
         <param name="EvaluatorClass" value="com.algoTrader.util.CustomEvaluator"/>
         <param name="SMTPHost" value="smtp.mail.yahoo.com" />
@@ -156,6 +163,13 @@
     <logger name="com.algoTrader.subscriber.PrintMACDSubscriber">
         <appender-ref ref="MACD" />
     </logger>
+
+    <!--
+    <logger name="com.algoTrader.service.SimulationServiceImpl">
+        <level value="info"/>
+        <appender-ref ref="SIMULATION" />
+    </logger>
+    -->
 
     <root>
         <level value="debug" />
