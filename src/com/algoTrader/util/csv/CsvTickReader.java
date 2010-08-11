@@ -43,8 +43,8 @@ public class CsvTickReader {
 
         File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
         Reader inFile = new FileReader(file);
-        reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
-        header = reader.getCSVHeader(true);
+        this.reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
+        this.header = this.reader.getCSVHeader(true);
     }
 
      private static class ParseDate extends CellProcessorAdaptor {
@@ -57,7 +57,7 @@ public class CsvTickReader {
 
                 Date date = new Date(Long.parseLong((String)value));
 
-                return next.execute(date, context);
+                return this.next.execute(date, context);
             }
         }
 
@@ -74,10 +74,10 @@ public class CsvTickReader {
     public Tick readTick() throws SuperCSVReflectionException, IOException {
 
           Tick tick;
-          if ( (tick = reader.read(TickImpl.class, header, processor)) != null) {
+          if ( (tick = this.reader.read(TickImpl.class, this.header, processor)) != null) {
               return tick;
           } else {
-              reader.close();
+              this.reader.close();
               return null;
           }
     }

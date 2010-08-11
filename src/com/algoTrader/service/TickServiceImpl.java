@@ -35,11 +35,11 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
                 // write the tick to file (even if not valid)
                 CsvTickWriter csvWriter;
-                if (csvWriters.containsKey(security)) {
-                    csvWriter = csvWriters.get(security);
+                if (this.csvWriters.containsKey(security)) {
+                    csvWriter = this.csvWriters.get(security);
                 } else {
                     csvWriter = new CsvTickWriter(security.getIsin());
-                    csvWriters.put(security, csvWriter);
+                    this.csvWriters.put(security, csvWriter);
                 }
                 csvWriter.write(tick);
             }
