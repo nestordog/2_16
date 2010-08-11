@@ -3,11 +3,22 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="target"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/activation-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/antlr-2.7.6rc1.jar"/>
 	<classpathentry kind="lib" path="lib/antlr-runtime-3.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/asm.jar"/>
+	<classpathentry kind="lib" path="lib/asm-attrs.jar"/>
+	<classpathentry kind="lib" path="lib/cglib-2.1.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils-1.8.2.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/collections/api-release/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar" sourcepath="D:/httpclient-3.0.1/src/java/">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/httpclient-3.0.1/docs/apidocs/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar" sourcepath="D:/commons-lang-2.4-src/src/java/">
@@ -23,11 +34,28 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/currency-converter.jar"/>
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/ehcache-1.1.jar" sourcepath="D:/ehcache-1.1-src/ehcache-1.1-src/">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/ehcache-1.1-src/ehcache-1.1-javadoc/docs/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/esper-3.3.0.jar" sourcepath="D:/esper-3.3.0/src/esper/java.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="file:/D:/esper-3.3.0/esper/doc/api/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/esper-jmx-3.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/esperio-3.3.0.jar" sourcepath="D:/esper-3.3.0/src/esperio/java.zip">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/esper-3.3.0/esperio/doc/api/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/hibernate3.jar" sourcepath="D:/hibernate-3.1/hibernate-3.1.3-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/hibernate-3.1/doc/api/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jta.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar" sourcepath="D:/log4j-1.2.15/src/main/java/">
 		<attributes>
 			<attribute name="javadoc_location" value="file:/D:/log4j-1.2.15/site/apidocs/"/>
@@ -48,33 +76,5 @@
 	<classpathentry kind="lib" path="lib/xalan-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis-2.7.1.jar"/>
-	<classpathentry kind="lib" path="lib/activation-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/antlr-2.7.6rc1.jar"/>
-	<classpathentry kind="lib" path="lib/asm-attrs.jar"/>
-	<classpathentry kind="lib" path="lib/asm.jar"/>
-	<classpathentry kind="lib" path="lib/cglib-2.1.3.jar"/>
-	<classpathentry kind="lib" path="lib/ehcache-1.1.jar" sourcepath="D:/ehcache-1.1-src/ehcache-1.1-src/">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/D:/ehcache-1.1-src/ehcache-1.1-javadoc/docs/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/hibernate3.jar" sourcepath="D:/hibernate-3.1/hibernate-3.1.3-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/D:/hibernate-3.1/doc/api/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/jta.jar"/>
-	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar" sourcepath="D:/httpclient-3.0.1/src/java/">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/D:/httpclient-3.0.1/docs/apidocs/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/esperio-3.3.0.jar" sourcepath="D:/esper-3.3.0/src/esperio/java.zip">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/D:/esper-3.3.0/esperio/doc/api/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/esper-jmx-3.3.0.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
