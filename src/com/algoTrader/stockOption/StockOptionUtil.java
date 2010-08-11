@@ -133,13 +133,9 @@ public class StockOptionUtil {
         }
     }
 
-    public static double getExitValue(Security security, double underlayingSpot, double optionValue) throws ConvergenceException, FunctionEvaluationException {
+    public static double getExitValue(Security security, double underlayingSpot, double volatility) throws ConvergenceException, FunctionEvaluationException {
 
         StockOption stockOption = (StockOption)security;
-
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
-
-        double volatility = getVolatility(underlayingSpot, stockOption.getStrike().doubleValue(), optionValue, years, intrest, dividend, stockOption.getType());
 
         double exitLevel;
         if (OptionType.CALL.equals(stockOption.getType())) {
