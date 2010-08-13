@@ -22,7 +22,7 @@ import com.algoTrader.util.PropertiesUtil;
 
 public class CsvTickReader {
 
-    private static String dataSet = PropertiesUtil.getProperty("simulation.dataSet");
+    private static String dataSet = PropertiesUtil.getProperty("strategie.dataSet");
 
     private static CellProcessor[] processor = new CellProcessor[] {
         new ParseDate(),
@@ -43,8 +43,8 @@ public class CsvTickReader {
 
         File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
         Reader inFile = new FileReader(file);
-        this.reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
-        this.header = this.reader.getCSVHeader(true);
+        reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
+        header = reader.getCSVHeader(true);
     }
 
      private static class ParseDate extends CellProcessorAdaptor {
@@ -57,7 +57,7 @@ public class CsvTickReader {
 
                 Date date = new Date(Long.parseLong((String)value));
 
-                return this.next.execute(date, context);
+                return next.execute(date, context);
             }
         }
 
@@ -74,10 +74,10 @@ public class CsvTickReader {
     public Tick readTick() throws SuperCSVReflectionException, IOException {
 
           Tick tick;
-          if ( (tick = this.reader.read(TickImpl.class, this.header, processor)) != null) {
+          if ( (tick = reader.read(TickImpl.class, header, processor)) != null) {
               return tick;
           } else {
-              this.reader.close();
+              reader.close();
               return null;
           }
     }

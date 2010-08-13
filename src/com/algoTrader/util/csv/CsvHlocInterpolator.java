@@ -17,7 +17,7 @@ import com.algoTrader.vo.HlocVO;
 
 public class CsvHlocInterpolator {
 
-    private static String dataSet = PropertiesUtil.getProperty("simulation.dataSet");
+    private static String dataSet = PropertiesUtil.getProperty("strategie.dataSet");
 
     private static double recordsPerInput = 17.0;
      private static double recordsPerHour = 2.0;
@@ -70,26 +70,26 @@ public class CsvHlocInterpolator {
                 } else {
                     totalMovement = open - low + high - low + high - close;
                 }
-                double movementPerRecord = totalMovement / recordsPerInput;
+                double movementPerRecord = totalMovement / (recordsPerInput - 1);
                 if (open > close) {
-                    highHour = (int)((high - open) / movementPerRecord);
-                    lowHour = (int)((high - open + high - low) / movementPerRecord);
+                    highHour = (int) Math.round((high - open) / movementPerRecord);
+                    lowHour = (int) Math.round((high - open + high - low) / movementPerRecord);
                 } else {
-                    lowHour = (int)((open - low) / movementPerRecord);
-                    highHour = (int)((open - low + high - low) / movementPerRecord);
+                    lowHour = (int) Math.round((open - low) / movementPerRecord);
+                    highHour = (int) Math.round((open - low + high - low) / movementPerRecord);
                 }
             }
 
             if (enforceHighLow) {
                 map.put(0, open);
-                map.put((int)(recordsPerInput), close);
+                map.put((int) (recordsPerInput - 1), close);
                 map.put(highHour, high);
                 map.put(lowHour, low);
             } else {
                 map.put(highHour, high);
                 map.put(lowHour, low);
                 map.put(0, open);
-                map.put((int)(recordsPerInput), close);
+                map.put((int) (recordsPerInput - 1), close);
             }
 
             for (int currentHour = 0; currentHour < recordsPerInput; currentHour++) {

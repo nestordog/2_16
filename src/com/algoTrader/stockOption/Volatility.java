@@ -11,9 +11,9 @@ import com.algoTrader.util.PropertiesUtil;
 
 public class Volatility {
 
-    private static int strikeDistance = PropertiesUtil.getIntProperty("simulation.strikeDistance");
-    private static double intrest = PropertiesUtil.getDoubleProperty("intrest");
-    private static double dividend = PropertiesUtil.getDoubleProperty("dividend");
+    private static int strikeDistance = PropertiesUtil.getIntProperty("strategie.strikeDistance");
+    private static double intrest = PropertiesUtil.getDoubleProperty("strategie.intrest");
+    private static double dividend = PropertiesUtil.getDoubleProperty("strategie.dividend");
 
     public static double getIndexVola(double underlayingSpot, double atmVola, double years) {
 

@@ -61,7 +61,7 @@ import com.espertech.esperio.csv.CSVInputAdapterSpec;
 public class SimulationServiceImpl extends SimulationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
-    private static String dataSet = PropertiesUtil.getProperty("simulation.dataSet");
+    private static String dataSet = PropertiesUtil.getProperty("strategie.dataSet");
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static DecimalFormat threeDigitFormat = new DecimalFormat("#,##0.000");
     private static DateFormat dateFormat = new SimpleDateFormat(" MMM-yy ");
@@ -191,6 +191,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         double mins = ((double)(System.currentTimeMillis() - startTime)) / 60000;
         logger.info("execution time (min): " + (new DecimalFormat("0.00")).format(mins));
+        logger.info("dataSet: " + dataSet);
 
         double result = getStatistics();
 
@@ -437,14 +438,14 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         public UnivariateFunction(String parameter) {
             super();
-            this.param = parameter;
+            param = parameter;
         }
 
         public double value(double input) throws FunctionEvaluationException {
 
-            PropertiesUtil.setEsperOrConfigProperty(this.param, String.valueOf(input));
+            PropertiesUtil.setEsperOrConfigProperty(param, String.valueOf(input));
 
-            logger.info("optimize on " + this.param + " value " + threeDigitFormat.format(input));
+            logger.info("optimize on " + param + " value " + threeDigitFormat.format(input));
 
             double result = ServiceLocator.instance().getSimulationService().simulateByUnderlayings();
 
@@ -460,7 +461,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         public MultivariateFunction(String[] parameters) {
             super();
-            this.params = parameters;
+            params = parameters;
         }
 
         public double value(double[] input) throws FunctionEvaluationException {
@@ -469,7 +470,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             StringBuffer buffer = new StringBuffer("optimize on ");
             for (int i =0; i < input.length; i++) {
 
-                String param = this.params[i];
+                String param = params[i];
                 double value = input[i];
 
                 PropertiesUtil.setEsperOrConfigProperty(param, String.valueOf(value));

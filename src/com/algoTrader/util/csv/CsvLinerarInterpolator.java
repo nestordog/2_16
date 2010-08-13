@@ -15,7 +15,7 @@ import com.algoTrader.util.RoundUtil;
 
 public class CsvLinerarInterpolator {
 
-    private static String dataSet = PropertiesUtil.getProperty("simulation.dataSet");
+    private static String dataSet = PropertiesUtil.getProperty("strategie.dataSet");
 
     private static double recordsPerInput = 17.0;
      private static double recordsPerHour = 2.0;

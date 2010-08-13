@@ -39,9 +39,9 @@ import com.algoTrader.util.RoundUtil;
 public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionServiceBase {
 
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
-    private static Market market = Market.fromString(PropertiesUtil.getProperty("simulation.market"));
-    private static Currency currency = Currency.fromString(PropertiesUtil.getProperty("simulation.currency"));
-    private static int contractSize = PropertiesUtil.getIntProperty("simulation.contractSize");
+    private static Market market = Market.fromString(PropertiesUtil.getProperty("strategie.market"));
+    private static Currency currency = Currency.fromString(PropertiesUtil.getProperty("strategie.currency"));
+    private static int contractSize = PropertiesUtil.getIntProperty("strategie.contractSize");
 
     private static int minAge = PropertiesUtil.getIntProperty("minAge");
 

@@ -35,9 +35,9 @@ import com.algoTrader.util.PropertiesUtil;
 public class Sabr {
 
     public final static double QL_EPSILON = Math.ulp(1.0);
-    private static double beta = PropertiesUtil.getDoubleProperty("beta");
-    private static double volVol = PropertiesUtil.getDoubleProperty("volVol");
-    private static double correlation = PropertiesUtil.getDoubleProperty("correlation");
+    private static double beta = PropertiesUtil.getDoubleProperty("strategie.beta");
+    private static double volVol = PropertiesUtil.getDoubleProperty("strategie.volVol");
+    private static double correlation = PropertiesUtil.getDoubleProperty("strategie.correlation");
 
     /**
      *

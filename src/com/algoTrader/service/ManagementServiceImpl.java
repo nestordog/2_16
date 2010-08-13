@@ -23,7 +23,7 @@ import com.algoTrader.vo.TransactionVO;
 public class ManagementServiceImpl extends ManagementServiceBase {
 
     private static final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yy kk:mm");
-    private static String currency = PropertiesUtil.getProperty("simulation.currency");
+    private static String currency = PropertiesUtil.getProperty("strategie.currency");
 
     protected String handleGetCurrentTime() throws Exception {
 
