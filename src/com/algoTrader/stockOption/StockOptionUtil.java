@@ -18,11 +18,11 @@ public class StockOptionUtil {
     private static final double MILLISECONDS_PER_YEAR = 31536000000l;
     private static final double DAYS_PER_YEAR = 365;
 
-    private static double intrest = PropertiesUtil.getDoubleProperty("intrest");
-    private static double dividend = PropertiesUtil.getDoubleProperty("dividend");
-    private static double marginParameter = PropertiesUtil.getDoubleProperty("marginParameter");
-    private static double spreadSlope = PropertiesUtil.getDoubleProperty("spreadSlope");
-    private static double spreadConstant = PropertiesUtil.getDoubleProperty("spreadConstant");
+    private static double intrest = PropertiesUtil.getDoubleProperty("strategie.intrest");
+    private static double dividend = PropertiesUtil.getDoubleProperty("strategie.dividend");
+    private static double marginParameter = PropertiesUtil.getDoubleProperty("strategie.marginParameter");
+    private static double spreadSlope = PropertiesUtil.getDoubleProperty("strategie.spreadSlope");
+    private static double spreadConstant = PropertiesUtil.getDoubleProperty("strategie.spreadConstant");
 
     private static double minExpirationYears = PropertiesUtil.getDoubleProperty("minExpirationYears");
 
@@ -172,16 +172,18 @@ public class StockOptionUtil {
         return getMargin(underlayingSpot, stockOption.getStrike().doubleValue(), settlement, years, stockOption.getType());
     }
 
-    public static double getDummyBid(double meanValue) {
+    public static double getDummyBid(double price, int contractSize) {
 
-        double spread = meanValue * spreadSlope + spreadConstant;
-        return meanValue - (spread / 2.0);
+        double pricePerContract = price * contractSize;
+        double spread = pricePerContract * spreadSlope + spreadConstant;
+        return pricePerContract - (spread / 2.0);
     }
 
-    public static double getDummyAsk(double meanValue) {
+    public static double getDummyAsk(double price, int contractSize) {
 
-        double spread = meanValue * spreadSlope + spreadConstant;
-        return meanValue + (spread / 2.0);
+        double pricePerContract = price * contractSize;
+        double spread = pricePerContract * spreadSlope + spreadConstant;
+        return pricePerContract + (spread / 2.0);
     }
 
     public static boolean isDeltaTooLow(Security security, double currentValue, double underlayingSpot) throws ConvergenceException, FunctionEvaluationException {
