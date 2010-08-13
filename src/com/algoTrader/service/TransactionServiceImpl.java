@@ -26,7 +26,7 @@ import com.algoTrader.util.RoundUtil;
 
 public abstract class TransactionServiceImpl extends com.algoTrader.service.TransactionServiceBase {
 
-    private static final int firstTradingHour = PropertiesUtil.getIntProperty("simulation.firstTradingHour");;
+    private static final int firstTradingHour = PropertiesUtil.getIntProperty("simulation.firstTradingHour");
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
 
@@ -138,16 +138,14 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
 
         if (TransactionType.SELL.equals(order.getTransactionType())) {
 
-            double dummyBid = StockOptionUtil.getDummyBid(currentValue);
-            BigDecimal price = RoundUtil.getBigDecimal(dummyBid * contractSize);
-            transaction.setPrice(price);
+            double dummyBid = StockOptionUtil.getDummyBid(currentValue, contractSize);
+            transaction.setPrice(RoundUtil.getBigDecimal(dummyBid));
             transaction.setQuantity(-Math.abs(order.getRequestedQuantity()));
 
         } else if (TransactionType.BUY.equals(order.getTransactionType())) {
 
-            double dummyAsk = StockOptionUtil.getDummyAsk(currentValue);
-            BigDecimal price = RoundUtil.getBigDecimal(dummyAsk * contractSize);
-            transaction.setPrice(price);
+            double dummyAsk = StockOptionUtil.getDummyAsk(currentValue, contractSize);
+            transaction.setPrice(RoundUtil.getBigDecimal(dummyAsk));
             transaction.setQuantity(Math.abs(order.getRequestedQuantity()));
 
         } else if (TransactionType.EXPIRATION.equals(order.getTransactionType())) {

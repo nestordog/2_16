@@ -9,8 +9,8 @@ import com.algoTrader.util.RoundUtil;
 public class TickImpl extends com.algoTrader.entity.Tick {
 
     private static int minVol = PropertiesUtil.getIntProperty("minVol");
-    private static double maxSpreadSlope = PropertiesUtil.getDoubleProperty("maxSpreadSlope");
-    private static double maxSpreadConstant = PropertiesUtil.getDoubleProperty("maxSpreadConstant");
+    private static double maxSpreadSlope = PropertiesUtil.getDoubleProperty("strategie.maxSpreadSlope");
+    private static double maxSpreadConstant = PropertiesUtil.getDoubleProperty("strategie.maxSpreadConstant");
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
 
     private static final long serialVersionUID = 7518020445322413106L;
@@ -55,6 +55,9 @@ public class TickImpl extends com.algoTrader.entity.Tick {
     public void validate() {
 
         if (getSecurity() instanceof StockOption) {
+
+            StockOption stockOption = (StockOption) getSecurity();
+
             if (getVolAsk() <= minVol ) {
                 throw new TickServiceException("vol ask (" + getVolAsk() + ") ist too low for security " + getSecurity());
             }
@@ -63,8 +66,8 @@ public class TickImpl extends com.algoTrader.entity.Tick {
                 throw new TickServiceException("vol bid (" + getVolBid() + ") ist too low for security " + getSecurity());
             }
 
-            double mean = getAsk().doubleValue() * getBid().doubleValue() / 2.0;
-            double spread = getAsk().doubleValue() - getBid().doubleValue();
+            double mean = stockOption.getContractSize() * (getAsk().doubleValue() + getBid().doubleValue()) / 2.0;
+            double spread = stockOption.getContractSize() * (getAsk().doubleValue() - getBid().doubleValue());
             double maxSpread = mean * maxSpreadSlope + maxSpreadConstant;
 
             if (spread > maxSpread) {
