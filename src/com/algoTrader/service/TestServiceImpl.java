@@ -83,9 +83,9 @@ public class TestServiceImpl extends com.algoTrader.service.TestServiceBase {
             // simulated bid/ask
             double meanValue = (optionTick.getAsk().doubleValue() + optionTick.getBid().doubleValue()) / 2.0;
             if (TransactionType.SELL.equals(transaction.getType())) {
-                System.out.print(RoundUtil.getBigDecimal(StockOptionUtil.getDummyBid(meanValue)) + ",");
+                System.out.print(RoundUtil.getBigDecimal(StockOptionUtil.getDummyBid(meanValue, stockOption.getContractSize())) + ",");
             } else if (TransactionType.BUY.equals(transaction.getType())) {
-                System.out.print(RoundUtil.getBigDecimal(StockOptionUtil.getDummyAsk(meanValue)) + ",");
+                System.out.print(RoundUtil.getBigDecimal(StockOptionUtil.getDummyAsk(meanValue, stockOption.getContractSize())) + ",");
             }
 
             // sabr
@@ -94,18 +94,18 @@ public class TestServiceImpl extends com.algoTrader.service.TestServiceBase {
             double sabrValue = StockOptionUtil.getOptionPriceSabr(stockOption, underlayingValue, volaValue);
 
             if (TransactionType.SELL.equals(transaction.getType())) {
-                System.out.print(RoundUtil.getBigDecimal(StockOptionUtil.getDummyBid(sabrValue)) + ",");
+                System.out.print(RoundUtil.getBigDecimal(StockOptionUtil.getDummyBid(sabrValue, stockOption.getContractSize())) + ",");
             } else if (TransactionType.BUY.equals(transaction.getType())) {
-                System.out.print(RoundUtil.getBigDecimal(StockOptionUtil.getDummyAsk(sabrValue)) + ",");
+                System.out.print(RoundUtil.getBigDecimal(StockOptionUtil.getDummyAsk(sabrValue, stockOption.getContractSize())) + ",");
             }
 
             // bs
             double bsValue = StockOptionUtil.getOptionPriceBS(stockOption, underlayingValue, volaValue);
 
             if (TransactionType.SELL.equals(transaction.getType())) {
-                System.out.print(RoundUtil.getBigDecimal(StockOptionUtil.getDummyBid(bsValue)));
+                System.out.print(RoundUtil.getBigDecimal(StockOptionUtil.getDummyBid(bsValue, stockOption.getContractSize())));
             } else if (TransactionType.BUY.equals(transaction.getType())) {
-                System.out.print(RoundUtil.getBigDecimal(StockOptionUtil.getDummyAsk(bsValue)));
+                System.out.print(RoundUtil.getBigDecimal(StockOptionUtil.getDummyAsk(bsValue, stockOption.getContractSize())));
             }
 
             if (Math.abs(underlayingTick.getDateTime().getTime() - transaction.getDateTime().getTime()) > 300000) System.out.print(",underlaying invalid!");
@@ -219,7 +219,7 @@ public class TestServiceImpl extends com.algoTrader.service.TestServiceBase {
 
     private List<Tick> getOptionTicks(String isin) throws SuperCSVException, IOException {
 
-        List<Tick> optionTicks = this.optionMap.get(isin);
+        List<Tick> optionTicks = optionMap.get(isin);
 
         if (optionTicks == null) {
 
@@ -229,7 +229,7 @@ public class TestServiceImpl extends com.algoTrader.service.TestServiceBase {
             while ((tick = optionReader.readTick()) != null) {
                 optionTicks.add(tick);
             }
-            this.optionMap.put(isin, optionTicks);
+            optionMap.put(isin, optionTicks);
         }
 
         return optionTicks;
