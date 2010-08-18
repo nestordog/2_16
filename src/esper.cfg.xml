@@ -39,6 +39,7 @@
     <variable name="var_macd_fast" type="int" initialization-value="88"/>
     <variable name="var_macd_slow" type="int" initialization-value="183"/>
     <variable name="var_macd_signal" type="int" initialization-value="64"/>
+    <variable name="var_macd_weight" type="double" initialization-value="2.3"/>
 
     <!-- BEAR MARKET / CALL FOCUSED -->
     <variable name="var_call_k_fast_days" type="double" initialization-value="3.52"/>
