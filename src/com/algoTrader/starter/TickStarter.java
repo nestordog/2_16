@@ -17,13 +17,17 @@ public class TickStarter {
         RuleService ruleService = ServiceLocator.instance().getRuleService();
         SimulationService simulationService = ServiceLocator.instance().getSimulationService();
 
-        // run all the recorded ticks through to initialize the oscilators
+        // run all the recorded ticks through to initialize MACD and stochastic
+        ruleService.activate(RuleName.CREATE_END_OF_DAY_TICK);
+        ruleService.activate(RuleName.CREATE_MACD);
+        ruleService.activate(RuleName.CREATE_MACD_SIGNAL);
+        ruleService.activate(RuleName.SET_TREND);
+
         ruleService.activate(RuleName.CREATE_K_FAST);
         ruleService.activate(RuleName.CREATE_K_SLOW);
         ruleService.activate(RuleName.CREATE_D_SLOW);
-        //ruleService.activate(RuleName.PRINT_STOCHASTIC);
 
-        simulationService.simulateByUnderlayings();
+        simulationService.inputCSV();
 
         // switch to internalClock
         EsperService.setInternalClock();
