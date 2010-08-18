@@ -30,8 +30,6 @@ public class ExponentialMovingAverageFunction extends AggregationSupport {
         this.n++;
         if (this.n == 1) {
             this.emaValue = value;
-        } else if (this.n <= periods) {
-            this.emaValue = (this.emaValue * (this.n - 1) + value) / this.n;
         } else {
             this.emaValue = value * exponent + (1 - exponent) * this.emaValue;
         }
