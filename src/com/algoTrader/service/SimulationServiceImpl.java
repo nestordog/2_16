@@ -148,6 +148,38 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     }
 
     @SuppressWarnings("unchecked")
+    protected void handleInputCSV() {
+        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(EsperService.getEPServiceInstance(), true, true);
+
+        List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
+        for (Security security : securities) {
+
+            if (security.getIsin() == null) {
+                logger.warn("no tickdata available for " + security.getSymbol());
+                continue;
+            }
+
+            File file = new File("results/tickdata/" + dataSet + "/" + security.getIsin() + ".csv");
+
+            if (file == null || !file.exists()) {
+                logger.warn("no tickdata available for " + security.getSymbol());
+                continue;
+            }
+
+            CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
+            spec.setPropertyOrder(tickPropertyOrder);
+            spec.setPropertyTypes(tickPropertyTypes);
+            spec.setTimestampColumn("dateTime");
+            spec.setUsingExternalTimer(true);
+
+            InputAdapter inputAdapter = new CsvTickInputAdapter(EsperService.getEPServiceInstance(), spec, security.getId());
+            coordinator.coordinate(inputAdapter);
+
+            logger.debug("started simulation for security " + security.getIsin());
+        }
+        coordinator.start();
+    }
+
     protected double handleSimulateByUnderlayings() {
 
         long startTime = System.currentTimeMillis();
@@ -156,38 +188,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         getRuleService().activateAll();
 
-        // run cvs files through
-        {
-            AdapterCoordinator coordinator = new AdapterCoordinatorImpl(EsperService.getEPServiceInstance(), true, true);
-
-            List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
-            for (Security security : securities) {
-
-                if (security.getIsin() == null) {
-                    logger.warn("no tickdata available for " + security.getSymbol());
-                    continue;
-                }
-
-                File file = new File("results/tickdata/" + dataSet + "/" + security.getIsin() + ".csv");
-
-                if (file == null || !file.exists()) {
-                    logger.warn("no tickdata available for " + security.getSymbol());
-                    continue;
-                }
-
-                CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
-                spec.setPropertyOrder(tickPropertyOrder);
-                spec.setPropertyTypes(tickPropertyTypes);
-                spec.setTimestampColumn("dateTime");
-                spec.setUsingExternalTimer(true);
-
-                InputAdapter inputAdapter = new CsvTickInputAdapter(EsperService.getEPServiceInstance(), spec, security.getId());
-                coordinator.coordinate(inputAdapter);
-
-                logger.debug("started simulation for security " + security.getIsin());
-            }
-            coordinator.start();
-        }
+        inputCSV();
 
         double mins = ((double)(System.currentTimeMillis() - startTime)) / 60000;
         logger.info("execution time (min): " + (new DecimalFormat("0.00")).format(mins));
