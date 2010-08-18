@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <mysqldump xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-<database name="algotradermemory">
+<database name="algotraderpopulated">
     <table_data name="rule">
     <row>
         <field name="id">1</field>
@@ -9,9 +9,7 @@
         <field name="DEFINITION">every timer:at (*, 9:17, *, *, 1:5)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS">RetrieveTickListener</field>
-        <field name="PATTERN" xsi:type="xs:hexBinary">01</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -21,9 +19,7 @@
         <field name="DEFINITION">every timer:at (0, 23, *, *, 1:5)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS">SetMarginListener</field>
-        <field name="PATTERN" xsi:type="xs:hexBinary">01</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -33,12 +29,10 @@
         <field name="DEFINITION">insert into PortfolioValue
 select current_timestamp as timestamp,
 LookupUtil.getTotalValueAllAccounts() as totalValue
-from pattern[every timer:at (0, 9:17, *, *, 1:5)]</field>
+from pattern[every timer:at (0, 18, *, *, 1:5)]</field>
         <field name="SUBSCRIBER">PrintPortfolioValueSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -46,16 +40,15 @@ from pattern[every timer:at (0, 9:17, *, *, 1:5)]</field>
         <field name="NAME">CREATE_MONTHLY_PERFORMANCE</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into MonthlyPerformance
-select (portfolioValue.totalValue / prior(1, portfolioValue.totalValue)) - 1 as value
+select DateUtil.toDate(current_timestamp()) as date,
+(portfolioValue.totalValue / prior(1, portfolioValue.totalValue)) - 1 as value
 from pattern[every timer:at (0, 18, lastweekday, *, *) -&gt; portfolioValue=PortfolioValue]
 having prior(1, portfolioValue.totalValue) != null and
 portfolioValue.totalValue != prior(1, portfolioValue.totalValue)
 </field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -66,9 +59,7 @@ portfolioValue.totalValue != prior(1, portfolioValue.totalValue)
 from Tick.std:groupby(security.id).win:time(7 days).win:length(1) as tick</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -79,9 +70,7 @@ from Tick.std:groupby(security.id).win:time(7 days).win:length(1) as tick</field
 </field>
         <field name="SUBSCRIBER">PrintTickSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -100,9 +89,7 @@ where option.underlaying.id = indexTick.security.id
 and var_simulation=true</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -119,9 +106,7 @@ and option.position != null
 and option.position.quantity != 0</field>
         <field name="SUBSCRIBER">ExpirePositionSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -136,9 +121,7 @@ and tick.security.position.exitValue != null
 and tick.currentValue  &gt; tick.security.position.exitValue</field>
         <field name="SUBSCRIBER">ClosePositionSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -147,16 +130,14 @@ and tick.currentValue  &gt; tick.security.position.exitValue</field>
         <field name="PRIORITY">4</field>
         <field name="DEFINITION">insert into ExitValue
 select optionTick.security as security,
-StockOptionUtil.getExitValue(optionTick.security, indexTick.currentValueDouble, optionTick.currentValueDouble) as value
-from pattern [every indexTick=Tick(security.isin = var_isin) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = var_isin)]
+StockOptionUtil.getExitValue(optionTick.security, indexTick.currentValueDouble, volaTick.currentValueDouble / 100) as value
+from pattern [every (indexTick=Tick(security.isin = var_isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id)) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = var_isin)]
 where optionTick.security.position != null
 and optionTick.security.position.quantity != 0
 and optionTick.currentValueDouble != 0</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -168,14 +149,12 @@ optionTick.security.position.id,
 indexTick.security.id,
 indexTick.currentValue
 from pattern [every indexTick=Tick(security.isin = var_isin) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = var_isin)]
-where StockOptionUtil.isExpirationTimeToLong(optionTick.security, optionTick.currentValueDouble, optionTick.settlementDouble, indexTick.currentValueDouble)
+where StockOptionUtil.isDeltaTooLow(optionTick.security, optionTick.currentValueDouble, indexTick.currentValueDouble)
 and optionTick.security.position != null
 and optionTick.security.position.quantity != 0</field>
         <field name="SUBSCRIBER">RollPositionSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
-        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">00</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -185,13 +164,12 @@ and optionTick.security.position.quantity != 0</field>
         <field name="DEFINITION">select stockOptionTick.security.id,
 stockOptionTick.settlement,
 stockOptionTick.currentValue,
-indexTick.currentValue
-from pattern [(indexTick=Tick(security.isin = var_isin) -&gt; stockOptionTick=Tick(security.id = ?,security.underlaying.id=indexTick.security.id))]</field>
+indexTick.currentValue,
+volaTick.currentValueDouble / 100
+from pattern [(indexTick=Tick(security.isin = var_isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id) -&gt; stockOptionTick=Tick(security.id = ?,security.underlaying.id=indexTick.security.id))]</field>
         <field name="SUBSCRIBER">OpenPositionSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">00</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">01</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -200,15 +178,15 @@ from pattern [(indexTick=Tick(security.isin = var_isin) -&gt; stockOptionTick=Ti
         <field name="PRIORITY">1</field>
         <field name="DEFINITION">insert into KFast
 select security,
-(last(currentValueDouble) - min(currentValueDouble))/(max(currentValueDouble) - min(currentValueDouble)) as value
-from Tick(security.isin = var_isin).win:length(cast(var_k_fast_days * var_events_per_day, int))
-having max(currentValueDouble) != min(currentValueDouble)
-</field>
+(select (last(currentValueDouble) - min(currentValueDouble))/(max(currentValueDouble) - min(currentValueDouble)) as call
+from Tick(security.isin = var_isin).win:length(cast(var_call_k_fast_days * var_events_per_day, int))),
+(select (last(currentValueDouble) - min(currentValueDouble))/(max(currentValueDouble) - min(currentValueDouble)) as put
+from Tick(security.isin = var_isin).win:length(cast(var_put_k_fast_days * var_events_per_day, int)))
+from Tick(security.isin = var_isin)
+having count(id) &gt;= cast(Math.max(var_call_k_fast_days,var_put_k_fast_days) * var_events_per_day ,int)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -220,9 +198,7 @@ select tick.*
 from pattern [every tick=Tick(security.isin = var_isin) -&gt; (timer:at (0, 18, *, *, 1:5) and not Tick(security.isin = var_isin))]</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -239,9 +215,7 @@ from EndOfDayTick
 </field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -252,13 +226,11 @@ from EndOfDayTick
 select security,
 ema(currentValueDouble,var_macd_fast) - ema(currentValueDouble,var_macd_slow) as value
 from EndOfDayTick
-having count(*) &gt; var_macd_slow
+having count(*) &gt; Math.round(var_macd_slow * var_macd_weight)
 </field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -270,12 +242,10 @@ select security,
 value as macd,
 ema(value,var_macd_signal) as signal
 from MACD
-having count(*) &gt; var_macd_signal</field>
-        <field name="SUBSCRIBER">PrintMACDSubscriber</field>
+having count(*) &gt; Math.round(var_macd_signal * var_macd_weight)</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -291,9 +261,20 @@ where ((select last(size) from MACD_Signal.std:size()) = 1) or
 </field>
         <field name="SUBSCRIBER">TrendSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
-        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">00</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">26</field>
+        <field name="NAME">PRINT_MACD</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">select security,
+macd,
+signal
+from MACD_Signal</field>
+        <field name="SUBSCRIBER">PrintMACDSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -301,15 +282,14 @@ where ((select last(size) from MACD_Signal.std:size()) = 1) or
         <field name="NAME">CREATE_K_SLOW</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into KSlow
-select security,
-avg(value) as value
-from KFast.win:length(cast(var_k_slow_days * var_events_per_day, int))
-having avg(value) != null</field>
+select security as security,
+(select avg(call) from KFast.win:length(cast(var_call_k_slow_days * var_events_per_day, int))) as call,
+(select avg(put) from KFast.win:length(cast(var_put_k_slow_days * var_events_per_day, int))) as put
+from KFast
+having count(security) &gt;= cast(Math.max(var_call_k_slow_days,var_put_k_slow_days) * var_events_per_day ,int)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -318,14 +298,13 @@ having avg(value) != null</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into DSlow
 select security,
-avg(value) as value
-from KSlow.win:length(cast(var_d_slow_days * var_events_per_day,int))
-having avg(value) != null</field>
+(select avg(call) from KSlow.win:length(cast(var_call_d_slow_days * var_events_per_day,int))) as call,
+(select avg(put) from KSlow.win:length(cast(var_put_d_slow_days * var_events_per_day,int))) as put
+from KSlow
+having count(security) &gt;= cast(Math.max(var_call_d_slow_days,var_put_d_slow_days) * var_events_per_day ,int)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -336,15 +315,13 @@ having avg(value) != null</field>
 indexTick.security.id,
 indexTick.currentValue
 from pattern [every (indexTick=Tick(security.isin=var_isin) -&gt; k=KSlow -&gt; d=DSlow)]
-where k.value &gt; d.value
-and prior(1, k.value) &lt; prior(1, d.value)
-and d.value &lt; var_put_trigger
+where k.put &gt; d.put
+and prior(1, k.put) &lt; prior(1, d.put)
+and d.put &lt; var_put_trigger
 and var_put_enabled = true</field>
         <field name="SUBSCRIBER">BuySignalSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -355,15 +332,13 @@ and var_put_enabled = true</field>
 indexTick.security.id,
 indexTick.currentValue
 from pattern [every (indexTick=Tick(security.isin=var_isin) -&gt; k=KSlow -&gt; d=DSlow)]
-where k.value &lt; d.value
-and prior(1, k.value) &gt; prior(1, d.value)
-and d.value &gt; var_call_trigger
+where k.call &lt; d.call
+and prior(1, k.call) &gt; prior(1, d.call)
+and d.call &gt; var_call_trigger
 and var_call_enabled = true</field>
         <field name="SUBSCRIBER">SellSignalSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -376,9 +351,7 @@ dSlow
 from pattern [every (kFast=KFast -&gt; kSlow=KSlow -&gt; dSlow=DSlow)]</field>
         <field name="SUBSCRIBER">PrintStochasticSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -393,9 +366,7 @@ where security.position.quantity != 0
 and value &lt; security.position.exitValue</field>
         <field name="SUBSCRIBER">SetExitValueSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -410,9 +381,7 @@ from Transaction.win:keepall().stat:linest(current_timestamp() / 31536000000, Ma
 Transaction.win:keepall().stat:correl(current_timestamp() / 31536000000, Math.log(account.totalValueDouble)) as correl</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -429,9 +398,7 @@ uni.stddev * Math.sqrt(12) as stdY,
 from MonthlyPerformance.win:keepall().stat:uni(value) as uni</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -442,9 +409,7 @@ from MonthlyPerformance.win:keepall().stat:uni(value) as uni</field>
 from MonthlyPerformance.win:keepall()</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -457,9 +422,7 @@ case when portfolioValue.totalValue = max(portfolioValue.totalValue) then DrawDo
 from PortfolioValue as portfolioValue</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -472,9 +435,7 @@ max(drawDown.period) as period
 from DrawDown as drawDown</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -484,9 +445,7 @@ from DrawDown as drawDown</field>
         <field name="DEFINITION">select * from PrearrangedOrder</field>
         <field name="SUBSCRIBER">RerunOrderSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="PATTERN" xsi:type="xs:hexBinary">00</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="PREPARED" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     </table_data>
