@@ -59,7 +59,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         if (simulation) {
             if ((stockOption == null)
-                    || (stockOption.getExpiration().getTime() > (targetExpirationDate.getTime() + FORTY_FIVE_DAYS ))
+                    || (stockOption.getExpiration().getTime() > (targetExpirationDate.getTime() + this.FORTY_FIVE_DAYS ))
                     || (OptionType.CALL.equals(optionType) && stockOption.getStrike().doubleValue() > underlayingSpot.doubleValue() + 50)
                     || (OptionType.PUT.equals(optionType) && stockOption.getStrike().doubleValue() < underlayingSpot.doubleValue() - 50)) {
 
@@ -162,7 +162,10 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         double maxAtRiskRatioPerTrade = PropertiesUtil.getDoubleProperty("maxAtRiskRatioPerTrade");
         double atRiskRatioPerTrade = (exitValue - currentValueDouble) / (margin - currentValueDouble);
         if(atRiskRatioPerTrade > maxAtRiskRatioPerTrade) {
-            exitValue = maxAtRiskRatioPerTrade * (margin - currentValueDouble) + currentValueDouble;
+
+            double newExitValue = maxAtRiskRatioPerTrade * (margin - currentValueDouble) + currentValueDouble;
+            logger.info("reduced exitValue from: " + exitValue + " to: " + newExitValue);
+            exitValue = newExitValue;
         }
 
         // get numberOfContracts based on margin (how may option can we sell for the available amount of cash
@@ -179,6 +182,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             (contractSize *(exitValue - maxAtRiskRatioOfPortfolio * currentValueDouble)));
 
         // choose which ever is lower
+        logger.info("numberOfContractsByMargin: " + numberOfContractsByMargin + "numberOfContractsByRedemptionValue: " + numberOfContractsByRedemptionValue);
         long numberOfContracts= Math.min(numberOfContractsByMargin, numberOfContractsByRedemptionValue);
 
         if (numberOfContracts <= 0) {
