@@ -9,8 +9,10 @@ public class DispatcherServiceImpl extends com.algoTrader.service.DispatcherServ
 
     protected StockOptionRetrieverService handleGetStockOptionRetrieverService() {
 
-        if (MarketChannel.SWISSQUOTE.getValue().equals(marketChannel)) {
-            return getSwissquoteStockOptionRetrieverService();
+        if (MarketChannel.SQ.getValue().equals(marketChannel)) {
+            return getSqStockOptionRetrieverService();
+        } else if (MarketChannel.IB.getValue().equals(marketChannel)) {
+            return getIbStockOptionRetrieverService();
         } else {
             throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
         }
@@ -18,8 +20,10 @@ public class DispatcherServiceImpl extends com.algoTrader.service.DispatcherServ
 
     protected TransactionService handleGetTransactionService() {
 
-        if (MarketChannel.SWISSQUOTE.getValue().equals(marketChannel)) {
-            return getSwissquoteTransactionService();
+        if (MarketChannel.SQ.getValue().equals(marketChannel)) {
+            return getSqTransactionService();
+        } else if (MarketChannel.IB.getValue().equals(marketChannel)) {
+            return getIbTransactionService();
         } else {
             throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
         }
@@ -27,8 +31,10 @@ public class DispatcherServiceImpl extends com.algoTrader.service.DispatcherServ
 
     protected TickService handleGetTickService() {
 
-        if (MarketChannel.SWISSQUOTE.getValue().equals(marketChannel)) {
-            return getSwissquoteTickService();
+        if (MarketChannel.SQ.getValue().equals(marketChannel)) {
+            return getSqTickService();
+        } else if (MarketChannel.IB.getValue().equals(marketChannel)) {
+            return getIbTickService();
         } else {
             throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
         }

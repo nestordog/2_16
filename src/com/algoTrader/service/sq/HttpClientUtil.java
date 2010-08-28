@@ -195,10 +195,10 @@ public class HttpClientUtil {
 
             Document document = tradeLevel3Url.contains(loginPath) ? loginDocument : passwordDocument;
 
-            String rec = SQUtil.getValue(document, "//input[@name='rec']/@value");
-            String rqu = SQUtil.getValue(document, "//input[@name='rqu']/@value");
-            String rse = SQUtil.getValue(document, "//input[@name='rse']/@value");
-            String level3Key = SQUtil.getValue(document, "//strong[2]");
+            String rec = SqUtil.getValue(document, "//input[@name='rec']/@value");
+            String rqu = SqUtil.getValue(document, "//input[@name='rqu']/@value");
+            String rse = SqUtil.getValue(document, "//input[@name='rse']/@value");
+            String level3Key = SqUtil.getValue(document, "//strong[2]");
 
             PostMethod method = new PostMethod(tradeLevel3Url);
 
