@@ -35,7 +35,6 @@ import com.algoTrader.entity.StockOptionImpl;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
 import com.algoTrader.enumeration.Currency;
-import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.service.StockOptionRetrieverServiceImpl;
@@ -94,7 +93,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
         String currency = param.split("_")[2];
 
         stockOption.setIsin(isin);
-        stockOption.setMarket(Market.fromString(market));
+        stockOption.setMarket(SqMarketConverter.marketFromString(market));
         stockOption.setCurrency(Currency.fromString(currency));
 
         stockOption.setType(type);
@@ -164,7 +163,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
             String currency = param.split("_")[2];
 
             stockOption.setIsin(isin);
-            stockOption.setMarket(Market.fromString(market));
+            stockOption.setMarket(SqMarketConverter.marketFromString(market));
             stockOption.setCurrency(Currency.fromString(currency));
 
             Document optionDocument = SqUtil.getSecurityDocument(stockOption);
@@ -298,7 +297,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
                     underlaying = new SecurityImpl();
                     underlaying.setSymbol(underlayingSymbol);
                     underlaying.setIsin(underlayingIsin);
-                    underlaying.setMarket(Market.fromString(underlayingMarketId));
+                    underlaying.setMarket(SqMarketConverter.marketFromString(underlayingMarketId));
                     underlaying.setCurrency(Currency.fromString(underlayingCurreny));
 
                     Tick underlayingTick = new TickImpl();
@@ -320,7 +319,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
                 StockOption stockOption = new StockOptionImpl();
                 stockOption.setIsin(optionIsin);
-                stockOption.setMarket(Market.fromString(optionMarketId));
+                stockOption.setMarket(SqMarketConverter.marketFromString(optionMarketId));
                 stockOption.setCurrency(Currency.fromString(optionCurreny));
 
                 Document optionDocument = SqUtil.getSecurityDocument(stockOption);
@@ -353,7 +352,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
                         StockOption callOption = new StockOptionImpl();
                         callOption.setIsin(callOptionIsin);
-                        callOption.setMarket(Market.fromString(optionMarketId));
+                        callOption.setMarket(SqMarketConverter.marketFromString(optionMarketId));
                         callOption.setCurrency(Currency.fromString(optionCurreny));
                         callOption.setStrike(RoundUtil.getBigDecimal(SqUtil.getDouble(optionStrike)));
                         callOption.setContractSize(SqUtil.getInt(contractSize));
@@ -376,7 +375,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
                         StockOption putOption = new StockOptionImpl();
                         putOption.setIsin(putOptionIsin);
-                        putOption.setMarket(Market.fromString(optionMarketId));
+                        putOption.setMarket(SqMarketConverter.marketFromString(optionMarketId));
                         putOption.setCurrency(Currency.fromString(optionCurreny));
                         putOption.setStrike(RoundUtil.getBigDecimal(SqUtil.getDouble(optionStrike)));
                         putOption.setContractSize(SqUtil.getInt(contractSize));
