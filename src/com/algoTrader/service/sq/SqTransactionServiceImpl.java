@@ -46,8 +46,8 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
 
     private static int confirmationTimeout = PropertiesUtil.getIntProperty("swissquote.confirmationTimeout");
     private static int confirmationRetries = PropertiesUtil.getIntProperty("swissquote.confirmationRetries");
-    private static int maxTransactionAge = PropertiesUtil.getIntProperty("swissquote.maxTransactionAge");
-    private static String[] bidAskSpreadPositions = PropertiesUtil.getProperty("swissquote.bidAskSpreadPositions").split("\\s");
+    private static int maxTransactionAge = PropertiesUtil.getIntProperty("maxTransactionAge");
+    private static String[] bidAskSpreadPositions = PropertiesUtil.getProperty("bidAskSpreadPositions").split("\\s");
 
     private static String dispatchUrl = "https://trade.swissquote.ch/sqb_core/DispatchCtrl";
     private static String tradeUrl = "https://trade.swissquote.ch/sqb_core/TradeCtrl";
@@ -182,14 +182,8 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         paramSet.add(new NameValuePair("order.quantity", String.valueOf(requestedQuantity)));
 
         // price
-        double price = 0.0;
-        if (TransactionType.BUY.equals(transactionType)) {
-            price = bid + bidAskSpreadPosition * (ask - bid);
-        } else if (TransactionType.SELL.equals(transactionType)) {
-            price = ask - bidAskSpreadPosition * (ask - bid);
-        }
-        BigDecimal roundedPrice = RoundUtil.roundTo10Cent(RoundUtil.getBigDecimal(price));
-        paramSet.add(new NameValuePair("order.price", roundedPrice.toString()));
+        BigDecimal price = RoundUtil.getBigDecimal(getPrice(order, bidAskSpreadPosition, bid, ask));
+        paramSet.add(new NameValuePair("order.price", price.toString()));
 
         // stockExchange
         String stockExchangeValue = SqUtil.getValue(orderScreen, "//select[@name='stockExchange']/option[@selected='selected']/@value");
@@ -225,7 +219,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
             get.releaseConnection();
         }
 
-        logger.debug("place order at bidAskSpreadPosition: " + bidAskSpreadPosition + ", bid: " + bid + ", ask: " + ask + ", price: " + roundedPrice);
+        logger.debug("place order at bidAskSpreadPosition: " + bidAskSpreadPosition + ", bid: " + bid + ", ask: " + ask + ", price: " + price);
 
         return confirmationScreen;
     }
@@ -335,7 +329,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         if (orderNumber == null)
             throw new TransactionServiceException("could not retrieve orderNumber to delete order: " + security.getSymbol());
 
-        order.setNumber(orderNumber);
+        order.setNumber(Integer.parseInt(orderNumber));
 
         // get the delete screen
         NameValuePair[] params = new NameValuePair[] { new NameValuePair("commandName", "delete"), new NameValuePair("tradeId", orderNumber) };
@@ -386,7 +380,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         }
 
         String orderNumber = SqUtil.getValue(dailyOrderNode, String.format(columnMatch, "Auftrag"));
-        order.setNumber(orderNumber);
+        order.setNumber(Integer.parseInt(orderNumber));
 
         // get the executed transactions screen
         GetMethod get = new GetMethod(transactionsUrl);
@@ -409,6 +403,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
 
         NodeIterator nodeIterator = XPathAPI.selectNodeIterator(executedTransactionsScreen, "//tr[td/a='" + orderNumber + "']");
         Node node;
+        int totalExecutedQuantity = 0;
         while ((node = nodeIterator.nextNode()) != null) {
 
             String transactionNumber = SqUtil.getValue(node, String.format(columnMatch + "/a/@href", "Auftrag #"));
@@ -417,6 +412,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
             String executedQuantityValue = SqUtil.getValue(node, String.format(columnMatch, "Anzahl"));
             int executedQuantity = Math.abs(SqUtil.getInt(executedQuantityValue));
             executedQuantity = TransactionType.SELL.equals(transactionType) ? -executedQuantity : executedQuantity;
+            totalExecutedQuantity += executedQuantity;
 
             String pricePerItemValue = SqUtil.getValue(node, String.format(columnMatch, "Stückpreis"));
             double pricePerItem = SqUtil.getDouble(pricePerItemValue);
@@ -434,6 +430,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
 
             order.getTransactions().add(transaction);
         }
+        order.setExecutedQuantity(order.getExecutedQuantity() + totalExecutedQuantity);
 
         logger.info("executed " + order.getExecutedQuantity() + " transactions at bidAskSpreadPosition: " + bidAskSpreadPosition);
     }
