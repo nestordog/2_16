@@ -5,14 +5,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.supercsv.exception.SuperCSVException;
 
 import com.algoTrader.entity.Security;
+import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.util.EsperService;
+import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.csv.CsvTickWriter;
 
 public abstract class TickServiceImpl extends TickServiceBase {
+
+    private static Logger logger = MyLogger.getLogger(TickServiceImpl.class.getName());
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
 
@@ -43,6 +48,41 @@ public abstract class TickServiceImpl extends TickServiceBase {
                 }
                 csvWriter.write(tick);
             }
+        }
+    }
+
+    protected void handlePutOnWatchlist(int stockOptionId) throws Exception {
+
+        StockOption stockOption = (StockOption)getStockOptionDao().load(stockOptionId);
+        putOnWatchlist(stockOption);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void handlePutOnWatchlist(StockOption stockOption) throws Exception {
+
+        if (!stockOption.isOnWatchlist()) {
+            stockOption.setOnWatchlist(true);
+            getStockOptionDao().update(stockOption);
+            getStockOptionDao().getStockOptionsOnWatchlist(false).add(stockOption);
+
+            logger.info("put stockOption on watchlist " + stockOption.getSymbol());
+        }
+    }
+
+    protected void handleRemoveFromWatchlist(int stockOptionId) throws Exception {
+
+        StockOption stockOption = (StockOption)getStockOptionDao().load(stockOptionId);
+        removeFromWatchlist(stockOption);
+    }
+
+    protected void handleRemoveFromWatchlist(StockOption stockOption) throws Exception {
+
+        if (stockOption.isOnWatchlist()) {
+            stockOption.setOnWatchlist(false);
+            getStockOptionDao().update(stockOption);
+            getStockOptionDao().getStockOptionsOnWatchlist(false).remove(stockOption);
+
+            logger.info("removed stockOption from watchlist " + stockOption.getSymbol());
         }
     }
 }
