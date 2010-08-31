@@ -13,6 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.xml.transform.TransformerException;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.Security;
@@ -30,7 +31,7 @@ import com.ib.client.EClientSocket;
 import com.ib.client.Execution;
 import com.ib.client.OrderState;
 
-public class IbTransactionServiceImpl extends IbTransactionServiceBase {
+public class IbTransactionServiceImpl extends IbTransactionServiceBase implements InitializingBean {
 
     private static Logger logger = MyLogger.getLogger(IbTransactionServiceImpl.class.getName());
 
@@ -53,7 +54,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  hh:mm:ss");
     private static int clientId = 0;
 
-    public IbTransactionServiceImpl() {
+    public void afterPropertiesSet() throws Exception {
 
         if (!ibEnabled)
             return;
@@ -80,12 +81,12 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
                         order.setStatus(OrderStatus.EXECUTED);
 
                         IbTransactionServiceImpl.this.executedMap.put(orderId, true);
-                        IbTransactionServiceImpl.this.placeOrderCondition.signal();
+                        IbTransactionServiceImpl.this.placeOrderCondition.signalAll();
 
                     } else if ("Cancelled".equals(status)) {
 
                         IbTransactionServiceImpl.this.deletedMap.put(orderId, true);
-                        IbTransactionServiceImpl.this.deleteOrderCondition.signal();
+                        IbTransactionServiceImpl.this.deleteOrderCondition.signalAll();
                     }
 
                 } finally {
