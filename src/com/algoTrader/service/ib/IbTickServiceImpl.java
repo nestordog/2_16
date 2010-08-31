@@ -2,16 +2,23 @@ package com.algoTrader.service.ib;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 
 import com.algoTrader.entity.Security;
+import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
+import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
@@ -20,52 +27,56 @@ import com.ib.client.Contract;
 import com.ib.client.EClientSocket;
 import com.ib.client.TickType;
 
-public class IbTickServiceImpl extends IbTickServiceBase {
+public class IbTickServiceImpl extends IbTickServiceBase implements InitializingBean {
 
     private static Logger logger = MyLogger.getLogger(IbTickServiceImpl.class.getName());
 
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
     private static int port = PropertiesUtil.getIntProperty("ib.port");
+    private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
 
     private EClientSocket client;
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
 
-    private Map<Integer, Tick> tickMap = new HashMap<Integer, Tick>();
-    private Map<Integer, Boolean> returnedMap = new HashMap<Integer, Boolean>();
+    private Map<Integer, Tick> requestIdToTickMap = new HashMap<Integer, Tick>();
+    private Map<Security, Integer> securityToRequestIdMap = new HashMap<Security, Integer>();
+    private Set<Security> validSecurities = new HashSet<Security>();
 
     private static int clientId = 1;
 
-    public IbTickServiceImpl() {
+    @SuppressWarnings("unchecked")
+    public void afterPropertiesSet() throws Exception {
 
         if (!ibEnabled)
             return;
 
         AnyWrapper wrapper = new DefaultWrapper() {
 
-            public void tickPrice(int tickerId, int field, double price, int canAutoExecute) {
+            public void tickPrice(int requestId, int field, double price, int canAutoExecute) {
 
                 IbTickServiceImpl.this.lock.lock();
                 try {
-                    Tick tick = IbTickServiceImpl.this.tickMap.get(tickerId);
+                    Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
 
-                    if (field == TickType.ASK) {
-                        tick.setAsk(RoundUtil.getBigDecimal(price));
-                    } else if (field == TickType.BID) {
+                    if (field == TickType.BID) {
                         tick.setBid(RoundUtil.getBigDecimal(price));
+                    } else if (field == TickType.ASK) {
+                        tick.setAsk(RoundUtil.getBigDecimal(price));
                     } else if (field == TickType.LAST) {
                         tick.setLast(RoundUtil.getBigDecimal(price));
                     }
+                    checkValidity(tick);
                 } finally {
                     IbTickServiceImpl.this.lock.unlock();
                 }
             }
 
-            public void tickSize(int tickerId, int field, int size) {
+            public void tickSize(int requestId, int field, int size) {
 
                 IbTickServiceImpl.this.lock.lock();
                 try {
-                    Tick tick = IbTickServiceImpl.this.tickMap.get(tickerId);
+                    Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
 
                     if (field == TickType.ASK_SIZE) {
                         tick.setVolAsk(size);
@@ -76,93 +87,118 @@ public class IbTickServiceImpl extends IbTickServiceBase {
                     } else if (field == TickType.OPEN_INTEREST) {
                         tick.setOpenIntrest(size);
                     }
+                    checkValidity(tick);
                 } finally {
                     IbTickServiceImpl.this.lock.unlock();
                 }
             }
 
-            public void tickString(int tickerId, int field, String value) {
+            public void tickString(int requestId, int field, String value) {
 
                 IbTickServiceImpl.this.lock.lock();
                 try {
-                    Tick tick = IbTickServiceImpl.this.tickMap.get(tickerId);
+                    Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
 
                     if (field == TickType.LAST_TIMESTAMP) {
                         tick.setLastDateTime(new Date(Long.parseLong(value + "000")));
                     }
+                    checkValidity(tick);
                 } finally {
                     IbTickServiceImpl.this.lock.unlock();
                 }
             }
 
-            public void tickSnapshotEnd(int tickerId) {
+            private void checkValidity(Tick tick) {
 
-                IbTickServiceImpl.this.lock.lock();
-                try {
-                    Tick tick = IbTickServiceImpl.this.tickMap.get(tickerId);
+                if (tick.getLast() == null)
+                    return;
+                if (tick.getLastDateTime() == null)
+                    return;
 
-                    tick.setDateTime(new Date());
-
-                    IbTickServiceImpl.this.returnedMap.put(tickerId, true);
-                    IbTickServiceImpl.this.condition.signal();
-                } finally {
-                    IbTickServiceImpl.this.lock.unlock();
+                if (tick.getSecurity() instanceof StockOption) {
+                    if (tick.getBid() == null)
+                        return;
+                    if (tick.getAsk() == null)
+                        return;
+                    if (tick.getVolBid() == 0)
+                        return;
+                    if (tick.getVolAsk() == 0)
+                        return;
+                    if (tick.getOpenIntrest() == 0)
+                        return;
                 }
-            }
 
-            public void error(int tickerId, int errorCode, String errorMsg) {
-
-                if (errorCode < 1000) {
-
-                    logger.error("id: " + tickerId + " errorCode: " + errorCode + " " + errorMsg);
-
-                    IbTickServiceImpl.this.lock.lock();
-                    try {
-                        IbTickServiceImpl.this.tickMap.put(tickerId, null);
-                        IbTickServiceImpl.this.returnedMap.put(tickerId, true);
-                        IbTickServiceImpl.this.condition.signal();
-                    } finally {
-                        IbTickServiceImpl.this.lock.unlock();
-                    }
-                } else {
-                    super.error(tickerId, errorCode, errorMsg);
-                }
+                IbTickServiceImpl.this.validSecurities.add(tick.getSecurity());
+                IbTickServiceImpl.this.condition.signalAll();
             }
         };
 
         this.client = new EClientSocket(wrapper);
         this.client.eConnect(null, port, clientId);
+
+        List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
+        for (Security security : securities) {
+
+            int requestId = RequestIdManager.getInstance().getNextRequestId();
+
+            Tick tick = new TickImpl();
+            tick.setSecurity(security);
+            this.requestIdToTickMap.put(requestId, tick);
+            this.securityToRequestIdMap.put(security, requestId);
+
+            Contract contract = IbUtil.getContract(security);
+            this.client.reqMktData(requestId, contract, null, false);
+        }
     }
 
     protected Tick handleRetrieveTick(Security security) throws Exception {
 
-        int tickerId = RequestIdManager.getInstance().getNextRequestId();
-
-        Tick tick = new TickImpl();
-        this.tickMap.put(tickerId, tick);
-        this.returnedMap.put(tickerId, false);
-
-        Contract contract = IbUtil.getContract(security);
-
         this.lock.lock();
 
+        Tick tick;
         try {
 
-            this.client.reqMktData(tickerId, contract, null, true);
-            while (!this.returnedMap.get(tickerId)) {
-                this.condition.await();
+            while (!this.validSecurities.contains(security)) {
+                if (!this.condition.await(retrievalTimeout, TimeUnit.SECONDS)) {
+
+                    logger.warn("could not retrieve tick in time for security: " + security);
+                }
             }
 
-            tick = this.tickMap.get(tickerId);
+            int requestId = this.securityToRequestIdMap.get(security);
+            tick = this.requestIdToTickMap.get(requestId);
+            tick.setDateTime(DateUtil.getCurrentEPTime());
 
-            this.returnedMap.remove(tickerId);
-            this.tickMap.remove(tickerId);
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         } finally {
             this.lock.unlock();
         }
         return tick;
+    }
+
+    protected void handlePutOnWatchlist(StockOption stockOption) throws Exception {
+
+        int requestId = RequestIdManager.getInstance().getNextRequestId();
+
+        Tick tick = new TickImpl();
+        tick.setSecurity(stockOption);
+        this.requestIdToTickMap.put(requestId, tick);
+        this.securityToRequestIdMap.put(stockOption, requestId);
+
+        Contract contract = IbUtil.getContract(stockOption);
+        this.client.reqMktData(requestId, contract, null, false);
+
+        super.putOnWatchlist(stockOption);
+    }
+
+    protected void handleRemoveFromWatchlist(StockOption stockOption) throws Exception {
+
+        int requestId = this.securityToRequestIdMap.get(stockOption);
+
+        this.client.cancelMktData(requestId);
+
+        this.requestIdToTickMap.remove(requestId);
+        this.securityToRequestIdMap.remove(stockOption);
+
+        super.removeFromWatchlist(stockOption);
     }
 }
