@@ -55,6 +55,7 @@
 			<attribute name="javadoc_location" value="file:/D:/hibernate-3.1/doc/api/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/ib.jar" sourcepath="C:/Jts/Java"/>
 	<classpathentry kind="lib" path="lib/jta.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar" sourcepath="D:/log4j-1.2.15/src/main/java/">
 		<attributes>
