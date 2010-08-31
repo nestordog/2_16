@@ -112,6 +112,18 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
         }
     }
 
+    protected double handleGetPrice(Order order, double bidAskSpreadPosition, double bid, double ask) {
+
+        double price = 0.0;
+        if (TransactionType.BUY.equals(order.getTransactionType())) {
+            price = bid + bidAskSpreadPosition * (ask - bid);
+        } else if (TransactionType.SELL.equals(order.getTransactionType())) {
+            price = ask - bidAskSpreadPosition * (ask - bid);
+        }
+
+        return RoundUtil.roundTo10Cent(RoundUtil.getBigDecimal(price)).doubleValue();
+    }
+
     @SuppressWarnings("unchecked")
     private void executeInternalTransaction(Order order) {
 
