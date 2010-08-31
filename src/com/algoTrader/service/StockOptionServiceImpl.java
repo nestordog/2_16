@@ -187,14 +187,14 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         if (numberOfContracts <= 0) {
             if (stockOption.getPosition() == null || !stockOption.getPosition().isOpen()) {
-                getWatchlistService().removeFromWatchlist(stockOptionId);
+                getDispatcherService().getTickService().removeFromWatchlist(stockOptionId);
             }
             return; // there is no money available
         }
 
         // the stockOption might have been removed from the watchlist by another statement (i.e. closePosition)
         if (!stockOption.isOnWatchlist()) {
-            getWatchlistService().putOnWatchlist(stockOptionId);
+            getDispatcherService().getTickService().putOnWatchlist(stockOptionId);
         }
 
         Order order = new OrderImpl();
@@ -228,7 +228,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         if (OrderStatus.EXECUTED.equals(order.getStatus()) ||
                 OrderStatus.AUTOMATIC.equals(order.getStatus())) {
 
-            getWatchlistService().removeFromWatchlist(stockOption);
+            getDispatcherService().getTickService().removeFromWatchlist(stockOption);
 
             // if there is a and OPEN_POSITION rule acitve for this stockOption deactivate it
             getRuleService().deactivate(RuleName.OPEN_POSITION, stockOption);
@@ -259,7 +259,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         if (OrderStatus.EXECUTED.equals(order.getStatus()) ||
                 OrderStatus.AUTOMATIC.equals(order.getStatus())) {
 
-            getWatchlistService().removeFromWatchlist(stockOption);
+            getDispatcherService().getTickService().removeFromWatchlist(stockOption);
         }
     }
 

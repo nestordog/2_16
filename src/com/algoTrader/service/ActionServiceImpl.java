@@ -76,7 +76,7 @@ public class ActionServiceImpl extends ActionServiceBase {
             StockOption oldStockOption = (StockOption)position.getSecurity();
 
             StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot, oldStockOption.getType());
-            getWatchlistService().putOnWatchlist(stockOption);
+            getDispatcherService().getTickService().putOnWatchlist(stockOption);
             getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
         }
 
@@ -100,7 +100,7 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         if (!getRuleService().isActive(RuleName.OPEN_POSITION)) {
             StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot, OptionType.PUT);
-            getWatchlistService().putOnWatchlist(stockOption);
+            getDispatcherService().getTickService().putOnWatchlist(stockOption);
             getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
         }
 
@@ -114,7 +114,7 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         if (!getRuleService().isActive(RuleName.OPEN_POSITION)) {
             StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot, OptionType.CALL);
-            getWatchlistService().putOnWatchlist(stockOption);
+            getDispatcherService().getTickService().putOnWatchlist(stockOption);
             getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
         }
 
@@ -144,7 +144,7 @@ public class ActionServiceImpl extends ActionServiceBase {
             StockOption oldStockOption = (StockOption)position.getSecurity();
 
             StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot, oldStockOption.getType());
-            getWatchlistService().putOnWatchlist(stockOption);
+            getDispatcherService().getTickService().putOnWatchlist(stockOption);
             getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
         }
 
