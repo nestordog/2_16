@@ -56,6 +56,11 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
     public void afterPropertiesSet() throws Exception {
 
+        init();
+    }
+
+    protected void handleInit() {
+
         if (!ibEnabled)
             return;
 
@@ -77,7 +82,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
                         order.setStatus(OrderStatus.PARTIALLY_EXECUTED);
 
-                    } else if ("Filled".equals(status)) {
+                    } else if ("Filled".equals(status) && (order.getCommission() != 0)) {
                         order.setStatus(OrderStatus.EXECUTED);
 
                         IbTransactionServiceImpl.this.executedMap.put(orderId, true);
