@@ -6,9 +6,6 @@ public class IbMarketConverter {
 
     public static String marketToString(Market market) {
 
-        if (Market.SWX.equals(market))
-            return "SOFFEX";
-
         if (Market.EUREX.equals(market))
             return "SOFFEX";
 
