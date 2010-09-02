@@ -18,6 +18,7 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
+import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
@@ -34,6 +35,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
     private static int port = PropertiesUtil.getIntProperty("ib.port");
     private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
+    private static String genericTickList = PropertiesUtil.getProperty("ib.genericTickList");
 
     private EClientSocket client;
     private Lock lock = new ReentrantLock();
@@ -45,8 +47,13 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
     private static int clientId = 1;
 
-    @SuppressWarnings("unchecked")
     public void afterPropertiesSet() throws Exception {
+
+        init();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void handleInit() {
 
         if (!ibEnabled)
             return;
@@ -65,6 +72,8 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
                         tick.setAsk(RoundUtil.getBigDecimal(price));
                     } else if (field == TickType.LAST) {
                         tick.setLast(RoundUtil.getBigDecimal(price));
+                    } else if (field == TickType.CLOSE) {
+                        tick.setSettlement(RoundUtil.getBigDecimal(price));
                     }
                     checkValidity(tick);
                 } finally {
@@ -84,8 +93,15 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
                         tick.setVolBid(size);
                     } else if (field == TickType.VOLUME) {
                         tick.setVol(size);
-                    } else if (field == TickType.OPEN_INTEREST) {
-                        tick.setOpenIntrest(size);
+                    }
+
+                    if (tick.getSecurity() instanceof StockOption) {
+                        StockOption stockOption = (StockOption) tick.getSecurity();
+                        if (field == TickType.OPTION_CALL_OPEN_INTEREST && OptionType.CALL.equals(stockOption.getType())) {
+                            tick.setOpenIntrest(size);
+                        } else if (field == TickType.OPTION_PUT_OPEN_INTEREST && OptionType.PUT.equals(stockOption.getType())) {
+                            tick.setOpenIntrest(size);
+                        }
                     }
                     checkValidity(tick);
                 } finally {
@@ -147,7 +163,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
             this.securityToRequestIdMap.put(security, requestId);
 
             Contract contract = IbUtil.getContract(security);
-            this.client.reqMktData(requestId, contract, null, false);
+            this.client.reqMktData(requestId, contract, genericTickList, false);
         }
     }
 
@@ -161,7 +177,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
             while (!this.validSecurities.contains(security)) {
                 if (!this.condition.await(retrievalTimeout, TimeUnit.SECONDS)) {
 
-                    logger.warn("could not retrieve tick in time for security: " + security);
+                    throw new IbTickServiceException("could not retrieve tick in time for security: " + security);
                 }
             }
 
@@ -185,7 +201,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
         this.securityToRequestIdMap.put(stockOption, requestId);
 
         Contract contract = IbUtil.getContract(stockOption);
-        this.client.reqMktData(requestId, contract, null, false);
+        this.client.reqMktData(requestId, contract, genericTickList, false);
 
         super.putOnWatchlist(stockOption);
     }
