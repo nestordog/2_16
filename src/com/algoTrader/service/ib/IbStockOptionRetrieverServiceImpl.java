@@ -44,4 +44,10 @@ public class IbStockOptionRetrieverServiceImpl
         return false;
     }
 
+    @Override
+    protected void handleInit() throws Exception {
+        // TODO Auto-generated method stub
+
+    }
+
 }
