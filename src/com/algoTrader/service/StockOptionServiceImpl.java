@@ -182,7 +182,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             (contractSize *(exitValue - maxAtRiskRatioOfPortfolio * currentValueDouble)));
 
         // choose which ever is lower
-        logger.info("numberOfContractsByMargin: " + numberOfContractsByMargin + "numberOfContractsByRedemptionValue: " + numberOfContractsByRedemptionValue);
+        logger.info("numberOfContractsByMargin: " + numberOfContractsByMargin + " numberOfContractsByRedemptionValue: " + numberOfContractsByRedemptionValue);
         long numberOfContracts= Math.min(numberOfContractsByMargin, numberOfContractsByRedemptionValue);
 
         if (numberOfContracts <= 0) {
