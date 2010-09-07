@@ -6,8 +6,8 @@ import com.algoTrader.ServiceLocator;
 
 public class OpenPositionSubscriber {
 
-    public void update(int securityId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlayingSpot, double vola) {
+    public void update(int securityId, BigDecimal currentValue, BigDecimal underlayingSpot, BigDecimal stockOptionSettlement, BigDecimal underlayingSettlement, double volatility) {
 
-        ServiceLocator.instance().getActionService().openPosition(securityId, settlement, currentValue, underlayingSpot, vola);
+        ServiceLocator.instance().getActionService().openPosition(securityId, currentValue, underlayingSpot, volatility, stockOptionSettlement, underlayingSettlement);
     }
 }
