@@ -149,27 +149,33 @@ public class StockOptionUtil {
         return getOptionPrice(stockOption, exitLevel, volatility);
     }
 
-    public static double getMargin(double underlayingSpot, double strike, double settlement, double years, OptionType type) throws ConvergenceException, FunctionEvaluationException {
+    public static double getTotalMargin(double underlayingSettlement, double strike, double stockOptionSettlement, double years, OptionType type) throws ConvergenceException,
+            FunctionEvaluationException {
 
         double marginLevel;
         if (OptionType.CALL.equals(type)) {
-            marginLevel = underlayingSpot * (1.0 + marginParameter);
+            marginLevel = underlayingSettlement * (1.0 + marginParameter);
         } else {
-            marginLevel = underlayingSpot * (1.0 - marginParameter);
+            marginLevel = underlayingSettlement * (1.0 - marginParameter);
         }
 
         // in margin calculations the dividend is not used!
 
-        double volatility = StockOptionUtil.getVolatility(underlayingSpot, strike , settlement, years, intrest, 0, type);
+        double volatility = StockOptionUtil.getVolatility(underlayingSettlement, strike, stockOptionSettlement, years, intrest, 0, type);
 
         return getOptionPriceBS(marginLevel, strike, volatility, years, intrest, 0, type);
     }
 
-    public static double getMargin(StockOption stockOption, double settlement, double underlayingSpot) throws ConvergenceException, FunctionEvaluationException {
+    public static double getTotalMargin(StockOption stockOption, double stockOptionSettlement, double underlayingSettlement) throws ConvergenceException, FunctionEvaluationException {
 
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
 
-        return getMargin(underlayingSpot, stockOption.getStrike().doubleValue(), settlement, years, stockOption.getType());
+        return getTotalMargin(underlayingSettlement, stockOption.getStrike().doubleValue(), stockOptionSettlement, years, stockOption.getType());
+    }
+
+    public static double getMaintenanceMargin(StockOption stockOption, double stockOptionSettlement, double underlayingSettlement) throws ConvergenceException, FunctionEvaluationException {
+
+        return getTotalMargin(stockOption, stockOptionSettlement, underlayingSettlement) - stockOptionSettlement;
     }
 
     public static double getDummyBid(double price, int contractSize) {
