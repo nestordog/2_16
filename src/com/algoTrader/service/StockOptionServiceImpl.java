@@ -42,6 +42,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private static Market market = Market.fromString(PropertiesUtil.getProperty("strategie.market"));
     private static Currency currency = Currency.fromString(PropertiesUtil.getProperty("strategie.currency"));
     private static int contractSize = PropertiesUtil.getIntProperty("strategie.contractSize");
+    private static double initialMarginMarkup = PropertiesUtil.getDoubleProperty("strategie.initialMarginMarkup");
 
     private static int minAge = PropertiesUtil.getIntProperty("minAge");
 
@@ -141,35 +142,45 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         }
     }
 
-    protected void handleOpenPosition(int stockOptionId, BigDecimal settlement, BigDecimal currentValue, BigDecimal underlayingSpot, double vola) throws Exception {
+    protected void handleOpenPosition(int stockOptionId, BigDecimal currentValue, BigDecimal underlayingSpot, double volatility, BigDecimal stockOptionSettlement, BigDecimal underlayingSettlement)
+            throws Exception {
 
         StockOption stockOption = (StockOption)getStockOptionDao().load(stockOptionId);
 
         Account account = getAccountDao().findByCurrency(stockOption.getCurrency());
 
-        double availableAmount = account.getAvailableAmountDouble();
         int contractSize = stockOption.getContractSize();
         double currentValueDouble = currentValue.doubleValue();
-        double underlayingValue = underlayingSpot.doubleValue();
+        double underlayingValueDouble = underlayingSpot.doubleValue();
+        double stockOptionSettlementDouble = stockOptionSettlement.doubleValue();
+        double underlayingSettlementDouble = underlayingSettlement.doubleValue();
 
-        double margin = StockOptionUtil.getMargin(stockOption, settlement.doubleValue(), underlayingValue);
-        double exitValue = StockOptionUtil.getExitValue(stockOption, underlayingValue, vola);
+        double maintenanceMargin = StockOptionUtil.getMaintenanceMargin(stockOption, stockOptionSettlementDouble, underlayingSettlementDouble);
+        double initialMargin = maintenanceMargin * initialMarginMarkup;
 
-        // we do not want to loose more than the atRiskRatioPerTrade for this new trade
-        //         invested capital: margin - currentValue (in a short option deal)
+        // get the exitValue based on the current Volatility
+        double exitValueByVola = StockOptionUtil.getExitValue(stockOption, underlayingValueDouble, volatility);
+
+        // get the exitValue on the max loss for this position
+        // invested capital: maintenanceMargin (=additionalMargin)
         //         max risk: exitValue - current Value
         //         atRiskRatioPerTrade = max risk / invested capital
-        double maxAtRiskRatioPerTrade = PropertiesUtil.getDoubleProperty("maxAtRiskRatioPerTrade");
-        double atRiskRatioPerTrade = (exitValue - currentValueDouble) / (margin - currentValueDouble);
-        if(atRiskRatioPerTrade > maxAtRiskRatioPerTrade) {
+        double exitValueByMaxAtRiskRatio = PropertiesUtil.getDoubleProperty("maxAtRiskRatioPerTrade") * maintenanceMargin + currentValueDouble;
 
-            double newExitValue = maxAtRiskRatioPerTrade * (margin - currentValueDouble) + currentValueDouble;
-            logger.info("reduced exitValue from: " + exitValue + " to: " + newExitValue);
-            exitValue = newExitValue;
+        // choose which ever is lower
+        logger.info("exitValueByVola: " + exitValueByVola + " exitValueByMaxAtRiskRatio: " + exitValueByMaxAtRiskRatio);
+        double exitValue = Math.min(exitValueByVola, exitValueByMaxAtRiskRatio);
+
+        // get numberOfContracts based on margin (how many options can we sell
+        // for the available amount of cash
+        // do this for every client account (marketChannel SQ has only one
+        // clientAccount)
+        long numberOfContractsByMargin = 0;
+        double[] availableAmounts = getDispatcherService().getAccountService().getAvailableAmountsDouble();
+        for (double availableAmount : availableAmounts) {
+            long numberOfContracts = (long) ((availableAmount / initialMargin) / contractSize);
+            numberOfContractsByMargin += numberOfContracts;
         }
-
-        // get numberOfContracts based on margin (how may option can we sell for the available amount of cash
-        long numberOfContractsByMargin = (long)((availableAmount / (margin - currentValueDouble)) / contractSize); // i.e. 2 (for 20 stockOptions)
 
         // get maxNumberOfContracts based on RedemptionValue
         //         available cash after this trade: cashbalance now + quantity * contractSize * currentValue
@@ -312,11 +323,12 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private void setMargin(Position position) throws Exception {
 
         StockOption stockOption = (StockOption) position.getSecurity();
-        Tick tick = stockOption.getLastTick();
-        if (tick != null) {
-            double underlayingSpot = stockOption.getUnderlaying().getLastTick().getCurrentValueDouble();
+        Tick stockOptionTick = stockOption.getLastTick();
+        Tick underlayingTick = stockOption.getUnderlaying().getLastTick();
 
-            double marginPerContract = StockOptionUtil.getMargin(stockOption, tick.getSettlementDouble(), underlayingSpot) * stockOption.getContractSize();
+        if (stockOptionTick != null && underlayingTick != null) {
+
+            double marginPerContract = StockOptionUtil.getMaintenanceMargin(stockOption, stockOptionTick.getSettlementDouble(), underlayingTick.getSettlementDouble()) * stockOption.getContractSize();
             long numberOfContracts = Math.abs(position.getQuantity());
             BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
 
