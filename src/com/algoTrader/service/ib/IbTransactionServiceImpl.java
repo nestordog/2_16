@@ -39,7 +39,8 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
     private static String[] bidAskSpreadPositions = PropertiesUtil.getProperty("bidAskSpreadPositions").split("\\s");
 
     private static int port = PropertiesUtil.getIntProperty("ib.port");
-    private static String account = PropertiesUtil.getProperty("ib.account");
+    private static String group = PropertiesUtil.getProperty("ib.group");
+    private static String method = PropertiesUtil.getProperty("ib.method");
     private static int confirmationTimeout = PropertiesUtil.getIntProperty("ib.confirmationTimeout");
 
     private EClientSocket client;
@@ -223,7 +224,8 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         ibOrder.m_totalQuantity = (int) order.getRequestedQuantity();
         ibOrder.m_orderType = "LMT";
         ibOrder.m_lmtPrice = getPrice(order, bidAskSpreadPosition, tick.getBid().doubleValue(), tick.getAsk().doubleValue());
-        ibOrder.m_account = account;
+        ibOrder.m_faGroup = group;
+        ibOrder.m_faMethod = method;
 
         this.lock.lock();
 
