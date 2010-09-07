@@ -18,13 +18,12 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
     private static int port = PropertiesUtil.getIntProperty("ib.port");
     private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
+    private static String[] accounts = PropertiesUtil.getProperty("ib.accounts").split("\\s");
 
     private EClientSocket client;
     private Lock lock = new ReentrantLock();
-    private Condition accountsCondition = this.lock.newCondition();
-    private Condition valuesCondition = this.lock.newCondition();
+    private Condition condition = this.lock.newCondition();
 
-    private String[] managedAccounts;
     private Map<String, Map<String, String>> allAccountValues = new HashMap<String, Map<String, String>>();
 
     private static int clientId = 2;
@@ -41,20 +40,6 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
 
         AnyWrapper wrapper = new DefaultWrapper() {
 
-            public void managedAccounts(String accountsList) {
-
-                IbAccountServiceImpl.this.lock.lock();
-
-                try {
-
-                    IbAccountServiceImpl.this.managedAccounts = accountsList.split(",");
-                    IbAccountServiceImpl.this.accountsCondition.signalAll();
-
-                } finally {
-                    IbAccountServiceImpl.this.lock.unlock();
-                }
-            }
-
             public void updateAccountValue(String key, String value, String currency, String accountName) {
 
                 IbAccountServiceImpl.this.lock.lock();
@@ -64,7 +49,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
                     Map<String, String> values = IbAccountServiceImpl.this.allAccountValues.get(accountName);
                     values.put(key, value);
 
-                    IbAccountServiceImpl.this.valuesCondition.signalAll();
+                    IbAccountServiceImpl.this.condition.signalAll();
 
                 } finally {
                     IbAccountServiceImpl.this.lock.unlock();
@@ -81,12 +66,6 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
         IbAccountServiceImpl.this.lock.lock();
 
         try {
-            while (this.managedAccounts == null) {
-
-                if (!this.accountsCondition.await(retrievalTimeout, TimeUnit.SECONDS)) {
-                    throw new IbAccountServiceException("did not receive managedaccounts in time");
-                }
-            }
 
             IbAccountServiceImpl.this.allAccountValues.put(accountName, new HashMap<String, String>());
 
@@ -94,7 +73,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
 
             while (this.allAccountValues.get(accountName) == null || this.allAccountValues.get(accountName).get(key) == null) {
 
-                if (!this.valuesCondition.await(retrievalTimeout, TimeUnit.SECONDS)) {
+                if (!this.condition.await(retrievalTimeout, TimeUnit.SECONDS)) {
                     throw new IbAccountServiceException("could not get EquityWithLoanValue for account: " + accountName);
                 }
             }
@@ -104,14 +83,15 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
         return this.allAccountValues.get(accountName).get(key);
     }
 
-    protected double handleGetAvailableAmountDouble() throws Exception {
+    protected double[] handleGetAvailableAmountsDouble() throws Exception {
 
-        double availableAmount = 0;
-        for (String managedAccount : this.managedAccounts) {
+        double[] availableAmounts = new double[accounts.length];
+        for (int i = 0; i < accounts.length; i++) {
 
-            String equityWithLoanValue = retrieveAccountValue(managedAccount, "CHF", "EquityWithLoanValue");
-            availableAmount += Double.parseDouble(equityWithLoanValue);
+            String account = accounts[i];
+            String equityWithLoanValue = retrieveAccountValue(account, "CHF", "EquityWithLoanValue");
+            availableAmounts[i] = Double.parseDouble(equityWithLoanValue);
         }
-        return availableAmount;
+        return availableAmounts;
     }
 }

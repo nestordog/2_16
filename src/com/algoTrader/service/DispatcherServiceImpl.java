@@ -39,4 +39,15 @@ public class DispatcherServiceImpl extends com.algoTrader.service.DispatcherServ
             throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
         }
     }
+
+    protected AccountService handleGetAccountService() {
+
+        if (MarketChannel.SQ.getValue().equals(marketChannel)) {
+            return getSqAccountService();
+        } else if (MarketChannel.IB.getValue().equals(marketChannel)) {
+            return getIbAccountService();
+        } else {
+            throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
+        }
+    }
 }
