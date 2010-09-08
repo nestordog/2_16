@@ -15,7 +15,7 @@ public class AccountDaoImpl extends AccountDaoBase {
 
         double totalValue = 0;
         for (Account account : accounts) {
-            totalValue += account.getTotalValueDouble();
+            totalValue += account.getNetLiqValueDouble();
         }
 
         return RoundUtil.getBigDecimal(totalValue);
@@ -27,7 +27,7 @@ public class AccountDaoImpl extends AccountDaoBase {
 
         double availableAmount = 0;
         for (Account account : accounts) {
-            availableAmount += account.getAvailableAmountDouble();
+            availableAmount += account.getAvailableFundsDouble();
         }
 
         return RoundUtil.getBigDecimal(availableAmount);

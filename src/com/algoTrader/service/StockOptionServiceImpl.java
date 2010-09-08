@@ -325,17 +325,17 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             long numberOfContracts = Math.abs(position.getQuantity());
             BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
 
-            position.setMargin(totalMargin);
+            position.setMaintenanceMargin(totalMargin);
 
             getPositionDao().update(position);
 
             Account account = position.getAccount();
 
-            int percent = (int)(account.getAvailableAmountDouble() / account.getCashBalanceDouble() * 100.0);
-            if (account.getAvailableAmountDouble() >= 0) {
-                logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMaintenanceMargin() + " available amount: " + account.getAvailableAmount() + " (" + percent + "% of balance)");
+            int percent = (int)(account.getAvailableFundsDouble() / account.getCashBalanceDouble() * 100.0);
+            if (account.getAvailableFundsDouble() >= 0) {
+                logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMaintenanceMargin() + " available amount: " + account.getAvailableFunds() + " (" + percent + "% of balance)");
             } else {
-                logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMaintenanceMargin() + " available amount: " + account.getAvailableAmount() + " (" + percent + "% of balance)");
+                logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMaintenanceMargin() + " available amount: " + account.getAvailableFunds() + " (" + percent + "% of balance)");
             }
         } else {
             logger.warn("no last tick available to set margin on " + stockOption.getSymbol());
@@ -362,7 +362,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         if (simulation) {
 
             Account account = getAccountDao().findByCurrency(currency);
-            return (long) ((account.getAvailableAmountDouble() / initialMargin) / contractSize);
+            return (long) ((account.getAvailableFundsDouble() / initialMargin) / contractSize);
         } else {
 
             return getDispatcherService().getAccountService().getNumberOfContractsByMargin(contractSize, initialMargin);

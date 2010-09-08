@@ -33,6 +33,6 @@ public class LookupUtil {
     public static double getTotalValueAllAccounts() {
 
         ServiceLocator serviceLocator = ServiceLocator.instance();
-        return serviceLocator.getLookupService().getTotalValueAllAccounts().doubleValue();
+        return serviceLocator.getLookupService().getNetLiqValueAllAccounts().doubleValue();
     }
 }

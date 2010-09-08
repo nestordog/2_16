@@ -377,7 +377,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @SuppressWarnings("unchecked")
     private double getStatistics() {
 
-        BigDecimal totalValue = getAccountDao().getTotalValueAllAccounts();
+        BigDecimal totalValue = getAccountDao().getNetLiqValueAllAccounts();
         logger.info("totalValue: " + twoDigitFormat.format(totalValue));
 
         InterpolationVO interpolation = getInterpolation();

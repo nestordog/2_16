@@ -37,7 +37,7 @@ public class AccountImpl extends Account {
         double margin = 0.0;
         Collection<Position> positions = getPositions();
         for (Position position : positions) {
-            margin += position.getMarginDouble();
+            margin += position.getMaintenanceMarginDouble();
         }
         return margin;
     }
@@ -54,40 +54,40 @@ public class AccountImpl extends Account {
         return initialMarginMarkup * getMaintenanceMarginDouble();
     }
 
-    public BigDecimal getAvailableAmount() {
+    public BigDecimal getAvailableFunds() {
 
-        return RoundUtil.getBigDecimal(getAvailableAmountDouble());
+        return RoundUtil.getBigDecimal(getAvailableFundsDouble());
     }
 
-    public double getAvailableAmountDouble() {
+    public double getAvailableFundsDouble() {
 
-        return getTotalValueDouble() - getInitialMarginDouble();
+        return getNetLiqValueDouble() - getInitialMarginDouble();
     }
 
-    public BigDecimal getSecuritiesValue() {
+    public BigDecimal getSecuritiesCurrentValue() {
 
-        return RoundUtil.getBigDecimal(getSecuritiesValueDouble());
+        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble());
     }
 
     @SuppressWarnings("unchecked")
-    public double getSecuritiesValueDouble() {
+    public double getSecuritiesCurrentValueDouble() {
 
         double securitiesValue = 0.0;
         Collection<Position> positions = getPositions();
         for (Position position : positions) {
-            securitiesValue += position.getValueDouble();
+            securitiesValue += position.getCurrentValueDouble();
         }
         return securitiesValue;
     }
 
-    public BigDecimal getTotalValue() {
+    public BigDecimal getNetLiqValue() {
 
-        return RoundUtil.getBigDecimal(getTotalValueDouble());
+        return RoundUtil.getBigDecimal(getNetLiqValueDouble());
     }
 
-    public double getTotalValueDouble() {
+    public double getNetLiqValueDouble() {
 
-        return getCashBalanceDouble() + getSecuritiesValueDouble();
+        return getCashBalanceDouble() + getSecuritiesCurrentValueDouble();
     }
 
     @SuppressWarnings("unchecked")

@@ -13,12 +13,12 @@ public class PositionImpl extends com.algoTrader.entity.Position {
         return (getQuantity() != 0);
     }
 
-    public BigDecimal getValue() {
+    public BigDecimal getCurrentValue() {
 
-        return RoundUtil.getBigDecimal(getValueDouble());
+        return RoundUtil.getBigDecimal(getCurrentValueDouble());
     }
 
-    public double getValueDouble() {
+    public double getCurrentValueDouble() {
 
         if (isOpen()) {
             return getQuantity() * getSecurity().getCurrentValuePerContractDouble();
@@ -27,10 +27,10 @@ public class PositionImpl extends com.algoTrader.entity.Position {
         }
     }
 
-    public double getMarginDouble() {
+    public double getMaintenanceMarginDouble() {
 
-        if (isOpen() && getMargin() != null) {
-                return getMargin().doubleValue();
+        if (isOpen() && getMaintenanceMargin() != null) {
+                return getMaintenanceMargin().doubleValue();
         } else {
             return 0.0;
         }

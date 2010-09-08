@@ -11,6 +11,6 @@ public class SqAccountServiceImpl extends SqAccountServiceBase {
     protected long handleGetNumberOfContractsByMargin(int contractSize, double initialMargin) {
 
         Account account = getAccountDao().findByCurrency(currency);
-        return (long) ((account.getAvailableAmountDouble() / initialMargin) / contractSize);
+        return (long) ((account.getAvailableFundsDouble() / initialMargin) / contractSize);
     }
 }

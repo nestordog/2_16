@@ -73,7 +73,7 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
                 position.setQuantity(transaction.getQuantity());
 
                 position.setExitValue(null);
-                position.setMargin(null);
+                position.setMaintenanceMargin(null);
 
                 position.setSecurity(security);
                 security.setPosition(position);
@@ -93,7 +93,7 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
 
                 if (!position.isOpen()) {
                     position.setExitValue(null);
-                    position.setMargin(null);
+                    position.setMaintenanceMargin(null);
                 }
 
                 position.getTransactions().add(transaction);
@@ -106,7 +106,7 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
             getAccountDao().update(account);
             getSecurityDao().update(security);
 
-            logger.info("executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() + " of " + security.getSymbol() + " price: " + transaction.getPrice() + " commission: " + transaction.getCommission() + " portfolioValue: " + account.getTotalValue());
+            logger.info("executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() + " of " + security.getSymbol() + " price: " + transaction.getPrice() + " commission: " + transaction.getCommission() + " portfolioValue: " + account.getNetLiqValue());
 
             EsperService.route(transaction);
         }

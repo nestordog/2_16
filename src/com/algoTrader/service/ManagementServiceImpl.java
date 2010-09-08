@@ -33,7 +33,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected BigDecimal handleGetAccountTotalValue() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
-        return account.getTotalValue();
+        return account.getNetLiqValue();
     }
 
     protected BigDecimal handleGetAccountBalance() throws Exception {
@@ -51,7 +51,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected BigDecimal handleGetAccountAvailableAmount() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
-        return account.getAvailableAmount();
+        return account.getAvailableFunds();
     }
 
     protected int handleGetAccountOpenPositionCount() throws Exception {
