@@ -16,12 +16,14 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.algoTrader.entity.Order;
+import com.algoTrader.entity.PartialOrder;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.service.TickServiceException;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
@@ -40,15 +42,15 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
     private static int port = PropertiesUtil.getIntProperty("ib.port");
     private static String group = PropertiesUtil.getProperty("ib.group");
-    private static String method = PropertiesUtil.getProperty("ib.method");
-    private static int confirmationTimeout = PropertiesUtil.getIntProperty("ib.confirmationTimeout");
+    private static String openMethod = PropertiesUtil.getProperty("ib.openMethod");
+    private static String closeMethod = PropertiesUtil.getProperty("ib.closeMethod");
+    private static int timeout = PropertiesUtil.getIntProperty("ib.timeout");
 
     private EClientSocket client;
     private Lock lock = new ReentrantLock();
-    private Condition placeOrderCondition = this.lock.newCondition();
-    private Condition deleteOrderCondition = this.lock.newCondition();
+    private Condition condition = this.lock.newCondition();
 
-    private Map<Integer, Order> orderMap = new HashMap<Integer, Order>();
+    private Map<Integer, PartialOrder> partialOrdersMap = new HashMap<Integer, PartialOrder>();
     private Map<Integer, Boolean> executedMap = new HashMap<Integer, Boolean>();
     private Map<Integer, Boolean> deletedMap = new HashMap<Integer, Boolean>();
 
@@ -70,29 +72,39 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
             @Override
             public void orderStatus(int orderId, String status, int filled, int remaining, double avgFillPrice, int permId, int parentId, double lastFillPrice, int clientId, String whyHeld) {
 
-                logger.debug("orderId: " + orderId + " orderStatus: " + status + ", filled: " + filled);
+                logger.debug("orderId: " + orderId +
+                        " orderStatus: " + status +
+                        " filled: " + filled +
+                        " remaining: " + remaining +
+                        " avgFillPrice: " + avgFillPrice +
+                        " permId: " + permId +
+                        " lastFillPrice: " + lastFillPrice +
+                        " whyHeld: " + whyHeld);
 
                 IbTransactionServiceImpl.this.lock.lock();
                 try {
 
-                    Order order = IbTransactionServiceImpl.this.orderMap.get(orderId);
+                    PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(orderId);
 
-                    order.setExecutedQuantity(filled);
+                    partialOrder.setExecutedQuantity(filled);
 
                     if ((filled > 0) && ("Submitted".equals(status) || "PendingSubmit".equals(status))) {
 
-                        order.setStatus(OrderStatus.PARTIALLY_EXECUTED);
+                        partialOrder.setStatus(OrderStatus.PARTIALLY_EXECUTED);
 
-                    } else if ("Filled".equals(status) && (order.getCommission() != 0)) {
-                        order.setStatus(OrderStatus.EXECUTED);
+                    } else if ("Filled".equals(status) && (partialOrder.getCommission() != 0)) {
+
+                        partialOrder.setStatus(OrderStatus.EXECUTED);
 
                         IbTransactionServiceImpl.this.executedMap.put(orderId, true);
-                        IbTransactionServiceImpl.this.placeOrderCondition.signalAll();
+                        IbTransactionServiceImpl.this.condition.signalAll();
 
                     } else if ("Cancelled".equals(status)) {
 
+                        partialOrder.setStatus(OrderStatus.CANCELED);
+
                         IbTransactionServiceImpl.this.deletedMap.put(orderId, true);
-                        IbTransactionServiceImpl.this.deleteOrderCondition.signalAll();
+                        IbTransactionServiceImpl.this.condition.signalAll();
                     }
 
                 } finally {
@@ -108,8 +120,8 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 IbTransactionServiceImpl.this.lock.lock();
                 try {
 
-                    Order order = IbTransactionServiceImpl.this.orderMap.get(orderId);
-                    order.setCommission(commission);
+                    PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(orderId);
+                    partialOrder.setCommission(commission);
 
                 } finally {
                     IbTransactionServiceImpl.this.lock.unlock();
@@ -123,23 +135,34 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 RequestIdManager.getInstance().initializeOrderId(orderId);
             }
 
-            @SuppressWarnings("unchecked")
             public void execDetails(int requestId, Contract contract, Execution execution) {
 
-                logger.debug("orderId: " + execution.m_orderId + " execDetails, price: " + execution.m_price + ", quantity: " + execution.m_shares);
+                logger.debug("orderId: " + execution.m_orderId +
+                        " execId: " + execution.m_execId +
+                        " time: " + execution.m_time +
+                        " acctNumber: " + execution.m_acctNumber +
+                        " shares: " + execution.m_shares +
+                        " price: " + execution.m_price +
+                        " permId: " + execution.m_permId +
+                        " cumQty: " + execution.m_cumQty +
+                        " avgPrice: " + execution.m_avgPrice);
 
                 IbTransactionServiceImpl.this.lock.lock();
                 try {
 
-                    Order order = IbTransactionServiceImpl.this.orderMap.get(execution.m_orderId);
+                    // if the execution does not represent a internal transfer create a transaction
+                    if (!execution.m_execId.startsWith("F") && !execution.m_execId.startsWith("U")) {
 
-                    Transaction transaction = new TransactionImpl();
-                    transaction.setDateTime(format.parse(execution.m_time));
-                    transaction.setNumber(String.valueOf(execution.m_permId));
-                    transaction.setQuantity(execution.m_shares);
-                    transaction.setPrice(RoundUtil.getBigDecimal(execution.m_price));
+                        PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(execution.m_orderId);
 
-                    order.getTransactions().add(transaction);
+                        Transaction transaction = new TransactionImpl();
+                        transaction.setDateTime(format.parse(execution.m_time));
+                        transaction.setNumber(String.valueOf(execution.m_permId));
+                        transaction.setQuantity(execution.m_shares);
+                        transaction.setPrice(RoundUtil.getBigDecimal(execution.m_price));
+
+                        partialOrder.addTransaction(transaction);
+                    }
 
                 } catch (ParseException e) {
                     logger.error("illegal time format ", e);
@@ -164,80 +187,136 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
     protected void handleExecuteExternalTransaction(Order order) throws Exception {
 
-        order.setNumber(RequestIdManager.getInstance().getNextOrderId());
-        this.orderMap.put(order.getNumber(), order);
+        getPartialOrder(order);
 
         Tick tick = null;
         for (String bidAskSpreadPosition : bidAskSpreadPositions) {
 
             if (bidAskSpreadPosition.equals(bidAskSpreadPositions[0])) {
 
-                // only validate price and volum the first time, because our
-                // orders will show up in the orderbook as well
-                tick = getIbTickService().retrieveTick(order.getSecurity());
-                validateTick(order, tick);
+                tick = getValidTick(order);
             }
 
-            placeOrModifyOrder(order, Double.valueOf(bidAskSpreadPosition), tick);
+            PartialOrder partialOrder = order.getCurrentPartialOrder();
 
-            if (OrderStatus.OPEN.equals(order.getStatus())) {
+            placeOrModifyPartialOrder(partialOrder, Double.valueOf(bidAskSpreadPosition), tick);
+
+            if (OrderStatus.OPEN.equals(partialOrder.getStatus())) {
 
                 // nothing went through, so try next higher bidAskSpreadPosition
                 continue;
 
-            } else if (OrderStatus.PARTIALLY_EXECUTED.equals(order.getStatus())) {
+            } else if (OrderStatus.PARTIALLY_EXECUTED.equals(partialOrder.getStatus())) {
 
-                distributeCommissions(order);
+                // try to cancel, if successfull reset the partialOrder
+                // otherwise the order must have been executed in the meantime
+                if (cancelPartialOrder(partialOrder)) {
 
-                cancelRemainingOrder(order);
+                    distributeCommissions(partialOrder);
 
-                resetOrder(order);
+                    // cancel sucessfull so reset the order
+                    getPartialOrder(order);
+                    continue;
 
-                continue;
+                } else {
 
-            } else if (OrderStatus.EXECUTED.equals(order.getStatus())) {
+                    // order did EXECUTE after beeing cancelled, so we are done!
+                    distributeCommissions(partialOrder);
+                    break;
+                }
+
+            } else if (OrderStatus.EXECUTED.equals(partialOrder.getStatus())) {
 
                 // we are done!
-                distributeCommissions(order);
+                distributeCommissions(partialOrder);
 
                 break;
             }
         }
 
-        // if order did not execute fully, cancel the rest
-        if (!OrderStatus.EXECUTED.equals(order.getStatus())) {
-
-            cancelRemainingOrder(order);
-
-            logger.warn("orderid: " + order.getNumber() + " did not execute fully, requestedQuantity: " + order.getRequestedQuantity() + " executedQuantity: " + order.getExecutedQuantity());
-        }
+        cancelRemainingOrder(order);
     }
 
-    private void placeOrModifyOrder(Order order, double bidAskSpreadPosition, Tick tick) {
+    private Tick getValidTick(Order order) throws TransformerException, ParseException, InterruptedException {
 
-        this.executedMap.put(order.getNumber(), false);
+        Security security = order.getSecurity();
+        TransactionType transactionType = order.getTransactionType();
+        long requestedQuantity = order.getRequestedQuantity();
 
-        Contract contract = IbUtil.getContract(order.getSecurity());
+        // only validate price and volum the first time, because our
+        // orders will show up in the orderbook as well
+        Tick tick;
+        while (true) {
+
+            tick = getIbTickService().retrieveTick(order.getSecurity());
+
+            // validity check (volume and bid/ask spread)
+            try {
+                tick.validate();
+                break;
+
+            } catch (TickServiceException e) {
+
+                logger.warn(e.getMessage());
+
+                // wait a little then try again
+                Thread.sleep(timeout);
+            }
+        }
+
+        // validity check (available volume)
+        if (TransactionType.BUY.equals(transactionType) && tick.getVolAsk() < requestedQuantity) {
+            logger.warn("available volume (" + tick.getVolAsk() + ") is smaler than requested quantity (" + requestedQuantity + ") for a order on " + security.getIsin());
+        } else if (TransactionType.SELL.equals(transactionType) && tick.getVolBid() < requestedQuantity) {
+            logger.warn("available volume (" + tick.getVolBid() + ") is smaler than requested quantity (" + requestedQuantity + ") for a order on " + security.getIsin());
+        }
+
+        return tick;
+    }
+
+    private void getPartialOrder(Order order) {
+
+        PartialOrder partialOrder = order.createPartialOrder();
+
+        partialOrder.setOrderId(RequestIdManager.getInstance().getNextOrderId());
+
+        this.partialOrdersMap.put(partialOrder.getOrderId(), partialOrder);
+    }
+
+    private void placeOrModifyPartialOrder(PartialOrder partialOrder, double bidAskSpreadPosition, Tick tick) {
+
+        this.executedMap.put(partialOrder.getOrderId(), false);
+
+        Contract contract = IbUtil.getContract(partialOrder.getParentOrder().getSecurity());
 
         com.ib.client.Order ibOrder = new com.ib.client.Order();
-        ibOrder.m_action = order.getTransactionType().getValue();
-        ibOrder.m_totalQuantity = (int) order.getRequestedQuantity();
+        ibOrder.m_action = partialOrder.getParentOrder().getTransactionType().getValue();
+        ibOrder.m_totalQuantity = (int) partialOrder.getRequestedQuantity();
         ibOrder.m_orderType = "LMT";
-        ibOrder.m_lmtPrice = getPrice(order, bidAskSpreadPosition, tick.getBid().doubleValue(), tick.getAsk().doubleValue());
+        ibOrder.m_lmtPrice = getPrice(partialOrder.getParentOrder(), bidAskSpreadPosition, tick.getBid().doubleValue(), tick.getAsk().doubleValue());
         ibOrder.m_faGroup = group;
-        ibOrder.m_faMethod = method;
+
+        if (TransactionType.SELL.equals(partialOrder.getParentOrder().getTransactionType())) {
+            ibOrder.m_faMethod = openMethod;
+        }
+        if (TransactionType.BUY.equals(partialOrder.getParentOrder().getTransactionType())) {
+            ibOrder.m_faMethod = closeMethod;
+            ibOrder.m_faPercentage = "-100";
+        }
 
         this.lock.lock();
 
         try {
 
-            this.client.placeOrder(order.getNumber(), contract, ibOrder);
+            this.client.placeOrder(partialOrder.getOrderId(), contract, ibOrder);
 
-            logger.debug("orderId: " + order.getNumber() + " placeOrder, quantity: " + order.getRequestedQuantity() + ", limit: " + ibOrder.m_lmtPrice + ", bidAskSpreadPosition: "
-                    + bidAskSpreadPosition);
+            logger.debug("orderId: " + partialOrder.getOrderId() +
+                    " placeOrder for quantity: " + partialOrder.getRequestedQuantity()
+                    + " limit: " + ibOrder.m_lmtPrice
+                    + " bidAskSpreadPosition: " + bidAskSpreadPosition);
 
-            while (!this.executedMap.get(order.getNumber())) {
-                if (!this.placeOrderCondition.await(confirmationTimeout, TimeUnit.SECONDS))
+            while (!this.executedMap.get(partialOrder.getOrderId())) {
+                if (!this.condition.await(timeout, TimeUnit.MILLISECONDS))
                     break;
             }
 
@@ -249,69 +328,62 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
     }
 
     @SuppressWarnings("unchecked")
-    private void distributeCommissions(Order order) {
+    private void distributeCommissions(PartialOrder partialOrder) {
 
-        if (order.getExecutedQuantity() > 0) {
-            Collection<Transaction> transactions = order.getTransactions();
+        if (partialOrder.getExecutedQuantity() > 0) {
+            Collection<Transaction> transactions = partialOrder.getTransactions();
             for (Transaction transaction : transactions) {
-                double transactionCommission = order.getCommission() / order.getExecutedQuantity() * transaction.getQuantity();
+                double transactionCommission = partialOrder.getCommission() / partialOrder.getExecutedQuantity() * transaction.getQuantity();
                 transaction.setCommission(RoundUtil.getBigDecimal(transactionCommission));
             }
         }
     }
 
-    private void cancelRemainingOrder(Order order) {
+    private boolean cancelPartialOrder(PartialOrder partialOrder) {
 
-        this.deletedMap.put(order.getNumber(), false);
+        this.deletedMap.put(partialOrder.getOrderId(), false);
 
         this.lock.lock();
 
         try {
 
-            this.client.cancelOrder(order.getNumber());
+            this.client.cancelOrder(partialOrder.getOrderId());
 
-            logger.debug("orderId: " + order.getNumber() + " cancelOrder");
+            logger.debug("orderId: " + partialOrder.getOrderId() + " cancelOrder");
 
-            while (!this.deletedMap.get(order.getNumber())) {
-                this.deleteOrderCondition.await();
+            while (!this.deletedMap.get(partialOrder.getOrderId()) && !this.executedMap.get(partialOrder.getOrderId())) {
+                this.condition.await();
+            }
+
+            if (OrderStatus.CANCELED.equals(partialOrder.getStatus())) {
+                logger.debug("orderId: " + partialOrder.getOrderId() + " has been canceled");
+                return true;
+
+            } else if (OrderStatus.EXECUTED.equals(partialOrder.getStatus())) {
+                logger.debug("orderId: " + partialOrder.getOrderId() + " has been executed after trying to cancel");
+                return false;
+
+            } else {
+                throw new IbTickServiceException("orderId: " + partialOrder.getOrderId() + " unappropriate order status: " + partialOrder.getStatus());
             }
 
         } catch (InterruptedException e) {
-            logger.error("problem canceling order", e);
+            throw new IbTickServiceException("problem canceling order", e);
         } finally {
             this.lock.unlock();
         }
     }
 
-    private void resetOrder(Order order) {
+    private void cancelRemainingOrder(Order order) {
 
-        // only part of the order has gone through, so reduce the
-        // requested numberOfContracts by this number and keep going
-        order.setRequestedQuantity(-Math.abs(order.getExecutedQuantity()));
+        // if order did not execute fully, cancel the rest
+        if (OrderStatus.PARTIALLY_EXECUTED.equals(order.getStatus())) {
 
-        // increase the orderNumber, since we are submitting an new order
-        order.setNumber(RequestIdManager.getInstance().getNextOrderId());
+            cancelPartialOrder(order.getCurrentPartialOrder());
+            order.setStatus(OrderStatus.CANCELED);
 
-        order.setExecutedQuantity(0);
-        order.setCommission(0);
-
-        this.orderMap.put(order.getNumber(), order);
-    }
-
-    private void validateTick(Order order, Tick tick) throws TransformerException, ParseException {
-
-        Security security = order.getSecurity();
-        TransactionType transactionType = order.getTransactionType();
-        long requestedQuantity = order.getRequestedQuantity();
-
-        // validity check (volume and bid/ask spread)
-        tick.validate();
-
-        // validity check (available volume)
-        if (TransactionType.BUY.equals(transactionType) && tick.getVolAsk() < requestedQuantity) {
-            logger.warn("available volume (" + tick.getVolAsk() + ") is smaler than requested quantity (" + requestedQuantity + ") for a order on " + security.getIsin());
-        } else if (TransactionType.SELL.equals(transactionType) && tick.getVolBid() < requestedQuantity) {
-            logger.warn("available volume (" + tick.getVolBid() + ") is smaler than requested quantity (" + requestedQuantity + ") for a order on " + security.getIsin());
+            logger.warn("orderid: " + order.getNumber() + " did not execute fully, requestedQuantity: " + order.getRequestedQuantity() + " executedQuantity: "
+                    + order.getPartialOrderExecutedQuantity());
         }
     }
 }

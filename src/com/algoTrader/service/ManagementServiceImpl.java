@@ -45,7 +45,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected BigDecimal handleGetAccountMargin() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
-        return account.getMargin();
+        return account.getMaintenanceMargin();
     }
 
     protected BigDecimal handleGetAccountAvailableAmount() throws Exception {

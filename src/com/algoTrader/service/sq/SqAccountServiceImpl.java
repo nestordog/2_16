@@ -8,9 +8,9 @@ public class SqAccountServiceImpl extends SqAccountServiceBase {
 
     private static Currency currency = Currency.fromString(PropertiesUtil.getProperty("strategie.currency"));
 
-    protected double[] handleGetAvailableAmountsDouble() throws Exception {
+    protected long handleGetNumberOfContractsByMargin(int contractSize, double initialMargin) {
 
         Account account = getAccountDao().findByCurrency(currency);
-        return new double[] { account.getAvailableAmountDouble() };
+        return (long) ((account.getAvailableAmountDouble() / initialMargin) / contractSize);
     }
 }

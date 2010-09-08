@@ -83,15 +83,14 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
         return this.allAccountValues.get(accountName).get(key);
     }
 
-    protected double[] handleGetAvailableAmountsDouble() throws Exception {
+    protected long handleGetNumberOfContractsByMargin(int contractSize, double initialMargin) throws Exception {
 
-        double[] availableAmounts = new double[accounts.length];
-        for (int i = 0; i < accounts.length; i++) {
-
-            String account = accounts[i];
-            String equityWithLoanValue = retrieveAccountValue(account, "CHF", "EquityWithLoanValue");
-            availableAmounts[i] = Double.parseDouble(equityWithLoanValue);
+        long numberOfContractsByMargin = 0;
+        for (String account : accounts) {
+            double availableAmount = Double.parseDouble(retrieveAccountValue(account, "CHF", "AvailableFunds"));
+            long numberOfContracts = (long) ((availableAmount / initialMargin) / contractSize);
+            numberOfContractsByMargin += numberOfContracts;
         }
-        return availableAmounts;
+        return numberOfContractsByMargin;
     }
 }

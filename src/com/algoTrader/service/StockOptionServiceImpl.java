@@ -171,16 +171,9 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         logger.info("exitValueByVola: " + exitValueByVola + " exitValueByMaxAtRiskRatio: " + exitValueByMaxAtRiskRatio);
         double exitValue = Math.min(exitValueByVola, exitValueByMaxAtRiskRatio);
 
-        // get numberOfContracts based on margin (how many options can we sell
-        // for the available amount of cash
-        // do this for every client account (marketChannel SQ has only one
-        // clientAccount)
-        long numberOfContractsByMargin = 0;
-        double[] availableAmounts = getDispatcherService().getAccountService().getAvailableAmountsDouble();
-        for (double availableAmount : availableAmounts) {
-            long numberOfContracts = (long) ((availableAmount / initialMargin) / contractSize);
-            numberOfContractsByMargin += numberOfContracts;
-        }
+        // get numberOfContracts based on margin
+        // (how many options can we sell for the available amount of cash)
+        long numberOfContractsByMargin = getNumberOfContractsByMargin(contractSize, initialMargin);
 
         // get maxNumberOfContracts based on RedemptionValue
         //         available cash after this trade: cashbalance now + quantity * contractSize * currentValue
@@ -340,9 +333,9 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
             int percent = (int)(account.getAvailableAmountDouble() / account.getCashBalanceDouble() * 100.0);
             if (account.getAvailableAmountDouble() >= 0) {
-                logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount() + " (" + percent + "% of balance)");
+                logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMaintenanceMargin() + " available amount: " + account.getAvailableAmount() + " (" + percent + "% of balance)");
             } else {
-                logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMargin() + " available amount: " + account.getAvailableAmount() + " (" + percent + "% of balance)");
+                logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMaintenanceMargin() + " available amount: " + account.getAvailableAmount() + " (" + percent + "% of balance)");
             }
         } else {
             logger.warn("no last tick available to set margin on " + stockOption.getSymbol());
@@ -362,5 +355,17 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         getPositionDao().update(position);
 
         logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + exitValue);
+    }
+
+    private long getNumberOfContractsByMargin(int contractSize, double initialMargin) {
+
+        if (simulation) {
+
+            Account account = getAccountDao().findByCurrency(currency);
+            return (long) ((account.getAvailableAmountDouble() / initialMargin) / contractSize);
+        } else {
+
+            return getDispatcherService().getAccountService().getNumberOfContractsByMargin(contractSize, initialMargin);
+        }
     }
 }

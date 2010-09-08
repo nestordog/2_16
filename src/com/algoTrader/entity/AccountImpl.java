@@ -3,11 +3,14 @@ package com.algoTrader.entity;
 import java.math.BigDecimal;
 import java.util.Collection;
 
+import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 
 public class AccountImpl extends Account {
 
     private static final long serialVersionUID = -2271735085273721632L;
+
+    private static double initialMarginMarkup = PropertiesUtil.getDoubleProperty("strategie.initialMarginMarkup");
 
     public BigDecimal getCashBalance() {
         return RoundUtil.getBigDecimal(getCashBalanceDouble());
@@ -24,12 +27,12 @@ public class AccountImpl extends Account {
         return balance;
     }
 
-    public BigDecimal getMargin() {
-        return RoundUtil.getBigDecimal(getMarginDouble());
+    public BigDecimal getMaintenanceMargin() {
+        return RoundUtil.getBigDecimal(getMaintenanceMarginDouble());
     }
 
     @SuppressWarnings("unchecked")
-    public double getMarginDouble() {
+    public double getMaintenanceMarginDouble() {
 
         double margin = 0.0;
         Collection<Position> positions = getPositions();
@@ -39,6 +42,18 @@ public class AccountImpl extends Account {
         return margin;
     }
 
+    @Override
+    public BigDecimal getInitialMargin() {
+
+        return RoundUtil.getBigDecimal(getInitialMarginDouble());
+    }
+
+    @Override
+    public double getInitialMarginDouble() {
+
+        return initialMarginMarkup * getMaintenanceMarginDouble();
+    }
+
     public BigDecimal getAvailableAmount() {
 
         return RoundUtil.getBigDecimal(getAvailableAmountDouble());
@@ -46,7 +61,7 @@ public class AccountImpl extends Account {
 
     public double getAvailableAmountDouble() {
 
-        return getCashBalanceDouble() - getMarginDouble();
+        return getTotalValueDouble() - getInitialMarginDouble();
     }
 
     public BigDecimal getSecuritiesValue() {
