@@ -88,7 +88,7 @@ public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase 
         return (Position[])getPositionDao().findOpenPositions().toArray(new Position[0]);
     }
 
-    protected BigDecimal handleGetTotalValueAllAccounts() throws Exception {
+    protected BigDecimal handleGetNetLiqValueAllAccounts() throws Exception {
 
         return getAccountDao().getNetLiqValueAllAccounts();
     }

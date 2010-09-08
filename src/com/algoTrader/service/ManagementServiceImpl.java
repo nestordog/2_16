@@ -30,25 +30,25 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         return format.format(new Date(EsperService.getCurrentTime()));
     }
 
-    protected BigDecimal handleGetAccountTotalValue() throws Exception {
+    protected BigDecimal handleGetAccountNetLiqValue() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
         return account.getNetLiqValue();
     }
 
-    protected BigDecimal handleGetAccountBalance() throws Exception {
+    protected BigDecimal handleGetAccountCashBalance() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
         return account.getCashBalance();
     }
 
-    protected BigDecimal handleGetAccountMargin() throws Exception {
+    protected BigDecimal handleGetAccountMaintenanceMargin() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
         return account.getMaintenanceMargin();
     }
 
-    protected BigDecimal handleGetAccountAvailableAmount() throws Exception {
+    protected BigDecimal handleGetAccountAvailableFunds() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
         return account.getAvailableFunds();

@@ -9,7 +9,7 @@ public class AccountDaoImpl extends AccountDaoBase {
 
     private Collection<Account> accounts; // cache this because it get's called very often
 
-    protected BigDecimal handleGetTotalValueAllAccounts() throws Exception {
+    protected BigDecimal handleGetNetLiqValueAllAccounts() throws Exception {
 
         Collection<Account> accounts = loadAll();
 
@@ -21,7 +21,7 @@ public class AccountDaoImpl extends AccountDaoBase {
         return RoundUtil.getBigDecimal(totalValue);
     }
 
-    protected BigDecimal handleGetAvailableAmountAllAccounts() throws Exception {
+    protected BigDecimal handleGetAvailableFundsAllAccounts() throws Exception {
 
         Collection<Account> accounts = loadAll();
 
