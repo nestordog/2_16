@@ -11,7 +11,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.algoTrader.entity.Security;
@@ -20,7 +20,6 @@ import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.DateUtil;
-import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 import com.ib.client.AnyWrapper;
@@ -30,9 +29,9 @@ import com.ib.client.TickType;
 
 public class IbTickServiceImpl extends IbTickServiceBase implements InitializingBean {
 
-    private static Logger logger = MyLogger.getLogger(IbTickServiceImpl.class.getName());
-
+    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
+
     private static int port = PropertiesUtil.getIntProperty("ib.port");
     private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
     private static String genericTickList = PropertiesUtil.getProperty("ib.genericTickList");
@@ -182,7 +181,9 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
             }
 
             int requestId = this.securityToRequestIdMap.get(security);
-            tick = this.requestIdToTickMap.get(requestId);
+            Tick tempTick = this.requestIdToTickMap.get(requestId);
+
+            tick = (Tick) BeanUtils.cloneBean(tempTick);
             tick.setDateTime(DateUtil.getCurrentEPTime());
 
         } finally {
@@ -193,27 +194,31 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
     protected void handlePutOnWatchlist(StockOption stockOption) throws Exception {
 
-        int requestId = RequestIdManager.getInstance().getNextRequestId();
+        if (!simulation) {
+            int requestId = RequestIdManager.getInstance().getNextRequestId();
 
-        Tick tick = new TickImpl();
-        tick.setSecurity(stockOption);
-        this.requestIdToTickMap.put(requestId, tick);
-        this.securityToRequestIdMap.put(stockOption, requestId);
+            Tick tick = new TickImpl();
+            tick.setSecurity(stockOption);
+            this.requestIdToTickMap.put(requestId, tick);
+            this.securityToRequestIdMap.put(stockOption, requestId);
 
-        Contract contract = IbUtil.getContract(stockOption);
-        this.client.reqMktData(requestId, contract, genericTickList, false);
+            Contract contract = IbUtil.getContract(stockOption);
+            this.client.reqMktData(requestId, contract, genericTickList, false);
+        }
 
         super.putOnWatchlist(stockOption);
     }
 
     protected void handleRemoveFromWatchlist(StockOption stockOption) throws Exception {
 
-        int requestId = this.securityToRequestIdMap.get(stockOption);
+        if (!simulation) {
+            int requestId = this.securityToRequestIdMap.get(stockOption);
 
-        this.client.cancelMktData(requestId);
+            this.client.cancelMktData(requestId);
 
-        this.requestIdToTickMap.remove(requestId);
-        this.securityToRequestIdMap.remove(stockOption);
+            this.requestIdToTickMap.remove(requestId);
+            this.securityToRequestIdMap.remove(stockOption);
+        }
 
         super.removeFromWatchlist(stockOption);
     }
