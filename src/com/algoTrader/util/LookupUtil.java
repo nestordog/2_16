@@ -30,7 +30,7 @@ public class LookupUtil {
         return (serviceLocator.getLookupService().getOpenPositions().length != 0);
     }
 
-    public static double getTotalValueAllAccounts() {
+    public static double getNetLiqValueAllAccounts() {
 
         ServiceLocator serviceLocator = ServiceLocator.instance();
         return serviceLocator.getLookupService().getNetLiqValueAllAccounts().doubleValue();
