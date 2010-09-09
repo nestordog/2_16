@@ -28,7 +28,7 @@
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into PortfolioValue
 select current_timestamp as timestamp,
-LookupUtil.getTotalValueAllAccounts() as totalValue
+LookupUtil.getNetLiqValueAllAccounts() as totalValue
 from pattern[every timer:at (0, 18, *, *, 1:5)]</field>
         <field name="SUBSCRIBER">PrintPortfolioValueSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
@@ -162,9 +162,10 @@ and optionTick.security.position.quantity != 0</field>
         <field name="NAME">OPEN_POSITION</field>
         <field name="PRIORITY">2</field>
         <field name="DEFINITION">select stockOptionTick.security.id,
-stockOptionTick.settlement,
 stockOptionTick.currentValue,
 indexTick.currentValue,
+stockOptionTick.settlement,
+indexTick.settlement,
 volaTick.currentValueDouble / 100
 from pattern [(indexTick=Tick(security.isin = var_isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id) -&gt; stockOptionTick=Tick(security.id = ?,security.underlaying.id=indexTick.security.id))]</field>
         <field name="SUBSCRIBER">OpenPositionSubscriber</field>
@@ -377,8 +378,8 @@ and value &lt; security.position.exitValue</field>
 select Math.exp(linest.YIntercept) as a,
 linest.slope as b,
 Math.pow(correl.correlation,2) as r
-from Transaction.win:keepall().stat:linest(current_timestamp() / 31536000000, Math.log(account.totalValueDouble)) as linest,
-Transaction.win:keepall().stat:correl(current_timestamp() / 31536000000, Math.log(account.totalValueDouble)) as correl</field>
+from Transaction.win:keepall().stat:linest(current_timestamp() / 31536000000, Math.log(account.netLiqValueDouble)) as linest,
+Transaction.win:keepall().stat:correl(current_timestamp() / 31536000000, Math.log(account.netLiqValueDouble)) as correl</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
