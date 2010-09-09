@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.1.48, for Win64 (unknown)
 --
--- Host: localhost    Database: algotrader
+-- Host: localhost    Database: algotraderpopulated
 -- ------------------------------------------------------
 -- Server version    5.1.48-community-log
 
@@ -40,13 +40,13 @@ CREATE TABLE `position` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `QUANTITY` bigint(20) NOT NULL,
   `EXIT_VALUE` decimal(9,2) DEFAULT NULL,
-  `MARGIN` decimal(17,2) DEFAULT NULL,
+  `MAINTENANCE_MARGIN` decimal(17,2) DEFAULT NULL,
   `ACCOUNT_FK` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `POSITION_ACCOUNT_FKC` (`ACCOUNT_FK`),
   KEY `QUANTITY` (`QUANTITY`),
   CONSTRAINT `POSITION_ACCOUNT_FKC` FOREIGN KEY (`ACCOUNT_FK`) REFERENCES `account` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -102,7 +102,7 @@ CREATE TABLE `security` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ISIN` varchar(20) DEFAULT NULL,
   `SYMBOL` varchar(30) NOT NULL,
-  `MARKET` enum('21','M9') NOT NULL,
+  `MARKET` enum('DE','EUREX') NOT NULL,
   `CURRENCY` enum('CHF','EUR') NOT NULL,
   `UNDERLAYING_FK` int(11) DEFAULT NULL,
   `VOLATILITY_FK` int(11) DEFAULT NULL,
@@ -151,7 +151,7 @@ DROP TABLE IF EXISTS `transaction`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `transaction` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `NUMBER` varchar(20) DEFAULT NULL,
+  `NUMBER` varchar(30) DEFAULT NULL,
   `DATE_TIME` datetime NOT NULL,
   `QUANTITY` bigint(20) NOT NULL,
   `PRICE` decimal(9,2) NOT NULL,
@@ -167,7 +167,7 @@ CREATE TABLE `transaction` (
   CONSTRAINT `TRANSACTION_ACCOUNT_FKC` FOREIGN KEY (`ACCOUNT_FK`) REFERENCES `account` (`id`),
   CONSTRAINT `TRANSACTION_POSITION_FKC` FOREIGN KEY (`POSITION_FK`) REFERENCES `position` (`id`),
   CONSTRAINT `TRANSACTION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -198,4 +198,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2010-08-18 11:59:32
+-- Dump completed on 2010-09-09 16:28:42
