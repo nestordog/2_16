@@ -7,13 +7,17 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.ib.client.AnyWrapper;
 import com.ib.client.EClientSocket;
 
 public class IbAccountServiceImpl extends IbAccountServiceBase implements InitializingBean {
+
+    private static Logger logger = MyLogger.getLogger(IbAccountServiceImpl.class.getName());
 
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
     private static int port = PropertiesUtil.getIntProperty("ib.port");
@@ -83,13 +87,15 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
         return this.allAccountValues.get(accountName).get(key);
     }
 
-    protected long handleGetNumberOfContractsByMargin(int contractSize, double initialMargin) throws Exception {
+    protected long handleGetNumberOfContractsByMargin(double initialMarginPerContract) throws Exception {
 
         long numberOfContractsByMargin = 0;
         for (String account : accounts) {
             double availableAmount = Double.parseDouble(retrieveAccountValue(account, "CHF", "AvailableFunds"));
-            long numberOfContracts = (long) ((availableAmount / initialMargin) / contractSize);
+            long numberOfContracts = (long) (availableAmount / initialMarginPerContract);
             numberOfContractsByMargin += numberOfContracts;
+
+            logger.debug("assign " + numberOfContracts + " to account " + account);
         }
         return numberOfContractsByMargin;
     }

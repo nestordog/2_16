@@ -125,11 +125,6 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
             private void checkValidity(Tick tick) {
 
-                if (tick.getLast() == null)
-                    return;
-                if (tick.getLastDateTime() == null)
-                    return;
-
                 if (tick.getSecurity() instanceof StockOption) {
                     if (tick.getBid() == null)
                         return;
@@ -140,6 +135,13 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
                     if (tick.getVolAsk() == 0)
                         return;
                     if (tick.getOpenIntrest() == 0)
+                        return;
+                } else {
+
+                    // stockOptions might not have a last/lastDateTime yet on the current day
+                    if (tick.getLast() == null)
+                        return;
+                    if (tick.getLastDateTime() == null)
                         return;
                 }
 
@@ -180,8 +182,13 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
                 }
             }
 
-            int requestId = this.securityToRequestIdMap.get(security);
+            Integer requestId = this.securityToRequestIdMap.get(security);
             Tick tempTick = this.requestIdToTickMap.get(requestId);
+
+            if (tempTick == null) {
+                // might not be on watchlist any more
+                return null;
+            }
 
             tick = (Tick) BeanUtils.cloneBean(tempTick);
             tick.setDateTime(DateUtil.getCurrentEPTime());
@@ -192,7 +199,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
         return tick;
     }
 
-    protected void handlePutOnWatchlist(StockOption stockOption) throws Exception {
+    protected void handlePutOnExternalWatchlist(StockOption stockOption) throws Exception {
 
         if (!simulation) {
             int requestId = RequestIdManager.getInstance().getNextRequestId();
@@ -205,21 +212,19 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
             Contract contract = IbUtil.getContract(stockOption);
             this.client.reqMktData(requestId, contract, genericTickList, false);
         }
-
-        super.putOnWatchlist(stockOption);
     }
 
-    protected void handleRemoveFromWatchlist(StockOption stockOption) throws Exception {
+    protected void handleRemoveFromExternalWatchlist(StockOption stockOption) throws Exception {
 
         if (!simulation) {
-            int requestId = this.securityToRequestIdMap.get(stockOption);
+            Integer requestId = this.securityToRequestIdMap.get(stockOption);
 
-            this.client.cancelMktData(requestId);
+            if (requestId != null) {
+                this.client.cancelMktData(requestId);
 
-            this.requestIdToTickMap.remove(requestId);
-            this.securityToRequestIdMap.remove(stockOption);
+                this.requestIdToTickMap.remove(requestId);
+                this.securityToRequestIdMap.remove(stockOption);
+            }
         }
-
-        super.removeFromWatchlist(stockOption);
     }
 }

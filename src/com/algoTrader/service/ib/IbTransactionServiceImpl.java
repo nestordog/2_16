@@ -1,8 +1,9 @@
 package com.algoTrader.service.ib;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.InitializingBean;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.PartialOrder;
 import com.algoTrader.entity.Security;
+import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
@@ -31,7 +33,6 @@ import com.ib.client.AnyWrapper;
 import com.ib.client.Contract;
 import com.ib.client.EClientSocket;
 import com.ib.client.Execution;
-import com.ib.client.OrderState;
 
 public class IbTransactionServiceImpl extends IbTransactionServiceBase implements InitializingBean {
 
@@ -88,11 +89,15 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
                     partialOrder.setExecutedQuantity(filled);
 
-                    if ((filled > 0) && ("Submitted".equals(status) || "PendingSubmit".equals(status))) {
+                    if ("Submitted".equals(status) || "PendingSubmit".equals(status)) {
 
-                        partialOrder.setStatus(OrderStatus.PARTIALLY_EXECUTED);
+                        if (filled == 0) {
+                            partialOrder.setStatus(OrderStatus.SUBMITTED);
+                        } else {
+                            partialOrder.setStatus(OrderStatus.PARTIALLY_EXECUTED);
+                        }
 
-                    } else if ("Filled".equals(status) && (partialOrder.getCommission() != 0)) {
+                    } else if ("Filled".equals(status)) {
 
                         partialOrder.setStatus(OrderStatus.EXECUTED);
 
@@ -106,22 +111,6 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                         IbTransactionServiceImpl.this.deletedMap.put(orderId, true);
                         IbTransactionServiceImpl.this.condition.signalAll();
                     }
-
-                } finally {
-                    IbTransactionServiceImpl.this.lock.unlock();
-                }
-            }
-
-            public void openOrder(int orderId, Contract contract, com.ib.client.Order iBOrder, OrderState orderState) {
-
-                double commission = orderState.m_commission == Double.MAX_VALUE ? 0 : orderState.m_commission;
-                logger.debug("orderId: " + orderId + " openOrder: commission: " + commission);
-
-                IbTransactionServiceImpl.this.lock.lock();
-                try {
-
-                    PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(orderId);
-                    partialOrder.setCommission(commission);
 
                 } finally {
                     IbTransactionServiceImpl.this.lock.unlock();
@@ -154,12 +143,22 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                     if (!execution.m_execId.startsWith("F") && !execution.m_execId.startsWith("U")) {
 
                         PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(execution.m_orderId);
+                        Order order = partialOrder.getParentOrder();
+                        StockOption stockOption = ((StockOption) order.getSecurity());
+
+                        Date dateTime = format.parse(execution.m_time);
+                        String number = execution.m_execId;
+                        int executedQuantity = execution.m_shares;
+                        executedQuantity = TransactionType.SELL.equals(order.getTransactionType()) ? -executedQuantity : executedQuantity;
+                        BigDecimal price = RoundUtil.getBigDecimal(execution.m_price * stockOption.getContractSize());
+                        BigDecimal commission = order.getSecurity().getCommission(execution.m_shares, order.getTransactionType());
 
                         Transaction transaction = new TransactionImpl();
-                        transaction.setDateTime(format.parse(execution.m_time));
-                        transaction.setNumber(String.valueOf(execution.m_permId));
-                        transaction.setQuantity(execution.m_shares);
-                        transaction.setPrice(RoundUtil.getBigDecimal(execution.m_price));
+                        transaction.setDateTime(dateTime);
+                        transaction.setNumber(number);
+                        transaction.setQuantity(executedQuantity);
+                        transaction.setPrice(price);
+                        transaction.setCommission(commission);
 
                         partialOrder.addTransaction(transaction);
                     }
@@ -212,8 +211,6 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 // otherwise the order must have been executed in the meantime
                 if (cancelPartialOrder(partialOrder)) {
 
-                    distributeCommissions(partialOrder);
-
                     // cancel sucessfull so reset the order
                     getPartialOrder(order);
                     continue;
@@ -221,15 +218,12 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 } else {
 
                     // order did EXECUTE after beeing cancelled, so we are done!
-                    distributeCommissions(partialOrder);
                     break;
                 }
 
             } else if (OrderStatus.EXECUTED.equals(partialOrder.getStatus())) {
 
                 // we are done!
-                distributeCommissions(partialOrder);
-
                 break;
             }
         }
@@ -327,18 +321,6 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void distributeCommissions(PartialOrder partialOrder) {
-
-        if (partialOrder.getExecutedQuantity() > 0) {
-            Collection<Transaction> transactions = partialOrder.getTransactions();
-            for (Transaction transaction : transactions) {
-                double transactionCommission = partialOrder.getCommission() / partialOrder.getExecutedQuantity() * transaction.getQuantity();
-                transaction.setCommission(RoundUtil.getBigDecimal(transactionCommission));
-            }
-        }
-    }
-
     private boolean cancelPartialOrder(PartialOrder partialOrder) {
 
         this.deletedMap.put(partialOrder.getOrderId(), false);
@@ -377,12 +359,13 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
     private void cancelRemainingOrder(Order order) {
 
         // if order did not execute fully, cancel the rest
-        if (OrderStatus.PARTIALLY_EXECUTED.equals(order.getStatus())) {
+        OrderStatus status = order.getCurrentPartialOrder().getStatus();
+        if (OrderStatus.SUBMITTED.equals(status) || OrderStatus.PARTIALLY_EXECUTED.equals(status)) {
 
             cancelPartialOrder(order.getCurrentPartialOrder());
             order.setStatus(OrderStatus.CANCELED);
 
-            logger.warn("orderid: " + order.getNumber() + " did not execute fully, requestedQuantity: " + order.getRequestedQuantity() + " executedQuantity: "
+            logger.warn("order on: " + order.getSecurity().getSymbol() + " did not execute fully, requestedQuantity: " + order.getRequestedQuantity() + " executedQuantity: "
                     + order.getPartialOrderExecutedQuantity());
         }
     }

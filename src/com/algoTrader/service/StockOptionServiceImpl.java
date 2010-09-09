@@ -3,7 +3,6 @@ package com.algoTrader.service;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -23,7 +22,6 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.StockOptionImpl;
 import com.algoTrader.entity.Tick;
-import com.algoTrader.entity.Transaction;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.OptionType;
@@ -208,7 +206,11 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         getDispatcherService().getTransactionService().executeTransaction(order);
 
-        setMargin(order);
+        Position position = order.getSecurity().getPosition();
+        if (position != null) {
+            setMargin(position);
+        }
+
         setExitValue(stockOption.getPosition(), exitValue);
     }
 
@@ -303,16 +305,6 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
     }
 
-    @SuppressWarnings("unchecked")
-    private void setMargin(Order order) throws Exception {
-
-        Collection<Transaction> transactions = order.getTransactions();
-
-        for (Transaction transaction : transactions) {
-            setMargin(transaction.getPosition());
-        }
-    }
-
     private void setMargin(Position position) throws Exception {
 
         StockOption stockOption = (StockOption) position.getSecurity();
@@ -365,7 +357,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             return (long) ((account.getAvailableFundsDouble() / initialMargin) / contractSize);
         } else {
 
-            return getDispatcherService().getAccountService().getNumberOfContractsByMargin(contractSize, initialMargin);
+            return getDispatcherService().getAccountService().getNumberOfContractsByMargin(contractSize * initialMargin);
         }
     }
 }

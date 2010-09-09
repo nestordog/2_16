@@ -61,6 +61,9 @@ public abstract class TickServiceImpl extends TickServiceBase {
     protected void handlePutOnWatchlist(StockOption stockOption) throws Exception {
 
         if (!stockOption.isOnWatchlist()) {
+
+            putOnExternalWatchlist(stockOption);
+
             stockOption.setOnWatchlist(true);
             getStockOptionDao().update(stockOption);
             getStockOptionDao().getStockOptionsOnWatchlist(false).add(stockOption);
@@ -78,6 +81,9 @@ public abstract class TickServiceImpl extends TickServiceBase {
     protected void handleRemoveFromWatchlist(StockOption stockOption) throws Exception {
 
         if (stockOption.isOnWatchlist()) {
+
+            removeFromExternalWatchlist(stockOption);
+
             stockOption.setOnWatchlist(false);
             getStockOptionDao().update(stockOption);
             getStockOptionDao().getStockOptionsOnWatchlist(false).remove(stockOption);

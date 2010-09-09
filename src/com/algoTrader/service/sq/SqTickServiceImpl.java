@@ -118,4 +118,12 @@ public class SqTickServiceImpl extends SqTickServiceBase {
 
         return tick;
     }
+
+    protected void handlePutOnExternalWatchlist(StockOption stockOption) throws Exception {
+        // do nothing
+    }
+
+    protected void handleRemoveFromExternalWatchlist(StockOption stockOption) throws Exception {
+        // do nothing
+    }
 }
