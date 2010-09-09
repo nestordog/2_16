@@ -94,7 +94,6 @@ public class AccountImpl extends Account {
     public double getRedemptionValue() {
 
         double redemptionValue = 0.0;
-        System.currentTimeMillis();
         Collection<Position> positions = getPositions();
         for (Position position : positions) {
             redemptionValue += position.getRedemptionValue();
