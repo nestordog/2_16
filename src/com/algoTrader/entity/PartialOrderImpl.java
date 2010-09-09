@@ -11,6 +11,9 @@ public class PartialOrderImpl extends com.algoTrader.entity.PartialOrder {
         if (OrderStatus.PARTIALLY_EXECUTED.equals(status) || OrderStatus.EXECUTED.equals(status)) {
             getParentOrder().setStatus(status);
         }
+        if (OrderStatus.SUBMITTED.equals(status) && OrderStatus.OPEN.equals(getParentOrder().getStatus())) {
+            getParentOrder().setStatus(status);
+        }
         super.setStatus(status);
     }
 
