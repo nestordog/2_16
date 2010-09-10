@@ -34,7 +34,6 @@ public class IbUtil {
             contract.m_symbol = security.getSymbol();
             contract.m_secType = "IND";
             contract.m_exchange = IbMarketConverter.marketToString(security.getMarket());
-            contract.m_currency = security.getCurrency().getValue();
         }
 
         return contract;
