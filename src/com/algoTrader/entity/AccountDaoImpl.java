@@ -7,38 +7,55 @@ import com.algoTrader.util.RoundUtil;
 
 public class AccountDaoImpl extends AccountDaoBase {
 
-    private Collection<Account> accounts; // cache this because it get's called very often
+    @SuppressWarnings("unchecked")
+    protected BigDecimal handleGetCashBalanceAllAccounts() throws Exception {
 
+        Collection<Account> accounts = loadAll();
+
+        double cashBalance = 0;
+        for (Account account : accounts) {
+            cashBalance += account.getCashBalanceDouble();
+        }
+
+        return RoundUtil.getBigDecimal(cashBalance);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected BigDecimal handleGetSecuritiesCurrentValueAllAccounts() throws Exception {
+
+        Collection<Account> accounts = loadAll();
+
+        double currentValue = 0;
+        for (Account account : accounts) {
+            currentValue += account.getSecuritiesCurrentValueDouble();
+        }
+
+        return RoundUtil.getBigDecimal(currentValue);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected BigDecimal handleGetMaintenanceMarginAllAccounts() throws Exception {
+
+        Collection<Account> accounts = loadAll();
+
+        double maintenanceMargin = 0;
+        for (Account account : accounts) {
+            maintenanceMargin += account.getMaintenanceMarginDouble();
+        }
+
+        return RoundUtil.getBigDecimal(maintenanceMargin);
+    }
+
+    @SuppressWarnings("unchecked")
     protected BigDecimal handleGetNetLiqValueAllAccounts() throws Exception {
 
         Collection<Account> accounts = loadAll();
 
-        double totalValue = 0;
+        double netLiqValue = 0;
         for (Account account : accounts) {
-            totalValue += account.getNetLiqValueDouble();
+            netLiqValue += account.getNetLiqValueDouble();
         }
 
-        return RoundUtil.getBigDecimal(totalValue);
-    }
-
-    protected BigDecimal handleGetAvailableFundsAllAccounts() throws Exception {
-
-        Collection<Account> accounts = loadAll();
-
-        double availableAmount = 0;
-        for (Account account : accounts) {
-            availableAmount += account.getAvailableFundsDouble();
-        }
-
-        return RoundUtil.getBigDecimal(availableAmount);
-    }
-
-    @SuppressWarnings("unchecked")
-    public Collection<Account> loadAll() {
-
-        if (this.accounts == null) {
-            this.accounts = super.loadAll();
-        }
-        return this.accounts;
+        return RoundUtil.getBigDecimal(netLiqValue);
     }
 }
