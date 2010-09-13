@@ -15,6 +15,7 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
+import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
@@ -106,26 +107,15 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
             getAccountDao().update(account);
             getSecurityDao().update(security);
 
-            logger.info("executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() + " of " + security.getSymbol() + " price: " + transaction.getPrice() + " commission: " + transaction.getCommission() + " portfolioValue: " + account.getNetLiqValue());
+            logger.info("executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() + " of " + security.getSymbol() + " price: " + transaction.getPrice()
+                    + " commission: " + transaction.getCommission() + " netLiqValue: " + account.getNetLiqValue());
 
             EsperService.route(transaction);
         }
     }
 
-    protected double handleGetPrice(Order order, double bidAskSpreadPosition, double bid, double ask) {
-
-        double price = 0.0;
-        if (TransactionType.BUY.equals(order.getTransactionType())) {
-            price = bid + bidAskSpreadPosition * (ask - bid);
-        } else if (TransactionType.SELL.equals(order.getTransactionType())) {
-            price = ask - bidAskSpreadPosition * (ask - bid);
-        }
-
-        return RoundUtil.roundTo10Cent(RoundUtil.getBigDecimal(price)).doubleValue();
-    }
-
     @SuppressWarnings("unchecked")
-    private void executeInternalTransaction(Order order) {
+    protected void handleExecuteInternalTransaction(Order order) {
 
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(DateUtil.getCurrentEPTime());
@@ -174,5 +164,52 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
 
         order.setStatus(OrderStatus.AUTOMATIC);
         order.getTransactions().add(transaction);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void handleExecuteCashTransaction(BigDecimal amount, Currency currency, TransactionType transactionType) {
+
+        Transaction transaction = new TransactionImpl();
+
+        if (!(transactionType.equals(TransactionType.CREDIT) ||
+            transactionType.equals(TransactionType.INTREST) ||
+            transactionType.equals(TransactionType.DEBIT) ||
+            transactionType.equals(TransactionType.FEES))) {
+            throw new IllegalArgumentException("TransactionType: " + transactionType + " not allowed for cash transactions");
+        }
+
+        if (amount.doubleValue() < 0) {
+            throw new IllegalArgumentException("amount must be positive");
+        }
+
+        transaction.setDateTime(DateUtil.getCurrentEPTime());
+        transaction.setQuantity(1);
+        transaction.setPrice(amount);
+        transaction.setCommission(new BigDecimal(0));
+        transaction.setType(transactionType);
+
+        // Account
+        Account account = getAccountDao().findByCurrency(currency);
+        transaction.setAccount(account);
+        account.getTransactions().add(transaction);
+
+        getTransactionDao().create(transaction);
+        getAccountDao().update(account);
+
+        logger.info("executed cash transaction type: " + transactionType + " price: " + transaction.getPrice() + " netLiqValue: " + account.getNetLiqValue());
+
+        EsperService.sendEvent(transaction);
+    }
+
+    protected double getPrice(Order order, double bidAskSpreadPosition, double bid, double ask) {
+
+        double price = 0.0;
+        if (TransactionType.BUY.equals(order.getTransactionType())) {
+            price = bid + bidAskSpreadPosition * (ask - bid);
+        } else if (TransactionType.SELL.equals(order.getTransactionType())) {
+            price = ask - bidAskSpreadPosition * (ask - bid);
+        }
+
+        return RoundUtil.roundTo10Cent(RoundUtil.getBigDecimal(price)).doubleValue();
     }
 }
