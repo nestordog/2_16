@@ -377,8 +377,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @SuppressWarnings("unchecked")
     private double getStatistics() {
 
-        BigDecimal totalValue = getAccountDao().getNetLiqValueAllAccounts();
-        logger.info("totalValue: " + twoDigitFormat.format(totalValue));
+        BigDecimal netLiqValue = getAccountDao().getNetLiqValueAllAccounts();
+        logger.info("netLiqValue: " + twoDigitFormat.format(netLiqValue));
 
         InterpolationVO interpolation = getInterpolation();
 
@@ -439,14 +439,14 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         public UnivariateFunction(String parameter) {
             super();
-            param = parameter;
+            this.param = parameter;
         }
 
         public double value(double input) throws FunctionEvaluationException {
 
-            PropertiesUtil.setEsperOrConfigProperty(param, String.valueOf(input));
+            PropertiesUtil.setEsperOrConfigProperty(this.param, String.valueOf(input));
 
-            logger.info("optimize on " + param + " value " + threeDigitFormat.format(input));
+            logger.info("optimize on " + this.param + " value " + threeDigitFormat.format(input));
 
             double result = ServiceLocator.instance().getSimulationService().simulateByUnderlayings();
 
@@ -462,7 +462,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         public MultivariateFunction(String[] parameters) {
             super();
-            params = parameters;
+            this.params = parameters;
         }
 
         public double value(double[] input) throws FunctionEvaluationException {
@@ -471,7 +471,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             StringBuffer buffer = new StringBuffer("optimize on ");
             for (int i =0; i < input.length; i++) {
 
-                String param = params[i];
+                String param = this.params[i];
                 double value = input[i];
 
                 PropertiesUtil.setEsperOrConfigProperty(param, String.valueOf(value));

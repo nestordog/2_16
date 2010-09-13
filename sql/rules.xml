@@ -27,9 +27,14 @@
         <field name="NAME">CREATE_PORTFOLIO_VALUE</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into PortfolioValue
-select current_timestamp as timestamp,
-LookupUtil.getNetLiqValueAllAccounts() as totalValue
-from pattern[every timer:at (0, 18, *, *, 1:5)]</field>
+select current_timestamp() as timestamp,
+portfolioValue.cashBalance as cashBalance,
+portfolioValue.securitiesCurrentValue as securitiesCurrentValue,
+portfolioValue.maintenanceMargin as maintenanceMargin,
+portfolioValue.cashBalance + portfolioValue.securitiesCurrentValue as netLiqValue,
+cashTransaction
+from pattern[every(timer:at (0, 9:17, *, *, 1:5) or cashTransaction=Transaction(type=TransactionType.CREDIT or type=TransactionType.DEBIT or type=TransactionType.INTREST or type=TransactionType.FEES))],
+method:LookupUtil.getPortfolioValue() as portfolioValue</field>
         <field name="SUBSCRIBER">PrintPortfolioValueSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -41,10 +46,10 @@ from pattern[every timer:at (0, 18, *, *, 1:5)]</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into MonthlyPerformance
 select DateUtil.toDate(current_timestamp()) as date,
-(portfolioValue.totalValue / prior(1, portfolioValue.totalValue)) - 1 as value
+cast(portfolioValue.netLiqValue / prior(1, portfolioValue.netLiqValue),double) - 1 as value
 from pattern[every timer:at (0, 18, lastweekday, *, *) -&gt; portfolioValue=PortfolioValue]
-having prior(1, portfolioValue.totalValue) != null and
-portfolioValue.totalValue != prior(1, portfolioValue.totalValue)
+having prior(1, portfolioValue.netLiqValue) != null and
+portfolioValue.netLiqValue != prior(1, portfolioValue.netLiqValue)
 </field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
@@ -418,8 +423,8 @@ from MonthlyPerformance.win:keepall()</field>
         <field name="NAME">CREATE_DRAW_DOWN</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into DrawDown
-select 1 - portfolioValue.totalValue / max(portfolioValue.totalValue) as amount,
-case when portfolioValue.totalValue = max(portfolioValue.totalValue) then DrawDownUtil.resetDrawDownPeriod() else DrawDownUtil.increaseDrawDownPeriod(current_timestamp - prior(1, portfolioValue.timestamp)) end as period
+select 1 - cast(portfolioValue.netLiqValue / max(portfolioValue.netLiqValue),double) as amount,
+case when portfolioValue.netLiqValue = max(portfolioValue.netLiqValue) then DrawDownUtil.resetDrawDownPeriod() else DrawDownUtil.increaseDrawDownPeriod(current_timestamp - prior(1, portfolioValue.timestamp)) end as period
 from PortfolioValue as portfolioValue</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
