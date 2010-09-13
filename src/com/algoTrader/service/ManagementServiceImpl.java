@@ -13,8 +13,10 @@ import com.algoTrader.entity.KSlow;
 import com.algoTrader.entity.PositionDao;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.RuleName;
+import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.InterpolationVO;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.TickVO;
@@ -30,22 +32,28 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         return format.format(new Date(EsperService.getCurrentTime()));
     }
 
-    protected BigDecimal handleGetAccountNetLiqValue() throws Exception {
-
-        Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
-        return account.getNetLiqValue();
-    }
-
     protected BigDecimal handleGetAccountCashBalance() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
         return account.getCashBalance();
     }
 
+    protected BigDecimal handleGetAccountSecuritiesCurrentValue() throws Exception {
+
+        Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
+        return account.getSecuritiesCurrentValue();
+    }
+
     protected BigDecimal handleGetAccountMaintenanceMargin() throws Exception {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
         return account.getMaintenanceMargin();
+    }
+
+    protected BigDecimal handleGetAccountNetLiqValue() throws Exception {
+
+        Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
+        return account.getNetLiqValue();
     }
 
     protected BigDecimal handleGetAccountAvailableFunds() throws Exception {
@@ -159,8 +167,12 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         getRuleService().deactivate(ruleName);
     }
 
-    protected void handleKillVM() throws Exception {
+    protected void handleCashTransaction(double amountDouble, String currencyString, String transactionTypeString) throws Exception {
 
-        System.exit(0);
+        Currency currency = Currency.fromString(currencyString);
+        TransactionType transactionType = TransactionType.fromString(transactionTypeString);
+        BigDecimal amount = RoundUtil.getBigDecimal(amountDouble);
+
+        getDispatcherService().getTransactionService().executeCashTransaction(amount, currency, transactionType);
     }
 }
