@@ -231,7 +231,7 @@ public class HttpClientUtil {
         int h = level3Key.charAt(0)-97;
         int v = Integer.parseInt(level3Key.substring(1)) - 1;
 
-        InputStream in = HttpClientUtil.class.getResourceAsStream("/level3.txt");
+        InputStream in = HttpClientUtil.class.getResourceAsStream("com/algoTrader/service/sq/level3.txt");
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
         String[][] level3Card = new String[10][10];
