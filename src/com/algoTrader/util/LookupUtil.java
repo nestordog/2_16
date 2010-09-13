@@ -4,6 +4,7 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Account;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
+import com.algoTrader.vo.PortfolioValueVO;
 
 public class LookupUtil {
 
@@ -30,9 +31,9 @@ public class LookupUtil {
         return (serviceLocator.getLookupService().getOpenPositions().length != 0);
     }
 
-    public static double getNetLiqValueAllAccounts() {
+    public static PortfolioValueVO getPortfolioValue() {
 
         ServiceLocator serviceLocator = ServiceLocator.instance();
-        return serviceLocator.getLookupService().getNetLiqValueAllAccounts().doubleValue();
+        return serviceLocator.getLookupService().getPortfolioValue();
     }
 }
