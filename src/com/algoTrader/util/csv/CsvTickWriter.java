@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
+import org.supercsv.cellprocessor.ConvertNullTo;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.exception.SuperCSVException;
 import org.supercsv.exception.SuperCSVReflectionException;
@@ -19,7 +20,7 @@ import com.algoTrader.util.PropertiesUtil;
 public class CsvTickWriter {
 
     private static String[] header = new String[] { "dateTime", "last", "lastDateTime", "volBid", "volAsk", "bid", "ask", "vol", "openIntrest", "settlement" };
-    private static CellProcessor[] processor = new CellProcessor[] { new DateConverter(), null, new DateConverter(), null, null, null, null, null, null, null };
+    private static CellProcessor[] processor = new CellProcessor[] { new DateConverter(), new ConvertNullTo(""), new DateConverter(), null, null, null, null, null, null, null };
     private static String dataSet = PropertiesUtil.getProperty("strategie.dataSet");
 
     private CsvBeanWriter writer;
@@ -29,10 +30,10 @@ public class CsvTickWriter {
         File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
         boolean exists = file.exists();
 
-        writer = new CsvBeanWriter(new FileWriter(file, true), CsvPreference.EXCEL_PREFERENCE);
+        this.writer = new CsvBeanWriter(new FileWriter(file, true), CsvPreference.EXCEL_PREFERENCE);
 
         if (!exists) {
-            writer.writeHeader(header);
+            this.writer.writeHeader(header);
         }
     }
 
@@ -43,19 +44,20 @@ public class CsvTickWriter {
             }
 
             public Object execute(final Object value, final CSVContext context) throws NumberFormatException {
+                if (value == null) return "";
                 final Date date = (Date) value;
                 Long result = Long.valueOf(date.getTime());
-                return next.execute(result, context);
+                return this.next.execute(result, context);
             }
         }
 
     public void write(Tick tick) throws SuperCSVReflectionException, IOException {
 
-        writer.write(tick, header, processor);
+        this.writer.write(tick, header, processor);
     }
 
     public void close() throws IOException {
 
-        writer.close();
+        this.writer.close();
     }
 }
