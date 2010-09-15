@@ -47,7 +47,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
     private static int confirmationTimeout = PropertiesUtil.getIntProperty("swissquote.confirmationTimeout");
     private static int confirmationRetries = PropertiesUtil.getIntProperty("swissquote.confirmationRetries");
     private static int maxTransactionAge = PropertiesUtil.getIntProperty("maxTransactionAge");
-    private static String[] bidAskSpreadPositions = PropertiesUtil.getProperty("bidAskSpreadPositions").split("\\s");
+    private static String[] spreadPositions = PropertiesUtil.getStringArrayProperty("spreadPositions");
 
     private static String dispatchUrl = "https://trade.swissquote.ch/sqb_core/DispatchCtrl";
     private static String tradeUrl = "https://trade.swissquote.ch/sqb_core/TradeCtrl";
@@ -65,11 +65,11 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
 
         double bid = 0.0;
         double ask = Double.POSITIVE_INFINITY;
-        for (String bidAskSpreadPosition : bidAskSpreadPositions) {
+        for (String spreadPosition : spreadPositions) {
 
             Document orderScreen = getOrderScreen(order, client);
 
-            if (bidAskSpreadPosition.equals(bidAskSpreadPositions[0])) {
+            if (spreadPosition.equals(spreadPositions[0])) {
 
                 // only validate price and volum the first time, because our orders will show up in the orderbook as well
                 validateTick(order, orderScreen);
@@ -79,7 +79,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
                 ask = SqUtil.getDouble(SqUtil.getValue(orderScreen, String.format(tickMatch, "Briefkurs")));
             }
 
-            Document confirmationScreen = getConfirmationScreen(order, client, orderScreen, Double.parseDouble(bidAskSpreadPosition), bid, ask);
+            Document confirmationScreen = getConfirmationScreen(order, client, orderScreen, Double.parseDouble(spreadPosition), bid, ask);
 
             getAckScreen(order, client, confirmationScreen);
 
@@ -93,12 +93,12 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
                 if (OrderStatus.OPEN.equals(order.getStatus())) {
 
                     // nothing went through, so continue with the next higher
-                    // bidAskSpreadPosition
+                    // spreadPosition
                     continue;
                 }
             }
 
-            getExecutedTransactionsScreen(order, client, openAndDailyOrdersScreen, bidAskSpreadPosition);
+            getExecutedTransactionsScreen(order, client, openAndDailyOrdersScreen, spreadPosition);
 
             if (OrderStatus.EXECUTED.equals(order.getStatus())) {
 
@@ -150,7 +150,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         return orderScreen;
     }
 
-    private Document getConfirmationScreen(Order order, HttpClient client, Document orderScreen, double bidAskSpreadPosition, double bid, double ask )
+    private Document getConfirmationScreen(Order order, HttpClient client, Document orderScreen, double spreadPosition, double bid, double ask)
             throws TransformerException, ParseException, IOException, HttpException, UnsupportedEncodingException {
 
         Security security = order.getSecurity();
@@ -182,7 +182,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         paramSet.add(new NameValuePair("order.quantity", String.valueOf(requestedQuantity)));
 
         // price
-        BigDecimal price = RoundUtil.getBigDecimal(getPrice(order, bidAskSpreadPosition, bid, ask));
+        BigDecimal price = RoundUtil.getBigDecimal(getPrice(order, spreadPosition, bid, ask));
         paramSet.add(new NameValuePair("order.price", price.toString()));
 
         // stockExchange
@@ -219,7 +219,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
             get.releaseConnection();
         }
 
-        logger.debug("place order at bidAskSpreadPosition: " + bidAskSpreadPosition + ", bid: " + bid + ", ask: " + ask + ", price: " + price);
+        logger.debug("place order at spreadPosition: " + spreadPosition + ", bid: " + bid + ", ask: " + ask + ", price: " + price);
 
         return confirmationScreen;
     }
@@ -358,7 +358,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
     }
 
     @SuppressWarnings("unchecked")
-    private void getExecutedTransactionsScreen(Order order, HttpClient client, Document openAndDailyOrdersScreen, String bidAskSpreadPosition)
+    private void getExecutedTransactionsScreen(Order order, HttpClient client, Document openAndDailyOrdersScreen, String spreadPosition)
             throws TransformerException, ParseException, IOException, HttpException, UnsupportedEncodingException {
 
         Security security = order.getSecurity();
@@ -432,7 +432,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         }
         order.setExecutedQuantity(order.getExecutedQuantity() + totalExecutedQuantity);
 
-        logger.info("executed " + order.getExecutedQuantity() + " transactions at bidAskSpreadPosition: " + bidAskSpreadPosition);
+        logger.info("executed " + order.getExecutedQuantity() + " transactions at spreadPosition: " + spreadPosition);
     }
 
     private void validateTick(Order order, Document document) throws TransformerException, ParseException {
