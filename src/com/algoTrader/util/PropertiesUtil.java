@@ -50,6 +50,21 @@ public class PropertiesUtil {
         return Long.parseLong(getProperty(key));
     }
 
+    public static String[] getStringArrayProperty(String key) {
+
+        return getProperty(key).split("\\s");
+    }
+
+    public static double[] getDoubleArrayProperty(String key) {
+
+        String[] stringValues = getStringArrayProperty(key);
+        double[] doubleValues = new double[stringValues.length];
+        for (int i = 0; i < stringValues.length; i++) {
+            doubleValues[i] = Double.valueOf(stringValues[i]);
+        }
+        return doubleValues;
+    }
+
     public static Collection<String> getChildKeys(String parentKey) {
 
         if (props == null) loadProps();
