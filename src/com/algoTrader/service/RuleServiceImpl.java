@@ -12,6 +12,7 @@ import com.algoTrader.util.MyLogger;
 import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPPreparedStatement;
 import com.espertech.esper.client.EPStatement;
+import com.espertech.esper.client.EPStatementException;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
 
@@ -74,17 +75,22 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
 
         // create the new statement
-        EPStatement newStatement;
-        if (rule.isPrepared()) {
-            EPPreparedStatement prepared = cepAdm.prepareEPL(definition);
-            prepared.setObject(1, rule.getTarget().getId());
-            newStatement = cepAdm.create(prepared, name);
-        } else {
-            if (rule.isPattern()) {
-                newStatement = cepAdm.createPattern(definition, name);
+        EPStatement newStatement = null;
+        try {
+            if (rule.isPrepared()) {
+                EPPreparedStatement prepared = cepAdm.prepareEPL(definition);
+                prepared.setObject(1, rule.getTarget().getId());
+                newStatement = cepAdm.create(prepared, name);
             } else {
-                newStatement = cepAdm.createEPL(definition, name);
+                if (rule.isPattern()) {
+                    newStatement = cepAdm.createPattern(definition, name);
+                } else {
+                    newStatement = cepAdm.createEPL(definition, name);
+                }
             }
+        } catch (EPStatementException e) {
+            logger.error("problem activating rule: " + name);
+            throw e;
         }
 
         // add the subscribers
