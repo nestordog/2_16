@@ -19,7 +19,9 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
 
     private static Logger logger = MyLogger.getLogger(IbAccountServiceImpl.class.getName());
 
+    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
+
     private static int port = PropertiesUtil.getIntProperty("ib.port");
     private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
     private static String[] accounts = PropertiesUtil.getProperty("ib.accounts").split("\\s");
@@ -39,7 +41,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
 
     protected void handleInit() throws java.lang.Exception {
 
-        if (!ibEnabled)
+        if (!ibEnabled || simulation)
             return;
 
         AnyWrapper wrapper = new DefaultWrapper() {

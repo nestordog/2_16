@@ -54,7 +54,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
     @SuppressWarnings("unchecked")
     protected void handleInit() {
 
-        if (!ibEnabled)
+        if (!ibEnabled || simulation)
             return;
 
         AnyWrapper wrapper = new DefaultWrapper() {

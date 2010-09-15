@@ -38,6 +38,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
     private static Logger logger = MyLogger.getLogger(IbTransactionServiceImpl.class.getName());
 
+    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
     private static String[] bidAskSpreadPositions = PropertiesUtil.getProperty("bidAskSpreadPositions").split("\\s");
 
@@ -65,7 +66,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
     protected void handleInit() {
 
-        if (!ibEnabled)
+        if (!ibEnabled || simulation)
             return;
 
         AnyWrapper wrapper = new DefaultWrapper() {
