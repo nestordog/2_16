@@ -24,7 +24,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
 
     private static int port = PropertiesUtil.getIntProperty("ib.port");
     private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
-    private static String[] accounts = PropertiesUtil.getProperty("ib.accounts").split("\\s");
+    private static String[] accounts = PropertiesUtil.getStringArrayProperty("ib.accounts");
 
     private EClientSocket client;
     private Lock lock = new ReentrantLock();
