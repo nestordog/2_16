@@ -194,21 +194,25 @@ public class StockOptionUtil {
 
     public static boolean isDeltaTooLow(Security security, double currentValue, double underlayingSpot) throws ConvergenceException, FunctionEvaluationException {
 
-        StockOption stockOption = (StockOption)security;
+        if (security instanceof StockOption) {
+            StockOption stockOption = (StockOption) security;
 
-        double strike = stockOption.getStrike().doubleValue();
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
-        double volatility = getVolatility(underlayingSpot, strike , currentValue, years, intrest, dividend, stockOption.getType());
-        double delta = StockOptionUtil.getDelta(underlayingSpot, strike, volatility, years, intrest, stockOption.getType());
+            double strike = stockOption.getStrike().doubleValue();
+            double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+            double volatility = getVolatility(underlayingSpot, strike, currentValue, years, intrest, dividend, stockOption.getType());
+            double delta = StockOptionUtil.getDelta(underlayingSpot, strike, volatility, years, intrest, stockOption.getType());
 
-        double minDelta = PropertiesUtil.getDoubleProperty("minDelta");
+            double minDelta = PropertiesUtil.getDoubleProperty("minDelta");
 
-        if (years < minExpirationYears) {
-            return false;
-        } else if (Math.abs(delta) > minDelta) {
-            return false;
+            if (years < minExpirationYears) {
+                return false;
+            } else if (Math.abs(delta) > minDelta) {
+                return false;
+            } else {
+                return true;
+            }
         } else {
-            return true;
+            throw new IllegalArgumentException("isDeltaToLow cannot be called with: " + security.getClass().getName());
         }
     }
 }
