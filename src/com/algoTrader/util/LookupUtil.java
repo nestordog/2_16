@@ -2,9 +2,9 @@ package com.algoTrader.util;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Account;
+import com.algoTrader.entity.PortfolioValue;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
-import com.algoTrader.vo.PortfolioValueVO;
 
 public class LookupUtil {
 
@@ -31,7 +31,7 @@ public class LookupUtil {
         return (serviceLocator.getLookupService().getOpenPositions().length != 0);
     }
 
-    public static PortfolioValueVO getPortfolioValue() {
+    public static PortfolioValue getPortfolioValue() {
 
         ServiceLocator serviceLocator = ServiceLocator.instance();
         return serviceLocator.getLookupService().getPortfolioValue();

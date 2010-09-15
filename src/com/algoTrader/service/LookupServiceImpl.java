@@ -1,14 +1,13 @@
 package com.algoTrader.service;
 
-import java.math.BigDecimal;
-
 import com.algoTrader.entity.Account;
+import com.algoTrader.entity.PortfolioValue;
+import com.algoTrader.entity.PortfolioValueImpl;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Rule;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Transaction;
-import com.algoTrader.vo.PortfolioValueVO;
 
 @SuppressWarnings("unchecked")
 public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase {
@@ -89,9 +88,9 @@ public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase 
         return (Position[])getPositionDao().findOpenPositions().toArray(new Position[0]);
     }
 
-    protected PortfolioValueVO handleGetPortfolioValue() throws Exception {
+    protected PortfolioValue handleGetPortfolioValue() throws Exception {
 
-        PortfolioValueVO portfolioValue = new PortfolioValueVO();
+        PortfolioValue portfolioValue = new PortfolioValueImpl();
         portfolioValue.setCashBalance(getAccountDao().getCashBalanceAllAccounts());
         portfolioValue.setSecuritiesCurrentValue(getAccountDao().getSecuritiesCurrentValueAllAccounts());
         portfolioValue.setMaintenanceMargin(getAccountDao().getMaintenanceMarginAllAccounts());

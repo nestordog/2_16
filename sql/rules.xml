@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <mysqldump xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-<database name="algotraderpopulated">
+<database name="algotrader">
     <table_data name="rule">
     <row>
         <field name="id">1</field>
@@ -26,15 +26,11 @@
         <field name="id">3</field>
         <field name="NAME">CREATE_PORTFOLIO_VALUE</field>
         <field name="PRIORITY">0</field>
-        <field name="DEFINITION">insert into PortfolioValue
+        <field name="DEFINITION">insert into Portfolio
 select current_timestamp() as timestamp,
-portfolioValue.cashBalance as cashBalance,
-portfolioValue.securitiesCurrentValue as securitiesCurrentValue,
-portfolioValue.maintenanceMargin as maintenanceMargin,
-portfolioValue.cashBalance + portfolioValue.securitiesCurrentValue as netLiqValue,
+LookupUtil.getPortfolioValue() as value,
 cashTransaction
-from pattern[every(timer:at (0, 9:17, *, *, 1:5) or cashTransaction=Transaction(type=TransactionType.CREDIT or type=TransactionType.DEBIT or type=TransactionType.INTREST or type=TransactionType.FEES))],
-method:LookupUtil.getPortfolioValue() as portfolioValue</field>
+from pattern[every(timer:at (0, 18, *, *, 1:5) or cashTransaction=Transaction(type=TransactionType.CREDIT or type=TransactionType.DEBIT or type=TransactionType.INTREST or type=TransactionType.FEES))]</field>
         <field name="SUBSCRIBER">PrintPortfolioValueSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -46,10 +42,10 @@ method:LookupUtil.getPortfolioValue() as portfolioValue</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into MonthlyPerformance
 select DateUtil.toDate(current_timestamp()) as date,
-cast(portfolioValue.netLiqValue / prior(1, portfolioValue.netLiqValue),double) - 1 as value
-from pattern[every timer:at (0, 18, lastweekday, *, *) -&gt; portfolioValue=PortfolioValue]
-having prior(1, portfolioValue.netLiqValue) != null and
-portfolioValue.netLiqValue != prior(1, portfolioValue.netLiqValue)
+portfolio.value.netLiqValueDouble / prior(1, portfolio.value.netLiqValueDouble) - 1 as value
+from pattern[every timer:at (0, 18, lastweekday, *, *) -&gt; portfolio=Portfolio]
+having prior(1, portfolio.value.netLiqValue) != null and
+portfolio.value.netLiqValue != prior(1, portfolio.value.netLiqValue)
 </field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
@@ -423,9 +419,9 @@ from MonthlyPerformance.win:keepall()</field>
         <field name="NAME">CREATE_DRAW_DOWN</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into DrawDown
-select 1 - cast(portfolioValue.netLiqValue / max(portfolioValue.netLiqValue),double) as amount,
-case when portfolioValue.netLiqValue = max(portfolioValue.netLiqValue) then DrawDownUtil.resetDrawDownPeriod() else DrawDownUtil.increaseDrawDownPeriod(current_timestamp - prior(1, portfolioValue.timestamp)) end as period
-from PortfolioValue as portfolioValue</field>
+select 1 - portfolio.value.netLiqValueDouble / max(portfolio.value.netLiqValueDouble) as amount,
+case when portfolio.value.netLiqValue = max(portfolio.value.netLiqValue) then DrawDownUtil.resetDrawDownPeriod() else DrawDownUtil.increaseDrawDownPeriod(current_timestamp - prior(1, portfolio.timestamp)) end as period
+from Portfolio as portfolio</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
