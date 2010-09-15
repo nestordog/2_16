@@ -1,5 +1,4 @@
 ## add CustomQueryCache and UpdateTimestampsCache
-## outcomment all timeToLive, timeToIdle and overflowToDisk
 <ehcache>
 
     <!-- Sets the path to the directory where cache .data files are created.
@@ -33,22 +32,22 @@
 
         -->
     <defaultCache
-        maxElementsInMemory="10000"
+        maxElementsInMemory="100000"
         eternal="false"
-##        timeToIdleSeconds="120"
-##        timeToLiveSeconds="120"
-##        overflowToDisk="true"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false"
     />
 
     <cache
         name="org.hibernate.cache.StandardQueryCache"
-        maxElementsInMemory="10000"
+        maxElementsInMemory="100000"
         eternal="false"
     />
 
     <cache
         name="org.hibernate.cache.UpdateTimestampsCache"
-        maxElementsInMemory="10000"
+        maxElementsInMemory="100000"
         eternal="true"
     />
 
@@ -70,9 +69,9 @@
         name="$entity.fullyQualifiedEntityImplementationName"
         maxElementsInMemory="$entity.ehCacheMaxElementsInMemory"
         eternal="$entity.ehCacheEternal"
-##        timeToIdleSeconds="$entity.ehCacheTimeToIdleSeconds"
-##        timeToLiveSeconds="$entity.ehCacheTimeToLiveSeconds"
-##        overflowToDisk="$entity.ehCacheOverflowToDisk"
+        timeToIdleSeconds="$entity.ehCacheTimeToIdleSeconds"
+        timeToLiveSeconds="$entity.ehCacheTimeToLiveSeconds"
+        overflowToDisk="$entity.ehCacheOverflowToDisk"
 #if ($entity.hibernateCacheDistributed)
     >
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
@@ -91,9 +90,9 @@
         name="${entity.fullyQualifiedEntityImplementationName}.$otherEnd.name"
         maxElementsInMemory="$association.ehCacheMaxElementsInMemory"
         eternal="$association.ehCacheEternal"
-##        timeToIdleSeconds="$association.ehCacheTimeToIdleSeconds"
-##        timeToLiveSeconds="$association.ehCacheTimeToLiveSeconds"
-##        overflowToDisk="$association.ehCacheOverflowToDisk"
+        timeToIdleSeconds="$association.ehCacheTimeToIdleSeconds"
+        timeToLiveSeconds="$association.ehCacheTimeToLiveSeconds"
+        overflowToDisk="$association.ehCacheOverflowToDisk"
 #if ($association.hibernateCacheDistributed)
     >
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>

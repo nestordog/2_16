@@ -91,6 +91,10 @@
                 <property name="cache">${maven.andromda.core.generated.dir}</property>
                 <property name="mergeLocation">${maven.src.dir}/customTemplates/andromda-hibernate</property>
                 <property name="mergeMappingsUri">file:${maven.src.dir}/mappings/HibernateMappings.xml</property>
+                <property name="ehCacheMaxElementsInMemory">100000</property>
+                <property name="ehCacheOverflowToDisk">false</property>
+                <property name="ehCacheTimeToIdleSeconds">0</property>
+                <property name="ehCacheTimeToLiveSeconds">0</property>
             </properties>
         </namespace>
         <namespace name="java">
