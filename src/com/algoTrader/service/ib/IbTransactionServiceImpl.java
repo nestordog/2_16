@@ -40,7 +40,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
-    private static String[] bidAskSpreadPositions = PropertiesUtil.getProperty("bidAskSpreadPositions").split("\\s");
+    private static double[] spreadPositions = PropertiesUtil.getDoubleArrayProperty("spreadPositions");
 
     private static int port = PropertiesUtil.getIntProperty("ib.port");
     private static String group = PropertiesUtil.getProperty("ib.group");
@@ -149,7 +149,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
                         Date dateTime = format.parse(execution.m_time);
                         String number = execution.m_execId;
-                        int executedQuantity = execution.m_shares;
+                        int executedQuantity = Math.abs(execution.m_shares);
                         executedQuantity = TransactionType.SELL.equals(order.getTransactionType()) ? -executedQuantity : executedQuantity;
                         BigDecimal price = RoundUtil.getBigDecimal(execution.m_price * stockOption.getContractSize());
                         BigDecimal commission = order.getSecurity().getCommission(execution.m_shares, order.getTransactionType());
@@ -162,6 +162,10 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                         transaction.setCommission(commission);
 
                         partialOrder.addTransaction(transaction);
+
+                        logger.info("executed " + executedQuantity +
+                                " of " + partialOrder.getParentOrder().getRequestedQuantity() +
+                                " at spreadPosition " + partialOrder.getSpreadPosition());
                     }
 
                 } catch (ParseException e) {
@@ -190,20 +194,21 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         getPartialOrder(order);
 
         Tick tick = null;
-        for (String bidAskSpreadPosition : bidAskSpreadPositions) {
+        for (double spreadPosition : spreadPositions) {
 
-            if (bidAskSpreadPosition.equals(bidAskSpreadPositions[0])) {
+            if (spreadPosition == spreadPositions[0]) {
 
                 tick = getValidTick(order);
             }
 
             PartialOrder partialOrder = order.getCurrentPartialOrder();
+            partialOrder.setSpreadPosition(spreadPosition);
 
-            placeOrModifyPartialOrder(partialOrder, Double.valueOf(bidAskSpreadPosition), tick);
+            placeOrModifyPartialOrder(partialOrder, tick);
 
             if (OrderStatus.OPEN.equals(partialOrder.getStatus())) {
 
-                // nothing went through, so try next higher bidAskSpreadPosition
+                // nothing went through, so try next higher spreadPosition
                 continue;
 
             } else if (OrderStatus.PARTIALLY_EXECUTED.equals(partialOrder.getStatus())) {
@@ -278,7 +283,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         this.partialOrdersMap.put(partialOrder.getOrderId(), partialOrder);
     }
 
-    private void placeOrModifyPartialOrder(PartialOrder partialOrder, double bidAskSpreadPosition, Tick tick) {
+    private void placeOrModifyPartialOrder(PartialOrder partialOrder, Tick tick) {
 
         this.executedMap.put(partialOrder.getOrderId(), false);
 
@@ -288,7 +293,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         ibOrder.m_action = partialOrder.getParentOrder().getTransactionType().getValue();
         ibOrder.m_totalQuantity = (int) partialOrder.getRequestedQuantity();
         ibOrder.m_orderType = "LMT";
-        ibOrder.m_lmtPrice = getPrice(partialOrder.getParentOrder(), bidAskSpreadPosition, tick.getBid().doubleValue(), tick.getAsk().doubleValue());
+        ibOrder.m_lmtPrice = getPrice(partialOrder.getParentOrder(), partialOrder.getSpreadPosition(), tick.getBid().doubleValue(), tick.getAsk().doubleValue());
         ibOrder.m_faGroup = group;
 
         if (TransactionType.SELL.equals(partialOrder.getParentOrder().getTransactionType())) {
@@ -308,7 +313,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
             logger.debug("orderId: " + partialOrder.getOrderId() +
                     " placeOrder for quantity: " + partialOrder.getRequestedQuantity()
                     + " limit: " + ibOrder.m_lmtPrice
-                    + " bidAskSpreadPosition: " + bidAskSpreadPosition);
+                    + " spreadPosition: " + partialOrder.getSpreadPosition());
 
             while (!this.executedMap.get(partialOrder.getOrderId())) {
                 if (!this.condition.await(timeout, TimeUnit.MILLISECONDS))
