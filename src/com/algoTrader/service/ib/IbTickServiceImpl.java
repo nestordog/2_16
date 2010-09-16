@@ -159,6 +159,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
             int requestId = RequestIdManager.getInstance().getNextRequestId();
 
             Tick tick = new TickImpl();
+            tick.setSecurity(security);
             this.requestIdToTickMap.put(requestId, tick);
             this.securityToRequestIdMap.put(security, requestId);
 
@@ -205,6 +206,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
             int requestId = RequestIdManager.getInstance().getNextRequestId();
 
             Tick tick = new TickImpl();
+            tick.setSecurity(stockOption);
             this.requestIdToTickMap.put(requestId, tick);
             this.securityToRequestIdMap.put(stockOption, requestId);
 
