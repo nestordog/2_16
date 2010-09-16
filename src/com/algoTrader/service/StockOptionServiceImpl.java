@@ -325,9 +325,11 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
             int percent = (int)(account.getAvailableFundsDouble() / account.getCashBalanceDouble() * 100.0);
             if (account.getAvailableFundsDouble() >= 0) {
-                logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMaintenanceMargin() + " available amount: " + account.getAvailableFunds() + " (" + percent + "% of balance)");
+                logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMaintenanceMargin()
+                        + " availableFunds: " + account.getAvailableFunds() + " (" + percent + "% of balance)");
             } else {
-                logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMaintenanceMargin() + " available amount: " + account.getAvailableFunds() + " (" + percent + "% of balance)");
+                logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + account.getMaintenanceMargin()
+                        + " availableFunds: " + account.getAvailableFunds() + " (" + percent + "% of balance)");
             }
         } else {
             logger.warn("no last tick available to set margin on " + stockOption.getSymbol());
