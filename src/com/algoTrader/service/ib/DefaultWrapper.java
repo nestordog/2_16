@@ -1,7 +1,11 @@
 package com.algoTrader.service.ib;
 
+import java.io.EOFException;
+import java.net.SocketException;
+
 import org.apache.log4j.Logger;
 
+import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.util.MyLogger;
 import com.ib.client.Contract;
 import com.ib.client.ContractDetails;
@@ -14,6 +18,9 @@ import com.ib.client.UnderComp;
 public class DefaultWrapper implements EWrapper {
 
     private static Logger logger = MyLogger.getLogger(DefaultWrapper.class.getName());
+
+    private ConnectionState state = ConnectionState.DISCONNECTED;
+    private boolean requested;
 
     public void accountDownloadEnd(String accountName) {
     }
@@ -116,10 +123,16 @@ public class DefaultWrapper implements EWrapper {
     }
 
     public void connectionClosed() {
+
+        this.state = ConnectionState.DISCONNECTED;
     }
 
     public void error(Exception e) {
-        logger.error("ib error", e);
+
+        // we get EOFException and SocketException when TWS is closed
+        if (!(e instanceof EOFException || e instanceof SocketException)) {
+            logger.error("ib error", e);
+        }
     }
 
     public void error(String str) {
@@ -128,11 +141,71 @@ public class DefaultWrapper implements EWrapper {
 
     public void error(int id, int code, String errorMsg) {
 
+        if (code == 502) {
+
+            // Couldn't connect to TWS
+            this.state = ConnectionState.DISCONNECTED;
+
+        } else if (code == 1100) {
+
+            // Connectivity between IB and TWS has been lost.
+            this.state = ConnectionState.CONNECTED;
+
+        } else if (code == 1101) {
+
+            // Connectivity between IB and TWS has been restored-
+            // data lost.
+            this.requested = false;
+            this.state = ConnectionState.READY;
+
+        } else if (code == 1102) {
+
+            // Connectivity between IB and TWS has been restored-
+            // data maintained.
+            if (this.requested) {
+                this.state = ConnectionState.SUBSCRIBED;
+            } else {
+                this.state = ConnectionState.READY;
+            }
+
+        } else if (code == 2110) {
+
+            // Connectivity between TWS and server is broken. It will be
+            // restored automatically.
+            this.state = ConnectionState.CONNECTED;
+
+        } else if (code == 2104) {
+
+            // A market data farm is connected.
+            if (this.requested) {
+                this.state = ConnectionState.SUBSCRIBED;
+            } else {
+                this.state = ConnectionState.READY;
+            }
+        }
+
         errorMsg = errorMsg.replaceAll("\n", " ");
+
         if (code < 1000) {
             logger.error("id: " + id + " code: " + code + " " + errorMsg);
         } else {
             logger.debug("id: " + id + " code: " + code + " " + errorMsg);
         }
+    }
+
+    public ConnectionState getState() {
+        return this.state;
+    }
+
+    public void setState(ConnectionState state) {
+        this.state = state;
+    }
+
+    public boolean isRequested() {
+        return this.requested;
+    }
+
+    public void setRequested(boolean requested) {
+        this.requested = requested;
     }
 }

@@ -18,13 +18,12 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
+import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
-import com.ib.client.AnyWrapper;
 import com.ib.client.Contract;
-import com.ib.client.EClientSocket;
 import com.ib.client.TickType;
 
 public class IbTickServiceImpl extends IbTickServiceBase implements InitializingBean {
@@ -32,17 +31,17 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
 
-    private static int port = PropertiesUtil.getIntProperty("ib.port");
     private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
     private static String genericTickList = PropertiesUtil.getProperty("ib.genericTickList");
 
-    private EClientSocket client;
+    private DefaultClientSocket client;
+    private DefaultWrapper wrapper;
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
 
-    private Map<Integer, Tick> requestIdToTickMap = new HashMap<Integer, Tick>();
-    private Map<Security, Integer> securityToRequestIdMap = new HashMap<Security, Integer>();
-    private Set<Security> validSecurities = new HashSet<Security>();
+    private Map<Integer, Tick> requestIdToTickMap;
+    private Map<Security, Integer> securityToRequestIdMap;
+    private Set<Security> validSecurities;
 
     private static int clientId = 1;
 
@@ -51,13 +50,12 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
         init();
     }
 
-    @SuppressWarnings("unchecked")
-    protected void handleInit() {
+    protected void handleInit() throws InterruptedException {
 
         if (!ibEnabled || simulation)
             return;
 
-        AnyWrapper wrapper = new DefaultWrapper() {
+        this.wrapper = new DefaultWrapper() {
 
             public void tickPrice(int requestId, int field, double price, int canAutoExecute) {
 
@@ -123,48 +121,96 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
                 }
             }
 
+            public void connectionClosed() {
+
+                super.connectionClosed();
+
+                connect();
+            }
+
+            @Override
+            public void error(int id, int code, String errorMsg) {
+
+                super.error(id, code, errorMsg);
+
+                // in the following cases we might need to requestMarketData
+                // (again)
+                if (code == 1101 || code == 1102 || code == 2104) {
+                    requestMarketData();
+                }
+            }
+
             private void checkValidity(Tick tick) {
 
-                if (tick.getSecurity() instanceof StockOption) {
-                    if (tick.getBid() == null)
-                        return;
-                    if (tick.getAsk() == null)
-                        return;
-                    if (tick.getVolBid() == 0)
-                        return;
-                    if (tick.getVolAsk() == 0)
-                        return;
-                    if (tick.getOpenIntrest() == 0)
-                        return;
-                } else {
+
+                if (!(tick.getSecurity() instanceof StockOption)) {
 
                     // stockOptions might not have a last/lastDateTime yet on the current day
                     if (tick.getLast() == null)
                         return;
                     if (tick.getLastDateTime() == null)
                         return;
+                } else {
+
+                    // indexes do normaly not have a volume / openIntrest
+                    if (tick.getVolBid() == 0)
+                        return;
+                    if (tick.getVolAsk() == 0)
+                        return;
+                    if (tick.getVol() == 0)
+                        return;
+                    if (tick.getOpenIntrest() == 0)
+                        return;
                 }
+
+                if (tick.getBid() == null)
+                    return;
+                if (tick.getAsk() == null)
+                    return;
+                if (tick.getSettlement() == null)
+                    return;
 
                 IbTickServiceImpl.this.validSecurities.add(tick.getSecurity());
                 IbTickServiceImpl.this.condition.signalAll();
             }
         };
 
-        this.client = new EClientSocket(wrapper);
-        this.client.eConnect(null, port, clientId);
+        this.client = new DefaultClientSocket(this.wrapper);
 
-        List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
-        for (Security security : securities) {
+        connect();
+    }
 
-            int requestId = RequestIdManager.getInstance().getNextRequestId();
+    private void connect() {
 
-            Tick tick = new TickImpl();
-            tick.setSecurity(security);
-            this.requestIdToTickMap.put(requestId, tick);
-            this.securityToRequestIdMap.put(security, requestId);
+        this.requestIdToTickMap = new HashMap<Integer, Tick>();
+        this.securityToRequestIdMap = new HashMap<Security, Integer>();
+        this.validSecurities = new HashSet<Security>();
 
-            Contract contract = IbUtil.getContract(security);
-            this.client.reqMktData(requestId, contract, genericTickList, false);
+        this.wrapper.setRequested(false);
+
+        this.client.connect(clientId);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void requestMarketData() {
+
+        if (this.wrapper.getState().equals(ConnectionState.READY) && !this.wrapper.isRequested()) {
+
+            List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
+            for (Security security : securities) {
+
+                int requestId = RequestIdManager.getInstance().getNextRequestId();
+
+                Tick tick = new TickImpl();
+                tick.setSecurity(security);
+                this.requestIdToTickMap.put(requestId, tick);
+                this.securityToRequestIdMap.put(security, requestId);
+
+                Contract contract = IbUtil.getContract(security);
+                this.client.reqMktData(requestId, contract, genericTickList, false);
+            }
+            this.wrapper.setState(ConnectionState.SUBSCRIBED);
+            this.wrapper.setRequested(true);
         }
     }
 
@@ -175,10 +221,10 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
         Tick tick;
         try {
 
-            while (!this.validSecurities.contains(security)) {
-                if (!this.condition.await(retrievalTimeout, TimeUnit.SECONDS)) {
-
-                    throw new IbTickServiceException("could not retrieve tick in time for security: " + security);
+            while (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED) || !this.validSecurities.contains(security)) {
+                if (!this.condition.await(retrievalTimeout, TimeUnit.MILLISECONDS)) {
+                    // could not retrieve tick in time for security
+                    return null;
                 }
             }
 
@@ -203,6 +249,13 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
     protected void handlePutOnExternalWatchlist(StockOption stockOption) throws Exception {
 
         if (!simulation) {
+
+            while (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED)) {
+                if (!this.condition.await(retrievalTimeout, TimeUnit.MILLISECONDS)) {
+                    throw new IbTickServiceException("TWS ist not subscribed, stockOption cannot be put on watchlist " + stockOption.getSymbol());
+                }
+            }
+
             int requestId = RequestIdManager.getInstance().getNextRequestId();
 
             Tick tick = new TickImpl();
@@ -218,6 +271,13 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
     protected void handleRemoveFromExternalWatchlist(StockOption stockOption) throws Exception {
 
         if (!simulation) {
+
+            while (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED)) {
+                if (!this.condition.await(retrievalTimeout, TimeUnit.MILLISECONDS)) {
+                    throw new IbTickServiceException("TWS ist not subscribed, stockOption cannot be removed from watchlist " + stockOption.getSymbol());
+                }
+            }
+
             Integer requestId = this.securityToRequestIdMap.get(stockOption);
 
             if (requestId != null) {

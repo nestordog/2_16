@@ -12,8 +12,6 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
-import com.ib.client.AnyWrapper;
-import com.ib.client.EClientSocket;
 
 public class IbAccountServiceImpl extends IbAccountServiceBase implements InitializingBean {
 
@@ -22,15 +20,16 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
 
-    private static int port = PropertiesUtil.getIntProperty("ib.port");
     private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
     private static String[] accounts = PropertiesUtil.getStringArrayProperty("ib.accounts");
 
-    private EClientSocket client;
+    private DefaultClientSocket client;
+    private DefaultWrapper wrapper;
+
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
 
-    private Map<String, Map<String, String>> allAccountValues = new HashMap<String, Map<String, String>>();
+    private Map<String, Map<String, String>> allAccountValues;
 
     private static int clientId = 2;
 
@@ -44,7 +43,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
         if (!ibEnabled || simulation)
             return;
 
-        AnyWrapper wrapper = new DefaultWrapper() {
+        this.wrapper = new DefaultWrapper() {
 
             public void updateAccountValue(String key, String value, String currency, String accountName) {
 
@@ -61,10 +60,25 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
                     IbAccountServiceImpl.this.lock.unlock();
                 }
             }
+
+            public void connectionClosed() {
+
+                super.connectionClosed();
+
+                connect();
+            }
         };
 
-        this.client = new EClientSocket(wrapper);
-        this.client.eConnect(null, port, clientId);
+        this.client = new DefaultClientSocket(this.wrapper);
+
+        connect();
+    }
+
+    private void connect() {
+
+        this.allAccountValues = new HashMap<String, Map<String, String>>();
+
+        this.client.connect(clientId);
     }
 
     private String retrieveAccountValue(String accountName, String currency, String key) throws InterruptedException {

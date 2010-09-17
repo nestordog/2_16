@@ -29,34 +29,35 @@ import com.algoTrader.service.TickServiceException;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
-import com.ib.client.AnyWrapper;
 import com.ib.client.Contract;
-import com.ib.client.EClientSocket;
 import com.ib.client.Execution;
 
 public class IbTransactionServiceImpl extends IbTransactionServiceBase implements InitializingBean {
 
     private static Logger logger = MyLogger.getLogger(IbTransactionServiceImpl.class.getName());
 
+    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  hh:mm:ss");
+
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
     private static double[] spreadPositions = PropertiesUtil.getDoubleArrayProperty("spreadPositions");
 
-    private static int port = PropertiesUtil.getIntProperty("ib.port");
     private static String group = PropertiesUtil.getProperty("ib.group");
     private static String openMethod = PropertiesUtil.getProperty("ib.openMethod");
     private static String closeMethod = PropertiesUtil.getProperty("ib.closeMethod");
-    private static int timeout = PropertiesUtil.getIntProperty("ib.timeout");
 
-    private EClientSocket client;
+    private static int transactionTimeout = PropertiesUtil.getIntProperty("ib.transactionTimeout");
+    private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
+
+    private DefaultClientSocket client;
+    private DefaultWrapper wrapper;
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
 
-    private Map<Integer, PartialOrder> partialOrdersMap = new HashMap<Integer, PartialOrder>();
-    private Map<Integer, Boolean> executedMap = new HashMap<Integer, Boolean>();
-    private Map<Integer, Boolean> deletedMap = new HashMap<Integer, Boolean>();
+    private Map<Integer, PartialOrder> partialOrdersMap;
+    private Map<Integer, Boolean> executedMap;
+    private Map<Integer, Boolean> deletedMap;
 
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  hh:mm:ss");
     private static int clientId = 0;
 
     public void afterPropertiesSet() throws Exception {
@@ -69,7 +70,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         if (!ibEnabled || simulation)
             return;
 
-        AnyWrapper wrapper = new DefaultWrapper() {
+        this.wrapper = new DefaultWrapper() {
 
             @Override
             public void orderStatus(int orderId, String status, int filled, int remaining, double avgFillPrice, int permId, int parentId, double lastFillPrice, int clientId, String whyHeld) {
@@ -163,7 +164,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
                         partialOrder.addTransaction(transaction);
 
-                        logger.info("executed " + executedQuantity +
+                        logger.info("executed " + execution.m_shares +
                                 " of " + partialOrder.getParentOrder().getRequestedQuantity() +
                                 " at spreadPosition " + partialOrder.getSpreadPosition());
                     }
@@ -175,18 +176,35 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 }
             }
 
+            public void connectionClosed() {
+
+                super.connectionClosed();
+
+                connect();
+            }
+
             public void error(int id, int code, String errorMsg) {
 
                 if (code == 202) {
-                    // do nothing, since we probably cancelled the order ourself
+                    // do nothing, since we cancelled the order ourself
                 } else {
                     super.error(id, code, errorMsg);
                 }
             }
         };
 
-        this.client = new EClientSocket(wrapper);
-        this.client.eConnect(null, port, clientId);
+        this.client = new DefaultClientSocket(this.wrapper);
+
+        connect();
+    }
+
+    private void connect() {
+
+        this.partialOrdersMap = new HashMap<Integer, PartialOrder>();
+        this.executedMap = new HashMap<Integer, Boolean>();
+        this.deletedMap = new HashMap<Integer, Boolean>();
+
+        this.client.connect(clientId);
     }
 
     protected void handleExecuteExternalTransaction(Order order) throws Exception {
@@ -260,15 +278,15 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 logger.warn(e.getMessage());
 
                 // wait a little then try again
-                Thread.sleep(timeout);
+                Thread.sleep(retrievalTimeout);
             }
         }
 
         // validity check (available volume)
         if (TransactionType.BUY.equals(transactionType) && tick.getVolAsk() < requestedQuantity) {
-            logger.warn("available volume (" + tick.getVolAsk() + ") is smaler than requested quantity (" + requestedQuantity + ") for a order on " + security.getIsin());
+            logger.warn("available volume (" + tick.getVolAsk() + ") is smaler than requested quantity (" + requestedQuantity + ") for a order on " + security.getSymbol());
         } else if (TransactionType.SELL.equals(transactionType) && tick.getVolBid() < requestedQuantity) {
-            logger.warn("available volume (" + tick.getVolBid() + ") is smaler than requested quantity (" + requestedQuantity + ") for a order on " + security.getIsin());
+            logger.warn("available volume (" + tick.getVolBid() + ") is smaler than requested quantity (" + requestedQuantity + ") for a order on " + security.getSymbol());
         }
 
         return tick;
@@ -316,7 +334,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                     + " spreadPosition: " + partialOrder.getSpreadPosition());
 
             while (!this.executedMap.get(partialOrder.getOrderId())) {
-                if (!this.condition.await(timeout, TimeUnit.MILLISECONDS))
+                if (!this.condition.await(transactionTimeout, TimeUnit.MILLISECONDS))
                     break;
             }
 
