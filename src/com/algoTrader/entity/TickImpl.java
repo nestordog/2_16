@@ -40,7 +40,7 @@ public class TickImpl extends com.algoTrader.entity.Tick {
 
     public BigDecimal getSettlement() {
 
-        if (super.getSettlement().doubleValue() == 0) {
+        if (super.getSettlement() == null || super.getSettlement().doubleValue() == 0) {
             return getCurrentValue();
         } else {
             return super.getSettlement();
