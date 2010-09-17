@@ -175,7 +175,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             InputAdapter inputAdapter = new CsvTickInputAdapter(EsperService.getEPServiceInstance(), spec, security.getId());
             coordinator.coordinate(inputAdapter);
 
-            logger.debug("started simulation for security " + security.getIsin());
+            logger.debug("started simulation for security " + security.getSymbol());
         }
         coordinator.start();
     }
@@ -239,7 +239,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 InputAdapter inputAdapter = new CsvTickInputAdapter(EsperService.getEPServiceInstance(), spec, security.getId());
                 coordinator.coordinate(inputAdapter);
 
-                logger.debug("started simulation for security " + security.getIsin());
+                logger.debug("started simulation for security " + security.getSymbol());
             }
 
             InputAdapter inputAdapter = new TransactionInputAdapter(existingTransactions);
