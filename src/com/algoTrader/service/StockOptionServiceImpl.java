@@ -209,9 +209,8 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         Position position = order.getSecurity().getPosition();
         if (position != null) {
             setMargin(position);
+            setExitValue(stockOption.getPosition(), exitValue);
         }
-
-        setExitValue(stockOption.getPosition(), exitValue);
     }
 
     protected void handleClosePosition(int positionId) throws Exception {
