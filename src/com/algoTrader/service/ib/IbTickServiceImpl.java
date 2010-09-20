@@ -142,36 +142,48 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
             private void checkValidity(Tick tick) {
 
+                if (isValid(tick)) {
+                    IbTickServiceImpl.this.validSecurities.add(tick.getSecurity());
+                    IbTickServiceImpl.this.condition.signalAll();
+                } else {
+                    IbTickServiceImpl.this.validSecurities.remove(tick.getSecurity());
 
-                if (!(tick.getSecurity() instanceof StockOption)) {
+                }
+            }
+
+            private boolean isValid(Tick tick) {
+
+                if (tick.getSecurity() instanceof StockOption) {
+
+                    // stockOptions need to have a bis/ask volume / openIntrest
+                    if (tick.getVolBid() == 0)
+                        return false;
+                    if (tick.getVolAsk() == 0)
+                        return false;
+                    if (tick.getOpenIntrest() == 0)
+                        return false;
+                    if (tick.getBid() != null && tick.getBid().doubleValue() <= 0)
+                        return false;
+                    if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0)
+                        return false;
+                } else {
 
                     // stockOptions might not have a last/lastDateTime yet on the current day
                     if (tick.getLast() == null)
-                        return;
+                        return false;
                     if (tick.getLastDateTime() == null)
-                        return;
-                } else {
-
-                    // indexes do normaly not have a volume / openIntrest
-                    if (tick.getVolBid() == 0)
-                        return;
-                    if (tick.getVolAsk() == 0)
-                        return;
-                    if (tick.getVol() == 0)
-                        return;
-                    if (tick.getOpenIntrest() == 0)
-                        return;
+                        return false;
                 }
 
+                // check these fields for all security-types
                 if (tick.getBid() == null)
-                    return;
+                    return false;
                 if (tick.getAsk() == null)
-                    return;
+                    return false;
                 if (tick.getSettlement() == null)
-                    return;
+                    return false;
 
-                IbTickServiceImpl.this.validSecurities.add(tick.getSecurity());
-                IbTickServiceImpl.this.condition.signalAll();
+                return true;
             }
         };
 
