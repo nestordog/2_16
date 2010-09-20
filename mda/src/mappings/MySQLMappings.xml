@@ -14,7 +14,7 @@
     </mapping>
     <mapping>
         <from>datatype::Time</from>
-        <to>BIGINT</to>
+        <to>TIME</to>
     </mapping>
     <mapping>
         <from>datatype::Timestamp</from>
