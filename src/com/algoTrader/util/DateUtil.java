@@ -46,4 +46,37 @@ public class DateUtil {
 
         return cal.getTime();
     }
+
+    /**
+     *
+     * @param first
+     * @param second
+     * @return the value 0 if first is equal to second; a value less than 0 if
+     *         first is before second; and a value greater than 0 if first is
+     *         after second.
+     */
+    public static int compareTime(Date first, Date second) {
+
+        Calendar firstCal = new GregorianCalendar();
+        firstCal.setTime(first);
+        firstCal.set(0, 0, 0);
+
+        Calendar secondCal = new GregorianCalendar();
+        secondCal.setTime(second);
+        secondCal.set(0, 0, 0);
+
+        return firstCal.compareTo(secondCal);
+    }
+
+    /**
+     *
+     * @param time
+     * @return the value 0 if currentTime is equal to time; a value less than 0
+     *         if currenTime is before time; and a value greater than 0 if
+     *         currenTime is after time.
+     */
+    public static int compareToTime(Date time) {
+
+        return compareTime(getCurrentEPTime(), time);
+    }
 }
