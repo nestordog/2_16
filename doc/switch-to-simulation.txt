@@ -4,5 +4,5 @@
 2. conf.properties: simulation.dataSet               current             ???                    current
 3. conf.properties: externalTransactionsEnabled        true                false                false
 3. esper.cfg.xml: var_simulation                     false               true                false
-4. esper.cfg.xml: var_events_per_day                500                 1/9/17/500            500
+4. esper.cfg.xml: var_events_per_day                500                 1/9/17/490            490
 5. database                                            .                    ./populated            livecopy

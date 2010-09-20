@@ -11,6 +11,7 @@ import org.supercsv.exception.SuperCSVException;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Tick;
+import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.csv.CsvTickWriter;
@@ -27,26 +28,32 @@ public abstract class TickServiceImpl extends TickServiceBase {
         List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
         for (Security security : securities) {
 
-            Tick tick = retrieveTick(security);
+            // retrieve ticks only between marketOpen & close
+            if (DateUtil.compareToTime(security.getMarketOpen()) >= 0 &&
+                DateUtil.compareToTime(security.getMarketClose()) <= 0) {
 
-            if (tick != null) {
+                Tick tick = retrieveTick(security);
 
-                try {
-                    tick.validate();
-                    EsperService.sendEvent(tick);
-                } catch (Exception e) {
-                    // do nothing, just ignore invalideTicks
+                // if we hit a timeout, we get null
+                if (tick != null) {
+
+                    try {
+                        tick.validate();
+                        EsperService.sendEvent(tick);
+                    } catch (Exception e) {
+                        // do nothing, just ignore invalideTicks
+                    }
+
+                    // write the tick to file (even if not valid)
+                    CsvTickWriter csvWriter;
+                    if (this.csvWriters.containsKey(security)) {
+                        csvWriter = this.csvWriters.get(security);
+                    } else {
+                        csvWriter = new CsvTickWriter(security.getIsin());
+                        this.csvWriters.put(security, csvWriter);
+                    }
+                    csvWriter.write(tick);
                 }
-
-                // write the tick to file (even if not valid)
-                CsvTickWriter csvWriter;
-                if (this.csvWriters.containsKey(security)) {
-                    csvWriter = this.csvWriters.get(security);
-                } else {
-                    csvWriter = new CsvTickWriter(security.getIsin());
-                    this.csvWriters.put(security, csvWriter);
-                }
-                csvWriter.write(tick);
             }
         }
     }

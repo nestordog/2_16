@@ -35,7 +35,7 @@
     <variable name="var_isin" type="string" initialization-value="CH0008616382"/>
     <variable name="var_intrest" type="double" initialization-value="0.0005"/>
 
-    <variable name="var_events_per_day" type="long" initialization-value="500"/>
+    <variable name="var_events_per_day" type="long" initialization-value="490"/>
 
     <variable name="var_macd_fast" type="int" initialization-value="88"/>
     <variable name="var_macd_slow" type="int" initialization-value="183"/>
