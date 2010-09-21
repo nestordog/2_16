@@ -63,6 +63,9 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
                 try {
                     Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
 
+                    if (tick == null)
+                        return;
+
                     if (field == TickType.BID) {
                         tick.setBid(RoundUtil.getBigDecimal(price));
                     } else if (field == TickType.ASK) {
@@ -83,6 +86,9 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
                 IbTickServiceImpl.this.lock.lock();
                 try {
                     Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
+
+                    if (tick == null)
+                        return;
 
                     if (field == TickType.ASK_SIZE) {
                         tick.setVolAsk(size);
@@ -111,6 +117,9 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
                 IbTickServiceImpl.this.lock.lock();
                 try {
                     Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
+
+                    if (tick == null)
+                        return;
 
                     if (field == TickType.LAST_TIMESTAMP) {
                         tick.setLastDateTime(new Date(Long.parseLong(value + "000")));
