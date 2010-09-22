@@ -147,7 +147,7 @@
         <level value="error"/>
     </logger>
 
-    <logger name="com.algoTrader.service.TransactionServiceImpl">
+    <logger name="com.algoTrader.service.TransactionServiceImpl.transactionMail">
         <appender-ref ref="TRANSACTION_EMAIL" />
         <appender-ref ref="TRANSACTION_SMS" />
     </logger>
@@ -173,8 +173,8 @@
 
     <root>
         <level value="debug" />
-        <!-- <appender-ref ref="STDOUT"/> -->
-        <!-- <appender-ref ref="STDERR"/> -->
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="STDERR"/>
         <appender-ref ref="FILE"/>
         <appender-ref ref="EMAIL"/>
         <appender-ref ref="SMS"/>
