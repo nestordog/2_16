@@ -30,7 +30,7 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
     private static final int firstTradingHour = PropertiesUtil.getIntProperty("simulation.firstTradingHour");
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
-    private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".transactionMail");
+    private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".TransactionMail");
 
     private static boolean externalTransactionsEnabled = PropertiesUtil.getBooleanProperty("externalTransactionsEnabled");
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");

@@ -9,7 +9,7 @@
         </layout>
         <filter class="org.apache.log4j.varia.LevelRangeFilter">
             <param name="LevelMin" value="DEBUG"/>
-            <param name="LevelMax" value="INFO"/>
+            <param name="LevelMax" value="WARN"/>
         </filter>
     </appender>
 
@@ -19,10 +19,21 @@
             <param name="ConversionPattern" value="%d %-5p %c{1} %m %n" />
         </layout>
         <filter class="org.apache.log4j.varia.LevelRangeFilter">
-            <param name="LevelMin" value="WARN"/>
+            <param name="LevelMin" value="ERROR"/>
             <param name="LevelMax" value="FATAL"/>
         </filter>
     </appender>
+
+    <appender name="DEBUG" class="org.apache.log4j.FileAppender">
+        <param name="file" value="log/debug.log" />
+        <param name="append" value="false"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p %c{1} %m %n"/>
+        </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="LevelMin" value="DEBUG"/>
+            <param name="LevelMax" value="DEBUG"/>
+        </filter>    </appender>
 
     <appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">
         <param name="file" value="log/algoTrader.log" />
@@ -147,7 +158,7 @@
         <level value="error"/>
     </logger>
 
-    <logger name="com.algoTrader.service.TransactionServiceImpl.transactionMail">
+    <logger name="com.algoTrader.service.TransactionServiceImpl.TransactionMail">
         <appender-ref ref="TRANSACTION_EMAIL" />
         <appender-ref ref="TRANSACTION_SMS" />
     </logger>
@@ -173,8 +184,9 @@
 
     <root>
         <level value="debug" />
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="STDERR"/>
+        <!--<appender-ref ref="STDOUT"/>-->
+        <!--<appender-ref ref="STDERR"/>-->
+        <appender-ref ref="DEBUG"/>
         <appender-ref ref="FILE"/>
         <appender-ref ref="EMAIL"/>
         <appender-ref ref="SMS"/>
