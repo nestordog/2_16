@@ -32,7 +32,7 @@
         </layout>
         <filter class="org.apache.log4j.varia.LevelRangeFilter">
             <param name="LevelMin" value="DEBUG" />
-            <param name="LevelMax" value="DEBUG" />
+            <param name="LevelMax" value="FATAL" />
         </filter>
     </appender>
 
@@ -177,8 +177,9 @@
     </logger>
 
     <!--
-        <logger name="com.algoTrader.service.SimulationServiceImpl"> <level
-        value="info"/> <appender-ref ref="SIMULATION" /> </logger>
+        <logger name="com.algoTrader.service.SimulationServiceImpl">
+            <level value="info"/> <appender-ref ref="SIMULATION" />
+        </logger>
     -->
 
     <root>
