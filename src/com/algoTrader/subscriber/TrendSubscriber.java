@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
+import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 
@@ -23,6 +24,12 @@ public class TrendSubscriber {
             PropertiesUtil.setEsperOrConfigProperty(key, value);
         }
 
-        logger.info("switched trend to " + (bullish ? "bullish" : "bearish"));
+        // only log INFO if we are in realtime
+        String message = "switched trend to " + (bullish ? "bullish" : "bearish");
+        if (EsperService.getInternalClock() == true) {
+            logger.info(message);
+        } else {
+            logger.debug(message);
+        }
     }
 }

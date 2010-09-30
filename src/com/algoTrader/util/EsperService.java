@@ -19,6 +19,7 @@ import com.espertech.esper.util.JavaClassHelper;
 public class EsperService {
 
     private static EPServiceProvider cep;
+    private static boolean internalClock = false;
 
     public static EPServiceProvider getEPServiceInstance() {
 
@@ -86,9 +87,20 @@ public class EsperService {
         return null;
     }
 
-    public static void setInternalClock() {
+    public static void setInternalClock(boolean internal) {
 
-        EsperService.sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_INTERNAL));
+        internalClock = internal;
+
+        if (internal) {
+            EsperService.sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_INTERNAL));
+        } else {
+            EsperService.sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_EXTERNAL));
+        }
+    }
+
+    public static boolean getInternalClock() {
+
+        return internalClock;
     }
 
     public static void enableJmx() {

@@ -30,7 +30,7 @@ public class TickStarter {
         simulationService.inputCSV();
 
         // switch to internalClock
-        EsperService.setInternalClock();
+        EsperService.setInternalClock(true);
         EsperService.enableJmx();
 
         //activate the rest of the rules
