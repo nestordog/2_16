@@ -145,11 +145,13 @@ public class DefaultWrapper implements EWrapper {
 
             // Couldn't connect to TWS
             this.state = ConnectionState.DISCONNECTED;
+            logger.debug("connectionState: " + this.state);
 
         } else if (code == 1100) {
 
             // Connectivity between IB and TWS has been lost.
             this.state = ConnectionState.CONNECTED;
+            logger.debug("connectionState: " + this.state);
 
         } else if (code == 1101) {
 
@@ -157,6 +159,7 @@ public class DefaultWrapper implements EWrapper {
             // data lost.
             this.requested = false;
             this.state = ConnectionState.READY;
+            logger.debug("connectionState: " + this.state);
 
         } else if (code == 1102) {
 
@@ -167,12 +170,14 @@ public class DefaultWrapper implements EWrapper {
             } else {
                 this.state = ConnectionState.READY;
             }
+            logger.debug("connectionState: " + this.state);
 
         } else if (code == 2110) {
 
             // Connectivity between TWS and server is broken. It will be
             // restored automatically.
             this.state = ConnectionState.CONNECTED;
+            logger.debug("connectionState: " + this.state);
 
         } else if (code == 2104) {
 
@@ -182,6 +187,7 @@ public class DefaultWrapper implements EWrapper {
             } else {
                 this.state = ConnectionState.READY;
             }
+            logger.debug("connectionState: " + this.state);
         }
 
         errorMsg = errorMsg.replaceAll("\n", " ");
