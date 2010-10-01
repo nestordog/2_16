@@ -4,9 +4,8 @@
 2. conf.properties: simulation.dataSet               current             ???                    current
 3. conf.properties: externalTransactionsEnabled        true                false                false
 3. esper.cfg.xml: var_simulation                     false               true                false
-4. esper.cfg.xml: var_events_per_day                490                 1/9/17/490            490
+4. esper.cfg.xml: var_events_per_day                500                 1/9/17/500            500
 5. database                                            .                    ./populated            livecopy
-6. conf.properties: ib.accounts                     DU93030/...
 
 without macd-initialization:
 conf.properties: maxAtRiskRatioOfPortfolio            0.118
