@@ -145,17 +145,19 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
             public void error(int id, int code, String errorMsg) {
 
                 if (code == 200) {
+
                     Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(id);
                     logger.debug("No security definition has been found for: " + tick.getSecurity().getSymbol());
+
                 } else {
+
+                    super.error(id, code, errorMsg);
 
                     // in the following cases we might need to requestMarketData
                     // (again)
                     if (code == 1101 || code == 1102 || code == 2104) {
                         requestMarketData();
                     }
-
-                    super.error(id, code, errorMsg);
                 }
             }
 
