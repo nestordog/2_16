@@ -12,6 +12,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.algoTrader.entity.Security;
@@ -21,12 +22,15 @@ import com.algoTrader.entity.TickImpl;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.DateUtil;
+import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 import com.ib.client.Contract;
 import com.ib.client.TickType;
 
 public class IbTickServiceImpl extends IbTickServiceBase implements InitializingBean {
+
+    private static Logger logger = MyLogger.getLogger(IbTickServiceBase.class.getName());
 
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
@@ -140,12 +144,18 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
             @Override
             public void error(int id, int code, String errorMsg) {
 
-                super.error(id, code, errorMsg);
+                if (code == 200) {
+                    Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(id);
+                    logger.debug("No security definition has been found for: " + tick.getSecurity().getSymbol());
+                } else {
 
-                // in the following cases we might need to requestMarketData
-                // (again)
-                if (code == 1101 || code == 1102 || code == 2104) {
-                    requestMarketData();
+                    // in the following cases we might need to requestMarketData
+                    // (again)
+                    if (code == 1101 || code == 1102 || code == 2104) {
+                        requestMarketData();
+                    }
+
+                    super.error(id, code, errorMsg);
                 }
             }
 
