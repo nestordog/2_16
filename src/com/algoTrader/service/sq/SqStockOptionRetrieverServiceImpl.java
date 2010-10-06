@@ -51,7 +51,8 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
     private static Logger logger = MyLogger.getLogger(StockOptionRetrieverServiceImpl.class.getName());
     private static String [] markets = new String[] {"eu", "eu", "eu", "eu", "eu", "eu", "eu", "ud"};
     private static String [] groups = new String[] {"sw", "id", "de", "fr", "it", "sk", "xx", null };
-    private static SimpleDateFormat format = new SimpleDateFormat("yyMM");
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyMM");
+    private static SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss");
 
     protected StockOption handleRetrieveStockOption(Security underlaying, Date expiration, BigDecimal strike,
             OptionType type) throws ParseException, TransformerException, IOException {
@@ -113,6 +114,8 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
         stockOption.setExpiration(expirationDate);
         stockOption.setSymbol(symbol);
         stockOption.setContractSize(contractSize);
+        stockOption.setMarketOpen(timeFormat.parse("09:00:00"));
+        stockOption.setMarketClose(timeFormat.parse("17:00:00"));
 
         stockOption.setUnderlaying(underlaying);
 
@@ -188,6 +191,8 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
             stockOption.setExpiration(expirationDate);
             stockOption.setSymbol(symbol);
             stockOption.setContractSize(contractSize);
+            stockOption.setMarketOpen(timeFormat.parse("09:00:00"));
+            stockOption.setMarketClose(timeFormat.parse("17:00:00"));
 
             stockOption.setUnderlaying(underlaying);
 
@@ -409,7 +414,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
     protected boolean handleVerifyVolatility(StockOption stockOption, TransactionType transactionType) throws HttpException, IOException, TransformerException, ParseException, ConvergenceException, FunctionEvaluationException {
 
         String isin = stockOption.getUnderlaying().getIsin();
-        String expirationString = format.format(stockOption.getExpiration());
+        String expirationString = dateFormat.format(stockOption.getExpiration());
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / 31536000000.0;
 
         String url = optionUrl + "&underlying=" + isin + "&market=eu&group=id" + "&expiration=" + expirationString;
