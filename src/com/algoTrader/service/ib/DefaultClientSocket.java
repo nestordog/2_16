@@ -18,6 +18,20 @@ public class DefaultClientSocket extends EClientSocket {
 
     public void connect(int clientId) {
 
+        if (isConnected()) {
+            eDisconnect();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e1) {
+                try {
+                    // during eDisconnect this thread get's interrupted so sleep again
+                    Thread.sleep(1000);
+                } catch (InterruptedException e2) {
+                    e2.printStackTrace();
+                }
+            }
+        }
+
         this.wrapper.setRequested(false);
 
         while (!isConnected()) {
@@ -26,8 +40,13 @@ public class DefaultClientSocket extends EClientSocket {
             if (!isConnected()) {
                 try {
                     Thread.sleep(reconnectTimeout);
-                } catch (InterruptedException e) {
-                    // no nothing
+                } catch (InterruptedException e1) {
+                    try {
+                        // during eDisconnect this thread get's interrupted so sleep again
+                        Thread.sleep(reconnectTimeout);
+                    } catch (InterruptedException e2) {
+                        e2.printStackTrace();
+                    }
                 }
             }
         }
