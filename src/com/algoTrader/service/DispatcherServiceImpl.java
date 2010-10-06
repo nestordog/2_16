@@ -1,6 +1,10 @@
 package com.algoTrader.service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.algoTrader.enumeration.MarketChannel;
+import com.algoTrader.service.ib.IbService;
 import com.algoTrader.util.PropertiesUtil;
 
 public class DispatcherServiceImpl extends com.algoTrader.service.DispatcherServiceBase {
@@ -49,5 +53,16 @@ public class DispatcherServiceImpl extends com.algoTrader.service.DispatcherServ
         } else {
             throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
         }
+    }
+
+    protected Set<IbService> handleGetAllIbServices() {
+
+        Set<IbService> ibServices = new HashSet<IbService>();
+        ibServices.add(getIbTickService());
+        ibServices.add(getIbTransactionService());
+        ibServices.add(getIbAccountService());
+        ibServices.add(getIbStockOptionRetrieverService());
+
+        return ibServices;
     }
 }

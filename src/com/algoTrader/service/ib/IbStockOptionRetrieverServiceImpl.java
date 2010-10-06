@@ -47,7 +47,10 @@ public class IbStockOptionRetrieverServiceImpl
     @Override
     protected void handleInit() throws Exception {
         // TODO Auto-generated method stub
-
     }
 
+    @Override
+    protected void handleConnect() throws Exception {
+        // TODO Auto-generated method stub
+    }
 }

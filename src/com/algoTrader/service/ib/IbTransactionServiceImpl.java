@@ -198,7 +198,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         connect();
     }
 
-    private void connect() {
+    protected void handleConnect() {
 
         this.partialOrdersMap = new HashMap<Integer, PartialOrder>();
         this.executedMap = new HashMap<Integer, Boolean>();

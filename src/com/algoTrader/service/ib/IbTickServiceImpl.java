@@ -213,13 +213,11 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
         connect();
     }
 
-    private void connect() {
+    protected void handleConnect() {
 
         this.requestIdToTickMap = new HashMap<Integer, Tick>();
         this.securityToRequestIdMap = new HashMap<Security, Integer>();
         this.validSecurities = new HashSet<Security>();
-
-        this.wrapper.setRequested(false);
 
         this.client.connect(clientId);
     }
@@ -241,9 +239,12 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
                 Contract contract = IbUtil.getContract(security);
                 this.client.reqMktData(requestId, contract, genericTickList, false);
+
+                logger.debug("requested market data for : " + security.getSymbol());
             }
             this.wrapper.setState(ConnectionState.SUBSCRIBED);
             this.wrapper.setRequested(true);
+            logger.debug("connectionState: " + this.wrapper.getState());
         }
     }
 

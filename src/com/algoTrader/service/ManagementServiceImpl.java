@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Account;
@@ -14,6 +15,7 @@ import com.algoTrader.entity.PositionDao;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.service.ib.IbService;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
@@ -174,5 +176,15 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         BigDecimal amount = RoundUtil.getBigDecimal(amountDouble);
 
         getDispatcherService().getTransactionService().executeCashTransaction(amount, currency, transactionType);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void handleReconnectIB() throws Exception {
+
+        Set<IbService> services = getDispatcherService().getAllIbServices();
+
+        for (IbService service : services) {
+            service.connect();
+        }
     }
 }

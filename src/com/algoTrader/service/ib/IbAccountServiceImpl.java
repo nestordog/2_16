@@ -100,7 +100,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
         connect();
     }
 
-    private void connect() {
+    protected void handleConnect() {
 
         this.allAccountValues = new HashMap<String, Map<String, String>>();
 
