@@ -89,6 +89,9 @@ public class StockOptionUtil {
 
     public static double getVolatility(final double underlayingSpot, final double strike, final double optionValue, final double years, final double intrest, final double dividend, final OptionType type) throws ConvergenceException, FunctionEvaluationException {
 
+        if (years < 0)
+            throw new IllegalArgumentException("years cannot be negative");
+
         UnivariateRealFunction function = new UnivariateRealFunction () {
             public double value(double volatility) throws FunctionEvaluationException {
                 return getOptionPriceBS(underlayingSpot, strike, volatility, years, intrest, dividend, type) - optionValue;
@@ -123,6 +126,9 @@ public class StockOptionUtil {
     }
 
     public static double getDelta(double underlayingSpot, double strike, double volatility, double years, double intrest, OptionType type) {
+
+        if (years < 0)
+            throw new IllegalArgumentException("years cannot be negative");
 
         double d1 = (Math.log(underlayingSpot/strike) + (intrest + volatility * volatility/2) * years) / (volatility * Math.sqrt(years));
 
