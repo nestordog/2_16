@@ -26,6 +26,3 @@ INSERT INTO `transaction` (`id`, `DATE_TIME`, `QUANTITY`, `PRICE`, `COMMISSION`,
 UPDATE rule
 set target_fk = NULL;
 
-UPDATE rule
-set activatable = false
-where prepared = true;
