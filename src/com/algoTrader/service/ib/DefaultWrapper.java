@@ -22,6 +22,12 @@ public class DefaultWrapper implements EWrapper {
     private ConnectionState state = ConnectionState.DISCONNECTED;
     private boolean requested;
 
+    private int clientId;
+
+    public DefaultWrapper(int clientId) {
+        this.clientId = clientId;
+    }
+
     public void accountDownloadEnd(String accountName) {
     }
 
@@ -141,6 +147,12 @@ public class DefaultWrapper implements EWrapper {
 
     public void error(int id, int code, String errorMsg) {
 
+        if (code < 1000) {
+            logger.error("client: " + this.clientId + " id: " + id + " code: " + code + " " + errorMsg.replaceAll("\n", " "));
+        } else {
+            logger.debug("client: " + this.clientId + " id: " + id + " code: " + code + " " + errorMsg.replaceAll("\n", " "));
+        }
+
         if (code == 502) {
 
             // Couldn't connect to TWS
@@ -155,16 +167,14 @@ public class DefaultWrapper implements EWrapper {
 
         } else if (code == 1101) {
 
-            // Connectivity between IB and TWS has been restored-
-            // data lost.
+            // Connectivity between IB and TWS has been restored data lost.
             this.requested = false;
             this.state = ConnectionState.READY;
             logger.debug("connectionState: " + this.state);
 
         } else if (code == 1102) {
 
-            // Connectivity between IB and TWS has been restored-
-            // data maintained.
+            // Connectivity between IB and TWS has been restored data maintained.
             if (this.requested) {
                 this.state = ConnectionState.SUBSCRIBED;
             } else {
@@ -174,8 +184,7 @@ public class DefaultWrapper implements EWrapper {
 
         } else if (code == 2110) {
 
-            // Connectivity between TWS and server is broken. It will be
-            // restored automatically.
+            // Connectivity between TWS and server is broken. It will be restored automatically.
             this.state = ConnectionState.CONNECTED;
             logger.debug("connectionState: " + this.state);
 
@@ -188,14 +197,6 @@ public class DefaultWrapper implements EWrapper {
                 this.state = ConnectionState.READY;
             }
             logger.debug("connectionState: " + this.state);
-        }
-
-        errorMsg = errorMsg.replaceAll("\n", " ");
-
-        if (code < 1000) {
-            logger.error("id: " + id + " code: " + code + " " + errorMsg);
-        } else {
-            logger.debug("id: " + id + " code: " + code + " " + errorMsg);
         }
     }
 
