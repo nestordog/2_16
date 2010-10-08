@@ -36,7 +36,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
     private static Logger logger = MyLogger.getLogger(IbTransactionServiceImpl.class.getName());
 
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  hh:mm:ss");
+    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
 
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
