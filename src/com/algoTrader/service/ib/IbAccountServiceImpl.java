@@ -54,7 +54,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
         if (!ibEnabled || simulation)
             return;
 
-        this.wrapper = new DefaultWrapper() {
+        this.wrapper = new DefaultWrapper(clientId) {
 
             public void updateAccountValue(String key, String value, String currency, String accountName) {
 

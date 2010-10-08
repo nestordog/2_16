@@ -70,7 +70,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         if (!ibEnabled || simulation)
             return;
 
-        this.wrapper = new DefaultWrapper() {
+        this.wrapper = new DefaultWrapper(clientId) {
 
             @Override
             public void orderStatus(int orderId, String status, int filled, int remaining, double avgFillPrice, int permId, int parentId, double lastFillPrice, int clientId, String whyHeld) {
