@@ -59,7 +59,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
         if (!ibEnabled || simulation)
             return;
 
-        this.wrapper = new DefaultWrapper() {
+        this.wrapper = new DefaultWrapper(clientId) {
 
             public void tickPrice(int requestId, int field, double price, int canAutoExecute) {
 
@@ -220,12 +220,19 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
         this.validSecurities = new HashSet<Security>();
 
         this.client.connect(clientId);
+
+        // if no market data farm is connected we have to force requestMarketData now
+        if (this.wrapper.getState().equals(ConnectionState.CONNECTED)) {
+            requestMarketData();
+        }
     }
 
     @SuppressWarnings("unchecked")
     private void requestMarketData() {
 
-        if (this.wrapper.getState().equals(ConnectionState.READY) && !this.wrapper.isRequested()) {
+        if ((this.wrapper.getState().equals(ConnectionState.CONNECTED) || this.wrapper.getState().equals(ConnectionState.READY)) && !this.wrapper.isRequested()) {
+
+            this.wrapper.setRequested(true);
 
             List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
             for (Security security : securities) {
@@ -242,9 +249,12 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
                 logger.debug("requested market data for : " + security.getSymbol());
             }
-            this.wrapper.setState(ConnectionState.SUBSCRIBED);
-            this.wrapper.setRequested(true);
-            logger.debug("connectionState: " + this.wrapper.getState());
+
+            if (this.wrapper.getState().equals(ConnectionState.READY)) {
+                this.wrapper.setState(ConnectionState.SUBSCRIBED);
+                logger.debug("connectionState: " + this.wrapper.getState());
+            }
+
         }
     }
 
