@@ -13,6 +13,7 @@ import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPPreparedStatement;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EPStatementException;
+import com.espertech.esper.client.EPSubscriberException;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
 
@@ -89,7 +90,7 @@ public class RuleServiceImpl extends RuleServiceBase {
                 }
             }
         } catch (EPStatementException e) {
-            logger.error("problem activating rule: " + name);
+            logger.error("problem activating rule: " + name, e);
             throw e;
         }
 
@@ -97,7 +98,11 @@ public class RuleServiceImpl extends RuleServiceBase {
         if (rule.getSubscriber() != null) {
             Class cl = Class.forName("com.algoTrader.subscriber." + rule.getSubscriber().trim());
             Object obj = cl.newInstance();
-            newStatement.setSubscriber(obj);
+            try {
+                newStatement.setSubscriber(obj);
+            } catch (EPSubscriberException e) {
+                logger.error("problem activating rule: " + name, e);
+            }
         }
 
         // add the listeners
