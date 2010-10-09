@@ -169,15 +169,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         getRuleService().deactivate(ruleName);
     }
 
-    protected void handleCashTransaction(double amountDouble, String currencyString, String transactionTypeString) throws Exception {
-
-        Currency currency = Currency.fromString(currencyString);
-        TransactionType transactionType = TransactionType.fromString(transactionTypeString);
-        BigDecimal amount = RoundUtil.getBigDecimal(amountDouble);
-
-        getDispatcherService().getTransactionService().executeCashTransaction(amount, currency, transactionType);
-    }
-
     @SuppressWarnings("unchecked")
     protected void handleReconnectIB() throws Exception {
 

@@ -15,7 +15,6 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
-import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
@@ -180,41 +179,6 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
 
         order.setStatus(OrderStatus.AUTOMATIC);
         order.getTransactions().add(transaction);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected void handleExecuteCashTransaction(BigDecimal amount, Currency currency, TransactionType transactionType) {
-
-        Transaction transaction = new TransactionImpl();
-
-        if (!(transactionType.equals(TransactionType.CREDIT) ||
-            transactionType.equals(TransactionType.INTREST) ||
-            transactionType.equals(TransactionType.DEBIT) ||
-            transactionType.equals(TransactionType.FEES))) {
-            throw new IllegalArgumentException("TransactionType: " + transactionType + " not allowed for cash transactions");
-        }
-
-        if (amount.doubleValue() < 0) {
-            throw new IllegalArgumentException("amount must be positive");
-        }
-
-        transaction.setDateTime(DateUtil.getCurrentEPTime());
-        transaction.setQuantity(1);
-        transaction.setPrice(amount);
-        transaction.setCommission(new BigDecimal(0));
-        transaction.setType(transactionType);
-
-        // Account
-        Account account = getAccountDao().findByCurrency(currency);
-        transaction.setAccount(account);
-        account.getTransactions().add(transaction);
-
-        getTransactionDao().create(transaction);
-        getAccountDao().update(account);
-
-        logger.info("executed cash transaction type: " + transactionType + " price: " + transaction.getPrice() + " netLiqValue: " + account.getNetLiqValue());
-
-        EsperService.sendEvent(transaction);
     }
 
     protected double getPrice(Order order, double spreadPosition, double bid, double ask) {

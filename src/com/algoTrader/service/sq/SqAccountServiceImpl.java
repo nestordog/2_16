@@ -13,4 +13,8 @@ public class SqAccountServiceImpl extends SqAccountServiceBase {
         Account account = getAccountDao().findByCurrency(currency);
         return (long) (account.getAvailableFundsDouble() / initialMarginPerContract);
     }
+
+    protected void handleProcessCashTransactions() throws Exception {
+        // do nothing
+    }
 }

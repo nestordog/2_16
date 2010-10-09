@@ -1,8 +1,15 @@
 package com.algoTrader.service.ib;
 
 import java.io.StringReader;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -13,6 +20,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
 import org.springframework.beans.factory.InitializingBean;
@@ -21,8 +32,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
 
+import com.algoTrader.entity.Account;
+import com.algoTrader.entity.Transaction;
+import com.algoTrader.entity.TransactionImpl;
+import com.algoTrader.enumeration.Currency;
+import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.service.sq.HttpClientUtil;
+import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.RoundUtil;
+import com.algoTrader.util.XmlUtil;
 
 public class IbAccountServiceImpl extends IbAccountServiceBase implements InitializingBean {
 
@@ -32,6 +52,9 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
 
     private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
+    private static String masterAccount = PropertiesUtil.getProperty("ib.masterAccount");
+    private static String flexToken = PropertiesUtil.getProperty("ib.flexToken");
+    private static String flexQueryId = PropertiesUtil.getProperty("ib.flexQueryId");
 
     private DefaultClientSocket client;
     private DefaultWrapper wrapper;
@@ -43,6 +66,12 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
     private String fa;
 
     private static int clientId = 2;
+
+    private static final String requestUrl = "https://www.interactivebrokers.com/Universal/servlet/FlexStatementService.SendRequest";
+    private static final String statementUrl = "https://www.interactivebrokers.com/Universal/servlet/FlexStatementService.GetStatement";
+
+    private static SimpleDateFormat fileFormat = new SimpleDateFormat("yyyyMMdd_kkmmss");
+    private static SimpleDateFormat transactionFormat = new SimpleDateFormat("yyyy-MM-dd, kk:mm:ss");
 
     public void afterPropertiesSet() throws Exception {
 
@@ -176,5 +205,137 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
             logger.debug("assign " + numberOfContracts + " to account " + account);
         }
         return numberOfContractsByMargin;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void handleProcessCashTransactions() throws Exception {
+
+        String url = requestUrl + "?t=" + flexToken + "&q=" + flexQueryId;
+
+        // get the flex reference code
+        GetMethod get = new GetMethod(url);
+        HttpClient standardClient = HttpClientUtil.getStandardClient();
+
+        Document document;
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+
+        try {
+            int status = standardClient.executeMethod(get);
+
+            if (status != HttpStatus.SC_OK) {
+                throw new HttpException("invalid flex reference code request with url:" + url);
+            }
+
+            // get the xml-document
+            document = builder.parse(new InputSource(get.getResponseBodyAsStream()));
+
+            XmlUtil.saveDocumentToFile(document, fileFormat.format(new Date()) + "_flexReferenceCode.xml", "results/flex/");
+
+        } finally {
+            get.releaseConnection();
+        }
+
+        String code = XPathAPI.selectSingleNode(document, "//code/text()").getNodeValue();
+
+        // get the statement
+        url = statementUrl + "?t=" + flexToken + "&q=" + code + "&v=2";
+
+        get = new GetMethod(url);
+        standardClient = HttpClientUtil.getStandardClient();
+
+        try {
+            int status = standardClient.executeMethod(get);
+
+            if (status != HttpStatus.SC_OK) {
+                throw new HttpException("invalid flex statement request with url:" + url);
+            }
+
+            // get the xml-document
+            document = builder.parse(new InputSource(get.getResponseBodyAsStream()));
+
+            XmlUtil.saveDocumentToFile(document, fileFormat.format(new Date()) + "_flexStatement.xml", "results/flex/");
+
+        } finally {
+            get.releaseConnection();
+        }
+
+        NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//CashTransaction");
+
+        Node node;
+        List<Transaction> transactions = new ArrayList<Transaction>();
+        Set<Account> accounts = new HashSet<Account>();
+        while ((node = iterator.nextNode()) != null) {
+
+            String accountId = XPathAPI.selectSingleNode(node, "@accountId").getNodeValue();
+
+            if (accountId.equals(masterAccount)) continue;
+
+            String desc = XPathAPI.selectSingleNode(node, "@description").getNodeValue();
+            String dateTimeString = XPathAPI.selectSingleNode(node, "@dateTime").getNodeValue();
+            String amountString = XPathAPI.selectSingleNode(node, "@amount").getNodeValue();
+            String currencyString = XPathAPI.selectSingleNode(node, "@currency").getNodeValue();
+            String typeString = XPathAPI.selectSingleNode(node, "@type").getNodeValue();
+
+            Date dateTime = transactionFormat.parse(dateTimeString);
+            double amountDouble = Double.parseDouble(amountString);
+            Currency currency = Currency.fromString(currencyString);
+            String description = accountId + " " + desc;
+
+            TransactionType transactionType;
+            if (typeString.equals("Other Fees")) {
+                transactionType = TransactionType.FEES;
+            } else if (typeString.equals("Deposits & Withdrawals")) {
+                if (amountDouble > 0) {
+                    transactionType = TransactionType.CREDIT;
+                } else {
+                    transactionType = TransactionType.DEBIT;
+                }
+            } else {
+                throw new IbAccountServiceException("unknown cast transaction type " + typeString);
+            }
+
+            BigDecimal amount = RoundUtil.getBigDecimal(Math.abs(amountDouble));
+
+            Transaction transaction = new TransactionImpl();
+            transaction.setDateTime(dateTime);
+            transaction.setQuantity(1);
+            transaction.setPrice(amount);
+            transaction.setCommission(new BigDecimal(0));
+            transaction.setType(transactionType);
+            transaction.setDescription(description);
+
+            transactions.add(transaction);
+
+            // Account
+            Account account = getAccountDao().findByCurrency(currency);
+            accounts.add(account);
+
+            transaction.setAccount(account);
+            account.getTransactions().add(transaction);
+        }
+
+        // sort the transactions according to their dateTime
+        Collections.sort(transactions, new Comparator<Transaction>() {
+            public int compare(Transaction t1, Transaction t2) {
+                // TODO Auto-generated method stub
+                return t1.getDateTime().compareTo(t2.getDateTime());
+            }
+        });
+
+        // create / update transactions / accounts
+        getTransactionDao().create(transactions);
+        getAccountDao().update(accounts);
+
+        for (Transaction transaction : transactions) {
+
+            logger.info("executed cash transaction" +
+                    " dateTime: " + transactionFormat.format(transaction.getDateTime()) +
+                    " price: " + transaction.getPrice() +
+                    " type: " + transaction.getType() +
+                    " description: " + transaction.getDescription());
+
+            EsperService.sendEvent(transaction);
+        }
     }
 }
