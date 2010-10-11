@@ -24,6 +24,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
 import org.springframework.beans.factory.InitializingBean;
@@ -210,6 +211,9 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
     @SuppressWarnings("unchecked")
     protected void handleProcessCashTransactions() throws Exception {
 
+        if (!ibEnabled || simulation)
+            return;
+
         String url = requestUrl + "?t=" + flexToken + "&q=" + flexQueryId;
 
         // get the flex reference code
@@ -237,6 +241,10 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
         }
 
         String code = XPathAPI.selectSingleNode(document, "//code/text()").getNodeValue();
+
+        if (!NumberUtils.isDigits(code)) {
+            throw new IbAccountServiceException(code);
+        }
 
         // get the statement
         url = statementUrl + "?t=" + flexToken + "&q=" + code + "&v=2";
