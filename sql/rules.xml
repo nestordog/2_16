@@ -14,11 +14,11 @@
     </row>
     <row>
         <field name="id">2</field>
-        <field name="NAME">SET_MARGIN</field>
+        <field name="NAME">EXECUTE_DAILY_JOBS</field>
         <field name="PRIORITY">0</field>
-        <field name="DEFINITION">every timer:at (0, 23, *, *, 1:5)</field>
+        <field name="DEFINITION">every timer:at (0, 6, *, *, 1:5)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
-        <field name="LISTENERS">SetMarginListener</field>
+        <field name="LISTENERS">ExecuteDailyJobsListener</field>
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
@@ -94,9 +94,9 @@ and var_simulation=true</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
-        <field name="id">14</field>
+        <field name="id">13</field>
         <field name="NAME">EXPIRE_POSITION</field>
-        <field name="PRIORITY">6</field>
+        <field name="PRIORITY">7</field>
         <field name="DEFINITION">select option.position.id as positionId,
 indexTick.security.id,
 indexTick.currentValue
@@ -111,16 +111,32 @@ and option.position.quantity != 0</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
-        <field name="id">15</field>
+        <field name="id">14</field>
         <field name="NAME">CLOSE_POSITION</field>
-        <field name="PRIORITY">5</field>
+        <field name="PRIORITY">6</field>
         <field name="DEFINITION">select
 tick.security.position.id
 from Tick as tick
 where tick.security.position.quantity != 0
 and tick.security.position.exitValue != null
-and tick.currentValue  &gt; tick.security.position.exitValue</field>
+and tick.currentValue  &gt;= tick.security.position.exitValue</field>
         <field name="SUBSCRIBER">ClosePositionSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">15</field>
+        <field name="NAME">CREATE_SAR</field>
+        <field name="PRIORITY">5</field>
+        <field name="DEFINITION">insert into ExitValue
+select optionTick.security as security,
+exitValue.value + (1-Math.pow(1.0  - var_alpha, 1.0 / var_events_per_day)) * (optionTick.currentValueDouble - exitValue.value) as value
+from pattern [every exitValue=ExitValue -&gt; optionTick=Tick(security.id=exitValue.security.id) and not ExitValue(security.id=exitValue.security.id)]
+where optionTick.security.position != null
+and optionTick.security.position.quantity != 0
+and optionTick.currentValueDouble != 0</field>
+        <field name="SUBSCRIBER">SetExitValueSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
         <field name="TARGET_FK" xsi:nil="true" />
@@ -131,12 +147,14 @@ and tick.currentValue  &gt; tick.security.position.exitValue</field>
         <field name="PRIORITY">4</field>
         <field name="DEFINITION">insert into ExitValue
 select optionTick.security as security,
-StockOptionUtil.getExitValue(optionTick.security, indexTick.currentValueDouble, volaTick.currentValueDouble / 100) as value
-from pattern [every (indexTick=Tick(security.isin = var_isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id)) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = var_isin)]
-where optionTick.security.position != null
+exitValue.value as value
+from pattern [every (indexTick=Tick(security.isin = var_isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id)) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = var_isin)],
+method:StockOptionUtil.getExitValue(optionTick.security, indexTick.currentValueDouble, volaTick.currentValueDouble / 100) as exitValue
+where exitValue.value &lt; optionTick.security.position.exitValue
+and optionTick.security.position != null
 and optionTick.security.position.quantity != 0
 and optionTick.currentValueDouble != 0</field>
-        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="SUBSCRIBER">SetExitValueSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
         <field name="TARGET_FK" xsi:nil="true" />
@@ -236,50 +254,6 @@ having count(*) &gt; Math.round(var_macd_slow * var_macd_weight)
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
-        <field name="id">24</field>
-        <field name="NAME">CREATE_MACD_SIGNAL</field>
-        <field name="PRIORITY">0</field>
-        <field name="DEFINITION">insert into MACD_Signal
-select security,
-value as macd,
-ema(value,var_macd_signal) as signal
-from MACD
-having count(*) &gt; Math.round(var_macd_signal * var_macd_weight)</field>
-        <field name="SUBSCRIBER" xsi:nil="true" />
-        <field name="LISTENERS" xsi:nil="true" />
-        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="TARGET_FK" xsi:nil="true" />
-    </row>
-    <row>
-        <field name="id">25</field>
-        <field name="NAME">SET_TREND</field>
-        <field name="PRIORITY">0</field>
-        <field name="DEFINITION">select security.id as underlayingId,
-case when macd &gt; signal then true else false end as bullish
-from MACD_Signal
-where ((select last(size) from MACD_Signal.std:size()) = 1) or
-(macd &gt; signal and prior(1,macd) &lt;= prior(1,signal)) or
-(macd &lt; signal and prior(1,macd) &gt;= prior(1,signal))
-</field>
-        <field name="SUBSCRIBER">TrendSubscriber</field>
-        <field name="LISTENERS" xsi:nil="true" />
-        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="TARGET_FK" xsi:nil="true" />
-    </row>
-    <row>
-        <field name="id">26</field>
-        <field name="NAME">PRINT_MACD</field>
-        <field name="PRIORITY">0</field>
-        <field name="DEFINITION">select security,
-macd,
-signal
-from MACD_Signal</field>
-        <field name="SUBSCRIBER">PrintMACDSubscriber</field>
-        <field name="LISTENERS" xsi:nil="true" />
-        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="TARGET_FK" xsi:nil="true" />
-    </row>
-    <row>
         <field name="id">31</field>
         <field name="NAME">CREATE_K_SLOW</field>
         <field name="PRIORITY">0</field>
@@ -358,15 +332,44 @@ from pattern [every (kFast=KFast -&gt; kSlow=KSlow -&gt; dSlow=DSlow)]</field>
     </row>
     <row>
         <field name="id">36</field>
-        <field name="NAME">SET_EXIT_VALUE</field>
+        <field name="NAME">CREATE_MACD_SIGNAL</field>
         <field name="PRIORITY">0</field>
-        <field name="DEFINITION">select
-security.position.id as positionId,
-value as exitValue
-from ExitValue
-where security.position.quantity != 0
-and value &lt; security.position.exitValue</field>
-        <field name="SUBSCRIBER">SetExitValueSubscriber</field>
+        <field name="DEFINITION">insert into MACD_Signal
+select security,
+value as macd,
+ema(value,var_macd_signal) as signal
+from MACD
+having count(*) &gt; Math.round(var_macd_signal * var_macd_weight)</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">37</field>
+        <field name="NAME">SET_TREND</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">select security.id as underlayingId,
+case when macd &gt; signal then true else false end as bullish
+from MACD_Signal
+where ((select last(size) from MACD_Signal.std:size()) = 1) or
+(macd &gt; signal and prior(1,macd) &lt;= prior(1,signal)) or
+(macd &lt; signal and prior(1,macd) &gt;= prior(1,signal))
+</field>
+        <field name="SUBSCRIBER">TrendSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">38</field>
+        <field name="NAME">PRINT_MACD</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">select security,
+macd,
+signal
+from MACD_Signal</field>
+        <field name="SUBSCRIBER">PrintMACDSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
         <field name="TARGET_FK" xsi:nil="true" />

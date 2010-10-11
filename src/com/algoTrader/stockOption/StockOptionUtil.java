@@ -6,6 +6,8 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolver;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
+import com.algoTrader.entity.ExitValue;
+import com.algoTrader.entity.ExitValueImpl;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.enumeration.OptionType;
@@ -139,7 +141,7 @@ public class StockOptionUtil {
         }
     }
 
-    public static double getExitValue(Security security, double underlayingSpot, double volatility) throws ConvergenceException, FunctionEvaluationException {
+    public static double getExitValueDouble(Security security, double underlayingSpot, double volatility) throws ConvergenceException, FunctionEvaluationException {
 
         StockOption stockOption = (StockOption)security;
 
@@ -153,6 +155,13 @@ public class StockOptionUtil {
         }
 
         return getOptionPrice(stockOption, exitLevel, volatility);
+    }
+
+    public static ExitValue getExitValue(Security security, double underlayingSpot, double volatility) throws ConvergenceException, FunctionEvaluationException {
+
+        ExitValue exitValue = new ExitValueImpl();
+        exitValue.setValue(getExitValueDouble(security, underlayingSpot, volatility));
+        return exitValue;
     }
 
     public static double getTotalMargin(double underlayingSettlement, double strike, double stockOptionSettlement, double years, OptionType type) throws ConvergenceException,

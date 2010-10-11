@@ -15,6 +15,8 @@ import org.apache.log4j.Logger;
 import com.algoTrader.criteria.CallOptionCriteria;
 import com.algoTrader.criteria.PutOptionCriteria;
 import com.algoTrader.entity.Account;
+import com.algoTrader.entity.ExitValue;
+import com.algoTrader.entity.ExitValueImpl;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.OrderImpl;
 import com.algoTrader.entity.Position;
@@ -30,6 +32,7 @@ import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
+import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
@@ -45,6 +48,8 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private static int minAge = PropertiesUtil.getIntProperty("minAge");
 
     private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
+
+    private static SimpleDateFormat format = new SimpleDateFormat("hh:mm:ss");
 
     private long FORTY_FIVE_DAYS = 3888000000l;
 
@@ -107,6 +112,8 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         stockOption.setType(type);
         stockOption.setContractSize(contractSize);
         stockOption.setUnderlaying(underlaying);
+        stockOption.setMarketOpen(format.parse("09:00:00"));
+        stockOption.setMarketClose(format.parse("17:00:00"));
 
         getStockOptionDao().create(stockOption);
 
@@ -157,7 +164,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         double initialMargin = maintenanceMargin * initialMarginMarkup;
 
         // get the exitValue based on the current Volatility
-        double exitValueByVola = StockOptionUtil.getExitValue(stockOption, underlayingValueDouble, volatility);
+        double exitValueByVola = StockOptionUtil.getExitValueDouble(stockOption, underlayingValueDouble, volatility);
 
         // get the exitValue on the max loss for this position
         // invested capital: maintenanceMargin (=additionalMargin)
@@ -210,6 +217,12 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         if (position != null) {
             setMargin(position);
             setExitValue(stockOption.getPosition(), exitValue);
+
+            ExitValue sar = new ExitValueImpl();
+            sar.setSecurity(stockOption);
+            sar.setValue(exitValue);
+
+            EsperService.route(sar);
         }
     }
 
@@ -293,11 +306,13 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
 
         if (position.getExitValue() == null) {
-            throw new StockOptionServiceException("no exitValue was set for position: " + positionId);
+            logger.warn("no exitValue was set for position: " + positionId);
+            return;
         }
 
         if (exitValue > position.getExitValue().doubleValue()) {
-            throw new StockOptionServiceException("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of position " + positionId);
+            logger.warn("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of position " + positionId);
+            return;
         }
 
         setExitValue(position, exitValue);
@@ -344,7 +359,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             throw new StockOptionServiceException("ExitValue (" + exitValue + ") for position " + position.getId() + " is lower than currentValue: " + currentValue);
         }
 
-        position.setExitValue(RoundUtil.getBigDecimal(exitValue));
+        position.setExitValue(exitValue);
         getPositionDao().update(position);
 
         logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + exitValue);
