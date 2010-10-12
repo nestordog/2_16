@@ -3,6 +3,7 @@ package com.algoTrader.entity;
 import java.math.BigDecimal;
 
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 
@@ -33,6 +34,21 @@ public class StockOptionImpl extends com.algoTrader.entity.StockOption {
             return getContractSize() * getLastTick().getCurrentValueDouble();
         } else {
             return 0.0;
+        }
+    }
+
+    public double getLeverage() {
+
+        try {
+            double underlyingSpot = getUnderlaying().getLastTick().getCurrentValueDouble();
+            double currentValue = getLastTick().getCurrentValueDouble();
+            double delta = StockOptionUtil.getDelta(this, currentValue, underlyingSpot);
+
+            return underlyingSpot / currentValue * delta;
+
+        } catch (Exception e) {
+
+            return Double.NaN;
         }
     }
 }

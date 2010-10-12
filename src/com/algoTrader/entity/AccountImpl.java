@@ -105,4 +105,18 @@ public class AccountImpl extends Account {
 
         return getRedemptionValue() / getCashBalanceDouble();
     }
+
+    @SuppressWarnings("unchecked")
+    public double getLeverage() {
+
+        double deltaRisk = 0.0;
+        Collection<Position> positions = getPositions();
+        for (Position position : positions) {
+            if (position.isOpen()) {
+                deltaRisk += position.getDeltaRisk();
+            }
+        }
+
+        return deltaRisk / getNetLiqValueDouble();
+    }
 }

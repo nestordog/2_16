@@ -45,4 +45,17 @@ public class PositionImpl extends com.algoTrader.entity.Position {
             return 0.0;
         }
     }
+
+    public double getDeltaRisk() {
+
+        if (getSecurity() instanceof StockOption) {
+
+            StockOption stockOption = (StockOption) getSecurity();
+
+            return getCurrentValueDouble() * stockOption.getLeverage();
+
+        } else {
+            return 0;
+        }
+    }
 }

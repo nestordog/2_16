@@ -141,6 +141,20 @@ public class StockOptionUtil {
         }
     }
 
+    public static double getDelta(Security security, double currentValue, double underlayingSpot) throws ConvergenceException, FunctionEvaluationException {
+
+        if (security instanceof StockOption) {
+            StockOption stockOption = (StockOption) security;
+
+            double strike = stockOption.getStrike().doubleValue();
+            double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+            double volatility = getVolatility(underlayingSpot, strike, currentValue, years, intrest, dividend, stockOption.getType());
+            return StockOptionUtil.getDelta(underlayingSpot, strike, volatility, years, intrest, stockOption.getType());
+        } else {
+            throw new IllegalArgumentException("isDeltaToLow cannot be called with: " + security.getClass().getName());
+        }
+    }
+
     public static double getExitValueDouble(Security security, double underlayingSpot, double volatility) throws ConvergenceException, FunctionEvaluationException {
 
         StockOption stockOption = (StockOption)security;
@@ -212,11 +226,9 @@ public class StockOptionUtil {
         if (security instanceof StockOption) {
             StockOption stockOption = (StockOption) security;
 
-            double strike = stockOption.getStrike().doubleValue();
             double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
-            double volatility = getVolatility(underlayingSpot, strike, currentValue, years, intrest, dividend, stockOption.getType());
-            double delta = StockOptionUtil.getDelta(underlayingSpot, strike, volatility, years, intrest, stockOption.getType());
 
+            double delta = getDelta(security, currentValue, underlayingSpot);
             double minDelta = PropertiesUtil.getDoubleProperty("minDelta");
 
             if (years < minExpirationYears) {

@@ -55,6 +55,17 @@ public class DispatcherServiceImpl extends com.algoTrader.service.DispatcherServ
         }
     }
 
+    protected HistoricalDataService handleGetHistoricalDataService() throws Exception {
+
+        if (MarketChannel.SQ.getValue().equals(marketChannel)) {
+            return getSqHistoricalDataService();
+        } else if (MarketChannel.IB.getValue().equals(marketChannel)) {
+            return getIbHistoricalDataService();
+        } else {
+            throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
+        }
+    }
+
     protected Set<IbService> handleGetAllIbServices() {
 
         Set<IbService> ibServices = new HashSet<IbService>();

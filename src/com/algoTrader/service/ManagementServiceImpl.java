@@ -14,11 +14,9 @@ import com.algoTrader.entity.KSlow;
 import com.algoTrader.entity.PositionDao;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.RuleName;
-import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.service.ib.IbService;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.PropertiesUtil;
-import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.InterpolationVO;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.TickVO;
@@ -28,6 +26,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
     private static final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yy kk:mm");
     private static String currency = PropertiesUtil.getProperty("strategie.currency");
+
 
     protected String handleGetCurrentTime() throws Exception {
 
@@ -68,6 +67,12 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
         return account.getOpenPositions().size();
+    }
+
+    protected double handleGetAccountLeverage() throws Exception {
+
+        Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
+        return account.getLeverage();
     }
 
     protected double handleGetStochasticCallKFast() throws Exception {
