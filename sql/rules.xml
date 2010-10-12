@@ -375,21 +375,6 @@ from MACD_Signal</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
-        <field name="id">40</field>
-        <field name="NAME">CREATE_INTERPOLATION</field>
-        <field name="PRIORITY">0</field>
-        <field name="DEFINITION">insert into Interpolation
-select Math.exp(linest.YIntercept) as a,
-linest.slope as b,
-Math.pow(correl.correlation,2) as r
-from Transaction.win:keepall().stat:linest(current_timestamp() / 31536000000, Math.log(account.netLiqValueDouble)) as linest,
-Transaction.win:keepall().stat:correl(current_timestamp() / 31536000000, Math.log(account.netLiqValueDouble)) as correl</field>
-        <field name="SUBSCRIBER" xsi:nil="true" />
-        <field name="LISTENERS" xsi:nil="true" />
-        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
-        <field name="TARGET_FK" xsi:nil="true" />
-    </row>
-    <row>
         <field name="id">41</field>
         <field name="NAME">CREATE_PERFORMANCE_KEYS</field>
         <field name="PRIORITY">2</field>

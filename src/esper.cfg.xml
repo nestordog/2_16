@@ -13,7 +13,6 @@
     <event-type name="DSlow" class="com.algoTrader.entity.DSlowImpl"/>
     <event-type name="MonthlyPerformance" class="com.algoTrader.entity.MonthlyPerformanceImpl"/>
 
-    <event-type name="Interpolation" class="com.algoTrader.vo.InterpolationVO"/>
     <event-type name="PerformanceKeys" class="com.algoTrader.vo.PerformanceKeysVO"/>
     <event-type name="MaxDrawDown" class="com.algoTrader.vo.MaxDrawDownVO"/>
 

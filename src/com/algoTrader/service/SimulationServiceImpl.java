@@ -46,7 +46,6 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.csv.CsvTickInputAdapter;
 import com.algoTrader.util.csv.TransactionInputAdapter;
-import com.algoTrader.vo.InterpolationVO;
 import com.algoTrader.vo.MaxDrawDownVO;
 import com.algoTrader.vo.OptimizationResultVO;
 import com.algoTrader.vo.PerformanceKeysVO;
@@ -212,7 +211,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         getRuleService().activate(RuleName.CREATE_PORTFOLIO_VALUE);
         getRuleService().activate(RuleName.CREATE_MONTHLY_PERFORMANCE);
         getRuleService().activate(RuleName.GET_LAST_TICK);
-        getRuleService().activate(RuleName.CREATE_INTERPOLATION);
         getRuleService().activate(RuleName.CREATE_PERFORMANCE_KEYS);
         getRuleService().activate(RuleName.KEEP_MONTHLY_PERFORMANCE);
         getRuleService().activate(RuleName.CREATE_DRAW_DOWN);
@@ -322,17 +320,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         logger.info("functionValue: " + twoDigitFormat.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
     }
 
-    protected InterpolationVO handleGetInterpolation() throws Exception {
-
-        EPStatement statement = EsperService.getStatement(RuleName.CREATE_INTERPOLATION);
-
-        if (statement == null) return null;
-
-        if (!statement.iterator().hasNext()) return null;
-
-        return (InterpolationVO)statement.iterator().next().getUnderlying();
-    }
-
     protected PerformanceKeysVO handleGetPerformanceKeys() throws Exception {
 
         EPStatement statement = EsperService.getStatement(RuleName.CREATE_PERFORMANCE_KEYS);
@@ -379,16 +366,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         BigDecimal netLiqValue = getAccountDao().getNetLiqValueAllAccounts();
         logger.info("netLiqValue: " + twoDigitFormat.format(netLiqValue));
-
-        InterpolationVO interpolation = getInterpolation();
-
-        if (interpolation != null) {
-            StringBuffer buffer = new StringBuffer("interpolation: ");
-            buffer.append("a=" + twoDigitFormat.format(interpolation.getA()));
-            buffer.append(" b=" + twoDigitFormat.format(interpolation.getB()));
-            buffer.append(" r=" + twoDigitFormat.format(interpolation.getR()));
-            logger.info(buffer.toString());
-        }
 
         List<MonthlyPerformance> monthlyPerformances = getMonthlyPerformances();
         double maxDrawDownM = 0d;

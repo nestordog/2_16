@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Account;
 import com.algoTrader.entity.DSlow;
 import com.algoTrader.entity.KFast;
@@ -17,7 +16,6 @@ import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.service.ib.IbService;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.PropertiesUtil;
-import com.algoTrader.vo.InterpolationVO;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.TickVO;
 import com.algoTrader.vo.TransactionVO;
@@ -115,33 +113,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         DSlow dSlow = (DSlow)EsperService.getLastEvent(RuleName.CREATE_D_SLOW);
 
         return (dSlow != null) ? dSlow.getPut() : 0;
-    }
-
-    protected double handleGetInterpolationA() throws Exception {
-
-        InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
-
-        if (interpolation == null) return 0;
-
-        return interpolation.getA();
-    }
-
-    protected double handleGetInterpolationB() throws Exception {
-
-        InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
-
-        if (interpolation == null) return 0;
-
-        return interpolation.getB();
-    }
-
-    protected double handleGetInterpolationR() throws Exception {
-
-        InterpolationVO interpolation = ServiceLocator.instance().getSimulationService().getInterpolation();
-
-        if (interpolation == null) return 0;
-
-        return interpolation.getR();
     }
 
     @SuppressWarnings("unchecked")
