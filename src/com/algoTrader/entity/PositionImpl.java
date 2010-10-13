@@ -55,7 +55,7 @@ public class PositionImpl extends com.algoTrader.entity.Position {
             return getCurrentValueDouble() * stockOption.getLeverage();
 
         } else {
-            return 0;
+            return 0.0;
         }
     }
 }
