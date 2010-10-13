@@ -406,7 +406,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             return performanceKeys.getSharpRatio();
         } else {
             logger.info("statistic not available because there was no performance");
-            return 0;
+            return Double.NaN;
         }
     }
 
