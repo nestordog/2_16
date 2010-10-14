@@ -2,14 +2,30 @@ package com.algoTrader.starter;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.service.ib.IbHistoricalDataService;
+import com.algoTrader.util.PropertiesUtil;
 
 public class HistoricalDataStarter {
 
     public static void main(String[] args) {
 
+        PropertiesUtil.setProperty("simulation", "true");
+        PropertiesUtil.setProperty("strategie.dataSet", "expiredOptions");
+
+        String startDate = args[0];
+
+        String endDate = args[1];
+
+        String[] whatToShow = args[2].split(":");
+
+        String[] securityIdStrings = args[3].split(":");
+        int[] securityIds = new int[securityIdStrings.length];
+        for (int i = 0; i < securityIdStrings.length; i++) {
+            securityIds[i] = Integer.valueOf(securityIdStrings[i]);
+        }
+
         IbHistoricalDataService service = ServiceLocator.instance().getIbHistoricalDataService();
 
         service.init();
-        service.requestHistoricalData(new int[] { 10711, 10712 }, new String[] { "BID", "ASK", "TRADES" }, "20100719", "20101013");
+        service.requestHistoricalData(securityIds, whatToShow, startDate, endDate);
     }
 }
