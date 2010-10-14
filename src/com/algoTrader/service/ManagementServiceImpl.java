@@ -180,4 +180,9 @@ public class ManagementServiceImpl extends ManagementServiceBase {
             service.connect();
         }
     }
+
+    protected void handleRunDailyJobs() throws Exception {
+
+        getActionService().runDailyJobs();
+    }
 }

@@ -151,4 +151,11 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         logger.debug("rollPosition end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
+
+    protected void handleRunDailyJobs() {
+
+        setMargins();
+
+        getDispatcherService().getAccountService().processCashTransactions();
+    }
 }

@@ -11,8 +11,6 @@ public class ExecuteDailyJobsListener  implements StatementAwareUpdateListener {
     public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement,
             EPServiceProvider epServiceProvider) {
 
-        ServiceLocator.instance().getActionService().setMargins();
-
-        ServiceLocator.instance().getDispatcherService().getAccountService().processCashTransactions();
+        ServiceLocator.instance().getActionService().runDailyJobs();
     }
 }
