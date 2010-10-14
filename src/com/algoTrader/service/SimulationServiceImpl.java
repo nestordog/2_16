@@ -364,7 +364,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @SuppressWarnings("unchecked")
     private double getStatistics() {
 
-        BigDecimal netLiqValue = getAccountDao().getNetLiqValueAllAccounts();
+        double netLiqValue = getAccountDao().getNetLiqValueAllAccountsDouble();
         logger.info("netLiqValue: " + twoDigitFormat.format(netLiqValue));
 
         List<MonthlyPerformance> monthlyPerformances = getMonthlyPerformances();
