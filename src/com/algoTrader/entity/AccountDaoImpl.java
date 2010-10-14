@@ -1,14 +1,11 @@
 package com.algoTrader.entity;
 
-import java.math.BigDecimal;
 import java.util.Collection;
-
-import com.algoTrader.util.RoundUtil;
 
 public class AccountDaoImpl extends AccountDaoBase {
 
     @SuppressWarnings("unchecked")
-    protected BigDecimal handleGetCashBalanceAllAccounts() throws Exception {
+    protected double handleGetCashBalanceAllAccountsDouble() throws Exception {
 
         Collection<Account> accounts = loadAll();
 
@@ -17,11 +14,11 @@ public class AccountDaoImpl extends AccountDaoBase {
             cashBalance += account.getCashBalanceDouble();
         }
 
-        return RoundUtil.getBigDecimal(cashBalance);
+        return cashBalance;
     }
 
     @SuppressWarnings("unchecked")
-    protected BigDecimal handleGetSecuritiesCurrentValueAllAccounts() throws Exception {
+    protected double handleGetSecuritiesCurrentValueAllAccountsDouble() throws Exception {
 
         Collection<Account> accounts = loadAll();
 
@@ -30,11 +27,11 @@ public class AccountDaoImpl extends AccountDaoBase {
             currentValue += account.getSecuritiesCurrentValueDouble();
         }
 
-        return RoundUtil.getBigDecimal(currentValue);
+        return currentValue;
     }
 
     @SuppressWarnings("unchecked")
-    protected BigDecimal handleGetMaintenanceMarginAllAccounts() throws Exception {
+    protected double handleGetMaintenanceMarginAllAccountsDouble() throws Exception {
 
         Collection<Account> accounts = loadAll();
 
@@ -43,11 +40,11 @@ public class AccountDaoImpl extends AccountDaoBase {
             maintenanceMargin += account.getMaintenanceMarginDouble();
         }
 
-        return RoundUtil.getBigDecimal(maintenanceMargin);
+        return maintenanceMargin;
     }
 
     @SuppressWarnings("unchecked")
-    protected BigDecimal handleGetNetLiqValueAllAccounts() throws Exception {
+    protected double handleGetNetLiqValueAllAccountsDouble() throws Exception {
 
         Collection<Account> accounts = loadAll();
 
@@ -56,6 +53,6 @@ public class AccountDaoImpl extends AccountDaoBase {
             netLiqValue += account.getNetLiqValueDouble();
         }
 
-        return RoundUtil.getBigDecimal(netLiqValue);
+        return netLiqValue;
     }
 }

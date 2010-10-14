@@ -75,7 +75,7 @@ public class AccountImpl extends Account {
         double securitiesValue = 0.0;
         Collection<Position> positions = getPositions();
         for (Position position : positions) {
-            securitiesValue += position.getCurrentValueDouble();
+            securitiesValue += position.getMarketValueDouble();
         }
         return securitiesValue;
     }

@@ -11,6 +11,8 @@ import com.algoTrader.entity.DSlow;
 import com.algoTrader.entity.KFast;
 import com.algoTrader.entity.KSlow;
 import com.algoTrader.entity.PositionDao;
+import com.algoTrader.entity.Security;
+import com.algoTrader.entity.Tick;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.service.ib.IbService;
@@ -24,6 +26,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
     private static final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yy kk:mm");
     private static String currency = PropertiesUtil.getProperty("strategie.currency");
+    private static String isin = PropertiesUtil.getProperty("strategie.isin");
 
 
     protected String handleGetCurrentTime() throws Exception {
@@ -71,6 +74,29 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
         Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
         return account.getLeverage();
+    }
+
+    protected BigDecimal handleGetAccountUnderlaying() throws Exception {
+
+        Security underlaying = getSecurityDao().findByISIN(isin);
+        Tick tick = underlaying.getLastTick();
+        if (tick != null) {
+            return tick.getLast();
+        } else {
+            return null;
+        }
+    }
+
+    protected BigDecimal handleGetAccountVolatility() throws Exception {
+
+        Security underlaying = getSecurityDao().findByISIN(isin);
+        Security volatility = underlaying.getVolatility();
+        Tick tick = volatility.getLastTick();
+        if (tick != null) {
+            return tick.getLast();
+        } else {
+            return null;
+        }
     }
 
     protected double handleGetStochasticCallKFast() throws Exception {

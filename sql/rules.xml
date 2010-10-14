@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <mysqldump xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-<database name="algotrader">
+<database name="algotraderlive">
     <table_data name="rule">
     <row>
         <field name="id">1</field>
@@ -28,9 +28,11 @@
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into Portfolio
 select current_timestamp() as timestamp,
-LookupUtil.getPortfolioValue() as value,
+value,
 cashTransaction
-from pattern[every(timer:at (0, 9:17, *, *, 1:5) or cashTransaction=Transaction(type=TransactionType.CREDIT or type=TransactionType.DEBIT or type=TransactionType.INTREST or type=TransactionType.FEES))]</field>
+from pattern[every(timer:at (0, 9:17, *, *, 1:5) or cashTransaction=Transaction(type=TransactionType.CREDIT or type=TransactionType.DEBIT or type=TransactionType.INTREST or type=TransactionType.FEES))],
+method:LookupUtil.getPortfolioValue() as value
+where not Double.isNaN(value.securitiesCurrentValue)</field>
         <field name="SUBSCRIBER">PrintPortfolioValueSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -42,7 +44,7 @@ from pattern[every(timer:at (0, 9:17, *, *, 1:5) or cashTransaction=Transaction(
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into MonthlyPerformance
 select DateUtil.toDate(current_timestamp()) as date,
-portfolio.value.netLiqValueDouble / prior(1, portfolio.value.netLiqValueDouble) - 1 as value
+portfolio.value.netLiqValue / prior(1, portfolio.value.netLiqValue) - 1 as value
 from pattern[every timer:at (0, 18, lastweekday, *, *) -&gt; portfolio=Portfolio]
 having prior(1, portfolio.value.netLiqValue) != null and
 portfolio.value.netLiqValue != prior(1, portfolio.value.netLiqValue)
@@ -138,7 +140,7 @@ and optionTick.security.position.quantity != 0
 and optionTick.currentValueDouble != 0</field>
         <field name="SUBSCRIBER">SetExitValueSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">00</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
@@ -407,7 +409,7 @@ from MonthlyPerformance.win:keepall()</field>
         <field name="NAME">CREATE_DRAW_DOWN</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into DrawDown
-select 1 - portfolio.value.netLiqValueDouble / max(portfolio.value.netLiqValueDouble) as amount,
+select 1 - portfolio.value.netLiqValue / max(portfolio.value.netLiqValue) as amount,
 case when portfolio.value.netLiqValue = max(portfolio.value.netLiqValue) then DrawDownUtil.resetDrawDownPeriod() else DrawDownUtil.increaseDrawDownPeriod(current_timestamp - prior(1, portfolio.timestamp)) end as period
 from Portfolio as portfolio</field>
         <field name="SUBSCRIBER" xsi:nil="true" />

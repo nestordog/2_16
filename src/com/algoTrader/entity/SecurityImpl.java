@@ -44,16 +44,6 @@ public class SecurityImpl extends com.algoTrader.entity.Security {
         return new BigDecimal(0);
     }
 
-    public BigDecimal getCurrentValuePerContract() {
-
-        return getLastTick().getCurrentValue();
-    }
-
-    public double getCurrentValuePerContractDouble() {
-
-        return getLastTick().getCurrentValueDouble();
-    }
-
     public int getContractSize() {
 
         return 1;

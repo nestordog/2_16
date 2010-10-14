@@ -1,8 +1,9 @@
 package com.algoTrader.entity;
 
-import java.math.BigDecimal;
+import java.util.Collection;
 
-import com.algoTrader.util.RoundUtil;
+import com.algoTrader.enumeration.TransactionType;
+
 
 public class PositionImpl extends com.algoTrader.entity.Position {
 
@@ -13,15 +14,79 @@ public class PositionImpl extends com.algoTrader.entity.Position {
         return (getQuantity() != 0);
     }
 
-    public BigDecimal getCurrentValue() {
-
-        return RoundUtil.getBigDecimal(getCurrentValueDouble());
-    }
-
-    public double getCurrentValueDouble() {
+    public double getMarketPriceDouble() {
 
         if (isOpen()) {
-            return getQuantity() * getSecurity().getCurrentValuePerContractDouble();
+
+            Tick tick = getSecurity().getLastTick();
+            if (tick != null) {
+                if (getQuantity() < 0) {
+
+                    // short position
+                    return tick.getAsk().doubleValue();
+                } else {
+
+                    // short position
+                    return tick.getBid().doubleValue();
+                }
+            } else {
+                return Double.NaN;
+            }
+        } else {
+            return 0.0;
+        }
+    }
+
+    public double getMarketValueDouble() {
+
+        if (isOpen()) {
+
+            return getQuantity() * getSecurity().getContractSize() * getMarketPriceDouble();
+        } else {
+            return 0.0;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public double getAveragePriceDouble() {
+
+        long quantity = 0;
+        double totalPrice = 0.0;
+        Collection<Transaction> transactions = getTransactions();
+        for (Transaction transaction : transactions) {
+
+            if (getQuantity() < 0 && TransactionType.SELL.equals(transaction.getType())) {
+
+                // for short positions look at sells
+                quantity += transaction.getQuantity();
+                totalPrice += transaction.getQuantity() * transaction.getPrice().doubleValue() +
+                    transaction.getCommission().doubleValue() / transaction.getSecurity().getContractSize();
+
+            } else if (getQuantity() > 0 && TransactionType.BUY.equals(transaction.getType())) {
+
+                // for short positions look at sells
+                quantity += transaction.getQuantity();
+                totalPrice += transaction.getQuantity() * transaction.getPrice().doubleValue() +
+                    transaction.getCommission().doubleValue() / transaction.getSecurity().getContractSize();
+            }
+        }
+        return totalPrice / quantity;
+    }
+
+    public double getCostDouble() {
+
+        if (isOpen()) {
+
+            return getQuantity() * getSecurity().getContractSize() * getAveragePriceDouble();
+        } else {
+            return 0.0;
+        }
+    }
+
+    public double getUnrealizedPLDouble() {
+        if (isOpen()) {
+
+            return getMarketValueDouble() - getCostDouble();
         } else {
             return 0.0;
         }
@@ -40,7 +105,7 @@ public class PositionImpl extends com.algoTrader.entity.Position {
 
         if (isOpen() && getExitValue() != null) {
 
-            return -(double)getQuantity() * getSecurity().getContractSize() * getExitValue().doubleValue();
+            return -getQuantity() * getSecurity().getContractSize() * getExitValue().doubleValue();
         } else {
             return 0.0;
         }
@@ -52,7 +117,7 @@ public class PositionImpl extends com.algoTrader.entity.Position {
 
             StockOption stockOption = (StockOption) getSecurity();
 
-            return getCurrentValueDouble() * stockOption.getLeverage();
+            return getMarketValueDouble() * stockOption.getLeverage();
 
         } else {
             return 0.0;

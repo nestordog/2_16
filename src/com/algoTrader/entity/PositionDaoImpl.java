@@ -1,5 +1,6 @@
 package com.algoTrader.entity;
 
+import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.PositionVO;
 
 public class PositionDaoImpl extends PositionDaoBase {
@@ -24,7 +25,14 @@ public class PositionDaoImpl extends PositionDaoBase {
 
         positionVO.setSymbol(position.getSecurity().getSymbol());
         positionVO.setCurrency(position.getAccount().getCurrency());
-        positionVO.setCurrentValue(position.getSecurity().getLastTick().getCurrentValue());
+        positionVO.setMarketPrice(RoundUtil.getBigDecimal(position.getMarketPriceDouble()));
+        positionVO.setMarketValue(RoundUtil.getBigDecimal(position.getMarketValueDouble()));
+        positionVO.setAveragePrice(RoundUtil.getBigDecimal(position.getAveragePriceDouble()));
+        positionVO.setCost(RoundUtil.getBigDecimal(position.getCostDouble()));
+        positionVO.setUnrealizedPL(RoundUtil.getBigDecimal(position.getUnrealizedPLDouble()));
+        positionVO.setExitValue(RoundUtil.getBigDecimal(position.getExitValue()));
+        positionVO.setRedemptionValue(RoundUtil.getBigDecimal(position.getRedemptionValue()));
+
     }
 
     public Position positionVOToEntity(PositionVO positionVO) {

@@ -18,7 +18,11 @@ public class RoundUtil {
 
     public static BigDecimal getBigDecimal(double value) {
 
-        BigDecimal decimal = new BigDecimal(value);
-        return decimal.setScale(2, BigDecimal.ROUND_HALF_UP);
+        if (!Double.isNaN(value)) {
+            BigDecimal decimal = new BigDecimal(value);
+            return decimal.setScale(2, BigDecimal.ROUND_HALF_UP);
+        } else {
+            return null;
+        }
     }
 }
