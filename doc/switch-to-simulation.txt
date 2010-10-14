@@ -8,6 +8,8 @@
 5. database                                            .                    ./populated            livecopy
 
 without macd-initialization:
+use CH0008616382.csv.short / CH0019900841.csv.short
 conf.properties: maxAtRiskRatioOfPortfolio            0.118
 conf.properties: maxAtRiskRatioPerTrade                0.03
-esper.cfg.xml: var_call_vola_period                    2.09
+esper.cfg.xml: trend.bear.callVolaPeriod = 2.64
+esper.cfg.xml: trend.bear.putVolaPeriod = 2.09
