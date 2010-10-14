@@ -115,7 +115,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
         stockOption.setSymbol(symbol);
         stockOption.setContractSize(contractSize);
         stockOption.setMarketOpen(timeFormat.parse("09:00:00"));
-        stockOption.setMarketClose(timeFormat.parse("17:00:00"));
+        stockOption.setMarketClose(timeFormat.parse("17:20:00"));
 
         stockOption.setUnderlaying(underlaying);
 
@@ -192,7 +192,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
             stockOption.setSymbol(symbol);
             stockOption.setContractSize(contractSize);
             stockOption.setMarketOpen(timeFormat.parse("09:00:00"));
-            stockOption.setMarketClose(timeFormat.parse("17:00:00"));
+            stockOption.setMarketClose(timeFormat.parse("17:20:00"));
 
             stockOption.setUnderlaying(underlaying);
 
