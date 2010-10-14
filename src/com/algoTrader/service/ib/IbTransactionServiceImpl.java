@@ -152,7 +152,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                         String number = execution.m_execId;
                         int executedQuantity = Math.abs(execution.m_shares);
                         executedQuantity = TransactionType.SELL.equals(order.getTransactionType()) ? -executedQuantity : executedQuantity;
-                        BigDecimal price = RoundUtil.getBigDecimal(execution.m_price * stockOption.getContractSize());
+                        BigDecimal price = RoundUtil.getBigDecimal(execution.m_price);
                         BigDecimal commission = order.getSecurity().getCommission(execution.m_shares, order.getTransactionType());
 
                         Transaction transaction = new TransactionImpl();

@@ -25,7 +25,6 @@ import org.w3c.dom.traversal.NodeIterator;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Security;
-import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
 import com.algoTrader.entity.Transaction;
@@ -416,7 +415,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
 
             String pricePerItemValue = SqUtil.getValue(node, String.format(columnMatch, "Stückpreis"));
             double pricePerItem = SqUtil.getDouble(pricePerItemValue);
-            BigDecimal price = RoundUtil.getBigDecimal(pricePerItem * ((StockOption) security).getContractSize());
+            BigDecimal price = RoundUtil.getBigDecimal(pricePerItem);
 
             String commissionValue = SqUtil.getValue(node, String.format(columnMatch + "/a", "Kommission"));
             BigDecimal commission = RoundUtil.getBigDecimal(SqUtil.getDouble(commissionValue));
