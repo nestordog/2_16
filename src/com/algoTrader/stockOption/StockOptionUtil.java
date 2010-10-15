@@ -207,18 +207,30 @@ public class StockOptionUtil {
         return getTotalMargin(stockOption, stockOptionSettlement, underlayingSettlement) - stockOptionSettlement;
     }
 
+    /**
+     * spread depends on the pricePerContract (i.e. spread should be the same
+     * for 12.- à contractSize 10 as for 1.20 à contractSize 100)
+     *
+     * @return price per option
+     */
     public static double getDummyBid(double price, int contractSize) {
 
         double pricePerContract = price * contractSize;
         double spread = pricePerContract * spreadSlope + spreadConstant;
-        return pricePerContract - (spread / 2.0);
+        return (pricePerContract - (spread / 2.0)) / contractSize;
     }
 
+    /**
+     * spread depends on the pricePerContract (i.e. spread should be the same
+     * for 12.- à contractSize 10 as for 1.20 à contractSize 100)
+     *
+     * @return price per option
+     */
     public static double getDummyAsk(double price, int contractSize) {
 
         double pricePerContract = price * contractSize;
         double spread = pricePerContract * spreadSlope + spreadConstant;
-        return pricePerContract + (spread / 2.0);
+        return (pricePerContract + (spread / 2.0)) / contractSize;
     }
 
     public static boolean isDeltaTooLow(Security security, double currentValue, double underlayingSpot) throws ConvergenceException, FunctionEvaluationException {
