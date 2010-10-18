@@ -1,6 +1,9 @@
 package com.algoTrader.service;
 
+import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,11 +17,14 @@ import com.algoTrader.entity.Tick;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
+import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.csv.CsvTickReader;
 import com.algoTrader.util.csv.CsvTickWriter;
 
 public abstract class TickServiceImpl extends TickServiceBase {
 
     private static Logger logger = MyLogger.getLogger(TickServiceImpl.class.getName());
+    private static String dataSet = PropertiesUtil.getProperty("strategie.dataSet");
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
 
@@ -96,6 +102,33 @@ public abstract class TickServiceImpl extends TickServiceBase {
             getStockOptionDao().getStockOptionsOnWatchlist(false).remove(stockOption);
 
             logger.info("removed stockOption from watchlist " + stockOption.getSymbol());
+        }
+    }
+
+    protected void handleImportTicks() throws Exception {
+
+        File directory = new File("results/tickdata/" + dataSet);
+        for (File file : directory.listFiles()) {
+
+            String isin = file.getName().split("\\.")[0];
+
+            Security security = getSecurityDao().findByISIN(isin);
+            CsvTickReader reader = new CsvTickReader(isin);
+
+            Tick tick;
+            List<Tick> ticks = new ArrayList<Tick>();
+            while ((tick = reader.readTick()) != null) {
+
+                if (tick.getLast().equals(new BigDecimal(0)))
+                    tick.setLast(null);
+
+                tick.setSecurity(security);
+                ticks.add(tick);
+
+            }
+            getTickDao().create(ticks);
+            System.out.println("imported ticks for: " + isin);
+            System.gc();
         }
     }
 }
