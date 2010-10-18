@@ -34,32 +34,38 @@ public class CsvTickReader {
         new ParseBigDecimal(),
         new ParseInt(),
         new ParseInt(),
-        new ParseBigDecimal()};
+        new ParseBigDecimal()
+    };
 
     private String[] header;
     private CsvBeanReader reader;
 
-    public CsvTickReader(String symbol ) throws SuperCSVException, IOException  {
+    public CsvTickReader(String symbol) throws SuperCSVException, IOException {
 
         File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
         Reader inFile = new FileReader(file);
-        reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
-        header = reader.getCSVHeader(true);
+        this.reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
+        this.header = this.reader.getCSVHeader(true);
     }
 
-     private static class ParseDate extends CellProcessorAdaptor {
+    private static class ParseDate extends CellProcessorAdaptor {
 
-             public ParseDate() {
-                super();
-            }
-
-            public Object execute(final Object value, final CSVContext context) throws NumberFormatException {
-
-                Date date = new Date(Long.parseLong((String)value));
-
-                return next.execute(date, context);
-            }
+        public ParseDate() {
+            super();
         }
+
+        public Object execute(final Object value, final CSVContext context) throws NumberFormatException {
+
+            Date date;
+            if (value == null || "".equals(value)) {
+                date = null;
+            } else {
+                date = new Date(Long.parseLong((String) value));
+            }
+
+            return this.next.execute(date, context);
+        }
+    }
 
     public static void main(String[] args) throws SuperCSVException, IOException {
 
@@ -67,18 +73,18 @@ public class CsvTickReader {
 
         Tick tick;
         while ((tick = csvReader.readTick()) != null) {
-                System.out.print(tick);
+            System.out.print(tick);
         }
     }
 
     public Tick readTick() throws SuperCSVReflectionException, IOException {
 
-          Tick tick;
-          if ( (tick = reader.read(TickImpl.class, header, processor)) != null) {
-              return tick;
-          } else {
-              reader.close();
-              return null;
-          }
+        Tick tick;
+        if ((tick = this.reader.read(TickImpl.class, this.header, processor)) != null) {
+            return tick;
+        } else {
+            this.reader.close();
+            return null;
+        }
     }
 }
