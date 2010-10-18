@@ -8,8 +8,8 @@ public class HistoricalDataStarter {
 
     public static void main(String[] args) {
 
-        PropertiesUtil.setProperty("simulation", "true");
         PropertiesUtil.setProperty("strategie.dataSet", "expiredOptions");
+        PropertiesUtil.setProperty("ib.historicalDataServiceEnabled", "true");
 
         String startDate = args[0];
 
@@ -25,7 +25,6 @@ public class HistoricalDataStarter {
 
         IbHistoricalDataService service = ServiceLocator.instance().getIbHistoricalDataService();
 
-        service.init();
         service.requestHistoricalData(securityIds, whatToShow, startDate, endDate);
     }
 }
