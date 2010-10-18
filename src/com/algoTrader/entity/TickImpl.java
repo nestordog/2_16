@@ -38,18 +38,31 @@ public class TickImpl extends com.algoTrader.entity.Tick {
         return getCurrentValue().doubleValue();
     }
 
-    public BigDecimal getSettlement() {
+    public BigDecimal getBid() {
 
-        if (super.getSettlement() == null || super.getSettlement().doubleValue() == 0) {
-            return getCurrentValue();
+        if (simulation) {
+            return getLast();
         } else {
-            return super.getSettlement();
+            return super.getBid();
         }
     }
 
-    public double getSettlementDouble() {
+    public BigDecimal getAsk() {
 
-        return getSettlement().doubleValue();
+        if (simulation) {
+            return getLast();
+        } else {
+            return super.getAsk();
+        }
+    }
+
+    public BigDecimal getSettlement() {
+
+        if (simulation) {
+            return getLast();
+        } else {
+            return super.getSettlement();
+        }
     }
 
     public void validate() {

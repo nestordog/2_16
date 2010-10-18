@@ -36,4 +36,10 @@ public class LookupUtil {
         ServiceLocator serviceLocator = ServiceLocator.instance();
         return serviceLocator.getLookupService().getPortfolioValue();
     }
+
+    public static boolean hasLastTicks() {
+
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        return serviceLocator.getLookupService().hasLastTicks();
+    }
 }

@@ -327,7 +327,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         if (stockOptionTick != null && underlayingTick != null) {
 
-            double marginPerContract = StockOptionUtil.getMaintenanceMargin(stockOption, stockOptionTick.getSettlementDouble(), underlayingTick.getSettlementDouble()) * stockOption.getContractSize();
+            double marginPerContract = StockOptionUtil.getMaintenanceMargin(stockOption, stockOptionTick.getSettlement().doubleValue(), underlayingTick.getSettlement().doubleValue()) * stockOption.getContractSize();
             long numberOfContracts = Math.abs(position.getQuantity());
             BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
 

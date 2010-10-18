@@ -97,4 +97,9 @@ public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase 
 
         return portfolioValueVO;
     }
+
+    protected boolean handleHasLastTicks() throws Exception {
+
+        return getTickDao().hasLastTicks();
+    }
 }

@@ -59,4 +59,11 @@ public class TickDaoImpl extends TickDaoBase {
         }
         return ticks;
     }
+
+    protected synchronized boolean handleHasLastTicks() {
+
+        EPStatement statement = EsperService.getStatement(RuleName.GET_LAST_TICK);
+
+        return (statement != null) && statement.isStarted() && statement.safeIterator().hasNext();
+    }
 }
