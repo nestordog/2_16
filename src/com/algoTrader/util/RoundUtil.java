@@ -25,4 +25,10 @@ public class RoundUtil {
             return null;
         }
     }
+
+    public static double round(double value, int scale) {
+
+        double factor = Math.pow(10, scale);
+        return (Math.round(value * factor)) / factor;
+    }
 }
