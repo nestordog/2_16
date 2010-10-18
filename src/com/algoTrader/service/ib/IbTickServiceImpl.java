@@ -34,6 +34,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
+    private static boolean tickServiceEnabled = PropertiesUtil.getBooleanProperty("ib.tickServiceEnabled");
 
     private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
     private static String genericTickList = PropertiesUtil.getProperty("ib.genericTickList");
@@ -56,7 +57,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
     protected void handleInit() throws InterruptedException {
 
-        if (!ibEnabled || simulation)
+        if (!ibEnabled || simulation || !tickServiceEnabled)
             return;
 
         this.wrapper = new DefaultWrapper(clientId) {

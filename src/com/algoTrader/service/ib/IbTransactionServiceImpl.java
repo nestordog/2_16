@@ -40,6 +40,8 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
+    private static boolean transactionServiceEnabled = PropertiesUtil.getBooleanProperty("ib.transactionServiceEnabled");
+
     private static double[] spreadPositions = PropertiesUtil.getDoubleArrayProperty("spreadPositions");
 
     private static String group = PropertiesUtil.getProperty("ib.group");
@@ -67,7 +69,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
     protected void handleInit() {
 
-        if (!ibEnabled || simulation)
+        if (!ibEnabled || simulation || !transactionServiceEnabled)
             return;
 
         this.wrapper = new DefaultWrapper(clientId) {

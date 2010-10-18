@@ -142,15 +142,16 @@ public class DefaultWrapper implements EWrapper {
     }
 
     public void error(String str) {
-        logger.error(str);
+        logger.error(str, new RuntimeException(str));
     }
 
     public void error(int id, int code, String errorMsg) {
 
+        String message = "client: " + this.clientId + " id: " + id + " code: " + code + " " + errorMsg.replaceAll("\n", " ");
         if (code < 1000) {
-            logger.error("client: " + this.clientId + " id: " + id + " code: " + code + " " + errorMsg.replaceAll("\n", " "));
+            logger.error(message, new RuntimeException(message));
         } else {
-            logger.debug("client: " + this.clientId + " id: " + id + " code: " + code + " " + errorMsg.replaceAll("\n", " "));
+            logger.debug(message);
         }
 
         if (code == 502) {

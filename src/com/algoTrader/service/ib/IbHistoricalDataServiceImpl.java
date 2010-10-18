@@ -15,10 +15,12 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
+import com.algoTrader.service.HistoricalDataServiceException;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
@@ -26,9 +28,13 @@ import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.csv.CsvTickWriter;
 import com.ib.client.Contract;
 
-public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase {
+public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase implements InitializingBean {
 
     private static Logger logger = MyLogger.getLogger(IbHistoricalDataServiceImpl.class.getName());
+
+    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
+    private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
+    private static boolean historicalDataServiceEnabled = PropertiesUtil.getBooleanProperty("ib.historicalDataServiceEnabled");
 
     private static int historicalDataTimeout = PropertiesUtil.getIntProperty("ib.historicalDataTimeout");
 
@@ -48,7 +54,15 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase {
     private CsvTickWriter writer;
     private static int clientId = 3;
 
+    public void afterPropertiesSet() throws Exception {
+
+        init();
+    }
+
     protected void handleInit() throws Exception {
+
+        if (!ibEnabled || simulation || !historicalDataServiceEnabled)
+            return;
 
         this.wrapper = new DefaultWrapper(clientId) {
 
@@ -141,7 +155,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase {
                             " hasGaps=" + hasGaps;
 
                     if (hasGaps) {
-                        logger.error(message);
+                        logger.error(message, new HistoricalDataServiceException(message));
                     } else {
                         logger.debug(message);
                     }

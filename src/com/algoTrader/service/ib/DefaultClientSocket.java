@@ -38,7 +38,7 @@ public class DefaultClientSocket extends EClientSocket {
                     // during eDisconnect this thread get's interrupted so sleep again
                     Thread.sleep(connectionTimeout);
                 } catch (InterruptedException e2) {
-                    logger.error(e2);
+                    logger.error("problem sleeping", e2);
                 }
             }
         }
@@ -54,7 +54,7 @@ public class DefaultClientSocket extends EClientSocket {
                     // during eDisconnect this thread get's interrupted so sleep again
                     Thread.sleep(connectionTimeout);
                 } catch (InterruptedException e2) {
-                    logger.error(e2);
+                    logger.error("problem sleeping", e2);
                 }
             }
         }
@@ -76,7 +76,7 @@ public class DefaultClientSocket extends EClientSocket {
             // do nothing, gateway is down
             return false;
         } catch (IOException e) {
-            logger.error(e);
+            logger.error("connection error", e);
             return false;
         }
     }

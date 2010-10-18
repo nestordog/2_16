@@ -51,6 +51,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
 
     private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
     private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
+    private static boolean accountServiceEnabled = PropertiesUtil.getBooleanProperty("ib.accountServiceEnabled");
 
     private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
     private static String masterAccount = PropertiesUtil.getProperty("ib.masterAccount");
@@ -81,7 +82,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
 
     protected void handleInit() throws java.lang.Exception {
 
-        if (!ibEnabled || simulation)
+        if (!ibEnabled || simulation || !accountServiceEnabled)
             return;
 
         this.wrapper = new DefaultWrapper(clientId) {
