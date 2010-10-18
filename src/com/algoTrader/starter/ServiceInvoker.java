@@ -30,7 +30,7 @@ public class ServiceInvoker {
     public Object invoke(String call)  {
 
         if (call == null) {
-            logger.error("you must specifiy service and method");
+            logger.warn("you must specifiy service and method");
             return "you must specifiy service and method";
         }
 
@@ -38,7 +38,7 @@ public class ServiceInvoker {
 
         int len = tokenizer.countTokens();
         if (len < 2) {
-            logger.error("you must specifiy service and method");
+            logger.warn("you must specifiy service and method");
             return "you must specifiy service and method";
         }
 
@@ -64,7 +64,7 @@ public class ServiceInvoker {
             return method.invoke(service, (Object[])params);
 
         } catch (NoSuchMethodException e) {
-            logger.error("the specified service or method does not exist");
+            logger.error("the specified service or method does not exist", e);
             return "the specified service or method does not exist";
         } catch (InvocationTargetException e) {
             logger.error("there was an error", e.getTargetException());
