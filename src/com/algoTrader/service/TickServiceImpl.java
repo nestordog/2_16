@@ -105,6 +105,10 @@ public abstract class TickServiceImpl extends TickServiceBase {
         }
     }
 
+    /**
+     * must be run with simulation=false (to get correct values for bid, ask and settlement)
+     * also recommended to turn of ehache on commandline (to avoid out of memory error)
+     */
     protected void handleImportTicks() throws Exception {
 
         File directory = new File("results/tickdata/" + dataSet);
