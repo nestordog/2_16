@@ -39,13 +39,11 @@
 
     <variable name="var_macd_fast" type="int" initialization-value="88"/>
     <variable name="var_macd_slow" type="int" initialization-value="183"/>
-    <variable name="var_macd_signal" type="int" initialization-value="64"/>
+    <variable name="var_macd_signal" type="int" initialization-value="70"/>
     <variable name="var_macd_weight" type="double" initialization-value="2.3"/>
 
-    <variable name="var_alpha" type="double" initialization-value="0.1625"/>
-
     <!-- BEAR MARKET / CALL FOCUSED -->
-    <variable name="var_call_k_fast_days" type="double" initialization-value="3.52"/>
+    <variable name="var_call_k_fast_days" type="double" initialization-value="2.70"/>
     <variable name="var_call_k_slow_days" type="double" initialization-value="0.98"/>
     <variable name="var_call_d_slow_days" type="double" initialization-value="1.80"/>
 
@@ -54,7 +52,7 @@
     <variable name="var_call_trigger" type="double" initialization-value="0"/>
 
     <!-- BULL MARKET / PUT FOCUSED -->
-    <variable name="var_put_k_fast_days" type="double" initialization-value="2.68"/>
+    <variable name="var_put_k_fast_days" type="double" initialization-value="3.20"/>
     <variable name="var_put_k_slow_days" type="double" initialization-value="0.86"/>
     <variable name="var_put_d_slow_days" type="double" initialization-value="0.52"/>
 
