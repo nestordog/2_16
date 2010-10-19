@@ -62,8 +62,6 @@ public class TickDaoImpl extends TickDaoBase {
 
     protected synchronized boolean handleHasLastTicks() {
 
-        EPStatement statement = EsperService.getStatement(RuleName.GET_LAST_TICK);
-
-        return (statement != null) && statement.isStarted() && statement.safeIterator().hasNext();
+        return (EsperService.getLastEvent(RuleName.GET_LAST_TICK) != null);
     }
 }
