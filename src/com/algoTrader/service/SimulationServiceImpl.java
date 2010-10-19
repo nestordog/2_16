@@ -64,6 +64,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static DecimalFormat threeDigitFormat = new DecimalFormat("#,##0.000");
     private static DateFormat dateFormat = new SimpleDateFormat(" MMM-yy ");
+    private static boolean compressed = true;
 
     private static String[] tickPropertyOrder;
     private static Map<String, Object> tickPropertyTypes;
@@ -190,8 +191,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         inputCSV();
 
         double mins = ((double)(System.currentTimeMillis() - startTime)) / 60000;
-        logger.info("execution time (min): " + (new DecimalFormat("0.00")).format(mins));
-        logger.info("dataSet: " + dataSet);
+        if(!compressed) logger.info("execution time (min): " + (new DecimalFormat("0.00")).format(mins));
+        if(!compressed) logger.info("dataSet: " + dataSet);
 
         double result = getStatistics();
 
@@ -267,7 +268,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 functionValue = value;
                 result = i;
             }
-            logger.info("");
+            if(!compressed) logger.info("");
         }
         logger.info("optimal value of " + parameter + " is " + threeDigitFormat.format(result) + "(functionValue: " + threeDigitFormat.format(functionValue) + ")");
     }
@@ -370,7 +371,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         List<MonthlyPerformance> monthlyPerformances = getMonthlyPerformances();
         double maxDrawDownM = 0d;
         double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
-        if (monthlyPerformances != null) {
+        if ((monthlyPerformances != null) && !compressed) {
             StringBuffer dateBuffer= new StringBuffer("month-year:         ");
             StringBuffer performanceBuffer  = new StringBuffer("monthlyPerformance: ");
             for (MonthlyPerformance monthlyPerformance : monthlyPerformances) {
@@ -387,20 +388,20 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         MaxDrawDownVO maxDrawDownVO = getMaxDrawDown();
         if (performanceKeys != null && maxDrawDownVO != null) {
             StringBuffer buffer = new StringBuffer();
-            buffer.append("n=" + performanceKeys.getN());
-            buffer.append(" avgM=" + twoDigitFormat.format(performanceKeys.getAvgM() * 100) + "%");
-            buffer.append(" stdM=" + twoDigitFormat.format(performanceKeys.getStdM() * 100) + "%");
-            buffer.append(" avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100) + "%");
-            buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "%");
-            buffer.append(" sharpRatio=" + threeDigitFormat.format(performanceKeys.getSharpRatio()));
+            if(!compressed) buffer.append("n=" + performanceKeys.getN());
+            if(!compressed) buffer.append(" avgM=" + twoDigitFormat.format(performanceKeys.getAvgM() * 100) + "%");
+            if(!compressed) buffer.append(" stdM=" + twoDigitFormat.format(performanceKeys.getStdM() * 100) + "%");
+            if(!compressed) buffer.append(" avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100) + "%");
+            if(!compressed) buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "% ");
+            buffer.append("sharpRatio=" + threeDigitFormat.format(performanceKeys.getSharpRatio()));
             logger.info(buffer.toString());
 
             buffer = new StringBuffer();
-            buffer.append("maxDrawDownM=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
-            buffer.append(" bestMonthlyPerformance=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
-            buffer.append(" maxDrawDown=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100) + "%");
-            buffer.append(" maxDrawDownPeriod=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000) + "days");
-            buffer.append(" colmarRatio=" + twoDigitFormat.format(performanceKeys.getAvgY() / maxDrawDownVO.getAmount()));
+            if(!compressed) buffer.append("maxDrawDownM=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
+            if(!compressed) buffer.append(" bestMonthlyPerformance=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
+            if(!compressed) buffer.append(" maxDrawDown=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100) + "%");
+            if(!compressed) buffer.append(" maxDrawDownPeriod=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000) + "days");
+            if(!compressed) buffer.append(" colmarRatio=" + twoDigitFormat.format(performanceKeys.getAvgY() / maxDrawDownVO.getAmount()));
             logger.info(buffer.toString());
 
             return performanceKeys.getSharpRatio();
@@ -427,7 +428,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             double result = ServiceLocator.instance().getSimulationService().simulateByUnderlayings();
 
-            logger.info("");
+            if(!compressed) logger.info("");
+
             return result;
         }
     }
