@@ -64,7 +64,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static DecimalFormat threeDigitFormat = new DecimalFormat("#,##0.000");
     private static DateFormat dateFormat = new SimpleDateFormat(" MMM-yy ");
-    private static boolean compressed = true;
+    private static boolean compressed = false;
 
     private static String[] tickPropertyOrder;
     private static Map<String, Object> tickPropertyTypes;
