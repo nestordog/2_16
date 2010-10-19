@@ -112,7 +112,7 @@ public class CsvHlocInterpolator {
                 Tick tick = new TickImpl();
                 tick.setDateTime(new Date(hloc.getDateTime().getTime() + (int)((currentHour / recordsPerHour + offsetHour) * 60 * 60 * 1000)));
                 tick.setLast(RoundUtil.getBigDecimal(value));
-                tick.setLastDateTime(tick.getDateTime());
+                tick.setLastDateTime(null);
 
                 tick.setVol(0);
                 tick.setVolBid(0);

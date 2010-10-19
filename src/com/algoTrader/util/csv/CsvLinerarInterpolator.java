@@ -41,7 +41,7 @@ public class CsvLinerarInterpolator {
 
                 tick.setDateTime(new Date(newTick.getDateTime().getTime() + (int)((currentHour / recordsPerHour + offsetHour) * 60 * 60 * 1000)));
                 tick.setLast(RoundUtil.getBigDecimal(oldTick.getLast().doubleValue() + currentHour * lastOffset));
-                tick.setLastDateTime(tick.getDateTime());
+                tick.setLastDateTime(null);
                 tick.setVol(0);
                 tick.setVolBid(0);
                 tick.setVolAsk(0);
