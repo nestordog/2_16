@@ -51,12 +51,15 @@ public class SimulationStarter {
             ServiceLocator.instance().getSimulationService().optimizeMulti(parameters, starts);
         } else if (args[0].equals("optimizeLinear")) {
 
-            String param = args[1];
-            double min = Double.parseDouble(args[2]);
-            double max = Double.parseDouble(args[3]);
-            double increment = Double.parseDouble(args[4]);
+            for (int i = 1; i < args.length; i++) {
+                String[] params = args[i].split(":");
+                String parameter = params[0];
+                double min = Double.parseDouble(params[1]);
+                double max = Double.parseDouble(params[2]);
+                double increment = Double.parseDouble(params[3]);
 
-            ServiceLocator.instance().getSimulationService().optimizeLinear(param, min, max, increment);
+                ServiceLocator.instance().getSimulationService().optimizeLinear(parameter, min, max, increment);
+            }
         } else {
             logger.info("please specify simulateByUnderlayings or simulateByActualOrders on the commandline");
         }
