@@ -127,22 +127,6 @@ and tick.currentValue  &gt;= tick.security.position.exitValue</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
-        <field name="id">15</field>
-        <field name="NAME">CREATE_SAR</field>
-        <field name="PRIORITY">5</field>
-        <field name="DEFINITION">insert into ExitValue
-select optionTick.security as security,
-exitValue.value + (1-Math.pow(1.0  - var_alpha, 1.0 / var_events_per_day)) * (optionTick.currentValueDouble - exitValue.value) as value
-from pattern [every exitValue=ExitValue -&gt; optionTick=Tick(security.id=exitValue.security.id) and not ExitValue(security.id=exitValue.security.id)]
-where optionTick.security.position != null
-and optionTick.security.position.quantity != 0
-and optionTick.currentValueDouble != 0</field>
-        <field name="SUBSCRIBER">SetExitValueSubscriber</field>
-        <field name="LISTENERS" xsi:nil="true" />
-        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
-    </row>
-    <row>
         <field name="id">16</field>
         <field name="NAME">CREATE_EXIT_VALUE</field>
         <field name="PRIORITY">4</field>

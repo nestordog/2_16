@@ -15,8 +15,6 @@ import org.apache.log4j.Logger;
 import com.algoTrader.criteria.CallOptionCriteria;
 import com.algoTrader.criteria.PutOptionCriteria;
 import com.algoTrader.entity.Account;
-import com.algoTrader.entity.ExitValue;
-import com.algoTrader.entity.ExitValueImpl;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.OrderImpl;
 import com.algoTrader.entity.Position;
@@ -32,7 +30,6 @@ import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
-import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
@@ -217,12 +214,6 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         if (position != null) {
             setMargin(position);
             setExitValue(stockOption.getPosition(), exitValue);
-
-            ExitValue sar = new ExitValueImpl();
-            sar.setSecurity(stockOption);
-            sar.setValue(exitValue);
-
-            EsperService.route(sar);
         }
     }
 
