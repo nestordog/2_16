@@ -19,7 +19,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.PartialOrder;
 import com.algoTrader.entity.Security;
-import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
@@ -148,7 +147,6 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
                         PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(execution.m_orderId);
                         Order order = partialOrder.getParentOrder();
-                        StockOption stockOption = ((StockOption) order.getSecurity());
 
                         Date dateTime = format.parse(execution.m_time);
                         String number = execution.m_execId;
@@ -185,12 +183,28 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 connect();
             }
 
-            public void error(int id, int code, String errorMsg) {
+            public void error(int orderId, int code, String errorMsg) {
 
                 if (code == 202) {
                     // do nothing, since we cancelled the order ourself
                 } else {
-                    super.error(id, code, errorMsg);
+                    super.error(orderId, code, errorMsg);
+
+                    IbTransactionServiceImpl.this.lock.lock();
+                    try {
+
+                        PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(orderId);
+
+                        if (partialOrder != null) {
+                            partialOrder.setStatus(OrderStatus.CANCELED);
+
+                            IbTransactionServiceImpl.this.deletedMap.put(orderId, true);
+                            IbTransactionServiceImpl.this.condition.signalAll();
+                        }
+
+                    } finally {
+                        IbTransactionServiceImpl.this.lock.unlock();
+                    }
                 }
             }
         };
@@ -250,6 +264,12 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
             } else if (OrderStatus.EXECUTED.equals(partialOrder.getStatus())) {
 
                 // we are done!
+                break;
+
+            } else if (OrderStatus.CANCELED.equals(partialOrder.getStatus())) {
+
+                // there must have been a problem submitting the error so abort
+                // the loop
                 break;
             }
         }
@@ -324,17 +344,14 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
             ibOrder.m_faPercentage = "-100";
         }
 
+        this.client.placeOrder(partialOrder.getOrderId(), contract, ibOrder);
+
+        logger.debug("orderId: " + partialOrder.getOrderId() + " placeOrder for quantity: " + partialOrder.getRequestedQuantity() + " limit: " + ibOrder.m_lmtPrice + " spreadPosition: "
+                + partialOrder.getSpreadPosition());
+
         this.lock.lock();
 
         try {
-
-            this.client.placeOrder(partialOrder.getOrderId(), contract, ibOrder);
-
-            logger.debug("orderId: " + partialOrder.getOrderId() +
-                    " placeOrder for quantity: " + partialOrder.getRequestedQuantity()
-                    + " limit: " + ibOrder.m_lmtPrice
-                    + " spreadPosition: " + partialOrder.getSpreadPosition());
-
             while (!this.executedMap.get(partialOrder.getOrderId())) {
                 if (!this.condition.await(transactionTimeout, TimeUnit.MILLISECONDS))
                     break;
