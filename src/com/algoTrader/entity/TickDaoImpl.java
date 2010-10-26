@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.util.EsperService;
-import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.TickVO;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
@@ -32,7 +31,7 @@ public class TickDaoImpl extends TickDaoBase {
     private void completeTickVO(Tick tick, TickVO tickVO) {
 
         tickVO.setSymbol(tick.getSecurity().getSymbol());
-        tickVO.setMidpoint(RoundUtil.getBigDecimal((tick.getBid().doubleValue() + tick.getAsk().doubleValue()) / 2.0));
+        tickVO.setMidpoint(tick.getCurrentValue());
     }
 
     public Tick tickVOToEntity(TickVO tickVO) {
