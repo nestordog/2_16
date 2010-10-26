@@ -327,7 +327,6 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
         // sort the transactions according to their dateTime
         Collections.sort(transactions, new Comparator<Transaction>() {
             public int compare(Transaction t1, Transaction t2) {
-                // TODO Auto-generated method stub
                 return t1.getDateTime().compareTo(t2.getDateTime());
             }
         });
