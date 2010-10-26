@@ -7,9 +7,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import org.apache.commons.math.ConvergenceException;
-import org.apache.commons.math.FunctionEvaluationException;
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.criteria.CallOptionCriteria;
@@ -77,15 +75,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         // set third Friday of the month
         Date expiration = DateUtil.getNextThirdFriday(targetExpirationDate);
 
-
-        BigDecimal strike;
-        if (OptionType.CALL.equals(type)) {
-            // increase by strikeOffset and round to upper 50
-            strike = RoundUtil.getBigDecimal(MathUtils.round((underlayingSpot.doubleValue()) / 50.0, 0, BigDecimal.ROUND_CEILING) * 50.0);
-        } else {
-            // reduce by strikeOffset and round to lower 50
-            strike = RoundUtil.getBigDecimal(MathUtils.round((underlayingSpot.doubleValue()) / 50.0, 0, BigDecimal.ROUND_FLOOR) * 50.0);
-        }
+        BigDecimal strike = RoundUtil.roundToNextN(underlayingSpot, 50, type);
 
         // symbol
         GregorianCalendar cal = new GregorianCalendar();
@@ -282,7 +272,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         }
     }
 
-    protected void handleSetExitValue(int positionId, double exitValue) throws ConvergenceException, FunctionEvaluationException {
+    protected void handleSetExitValue(int positionId, double exitValue) throws MathException {
 
         // we don't want to set the exitValue to Zero
         if (exitValue <= 0.05) {
@@ -316,9 +306,15 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         Tick stockOptionTick = stockOption.getLastTick();
         Tick underlayingTick = stockOption.getUnderlaying().getLastTick();
 
-        if (stockOptionTick != null && underlayingTick != null) {
+        if (stockOptionTick != null && underlayingTick != null && stockOptionTick.getCurrentValueDouble() > 0.0) {
 
-            double marginPerContract = StockOptionUtil.getMaintenanceMargin(stockOption, stockOptionTick.getSettlement().doubleValue(), underlayingTick.getSettlement().doubleValue()) * stockOption.getContractSize();
+            double marginPerContract = 0;
+            try {
+                marginPerContract = StockOptionUtil.getMaintenanceMargin(stockOption, stockOptionTick.getSettlement().doubleValue(), underlayingTick.getSettlement().doubleValue()) * stockOption.getContractSize();
+            } catch (IllegalArgumentException e) {
+                logger.warn("could not calculate margin for " + stockOption.getSymbol(), e);
+                return;
+            }
             long numberOfContracts = Math.abs(position.getQuantity());
             BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
 
@@ -337,13 +333,13 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
                         + " availableFunds: " + account.getAvailableFunds() + " (" + percent + "% of balance)");
             }
         } else {
-            logger.warn("no last tick available to set margin on " + stockOption.getSymbol());
+            logger.warn("no last tick available or currentValue to low to set margin on " + stockOption.getSymbol());
         }
 
     }
 
 
-    private void setExitValue(Position position, double exitValue) throws ConvergenceException, FunctionEvaluationException {
+    private void setExitValue(Position position, double exitValue) throws MathException {
 
         double currentValue = position.getSecurity().getLastTick().getCurrentValueDouble();
         if (exitValue < currentValue ) {

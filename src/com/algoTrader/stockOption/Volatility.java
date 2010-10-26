@@ -7,6 +7,7 @@ import org.apache.commons.math.analysis.solvers.UnivariateRealSolver;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
 import com.algoTrader.enumeration.OptionType;
+import com.algoTrader.sabr.SABRVol;
 import com.algoTrader.util.PropertiesUtil;
 
 public class Volatility {
@@ -15,17 +16,21 @@ public class Volatility {
     private static double intrest = PropertiesUtil.getDoubleProperty("strategie.intrest");
     private static double dividend = PropertiesUtil.getDoubleProperty("strategie.dividend");
 
+    private static double beta = PropertiesUtil.getDoubleProperty("strategie.beta");
+    private static double volVol = PropertiesUtil.getDoubleProperty("strategie.volVol");
+    private static double correlation = PropertiesUtil.getDoubleProperty("strategie.correlation");
+
     public static double getIndexVola(double underlayingSpot, double atmVola, double years) {
 
         double accumulation = Math.exp(years * intrest);
-        double forward = underlayingSpot * (1 - years * dividend) * Math.exp(years * intrest);
+        double forward = StockOptionUtil.getForward(underlayingSpot, years, intrest, dividend);
         double atmStrike = Math.round(underlayingSpot / 50.0) * 50.0;
 
         double factorSum = 0.0;
 
         // process atm strike
         {
-            double sabrVola = Sabr.getSabrVolatility(atmStrike, forward, years, atmVola);
+            double sabrVola = SABRVol.volByAtmVol(forward, atmStrike, atmVola, years, beta, correlation, volVol);
             double call = StockOptionUtil.getOptionPriceBS(underlayingSpot, atmStrike, sabrVola, years, intrest, dividend, OptionType.CALL);
             double put = StockOptionUtil.getOptionPriceBS(underlayingSpot, atmStrike, sabrVola, years, intrest, dividend, OptionType.PUT);
             double outOfTheMoneyPrice = (put + call) / 2;
@@ -36,7 +41,7 @@ public class Volatility {
         // process strikes below atm
         double strike = atmStrike - strikeDistance;
         while (true) {
-            double sabrVola = Sabr.getSabrVolatility(strike, forward, years, atmVola);
+            double sabrVola = SABRVol.volByAtmVol(forward, strike, atmVola, years, beta, correlation, volVol);
             double put = StockOptionUtil.getOptionPriceBS(underlayingSpot, strike, sabrVola, years, intrest, dividend, OptionType.PUT);
             if (put < 0.5)
                 break;
@@ -50,7 +55,7 @@ public class Volatility {
         // process strikes above atm
         strike = atmStrike + strikeDistance;
         while (true) {
-            double sabrVola = Sabr.getSabrVolatility(strike, forward, years, atmVola);
+            double sabrVola = SABRVol.volByAtmVol(forward, strike, atmVola, years, beta, correlation, volVol);
             double call = StockOptionUtil.getOptionPriceBS(underlayingSpot, strike, sabrVola, years, intrest, dividend, OptionType.CALL);
             if (call < 0.5)
                 break;

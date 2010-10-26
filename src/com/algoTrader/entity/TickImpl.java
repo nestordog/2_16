@@ -67,25 +67,29 @@ public class TickImpl extends com.algoTrader.entity.Tick {
 
     public void validate() {
 
-        if (getSecurity() instanceof StockOption) {
+        validateVol();
+        validateSpread();
+    }
 
-            StockOption stockOption = (StockOption) getSecurity();
+    public void validateVol() {
 
-            if (getVolAsk() <= minVol ) {
-                throw new TickServiceException("vol ask (" + getVolAsk() + ") ist too low for security " + getSecurity());
-            }
+        if (getVolAsk() <= minVol) {
+            throw new TickServiceException("vol ask (" + getVolAsk() + ") ist too low for security " + getSecurity());
+        }
 
-            if (getVolBid() <= minVol) {
-                throw new TickServiceException("vol bid (" + getVolBid() + ") ist too low for security " + getSecurity());
-            }
+        if (getVolBid() <= minVol) {
+            throw new TickServiceException("vol bid (" + getVolBid() + ") ist too low for security " + getSecurity());
+        }
+    }
 
-            double mean = stockOption.getContractSize() * (getAsk().doubleValue() + getBid().doubleValue()) / 2.0;
-            double spread = stockOption.getContractSize() * (getAsk().doubleValue() - getBid().doubleValue());
-            double maxSpread = mean * maxSpreadSlope + maxSpreadConstant;
+    public void validateSpread() {
 
-            if (spread > maxSpread) {
-                throw new TickServiceException("spread (" + spread + ") is higher than maxSpread (" + maxSpread + ") for security " + getSecurity());
-            }
+        double mean = getSecurity().getContractSize() * (getAsk().doubleValue() + getBid().doubleValue()) / 2.0;
+        double spread = getSecurity().getContractSize() * (getAsk().doubleValue() - getBid().doubleValue());
+        double maxSpread = mean * maxSpreadSlope + maxSpreadConstant;
+
+        if (spread > maxSpread) {
+            throw new TickServiceException("spread (" + spread + ") is higher than maxSpread (" + maxSpread + ") for security " + getSecurity());
         }
     }
 }

@@ -185,4 +185,9 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
         getActionService().runDailyJobs();
     }
+
+    protected void handleClosePosition(int positionId) throws Exception {
+
+        getStockOptionService().closePosition(positionId);
+    }
 }

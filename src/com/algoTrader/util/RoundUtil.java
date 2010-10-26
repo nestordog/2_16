@@ -2,6 +2,10 @@ package com.algoTrader.util;
 
 import java.math.BigDecimal;
 
+import org.apache.commons.math.util.MathUtils;
+
+import com.algoTrader.enumeration.OptionType;
+
 public class RoundUtil {
 
     public static BigDecimal roundTo5Cent(BigDecimal decimal) {
@@ -14,6 +18,18 @@ public class RoundUtil {
 
         double rounded = Math.round(decimal.doubleValue() * 10.0) / 10.0;
         return getBigDecimal(rounded);
+    }
+
+    public static BigDecimal roundToNextN(BigDecimal spot, double n, OptionType type) {
+
+        if (OptionType.CALL.equals(type)) {
+
+            // increase by strikeOffset and round to upper n
+            return RoundUtil.getBigDecimal(MathUtils.round((spot.doubleValue()) / n, 0, BigDecimal.ROUND_CEILING) * n);
+        } else {
+            // reduce by strikeOffset and round to lower n
+            return RoundUtil.getBigDecimal(MathUtils.round((spot.doubleValue()) / n, 0, BigDecimal.ROUND_FLOOR) * n);
+        }
     }
 
     public static BigDecimal getBigDecimal(double value) {
