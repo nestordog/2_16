@@ -39,6 +39,8 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     private static Currency currency = Currency.fromString(PropertiesUtil.getProperty("strategie.currency"));
     private static int contractSize = PropertiesUtil.getIntProperty("strategie.contractSize");
     private static double initialMarginMarkup = PropertiesUtil.getDoubleProperty("strategie.initialMarginMarkup");
+    private static boolean numberOfContractsByRedemptionValueEnabled = PropertiesUtil.getBooleanProperty("numberOfContractsByRedemptionValueEnabled");
+    private static boolean numberOfContractsByLeverageEnabled = PropertiesUtil.getBooleanProperty("numberOfContractsByLeverageEnabled");
 
     private static int minAge = PropertiesUtil.getIntProperty("minAge");
 
@@ -138,9 +140,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
             throws Exception {
 
         StockOption stockOption = (StockOption)getStockOptionDao().load(stockOptionId);
-
         Account account = getAccountDao().findByCurrency(stockOption.getCurrency());
-
         int contractSize = stockOption.getContractSize();
         double currentValueDouble = currentValue.doubleValue();
         double underlayingValueDouble = underlayingSpot.doubleValue();
@@ -153,33 +153,25 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         // get the exitValue based on the current Volatility
         double exitValueByVola = StockOptionUtil.getExitValueDouble(stockOption, underlayingValueDouble, volatility);
 
-        // get the exitValue on the max loss for this position
-        // invested capital: maintenanceMargin (=additionalMargin)
-        //         max risk: exitValue - current Value
-        //         atRiskRatioPerTrade = max risk / invested capital
-        double exitValueByMaxAtRiskRatio = PropertiesUtil.getDoubleProperty("maxAtRiskRatioPerTrade") * maintenanceMargin + currentValueDouble;
+        // get the exitValue based on the max loss for this position
+        double exitValueByMaxAtRiskRatioPerTrade = getExitValueByMaxAtRiskRatioPerTrade(currentValueDouble, maintenanceMargin);
 
         // choose which ever is lower
-        logger.info("exitValueByVola: " + exitValueByVola + " exitValueByMaxAtRiskRatio: " + exitValueByMaxAtRiskRatio);
-        double exitValue = Math.min(exitValueByVola, exitValueByMaxAtRiskRatio);
+        logger.info("exitValueByVola: " + exitValueByVola + " exitValueByMaxAtRiskRatio: " + exitValueByMaxAtRiskRatioPerTrade);
+        double exitValue = Math.min(exitValueByVola, exitValueByMaxAtRiskRatioPerTrade);
 
         // get numberOfContracts based on margin
-        // (how many options can we sell for the available amount of cash)
         long numberOfContractsByMargin = getNumberOfContractsByMargin(contractSize, initialMargin);
 
-        // get maxNumberOfContracts based on RedemptionValue
-        //         available cash after this trade: cashbalance now + quantity * contractSize * currentValue
-        //        total redemptionValue = quantity * contractSize * exitValue + RedemptionValue of the other positions
-        //        atRiskRatioOfPortfolio = total redemptionValue / available cash after this trade
-        //        (we could adjust the exitValue or the quantity, but we trust the exitValue set above and only adjust the quantity)
-        double maxAtRiskRatioOfPortfolio = PropertiesUtil.getDoubleProperty("maxAtRiskRatioOfPortfolio");
-        long numberOfContractsByRedemptionValue =
-            (long)((maxAtRiskRatioOfPortfolio * account.getCashBalanceDouble() - account.getRedemptionValue()) /
-            (contractSize *(exitValue - maxAtRiskRatioOfPortfolio * currentValueDouble)));
+        // get numberOfContracts based on redemption value
+        long numberOfContractsByRedemptionValue = getNumberOfContractsByRedemptionValue(account, contractSize, currentValueDouble, exitValue);
+
+        // get numberOfContracts based on leverage
+        long numberOfContractsByLeverage = getNumberOfContractsByLeverage(stockOption, account, contractSize, currentValueDouble);
 
         // choose which ever is lower
-        logger.info("numberOfContractsByMargin: " + numberOfContractsByMargin + " numberOfContractsByRedemptionValue: " + numberOfContractsByRedemptionValue);
-        long numberOfContracts= Math.min(numberOfContractsByMargin, numberOfContractsByRedemptionValue);
+        logger.info("numberOfContractsByMargin: " + numberOfContractsByMargin + " numberOfContractsByRedemptionValue: " + numberOfContractsByRedemptionValue + " numberOfContractsByLeverage: " + numberOfContractsByLeverage);
+        long numberOfContracts = Math.min(numberOfContractsByMargin, Math.min(numberOfContractsByRedemptionValue, numberOfContractsByLeverage));
 
         if (numberOfContracts <= 0) {
             if (stockOption.getPosition() == null || !stockOption.getPosition().isOpen()) {
@@ -352,6 +344,9 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + exitValue);
     }
 
+    /**
+     * how many options can we sell for the available amount of cash
+     */
     private long getNumberOfContractsByMargin(int contractSize, double initialMargin) {
 
         if (simulation) {
@@ -362,5 +357,48 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
             return getDispatcherService().getAccountService().getNumberOfContractsByMargin(contractSize * initialMargin);
         }
+    }
+
+    /**
+     * invested capital: maintenanceMargin (=additionalMargin) max risk:
+     * exitValue - current Value atRiskRatioPerTrade = max risk / invested
+     * capital
+     */
+    private double getExitValueByMaxAtRiskRatioPerTrade(double currentValueDouble, double maintenanceMargin) {
+
+        return PropertiesUtil.getDoubleProperty("maxAtRiskRatioPerTrade") * maintenanceMargin + currentValueDouble;
+    }
+
+    /**
+     * available cash after this trade: cashbalance now + quantity *
+     * contractSize * currentValue total redemptionValue = quantity *
+     * contractSize * exitValue + RedemptionValue of the other positions
+     * atRiskRatioOfPortfolio = total redemptionValue / available cash after
+     * this trade (we could adjust the exitValue or the quantity, but we trust
+     * the exitValue set above and only adjust the quantity)
+     */
+    private long getNumberOfContractsByRedemptionValue(Account account, int contractSize, double currentValueDouble, double exitValue) {
+
+        if (!numberOfContractsByRedemptionValueEnabled)
+            return Long.MAX_VALUE;
+
+        double maxAtRiskRatioOfPortfolio = PropertiesUtil.getDoubleProperty("maxAtRiskRatioOfPortfolio");
+
+        return (long) ((maxAtRiskRatioOfPortfolio * account.getCashBalanceDouble() - account.getRedemptionValue()) / (contractSize * (exitValue - maxAtRiskRatioOfPortfolio * currentValueDouble)));
+    }
+
+    /**
+     * makes sure, that we do not exceed the maximum leverage on the portfolio
+     * additional DeltaRisk / NetLiq + existing leverage = max leverage
+     */
+    private long getNumberOfContractsByLeverage(StockOption stockOption, Account account, int contractSize, double currentValueDouble) {
+
+        if (!numberOfContractsByLeverageEnabled)
+            return Long.MAX_VALUE;
+
+        double maxLeverage = PropertiesUtil.getDoubleProperty("strategie.maxLeverage");
+        double signedMaxLeverage = OptionType.PUT.equals(stockOption.getType()) ? maxLeverage : -maxLeverage;
+
+        return -(long) ((signedMaxLeverage - account.getLeverage()) * account.getNetLiqValueDouble() / stockOption.getLeverage() / contractSize / currentValueDouble);
     }
 }
