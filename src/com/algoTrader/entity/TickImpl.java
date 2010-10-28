@@ -67,8 +67,10 @@ public class TickImpl extends com.algoTrader.entity.Tick {
 
     public void validate() {
 
-        validateVol();
-        validateSpread();
+        if (getSecurity() instanceof StockOption) {
+            validateVol();
+            validateSpread();
+        }
     }
 
     public void validateVol() {
