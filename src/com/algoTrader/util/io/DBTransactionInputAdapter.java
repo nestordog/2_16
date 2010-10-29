@@ -1,4 +1,4 @@
-package com.algoTrader.util.csv;
+package com.algoTrader.util.io;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -16,11 +16,11 @@ import com.espertech.esperio.AdapterState;
 import com.espertech.esperio.SendableEvent;
 
 
-public class TransactionInputAdapter extends AbstractCoordinatedAdapter {
+public class DBTransactionInputAdapter extends AbstractCoordinatedAdapter {
 
     private Iterator<Transaction> transactiontIterator;
 
-    public TransactionInputAdapter(Collection<Transaction> transactions) {
+    public DBTransactionInputAdapter(Collection<Transaction> transactions) {
 
         super(EsperService.getEPServiceInstance(), true, true);
 

@@ -1,14 +1,16 @@
-package com.algoTrader.util.csv;
+package com.algoTrader.util.io;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.util.Date;
 
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.ParseBigDecimal;
 import org.supercsv.cellprocessor.ParseInt;
+import org.supercsv.cellprocessor.Token;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.exception.SuperCSVException;
 import org.supercsv.exception.SuperCSVReflectionException;
@@ -26,7 +28,7 @@ public class CsvTickReader {
 
     private static CellProcessor[] processor = new CellProcessor[] {
         new ParseDate(),
-        new ParseBigDecimal(),
+        new Token("", new BigDecimal(0), new ParseBigDecimal()),
         new ParseDate(),
         new ParseInt(),
         new ParseInt(),
