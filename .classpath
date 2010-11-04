@@ -72,7 +72,7 @@
 			<attribute name="javadoc_location" value="file:/D:/spring-framework-1.2.8/docs/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/SuperCSV-1.52.jar" sourcepath="D:/SuperCSV-1.52/src"/>
+	<classpathentry kind="lib" path="lib/SuperCSV-1.52.jar" sourcepath="D:/SuperCSV-1.52/src/SuperCVS.zip"/>
 	<classpathentry kind="lib" path="lib/tidy.jar"/>
 	<classpathentry kind="lib" path="lib/xalan-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.7.1.jar"/>
