@@ -222,6 +222,33 @@ CREATE TABLE `stock_option` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `tick`
+--
+
+DROP TABLE IF EXISTS `tick`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tick` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `DATE_TIME` datetime NOT NULL,
+  `LAST` decimal(11,2) DEFAULT NULL,
+  `LAST_DATE_TIME` datetime DEFAULT NULL,
+  `VOL` int(11) DEFAULT NULL,
+  `VOL_BID` int(11) DEFAULT NULL,
+  `VOL_ASK` int(11) DEFAULT NULL,
+  `BID` decimal(11,2) DEFAULT NULL,
+  `ASK` decimal(11,2) DEFAULT NULL,
+  `OPEN_INTREST` int(11) DEFAULT NULL,
+  `SETTLEMENT` decimal(11,2) DEFAULT NULL,
+  `SECURITY_FK` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `DATE_TIME_SECURITY_FK_UNIQUE` (`DATE_TIME`,`SECURITY_FK`),
+  KEY `DATE_TIME` (`DATE_TIME`),
+  KEY `SECURITY_FKC` (`SECURITY_FK`)
+) ENGINE=MyISAM AUTO_INCREMENT=207807 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `transaction`
 --
 
@@ -278,4 +305,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2010-10-14 19:40:13
+-- Dump completed on 2010-11-04 18:44:44
