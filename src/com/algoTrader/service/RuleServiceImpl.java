@@ -12,7 +12,6 @@ import com.algoTrader.util.MyLogger;
 import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPPreparedStatement;
 import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EPStatementException;
 import com.espertech.esper.client.EPSubscriberException;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
@@ -89,7 +88,7 @@ public class RuleServiceImpl extends RuleServiceBase {
                     newStatement = cepAdm.createEPL(definition, name);
                 }
             }
-        } catch (EPStatementException e) {
+        } catch (Exception e) {
             logger.error("problem activating rule: " + name, e);
             throw e;
         }
@@ -102,6 +101,7 @@ public class RuleServiceImpl extends RuleServiceBase {
                 newStatement.setSubscriber(obj);
             } catch (EPSubscriberException e) {
                 logger.error("problem activating rule: " + name, e);
+                throw e;
             }
         }
 
