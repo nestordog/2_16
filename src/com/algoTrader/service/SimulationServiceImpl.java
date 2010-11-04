@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,13 +43,11 @@ import com.algoTrader.util.CustomDate;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
-import com.algoTrader.util.csv.CsvTickInputAdapter;
-import com.algoTrader.util.csv.TransactionInputAdapter;
+import com.algoTrader.util.io.CsvTickInputAdapter;
+import com.algoTrader.util.io.DBTransactionInputAdapter;
 import com.algoTrader.vo.MaxDrawDownVO;
 import com.algoTrader.vo.OptimizationResultVO;
 import com.algoTrader.vo.PerformanceKeysVO;
-import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EventBean;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.AdapterInputSource;
@@ -241,7 +238,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 logger.debug("started simulation for security " + security.getSymbol());
             }
 
-            InputAdapter inputAdapter = new TransactionInputAdapter(existingTransactions);
+            InputAdapter inputAdapter = new DBTransactionInputAdapter(existingTransactions);
             coordinator.coordinate(inputAdapter);
 
             logger.debug("started simulation for transactions");
@@ -323,13 +320,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
     protected PerformanceKeysVO handleGetPerformanceKeys() throws Exception {
 
-        EPStatement statement = EsperService.getStatement(RuleName.CREATE_PERFORMANCE_KEYS);
 
-        if (statement == null) return null;
-
-        if (!statement.iterator().hasNext()) return null;
-
-        PerformanceKeysVO performanceKeys = (PerformanceKeysVO)statement.iterator().next().getUnderlying();
+        PerformanceKeysVO performanceKeys = EsperService.getLastEvent(RuleName.CREATE_PERFORMANCE_KEYS, PerformanceKeysVO.class);
 
         if (performanceKeys.getStdY() == 0.0) return null;
 
@@ -338,28 +330,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
     protected List<MonthlyPerformance> handleGetMonthlyPerformances() throws Exception {
 
-        EPStatement statement = EsperService.getStatement(RuleName.KEEP_MONTHLY_PERFORMANCE);
-
-        if (statement == null) return null;
-
-        if (!statement.iterator().hasNext()) return null;
-
-        List<MonthlyPerformance> list = new ArrayList<MonthlyPerformance>();
-        for (Iterator<EventBean> it = statement.iterator(); it.hasNext(); ) {
-            list.add((MonthlyPerformance)it.next().getUnderlying());
-        }
-        return list;
+        return EsperService.getAllEvents(RuleName.KEEP_MONTHLY_PERFORMANCE, MonthlyPerformance.class);
     }
 
     protected MaxDrawDownVO handleGetMaxDrawDown() throws Exception {
 
-        EPStatement statement = EsperService.getStatement(RuleName.CREATE_MAX_DRAW_DOWN);
-
-        if (statement == null) return null;
-
-        if (!statement.iterator().hasNext()) return null;
-
-        return (MaxDrawDownVO)statement.iterator().next().getUnderlying();
+        return EsperService.getLastEvent(RuleName.CREATE_MAX_DRAW_DOWN, MaxDrawDownVO.class);
     }
 
     @SuppressWarnings("unchecked")

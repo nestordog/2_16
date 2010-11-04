@@ -4,18 +4,13 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import com.algoTrader.entity.Account;
-import com.algoTrader.entity.DSlow;
-import com.algoTrader.entity.KFast;
-import com.algoTrader.entity.KSlow;
 import com.algoTrader.entity.PositionDao;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Tick;
+import com.algoTrader.entity.TransactionDao;
 import com.algoTrader.enumeration.Currency;
-import com.algoTrader.enumeration.RuleName;
-import com.algoTrader.service.ib.IbService;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.vo.PositionVO;
@@ -99,48 +94,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         }
     }
 
-    protected double handleGetStochasticCallKFast() throws Exception {
-
-        KFast kFast = (KFast)EsperService.getLastEvent(RuleName.CREATE_K_FAST);
-
-        return (kFast != null) ? kFast.getCall() : 0;
-    }
-
-    protected double handleGetStochasticCallKSlow() throws Exception {
-
-        KSlow kSlow = (KSlow)EsperService.getLastEvent(RuleName.CREATE_K_SLOW);
-
-        return (kSlow != null) ? kSlow.getCall() : 0;
-    }
-
-    protected double handleGetStochasticCallDSlow() throws Exception {
-
-        DSlow dSlow = (DSlow)EsperService.getLastEvent(RuleName.CREATE_D_SLOW);
-
-        return (dSlow != null) ? dSlow.getCall() : 0;
-    }
-
-    protected double handleGetStochasticPutKFast() throws Exception {
-
-        KFast kFast = (KFast)EsperService.getLastEvent(RuleName.CREATE_K_FAST);
-
-        return (kFast != null) ? kFast.getPut() : 0;
-    }
-
-    protected double handleGetStochasticPutKSlow() throws Exception {
-
-        KSlow kSlow = (KSlow)EsperService.getLastEvent(RuleName.CREATE_K_SLOW);
-
-        return (kSlow != null) ? kSlow.getPut() : 0;
-    }
-
-    protected double handleGetStochasticPutDSlow() throws Exception {
-
-        DSlow dSlow = (DSlow)EsperService.getLastEvent(RuleName.CREATE_D_SLOW);
-
-        return (dSlow != null) ? dSlow.getPut() : 0;
-    }
-
     @SuppressWarnings("unchecked")
     protected List<TickVO> handleGetDataLastTicks() throws Exception {
 
@@ -158,36 +111,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @SuppressWarnings("unchecked")
     protected List<TransactionVO> handleGetDataTransactions() throws Exception {
 
-        return getTransactionDao().getTransactionsWithinTimerange(null, null, 10);
-    }
-
-    protected void handleActivate(String ruleName) throws Exception {
-
-        getRuleService().activate(ruleName);
-    }
-
-    protected void handleDeactivate(String ruleName) throws Exception {
-
-        getRuleService().deactivate(ruleName);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected void handleReconnectIB() throws Exception {
-
-        Set<IbService> services = getDispatcherService().getAllIbServices();
-
-        for (IbService service : services) {
-            service.connect();
-        }
-    }
-
-    protected void handleRunDailyJobs() throws Exception {
-
-        getActionService().runDailyJobs();
-    }
-
-    protected void handleClosePosition(int positionId) throws Exception {
-
-        getStockOptionService().closePosition(positionId);
+        return getTransactionDao().findLastNTransactions(TransactionDao.TRANSFORM_TRANSACTIONVO, 10);
     }
 }

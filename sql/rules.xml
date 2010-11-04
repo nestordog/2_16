@@ -227,7 +227,7 @@ from EndOfDayTick
         <field name="id">23</field>
         <field name="NAME">CREATE_MACD</field>
         <field name="PRIORITY">0</field>
-        <field name="DEFINITION">insert into MACD
+        <field name="DEFINITION">insert into Macd
 select security,
 ema(currentValueDouble,var_macd_fast) - ema(currentValueDouble,var_macd_slow) as value
 from EndOfDayTick
@@ -239,11 +239,11 @@ having count(*) &gt; Math.round(var_macd_slow * var_macd_weight)
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
-        <field name="id">31</field>
+        <field name="id">30</field>
         <field name="NAME">CREATE_K_SLOW</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into KSlow
-select security as security,
+select security,
 (select avg(call) from KFast.win:length(cast(var_call_k_slow_days * var_events_per_day, int))) as call,
 (select avg(put) from KFast.win:length(cast(var_put_k_slow_days * var_events_per_day, int))) as put
 from KFast
@@ -254,7 +254,7 @@ having count(security) &gt;= cast(Math.max(var_call_k_slow_days,var_put_k_slow_d
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
-        <field name="id">32</field>
+        <field name="id">31</field>
         <field name="NAME">CREATE_D_SLOW</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into DSlow
@@ -269,7 +269,7 @@ having count(security) &gt;= cast(Math.max(var_call_d_slow_days,var_put_d_slow_d
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
-        <field name="id">33</field>
+        <field name="id">32</field>
         <field name="NAME">GET_BUY_SIGNAL</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">select
@@ -286,7 +286,7 @@ and var_put_enabled = true</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
-        <field name="id">34</field>
+        <field name="id">33</field>
         <field name="NAME">GET_SELL_SIGNAL</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">select
@@ -303,14 +303,30 @@ and var_call_enabled = true</field>
         <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
-        <field name="id">35</field>
-        <field name="NAME">PRINT_STOCHASTIC</field>
+        <field name="id">34</field>
+        <field name="NAME">CREATE_STOCHASTIC_VO</field>
         <field name="PRIORITY">0</field>
-        <field name="DEFINITION">select kFast,
-kSlow,
-dSlow
-from pattern [every (kFast=KFast -&gt; kSlow=KSlow -&gt; dSlow=DSlow)]</field>
-        <field name="SUBSCRIBER">PrintStochasticSubscriber</field>
+        <field name="DEFINITION">insert into StochasticVO
+select indexTick.currentValueDouble as underlaying,
+DateUtil.toDate(current_timestamp()) as dateTime,
+kFast.call as KFastCall,
+kFast.put as KFastPut,
+kSlow.call as KSlowCall,
+kSlow.put as KSlowPut,
+dSlow.call as DSlowCall,
+dSlow.put as DSlowPut
+from pattern [every (indexTick=Tick(security.isin=var_isin) -&gt; kFast=KFast -&gt; kSlow=KSlow -&gt; dSlow=DSlow)]</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">35</field>
+        <field name="NAME">KEEP_STOCHASTIC_VO</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">select * from StochasticVO.win:length(3000)</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
         <field name="TARGET_FK" xsi:nil="true" />
@@ -319,11 +335,10 @@ from pattern [every (kFast=KFast -&gt; kSlow=KSlow -&gt; dSlow=DSlow)]</field>
         <field name="id">36</field>
         <field name="NAME">CREATE_MACD_SIGNAL</field>
         <field name="PRIORITY">0</field>
-        <field name="DEFINITION">insert into MACD_Signal
+        <field name="DEFINITION">insert into MacdSignal
 select security,
-value as macd,
-ema(value,var_macd_signal) as signal
-from MACD
+ema(value,var_macd_signal) as value
+from Macd
 having count(*) &gt; Math.round(var_macd_signal * var_macd_weight)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
@@ -334,12 +349,12 @@ having count(*) &gt; Math.round(var_macd_signal * var_macd_weight)</field>
         <field name="id">37</field>
         <field name="NAME">SET_TREND</field>
         <field name="PRIORITY">0</field>
-        <field name="DEFINITION">select security.id as underlayingId,
-case when macd &gt; signal then true else false end as bullish
-from MACD_Signal
-where ((select last(size) from MACD_Signal.std:size()) = 1) or
-(macd &gt; signal and prior(1,macd) &lt;= prior(1,signal)) or
-(macd &lt; signal and prior(1,macd) &gt;= prior(1,signal))
+        <field name="DEFINITION">select macd.security.id as underlayingId,
+case when macd.value &gt; signal.value then true else false end as bullish
+from pattern [every (macd=Macd -&gt; signal=MacdSignal)]
+where ((select last(size) from MacdSignal.std:size()) = 1) or
+(macd.value &gt; signal.value and prior(1,macd.value) &lt;= prior(1,signal.value)) or
+(macd.value &lt; signal.value and prior(1,macd.value) &gt;= prior(1,signal.value))
 </field>
         <field name="SUBSCRIBER">TrendSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
@@ -348,13 +363,26 @@ where ((select last(size) from MACD_Signal.std:size()) = 1) or
     </row>
     <row>
         <field name="id">38</field>
-        <field name="NAME">PRINT_MACD</field>
+        <field name="NAME">CREATE_MACD_VO</field>
         <field name="PRIORITY">0</field>
-        <field name="DEFINITION">select security,
-macd,
-signal
-from MACD_Signal</field>
-        <field name="SUBSCRIBER">PrintMACDSubscriber</field>
+        <field name="DEFINITION">insert into MacdVO
+select indexTick.currentValueDouble as underlaying,
+DateUtil.toDate(current_timestamp()) as dateTime,
+macd.value as macd,
+signal.value as signal
+from pattern [every (indexTick=Tick(security.isin=var_isin) -&gt; macd=Macd -&gt; signal=MacdSignal)]</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
+        <field name="TARGET_FK" xsi:nil="true" />
+    </row>
+    <row>
+        <field name="id">39</field>
+        <field name="NAME">KEEP_MACD_VO</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">select *
+from MacdVO.win:keepall()</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
         <field name="TARGET_FK" xsi:nil="true" />

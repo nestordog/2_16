@@ -65,7 +65,7 @@ public class DBTransactionInputAdapter extends AbstractCoordinatedAdapter {
                 order.setSecurity(security);
                 transaction.setSecurity(security);
 
-                return new OrderSendableEvent(order, transaction.getDateTime().getTime(), this.scheduleSlot);
+                return new SendableBaseObjectEvent(order, transaction.getDateTime().getTime(), this.scheduleSlot);
 
             } else {
                 return null;

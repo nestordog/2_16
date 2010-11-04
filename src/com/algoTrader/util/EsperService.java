@@ -1,5 +1,8 @@
 package com.algoTrader.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 
 import com.algoTrader.enumeration.RuleName;
@@ -70,6 +73,11 @@ public class EsperService {
         getEPServiceInstance().getEPRuntime().route(obj);
     }
 
+    /**
+     * use if you don't know what the rule will return
+     *
+     * @return plain objects (non generic)
+     */
     public static Object getLastEvent(RuleName ruleName) {
 
         EPStatement statement = getStatement(ruleName);
@@ -85,6 +93,52 @@ public class EsperService {
             }
         }
         return null;
+    }
+
+    /**
+     *
+     * @return Object of type E
+     */
+    public static <E> E getLastEvent(RuleName ruleName, Class<E> clazz) {
+
+        EPStatement statement = getStatement(ruleName);
+        if (statement != null && statement.isStarted()) {
+            SafeIterator<EventBean> it = statement.safeIterator();
+            try {
+                while (it.hasNext()) {
+                    EventBean bean = it.next();
+                    Object underlaying = bean.getUnderlying();
+                    return clazz.cast(underlaying);
+                }
+            } finally {
+                it.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @return List with object of type E
+     */
+    public static <E> List<E> getAllEvents(RuleName ruleName, Class<E> clazz) {
+
+        EPStatement statement = getStatement(ruleName);
+        List<E> list = new ArrayList<E>();
+        if (statement != null && statement.isStarted()) {
+            SafeIterator<EventBean> it = statement.safeIterator();
+            try {
+                while (it.hasNext()) {
+                    EventBean bean = it.next();
+                    Object underlaying = bean.getUnderlying();
+                    E e = clazz.cast(underlaying);
+                    list.add(e);
+                }
+            } finally {
+                it.close();
+            }
+        }
+        return list;
     }
 
     public static void setInternalClock(boolean internal) {

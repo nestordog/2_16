@@ -10,8 +10,6 @@ import java.util.List;
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
-import com.algoTrader.criteria.CallOptionCriteria;
-import com.algoTrader.criteria.PutOptionCriteria;
 import com.algoTrader.entity.Account;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.OrderImpl;
@@ -56,7 +54,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         Date targetExpirationDate = new Date(DateUtil.getCurrentEPTime().getTime() + minAge);
 
-        StockOption stockOption = findNearestStockOption(underlaying, targetExpirationDate, underlayingSpot, optionType);
+        StockOption stockOption = getStockOptionDao().findNearestStockOption(underlaying.getId(), targetExpirationDate, underlayingSpot, optionType.getValue());
 
         if (simulation) {
             if ((stockOption == null)
@@ -109,31 +107,6 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         logger.info("created dummy option " + stockOption.getSymbol());
 
         return stockOption;
-    }
-
-    @SuppressWarnings("unchecked")
-    private StockOption findNearestStockOption(Security underlaying, Date targetExpirationDate, BigDecimal underlayingSpot,
-            OptionType type) throws Exception {
-
-        List<StockOption> list;
-        if (OptionType.CALL.equals(type)) {
-            BigDecimal targetStrike = RoundUtil.getBigDecimal(underlayingSpot.doubleValue());
-            CallOptionCriteria criteria = new CallOptionCriteria(underlaying, targetExpirationDate, targetStrike, type);
-            criteria.setMaximumResultSize(new Integer(1));
-            list = getStockOptionDao().findCallOptionByCriteria(criteria);
-
-        } else {
-            BigDecimal targetStrike = RoundUtil.getBigDecimal(underlayingSpot.doubleValue());
-            PutOptionCriteria criteria = new PutOptionCriteria(underlaying, targetExpirationDate, targetStrike, type);
-            criteria.setMaximumResultSize(new Integer(1));
-            list = getStockOptionDao().findPutOptionByCriteria(criteria);
-        }
-
-        if (list.size() > 0) {
-            return list.get(0);
-        } else {
-            return null;
-        }
     }
 
     protected void handleOpenPosition(int stockOptionId, BigDecimal currentValue, BigDecimal underlayingSpot, double volatility, BigDecimal stockOptionSettlement, BigDecimal underlayingSettlement)
@@ -345,6 +318,16 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     }
 
     /**
+     * invested capital: maintenanceMargin (=additionalMargin) max risk:
+     * exitValue - current Value atRiskRatioPerTrade = max risk / invested
+     * capital
+     */
+    private double getExitValueByMaxAtRiskRatioPerTrade(double currentValueDouble, double maintenanceMargin) {
+
+        return PropertiesUtil.getDoubleProperty("maxAtRiskRatioPerTrade") * maintenanceMargin + currentValueDouble;
+    }
+
+    /**
      * how many options can we sell for the available amount of cash
      */
     private long getNumberOfContractsByMargin(int contractSize, double initialMargin) {
@@ -360,21 +343,10 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
     }
 
     /**
-     * invested capital: maintenanceMargin (=additionalMargin) max risk:
-     * exitValue - current Value atRiskRatioPerTrade = max risk / invested
-     * capital
-     */
-    private double getExitValueByMaxAtRiskRatioPerTrade(double currentValueDouble, double maintenanceMargin) {
-
-        return PropertiesUtil.getDoubleProperty("maxAtRiskRatioPerTrade") * maintenanceMargin + currentValueDouble;
-    }
-
-    /**
-     * available cash after this trade: cashbalance now + quantity *
-     * contractSize * currentValue total redemptionValue = quantity *
-     * contractSize * exitValue + RedemptionValue of the other positions
-     * atRiskRatioOfPortfolio = total redemptionValue / available cash after
-     * this trade (we could adjust the exitValue or the quantity, but we trust
+     * available cash after this trade: cashbalance now + quantity * contractSize * currentValue
+     * total redemptionValue = quantity * contractSize * exitValue + RedemptionValue of the other positions
+     * atRiskRatioOfPortfolio = total redemptionValue / available cash after this trade
+     * (we could adjust the exitValue or the quantity, but we trust
      * the exitValue set above and only adjust the quantity)
      */
     private long getNumberOfContractsByRedemptionValue(Account account, int contractSize, double currentValueDouble, double exitValue) {

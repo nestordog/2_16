@@ -7,14 +7,13 @@
     <event-type name="Transaction" class="com.algoTrader.entity.TransactionImpl"/>
     <event-type name="PrearrangedOrder" class="com.algoTrader.entity.OrderImpl"/>
 
-    <event-type name="KFast" class="com.algoTrader.entity.KFastImpl"/>
     <event-type name="ExitValue" class="com.algoTrader.entity.ExitValueImpl"/>
-    <event-type name="KSlow" class="com.algoTrader.entity.KSlowImpl"/>
-    <event-type name="DSlow" class="com.algoTrader.entity.DSlowImpl"/>
     <event-type name="MonthlyPerformance" class="com.algoTrader.entity.MonthlyPerformanceImpl"/>
 
     <event-type name="PerformanceKeys" class="com.algoTrader.vo.PerformanceKeysVO"/>
     <event-type name="MaxDrawDown" class="com.algoTrader.vo.MaxDrawDownVO"/>
+    <event-type name="StochasticVO" class="com.algoTrader.vo.StochasticVO"/>
+    <event-type name="MacdVO" class="com.algoTrader.vo.MacdVO"/>
 
     <auto-import import-name="com.algoTrader.enumeration.TransactionType"/>
     <auto-import import-name="com.algoTrader.stockOption.StockOptionUtil"/>

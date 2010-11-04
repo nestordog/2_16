@@ -48,4 +48,9 @@ public class SecurityImpl extends com.algoTrader.entity.Security {
 
         return 1;
     }
+
+    public void validateTick(Tick tick) {
+
+        // do nothing, this method will be overwritten
+    }
 }

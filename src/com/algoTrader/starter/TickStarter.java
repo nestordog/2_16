@@ -3,7 +3,7 @@ package com.algoTrader.starter;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.service.RuleService;
-import com.algoTrader.service.SimulationService;
+import com.algoTrader.service.TickService;
 import com.algoTrader.util.EsperService;
 
 public class TickStarter {
@@ -15,7 +15,7 @@ public class TickStarter {
 
     public static void start() {
         RuleService ruleService = ServiceLocator.instance().getRuleService();
-        SimulationService simulationService = ServiceLocator.instance().getSimulationService();
+        TickService tickService = ServiceLocator.instance().getDispatcherService().getTickService();
 
         // run all the recorded ticks through to initialize MACD and stochastic
         ruleService.activate(RuleName.CREATE_END_OF_DAY_TICK);
@@ -27,7 +27,7 @@ public class TickStarter {
         ruleService.activate(RuleName.CREATE_K_SLOW);
         ruleService.activate(RuleName.CREATE_D_SLOW);
 
-        simulationService.inputCSV();
+        tickService.prefeedTicks();
 
         // switch to internalClock
         EsperService.setInternalClock(true);

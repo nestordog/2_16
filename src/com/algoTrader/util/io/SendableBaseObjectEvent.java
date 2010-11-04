@@ -1,18 +1,18 @@
 package com.algoTrader.util.io;
 
-import com.algoTrader.entity.Order;
+import com.algoTrader.BaseObject;
 import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esperio.AbstractSendableEvent;
 import com.espertech.esperio.AbstractSender;
 
-public class OrderSendableEvent extends AbstractSendableEvent {
+public class SendableBaseObjectEvent extends AbstractSendableEvent {
 
-    private final Order eventToSend;
+    private final BaseObject eventToSend;
 
-    public OrderSendableEvent(Order order, long timestamp, ScheduleSlot scheduleSlot) {
+    public SendableBaseObjectEvent(BaseObject object, long timestamp, ScheduleSlot scheduleSlot) {
         super(timestamp, scheduleSlot);
 
-        this.eventToSend = order;
+        this.eventToSend = object;
     }
 
     public void send(AbstractSender sender) {

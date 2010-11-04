@@ -3,6 +3,7 @@ package com.algoTrader.entity;
 import java.math.BigDecimal;
 
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.service.TickServiceException;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
@@ -12,6 +13,9 @@ public class StockOptionImpl extends com.algoTrader.entity.StockOption {
     private static final long serialVersionUID = -3168298592370987085L;
 
     private static final double commission = PropertiesUtil.getDoubleProperty("strategie.commission");
+    private static int minVol = PropertiesUtil.getIntProperty("minVol");
+    private static double maxSpreadSlope = PropertiesUtil.getDoubleProperty("strategie.maxSpreadSlope");
+    private static double maxSpreadConstant = PropertiesUtil.getDoubleProperty("strategie.maxSpreadConstant");
 
     public BigDecimal getCommission(long quantity, TransactionType transactionType) {
 
@@ -34,6 +38,34 @@ public class StockOptionImpl extends com.algoTrader.entity.StockOption {
         } catch (Exception e) {
 
             return Double.NaN;
+        }
+    }
+
+    public void validateTick(Tick tick) {
+
+        validateTickVol(tick);
+        validateTickSpread(tick);
+    }
+
+    public void validateTickVol(Tick tick) {
+
+        if (tick.getVolAsk() <= minVol) {
+            throw new TickServiceException("vol ask (" + tick.getVolAsk() + ") ist too low for security " + getSymbol());
+        }
+
+        if (tick.getVolBid() <= minVol) {
+            throw new TickServiceException("vol bid (" + tick.getVolBid() + ") ist too low for security " + getSymbol());
+        }
+    }
+
+    public void validateTickSpread(Tick tick) {
+
+        double mean = getContractSize() * (tick.getAsk().doubleValue() + tick.getBid().doubleValue()) / 2.0;
+        double spread = getContractSize() * (tick.getAsk().doubleValue() - tick.getBid().doubleValue());
+        double maxSpread = mean * maxSpreadSlope + maxSpreadConstant;
+
+        if (spread > maxSpread) {
+            throw new TickServiceException("spread (" + spread + ") is higher than maxSpread (" + maxSpread + ") for security " + getSymbol());
         }
     }
 }

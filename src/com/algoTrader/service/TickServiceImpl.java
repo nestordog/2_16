@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -27,13 +28,17 @@ import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
-import com.algoTrader.util.csv.CsvTickReader;
-import com.algoTrader.util.csv.CsvTickWriter;
+import com.algoTrader.util.io.CsvTickReader;
+import com.algoTrader.util.io.CsvTickWriter;
+import com.algoTrader.util.io.DBTickInputAdapter;
+import com.espertech.esperio.AdapterCoordinator;
+import com.espertech.esperio.AdapterCoordinatorImpl;
 
 public abstract class TickServiceImpl extends TickServiceBase {
 
     private static Logger logger = MyLogger.getLogger(TickServiceImpl.class.getName());
 
+    private static String isin = PropertiesUtil.getProperty("strategie.isin");
     private static String dataSet = PropertiesUtil.getProperty("strategie.dataSet");
     private static double intrest = PropertiesUtil.getDoubleProperty("strategie.intrest");
     private static double dividend = PropertiesUtil.getDoubleProperty("strategie.dividend");
@@ -42,10 +47,41 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm");
     private static SimpleDateFormat hourFormat = new SimpleDateFormat("kk:mm:ss");
+
     private static double MILLISECONDS_PER_YEAR = 31536000000l;
     private static int advanceMinutes = 10;
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
+
+    @SuppressWarnings("unchecked")
+    protected void handlePrefeedTicks() throws SuperCSVException, IOException {
+
+        Security underlaying = getSecurityDao().findByISIN(isin);
+
+        double callDuration = (Double) EsperService.getVariableValue("callKFastDays")
+            + (Double) EsperService.getVariableValue("callKSlowDays")
+            + (Double) EsperService.getVariableValue("callDSlowDays");
+
+        double putDuration = (Double) EsperService.getVariableValue("putKFastDays")
+            + (Double) EsperService.getVariableValue("putKSlowDays")
+            + (Double) EsperService.getVariableValue("putDSlowDays");
+
+        int days = (int) Math.ceil(Math.max(callDuration, putDuration)) + 2 ; // weekend might be in between
+
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(new Date());
+        cal.add(Calendar.DAY_OF_YEAR, -days);
+
+        Collection<Tick> ticks = getTickDao().findEndOfDayTicks(cal.getTime(), underlaying.getId());
+
+        Collection<Tick> recentTicks = getTickDao().findByStartDateAndSecurity(cal.getTime(), underlaying);
+
+        ticks.addAll(recentTicks);
+
+        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(EsperService.getEPServiceInstance(), true, true);
+        coordinator.coordinate(new DBTickInputAdapter(ticks));
+        coordinator.start();
+    }
 
     @SuppressWarnings("unchecked")
     protected void handleProcessSecuritiesOnWatchlist() throws SuperCSVException, IOException  {
@@ -70,14 +106,15 @@ public abstract class TickServiceImpl extends TickServiceBase {
                     }
 
                     // write the tick to file (even if not valid)
-                    CsvTickWriter csvWriter;
-                    if (this.csvWriters.containsKey(security)) {
-                        csvWriter = this.csvWriters.get(security);
-                    } else {
+                    CsvTickWriter csvWriter = this.csvWriters.get(security);
+                    if (csvWriter == null) {
                         csvWriter = new CsvTickWriter(security.getIsin());
                         this.csvWriters.put(security, csvWriter);
                     }
                     csvWriter.write(tick);
+
+                    // write the tick to the DB
+                    getTickDao().create(tick);
                 }
             }
         }
@@ -151,8 +188,13 @@ public abstract class TickServiceImpl extends TickServiceBase {
                 ticks.add(tick);
 
             }
-            getTickDao().create(ticks);
-            System.out.println("imported ticks for: " + isin);
+            try {
+                getTickDao().create(ticks);
+            } catch (Exception e) {
+                logger.error("problem import ticks for " + isin, e);
+            }
+
+            logger.info("imported ticks for: " + isin);
             System.gc();
         }
     }
@@ -196,18 +238,19 @@ public abstract class TickServiceImpl extends TickServiceBase {
                 double forward = StockOptionUtil.getForward(underlayingSpot.doubleValue(), years, intrest, dividend);
                 double atmStrike = RoundUtil.roundToNextN(underlayingSpot, strikeDistance, type).doubleValue();
 
-                List<Tick> ticks = getTickDao().findByDate(date, type);
+                List<Tick> ticks = getTickDao().findByDateAndType(date, type);
                 List<Double> strikes = new ArrayList<Double>();
                 List<Double> volatilities = new ArrayList<Double>();
                 double atmVola = 0;
                 for (Tick tick : ticks) {
 
+                    StockOption stockOption = (StockOption) tick.getSecurity();
+
                     try {
-                        tick.validateSpread();
+                        stockOption.validateTickSpread(tick);
                     } catch (Exception ex) {
                         continue;
                     }
-                    StockOption stockOption = (StockOption) tick.getSecurity();
                     double strike = stockOption.getStrike().doubleValue();
                     double optionValue = tick.getCurrentValueDouble();
 
