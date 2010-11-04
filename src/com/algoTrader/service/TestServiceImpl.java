@@ -24,7 +24,7 @@ import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.RoundUtil;
-import com.algoTrader.util.csv.CsvTickReader;
+import com.algoTrader.util.io.CsvTickReader;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 
@@ -219,7 +219,7 @@ public class TestServiceImpl extends com.algoTrader.service.TestServiceBase {
 
     private List<Tick> getOptionTicks(String isin) throws SuperCSVException, IOException {
 
-        List<Tick> optionTicks = optionMap.get(isin);
+        List<Tick> optionTicks = this.optionMap.get(isin);
 
         if (optionTicks == null) {
 
@@ -229,7 +229,7 @@ public class TestServiceImpl extends com.algoTrader.service.TestServiceBase {
             while ((tick = optionReader.readTick()) != null) {
                 optionTicks.add(tick);
             }
-            optionMap.put(isin, optionTicks);
+            this.optionMap.put(isin, optionTicks);
         }
 
         return optionTicks;
