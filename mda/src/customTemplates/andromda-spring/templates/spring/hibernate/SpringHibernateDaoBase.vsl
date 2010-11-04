@@ -527,7 +527,12 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
     {
         try
         {
-            ${hibernateUtils.basePackage}.Query queryObject = super.getSession(false).createQuery(queryString);
+#if ($finder.findTaggedValue("@algoTrader.entity.query.native"))
+            ${hibernateUtils.basePackage}.SQLQuery queryObject = super.getSession(false).createSQLQuery(queryString);
+			queryObject.addEntity(${entity.fullyQualifiedEntityImplementationName}.class);
+#else
+            ${hibernateUtils.basePackage}.Query queryObject = super.getSession(false).createQuery(queryString);	
+#end
 #if ($finder.findTaggedValue("@andromda.hibernate.query.useCache"))
             queryObject.setCacheable(true);
 #end			
