@@ -272,27 +272,28 @@
 
 	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
 		<property name="beans">
+			<map>
 #foreach($service in $services)
 #if($stringUtils.isNotBlank($service.findTaggedValue('@algoTrader.service.manageable')))
-			<map>
+
 				<entry key="$service.getPackageName(false):name=$service.getBeanName(false)" value-ref="$service.getBeanName(false)" />
+#end
+#end
 			</map>
-#end
-#end
 		</property>
 		<property name="assembler">
 			<bean class="org.springframework.jmx.export.assembler.MethodNameBasedMBeanInfoAssembler">
 				<property name="methodMappings">
+					<props>
 #foreach($service in $services)
 #if($stringUtils.isNotBlank($service.findTaggedValue('@algoTrader.service.manageable')))
-					<props>
 						<prop key="$service.getPackageName(false):name=$service.getBeanName(false)">
 							#foreach($operation in $service.operations)$operation.name,#end
 
 						</prop>
+#end
+#end
 					</props>
-#end
-#end
 				</property>
 			</bean>
 		</property>
