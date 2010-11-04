@@ -25,7 +25,7 @@ import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
-import com.algoTrader.util.csv.CsvTickWriter;
+import com.algoTrader.util.io.CsvTickWriter;
 import com.ib.client.Contract;
 
 public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase implements InitializingBean {
@@ -139,9 +139,6 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
                     } else if ("ASK".equals(whatToShow)) {
                         BigDecimal ask = RoundUtil.getBigDecimal(close);
                         tick.setAsk(ask);
-                    } else if ("BID".equals(whatToShow)) {
-                        BigDecimal bid = RoundUtil.getBigDecimal(close);
-                        tick.setBid(bid);
                     }
 
                     String message = "whatToShow = " + whatToShow + " date = " + dateString +
@@ -176,11 +173,12 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
 
             public void error(int requestId, int code, String errorMsg) {
 
+                // 165 Historical data farm is connected
                 // 162 Historical market data Service error message.
                 // 2105 A historical data farm is disconnected.
                 // 2107 A historical data farm connection has become inactive
                 // but should be available upon demand.
-                if (code == 162 || code == 2105 || code == 2106 || code == 2107) {
+                if (code == 162 || code == 165 || code == 2105 || code == 2106 || code == 2107) {
 
                     IbHistoricalDataServiceImpl.this.lock.lock();
                     try {
