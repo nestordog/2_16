@@ -58,23 +58,17 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
         Security underlaying = getSecurityDao().findByISIN(isin);
 
-        double callDuration = (Double) EsperService.getVariableValue("callKFastDays")
-            + (Double) EsperService.getVariableValue("callKSlowDays")
-            + (Double) EsperService.getVariableValue("callDSlowDays");
+        double kFastDays = Math.max((Double) EsperService.getVariableValue("callKFastDays"), (Double) EsperService.getVariableValue("putKFastDays"));
+        double kSlowDays = Math.max((Double) EsperService.getVariableValue("callKSlowDays"), (Double) EsperService.getVariableValue("putKSlowDays"));
+        double dSlowDays = Math.max((Double) EsperService.getVariableValue("callDSlowDays"), (Double) EsperService.getVariableValue("putDSlowDays"));
+        int numberOfTicks = (int) Math.ceil((kFastDays + kSlowDays + dSlowDays) * (Long) EsperService.getVariableValue("eventsPerDay"));
 
-        double putDuration = (Double) EsperService.getVariableValue("putKFastDays")
-            + (Double) EsperService.getVariableValue("putKSlowDays")
-            + (Double) EsperService.getVariableValue("putDSlowDays");
+        // we need to get 2 x numberOfTicks so that KEEP_STOCHASTIC_VO has the
+        // keeps that same number of ticks we need to initialize stochastic
+        Collection<Tick> recentTicks = getTickDao().findLastNTicksForSecurity(2 * numberOfTicks, underlaying.getId());
+        Tick firstTick = recentTicks.iterator().next();
 
-        int days = (int) Math.ceil(Math.max(callDuration, putDuration)) + 2 ; // weekend might be in between
-
-        Calendar cal = new GregorianCalendar();
-        cal.setTime(new Date());
-        cal.add(Calendar.DAY_OF_YEAR, -days);
-
-        Collection<Tick> ticks = getTickDao().findEndOfDayTicks(cal.getTime(), underlaying.getId());
-
-        Collection<Tick> recentTicks = getTickDao().findByStartDateAndSecurity(cal.getTime(), underlaying);
+        Collection<Tick> ticks = getTickDao().findEndOfDayTicks(firstTick.getDateTime(), underlaying.getId());
 
         ticks.addAll(recentTicks);
 
