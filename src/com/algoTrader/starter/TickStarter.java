@@ -22,10 +22,14 @@ public class TickStarter {
         ruleService.activate(RuleName.CREATE_MACD);
         ruleService.activate(RuleName.CREATE_MACD_SIGNAL);
         ruleService.activate(RuleName.SET_TREND);
+        ruleService.activate(RuleName.CREATE_MACD_VO);
+        ruleService.activate(RuleName.KEEP_MACD_VO);
 
         ruleService.activate(RuleName.CREATE_K_FAST);
         ruleService.activate(RuleName.CREATE_K_SLOW);
         ruleService.activate(RuleName.CREATE_D_SLOW);
+        ruleService.activate(RuleName.CREATE_STOCHASTIC_VO);
+        ruleService.activate(RuleName.KEEP_STOCHASTIC_VO);
 
         tickService.prefeedTicks();
 
