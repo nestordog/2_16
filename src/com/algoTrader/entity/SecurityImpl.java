@@ -2,6 +2,7 @@ package com.algoTrader.entity;
 
 import java.math.BigDecimal;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.EsperService;
@@ -15,8 +16,8 @@ public class SecurityImpl extends com.algoTrader.entity.Security {
 
     public Tick getLastTick() {
 
+        // try to see if the rule GET_LAST_TICK has the tick
         EPStatement statement = EsperService.getStatement(RuleName.GET_LAST_TICK);
-
         if (statement != null && statement.isStarted()) {
 
             SafeIterator<EventBean> it = statement.safeIterator();
@@ -32,7 +33,10 @@ public class SecurityImpl extends com.algoTrader.entity.Security {
                 it.close();
             }
         }
-        return null;
+
+        // if we did not get the tick up to now go to the db an get the last tick
+        Tick tick = ServiceLocator.instance().getLookupService().getLastTick(getId());
+        return tick;
     }
 
     public boolean hasOpenPositions() {
