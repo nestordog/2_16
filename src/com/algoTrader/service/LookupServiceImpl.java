@@ -5,6 +5,7 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Rule;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
+import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.vo.PortfolioValueVO;
 
@@ -101,5 +102,10 @@ public class LookupServiceImpl extends com.algoTrader.service.LookupServiceBase 
     protected boolean handleHasLastTicks() throws Exception {
 
         return getTickDao().hasLastTicks();
+    }
+
+    protected Tick handleGetLastTick(int securityId) throws Exception {
+
+        return (Tick) getTickDao().findLastNTicksForSecurity(1, securityId).get(0);
     }
 }
