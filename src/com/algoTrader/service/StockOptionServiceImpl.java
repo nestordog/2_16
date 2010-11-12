@@ -344,7 +344,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
     /**
      * available cash after this trade: cashbalance now + quantity * contractSize * currentValue
-     * total redemptionValue = quantity * contractSize * exitValue + RedemptionValue of the other positions
+     * total redemptionValue after this trade:  quantity * contractSize * exitValue + RedemptionValue of the other positions
      * atRiskRatioOfPortfolio = total redemptionValue / available cash after this trade
      * (we could adjust the exitValue or the quantity, but we trust
      * the exitValue set above and only adjust the quantity)
