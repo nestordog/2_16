@@ -235,10 +235,8 @@ public class TestServiceImpl extends com.algoTrader.service.TestServiceBase {
         return optionTicks;
     }
 
-    protected void handleCacheTest() {
+    protected void handleTest() {
 
-        Transaction transaction = getTransactionDao().load(10136);
-        transaction.setQuantity(10);
-        getTransactionDao().update(transaction);
+
     }
 }
