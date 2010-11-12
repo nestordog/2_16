@@ -1,6 +1,8 @@
 package com.algoTrader.entity;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import com.algoTrader.enumeration.TransactionType;
 
@@ -50,27 +52,39 @@ public class PositionImpl extends com.algoTrader.entity.Position {
     @SuppressWarnings("unchecked")
     public double getAveragePriceDouble() {
 
-        long quantity = 0;
+        long totalQuantity = 0;
         double totalPrice = 0.0;
-        Collection<Transaction> transactions = getTransactions();
+        long maxQuantity = getQuantity();
+        List<Transaction> transactions = new ArrayList(getTransactions());
+        Collections.reverse(transactions);
+
+        // by FIFO principle
+        // we go through all transactions (in reverse order) until we have considered to total quantity of the position
         for (Transaction transaction : transactions) {
 
-            if (getQuantity() < 0 && TransactionType.SELL.equals(transaction.getType())) {
+            // price per Contract of this transaction
+            // we need this because we might not consider to whole quantity of the transaction
+            // (part might already have been sold again)
+            double pricePerContract = (transaction.getPrice().doubleValue() * transaction.getSecurity().getContractSize() + transaction.getCommission().doubleValue() / transaction.getQuantity());
+
+            if ((maxQuantity < 0) && TransactionType.SELL.equals(transaction.getType()) && (totalQuantity != maxQuantity)) {
 
                 // for short positions look at sells
-                quantity += transaction.getQuantity();
-                totalPrice += transaction.getQuantity() * transaction.getPrice().doubleValue() +
-                    transaction.getCommission().doubleValue() / transaction.getSecurity().getContractSize();
+                long quantity = Math.max(transaction.getQuantity(), maxQuantity - totalQuantity);
 
-            } else if (getQuantity() > 0 && TransactionType.BUY.equals(transaction.getType())) {
+                totalQuantity += quantity;
+                totalPrice += quantity * pricePerContract;
 
-                // for short positions look at sells
-                quantity += transaction.getQuantity();
-                totalPrice += transaction.getQuantity() * transaction.getPrice().doubleValue() +
-                    transaction.getCommission().doubleValue() / transaction.getSecurity().getContractSize();
+            } else if ((maxQuantity > 0) && TransactionType.BUY.equals(transaction.getType()) && (totalQuantity != maxQuantity)) {
+
+                // for long positions look at buys
+                long quantity = Math.min(transaction.getQuantity(), maxQuantity - totalQuantity);
+
+                totalQuantity += quantity;
+                totalPrice += quantity * pricePerContract;
             }
         }
-        return totalPrice / quantity;
+        return totalPrice / totalQuantity / getSecurity().getContractSize();
     }
 
     public double getCostDouble() {
