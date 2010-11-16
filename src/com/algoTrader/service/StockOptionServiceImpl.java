@@ -253,12 +253,10 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
 
         if (position.getExitValue() == null) {
             logger.warn("no exitValue was set for position: " + positionId);
-            return;
         }
 
         if (exitValue > position.getExitValue().doubleValue()) {
             logger.warn("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of position " + positionId);
-            return;
         }
 
         setExitValue(position, exitValue);
