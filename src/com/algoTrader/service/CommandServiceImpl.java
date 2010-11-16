@@ -16,6 +16,11 @@ public class CommandServiceImpl extends com.algoTrader.service.CommandServiceBas
         getStockOptionService().closePosition(positionId);
     }
 
+    protected void handleSetExitValue(int positionId, double exitValue) throws Exception {
+
+        getStockOptionService().setExitValue(positionId, exitValue);
+    }
+
     protected void handleDeactivate(String ruleName) throws Exception {
 
         getRuleService().deactivate(ruleName);
