@@ -2,16 +2,18 @@ package com.algoTrader.starter;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.service.ib.IbHistoricalDataService;
+import com.algoTrader.util.PropertiesUtil;
 
 public class HistoricalDataStarter {
 
-    /**
-     *
-     * set forceActualValues to true
-     * set ib.historicalDataServiceEnabled to true
-     * dataset = expiredOptions
-     */
     public static void main(String[] args) {
+
+        PropertiesUtil.setProperty("strategie.dataSet", "expiredOptions");
+        PropertiesUtil.setProperty("ib.historicalDataServiceEnabled", "true");
+        PropertiesUtil.setProperty("ib.accountServiceEnabled", "false");
+        PropertiesUtil.setProperty("ib.stockOptionRetrieverServiceEnabled", "false");
+        PropertiesUtil.setProperty("ib.tickServiceEnabled", "false");
+        PropertiesUtil.setProperty("ib.transactionServiceEnabled", "false");
 
         String startDate = args[0];
 
