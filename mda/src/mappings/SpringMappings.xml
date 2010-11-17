@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <mappings name="Java">
         <mapping>
+            <from><![CDATA[<!-- beanRefFactory merge-point -->]]></from>
+            <to><![CDATA[<value>applicationContext-algoTrader.xml</value>]]></to>
+        </mapping>
+        <mapping>
             <from><![CDATA[<template
         path="templates/spring/SpringDao.vsl"
         outputPattern="$generatedFile"
