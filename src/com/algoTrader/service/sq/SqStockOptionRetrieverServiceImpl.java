@@ -16,11 +16,6 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
-import org.apache.commons.math.optimization.fitting.PolynomialFitter;
-import org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer;
-import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
@@ -35,10 +30,7 @@ import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
-import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.service.StockOptionRetrieverServiceImpl;
-import com.algoTrader.stockOption.StockOptionUtil;
-import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.TidyUtil;
@@ -50,7 +42,6 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
     private static Logger logger = MyLogger.getLogger(StockOptionRetrieverServiceImpl.class.getName());
     private static String [] markets = new String[] {"eu", "eu", "eu", "eu", "eu", "eu", "eu", "ud"};
     private static String [] groups = new String[] {"sw", "id", "de", "fr", "it", "sk", "xx", null };
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyMM");
     private static SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss");
 
     protected StockOption handleRetrieveStockOption(Security underlaying, Date expiration, BigDecimal strike,
@@ -407,109 +398,6 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
                 System.out.println(title);
             }
             System.out.println("done with " + market + " " + group);
-        }
-    }
-
-    protected boolean handleVerifyVolatility(StockOption stockOption, TransactionType transactionType) throws HttpException, IOException, TransformerException, ParseException, MathException {
-
-        String isin = stockOption.getUnderlaying().getIsin();
-        String expirationString = dateFormat.format(stockOption.getExpiration());
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / 31536000000.0;
-
-        String url = optionUrl + "&underlying=" + isin + "&market=eu&group=id" + "&expiration=" + expirationString;
-
-        GetMethod get = new GetMethod(url);
-
-        HttpClient standardClient = HttpClientUtil.getStandardClient();
-
-        Document document;
-        try {
-            int status = standardClient.executeMethod(get);
-
-            document = TidyUtil.parse(get.getResponseBodyAsStream());
-
-            XmlUtil.saveDocumentToFile(document, isin + "_" + expirationString + ".xml", "results/options/");
-
-            if (status != HttpStatus.SC_OK) {
-                throw new HttpException("invalid option request: underlying=" + isin + " expiration=" + expirationString);
-            }
-
-        } finally {
-            get.releaseConnection();
-        }
-
-        //FileInputStream in = new FileInputStream("results/options/CH0008616382_1004.xml");
-        //Document document = TidyUtil.parse(in);
-
-        String underlayingSpotValue = SqUtil.getValue(document, "//table[tr/td/strong='Symbol']/tr/td/strong/a");
-        double underlayingSpot = SqUtil.getDouble(underlayingSpotValue);
-
-        NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//table[tr/@align='CENTER']/tr[count(td)=12]");
-
-        Node node;
-        double lastVolatility = Double.MAX_VALUE;
-        List<Double> strikes = new ArrayList<Double>();
-        List<Double> volatilities = new ArrayList<Double>();
-        List<Double> currentValues = new ArrayList<Double>();
-        PolynomialFitter fitter = new PolynomialFitter(4, new LevenbergMarquardtOptimizer());
-
-        while ((node = iterator.nextNode()) != null) {
-
-            String strikeValue = SqUtil.getValue(node, "td/strong/a");
-            String bidValue = SqUtil.getValue(node, "td[9]");
-            String askValue = SqUtil.getValue(node, "td[10]");
-
-            double strike = SqUtil.getDouble(strikeValue);
-            double bid = SqUtil.getDouble(bidValue);
-            double ask = SqUtil.getDouble(askValue);
-
-            if (bid != 0 && ask != 0) {
-
-                double currentValue = (bid + ask) / 2.0;
-
-                double volatility = StockOptionUtil.getVolatility(underlayingSpot, strike, currentValue, years, stockOption.getType());
-
-                if (volatility > lastVolatility) break;
-
-                fitter.addObservedPoint(1, strike, volatility);
-
-                strikes.add(strike);
-                volatilities.add(volatility);
-                currentValues.add(currentValue);
-
-                lastVolatility = volatility;
-            }
-        }
-
-        PolynomialFunction function = fitter.fit();
-        SummaryStatistics stats = new SummaryStatistics();
-
-        for (int i = 0; i < strikes.size(); i++) {
-
-            double estimate = function.value(strikes.get(i));
-            double difference = Math.abs(volatilities.get(i) - estimate);
-
-            stats.addValue(difference);
-        }
-
-        double std = stats.getStandardDeviation();
-
-        int i = strikes.indexOf(stockOption.getStrike().doubleValue());
-
-        double currentValue = currentValues.get(i);
-        double estimate = function.value(strikes.get(i));
-        double volatility = volatilities.get(i);
-
-        if (TransactionType.BUY.equals(transactionType) && volatility < (estimate - 3.0 * std)) {
-            double fairValue = StockOptionUtil.getOptionPrice(stockOption, underlayingSpot, volatility);
-            logger.warn("current price (" + currentValue + ") is to high compared to fair-value (" + fairValue + ") in regards to the volatility-curve");
-            return false;
-        } else if (TransactionType.SELL.equals(transactionType) && volatility > (estimate + 3.0 * std)) {
-            double fairValue = StockOptionUtil.getOptionPrice(stockOption, underlayingSpot, volatility);
-            logger.warn("current price (" + currentValue + ") is to low compared to fair-value (" + fairValue + ") in regards to the volatility-curve");
-            return false;
-        } else {
-            return true;
         }
     }
 }
