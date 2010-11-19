@@ -1,28 +1,34 @@
-// line 286: send CurrentTimeEvent for the currentEventTime not the lastEventTime
-// line 292: do not send final time processTimeEvent
+// line 297: send CurrentTimeEvent for the currentEventTime not the lastEventTime
+// line 303: do not send final time processTimeEvent
+/**************************************************************************************
+ * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
+ * http://esper.codehaus.org                                                          *
+ * http://www.espertech.com                                                           *
+ * ---------------------------------------------------------------------------------- *
+ * The software in this package is published under the terms of the GPL license       *
+ * a copy of which has been included with this distribution in the license.txt file.  *
+ **************************************************************************************/
 package com.espertech.esperio;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.core.EPServiceProviderSPI;
-import com.espertech.esper.core.EPStatementHandle;
-import com.espertech.esper.core.EPStatementHandleCallback;
-import com.espertech.esper.core.ExtensionServicesContext;
-import com.espertech.esper.core.StatementFilterVersion;
-import com.espertech.esper.epl.metric.StatementMetricHandle;
+import com.espertech.esper.core.*;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.schedule.SchedulingService;
-import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.util.ManagedLockImpl;
+import com.espertech.esper.util.ExecutionPathDebugLog;
+import com.espertech.esper.epl.metric.StatementMetricHandle;
+import com.espertech.esper.adapter.AdapterStateManager;
+import com.espertech.esper.adapter.AdapterState;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * A skeleton implementation for coordinated adapter reading, for adapters that
@@ -323,7 +329,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
         ScheduleHandleCallback nextScheduleCallback = new ScheduleHandleCallback() { public void scheduledTrigger(ExtensionServicesContext extensionServicesContext) { continueSendingEvents(); } };
         EPServiceProviderSPI spi = (EPServiceProviderSPI)epService;
         StatementMetricHandle metricsHandle = spi.getMetricReportingService().getStatementHandle("AbstractCoordinatedAdapter", "AbstractCoordinatedAdapter");
-        EPStatementHandleCallback scheduleCSVHandle = new EPStatementHandleCallback(new EPStatementHandle("AbstractCoordinatedAdapter", new ManagedLockImpl("CSV"), "AbstractCoordinatedAdapter", false, metricsHandle, 0, false, new StatementFilterVersion()), nextScheduleCallback);
+        EPStatementHandleCallback scheduleCSVHandle = new EPStatementHandleCallback(new EPStatementHandle("AbstractCoordinatedAdapter", "AbstractCoordinatedAdapter", null, new ManagedLockImpl("CSV"), "AbstractCoordinatedAdapter", false, metricsHandle, 0, false, new StatementFilterVersion()), nextScheduleCallback);
         ScheduleSlot nextScheduleSlot;
 
         if(eventsToSend.isEmpty())

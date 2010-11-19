@@ -48,10 +48,10 @@ import com.algoTrader.util.io.DBTransactionInputAdapter;
 import com.algoTrader.vo.MaxDrawDownVO;
 import com.algoTrader.vo.OptimizationResultVO;
 import com.algoTrader.vo.PerformanceKeysVO;
+import com.espertech.esper.adapter.InputAdapter;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.AdapterInputSource;
-import com.espertech.esperio.InputAdapter;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 public class SimulationServiceImpl extends SimulationServiceBase {

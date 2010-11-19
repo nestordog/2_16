@@ -1,3 +1,4 @@
+// line 438 - 442: changes to resolveTimestamp, can handle Date now
 /**************************************************************************************
  * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
  * http://esper.codehaus.org                                                          *
@@ -8,41 +9,30 @@
  **************************************************************************************/
 package com.espertech.esperio.csv;
 
-import java.beans.PropertyDescriptor;
-import java.io.EOFException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import com.espertech.esper.client.EPException;
+import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.core.EPServiceProviderSPI;
+import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.map.MapEventType;
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esperio.*;
+import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.ExecutionPathDebugLog;
+import com.espertech.esper.adapter.InputAdapter;
+import com.espertech.esper.adapter.AdapterState;
 
 import net.sf.cglib.core.ReflectUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.core.EPServiceProviderSPI;
-import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.event.map.MapEventType;
-import com.espertech.esper.util.ExecutionPathDebugLog;
-import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esperio.AbstractCoordinatedAdapter;
-import com.espertech.esperio.AdapterInputSource;
-import com.espertech.esperio.AdapterState;
-import com.espertech.esperio.InputAdapter;
-import com.espertech.esperio.SendableBeanEvent;
-import com.espertech.esperio.SendableEvent;
-import com.espertech.esperio.SendableMapEvent;
+import java.io.EOFException;
+import java.util.*;
+import java.beans.PropertyDescriptor;
 
 /**
  * An event Adapter that uses a CSV file for a source.
- *
- * AlgoTrader: changes to resolveTimestamp, can handle Date now
  */
 public class CSVInputAdapter extends AbstractCoordinatedAdapter implements InputAdapter
 {
@@ -246,7 +236,7 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
         propertyTypes = resolvePropertyTypes(givenPropertyTypes);
         if(givenPropertyTypes == null)
         {
-            spi.getEventAdapterService().addNestableMapType(eventTypeName, new HashMap<String, Object>(propertyTypes), null, true, false, false);
+            spi.getEventAdapterService().addNestableMapType(eventTypeName, new HashMap<String, Object>(propertyTypes), null, true, true, true, false, false);
         }
 
         coercer.setPropertyTypes(propertyTypes);
@@ -300,7 +290,7 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
         {
             if(propertyTypesGiven != null)
             {
-                eventAdapterService.addNestableMapType(eventTypeName, new HashMap<String, Object>(propertyTypesGiven), null, true, false, false);
+                eventAdapterService.addNestableMapType(eventTypeName, new HashMap<String, Object>(propertyTypesGiven), null, true, true, true, false, false);
             }
             return propertyTypesGiven;
         }
@@ -435,11 +425,7 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
         if(adapterSpec.getTimestampColumn() != null)
         {
             Object value = map.get(adapterSpec.getTimestampColumn());
-            if (value instanceof Date) {
-                return ((Date)value).getTime();
-            } else {
-                return Long.parseLong(value.toString()) ;
-            }
+            return Long.parseLong(value.toString()) ;
         }
         else
         {

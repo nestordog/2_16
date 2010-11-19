@@ -5,9 +5,9 @@ import java.util.Iterator;
 
 import com.algoTrader.entity.Tick;
 import com.algoTrader.util.EsperService;
+import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.client.EPException;
 import com.espertech.esperio.AbstractCoordinatedAdapter;
-import com.espertech.esperio.AdapterState;
 import com.espertech.esperio.SendableEvent;
 
 

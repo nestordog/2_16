@@ -1,6 +1,7 @@
 package com.algoTrader.util;
 
 import com.espertech.esper.epl.agg.AggregationSupport;
+import com.espertech.esper.epl.agg.AggregationValidationContext;
 
 public class ExponentialMovingAverageFunction extends AggregationSupport {
 
@@ -13,9 +14,12 @@ public class ExponentialMovingAverageFunction extends AggregationSupport {
         this.emaValue = 0.0;
     }
 
-    @SuppressWarnings("unchecked")
-    public void validate(Class childNodeType) {
-        if (childNodeType != double.class && childNodeType != Double.class) {
+    @Override
+    public void validate(AggregationValidationContext validationContext) {
+        if ((validationContext.getParameterTypes().length == 2)
+                && ((validationContext.getParameterTypes()[0] == double.class) || (validationContext.getParameterTypes()[0] == Double.class))
+                && ((validationContext.getParameterTypes()[1] == int.class) || (validationContext.getParameterTypes()[1] == Integer.class))) {
+        } else {
             throw new IllegalArgumentException("EMA aggregation requires a double parameter");
         }
     }
