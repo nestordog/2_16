@@ -42,8 +42,8 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
     private DefaultClientSocket client;
     private DefaultWrapper wrapper;
     private Lock lock = new ReentrantLock();
-    private Condition condition = this.lock.newCondition();
 
+    private Map<Security, Condition> securityToConditionMap;
     private Map<Integer, Tick> requestIdToTickMap;
     private Map<Security, Integer> securityToRequestIdMap;
     private Set<Security> validSecurities;
@@ -164,9 +164,10 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
             private void checkValidity(Tick tick) {
 
+                Security security = tick.getSecurity();
                 if (isValid(tick)) {
-                    IbTickServiceImpl.this.validSecurities.add(tick.getSecurity());
-                    IbTickServiceImpl.this.condition.signalAll();
+                    IbTickServiceImpl.this.validSecurities.add(security);
+                    IbTickServiceImpl.this.securityToConditionMap.get(security).signalAll();
                 } else {
                     IbTickServiceImpl.this.validSecurities.remove(tick.getSecurity());
 
@@ -216,6 +217,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
     protected void handleConnect() {
 
+        this.securityToConditionMap = new HashMap<Security, Condition>();
         this.requestIdToTickMap = new HashMap<Integer, Tick>();
         this.securityToRequestIdMap = new HashMap<Security, Integer>();
         this.validSecurities = new HashSet<Security>();
@@ -242,6 +244,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
                 Tick tick = new TickImpl();
                 tick.setSecurity(security);
+                this.securityToConditionMap.put(security, this.lock.newCondition());
                 this.requestIdToTickMap.put(requestId, tick);
                 this.securityToRequestIdMap.put(security, requestId);
 
@@ -266,8 +269,10 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
         Tick tick;
         try {
 
+            Condition condition = this.securityToConditionMap.get(security);
+
             while (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED) || !this.validSecurities.contains(security)) {
-                if (!this.condition.await(retrievalTimeout, TimeUnit.MILLISECONDS)) {
+                if (!condition.await(retrievalTimeout, TimeUnit.MILLISECONDS)) {
                     // could not retrieve tick in time for security
                     return null;
                 }
@@ -295,21 +300,22 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
         if (!simulation) {
 
-            while (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED)) {
-                if (!this.condition.await(retrievalTimeout, TimeUnit.MILLISECONDS)) {
-                    throw new IbTickServiceException("TWS ist not subscribed, stockOption cannot be put on watchlist " + stockOption.getSymbol());
-                }
+            if (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED)) {
+                throw new IbTickServiceException("TWS ist not subscribed, stockOption cannot be put on watchlist " + stockOption.getSymbol());
             }
 
             int requestId = RequestIdManager.getInstance().getNextRequestId();
 
+            Contract contract = IbUtil.getContract(stockOption);
+            this.client.reqMktData(requestId, contract, genericTickList, false);
+
             Tick tick = new TickImpl();
             tick.setSecurity(stockOption);
+
+            this.securityToConditionMap.put(stockOption, this.lock.newCondition());
             this.requestIdToTickMap.put(requestId, tick);
             this.securityToRequestIdMap.put(stockOption, requestId);
 
-            Contract contract = IbUtil.getContract(stockOption);
-            this.client.reqMktData(requestId, contract, genericTickList, false);
         }
     }
 
@@ -318,9 +324,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
         if (!simulation) {
 
             while (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED)) {
-                if (!this.condition.await(retrievalTimeout, TimeUnit.MILLISECONDS)) {
-                    throw new IbTickServiceException("TWS ist not subscribed, stockOption cannot be removed from watchlist " + stockOption.getSymbol());
-                }
+                throw new IbTickServiceException("TWS ist not subscribed, stockOption cannot be removed from watchlist " + stockOption.getSymbol());
             }
 
             Integer requestId = this.securityToRequestIdMap.get(stockOption);
@@ -328,6 +332,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
             if (requestId != null) {
                 this.client.cancelMktData(requestId);
 
+                this.securityToConditionMap.remove(stockOption);
                 this.requestIdToTickMap.remove(requestId);
                 this.securityToRequestIdMap.remove(stockOption);
             }
