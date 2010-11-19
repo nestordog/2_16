@@ -264,6 +264,10 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
     protected Tick handleRetrieveTick(Security security) throws Exception {
 
+        // security might have been removed from the watchlist
+        if (!this.securityToRequestIdMap.containsKey(security))
+            return null;
+
         this.lock.lock();
 
         Tick tick;
@@ -315,6 +319,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
             this.securityToConditionMap.put(stockOption, this.lock.newCondition());
             this.requestIdToTickMap.put(requestId, tick);
             this.securityToRequestIdMap.put(stockOption, requestId);
+            this.validSecurities.remove(tick.getSecurity());
 
         }
     }
