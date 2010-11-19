@@ -69,17 +69,6 @@ public class ActionServiceImpl extends ActionServiceBase {
 
         getStockOptionService().expirePosition(positionId);
 
-        // immediately roll into a new option
-        if (!getRuleService().isActive(RuleName.OPEN_POSITION)) {
-
-            Position position = getLookupService().getPosition(positionId);
-            StockOption oldStockOption = (StockOption)position.getSecurity();
-
-            StockOption stockOption = getStockOptionService().getStockOption(underlayingId, underlayingSpot, oldStockOption.getType());
-            getDispatcherService().getTickService().putOnWatchlist(stockOption);
-            getRuleService().activate(RuleName.OPEN_POSITION, stockOption);
-        }
-
         logger.debug("expireStockOptions end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
