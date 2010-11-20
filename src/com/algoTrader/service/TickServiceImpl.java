@@ -45,8 +45,8 @@ public abstract class TickServiceImpl extends TickServiceBase {
     private static double beta = PropertiesUtil.getDoubleProperty("strategie.beta");
     private static int strikeDistance = PropertiesUtil.getIntProperty("strategie.strikeDistance");
 
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm");
-    private static SimpleDateFormat hourFormat = new SimpleDateFormat("kk:mm:ss");
+    private static SimpleDateFormat inputFormat = new SimpleDateFormat("yyyyMMdd-kkmmss");
+    private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
 
     private static double MILLISECONDS_PER_YEAR = 31536000000l;
     private static int advanceMinutes = 10;
@@ -159,14 +159,11 @@ public abstract class TickServiceImpl extends TickServiceBase {
      * must be run with simulation=false (to get correct values for bid, ask and settlement)
      * also recommended to turn of ehache on commandline (to avoid out of memory error)
      */
-    protected void handleImportTicks() throws Exception {
+    protected void handleImportTicks(String isin) throws Exception {
 
-        File directory = new File("results/tickdata/" + dataSet);
-        for (File file : directory.listFiles()) {
+        File file = new File("results/tickdata/" + dataSet + "/" + isin + ".csv");
 
-            if (!file.getName().endsWith(".csv")) continue;
-
-            String isin = file.getName().split("\\.")[0];
+        if (file.exists()) {
 
             Security security = getSecurityDao().findByISIN(isin);
             CsvTickReader reader = new CsvTickReader(isin);
@@ -189,18 +186,19 @@ public abstract class TickServiceImpl extends TickServiceBase {
             }
 
             logger.info("imported ticks for: " + isin);
-            System.gc();
+        } else {
+            logger.info("file does not exist: " + isin);
         }
     }
 
     @SuppressWarnings("unchecked")
-    protected void handleCalculateSabr() throws Exception {
+    protected void handleCalculateSabr(String isin, String startDateString, String expirationDateString, String optionType) throws Exception {
 
-        Security underlaying = getSecurityDao().findByISIN("CH0008616382");
-        OptionType type = OptionType.PUT;
-        Date startDate = dateFormat.parse("2010.07.19 09:00");
-        Date expirationDate = dateFormat.parse("2010.10.15 13:00");
-        Date closeHour = hourFormat.parse("17:20:00");
+        Security underlaying = getSecurityDao().findByISIN(isin);
+        OptionType type = OptionType.fromString(optionType);
+        Date startDate = inputFormat.parse(startDateString);
+        Date expirationDate = inputFormat.parse(expirationDateString);
+        Date closeHour = (new SimpleDateFormat("kkmmss")).parse("172000");
 
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(startDate);
@@ -223,7 +221,7 @@ public abstract class TickServiceImpl extends TickServiceBase {
                 double years = (expirationDate.getTime() - date.getTime()) / MILLISECONDS_PER_YEAR;
 
                 Tick underlayingTick = getTickDao().findByDateAndSecurity(date, underlaying);
-                if (underlayingTick == null) {
+                if (underlayingTick == null || underlayingTick.getLast() == null) {
                     cal.add(Calendar.MINUTE, advanceMinutes);
                     continue;
                 }
@@ -232,7 +230,7 @@ public abstract class TickServiceImpl extends TickServiceBase {
                 double forward = StockOptionUtil.getForward(underlayingSpot.doubleValue(), years, intrest, dividend);
                 double atmStrike = RoundUtil.roundToNextN(underlayingSpot, strikeDistance, type).doubleValue();
 
-                List<Tick> ticks = getTickDao().findByDateAndType(date, type);
+                List<Tick> ticks = getTickDao().findByDateTypeAndExpiration(date, type, expirationDate);
                 List<Double> strikes = new ArrayList<Double>();
                 List<Double> volatilities = new ArrayList<Double>();
                 double atmVola = 0;
@@ -272,7 +270,7 @@ public abstract class TickServiceImpl extends TickServiceBase {
                 SABRCalibrationParams params = sabr.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years, beta);
 
                 if (params.getA() < 100) {
-                    System.out.println(dateFormat.format(date) + " " + params.getA() + " " + params.getR() + " " + params.getV());
+                    System.out.println(outputFormat.format(date) + " " + params.getA() + " " + params.getR() + " " + params.getV());
                 }
 
                 cal.add(Calendar.MINUTE, advanceMinutes);
