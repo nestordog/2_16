@@ -1,4 +1,5 @@
 ## if taggedValue @andromda.hibernate.query.useCache is set add queryObject.setCacheable(true);
+## change HibernateTemplate().execute() signature (remove boolean an the end)
 #set ($generatedFile = "${entity.packagePath}/${entity.daoBaseName}.java")
 #if ($enableTemplating)
 #set ($entityCollectionType = "java.util.Collection<${entity.fullyQualifiedEntityName}>")
@@ -89,8 +90,7 @@ public abstract class $entity.daoBaseName
                             org.hibernate.Session xmlSession = hibernateSession.getSession(org.hibernate.EntityMode.DOM4J);
                             return xmlSession.get(${entity.fullyQualifiedEntityImplementationName}.class, $argument);
                         }
-                    },
-                    true);
+                    });
             return entity;
         }
         else
@@ -174,8 +174,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
                         org.hibernate.Session xmlSession = hibernateSession.getSession(org.hibernate.EntityMode.DOM4J);
                         return xmlSession.save("$entity.fullyQualifiedEntityImplementationName", $argumentName);
                     }
-                },
-                true);
+                });
         
         return this.load(transform, ($identifier.type.fullyQualifiedName)newID);
         
@@ -243,8 +242,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
                     }
                     return null;
                 }
-            },
-            true);
+            });
         return entities;
     }
 
@@ -349,8 +347,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
                         xmlSession.update("$entity.fullyQualifiedEntityImplementationName", $argumentName);
                         return null;
                     }
-                },
-                true);
+                });
     }
 
 #end
@@ -376,8 +373,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
                     }
                     return null;
                 }
-            },
-            true);
+            });
     }
 
     /**
@@ -414,8 +410,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
                         xmlSession.delete($argumentName);
                         return null;
                     }
-                },
-                true);
+                });
     }
 
 #end
