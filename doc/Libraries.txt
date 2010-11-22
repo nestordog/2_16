@@ -1,32 +1,56 @@
-commons-beanutils-1.8.2.jar            common (updated 12.09)
-commons-collections-3.2.1.jar        common (updated 12.09)
-commons-lang-2.4.jar                common (updated 12.09)
-commons-logging-1.1.1.jar            common (updated 12.09)
-commons-math-2.0.jar                common (updated 12.09)
-commons-codec-1.4.jar                common (updated 12.09)
-log4j-1.2.15.jar                    common (updated 12.09)
-commons-httpclient-3.0.1.jar        common
-antlr-2.7.6rc1.jar                    hibernate (version supported by andromda 3.2)
-asm-attrs.jar                        hibernate (version supported by andromda 3.2)
-asm.jar                                hibernate (version supported by andromda 3.2)
-cglib-2.1.3.jar                        hibernate (version supported by andromda 3.2)
-dom4j-1.6.1.jar                        hibernate (version supported by andromda 3.2)
-ehcache-1.1.jar                        hibernate (version supported by andromda 3.2)
-hibernate3.jar                        hibernate (version supported by andromda 3.2)
-jta.jar                                hibernate (version supported by andromda 3.2)
-activation-1.1.1.jar                mail (updated 12.09)
-mailapi-1.4.3.jar                    mail (updated 12.09)
-smtp-1.4.3.jar                        mail (updated 12.09)
-spring-1.2.8.jar                    spring (version supported by andromda 3.2)
-Tidy.jar                            tidy
-serializer-2.7.1.jar                xalan (updated 12.09)
-xalan-2.7.1.jar                        xalan (updated 12.09)
-xercesImpl-2.7.1.jar                xalan (updated 12.09)
-xml-apis-2.7.1.jar                    xalan (updated 12.09)
-esper-3.3.0.jar                        esper (updated 12.09)
-esperio-3.3.0.jar                        esper (updated 12.09)
-antlr-runtime-3.1.1.jar                esper (updated 12.09)
-currency-converter.jar                div
-mysql-connector-java-5.1.10-bin.jar    mysql (updated 12.09)
-spiffy-all-0.05.jar                    supercvs (updated 12.09)
-SuperCSV-1.52.jar                    supercvs (updated 12.09)
+commons-beanutils-1.8.2.jar                    common
+commons-collections-3.2.1.jar                    common
+commons-lang-2.4.jar                        common
+commons-logging-1.1.1.jar                    common
+commons-math-2.1.jar                        common
+commons-codec-1.4.jar                        common
+commons-httpclient-3.0.1.jar                    common (not up to date)
+log4j-1.2.15.jar                            common
+
+aopalliance.jar                            hibernate
+backport-util.concurrent.jar                    hibernate (required by ehcache)
+antlr-3.2.jar                                hibernate & esper
+asm-3.3.jar                                hibernate
+cglib-2.2.jar                                hibernate & esper
+dom4j-1.6.1.jar                            hibernate
+ehcache-1.5.0.jar                            hibernate
+hibernate-3.6.0.jar                            hibernate
+hibernate-jpa-2.0-api-1.0.0.Final.jar            hibernate
+jta-1.1.jar                                hibernate
+slf4j-api-1.6.1.jar                            hibernate
+slf4j-log4j12-1.6.1.jar                        hibernate
+javaassist-3.12.0.GA.jar
+
+org.springframework.aop-3.0.5.RELEASE.jar        spring
+org.springframework.asm-3.0.5.RELEASE.jar        spring
+org.springframework.beans-3.0.5.RELEASE.jar        spring
+org.springframework.context-3.0.5.RELEASE.jar    spring
+org.springframework.core-3.0.5.RELEASE.jar        spring
+org.springframework.expression-3.0.5.RELEASE.jar    spring
+org.springframework.jdbc-3.0.5.RELEASE.jar        spring
+org.springframework.orm-3.0.5.RELEASE.jar        spring
+org.springframework.transaction-3.0.5.RELEASE.jar    spring
+
+serializer-2.7.1.jar                        xalan
+xalan-2.7.1.jar                            xalan
+xercesImpl-2.7.1.jar                        xalan
+xml-apis-2.7.1.jar                            xalan
+
+esper-4.0.0.jar                            esper
+esperjmx-3.3.0.jar                            esper (from Esper EE)
+esper-csv-4.0.0.jar                            esper
+esper-socket-4.0.0.jar                        esper
+
+activation-1.1.1.jar                        mail
+mailapi-1.4.3.jar                            mail
+smtp-1.4.3.jar                                mail
+
+spiffy-all-0.05.jar                            supercvs
+SuperCSV-1.52.jar                            supercvs
+
+javabuilder.jar                            Matlab
+sabr.jar                                    Matlab sabr
+
+Tidy.jar                                    tidy
+mysql-connector-java-5.1.13-bin.jar            mysql
+jtsclient.jar                                IBClient
