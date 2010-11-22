@@ -75,12 +75,12 @@ public class ActionServiceImpl extends ActionServiceBase {
     protected void handleBuySignal(int underlayingId,  BigDecimal underlayingSpot) throws Exception {
 
         if (firstBuyTime != 0 && EsperService.getCurrentTime() < firstBuyTime) {
-            logger.debug("ignoring buySignal, because we are before firstBuyTime");
+            logger.debug("ignoring signal, because we are before firstBuyTime");
             return;
         }
 
         if (lastBuyTime != 0 && EsperService.getCurrentTime() > lastBuyTime) {
-            logger.debug("ignoring buySignal, because we are after lastBuyTime");
+            logger.debug("ignoring signal, because we are after lastBuyTime");
             return;
         }
 
@@ -97,6 +97,16 @@ public class ActionServiceImpl extends ActionServiceBase {
     }
 
     protected void handleSellSignal(int underlayingId,  BigDecimal underlayingSpot) throws Exception {
+
+        if (firstBuyTime != 0 && EsperService.getCurrentTime() < firstBuyTime) {
+            logger.debug("ignoring signal, because we are before firstBuyTime");
+            return;
+        }
+
+        if (lastBuyTime != 0 && EsperService.getCurrentTime() > lastBuyTime) {
+            logger.debug("ignoring signal, because we are after lastBuyTime");
+            return;
+        }
 
         long startTime = System.currentTimeMillis();
         logger.debug("sellSignal start");
