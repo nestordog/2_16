@@ -22,7 +22,6 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.w3c.dom.Document;
 
-import com.algoTrader.util.LoginException;
 import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.TidyUtil;
 import com.algoTrader.util.XmlUtil;
