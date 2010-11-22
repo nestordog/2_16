@@ -1,4 +1,4 @@
-// line 438 - 442: changes to resolveTimestamp, can handle Date now
+// line 428 - 432: changes to resolveTimestamp, can handle Date now
 /**************************************************************************************
  * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
  * http://esper.codehaus.org                                                          *
@@ -425,7 +425,11 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
         if(adapterSpec.getTimestampColumn() != null)
         {
             Object value = map.get(adapterSpec.getTimestampColumn());
-            return Long.parseLong(value.toString()) ;
+            if (value instanceof Date) {
+                return ((Date)value).getTime();
+            } else {
+                return Long.parseLong(value.toString()) ;
+            }
         }
         else
         {
