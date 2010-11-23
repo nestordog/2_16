@@ -8,15 +8,15 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.RuleName;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.PropertiesUtil;
 
 public class ActionServiceImpl extends ActionServiceBase {
 
-    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
-    private static long firstBuyTime = PropertiesUtil.getLongProperty("simulation.firstBuyTime");
-    private static long lastBuyTime = PropertiesUtil.getLongProperty("simulation.lastBuyTime");
+    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+    private static long firstBuyTime = ConfigurationUtil.getBaseConfig().getLong("simulation.firstBuyTime");
+    private static long lastBuyTime = ConfigurationUtil.getBaseConfig().getLong("simulation.lastBuyTime");
 
     private static Logger logger = MyLogger.getLogger(ActionServiceImpl.class.getName());
 

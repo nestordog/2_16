@@ -8,17 +8,17 @@ import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.sabr.SABRVol;
-import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.ConfigurationUtil;
 
 public class Volatility {
 
-    private static int strikeDistance = PropertiesUtil.getIntProperty("strategie.strikeDistance");
-    private static double intrest = PropertiesUtil.getDoubleProperty("strategie.intrest");
-    private static double dividend = PropertiesUtil.getDoubleProperty("strategie.dividend");
+    private static int strikeDistance = ConfigurationUtil.getBaseConfig().getInt("strategie.strikeDistance");
+    private static double intrest = ConfigurationUtil.getBaseConfig().getDouble("strategie.intrest");
+    private static double dividend = ConfigurationUtil.getBaseConfig().getDouble("strategie.dividend");
 
-    private static double beta = PropertiesUtil.getDoubleProperty("strategie.beta");
-    private static double volVol = PropertiesUtil.getDoubleProperty("strategie.volVol");
-    private static double correlation = PropertiesUtil.getDoubleProperty("strategie.correlation");
+    private static double beta = ConfigurationUtil.getBaseConfig().getDouble("strategie.beta");
+    private static double volVol = ConfigurationUtil.getBaseConfig().getDouble("strategie.volVol");
+    private static double correlation = ConfigurationUtil.getBaseConfig().getDouble("strategie.correlation");
 
     public static double getIndexVola(double underlayingSpot, double atmVola, double years) {
 

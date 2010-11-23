@@ -21,9 +21,9 @@ import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.OptionType;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 import com.ib.client.Contract;
 import com.ib.client.TickType;
@@ -32,12 +32,12 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
     private static Logger logger = MyLogger.getLogger(IbTickServiceBase.class.getName());
 
-    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
-    private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
-    private static boolean tickServiceEnabled = PropertiesUtil.getBooleanProperty("ib.tickServiceEnabled");
+    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+    private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
+    private static boolean tickServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.tickServiceEnabled");
 
-    private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
-    private static String genericTickList = PropertiesUtil.getProperty("ib.genericTickList");
+    private static int retrievalTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.retrievalTimeout");
+    private static String genericTickList = ConfigurationUtil.getBaseConfig().getString("ib.genericTickList");
 
     private DefaultClientSocket client;
     private DefaultWrapper wrapper;

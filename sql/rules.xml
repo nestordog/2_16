@@ -58,7 +58,7 @@ portfolio.value.netLiqValue != prior(1, portfolio.value.netLiqValue)
         <field name="NAME">GET_LAST_TICK</field>
         <field name="PRIORITY">10</field>
         <field name="DEFINITION">select tick.security.id as securityId, tick.* as tick
-from Tick.std:groupby(security.id).win:time(7 days).win:length(1) as tick</field>
+from Tick.std:groupwin(security.id).win:time(7 days).win:length(1) as tick</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -85,10 +85,10 @@ RoundUtil.getBigDecimal(StockOptionUtil.getOptionPrice(option, indexTick.current
 DateUtil.toDate(current_timestamp()) as lastDateTime,
 0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
 option as security
-from pattern [every (indexTick=Tick(security.isin = var_isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id))],
+from pattern [every (indexTick=Tick(security.isin = strategie_isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id))],
 method:LookupUtil.getStockOptionsOnWatchlist() as option
 where option.underlaying.id = indexTick.security.id
-and var_simulation=true</field>
+and simulation=true</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -101,7 +101,7 @@ and var_simulation=true</field>
         <field name="DEFINITION">select option.position.id as positionId,
 indexTick.security.id,
 indexTick.currentValue
-from Tick(security.isin = var_isin) as indexTick,
+from Tick(security.isin = strategie_isin) as indexTick,
 method:LookupUtil.getStockOptionsOnWatchlist() as option
 where option.expiration.time &lt; current_timestamp()
 and option.position != null
@@ -133,7 +133,7 @@ and tick.currentValue  &gt;= tick.security.position.exitValue</field>
         <field name="DEFINITION">insert into ExitValue
 select optionTick.security as security,
 exitValue.value as value
-from pattern [every (indexTick=Tick(security.isin = var_isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id)) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = var_isin)],
+from pattern [every (indexTick=Tick(security.isin = strategie_isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id)) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = strategie_isin)],
 method:StockOptionUtil.getExitValue(optionTick.security, indexTick.currentValueDouble, volaTick.currentValueDouble / 100) as exitValue
 where exitValue.value &lt; optionTick.security.position.exitValue
 and optionTick.security.position != null
@@ -152,7 +152,7 @@ and optionTick.currentValueDouble != 0</field>
 optionTick.security.position.id,
 indexTick.security.id,
 indexTick.currentValue
-from pattern [every indexTick=Tick(security.isin = var_isin) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = var_isin)]
+from pattern [every indexTick=Tick(security.isin = strategie_isin) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = strategie_isin)]
 where StockOptionUtil.isDeltaTooLow(optionTick.security, optionTick.currentValueDouble, indexTick.currentValueDouble)
 and optionTick.security.position != null
 and optionTick.security.position.quantity != 0</field>
@@ -171,7 +171,7 @@ indexTick.currentValue,
 stockOptionTick.settlement,
 indexTick.settlement,
 volaTick.currentValueDouble / 100
-from pattern [(indexTick=Tick(security.isin = var_isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id) -&gt; stockOptionTick=Tick(security.id = ?,security.underlaying.id=indexTick.security.id))]</field>
+from pattern [(indexTick=Tick(security.isin = strategie_isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id) -&gt; stockOptionTick=Tick(security.id = ?,security.underlaying.id=indexTick.security.id))]</field>
         <field name="SUBSCRIBER">OpenPositionSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">00</field>
@@ -184,11 +184,11 @@ from pattern [(indexTick=Tick(security.isin = var_isin) -&gt; volaTick=Tick(secu
         <field name="DEFINITION">insert into KFast
 select security,
 (select (last(currentValueDouble) - min(currentValueDouble))/(max(currentValueDouble) - min(currentValueDouble)) as call
-from Tick(security.isin = var_isin).win:length(cast(var_call_k_fast_days * var_events_per_day, int))),
+from Tick(security.isin = strategie_isin).win:length(cast(callKFastDays * simulation_eventsPerDay, int))),
 (select (last(currentValueDouble) - min(currentValueDouble))/(max(currentValueDouble) - min(currentValueDouble)) as put
-from Tick(security.isin = var_isin).win:length(cast(var_put_k_fast_days * var_events_per_day, int)))
-from Tick(security.isin = var_isin)
-having count(id) &gt;= cast(Math.max(var_call_k_fast_days,var_put_k_fast_days) * var_events_per_day ,int)</field>
+from Tick(security.isin = strategie_isin).win:length(cast(putKFastDays * simulation_eventsPerDay, int)))
+from Tick(security.isin = strategie_isin)
+having count(id) &gt;= cast(Math.max(callKFastDays,putKFastDays) * simulation_eventsPerDay ,int)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -200,7 +200,7 @@ having count(id) &gt;= cast(Math.max(var_call_k_fast_days,var_put_k_fast_days) *
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into EndOfDayTick
 select tick.*
-from pattern [every tick=Tick(security.isin = var_isin) -&gt; (timer:at (0, 18, *, *, 1:5) and not Tick(security.isin = var_isin))]</field>
+from pattern [every tick=Tick(security.isin = strategie_isin) -&gt; (timer:at (0, 18, *, *, 1:5) and not Tick(security.isin = strategie_isin))]</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -229,9 +229,9 @@ from EndOfDayTick
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into Macd
 select security,
-ema(currentValueDouble,var_macd_fast) - ema(currentValueDouble,var_macd_slow) as value
+ema(currentValueDouble,macdFast) - ema(currentValueDouble,macdSlow) as value
 from EndOfDayTick
-having count(*) &gt; Math.round(var_macd_slow * var_macd_weight)
+having count(*) &gt; Math.round(macdSlow * macdWeight)
 </field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
@@ -244,10 +244,10 @@ having count(*) &gt; Math.round(var_macd_slow * var_macd_weight)
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into KSlow
 select security,
-(select avg(call) from KFast.win:length(cast(var_call_k_slow_days * var_events_per_day, int))) as call,
-(select avg(put) from KFast.win:length(cast(var_put_k_slow_days * var_events_per_day, int))) as put
+(select avg(call) from KFast.win:length(cast(callKSlowDays * simulation_eventsPerDay, int))) as call,
+(select avg(put) from KFast.win:length(cast(putKSlowDays * simulation_eventsPerDay, int))) as put
 from KFast
-having count(security) &gt;= cast(Math.max(var_call_k_slow_days,var_put_k_slow_days) * var_events_per_day ,int)</field>
+having count(security) &gt;= cast(Math.max(callKSlowDays,putKSlowDays) * simulation_eventsPerDay ,int)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -259,10 +259,10 @@ having count(security) &gt;= cast(Math.max(var_call_k_slow_days,var_put_k_slow_d
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into DSlow
 select security,
-(select avg(call) from KSlow.win:length(cast(var_call_d_slow_days * var_events_per_day,int))) as call,
-(select avg(put) from KSlow.win:length(cast(var_put_d_slow_days * var_events_per_day,int))) as put
+(select avg(call) from KSlow.win:length(cast(callDSlowDays * simulation_eventsPerDay,int))) as call,
+(select avg(put) from KSlow.win:length(cast(putDSlowDays * simulation_eventsPerDay,int))) as put
 from KSlow
-having count(security) &gt;= cast(Math.max(var_call_d_slow_days,var_put_d_slow_days) * var_events_per_day ,int)</field>
+having count(security) &gt;= cast(Math.max(callDSlowDays,putDSlowDays) * simulation_eventsPerDay ,int)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -275,11 +275,11 @@ having count(security) &gt;= cast(Math.max(var_call_d_slow_days,var_put_d_slow_d
         <field name="DEFINITION">select
 indexTick.security.id,
 indexTick.currentValue
-from pattern [every (indexTick=Tick(security.isin=var_isin) -&gt; k=KSlow -&gt; d=DSlow)]
+from pattern [every (indexTick=Tick(security.isin=strategie_isin) -&gt; k=KSlow -&gt; d=DSlow)]
 where k.put &gt; d.put
 and prior(1, k.put) &lt; prior(1, d.put)
-and d.put &lt; var_put_trigger
-and var_put_enabled = true</field>
+and d.put &lt; putTrigger
+and putEnabled = true</field>
         <field name="SUBSCRIBER">BuySignalSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -292,11 +292,11 @@ and var_put_enabled = true</field>
         <field name="DEFINITION">select
 indexTick.security.id,
 indexTick.currentValue
-from pattern [every (indexTick=Tick(security.isin=var_isin) -&gt; k=KSlow -&gt; d=DSlow)]
+from pattern [every (indexTick=Tick(security.isin=strategie_isin) -&gt; k=KSlow -&gt; d=DSlow)]
 where k.call &lt; d.call
 and prior(1, k.call) &gt; prior(1, d.call)
-and d.call &gt; var_call_trigger
-and var_call_enabled = true</field>
+and d.call &gt; callTrigger
+and callEnabled = true</field>
         <field name="SUBSCRIBER">SellSignalSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -315,7 +315,7 @@ kSlow.call as KSlowCall,
 kSlow.put as KSlowPut,
 dSlow.call as DSlowCall,
 dSlow.put as DSlowPut
-from pattern [every (indexTick=Tick(security.isin=var_isin) -&gt; kFast=KFast -&gt; kSlow=KSlow -&gt; dSlow=DSlow)]</field>
+from pattern [every (indexTick=Tick(security.isin=strategie_isin) -&gt; kFast=KFast -&gt; kSlow=KSlow -&gt; dSlow=DSlow)]</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -337,9 +337,9 @@ from pattern [every (indexTick=Tick(security.isin=var_isin) -&gt; kFast=KFast -&
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into MacdSignal
 select security,
-ema(value,var_macd_signal) as value
+ema(value,macdSignal) as value
 from Macd
-having count(*) &gt; Math.round(var_macd_signal * var_macd_weight)</field>
+having count(*) &gt; Math.round(macdSignal * macdWeight)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -370,7 +370,7 @@ select indexTick.currentValueDouble as underlaying,
 DateUtil.toDate(current_timestamp()) as dateTime,
 macd.value as macd,
 signal.value as signal
-from pattern [every (indexTick=Tick(security.isin=var_isin) -&gt; macd=Macd -&gt; signal=MacdSignal)]</field>
+from pattern [every (indexTick=Tick(security.isin=strategie_isin) -&gt; macd=Macd -&gt; signal=MacdSignal)]</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
@@ -397,7 +397,7 @@ uni.geomaverage as avgM,
 uni.stddev as stdM,
 Math.pow(1 + uni.geomaverage,12) - 1  as avgY,
 uni.stddev * Math.sqrt(12) as stdY,
-(Math.pow(1 + uni.geomaverage,12) - 1 - var_intrest) / (uni.stddev * Math.sqrt(12)) as sharpRatio
+(Math.pow(1 + uni.geomaverage,12) - 1 - strategie_intrest) / (uni.stddev * Math.sqrt(12)) as sharpRatio
 from MonthlyPerformance.win:keepall().stat:uni(value) as uni</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />

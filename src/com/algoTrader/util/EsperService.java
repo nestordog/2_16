@@ -2,11 +2,12 @@ package com.algoTrader.util;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
+import java.util.Map;
 
 import com.algoTrader.enumeration.RuleName;
 import com.espertech.esper.client.Configuration;
+import com.espertech.esper.client.ConfigurationVariable;
+import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
@@ -30,6 +31,19 @@ public class EsperService {
 
             Configuration config = new Configuration();
             config.configure();
+
+            try {
+                Map<String, ConfigurationVariable> variables = config.getVariables();
+                for (Map.Entry<String, ConfigurationVariable> entry : variables.entrySet()) {
+                    String key = entry.getKey().replace("_", ".");
+                    String obj = ConfigurationUtil.getBaseConfig().getString(key);
+                    Class<?> clazz = Class.forName(entry.getValue().getType());
+                    Object castedObj = JavaClassHelper.parse(clazz, obj);
+                    entry.getValue().setInitializationValue(castedObj);
+                }
+            } catch (ClassNotFoundException e) {
+                // do nothing
+            }
 
             cep = EPServiceProviderManager.getDefaultProvider(config);
 
@@ -157,6 +171,17 @@ public class EsperService {
         return internalClock;
     }
 
+    public static void setPropertyValue(String key, String value) {
+
+        key = key.replace(".", "_");
+        EPRuntime runtime = cep.getEPRuntime();
+        if (runtime.getVariableValueAll().containsKey(key)) {
+            Class<?> clazz = runtime.getVariableValue(key).getClass();
+            Object castedObj = JavaClassHelper.parse(clazz, value);
+            runtime.setVariableValue(key, castedObj);
+        }
+    }
+
     public static void enableJmx() {
 
         // Indicate that the platform MBeanServer should be used
@@ -171,37 +196,5 @@ public class EsperService {
         // Start EsperJMX endpoint
         JMXEndpoint endpoint = new JMXEndpoint(cep, jmxConfig);
         endpoint.start();
-    }
-
-    public static Object getVariableValue(String variableName) {
-
-        return getEPServiceInstance().getEPRuntime().getVariableValue(convertCamelCase(variableName));
-    }
-
-    public static void setVariableValue(String variableName, String value) {
-
-        Class<?> variableClass = getVariableValue(variableName).getClass();
-
-        if (JavaClassHelper.isNumericNonFP(variableClass)) value = value.split("\\.")[0];
-
-        Object castedValue = JavaClassHelper.parse(variableClass, value);
-
-        getEPServiceInstance().getEPRuntime().setVariableValue(convertCamelCase(variableName), castedValue);
-    }
-
-    public static boolean hasVariable(String variableName) {
-
-        return getEPServiceInstance().getEPRuntime().getVariableValueAll().containsKey((convertCamelCase(variableName)));
-    }
-
-    private static  String convertCamelCase(String input) {
-
-        String[] parts = StringUtils.splitByCharacterTypeCamelCase(input);
-        StringBuffer buffer = new StringBuffer("var");
-        for (String part : parts) {
-            buffer.append("_");
-            buffer.append(part.toLowerCase());
-        }
-        return buffer.toString();
     }
 }

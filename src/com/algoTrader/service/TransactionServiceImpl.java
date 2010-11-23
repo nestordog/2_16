@@ -18,22 +18,22 @@ import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 
 public abstract class TransactionServiceImpl extends com.algoTrader.service.TransactionServiceBase {
 
-    private static final int firstTradingHour = PropertiesUtil.getIntProperty("simulation.firstTradingHour");
+    private static final int firstTradingHour = ConfigurationUtil.getBaseConfig().getInt("simulation.firstTradingHour");
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
     private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".TransactionMail");
 
-    private static boolean externalTransactionsEnabled = PropertiesUtil.getBooleanProperty("externalTransactionsEnabled");
-    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
-    private static long eventsPerDay = (Long)EsperService.getVariableValue("eventsPerDay");
+    private static boolean externalTransactionsEnabled = ConfigurationUtil.getBaseConfig().getBoolean("externalTransactionsEnabled");
+    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+    private static long eventsPerDay = ConfigurationUtil.getBaseConfig().getLong("simulation.eventsPerDay");
 
     @SuppressWarnings("unchecked")
     protected void handleExecuteTransaction(Order order) throws Exception {

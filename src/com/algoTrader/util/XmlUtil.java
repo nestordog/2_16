@@ -14,7 +14,7 @@ import org.w3c.dom.Document;
 
 public class XmlUtil {
 
-    private static boolean saveToFile = PropertiesUtil.getBooleanProperty("saveToFile");
+    private static boolean saveToFile = ConfigurationUtil.getBaseConfig().getBoolean("saveToFile");
 
     private static Logger logger = MyLogger.getLogger(XmlUtil.class.getName());
 

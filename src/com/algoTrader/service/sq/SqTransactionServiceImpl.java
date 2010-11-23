@@ -32,9 +32,9 @@ import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.service.TransactionServiceException;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.TidyUtil;
 import com.algoTrader.util.XmlUtil;
@@ -43,14 +43,14 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(SqTransactionServiceImpl.class.getName());
 
-    private static int confirmationTimeout = PropertiesUtil.getIntProperty("swissquote.confirmationTimeout");
-    private static int confirmationRetries = PropertiesUtil.getIntProperty("swissquote.confirmationRetries");
-    private static int maxTransactionAge = PropertiesUtil.getIntProperty("maxTransactionAge");
-    private static String[] spreadPositions = PropertiesUtil.getStringArrayProperty("spreadPositions");
+    private static int confirmationTimeout = ConfigurationUtil.getBaseConfig().getInt("swissquote.confirmationTimeout");
+    private static int confirmationRetries = ConfigurationUtil.getBaseConfig().getInt("swissquote.confirmationRetries");
+    private static int maxTransactionAge = ConfigurationUtil.getBaseConfig().getInt("maxTransactionAge");
+    private static String[] spreadPositions = ConfigurationUtil.getBaseConfig().getStringArray("spreadPositions");
 
     private static String dispatchUrl = "https://trade.swissquote.ch/sqb_core/DispatchCtrl";
     private static String tradeUrl = "https://trade.swissquote.ch/sqb_core/TradeCtrl";
-    private static String ordersUrl = "https://trade.swissquote.ch/sqb_core/AccountCtrl?commandName=myOrders&client=" + PropertiesUtil.getProperty("swissquote.trade.clientNumber");
+    private static String ordersUrl = "https://trade.swissquote.ch/sqb_core/AccountCtrl?commandName=myOrders&client=" + ConfigurationUtil.getBaseConfig().getString("swissquote.trade.clientNumber");
     private static String transactionsUrl = "https://trade.swissquote.ch/sqb_core/TransactionsCtrl?commandName=viewTransactions";
 
     private static String columnMatch = "td[//table[@class='trading']/thead/tr/td[.='%1$s']][count(//table[@class='trading']/thead/tr/td[.='%1$s']/preceding-sibling::td)+1]";

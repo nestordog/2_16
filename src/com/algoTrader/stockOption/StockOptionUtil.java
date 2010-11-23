@@ -12,27 +12,26 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.sabr.SABRVol;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
-import com.algoTrader.util.EsperService;
-import com.algoTrader.util.PropertiesUtil;
 
 public class StockOptionUtil {
 
     private static final double MILLISECONDS_PER_YEAR = 31536000000l;
     private static final double DAYS_PER_YEAR = 365;
 
-    private static double intrest = PropertiesUtil.getDoubleProperty("strategie.intrest");
-    private static double dividend = PropertiesUtil.getDoubleProperty("strategie.dividend");
-    private static double marginParameter = PropertiesUtil.getDoubleProperty("strategie.marginParameter");
-    private static double spreadSlope = PropertiesUtil.getDoubleProperty("strategie.spreadSlope");
-    private static double spreadConstant = PropertiesUtil.getDoubleProperty("strategie.spreadConstant");
+    private static double intrest = ConfigurationUtil.getBaseConfig().getDouble("strategie.intrest");
+    private static double dividend = ConfigurationUtil.getBaseConfig().getDouble("strategie.dividend");
+    private static double marginParameter = ConfigurationUtil.getBaseConfig().getDouble("strategie.marginParameter");
+    private static double spreadSlope = ConfigurationUtil.getBaseConfig().getDouble("strategie.spreadSlope");
+    private static double spreadConstant = ConfigurationUtil.getBaseConfig().getDouble("strategie.spreadConstant");
 
-    private static double beta = PropertiesUtil.getDoubleProperty("strategie.beta");
-    private static double volVol = PropertiesUtil.getDoubleProperty("strategie.volVol");
-    private static double correlation = PropertiesUtil.getDoubleProperty("strategie.correlation");
+    private static double beta = ConfigurationUtil.getBaseConfig().getDouble("strategie.beta");
+    private static double volVol = ConfigurationUtil.getBaseConfig().getDouble("strategie.volVol");
+    private static double correlation = ConfigurationUtil.getBaseConfig().getDouble("strategie.correlation");
 
-    private static double minExpirationYears = PropertiesUtil.getDoubleProperty("minExpirationYears");
-    private static boolean sabrEnabled = PropertiesUtil.getBooleanProperty("sabrEnabled");
+    private static double minExpirationYears = ConfigurationUtil.getBaseConfig().getDouble("minExpirationYears");
+    private static boolean sabrEnabled = ConfigurationUtil.getBaseConfig().getBoolean("sabrEnabled");
 
     public static double getOptionPrice(Security security, double underlayingSpot, double vola) throws MathException, IllegalArgumentException {
 
@@ -170,10 +169,10 @@ public class StockOptionUtil {
 
         double exitLevel;
         if (OptionType.CALL.equals(stockOption.getType())) {
-            double callVolaPeriod = (Double)EsperService.getVariableValue("callVolaPeriod");
+            double callVolaPeriod = ConfigurationUtil.getBaseConfig().getDouble("callVolaPeriod");
             exitLevel = underlayingSpot * (1 + volatility / Math.sqrt(DAYS_PER_YEAR / callVolaPeriod));
         } else {
-            double putVolaPeriod = (Double)EsperService.getVariableValue("putVolaPeriod");
+            double putVolaPeriod = ConfigurationUtil.getBaseConfig().getDouble("putVolaPeriod");
             exitLevel = underlayingSpot * (1 - volatility / Math.sqrt(DAYS_PER_YEAR / putVolaPeriod));
         }
 
@@ -257,7 +256,7 @@ public class StockOptionUtil {
             }
 
             double delta = getDelta(security, currentValue, underlayingSpot);
-            double minDelta = PropertiesUtil.getDoubleProperty("minDelta");
+            double minDelta = ConfigurationUtil.getBaseConfig().getDouble("minDelta");
 
             if (Math.abs(delta) > minDelta) {
                 return false;

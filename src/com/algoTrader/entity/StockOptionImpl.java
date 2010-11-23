@@ -5,17 +5,17 @@ import java.math.BigDecimal;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.service.TickServiceException;
 import com.algoTrader.stockOption.StockOptionUtil;
-import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
 
 public class StockOptionImpl extends com.algoTrader.entity.StockOption {
 
     private static final long serialVersionUID = -3168298592370987085L;
 
-    private static final double commission = PropertiesUtil.getDoubleProperty("strategie.commission");
-    private static int minVol = PropertiesUtil.getIntProperty("minVol");
-    private static double maxSpreadSlope = PropertiesUtil.getDoubleProperty("strategie.maxSpreadSlope");
-    private static double maxSpreadConstant = PropertiesUtil.getDoubleProperty("strategie.maxSpreadConstant");
+    private static final double commission = ConfigurationUtil.getBaseConfig().getDouble("strategie.commission");
+    private static int minVol = ConfigurationUtil.getBaseConfig().getInt("minVol");
+    private static double maxSpreadSlope = ConfigurationUtil.getBaseConfig().getDouble("strategie.maxSpreadSlope");
+    private static double maxSpreadConstant = ConfigurationUtil.getBaseConfig().getDouble("strategie.maxSpreadConstant");
 
     public BigDecimal getCommission(long quantity, TransactionType transactionType) {
 

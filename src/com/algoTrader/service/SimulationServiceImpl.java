@@ -39,10 +39,10 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.CustomDate;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.io.CsvTickInputAdapter;
 import com.algoTrader.util.io.DBTransactionInputAdapter;
 import com.algoTrader.vo.MaxDrawDownVO;
@@ -57,7 +57,7 @@ import com.espertech.esperio.csv.CSVInputAdapterSpec;
 public class SimulationServiceImpl extends SimulationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
-    private static String dataSet = PropertiesUtil.getProperty("strategie.dataSet");
+    private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static DecimalFormat threeDigitFormat = new DecimalFormat("#,##0.000");
     private static DateFormat dateFormat = new SimpleDateFormat(" MMM-yy ");
@@ -258,7 +258,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         for (double i = min; i <= max; i += increment ) {
 
             logger.info("optimize on " + parameter + " value " + threeDigitFormat.format(i));
-            PropertiesUtil.setEsperOrConfigProperty(parameter, String.valueOf(i));
+            ConfigurationUtil.getBaseConfig().setProperty(parameter, String.valueOf(i));
 
             double value = ServiceLocator.instance().getSimulationService().simulateByUnderlayings();
             if (value > functionValue) {
@@ -398,7 +398,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         public double value(double input) throws FunctionEvaluationException {
 
-            PropertiesUtil.setEsperOrConfigProperty(this.param, String.valueOf(input));
+            ConfigurationUtil.getBaseConfig().setProperty(this.param, String.valueOf(input));
 
             logger.info("optimize on " + this.param + " value " + threeDigitFormat.format(input));
 
@@ -429,7 +429,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 String param = this.params[i];
                 double value = input[i];
 
-                PropertiesUtil.setEsperOrConfigProperty(param, String.valueOf(value));
+                ConfigurationUtil.getBaseConfig().setProperty(param, String.valueOf(value));
 
                 buffer.append(param + ": " + threeDigitFormat.format(value) + " ");
             }

@@ -25,22 +25,22 @@ import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.RuleName;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 
 public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionServiceBase {
 
-    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
-    private static Market market = Market.fromString(PropertiesUtil.getProperty("strategie.market"));
-    private static Currency currency = Currency.fromString(PropertiesUtil.getProperty("strategie.currency"));
-    private static int contractSize = PropertiesUtil.getIntProperty("strategie.contractSize");
-    private static double initialMarginMarkup = PropertiesUtil.getDoubleProperty("strategie.initialMarginMarkup");
-    private static boolean numberOfContractsByRedemptionValueEnabled = PropertiesUtil.getBooleanProperty("numberOfContractsByRedemptionValueEnabled");
-    private static boolean numberOfContractsByLeverageEnabled = PropertiesUtil.getBooleanProperty("numberOfContractsByLeverageEnabled");
+    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+    private static Market market = Market.fromString(ConfigurationUtil.getBaseConfig().getString("strategie.market"));
+    private static Currency currency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("strategie.currency"));
+    private static int contractSize = ConfigurationUtil.getBaseConfig().getInt("strategie.contractSize");
+    private static double initialMarginMarkup = ConfigurationUtil.getBaseConfig().getDouble("strategie.initialMarginMarkup");
+    private static boolean numberOfContractsByRedemptionValueEnabled = ConfigurationUtil.getBaseConfig().getBoolean("numberOfContractsByRedemptionValueEnabled");
+    private static boolean numberOfContractsByLeverageEnabled = ConfigurationUtil.getBaseConfig().getBoolean("numberOfContractsByLeverageEnabled");
 
-    private static int minAge = PropertiesUtil.getIntProperty("minAge");
+    private static int minAge = ConfigurationUtil.getBaseConfig().getInt("minAge");
 
     private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
 
@@ -324,7 +324,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
      */
     private double getExitValueByMaxAtRiskRatioPerTrade(double currentValueDouble, double maintenanceMargin) {
 
-        return PropertiesUtil.getDoubleProperty("maxAtRiskRatioPerTrade") * maintenanceMargin + currentValueDouble;
+        return ConfigurationUtil.getBaseConfig().getDouble("maxAtRiskRatioPerTrade") * maintenanceMargin + currentValueDouble;
     }
 
     /**
@@ -354,7 +354,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         if (!numberOfContractsByRedemptionValueEnabled)
             return Long.MAX_VALUE;
 
-        double maxAtRiskRatioOfPortfolio = PropertiesUtil.getDoubleProperty("maxAtRiskRatioOfPortfolio");
+        double maxAtRiskRatioOfPortfolio = ConfigurationUtil.getBaseConfig().getDouble("maxAtRiskRatioOfPortfolio");
 
         return (long) ((maxAtRiskRatioOfPortfolio * account.getCashBalanceDouble() - account.getRedemptionValue()) / (contractSize * (exitValue - maxAtRiskRatioOfPortfolio * currentValueDouble)));
     }
@@ -368,7 +368,7 @@ public class StockOptionServiceImpl extends com.algoTrader.service.StockOptionSe
         if (!numberOfContractsByLeverageEnabled)
             return Long.MAX_VALUE;
 
-        double maxLeverage = PropertiesUtil.getDoubleProperty("strategie.maxLeverage");
+        double maxLeverage = ConfigurationUtil.getBaseConfig().getDouble("strategie.maxLeverage");
         double signedMaxLeverage = OptionType.PUT.equals(stockOption.getType()) ? maxLeverage : -maxLeverage;
 
         return -(long) ((signedMaxLeverage - account.getLeverage()) * account.getNetLiqValueDouble() / stockOption.getLeverage() / contractSize / currentValueDouble);

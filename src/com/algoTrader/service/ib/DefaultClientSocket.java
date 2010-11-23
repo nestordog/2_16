@@ -7,14 +7,14 @@ import java.net.Socket;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.enumeration.ConnectionState;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.PropertiesUtil;
 import com.ib.client.EClientSocket;
 
 public class DefaultClientSocket extends EClientSocket {
 
-    private static final long connectionTimeout = PropertiesUtil.getIntProperty("ib.connectionTimeout");
-    private static int port = PropertiesUtil.getIntProperty("ib.port");
+    private static final long connectionTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.connectionTimeout");
+    private static int port = ConfigurationUtil.getBaseConfig().getInt("ib.port");
 
     private static Logger logger = MyLogger.getLogger(DefaultClientSocket.class.getName());
 

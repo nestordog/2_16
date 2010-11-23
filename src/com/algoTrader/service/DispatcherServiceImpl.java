@@ -5,11 +5,11 @@ import java.util.Set;
 
 import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.service.ib.IbService;
-import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.ConfigurationUtil;
 
 public class DispatcherServiceImpl extends com.algoTrader.service.DispatcherServiceBase {
 
-    private static String marketChannel = PropertiesUtil.getProperty("marketChannel");
+    private static String marketChannel = ConfigurationUtil.getBaseConfig().getString("marketChannel");
 
     protected StockOptionRetrieverService handleGetStockOptionRetrieverService() {
 

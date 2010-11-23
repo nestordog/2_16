@@ -11,13 +11,13 @@ import org.supercsv.exception.SuperCSVException;
 
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
-import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.HlocVO;
 
 public class CsvHlocInterpolator {
 
-    private static String dataSet = PropertiesUtil.getProperty("strategie.dataSet");
+    private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
 
     private static double recordsPerInput = 17.0;
      private static double recordsPerHour = 2.0;

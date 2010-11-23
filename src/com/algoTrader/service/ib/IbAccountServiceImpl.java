@@ -39,9 +39,9 @@ import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.service.sq.HttpClientUtil;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.XmlUtil;
 
@@ -49,14 +49,14 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
 
     private static Logger logger = MyLogger.getLogger(IbAccountServiceImpl.class.getName());
 
-    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
-    private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
-    private static boolean accountServiceEnabled = PropertiesUtil.getBooleanProperty("ib.accountServiceEnabled");
+    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+    private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
+    private static boolean accountServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.accountServiceEnabled");
 
-    private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
-    private static String masterAccount = PropertiesUtil.getProperty("ib.masterAccount");
-    private static String flexToken = PropertiesUtil.getProperty("ib.flexToken");
-    private static String flexQueryId = PropertiesUtil.getProperty("ib.flexQueryId");
+    private static int retrievalTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.retrievalTimeout");
+    private static String masterAccount = ConfigurationUtil.getBaseConfig().getString("ib.masterAccount");
+    private static String flexToken = ConfigurationUtil.getBaseConfig().getString("ib.flexToken");
+    private static String flexQueryId = ConfigurationUtil.getBaseConfig().getString("ib.flexQueryId");
 
     private DefaultClientSocket client;
     private DefaultWrapper wrapper;

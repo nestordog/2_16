@@ -26,7 +26,7 @@
     <!-- ===================== TRANSACTION MANAGER DEFINITION ========================= -->
 
     <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="location"><value>/conf.properties</value></property>
+        <property name="location"><value>/base.properties</value></property>
         <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_OVERRIDE</value></property>
     </bean>
 

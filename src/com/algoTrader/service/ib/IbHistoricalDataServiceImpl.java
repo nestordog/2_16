@@ -21,9 +21,9 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
 import com.algoTrader.service.HistoricalDataServiceException;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.io.CsvTickWriter;
 import com.ib.client.Contract;
@@ -32,11 +32,11 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
 
     private static Logger logger = MyLogger.getLogger(IbHistoricalDataServiceImpl.class.getName());
 
-    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
-    private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
-    private static boolean historicalDataServiceEnabled = PropertiesUtil.getBooleanProperty("ib.historicalDataServiceEnabled");
+    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+    private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
+    private static boolean historicalDataServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.historicalDataServiceEnabled");
 
-    private static int historicalDataTimeout = PropertiesUtil.getIntProperty("ib.historicalDataTimeout");
+    private static int historicalDataTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.historicalDataTimeout");
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
 

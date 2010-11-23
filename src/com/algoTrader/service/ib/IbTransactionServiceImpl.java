@@ -25,8 +25,8 @@ import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.service.TickServiceException;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 import com.ib.client.Contract;
 import com.ib.client.Execution;
@@ -37,18 +37,18 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
 
-    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
-    private static boolean ibEnabled = "IB".equals(PropertiesUtil.getProperty("marketChannel"));
-    private static boolean transactionServiceEnabled = PropertiesUtil.getBooleanProperty("ib.transactionServiceEnabled");
+    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+    private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
+    private static boolean transactionServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.transactionServiceEnabled");
 
-    private static double[] spreadPositions = PropertiesUtil.getDoubleArrayProperty("spreadPositions");
+    private static String[] spreadPositions = ConfigurationUtil.getBaseConfig().getStringArray("spreadPositions");
 
-    private static String group = PropertiesUtil.getProperty("ib.group");
-    private static String openMethod = PropertiesUtil.getProperty("ib.openMethod");
-    private static String closeMethod = PropertiesUtil.getProperty("ib.closeMethod");
+    private static String group = ConfigurationUtil.getBaseConfig().getString("ib.group");
+    private static String openMethod = ConfigurationUtil.getBaseConfig().getString("ib.openMethod");
+    private static String closeMethod = ConfigurationUtil.getBaseConfig().getString("ib.closeMethod");
 
-    private static int transactionTimeout = PropertiesUtil.getIntProperty("ib.transactionTimeout");
-    private static int retrievalTimeout = PropertiesUtil.getIntProperty("ib.retrievalTimeout");
+    private static int transactionTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.transactionTimeout");
+    private static int retrievalTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.retrievalTimeout");
 
     private DefaultClientSocket client;
     private DefaultWrapper wrapper;
@@ -228,7 +228,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         getPartialOrder(order);
 
         Tick tick = null;
-        for (double spreadPosition : spreadPositions) {
+        for (String spreadPosition : spreadPositions) {
 
             if (spreadPosition == spreadPositions[0]) {
 
@@ -236,7 +236,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
             }
 
             PartialOrder partialOrder = order.getCurrentPartialOrder();
-            partialOrder.setSpreadPosition(spreadPosition);
+            partialOrder.setSpreadPosition(Long.parseLong(spreadPosition));
 
             placeOrModifyPartialOrder(partialOrder, tick);
 

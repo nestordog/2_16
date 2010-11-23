@@ -3,14 +3,14 @@ package com.algoTrader.entity;
 import java.math.BigDecimal;
 import java.util.Collection;
 
-import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
 
 public class AccountImpl extends Account {
 
     private static final long serialVersionUID = -2271735085273721632L;
 
-    private static double initialMarginMarkup = PropertiesUtil.getDoubleProperty("strategie.initialMarginMarkup");
+    private static double initialMarginMarkup = ConfigurationUtil.getBaseConfig().getDouble("strategie.initialMarginMarkup");
 
     public BigDecimal getCashBalance() {
         return RoundUtil.getBigDecimal(getCashBalanceDouble());

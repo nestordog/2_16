@@ -2,12 +2,12 @@ package com.algoTrader.entity;
 
 import java.math.BigDecimal;
 
-import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
 
 public class TickImpl extends com.algoTrader.entity.Tick {
 
-    private static boolean simulation = PropertiesUtil.getBooleanProperty("simulation");
+    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
 
     private static final long serialVersionUID = 7518020445322413106L;
 

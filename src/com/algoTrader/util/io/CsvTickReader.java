@@ -20,11 +20,11 @@ import org.supercsv.util.CSVContext;
 
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
-import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.ConfigurationUtil;
 
 public class CsvTickReader {
 
-    private static String dataSet = PropertiesUtil.getProperty("strategie.dataSet");
+    private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
 
     private static CellProcessor[] processor = new CellProcessor[] {
         new ParseDate(),

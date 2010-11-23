@@ -23,10 +23,10 @@ import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.sabr.SABRCalibration;
 import com.algoTrader.sabr.SABRCalibrationParams;
 import com.algoTrader.stockOption.StockOptionUtil;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.io.CsvTickReader;
 import com.algoTrader.util.io.CsvTickWriter;
@@ -38,12 +38,12 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
     private static Logger logger = MyLogger.getLogger(TickServiceImpl.class.getName());
 
-    private static String isin = PropertiesUtil.getProperty("strategie.isin");
-    private static String dataSet = PropertiesUtil.getProperty("strategie.dataSet");
-    private static double intrest = PropertiesUtil.getDoubleProperty("strategie.intrest");
-    private static double dividend = PropertiesUtil.getDoubleProperty("strategie.dividend");
-    private static double beta = PropertiesUtil.getDoubleProperty("strategie.beta");
-    private static int strikeDistance = PropertiesUtil.getIntProperty("strategie.strikeDistance");
+    private static String isin = ConfigurationUtil.getBaseConfig().getString("strategie.isin");
+    private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
+    private static double intrest = ConfigurationUtil.getBaseConfig().getDouble("strategie.intrest");
+    private static double dividend = ConfigurationUtil.getBaseConfig().getDouble("strategie.dividend");
+    private static double beta = ConfigurationUtil.getBaseConfig().getDouble("strategie.beta");
+    private static int strikeDistance = ConfigurationUtil.getBaseConfig().getInt("strategie.strikeDistance");
 
     private static SimpleDateFormat inputFormat = new SimpleDateFormat("yyyyMMdd-kkmmss");
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
@@ -58,10 +58,10 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
         Security underlaying = getSecurityDao().findByISIN(isin);
 
-        double kFastDays = Math.max((Double) EsperService.getVariableValue("callKFastDays"), (Double) EsperService.getVariableValue("putKFastDays"));
-        double kSlowDays = Math.max((Double) EsperService.getVariableValue("callKSlowDays"), (Double) EsperService.getVariableValue("putKSlowDays"));
-        double dSlowDays = Math.max((Double) EsperService.getVariableValue("callDSlowDays"), (Double) EsperService.getVariableValue("putDSlowDays"));
-        int numberOfTicks = (int) Math.ceil((kFastDays + kSlowDays + dSlowDays) * (Long) EsperService.getVariableValue("eventsPerDay"));
+        double kFastDays = Math.max(ConfigurationUtil.getBaseConfig().getDouble("callKFastDays"), ConfigurationUtil.getBaseConfig().getDouble("putKFastDays"));
+        double kSlowDays = Math.max(ConfigurationUtil.getBaseConfig().getDouble("callKSlowDays"), ConfigurationUtil.getBaseConfig().getDouble("putKSlowDays"));
+        double dSlowDays = Math.max(ConfigurationUtil.getBaseConfig().getDouble("callDSlowDays"), ConfigurationUtil.getBaseConfig().getDouble("putDSlowDays"));
+        int numberOfTicks = (int) Math.ceil((kFastDays + kSlowDays + dSlowDays) * ConfigurationUtil.getBaseConfig().getLong("simulation.eventsPerDay"));
 
         // we need to get 2 x numberOfTicks so that KEEP_STOCHASTIC_VO has the
         // keeps that same number of ticks we need to initialize stochastic

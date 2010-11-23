@@ -22,28 +22,28 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.w3c.dom.Document;
 
-import com.algoTrader.util.PropertiesUtil;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.TidyUtil;
 import com.algoTrader.util.XmlUtil;
 
 public class HttpClientUtil {
 
-    private static String premiumUserId = PropertiesUtil.getProperty("swissquote.premium.userId");
-    private static String premiumPassword = PropertiesUtil.getProperty("swissquote.premium.password");
-    private static String premiumHost = PropertiesUtil.getProperty("swissquote.premium.host");
+    private static String premiumUserId = ConfigurationUtil.getBaseConfig().getString("swissquote.premium.userId");
+    private static String premiumPassword = ConfigurationUtil.getBaseConfig().getString("swissquote.premium.password");
+    private static String premiumHost = ConfigurationUtil.getBaseConfig().getString("swissquote.premium.host");
 
-    private static String tradeHost = PropertiesUtil.getProperty("swissquote.trade.host");
-    private static String tradeLoginUrl = PropertiesUtil.getProperty("swissquote.trade.loginUrl");
-    private static String tradePasswordUrl = PropertiesUtil.getProperty("swissquote.trade.passwordUrl");
-    private static String tradeLevel3Url = PropertiesUtil.getProperty("swissquote.trade.level3Url");
-    private static String tradeUserId = PropertiesUtil.getProperty("swissquote.trade.userId");
-    private static String tradePassword = PropertiesUtil.getProperty("swissquote.trade.password");
+    private static String tradeHost = ConfigurationUtil.getBaseConfig().getString("swissquote.trade.host");
+    private static String tradeLoginUrl = ConfigurationUtil.getBaseConfig().getString("swissquote.trade.loginUrl");
+    private static String tradePasswordUrl = ConfigurationUtil.getBaseConfig().getString("swissquote.trade.passwordUrl");
+    private static String tradeLevel3Url = ConfigurationUtil.getBaseConfig().getString("swissquote.trade.level3Url");
+    private static String tradeUserId = ConfigurationUtil.getBaseConfig().getString("swissquote.trade.userId");
+    private static String tradePassword = ConfigurationUtil.getBaseConfig().getString("swissquote.trade.password");
 
-    private static int workers = PropertiesUtil.getIntProperty("swissquote.http-workers");
-    private static boolean retry = PropertiesUtil.getBooleanProperty("swissquote.http-retry");
-    private static String standardUserAgent = PropertiesUtil.getProperty("swissquote.standardUserAgent");
-    private static String loggedInUserAgent = PropertiesUtil.getProperty("swissquote.loggedInUserAgent");
-    private static boolean useProxy = PropertiesUtil.getBooleanProperty("swissquote.useProxy");
+    private static int workers = ConfigurationUtil.getBaseConfig().getInt("swissquote.http-workers");
+    private static boolean retry = ConfigurationUtil.getBaseConfig().getBoolean("swissquote.http-retry");
+    private static String standardUserAgent = ConfigurationUtil.getBaseConfig().getString("swissquote.standardUserAgent");
+    private static String loggedInUserAgent = ConfigurationUtil.getBaseConfig().getString("swissquote.loggedInUserAgent");
+    private static boolean useProxy = ConfigurationUtil.getBaseConfig().getBoolean("swissquote.useProxy");
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 

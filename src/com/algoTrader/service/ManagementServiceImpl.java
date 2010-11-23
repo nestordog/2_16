@@ -11,8 +11,8 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TransactionDao;
 import com.algoTrader.enumeration.Currency;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.EsperService;
-import com.algoTrader.util.PropertiesUtil;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.TickVO;
 import com.algoTrader.vo.TransactionVO;
@@ -20,8 +20,8 @@ import com.algoTrader.vo.TransactionVO;
 public class ManagementServiceImpl extends ManagementServiceBase {
 
     private static final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yy kk:mm");
-    private static String currency = PropertiesUtil.getProperty("strategie.currency");
-    private static String isin = PropertiesUtil.getProperty("strategie.isin");
+    private static String currency = ConfigurationUtil.getBaseConfig().getString("strategie.currency");
+    private static String isin = ConfigurationUtil.getBaseConfig().getString("strategie.isin");
 
 
     protected String handleGetCurrentTime() throws Exception {

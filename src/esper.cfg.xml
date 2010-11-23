@@ -30,34 +30,32 @@
 
     <plugin-aggregation-function name="ema" function-class="com.algoTrader.util.ExponentialMovingAverageFunction"/>
 
-    <variable name="var_simulation" type="boolean" initialization-value="false"/>
-    <variable name="var_isin" type="string" initialization-value="CH0008616382"/>
-    <variable name="var_intrest" type="double" initialization-value="0.0015"/>
+    <variable name="simulation" type="boolean"/>
+    <variable name="simulation_eventsPerDay" type="long"/>
 
-    <variable name="var_events_per_day" type="long" initialization-value="500"/>
+    <variable name="strategie_isin" type="string"/>
+    <variable name="strategie_intrest" type="double"/>
 
-    <variable name="var_macd_fast" type="int" initialization-value="88"/>
-    <variable name="var_macd_slow" type="int" initialization-value="183"/>
-    <variable name="var_macd_signal" type="int" initialization-value="70"/>
-    <variable name="var_macd_weight" type="double" initialization-value="2.3"/>
+    <variable name="macdFast" type="int"/>
+    <variable name="macdSlow" type="int"/>
+    <variable name="macdSignal" type="int"/>
+    <variable name="macdWeight" type="double"/>
 
-    <!-- BEAR MARKET / CALL FOCUSED -->
-    <variable name="var_call_k_fast_days" type="double" initialization-value="2.70"/>
-    <variable name="var_call_k_slow_days" type="double" initialization-value="0.98"/>
-    <variable name="var_call_d_slow_days" type="double" initialization-value="1.80"/>
+    <variable name="callKFastDays" type="double"/>
+    <variable name="callKSlowDays" type="double"/>
+    <variable name="callDSlowDays" type="double"/>
 
-    <variable name="var_call_enabled" type="boolean" initialization-value="false"/>
-    <variable name="var_call_vola_period" type="double" initialization-value="0"/>
-    <variable name="var_call_trigger" type="double" initialization-value="0"/>
+    <variable name="callEnabled" type="boolean"/>
+    <variable name="callVolaPeriod" type="double"/>
+    <variable name="callTrigger" type="double"/>
 
-    <!-- BULL MARKET / PUT FOCUSED -->
-    <variable name="var_put_k_fast_days" type="double" initialization-value="3.20"/>
-    <variable name="var_put_k_slow_days" type="double" initialization-value="0.86"/>
-    <variable name="var_put_d_slow_days" type="double" initialization-value="0.52"/>
+    <variable name="putKFastDays" type="double"/>
+    <variable name="putKSlowDays" type="double"/>
+    <variable name="putDSlowDays" type="double"/>
 
-    <variable name="var_put_enabled" type="boolean" initialization-value="false"/>
-    <variable name="var_put_vola_period" type="double" initialization-value="0"/>
-    <variable name="var_put_trigger" type="double" initialization-value="0"/>
+    <variable name="putEnabled" type="boolean"/>
+    <variable name="putVolaPeriod" type="double"/>
+    <variable name="putTrigger" type="double"/>
 
     <engine-settings>
         <defaults>
