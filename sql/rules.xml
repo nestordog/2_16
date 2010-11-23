@@ -325,7 +325,7 @@ from pattern [every (indexTick=Tick(security.isin=strategie_isin) -&gt; kFast=KF
         <field name="id">35</field>
         <field name="NAME">KEEP_STOCHASTIC_VO</field>
         <field name="PRIORITY">0</field>
-        <field name="DEFINITION">select * from StochasticVO.win:length(cast((Math.max(var_call_k_slow_days,var_put_k_slow_days) + Math.max(var_call_d_slow_days,var_put_d_slow_days) + Math.max(var_call_k_fast_days,var_put_k_fast_days)) * var_events_per_day, int))</field>
+        <field name="DEFINITION">select * from StochasticVO.win:length(cast((Math.max(callKSlowDays,putKSlowDays) + Math.max(callDSlowDays,putDSlowDays) + Math.max(callKFastDays,putKFastDays)) * simulation_eventsPerDay, int))</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="ACTIVATABLE" xsi:type="xs:hexBinary">01</field>
