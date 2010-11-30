@@ -1,15 +1,11 @@
 package com.algoTrader.service.ib;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
@@ -36,14 +32,11 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
     private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
     private static boolean tickServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.tickServiceEnabled");
 
-    private static int retrievalTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.retrievalTimeout");
     private static String genericTickList = ConfigurationUtil.getBaseConfig().getString("ib.genericTickList");
 
     private DefaultClientSocket client;
     private DefaultWrapper wrapper;
-    private Lock lock = new ReentrantLock();
 
-    private Map<Security, Condition> securityToConditionMap;
     private Map<Integer, Tick> requestIdToTickMap;
     private Map<Security, Integer> securityToRequestIdMap;
     private Set<Security> validSecurities;
@@ -64,75 +57,60 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
             public void tickPrice(int requestId, int field, double price, int canAutoExecute) {
 
-                IbTickServiceImpl.this.lock.lock();
-                try {
-                    Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
+                Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
 
-                    if (tick == null)
-                        return;
+                if (tick == null)
+                    return;
 
-                    if (field == TickType.BID) {
-                        tick.setBid(RoundUtil.getBigDecimal(price));
-                    } else if (field == TickType.ASK) {
-                        tick.setAsk(RoundUtil.getBigDecimal(price));
-                    } else if (field == TickType.LAST) {
-                        tick.setLast(RoundUtil.getBigDecimal(price));
-                    } else if (field == TickType.CLOSE) {
-                        tick.setSettlement(RoundUtil.getBigDecimal(price));
-                    }
-                    checkValidity(tick);
-                } finally {
-                    IbTickServiceImpl.this.lock.unlock();
+                if (field == TickType.BID) {
+                    tick.setBid(RoundUtil.getBigDecimal(price));
+                } else if (field == TickType.ASK) {
+                    tick.setAsk(RoundUtil.getBigDecimal(price));
+                } else if (field == TickType.LAST) {
+                    tick.setLast(RoundUtil.getBigDecimal(price));
+                } else if (field == TickType.CLOSE) {
+                    tick.setSettlement(RoundUtil.getBigDecimal(price));
                 }
+                checkValidity(tick);
             }
 
             public void tickSize(int requestId, int field, int size) {
 
-                IbTickServiceImpl.this.lock.lock();
-                try {
-                    Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
+                Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
 
-                    if (tick == null)
-                        return;
+                if (tick == null)
+                    return;
 
-                    if (field == TickType.ASK_SIZE) {
-                        tick.setVolAsk(size);
-                    } else if (field == TickType.BID_SIZE) {
-                        tick.setVolBid(size);
-                    } else if (field == TickType.VOLUME) {
-                        tick.setVol(size);
-                    }
-
-                    if (tick.getSecurity() instanceof StockOption) {
-                        StockOption stockOption = (StockOption) tick.getSecurity();
-                        if (field == TickType.OPTION_CALL_OPEN_INTEREST && OptionType.CALL.equals(stockOption.getType())) {
-                            tick.setOpenIntrest(size);
-                        } else if (field == TickType.OPTION_PUT_OPEN_INTEREST && OptionType.PUT.equals(stockOption.getType())) {
-                            tick.setOpenIntrest(size);
-                        }
-                    }
-                    checkValidity(tick);
-                } finally {
-                    IbTickServiceImpl.this.lock.unlock();
+                if (field == TickType.ASK_SIZE) {
+                    tick.setVolAsk(size);
+                } else if (field == TickType.BID_SIZE) {
+                    tick.setVolBid(size);
+                } else if (field == TickType.VOLUME) {
+                    tick.setVol(size);
                 }
+
+                if (tick.getSecurity() instanceof StockOption) {
+                    StockOption stockOption = (StockOption) tick.getSecurity();
+                    if (field == TickType.OPTION_CALL_OPEN_INTEREST && OptionType.CALL.equals(stockOption.getType())) {
+                        tick.setOpenIntrest(size);
+                    } else if (field == TickType.OPTION_PUT_OPEN_INTEREST && OptionType.PUT.equals(stockOption.getType())) {
+                        tick.setOpenIntrest(size);
+                    }
+                }
+                checkValidity(tick);
             }
 
             public void tickString(int requestId, int field, String value) {
 
-                IbTickServiceImpl.this.lock.lock();
-                try {
-                    Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
+                Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
 
-                    if (tick == null)
-                        return;
+                if (tick == null)
+                    return;
 
-                    if (field == TickType.LAST_TIMESTAMP) {
-                        tick.setLastDateTime(new Date(Long.parseLong(value + "000")));
-                    }
-                    checkValidity(tick);
-                } finally {
-                    IbTickServiceImpl.this.lock.unlock();
+                if (field == TickType.LAST_TIMESTAMP) {
+                    tick.setLastDateTime(new Date(Long.parseLong(value + "000")));
                 }
+                checkValidity(tick);
             }
 
             public void connectionClosed() {
@@ -167,7 +145,6 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
                 Security security = tick.getSecurity();
                 if (isValid(tick)) {
                     IbTickServiceImpl.this.validSecurities.add(security);
-                    IbTickServiceImpl.this.securityToConditionMap.get(security).signalAll();
                 } else {
                     IbTickServiceImpl.this.validSecurities.remove(tick.getSecurity());
 
@@ -217,10 +194,9 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
     protected void handleConnect() {
 
-        this.securityToConditionMap = new HashMap<Security, Condition>();
-        this.requestIdToTickMap = new HashMap<Integer, Tick>();
-        this.securityToRequestIdMap = new HashMap<Security, Integer>();
-        this.validSecurities = new HashSet<Security>();
+        this.requestIdToTickMap = new ConcurrentHashMap<Integer, Tick>();
+        this.securityToRequestIdMap = new ConcurrentHashMap<Security, Integer>();
+        this.validSecurities = new CopyOnWriteArraySet<Security>();
 
         this.client.connect(clientId);
 
@@ -242,14 +218,15 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
                 int requestId = RequestIdManager.getInstance().getNextRequestId();
 
-                Tick tick = new TickImpl();
-                tick.setSecurity(security);
-                this.securityToConditionMap.put(security, this.lock.newCondition());
-                this.requestIdToTickMap.put(requestId, tick);
-                this.securityToRequestIdMap.put(security, requestId);
-
                 Contract contract = IbUtil.getContract(security);
                 this.client.reqMktData(requestId, contract, genericTickList, false);
+
+                Tick tick = new TickImpl();
+                tick.setSecurity(security);
+
+                this.requestIdToTickMap.put(requestId, tick);
+                this.securityToRequestIdMap.put(security, requestId);
+                this.validSecurities.remove(tick.getSecurity());
 
                 logger.debug("requested market data for : " + security.getSymbol());
             }
@@ -265,38 +242,26 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
     protected Tick handleRetrieveTick(Security security) throws Exception {
 
         // security might have been removed from the watchlist
-        if (!this.securityToRequestIdMap.containsKey(security))
+        if (!this.securityToRequestIdMap.containsKey(security)) {
             return null;
-
-        this.lock.lock();
-
-        Tick tick;
-        try {
-
-            Condition condition = this.securityToConditionMap.get(security);
-
-            while (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED) || !this.validSecurities.contains(security)) {
-                if (!condition.await(retrievalTimeout, TimeUnit.MILLISECONDS)) {
-                    // could not retrieve tick in time for security
-                    return null;
-                }
-            }
-
-            Integer requestId = this.securityToRequestIdMap.get(security);
-            Tick tempTick = this.requestIdToTickMap.get(requestId);
-
-            if (tempTick == null) {
-                // might not be on watchlist any more
-                return null;
-            }
-
-            tick = (Tick) BeanUtils.cloneBean(tempTick);
-            tick.setDateTime(DateUtil.getCurrentEPTime());
-            tick.setSecurity(security);
-
-        } finally {
-            this.lock.unlock();
         }
+
+        if (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED) || !this.validSecurities.contains(security)) {
+            return null;
+        }
+
+        Integer requestId = this.securityToRequestIdMap.get(security);
+        Tick tempTick = this.requestIdToTickMap.get(requestId);
+
+        if (tempTick == null) {
+            // might not be on watchlist any more
+            return null;
+        }
+
+        Tick tick = (Tick) BeanUtils.cloneBean(tempTick);
+        tick.setDateTime(DateUtil.getCurrentEPTime());
+        tick.setSecurity(security);
+
         return tick;
     }
 
@@ -316,11 +281,9 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
             Tick tick = new TickImpl();
             tick.setSecurity(stockOption);
 
-            this.securityToConditionMap.put(stockOption, this.lock.newCondition());
             this.requestIdToTickMap.put(requestId, tick);
             this.securityToRequestIdMap.put(stockOption, requestId);
             this.validSecurities.remove(tick.getSecurity());
-
         }
     }
 
@@ -328,7 +291,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
 
         if (!simulation) {
 
-            while (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED)) {
+            if (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED)) {
                 throw new IbTickServiceException("TWS ist not subscribed, stockOption cannot be removed from watchlist " + stockOption.getSymbol());
             }
 
@@ -337,9 +300,9 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
             if (requestId != null) {
                 this.client.cancelMktData(requestId);
 
-                this.securityToConditionMap.remove(stockOption);
                 this.requestIdToTickMap.remove(requestId);
                 this.securityToRequestIdMap.remove(stockOption);
+                this.validSecurities.remove(stockOption);
             }
         }
     }
