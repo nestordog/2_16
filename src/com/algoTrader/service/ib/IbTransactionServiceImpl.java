@@ -236,7 +236,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
             }
 
             PartialOrder partialOrder = order.getCurrentPartialOrder();
-            partialOrder.setSpreadPosition(Long.parseLong(spreadPosition));
+            partialOrder.setSpreadPosition(Double.parseDouble(spreadPosition));
 
             placeOrModifyPartialOrder(partialOrder, tick);
 
