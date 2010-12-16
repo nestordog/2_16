@@ -4,6 +4,8 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
 
+import com.algoTrader.ServiceLocator;
+import com.algoTrader.service.RuleService;
 
 public class MyLogger extends Logger {
 
@@ -36,11 +38,15 @@ public class MyLogger extends Logger {
      */
     protected void forcedLog(String fqcn, Priority level, Object message, Throwable t) {
 
-        long time;
-        if (EsperService.hasInstance()) {
-            time = EsperService.getCurrentTime();
-        } else {
-            time = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
+        try {
+            String strategyName = StrategyUtil.getStartedStrategyName();
+            RuleService ruleService = ServiceLocator.commonInstance().getRuleService();
+            if (ruleService.isInitialized(strategyName)) {
+                time = ruleService.getCurrentTime(strategyName);
+            }
+        } catch (Exception e) {
+            // do nothing spring services are probably not initialized yet
         }
         callAppenders(new LoggingEvent(fqcn, this, time, level, message, t));
     }
