@@ -1,34 +1,31 @@
 package com.algoTrader.util.io;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Security;
-import com.algoTrader.entity.Tick;
+import com.algoTrader.vo.RawTickVO;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esperio.SendableBeanEvent;
 import com.espertech.esperio.SendableEvent;
 import com.espertech.esperio.csv.CSVInputAdapter;
-import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 public class CsvTickInputAdapter extends CSVInputAdapter {
 
-    private int securityId;
+    private CsvTickInputAdapterSpec spec;
 
-    public CsvTickInputAdapter(EPServiceProvider epService, CSVInputAdapterSpec spec, int id) {
+    public CsvTickInputAdapter(EPServiceProvider epService, CsvTickInputAdapterSpec spec) {
 
         super(epService, spec);
-        this.securityId = id;
+        this.spec = spec;
     }
 
     public SendableEvent read() throws EPException {
         SendableBeanEvent event = (SendableBeanEvent)super.read();
 
-        if (event != null) {
-            Tick tick = (Tick)event.getBeanToSend();
-            Security security = ServiceLocator.instance().getLookupService().getSecurity(this.securityId);
-            tick.setSecurity(security);
-        }
+        if (event != null && event.getBeanToSend() instanceof RawTickVO) {
 
+            RawTickVO tick = (RawTickVO) event.getBeanToSend();
+            String isin = this.spec.getFile().getName().split("\\.")[0];
+            tick.setIsin(isin);
+        }
         return event;
     }
 }

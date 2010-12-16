@@ -1,25 +1,30 @@
 package com.algoTrader.util.io;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 
-import com.algoTrader.entity.Tick;
-import com.algoTrader.util.EsperService;
+import org.apache.commons.beanutils.PropertyUtils;
+
+import com.algoTrader.BaseObject;
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.client.EPException;
+import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esperio.AbstractCoordinatedAdapter;
 import com.espertech.esperio.SendableEvent;
 
 
-public class DBTickInputAdapter extends AbstractCoordinatedAdapter {
+public class DBInputAdapter extends AbstractCoordinatedAdapter {
 
-    private Iterator<Tick> ticktIterator;
+    private Iterator<? extends BaseObject> iterator;
+    private String timeStampColumn;
 
-    public DBTickInputAdapter(Collection<Tick> ticks) {
+    public DBInputAdapter(EPServiceProvider cep, Collection<? extends BaseObject> baseObjects, String timeStampColumn) {
 
-        super(EsperService.getEPServiceInstance(), true, true);
+        super(cep, true, true);
 
-        this.ticktIterator = ticks.iterator();
+        this.iterator = baseObjects.iterator();
+        this.timeStampColumn = timeStampColumn;
     }
 
     protected void close() {
@@ -45,11 +50,16 @@ public class DBTickInputAdapter extends AbstractCoordinatedAdapter {
 
         if(this.eventsToSend.isEmpty()) {
 
-            if (this.ticktIterator.hasNext()) {
+            if (this.iterator.hasNext()) {
 
-                Tick tick = this.ticktIterator.next();
+                try {
+                    BaseObject baseObject = this.iterator.next();
+                    Date date = (Date) PropertyUtils.getProperty(baseObject, this.timeStampColumn);
 
-                return new SendableBaseObjectEvent(tick, tick.getDateTime().getTime(), this.scheduleSlot);
+                    return new SendableBaseObjectEvent(baseObject, date.getTime(), this.scheduleSlot);
+                } catch (Exception e) {
+                    throw new EPException("problem getting timestamp column", e);
+                }
 
             } else {
                 return null;
