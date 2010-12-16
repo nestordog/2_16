@@ -1,45 +1,45 @@
 package com.algoTrader.util;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Account;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
+import com.algoTrader.entity.Strategy;
 import com.algoTrader.vo.PortfolioValueVO;
 
 public class LookupUtil {
 
     public static Security[] getSecuritiesInPortfolio() {
 
-        ServiceLocator serviceLocator = ServiceLocator.instance();
-        return serviceLocator.getLookupService().getAllSecuritiesInPortfolio();
+        return ServiceLocator.commonInstance().getLookupService().getAllSecuritiesInPortfolio();
     }
 
     public static StockOption[] getStockOptionsOnWatchlist() {
 
-        ServiceLocator serviceLocator = ServiceLocator.instance();
-        return serviceLocator.getLookupService().getStockOptionsOnWatchlist();
+        return ServiceLocator.commonInstance().getLookupService().getStockOptionsOnWatchlist();
     }
 
-    public static Account[] getAllAccounts() {
-        ServiceLocator serviceLocator = ServiceLocator.instance();
-        return serviceLocator.getLookupService().getAllAccounts();
+    public static Security getSecurityByIsin(String isin) {
+
+        return ServiceLocator.commonInstance().getLookupService().getSecurityByIsin(isin);
+    }
+
+    public static Strategy[] getAllStrategies() {
+
+        return ServiceLocator.commonInstance().getLookupService().getAllStrategies();
     }
 
     public static boolean hasOpenPositions() {
 
-        ServiceLocator serviceLocator = ServiceLocator.instance();
-        return (serviceLocator.getLookupService().getOpenPositions().length != 0);
+        return (ServiceLocator.commonInstance().getLookupService().getOpenPositions().length != 0);
     }
 
     public static PortfolioValueVO getPortfolioValue() {
 
-        ServiceLocator serviceLocator = ServiceLocator.instance();
-        return serviceLocator.getLookupService().getPortfolioValue();
+        return ServiceLocator.commonInstance().getLookupService().getPortfolioValue();
     }
 
     public static boolean hasLastTicks() {
 
-        ServiceLocator serviceLocator = ServiceLocator.instance();
-        return serviceLocator.getLookupService().hasLastTicks();
+        return (ServiceLocator.commonInstance().getRuleService().getLastEvent(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK") != null);
     }
 }
