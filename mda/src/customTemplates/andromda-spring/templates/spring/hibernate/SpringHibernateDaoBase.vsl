@@ -524,7 +524,9 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
         {
 #if ($finder.findTaggedValue("@algoTrader.entity.query.native"))
             ${hibernateUtils.basePackage}.SQLQuery queryObject = super.getSession(false).createSQLQuery(queryString);
-			queryObject.addEntity(${entity.fullyQualifiedEntityImplementationName}.class);
+#if ($finder.findTaggedValue("@algoTrader.entity.query.native.entity"))            
+			queryObject.addEntity($finder.findTaggedValue("@algoTrader.entity.query.native.entity"));
+#end
 #else
             ${hibernateUtils.basePackage}.Query queryObject = super.getSession(false).createQuery(queryString);	
 #end
