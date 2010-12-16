@@ -11,13 +11,14 @@ import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
 import com.algoTrader.util.RoundUtil;
+import com.algoTrader.vo.RawTickVO;
 
 public class SqTickServiceImpl extends SqTickServiceBase {
 
     private static String exactMatch = "//tr/td[.='%1$s']/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[.='%1$s']/preceding-sibling::td)+1]/strong";
     private static String partialMatch = "//tr/td[contains(.,'%1$s')]/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[contains(.,'%1$s')]/preceding-sibling::td)+1]/strong";
 
-    protected Tick handleRetrieveTick(Security security) throws Exception {
+    protected RawTickVO handleRetrieveTick(Security security) throws Exception {
 
         Document document = SqUtil.getSecurityDocument(security);
 
@@ -114,16 +115,14 @@ public class SqTickServiceImpl extends SqTickServiceBase {
             tick.setSettlement(RoundUtil.getBigDecimal(0));
         }
 
-        tick.setSecurity(security);
-
-        return tick;
+        return getTickDao().toRawTickVO(tick);
     }
 
-    protected void handlePutOnExternalWatchlist(StockOption stockOption) throws Exception {
+    protected void handlePutOnExternalWatchlist(Security security) throws Exception {
         // do nothing
     }
 
-    protected void handleRemoveFromExternalWatchlist(StockOption stockOption) throws Exception {
+    protected void handleRemoveFromExternalWatchlist(Security security) throws Exception {
         // do nothing
     }
 }
