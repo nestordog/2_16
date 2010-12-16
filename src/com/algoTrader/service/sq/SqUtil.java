@@ -30,7 +30,7 @@ public class SqUtil {
 
         GetMethod get;
         if (security instanceof StockOption) {
-            get = new GetMethod(stockOptionUrl + security.getIsin() + "_" + SqMarketConverter.marketToString(security.getMarket()) + "_" + security.getCurrency());
+            get = new GetMethod(stockOptionUrl + security.getIsin() + "_" + SqMarketConverter.marketToString(security.getSecurityFamily().getMarket()) + "_" + security.getSecurityFamily().getCurrency());
         } else {
             get = new GetMethod(indexUrl + security.getSymbol() + "&language=d");
         }
