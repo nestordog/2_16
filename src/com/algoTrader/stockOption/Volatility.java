@@ -8,19 +8,10 @@ import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.sabr.SABRVol;
-import com.algoTrader.util.ConfigurationUtil;
 
 public class Volatility {
 
-    private static int strikeDistance = ConfigurationUtil.getBaseConfig().getInt("strategie.strikeDistance");
-    private static double intrest = ConfigurationUtil.getBaseConfig().getDouble("strategie.intrest");
-    private static double dividend = ConfigurationUtil.getBaseConfig().getDouble("strategie.dividend");
-
-    private static double beta = ConfigurationUtil.getBaseConfig().getDouble("strategie.beta");
-    private static double volVol = ConfigurationUtil.getBaseConfig().getDouble("strategie.volVol");
-    private static double correlation = ConfigurationUtil.getBaseConfig().getDouble("strategie.correlation");
-
-    public static double getIndexVola(double underlayingSpot, double atmVola, double years) {
+    public static double getIndexVola(double underlayingSpot, double atmVola, double years, double intrest, double dividend, double strikeDistance, double beta, double correlation, double volVol) {
 
         double accumulation = Math.exp(years * intrest);
         double forward = StockOptionUtil.getForward(underlayingSpot, years, intrest, dividend);
@@ -69,11 +60,11 @@ public class Volatility {
         return Math.sqrt((factorSum * 2 - Math.pow(forward / atmStrike-1 , 2)) / years);
     }
 
-    public static double getAtmVola(final double underlayingSpot, final double indexVola, final double years) throws ConvergenceException, FunctionEvaluationException, IllegalArgumentException {
+    public static double getAtmVola(final double underlayingSpot, final double indexVola, final double years, final double intrest, final double dividend, final double strikeDistance, final double beta, final double correlation, final double volVol) throws ConvergenceException, FunctionEvaluationException, IllegalArgumentException {
 
         UnivariateRealFunction function = new UnivariateRealFunction () {
             public double value(double atmVola) throws FunctionEvaluationException {
-                double currentIndexVola = getIndexVola(underlayingSpot, atmVola, years);
+                double currentIndexVola = getIndexVola(underlayingSpot, atmVola, years, intrest, dividend, strikeDistance, beta, correlation, volVol);
                 double difference = currentIndexVola - indexVola;
                 return difference;
             }};
@@ -85,7 +76,7 @@ public class Volatility {
         return solver.solve(function, indexVola * 0.7 , indexVola * 1.1, indexVola);
     }
 
-    private static double getFactor(double strike, double accumulation, int strikeDistance, double outOfTheMoneyPrice) {
+    private static double getFactor(double strike, double accumulation, double strikeDistance, double outOfTheMoneyPrice) {
 
         return outOfTheMoneyPrice * accumulation * (strikeDistance / (strike * strike));
     }
