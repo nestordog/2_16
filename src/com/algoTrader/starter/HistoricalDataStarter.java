@@ -19,7 +19,7 @@ public class HistoricalDataStarter {
             securityIds[i] = Integer.valueOf(securityIdStrings[i]);
         }
 
-        IbHistoricalDataService service = ServiceLocator.instance().getIbHistoricalDataService();
+        IbHistoricalDataService service = ServiceLocator.serverInstance().getIbHistoricalDataService();
 
         service.requestHistoricalData(securityIds, whatToShow, startDate, endDate);
     }

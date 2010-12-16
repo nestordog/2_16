@@ -7,7 +7,7 @@ public class ImportTickStarter {
 
     public static void main(String[] args) {
 
-        IbTickService service = ServiceLocator.instance().getIbTickService();
+        IbTickService service = ServiceLocator.serverInstance().getIbTickService();
 
         String[] isins = args[0].split(":");
         for (String isin : isins) {
