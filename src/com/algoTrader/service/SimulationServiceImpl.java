@@ -1,21 +1,16 @@
 package com.algoTrader.service;
 
 import java.io.File;
-import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.ConvergenceException;
 import org.apache.commons.math.FunctionEvaluationException;
@@ -31,27 +26,22 @@ import org.apache.commons.math.optimization.univariate.BrentOptimizer;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Account;
-import com.algoTrader.entity.MonthlyPerformance;
+import com.algoTrader.entity.Order;
+import com.algoTrader.entity.OrderImpl;
 import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Rule;
 import com.algoTrader.entity.Security;
+import com.algoTrader.entity.Strategy;
+import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
-import com.algoTrader.enumeration.RuleName;
+import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.ConfigurationUtil;
-import com.algoTrader.util.CustomDate;
-import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.io.CsvTickInputAdapter;
-import com.algoTrader.util.io.DBTransactionInputAdapter;
+import com.algoTrader.util.io.CsvTickInputAdapterSpec;
 import com.algoTrader.vo.MaxDrawDownVO;
+import com.algoTrader.vo.MonthlyPerformanceVO;
 import com.algoTrader.vo.OptimizationResultVO;
 import com.algoTrader.vo.PerformanceKeysVO;
-import com.espertech.esper.adapter.InputAdapter;
-import com.espertech.esperio.AdapterCoordinator;
-import com.espertech.esperio.AdapterCoordinatorImpl;
-import com.espertech.esperio.AdapterInputSource;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 public class SimulationServiceImpl extends SimulationServiceBase {
@@ -63,46 +53,15 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private static DateFormat dateFormat = new SimpleDateFormat(" MMM-yy ");
     private static boolean compressed = false;
 
-    private static String[] tickPropertyOrder;
-    private static Map<String, Object> tickPropertyTypes;
-
-    public SimulationServiceImpl() {
-
-        tickPropertyOrder = new String[] {
-                "dateTime",
-                "last",
-                "lastDateTime",
-                "volBid",
-                "volAsk",
-                "bid",
-                "ask",
-                "vol",
-                "openIntrest",
-                "settlement"};
-
-        tickPropertyTypes = new HashMap<String, Object>();
-
-        tickPropertyTypes.put("dateTime", CustomDate.class);
-        tickPropertyTypes.put("last", BigDecimal.class);
-        tickPropertyTypes.put("lastDateTime", CustomDate.class);
-        tickPropertyTypes.put("volBid", int.class);
-        tickPropertyTypes.put("volAsk", int.class);
-        tickPropertyTypes.put("bid", BigDecimal.class);
-        tickPropertyTypes.put("ask", BigDecimal.class);
-        tickPropertyTypes.put("vol", int.class);
-        tickPropertyTypes.put("openIntrest", int.class);
-        tickPropertyTypes.put("settlement", BigDecimal.class);
-    }
-
     @SuppressWarnings("unchecked")
-    protected void handleInit() throws Exception {
+    protected void handleResetDB() throws Exception {
 
-        // process all accounts
-        Collection<Account> accounts = getAccountDao().loadAll();
-        for (Account account : accounts) {
+        // process all strategies
+        Collection<Strategy> strategies = getStrategyDao().loadAll();
+        for (Strategy strategy : strategies) {
 
             // delete all transactions except the initial CREDIT
-            Collection<Transaction> transactions = account.getTransactions();
+            Collection<Transaction> transactions = strategy.getTransactions();
             Set<Transaction> toRemoveTransactions = new HashSet<Transaction>();
             Set<Transaction> toKeepTransactions = new HashSet<Transaction>();
             for (Transaction transaction : transactions) {
@@ -113,40 +72,24 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 }
             }
             getTransactionDao().remove(toRemoveTransactions);
-            account.setTransactions(toKeepTransactions);
+            strategy.setTransactions(toKeepTransactions);
 
             // delete all positions and references to them
-            Collection<Position> positions = account.getPositions();
+            Collection<Position> positions = strategy.getPositions();
             getPositionDao().remove(positions);
-            account.setPositions(new HashSet());
+            strategy.setPositions(new HashSet<Position>());
 
-            getAccountDao().update(account);
+            getStrategyDao().update(strategy);
         }
-
-        // remove all the targets from preparedRules
-        Collection<Rule> rules = getRuleDao().findPreparedRules();
-        CollectionUtils.transform(rules, new Transformer() {
-            public Object transform(Object arg) {
-                ((Rule)arg).setTarget(null);
-                return arg;
-            }});
-        getRuleDao().update(rules);
 
         // delete all StockOptions
         getSecurityDao().remove(getStockOptionDao().loadAll());
-
-        // force reload the collection StockOptionsOnWatchlist, because this might have been cached
-        getStockOptionDao().getStockOptionsOnWatchlist(true);
-    }
-
-    protected void handleDestroy() throws Exception {
-
-        EsperService.destroyEPServiceInstance();
     }
 
     @SuppressWarnings("unchecked")
     protected void handleInputCSV() {
-        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(EsperService.getEPServiceInstance(), true, true);
+
+        getRuleService().initCoordination(StrategyImpl.BASE);
 
         List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
         for (Security security : securities) {
@@ -163,104 +106,123 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 continue;
             }
 
-            CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
-            spec.setPropertyOrder(tickPropertyOrder);
-            spec.setPropertyTypes(tickPropertyTypes);
-            spec.setTimestampColumn("dateTime");
-            spec.setUsingExternalTimer(true);
+            CSVInputAdapterSpec spec = new CsvTickInputAdapterSpec(file);
 
-            InputAdapter inputAdapter = new CsvTickInputAdapter(EsperService.getEPServiceInstance(), spec, security.getId());
-            coordinator.coordinate(inputAdapter);
+            getRuleService().coordinate(StrategyImpl.BASE, spec);
 
             logger.debug("started simulation for security " + security.getSymbol());
         }
-        coordinator.start();
+
+        getRuleService().startCoordination(StrategyImpl.BASE);
     }
 
+    @SuppressWarnings("unchecked")
     protected double handleSimulateByUnderlayings() {
 
         long startTime = System.currentTimeMillis();
 
-        init();
+        // must call resetDB through ServiceLocator in order to get a transaction
+        ServiceLocator.serverInstance().getSimulationService().resetDB();
 
-        getRuleService().activateAll();
+        // init all activatable strategies
+        List<Strategy> strategies = getStrategyDao().findAutoActivateStrategies();
+        for (Strategy strategy : strategies) {
+            getRuleService().initServiceProvider(strategy.getName());
+            getRuleService().activateAll(strategy.getName());
+        }
 
         inputCSV();
 
+        // print execution times
         double mins = ((double)(System.currentTimeMillis() - startTime)) / 60000;
         if(!compressed) logger.info("execution time (min): " + (new DecimalFormat("0.00")).format(mins));
         if(!compressed) logger.info("dataSet: " + dataSet);
 
         double result = getStatistics();
 
-        destroy();
+        // destory all service providers
+        for (Strategy strategy : strategies) {
+            getRuleService().destroyServiceProvider(strategy.getName());
+        }
 
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     protected void handleSimulateByActualTransactions() {
 
         // get the existingTransactions before they are deleted
-        Collection<Transaction> existingTransactions = Arrays.asList(ServiceLocator.instance().getLookupService().getAllTrades());
+        Collection<Transaction> existingTransactions = Arrays.asList(ServiceLocator.serverInstance().getLookupService().getAllTrades());
 
-        init();
+        // create orders
+        for (Transaction transaction : existingTransactions) {
+            Order order = new OrderImpl();
+            order.setRequestedQuantity(Math.abs(transaction.getQuantity()));
+            order.setTransactionType(transaction.getType());
+            order.setStatus(OrderStatus.PREARRANGED);
+            order.getTransactions().add(transaction);
+
+            Security security = transaction.getSecurity();
+
+            order.setSecurity(security);
+            transaction.setSecurity(security);
+        }
+
+        resetDB();
+
+        getRuleService().initServiceProvider(StrategyImpl.BASE);
 
         // activate the necessary rules
-        getRuleService().activate(RuleName.CREATE_PORTFOLIO_VALUE);
-        getRuleService().activate(RuleName.CREATE_MONTHLY_PERFORMANCE);
-        getRuleService().activate(RuleName.GET_LAST_TICK);
-        getRuleService().activate(RuleName.CREATE_PERFORMANCE_KEYS);
-        getRuleService().activate(RuleName.KEEP_MONTHLY_PERFORMANCE);
-        getRuleService().activate(RuleName.CREATE_DRAW_DOWN);
-        getRuleService().activate(RuleName.CREATE_MAX_DRAW_DOWN);
-        getRuleService().activate(RuleName.PROCESS_PREARRANGED_ORDERS);
+        getRuleService().activate(StrategyImpl.BASE, "CREATE_PORTFOLIO_VALUE");
+        getRuleService().activate(StrategyImpl.BASE, "CREATE_MONTHLY_PERFORMANCE");
+        getRuleService().activate(StrategyImpl.BASE, "GET_LAST_TICK");
+        getRuleService().activate(StrategyImpl.BASE, "CREATE_PERFORMANCE_KEYS");
+        getRuleService().activate(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
+        getRuleService().activate(StrategyImpl.BASE, "CREATE_DRAW_DOWN");
+        getRuleService().activate(StrategyImpl.BASE, "CREATE_MAX_DRAW_DOWN");
+        getRuleService().activate(StrategyImpl.BASE, "PROCESS_PREARRANGED_ORDERS");
 
         // runt the cvs files through
         {
-            AdapterCoordinator coordinator = new AdapterCoordinatorImpl(EsperService.getEPServiceInstance(), true, true);
+
+            getRuleService().initCoordination(StrategyImpl.BASE);
 
             File[] files = (new File("results/tickdata/" + dataSet)).listFiles();
             for (File file : files) {
 
                 String isin = file.getName().split("\\.")[0];
 
-                Security security = getSecurityDao().findByISIN(isin);
+                Security security = getSecurityDao().findByIsin(isin);
 
-                CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(file), "Tick");
-                spec.setPropertyOrder(tickPropertyOrder);
-                spec.setPropertyTypes(tickPropertyTypes);
-                spec.setTimestampColumn("dateTime");
-                spec.setUsingExternalTimer(true);
+                CSVInputAdapterSpec spec = new CsvTickInputAdapterSpec(file);
 
-                InputAdapter inputAdapter = new CsvTickInputAdapter(EsperService.getEPServiceInstance(), spec, security.getId());
-                coordinator.coordinate(inputAdapter);
+                getRuleService().coordinate(StrategyImpl.BASE, spec);
 
                 logger.debug("started simulation for security " + security.getSymbol());
             }
 
-            InputAdapter inputAdapter = new DBTransactionInputAdapter(existingTransactions);
-            coordinator.coordinate(inputAdapter);
+            getRuleService().coordinate(StrategyImpl.BASE, existingTransactions, "transaction.dateTime");
 
             logger.debug("started simulation for transactions");
 
-            coordinator.start();
+            getRuleService().startCoordination(StrategyImpl.BASE);
         }
 
         getStatistics();
 
-        destroy();
+        getRuleService().destroyServiceProvider(StrategyImpl.BASE);
     }
 
-    protected void handleOptimizeLinear(String parameter, double min, double max, double increment) throws Exception {
+    protected void handleOptimizeLinear(String strategyName, String parameter, double min, double max, double increment) throws Exception {
 
         double result = min;
         double functionValue = 0;
         for (double i = min; i <= max; i += increment ) {
 
             logger.info("optimize on " + parameter + " value " + threeDigitFormat.format(i));
-            ConfigurationUtil.getBaseConfig().setProperty(parameter, String.valueOf(i));
+            ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, String.valueOf(i));
 
-            double value = ServiceLocator.instance().getSimulationService().simulateByUnderlayings();
+            double value = ServiceLocator.serverInstance().getSimulationService().simulateByUnderlayings();
             if (value > functionValue) {
                 functionValue = value;
                 result = i;
@@ -270,12 +232,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         logger.info("optimal value of " + parameter + " is " + threeDigitFormat.format(result) + "(functionValue: " + threeDigitFormat.format(functionValue) + ")");
     }
 
-    protected void handleOptimizeSingles(String[] parameter, double[] min, double[] max, double[] accuracies) {
+    protected void handleOptimizeSingles(String strategyName, String[] parameter, double[] min, double[] max, double[] accuracies) {
 
         List<OptimizationResultVO> optimizationResults = new ArrayList<OptimizationResultVO>();
         for (int i = 0; i < parameter.length; i++) {
 
-            OptimizationResultVO optimizationResult = optimizeSingle(parameter[i], min[i], max[i], accuracies[i]);
+            OptimizationResultVO optimizationResult = optimizeSingle(strategyName, parameter[i], min[i], max[i], accuracies[i]);
             optimizationResults.add(optimizationResult);
         }
 
@@ -289,9 +251,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
     }
 
-    protected OptimizationResultVO handleOptimizeSingle(String parameter, double min, double max, double accuracy) throws ConvergenceException, FunctionEvaluationException {
+    protected OptimizationResultVO handleOptimizeSingle(String strategyName, String parameter, double min, double max, double accuracy) throws ConvergenceException, FunctionEvaluationException {
 
-        UnivariateRealFunction function = new UnivariateFunction(parameter);
+        UnivariateRealFunction function = new UnivariateFunction(strategyName, parameter);
         UnivariateRealOptimizer optimizer = new BrentOptimizer();
         optimizer.setAbsoluteAccuracy(accuracy);
         optimizer.optimize(function, GoalType.MAXIMIZE, min, max);
@@ -305,9 +267,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         return optimizationResult;
     }
 
-    protected void handleOptimizeMulti(String[] parameters, double[] starts) throws ConvergenceException, FunctionEvaluationException {
+    protected void handleOptimizeMulti(String strategyName, String[] parameters, double[] starts) throws ConvergenceException, FunctionEvaluationException {
 
-        MultivariateRealFunction function = new MultivariateFunction(parameters);
+        MultivariateRealFunction function = new MultivariateFunction(strategyName, parameters);
         MultivariateRealOptimizer optimizer = new MultiDirectional();
         optimizer.setConvergenceChecker(new SimpleScalarValueChecker(0.0, 0.01));
         RealPointValuePair result = optimizer.optimize(function, GoalType.MAXIMIZE, starts);
@@ -321,40 +283,42 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     protected PerformanceKeysVO handleGetPerformanceKeys() throws Exception {
 
 
-        PerformanceKeysVO performanceKeys = EsperService.getLastEvent(RuleName.CREATE_PERFORMANCE_KEYS, PerformanceKeysVO.class);
+        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) getRuleService().getLastEvent(StrategyImpl.BASE, "CREATE_PERFORMANCE_KEYS");
 
-        if (performanceKeys.getStdY() == 0.0) return null;
+        if (performanceKeys == null || performanceKeys.getStdY() == 0.0)
+            return null;
 
         return performanceKeys;
     }
 
-    protected List<MonthlyPerformance> handleGetMonthlyPerformances() throws Exception {
+    @SuppressWarnings("unchecked")
+    protected List<MonthlyPerformanceVO> handleGetMonthlyPerformances() throws Exception {
 
-        return EsperService.getAllEvents(RuleName.KEEP_MONTHLY_PERFORMANCE, MonthlyPerformance.class);
+        return getRuleService().getAllEvents(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
     }
 
     protected MaxDrawDownVO handleGetMaxDrawDown() throws Exception {
 
-        return EsperService.getLastEvent(RuleName.CREATE_MAX_DRAW_DOWN, MaxDrawDownVO.class);
+        return (MaxDrawDownVO) getRuleService().getLastEvent(StrategyImpl.BASE, "CREATE_MAX_DRAW_DOWN");
     }
 
     @SuppressWarnings("unchecked")
     private double getStatistics() {
 
-        double netLiqValue = getAccountDao().getNetLiqValueAllAccountsDouble();
+        double netLiqValue = getStrategyDao().getPortfolioNetLiqValueDouble();
         logger.info("netLiqValue: " + twoDigitFormat.format(netLiqValue));
 
-        List<MonthlyPerformance> monthlyPerformances = getMonthlyPerformances();
+        List<MonthlyPerformanceVO> MonthlyPerformanceVOs = getMonthlyPerformances();
         double maxDrawDownM = 0d;
-        double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
-        if ((monthlyPerformances != null) && !compressed) {
+        double bestMonthlyPerformanceVO = Double.NEGATIVE_INFINITY;
+        if ((MonthlyPerformanceVOs != null) && !compressed) {
             StringBuffer dateBuffer= new StringBuffer("month-year:         ");
-            StringBuffer performanceBuffer  = new StringBuffer("monthlyPerformance: ");
-            for (MonthlyPerformance monthlyPerformance : monthlyPerformances) {
-                maxDrawDownM = Math.min(maxDrawDownM, monthlyPerformance.getValue());
-                bestMonthlyPerformance = Math.max(bestMonthlyPerformance, monthlyPerformance.getValue());
-                dateBuffer.append(dateFormat.format(monthlyPerformance.getDate()));
-                performanceBuffer.append(StringUtils.leftPad(twoDigitFormat.format(monthlyPerformance.getValue() * 100),6) + "% " );
+            StringBuffer performanceBuffer = new StringBuffer("MonthlyPerformance: ");
+            for (MonthlyPerformanceVO MonthlyPerformanceVO : MonthlyPerformanceVOs) {
+                maxDrawDownM = Math.min(maxDrawDownM, MonthlyPerformanceVO.getValue());
+                bestMonthlyPerformanceVO = Math.max(bestMonthlyPerformanceVO, MonthlyPerformanceVO.getValue());
+                dateBuffer.append(dateFormat.format(MonthlyPerformanceVO.getDate()));
+                performanceBuffer.append(StringUtils.leftPad(twoDigitFormat.format(MonthlyPerformanceVO.getValue() * 100), 6) + "% ");
             }
             logger.info(dateBuffer.toString());
             logger.info(performanceBuffer.toString());
@@ -374,7 +338,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             buffer = new StringBuffer();
             if(!compressed) buffer.append("maxDrawDownM=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
-            if(!compressed) buffer.append(" bestMonthlyPerformance=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
+            if(!compressed) buffer.append(" bestMonthlyPerformance=" + twoDigitFormat.format(bestMonthlyPerformanceVO * 100) + "%");
             if(!compressed) buffer.append(" maxDrawDown=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100) + "%");
             if(!compressed) buffer.append(" maxDrawDownPeriod=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000) + "days");
             if(!compressed) buffer.append(" colmarRatio=" + twoDigitFormat.format(performanceKeys.getAvgY() / maxDrawDownVO.getAmount()));
@@ -390,19 +354,21 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private static class UnivariateFunction implements UnivariateRealFunction {
 
         private String param;
+        private String strategyName;
 
-        public UnivariateFunction(String parameter) {
+        public UnivariateFunction(String strategyName, String parameter) {
             super();
             this.param = parameter;
+            this.strategyName = strategyName;
         }
 
         public double value(double input) throws FunctionEvaluationException {
 
-            ConfigurationUtil.getBaseConfig().setProperty(this.param, String.valueOf(input));
+            ConfigurationUtil.getStrategyConfig(this.strategyName).setProperty(this.param, String.valueOf(input));
 
             logger.info("optimize on " + this.param + " value " + threeDigitFormat.format(input));
 
-            double result = ServiceLocator.instance().getSimulationService().simulateByUnderlayings();
+            double result = ServiceLocator.serverInstance().getSimulationService().simulateByUnderlayings();
 
             if(!compressed) logger.info("");
 
@@ -410,14 +376,15 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         }
     }
 
-
     private static class MultivariateFunction implements MultivariateRealFunction {
 
         private String[] params;
+        private String strategyName;
 
-        public MultivariateFunction(String[] parameters) {
+        public MultivariateFunction(String strategyName,String[] parameters) {
             super();
             this.params = parameters;
+            this.strategyName = strategyName;
         }
 
         public double value(double[] input) throws FunctionEvaluationException {
@@ -429,13 +396,13 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 String param = this.params[i];
                 double value = input[i];
 
-                ConfigurationUtil.getBaseConfig().setProperty(param, String.valueOf(value));
+                ConfigurationUtil.getStrategyConfig(this.strategyName).setProperty(param, String.valueOf(value));
 
                 buffer.append(param + ": " + threeDigitFormat.format(value) + " ");
             }
             logger.info(buffer.toString());
 
-            double result = ServiceLocator.instance().getSimulationService().simulateByUnderlayings();
+            double result = ServiceLocator.serverInstance().getSimulationService().simulateByUnderlayings();
 
             logger.info("");
             return result;
