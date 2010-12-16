@@ -177,6 +177,11 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getRuleDao().findByName(name);
     }
 
+    protected List<Rule> handleGetInitRules(String strategyName) throws Exception {
+
+        return getRuleDao().findInitRules(strategyName);
+    }
+
     protected List<Rule> handleGetAutoActivateRules(String strategyName) throws Exception {
 
         return getRuleDao().findAutoActivateRules(strategyName);
