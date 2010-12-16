@@ -3,17 +3,14 @@
     xmlns="http://www.espertech.com/schema/esper"
     xsi:schemaLocation="http://www.espertech.com/schema/esper http://www.espertech.com/schema/esper/esper-configuration-3-0.xsd">
 
+    <event-type name="RawTick" class="com.algoTrader.vo.RawTickVO"/>
     <event-type name="Tick" class="com.algoTrader.entity.TickImpl"/>
     <event-type name="Transaction" class="com.algoTrader.entity.TransactionImpl"/>
-    <event-type name="PrearrangedOrder" class="com.algoTrader.entity.OrderImpl"/>
+    <event-type name="PrearrangedOrder" class="com.algoTrader.vo.OrderVO"/>
 
-    <event-type name="ExitValue" class="com.algoTrader.entity.ExitValueImpl"/>
-    <event-type name="MonthlyPerformance" class="com.algoTrader.entity.MonthlyPerformanceImpl"/>
-
+    <event-type name="MonthlyPerformance" class="com.algoTrader.vo.MonthlyPerformanceVO"/>
     <event-type name="PerformanceKeys" class="com.algoTrader.vo.PerformanceKeysVO"/>
     <event-type name="MaxDrawDown" class="com.algoTrader.vo.MaxDrawDownVO"/>
-    <event-type name="StochasticVO" class="com.algoTrader.vo.StochasticVO"/>
-    <event-type name="MacdVO" class="com.algoTrader.vo.MacdVO"/>
 
     <auto-import import-name="com.algoTrader.enumeration.TransactionType"/>
     <auto-import import-name="com.algoTrader.stockOption.StockOptionUtil"/>
@@ -22,40 +19,31 @@
     <auto-import import-name="com.algoTrader.util.RoundUtil"/>
     <auto-import import-name="com.algoTrader.util.DrawDownUtil"/>
 
-    <auto-import import-name="com.algoTrader.entity.*"/>
     <auto-import import-name="java.lang.*"/>
     <auto-import import-name="java.math.*"/>
     <auto-import import-name="java.text.*"/>
     <auto-import import-name="java.util.*"/>
 
-    <plugin-aggregation-function name="ema" function-class="com.algoTrader.util.ExponentialMovingAverageFunction"/>
-
     <variable name="simulation" type="boolean"/>
     <variable name="simulation_eventsPerDay" type="long"/>
+    <variable name="marketIntrest" type="double"/>
 
-    <variable name="strategie_isin" type="string"/>
-    <variable name="strategie_intrest" type="double"/>
+    <variable name="strategy" type="com.algoTrader.entity.Strategy"/>
 
-    <variable name="macdFast" type="int"/>
-    <variable name="macdSlow" type="int"/>
-    <variable name="macdSignal" type="int"/>
-    <variable name="macdWeight" type="double"/>
-
-    <variable name="callKFastDays" type="double"/>
-    <variable name="callKSlowDays" type="double"/>
-    <variable name="callDSlowDays" type="double"/>
-
-    <variable name="callEnabled" type="boolean"/>
-    <variable name="callVolaPeriod" type="double"/>
-    <variable name="callTrigger" type="double"/>
-
-    <variable name="putKFastDays" type="double"/>
-    <variable name="putKSlowDays" type="double"/>
-    <variable name="putDSlowDays" type="double"/>
-
-    <variable name="putEnabled" type="boolean"/>
-    <variable name="putVolaPeriod" type="double"/>
-    <variable name="putTrigger" type="double"/>
+<!--    <plugin-loader name="BrokerMgmt" class-name="com.espertech.esperdds.client.JMSProviderMgmtPlugin">-->
+<!--        <init-arg name="type" value="ApacheActiveMQ" />-->
+<!--        <init-arg name="connectorURL" value="tcp://localhost:61616?wireFormat.maxInactivityDuration=0" />-->
+<!--        <init-arg name="dataDirectory" value="data" />-->
+<!--    </plugin-loader>-->
+<!---->
+<!--    <plugin-loader name="EndpointMgmt" class-name="com.espertech.esperdds.client.EndpointMgmtPlugin">-->
+<!--        <init-arg name="esperdds.configuration.file" value="esperdds.cfg.xml" />-->
+<!--    </plugin-loader>-->
+<!--    -->
+<!--    <plugin-loader name="EsperHQ_Webapp_Service" class-name="com.espertech.esper.server.webapp.WebAppPlugin">-->
+<!--        <init-arg name="port" value="8400" />-->
+<!--        <init-arg name="webapps" value="esperhq@webapps/esperhq" />-->
+<!--    </plugin-loader>    -->
 
     <engine-settings>
         <defaults>
