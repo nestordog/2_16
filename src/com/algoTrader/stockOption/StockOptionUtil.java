@@ -6,10 +6,8 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolver;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
-import com.algoTrader.entity.ExitValue;
-import com.algoTrader.entity.ExitValueImpl;
-import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
+import com.algoTrader.entity.StockOptionFamily;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.sabr.SABRVol;
 import com.algoTrader.util.ConfigurationUtil;
@@ -18,32 +16,19 @@ import com.algoTrader.util.DateUtil;
 public class StockOptionUtil {
 
     private static final double MILLISECONDS_PER_YEAR = 31536000000l;
-    private static final double DAYS_PER_YEAR = 365;
-
-    private static double intrest = ConfigurationUtil.getBaseConfig().getDouble("strategie.intrest");
-    private static double dividend = ConfigurationUtil.getBaseConfig().getDouble("strategie.dividend");
-    private static double marginParameter = ConfigurationUtil.getBaseConfig().getDouble("strategie.marginParameter");
-    private static double spreadSlope = ConfigurationUtil.getBaseConfig().getDouble("strategie.spreadSlope");
-    private static double spreadConstant = ConfigurationUtil.getBaseConfig().getDouble("strategie.spreadConstant");
-
-    private static double beta = ConfigurationUtil.getBaseConfig().getDouble("strategie.beta");
-    private static double volVol = ConfigurationUtil.getBaseConfig().getDouble("strategie.volVol");
-    private static double correlation = ConfigurationUtil.getBaseConfig().getDouble("strategie.correlation");
-
-    private static double minExpirationYears = ConfigurationUtil.getBaseConfig().getDouble("minExpirationYears");
     private static boolean sabrEnabled = ConfigurationUtil.getBaseConfig().getBoolean("sabrEnabled");
 
-    public static double getOptionPrice(Security security, double underlayingSpot, double vola) throws MathException, IllegalArgumentException {
+    public static double getOptionPrice(StockOption stockOption, double underlayingSpot, double vola) throws MathException, IllegalArgumentException {
 
         if (sabrEnabled) {
-            return getOptionPriceSabr(security, underlayingSpot, vola);
+            return getOptionPriceSabr(stockOption, underlayingSpot, vola);
         } else {
-            return getOptionPriceBS(security, underlayingSpot, vola);
+            return getOptionPriceBS(stockOption, underlayingSpot, vola);
         }
     }
 
-    public static double getOptionPriceSabr(double underlayingSpot, double strike, double vola, double years, double intrest, double dividend, OptionType type) throws MathException,
-            IllegalArgumentException {
+    public static double getOptionPriceSabr(double underlayingSpot, double strike, double vola, double years, double intrest, double dividend, OptionType type, double strikeDistance, double beta,
+            double correlation, double volVol) throws MathException, IllegalArgumentException {
 
         if (years <= 0 ) {
             return getIntrinsicValue(underlayingSpot, strike, type);
@@ -51,20 +36,21 @@ public class StockOptionUtil {
             return getOptionPriceBS(underlayingSpot, strike, vola, years, intrest, dividend, type); //sabr evaluates to zero on the last day before expiration
         }
 
-        double atmVola = Volatility.getAtmVola(underlayingSpot, vola, years);
+        double atmVola = Volatility.getAtmVola(underlayingSpot, vola, years, intrest, dividend, strikeDistance, beta, correlation, volVol);
         double forward = getForward(underlayingSpot, years, intrest, dividend);
         double sabrVola = SABRVol.volByAtmVol(forward, strike, atmVola, years, beta, correlation, volVol);
 
         return getOptionPriceBS(underlayingSpot, strike, sabrVola, years, intrest, dividend, type);
     }
 
-    public static double getOptionPriceSabr(Security security, double underlayingSpot, double vola) throws MathException, IllegalArgumentException {
+    public static double getOptionPriceSabr(StockOption stockOption, double underlayingSpot, double vola) throws MathException, IllegalArgumentException {
 
-        StockOption stockOption = (StockOption)security;
+        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
 
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
 
-        return getOptionPriceSabr(underlayingSpot, stockOption.getStrike().doubleValue(), vola, years, intrest, dividend, stockOption.getType());
+        return getOptionPriceSabr(underlayingSpot, stockOption.getStrike().doubleValue(), vola, years, family.getIntrest(), family.getDividend(), stockOption.getType(),
+        family.getStrikeDistance(), family.getBeta(), family.getCorrelation(), family.getVolVol());
     }
 
     public static double getOptionPriceBS(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
@@ -84,27 +70,27 @@ public class StockOptionUtil {
         }
     }
 
-    public static double getOptionPriceBS(Security security, double underlayingSpot, double vola) {
+    public static double getOptionPriceBS(StockOption stockOption, double underlayingSpot, double vola) {
 
-        StockOption stockOption = (StockOption)security;
+        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
 
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
 
-        return getOptionPriceBS(underlayingSpot, stockOption.getStrike().doubleValue(), vola, years, intrest, dividend, stockOption.getType());
+        return getOptionPriceBS(underlayingSpot, stockOption.getStrike().doubleValue(), vola, years, family.getIntrest(), family.getDividend(), stockOption.getType());
     }
 
-    public static double getVolatility(final double underlayingSpot, final double strike, final double optionValue, final double years, final double intrest, final double dividend, final OptionType type) throws MathException {
+    public static double getVolatility(final double underlayingSpot, final double strike, final double currentValue, final double years, final double intrest, final double dividend, final OptionType type) throws MathException {
 
         if (years < 0)
             throw new IllegalArgumentException("years cannot be negative");
 
         double intrinsicValue = getIntrinsicValue(underlayingSpot, strike, type);
-        if (optionValue <= intrinsicValue)
+        if (currentValue <= intrinsicValue)
             throw new IllegalArgumentException("cannot calculate volatility if optionValue is below intrinsic Value");
 
         UnivariateRealFunction function = new UnivariateRealFunction () {
             public double value(double volatility) throws FunctionEvaluationException {
-                return getOptionPriceBS(underlayingSpot, strike, volatility, years, intrest, dividend, type) - optionValue;
+                return getOptionPriceBS(underlayingSpot, strike, volatility, years, intrest, dividend, type) - currentValue;
             }};
 
         UnivariateRealSolverFactory factory = UnivariateRealSolverFactory.newInstance();
@@ -114,9 +100,13 @@ public class StockOptionUtil {
         return solver.solve(function, 0.01, 0.90);
     }
 
-    public static double getVolatility(final double underlayingSpot, final double strike, final double optionValue, final double years, final OptionType type) throws MathException {
+    public static double getVolatility(StockOption stockOption, double underlayingSpot, final double currentValue) throws MathException {
 
-        return getVolatility(underlayingSpot, strike, optionValue, years, intrest, dividend, type);
+        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
+
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+
+        return getVolatility(underlayingSpot, stockOption.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
     }
 
     public static double getIntrinsicValue(double underlayingSpot, double strike, OptionType type) {
@@ -128,9 +118,7 @@ public class StockOptionUtil {
         }
     }
 
-    public static double getIntrinsicValue(Security security, double underlayingSpot) throws RuntimeException {
-
-        StockOption stockOption = (StockOption)security;
+    public static double getIntrinsicValue(StockOption stockOption, double underlayingSpot) throws RuntimeException {
 
         return getIntrinsicValue(underlayingSpot, stockOption.getStrike().doubleValue(), stockOption.getType());
     }
@@ -149,44 +137,19 @@ public class StockOptionUtil {
         }
     }
 
-    public static double getDelta(Security security, double currentValue, double underlayingSpot) throws MathException {
+    public static double getDelta(StockOption stockOption, double currentValue, double underlayingSpot) throws MathException {
 
-        if (security instanceof StockOption) {
-            StockOption stockOption = (StockOption) security;
+        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
 
-            double strike = stockOption.getStrike().doubleValue();
-            double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
-            double volatility = getVolatility(underlayingSpot, strike, currentValue, years, intrest, dividend, stockOption.getType());
-            return StockOptionUtil.getDelta(underlayingSpot, strike, volatility, years, intrest, stockOption.getType());
-        } else {
-            throw new IllegalArgumentException("isDeltaToLow cannot be called with: " + security.getClass().getName());
-        }
+        double strike = stockOption.getStrike().doubleValue();
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+        double volatility = getVolatility(underlayingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
+        return StockOptionUtil.getDelta(underlayingSpot, strike, volatility, years, family.getIntrest(), stockOption.getType());
+
     }
 
-    public static double getExitValueDouble(Security security, double underlayingSpot, double volatility) throws MathException {
-
-        StockOption stockOption = (StockOption)security;
-
-        double exitLevel;
-        if (OptionType.CALL.equals(stockOption.getType())) {
-            double callVolaPeriod = ConfigurationUtil.getBaseConfig().getDouble("callVolaPeriod");
-            exitLevel = underlayingSpot * (1 + volatility / Math.sqrt(DAYS_PER_YEAR / callVolaPeriod));
-        } else {
-            double putVolaPeriod = ConfigurationUtil.getBaseConfig().getDouble("putVolaPeriod");
-            exitLevel = underlayingSpot * (1 - volatility / Math.sqrt(DAYS_PER_YEAR / putVolaPeriod));
-        }
-
-        return getOptionPrice(stockOption, exitLevel, volatility);
-    }
-
-    public static ExitValue getExitValue(Security security, double underlayingSpot, double volatility) throws MathException {
-
-        ExitValue exitValue = new ExitValueImpl();
-        exitValue.setValue(getExitValueDouble(security, underlayingSpot, volatility));
-        return exitValue;
-    }
-
-    public static double getTotalMargin(double underlayingSettlement, double strike, double stockOptionSettlement, double years, OptionType type) throws MathException {
+    public static double getTotalMargin(double underlayingSettlement, double strike, double stockOptionSettlement, double years, double intrest, OptionType type, double marginParameter)
+            throws MathException {
 
         double marginLevel;
         if (OptionType.CALL.equals(type)) {
@@ -204,68 +167,16 @@ public class StockOptionUtil {
 
     public static double getTotalMargin(StockOption stockOption, double stockOptionSettlement, double underlayingSettlement) throws MathException {
 
+        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
+
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
 
-        return getTotalMargin(underlayingSettlement, stockOption.getStrike().doubleValue(), stockOptionSettlement, years, stockOption.getType());
+        return getTotalMargin(underlayingSettlement, stockOption.getStrike().doubleValue(), stockOptionSettlement, years, family.getIntrest(), stockOption.getType(), family.getMarginParameter());
     }
 
     public static double getMaintenanceMargin(StockOption stockOption, double stockOptionSettlement, double underlayingSettlement) throws MathException {
 
         return getTotalMargin(stockOption, stockOptionSettlement, underlayingSettlement) - stockOptionSettlement;
-    }
-
-    /**
-     * spread depends on the pricePerContract (i.e. spread should be the same
-     * for 12.- à contractSize 10 as for 1.20 à contractSize 100)
-     *
-     * @return price per option
-     */
-    public static double getDummyBid(double price, int contractSize) {
-
-        double pricePerContract = price * contractSize;
-        double spread = pricePerContract * spreadSlope + spreadConstant;
-        return (pricePerContract - (spread / 2.0)) / contractSize;
-    }
-
-    /**
-     * spread depends on the pricePerContract (i.e. spread should be the same
-     * for 12.- à contractSize 10 as for 1.20 à contractSize 100)
-     *
-     * @return price per option
-     */
-    public static double getDummyAsk(double price, int contractSize) {
-
-        double pricePerContract = price * contractSize;
-        double spread = pricePerContract * spreadSlope + spreadConstant;
-        return (pricePerContract + (spread / 2.0)) / contractSize;
-    }
-
-    public static boolean isDeltaTooLow(Security security, double currentValue, double underlayingSpot) throws MathException {
-
-        if (security instanceof StockOption) {
-
-            if (currentValue == 0)
-                return false;
-
-            StockOption stockOption = (StockOption) security;
-
-            double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
-
-            if (years < minExpirationYears) {
-                return false;
-            }
-
-            double delta = getDelta(security, currentValue, underlayingSpot);
-            double minDelta = ConfigurationUtil.getBaseConfig().getDouble("minDelta");
-
-            if (Math.abs(delta) > minDelta) {
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            throw new IllegalArgumentException("isDeltaToLow cannot be called with: " + security.getClass().getName());
-        }
     }
 
     public static double getForward(double spot, double years, double intrest, double dividend) {
