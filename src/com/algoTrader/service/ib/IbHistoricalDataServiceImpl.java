@@ -15,7 +15,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.InitializingBean;
 
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Tick;
@@ -28,7 +27,7 @@ import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.io.CsvTickWriter;
 import com.ib.client.Contract;
 
-public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase implements InitializingBean {
+public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase {
 
     private static Logger logger = MyLogger.getLogger(IbHistoricalDataServiceImpl.class.getName());
 
@@ -53,11 +52,6 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
 
     private CsvTickWriter writer;
     private static int clientId = 3;
-
-    public void afterPropertiesSet() throws Exception {
-
-        init();
-    }
 
     protected void handleInit() throws Exception {
 
@@ -84,8 +78,8 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
                     Date requestedDate = IbHistoricalDataServiceImpl.this.requestIdDateMap.get(requestId);
 
                     // retrieve ticks only between marketOpen & close
-                    if (DateUtil.compareTime(date, IbHistoricalDataServiceImpl.this.security.getMarketClose()) > 0
-                            || DateUtil.compareTime(date, IbHistoricalDataServiceImpl.this.security.getMarketOpen()) < 0) {
+                    if (DateUtil.compareTime(date, IbHistoricalDataServiceImpl.this.security.getSecurityFamily().getMarketClose()) > 0
+                            || DateUtil.compareTime(date, IbHistoricalDataServiceImpl.this.security.getSecurityFamily().getMarketOpen()) < 0) {
 
                         return;
                     }

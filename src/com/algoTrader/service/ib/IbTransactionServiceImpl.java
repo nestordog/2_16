@@ -14,7 +14,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.xml.transform.TransformerException;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.InitializingBean;
 
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.PartialOrder;
@@ -28,10 +27,11 @@ import com.algoTrader.service.TickServiceException;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
+import com.algoTrader.vo.RawTickVO;
 import com.ib.client.Contract;
 import com.ib.client.Execution;
 
-public class IbTransactionServiceImpl extends IbTransactionServiceBase implements InitializingBean {
+public class IbTransactionServiceImpl extends IbTransactionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(IbTransactionServiceImpl.class.getName());
 
@@ -60,11 +60,6 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
     private Map<Integer, Boolean> deletedMap;
 
     private static int clientId = 0;
-
-    public void afterPropertiesSet() throws Exception {
-
-        init();
-    }
 
     protected void handleInit() {
 
@@ -153,14 +148,19 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                         int executedQuantity = Math.abs(execution.m_shares);
                         executedQuantity = TransactionType.SELL.equals(order.getTransactionType()) ? -executedQuantity : executedQuantity;
                         BigDecimal price = RoundUtil.getBigDecimal(execution.m_price);
-                        BigDecimal commission = order.getSecurity().getCommission(execution.m_shares, order.getTransactionType());
 
                         Transaction transaction = new TransactionImpl();
                         transaction.setDateTime(dateTime);
                         transaction.setNumber(number);
                         transaction.setQuantity(executedQuantity);
                         transaction.setPrice(price);
-                        transaction.setCommission(commission);
+
+                        if (TransactionType.SELL.equals(order.getTransactionType()) || TransactionType.BUY.equals(order.getTransactionType())) {
+                            double commission = order.getSecurity().getSecurityFamily().getCommission().doubleValue();
+                            transaction.setCommission(RoundUtil.getBigDecimal(executedQuantity * commission));
+                        } else {
+                            transaction.setCommission(new BigDecimal(0));
+                        }
 
                         partialOrder.addTransaction(transaction);
 
@@ -288,7 +288,8 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         Tick tick;
         while (true) {
 
-            tick = getIbTickService().retrieveTick(order.getSecurity());
+            RawTickVO rawTick = getIbTickService().retrieveTick(order.getSecurity());
+            tick = getIbTickService().completeRawTick(rawTick);
 
             // validity check (volume and bid/ask spread)
             try {

@@ -7,9 +7,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.InitializingBean;
 
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
@@ -21,10 +19,11 @@ import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
+import com.algoTrader.vo.RawTickVO;
 import com.ib.client.Contract;
 import com.ib.client.TickType;
 
-public class IbTickServiceImpl extends IbTickServiceBase implements InitializingBean {
+public class IbTickServiceImpl extends IbTickServiceBase {
 
     private static Logger logger = MyLogger.getLogger(IbTickServiceBase.class.getName());
 
@@ -42,11 +41,6 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
     private Set<Security> validSecurities;
 
     private static int clientId = 1;
-
-    public void afterPropertiesSet() throws Exception {
-
-        init();
-    }
 
     protected void handleInit() throws InterruptedException {
 
@@ -239,7 +233,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
         }
     }
 
-    protected Tick handleRetrieveTick(Security security) throws Exception {
+    protected RawTickVO handleRetrieveTick(Security security) throws Exception {
 
         // security might have been removed from the watchlist
         if (!this.securityToRequestIdMap.containsKey(security)) {
@@ -251,58 +245,55 @@ public class IbTickServiceImpl extends IbTickServiceBase implements Initializing
         }
 
         Integer requestId = this.securityToRequestIdMap.get(security);
-        Tick tempTick = this.requestIdToTickMap.get(requestId);
+        Tick tick = this.requestIdToTickMap.get(requestId);
 
-        if (tempTick == null) {
+        if (tick != null) {
+            tick.setDateTime(DateUtil.getCurrentEPTime());
+            return getTickDao().toRawTickVO(tick);
+        } else {
             // might not be on watchlist any more
             return null;
         }
-
-        Tick tick = (Tick) BeanUtils.cloneBean(tempTick);
-        tick.setDateTime(DateUtil.getCurrentEPTime());
-        tick.setSecurity(security);
-
-        return tick;
     }
 
-    protected void handlePutOnExternalWatchlist(StockOption stockOption) throws Exception {
+    protected void handlePutOnExternalWatchlist(Security security) throws Exception {
 
         if (!simulation) {
 
             if (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED)) {
-                throw new IbTickServiceException("TWS ist not subscribed, stockOption cannot be put on watchlist " + stockOption.getSymbol());
+                throw new IbTickServiceException("TWS ist not subscribed, security cannot be put on watchlist " + security.getSymbol());
             }
 
             int requestId = RequestIdManager.getInstance().getNextRequestId();
 
-            Contract contract = IbUtil.getContract(stockOption);
+            Contract contract = IbUtil.getContract(security);
             this.client.reqMktData(requestId, contract, genericTickList, false);
 
             Tick tick = new TickImpl();
-            tick.setSecurity(stockOption);
+            tick.setSecurity(security);
 
             this.requestIdToTickMap.put(requestId, tick);
-            this.securityToRequestIdMap.put(stockOption, requestId);
+            this.securityToRequestIdMap.put(security, requestId);
             this.validSecurities.remove(tick.getSecurity());
         }
     }
 
-    protected void handleRemoveFromExternalWatchlist(StockOption stockOption) throws Exception {
+    protected void handleRemoveFromExternalWatchlist(Security security) throws Exception {
 
         if (!simulation) {
 
             if (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED)) {
-                throw new IbTickServiceException("TWS ist not subscribed, stockOption cannot be removed from watchlist " + stockOption.getSymbol());
+                throw new IbTickServiceException("TWS ist not subscribed, security cannot be removed from watchlist " + security.getSymbol());
             }
 
-            Integer requestId = this.securityToRequestIdMap.get(stockOption);
+            Integer requestId = this.securityToRequestIdMap.get(security);
 
             if (requestId != null) {
                 this.client.cancelMktData(requestId);
 
                 this.requestIdToTickMap.remove(requestId);
-                this.securityToRequestIdMap.remove(stockOption);
-                this.validSecurities.remove(stockOption);
+                this.securityToRequestIdMap.remove(security);
+                this.validSecurities.remove(security);
             }
         }
     }

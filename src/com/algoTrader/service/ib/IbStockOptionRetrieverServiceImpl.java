@@ -1,49 +1,30 @@
-// license-header java merge-point
-/**
- * This is only generated once! It will never be overwritten.
- * You can (and have to!) safely modify it by hand.
- */
 package com.algoTrader.service.ib;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.enumeration.OptionType;
 
-/**
- * @see com.algoTrader.service.ib.IbStockOptionRetrieverService
- */
-public class IbStockOptionRetrieverServiceImpl
-    extends com.algoTrader.service.ib.IbStockOptionRetrieverServiceBase
-{
+public class IbStockOptionRetrieverServiceImpl extends IbStockOptionRetrieverServiceBase {
 
-    @Override
-    protected void handleRetrieveAllStockOptions(Security underlaying) throws Exception {
-        // TODO Auto-generated method stub
-
+    protected void handleRetrieveAllStockOptionsForUnderlaying(int underlayingId) throws Exception {
+        throw new UnsupportedOperationException("handleRetrieveAllStockOptions is not implemented yet");
     }
 
-    @Override
     protected void handleRetrieveAllStockOptions() throws Exception {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("handleRetrieveAllStockOptions is not implemented yet");
     }
 
-    @Override
-    protected StockOption handleRetrieveStockOption(Security underlaying, Date expiration, BigDecimal strike, OptionType type) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+    protected StockOption handleRetrieveStockOption(int underlayingId, Date expiration, BigDecimal strike, OptionType type) throws Exception {
+        throw new UnsupportedOperationException("handleRetrieveStockOption is not implemented yet");
     }
 
-    @Override
     protected void handleInit() throws Exception {
-        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("handleInit is not implemented yet");
     }
 
-    @Override
     protected void handleConnect() throws Exception {
-        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("handleConnect is not implemented yet");
     }
 }

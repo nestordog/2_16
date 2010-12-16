@@ -22,18 +22,18 @@ public class IbUtil {
 
             contract.m_symbol = stockOption.getUnderlaying().getSymbol();
             contract.m_secType = "OPT";
-            contract.m_exchange = IbMarketConverter.marketToString(stockOption.getMarket());
-            contract.m_currency = stockOption.getCurrency().getValue();
+            contract.m_exchange = IbMarketConverter.marketToString(stockOption.getSecurityFamily().getMarket());
+            contract.m_currency = stockOption.getSecurityFamily().getCurrency().getValue();
             contract.m_expiry = format.format(DateUtils.addDays(stockOption.getExpiration(), -1));
             // IB expiration is one day before effective expiration
             contract.m_strike = stockOption.getStrike().intValue();
             contract.m_right = stockOption.getType().getValue();
-            contract.m_multiplier = String.valueOf(stockOption.getContractSize());
+            contract.m_multiplier = String.valueOf(stockOption.getSecurityFamily().getContractSize());
         } else {
 
             contract.m_symbol = security.getSymbol();
             contract.m_secType = "IND";
-            contract.m_exchange = IbMarketConverter.marketToString(security.getMarket());
+            contract.m_exchange = IbMarketConverter.marketToString(security.getSecurityFamily().getMarket());
         }
 
         return contract;

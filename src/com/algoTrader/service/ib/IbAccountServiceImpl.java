@@ -27,25 +27,23 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
-import org.springframework.beans.factory.InitializingBean;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
 
-import com.algoTrader.entity.Account;
+import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.service.sq.HttpClientUtil;
 import com.algoTrader.util.ConfigurationUtil;
-import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.XmlUtil;
 
-public class IbAccountServiceImpl extends IbAccountServiceBase implements InitializingBean {
+public class IbAccountServiceImpl extends IbAccountServiceBase {
 
     private static Logger logger = MyLogger.getLogger(IbAccountServiceImpl.class.getName());
 
@@ -74,11 +72,6 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
 
     private static SimpleDateFormat fileFormat = new SimpleDateFormat("yyyyMMdd_kkmmss");
     private static SimpleDateFormat transactionFormat = new SimpleDateFormat("yyyy-MM-dd, kk:mm:ss");
-
-    public void afterPropertiesSet() throws Exception {
-
-        init();
-    }
 
     protected void handleInit() throws java.lang.Exception {
 
@@ -196,7 +189,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
         return accounts;
     }
 
-    protected long handleGetNumberOfContractsByMargin(double initialMarginPerContract) throws Exception {
+    protected long handleGetNumberOfContractsByMargin(String strategyName, double initialMarginPerContract) throws Exception {
 
         long numberOfContractsByMargin = 0;
         for (String account : getAccounts()) {
@@ -209,7 +202,6 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
         return numberOfContractsByMargin;
     }
 
-    @SuppressWarnings("unchecked")
     protected void handleProcessCashTransactions() throws Exception {
 
         if (!ibEnabled || simulation)
@@ -273,7 +265,6 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
 
         Node node;
         List<Transaction> transactions = new ArrayList<Transaction>();
-        Set<Account> accounts = new HashSet<Account>();
         while ((node = iterator.nextNode()) != null) {
 
             String accountId = XPathAPI.selectSingleNode(node, "@accountId").getNodeValue();
@@ -311,17 +302,11 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
             transaction.setQuantity(1);
             transaction.setPrice(amount);
             transaction.setCommission(new BigDecimal(0));
+            transaction.setCurrency(currency);
             transaction.setType(transactionType);
             transaction.setDescription(description);
 
             transactions.add(transaction);
-
-            // Account
-            Account account = getAccountDao().findByCurrency(currency);
-            accounts.add(account);
-
-            transaction.setAccount(account);
-            account.getTransactions().add(transaction);
         }
 
         // sort the transactions according to their dateTime
@@ -333,7 +318,6 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
 
         // create / update transactions / accounts
         getTransactionDao().create(transactions);
-        getAccountDao().update(accounts);
 
         for (Transaction transaction : transactions) {
 
@@ -343,7 +327,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Initia
                     " type: " + transaction.getType() +
                     " description: " + transaction.getDescription());
 
-            EsperService.sendEvent(transaction);
+            getRuleService().sendEvent(StrategyImpl.BASE, transaction);
         }
     }
 }
