@@ -4,6 +4,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import com.algoTrader.ServiceLocator;
+import com.algoTrader.service.RuleService;
+
 public class DateUtil {
 
     public static Date toDate(long time) {
@@ -13,8 +16,10 @@ public class DateUtil {
 
     public static Date getCurrentEPTime() {
 
-        if (EsperService.hasInstance()) {
-            return new Date(EsperService.getCurrentTime());
+        String strategyName = StrategyUtil.getStartedStrategyName();
+        RuleService ruleService = ServiceLocator.commonInstance().getRuleService();
+        if (ruleService.isInitialized(strategyName)) {
+            return new Date(ruleService.getCurrentTime(strategyName));
         } else {
             return new Date();
         }
