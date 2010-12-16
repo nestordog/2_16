@@ -30,8 +30,14 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>org.springframework.ide.eclipse.core.springbuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
+		<nature>org.springframework.ide.eclipse.core.springnature</nature>
 		<nature>com.genuitec.eclipse.hibernate.hibernatenature</nature>
 		<nature>com.genuitec.eclipse.ast.deploy.core.deploymentnature</nature>
 		<nature>com.genuitec.eclipse.springframework.springnature</nature>
@@ -42,4 +48,15 @@
 		<nature>org.hibernate.eclipse.console.hibernateNature</nature>
 		<nature>net.sourceforge.metrics.nature</nature>
 	</natures>
+	<filteredResources>
+		<filter>
+			<id>1291489984962</id>
+			<name></name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-*.log</arguments>
+			</matcher>
+		</filter>
+	</filteredResources>
 </projectDescription>
