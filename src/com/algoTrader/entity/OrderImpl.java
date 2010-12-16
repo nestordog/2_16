@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import com.algoTrader.enumeration.OrderStatus;
 
-public class OrderImpl extends com.algoTrader.entity.Order {
+public class OrderImpl extends Order {
 
     private static final long serialVersionUID = -1384387263238787678L;
 
