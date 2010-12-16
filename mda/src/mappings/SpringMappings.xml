@@ -1,9 +1,158 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <mappings name="Java">
+
+        <!-- add applicationContext-algoTrader.xml to beanRefFactory -->
         <mapping>
             <from><![CDATA[<!-- beanRefFactory merge-point -->]]></from>
             <to><![CDATA[<value>applicationContext-algoTrader.xml</value>]]></to>
         </mapping>
+
+        <!--  property serviceLocatorInterfaceName in cartridge.xml-->
+        <mapping>
+            <from><![CDATA[<!-- cartridge-property merge-point -->]]></from>
+            <to><![CDATA[<property reference="serviceLocatorInterfaceName"/>]]></to>
+        </mapping>
+
+        <!-- property serviceLocatorInterfaceName in namespace.xml -->
+        <mapping>
+            <from><![CDATA[<!-- namespace-propertyGroup merge-point -->]]></from>
+            <to><![CDATA[<propertyGroup name="AlgoTrader">
+        <property name="serviceLocatorInterfaceName" required="false">
+            <default>CommonServiceLocator</default>
+        </property>
+    </propertyGroup>]]></to>
+        </mapping>
+
+        <!--  new template SpringServiceLocatorInterface.vsl -->
+        <mapping>
+            <from><![CDATA[<!-- cartridge-template merge-point -->]]></from>
+            <to><![CDATA[<template
+        path="templates/spring/SpringServiceLocatorInterface.vsl"
+        outputPattern="$generatedFile"
+        outlet="server"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+        <modelElements>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="richClient">true</property>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>]]></to>
+        </mapping>
+
+        <!-- remove condition remotable for SpringClientServiceLocator.vsl -->
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/SpringClientServiceLocator.vsl"
+        outputPattern="$generatedFile"
+        outlet="client"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+        <modelElements>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="remotable"/>
+                    <property name="richClient">true</property>
+                </type>
+            </modelElement>
+            <modelElement variable="manageables">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringManageableEntity"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to><![CDATA[<template
+        path="templates/spring/SpringClientServiceLocator.vsl"
+        outputPattern="$generatedFile"
+        outlet="client"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+        <modelElements>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="richClient">true</property>
+                </type>
+            </modelElement>
+            <modelElement variable="manageables">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringManageableEntity"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></to>
+        </mapping>
+
+        <!-- remove condition remotable for applicationContext-client.xml.vsl -->
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/richclient/applicationContext-client.xml.vsl"
+        outputPattern="$applicationContextClient"
+        outlet="client-config"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+        <modelElements>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="remotable"/>
+                    <property name="richClient">true</property>
+                </type>
+            </modelElement>
+            <modelElement variable="manageables">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringManageableEntity"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to><![CDATA[<template
+        path="templates/spring/richclient/applicationContext-client.xml.vsl"
+        outputPattern="$applicationContextClient"
+        outlet="client-config"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+        <modelElements>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="richClient">true</property>
+                </type>
+            </modelElement>
+            <modelElement variable="manageables">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringManageableEntity"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></to>
+        </mapping>
+
+
+        <!--  do not generate applicationContext-server.xml.vsl -->
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/applicationContext-server.xml.vsl"
+        outputPattern="${serviceRemoteContext}-servlet.xml"
+        outlet="spring-configuration"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+        <modelElements>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="remotable"/>
+                    <property name="richClient">true</property>
+                </type>
+            </modelElement>
+            <modelElement variable="manageables">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringManageableEntity">
+                    <property name="remotable"/>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to></to>
+        </mapping>
+
+        <!--  no not generate nonPersistent SpringDao.vsl  -->
         <mapping>
             <from><![CDATA[<template
         path="templates/spring/SpringDao.vsl"
@@ -29,6 +178,8 @@
         </modelElements>
     </template>]]></to>
         </mapping>
+
+        <!--  no not generate nonPersistent SpringHibernateDaoBase.vsl  -->
         <mapping>
             <from><![CDATA[<template
         path="templates/spring/hibernate/SpringHibernateDaoBase.vsl"
@@ -54,6 +205,8 @@
         </modelElements>
     </template>]]></to>
         </mapping>
+
+        <!--  no not generate nonPersistent SpringHibernateDaoImpl.vsl  -->
         <mapping>
             <from><![CDATA[<template
         path="templates/spring/hibernate/SpringHibernateDaoImpl.vsl"
