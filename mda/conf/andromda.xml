@@ -3,10 +3,6 @@
         <property name="modelValidation">true</property>
         <property name="cartridgeFilter">${filter}</property>
     </properties>
-    <server>
-        <host>localhost</host>
-        <port>4446</port>
-    </server>
     <repositories>
         <repository name="netBeansMDR">
             <models>
@@ -61,16 +57,35 @@
                 <property name="hibernateEnableCache">true</property>
                 <property name="hibernateInheritanceStrategy">${hibernate.inheritance.strategy}</property>
                 <property name="springTypesPackage">${application.package}</property>
-                <property name="daos">${maven.andromda.core.generated.dir}</property>
-                <property name="dao-impls">${maven.andromda.core.manual.dir}</property>
-                <property name="spring-configuration">${maven.andromda.core.generated.dir}</property>
-                <property name="services">${maven.andromda.core.generated.dir}</property>
-                <property name="service-impls">${maven.andromda.core.manual.dir}</property>
-                <property name="service-interfaces">${maven.andromda.common.generated.dir}</property>
-                <property name="criteria">${maven.andromda.common.generated.dir}</property>
-                <property name="value-objects">${maven.andromda.common.generated.dir}</property>
+
+                <property name="serviceLocatorName">ServerServiceLocator</property>
+                <property name="serviceLocatorInterfaceName">CommonServiceLocator</property>
+
                 <property name="mergeLocation">${maven.src.dir}/customTemplates/andromda-spring</property>
                 <property name="mergeMappingsUri">file:${maven.src.dir}/mappings/SpringMappings.xml</property>
+
+                <property name="richClient">true</property>
+                <property name="serviceRemoteContext">algoTrader</property>
+                <property name="serviceRemotingType">rmi</property>
+                <property name="serviceRemoteServer">localhost</property>
+                <property name="serviceRemotePort">1199</property>
+
+                <property name="spring-configuration">target</property>
+                <property name="daos">target</property>
+                <property name="dao-impls">src</property>
+
+                <property name="service-interfaces">target</property>
+                <property name="services">target</property>
+                <property name="service-impls">src</property>
+                <property name="server">target</property>
+                <property name="server-impl">src</property>
+
+                <property name="client">target</property>
+                <property name="client-config">target</property>
+
+                <property name="criteria">target</property>
+                <property name="value-objects">target</property>
+
             </properties>
         </namespace>
         <namespace name="hibernate">
@@ -82,28 +97,32 @@
                 <property name="hibernateInheritanceStrategy">${hibernate.inheritance.strategy}</property>
                 <property name="defaultHibernateGeneratorClass">${hibernate.generatorClass}</property>
                 <property name="hibernateDefaultCascade">none</property>
-                <property name="entities">${maven.andromda.core.generated.dir}</property>
-                <property name="entity-impls">${maven.andromda.core.manual.dir}</property>
-                <property name="entity-mappings">${maven.andromda.core.generated.dir}</property>
-                <property name="user-types">${maven.andromda.core.generated.dir}</property>
                 <property name="customTypesPackage">${application.package}</property>
                 <property name="compositionDefinesEagerLoading">true</property>
-                <property name="cache">${maven.andromda.core.generated.dir}</property>
+
                 <property name="mergeLocation">${maven.src.dir}/customTemplates/andromda-hibernate</property>
                 <property name="mergeMappingsUri">file:${maven.src.dir}/mappings/HibernateMappings.xml</property>
+
                 <property name="ehCacheMaxElementsInMemory">100000</property>
                 <property name="ehCacheOverflowToDisk">false</property>
                 <property name="ehCacheTimeToIdleSeconds">0</property>
                 <property name="ehCacheTimeToLiveSeconds">0</property>
+
+                <property name="entities">target</property>
+                <property name="entity-impls">src</property>
+                <property name="entity-mappings">target</property>
+                <property name="user-types">target</property>
+                <property name="cache">target</property>
             </properties>
         </namespace>
         <namespace name="java">
             <properties>
-                <property name="enumerations">${maven.andromda.common.generated.dir}</property>
-                <property name="exceptions">${maven.andromda.common.generated.dir}</property>
-                <property name="value-objects">${maven.andromda.common.generated.dir}</property>
-                <property name="interfaces">${maven.andromda.common.generated.dir}</property>
                 <property name="mergeLocation">${maven.src.dir}/customTemplates/andromda-java</property>
+
+                <property name="enumerations">target</property>
+                <property name="exceptions">target</property>
+                <property name="value-objects">target</property>
+                <property name="interfaces">target</property>
             </properties>
         </namespace>
     </namespaces>
