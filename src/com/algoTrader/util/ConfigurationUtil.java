@@ -10,6 +10,8 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
 import org.apache.log4j.Logger;
 
+import com.algoTrader.entity.StrategyImpl;
+
 public class ConfigurationUtil {
 
     private static String baseFileName = "base.properties";
@@ -24,7 +26,6 @@ public class ConfigurationUtil {
 
         if (baseConfig == null) {
             baseConfig = new CompositeConfiguration();
-            baseConfig.setThrowExceptionOnMissing(true);
 
             baseConfig.addConfiguration(new SystemConfiguration());
             try {
@@ -38,18 +39,22 @@ public class ConfigurationUtil {
 
     public static Configuration getStrategyConfig(String strategyName) {
 
-        if (!strategyConfigMap.containsKey(strategyName)) {
-            CompositeConfiguration strategyConfig = new CompositeConfiguration();
-            strategyConfig.setThrowExceptionOnMissing(true);
+        if (StrategyImpl.BASE.equals(strategyName.toUpperCase()))
+            return getBaseConfig();
 
+        CompositeConfiguration strategyConfig = strategyConfigMap.get(strategyName.toUpperCase());
+        if (strategyConfig == null) {
+
+            strategyConfig = new CompositeConfiguration();
             strategyConfig.addConfiguration(new SystemConfiguration());
             try {
-                strategyConfig.addConfiguration(new PropertiesConfiguration(strategyName + ".properties"));
+                strategyConfig.addConfiguration(new PropertiesConfiguration(strategyName.toLowerCase() + ".properties"));
+                strategyConfig.addConfiguration(new PropertiesConfiguration(baseFileName));
             } catch (ConfigurationException e) {
-                logger.error("error loading " + strategyName + ".properties", e);
+                logger.error("error loading " + strategyName.toLowerCase() + ".properties", e);
             }
-            strategyConfigMap.put(strategyName, strategyConfig);
+            strategyConfigMap.put(strategyName.toUpperCase(), strategyConfig);
         }
-        return baseConfig;
+        return strategyConfig;
     }
 }
