@@ -9,27 +9,36 @@
  **************************************************************************************/
 package com.espertech.esperio.csv;
 
-import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.core.EPServiceProviderSPI;
-import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.event.map.MapEventType;
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esperio.*;
-import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.ExecutionPathDebugLog;
-import com.espertech.esper.adapter.InputAdapter;
-import com.espertech.esper.adapter.AdapterState;
+import java.beans.PropertyDescriptor;
+import java.io.EOFException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import net.sf.cglib.core.ReflectUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.EOFException;
-import java.util.*;
-import java.beans.PropertyDescriptor;
+import com.espertech.esper.adapter.AdapterState;
+import com.espertech.esper.adapter.InputAdapter;
+import com.espertech.esper.client.EPException;
+import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.core.EPServiceProviderSPI;
+import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.map.MapEventType;
+import com.espertech.esper.util.ExecutionPathDebugLog;
+import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esperio.AbstractCoordinatedAdapter;
+import com.espertech.esperio.AdapterInputSource;
+import com.espertech.esperio.SendableBeanEvent;
+import com.espertech.esperio.SendableEvent;
+import com.espertech.esperio.SendableMapEvent;
 
 /**
  * An event Adapter that uses a CSV file for a source.
