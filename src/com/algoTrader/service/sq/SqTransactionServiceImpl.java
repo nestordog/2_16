@@ -45,7 +45,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
 
     private static int confirmationTimeout = ConfigurationUtil.getBaseConfig().getInt("swissquote.confirmationTimeout");
     private static int confirmationRetries = ConfigurationUtil.getBaseConfig().getInt("swissquote.confirmationRetries");
-    private static int maxTransactionAge = ConfigurationUtil.getBaseConfig().getInt("maxTransactionAge");
+    private static int maxTransactionAge = ConfigurationUtil.getBaseConfig().getInt("swissquote.maxTransactionAge");
     private static String[] spreadPositions = ConfigurationUtil.getBaseConfig().getStringArray("spreadPositions");
 
     private static String dispatchUrl = "https://trade.swissquote.ch/sqb_core/DispatchCtrl";
@@ -124,8 +124,8 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         NameValuePair[] params = new NameValuePair[] {
                 new NameValuePair("commandName", "trade"),
                 new NameValuePair("isin", security.getIsin()),
-                new NameValuePair("currency", security.getCurrency().getValue()),
-                new NameValuePair("stockExchange", SqMarketConverter.marketToString(security.getMarket())) };
+                new NameValuePair("currency", security.getSecurityFamily().getCurrency().getValue()),
+                new NameValuePair("stockExchange", SqMarketConverter.marketToString(security.getSecurityFamily().getMarket())) };
 
         GetMethod get = new GetMethod(dispatchUrl);
         get.setQueryString(params);
