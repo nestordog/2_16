@@ -7,7 +7,7 @@ import java.util.List;
 import com.algoTrader.enumeration.TransactionType;
 
 
-public class PositionImpl extends com.algoTrader.entity.Position {
+public class PositionImpl extends Position {
 
     private static final long serialVersionUID = -2679980079043322328L;
 
@@ -43,7 +43,7 @@ public class PositionImpl extends com.algoTrader.entity.Position {
 
         if (isOpen()) {
 
-            return getQuantity() * getSecurity().getContractSize() * getMarketPriceDouble();
+            return getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getMarketPriceDouble();
         } else {
             return 0.0;
         }
@@ -55,7 +55,7 @@ public class PositionImpl extends com.algoTrader.entity.Position {
         long totalQuantity = 0;
         double totalPrice = 0.0;
         long maxQuantity = getQuantity();
-        List<Transaction> transactions = new ArrayList(getTransactions());
+        List<Transaction> transactions = new ArrayList<Transaction>(getTransactions());
         Collections.reverse(transactions);
 
         // by FIFO principle
@@ -65,7 +65,7 @@ public class PositionImpl extends com.algoTrader.entity.Position {
             // price per Contract of this transaction
             // we need this because we might not consider to whole quantity of the transaction
             // (part might already have been sold again)
-            double pricePerContract = (transaction.getPrice().doubleValue() * transaction.getSecurity().getContractSize() + transaction.getCommission().doubleValue() / transaction.getQuantity());
+            double pricePerContract = (transaction.getPrice().doubleValue() * transaction.getSecurity().getSecurityFamily().getContractSize() + transaction.getCommission().doubleValue() / transaction.getQuantity());
 
             if ((maxQuantity < 0) && TransactionType.SELL.equals(transaction.getType()) && (totalQuantity != maxQuantity)) {
 
@@ -84,14 +84,14 @@ public class PositionImpl extends com.algoTrader.entity.Position {
                 totalPrice += quantity * pricePerContract;
             }
         }
-        return totalPrice / totalQuantity / getSecurity().getContractSize();
+        return totalPrice / totalQuantity / getSecurity().getSecurityFamily().getContractSize();
     }
 
     public double getCostDouble() {
 
         if (isOpen()) {
 
-            return getQuantity() * getSecurity().getContractSize() * getAveragePriceDouble();
+            return getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getAveragePriceDouble();
         } else {
             return 0.0;
         }
@@ -119,7 +119,7 @@ public class PositionImpl extends com.algoTrader.entity.Position {
 
         if (isOpen() && getExitValue() != null) {
 
-            return -getQuantity() * getSecurity().getContractSize() * getExitValue().doubleValue();
+            return -getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getExitValue().doubleValue();
         } else {
             return 0.0;
         }
