@@ -5,14 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import com.algoTrader.entity.Account;
-import com.algoTrader.entity.PositionDao;
-import com.algoTrader.entity.Security;
-import com.algoTrader.entity.Tick;
-import com.algoTrader.entity.TransactionDao;
-import com.algoTrader.enumeration.Currency;
-import com.algoTrader.util.ConfigurationUtil;
-import com.algoTrader.util.EsperService;
+import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.TickVO;
 import com.algoTrader.vo.TransactionVO;
@@ -20,97 +13,82 @@ import com.algoTrader.vo.TransactionVO;
 public class ManagementServiceImpl extends ManagementServiceBase {
 
     private static final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yy kk:mm");
-    private static String currency = ConfigurationUtil.getBaseConfig().getString("strategie.currency");
-    private static String isin = ConfigurationUtil.getBaseConfig().getString("strategie.isin");
-
 
     protected String handleGetCurrentTime() throws Exception {
 
-        return format.format(new Date(EsperService.getCurrentTime()));
+        return format.format(new Date(getRuleService().getCurrentTime(StrategyUtil.getStartedStrategyName())));
     }
 
-    protected BigDecimal handleGetAccountCashBalance() throws Exception {
+    protected String handleGetStrategyName() throws Exception {
 
-        Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
-        return account.getCashBalance();
+        return StrategyUtil.getStartedStrategyName();
     }
 
-    protected BigDecimal handleGetAccountSecuritiesCurrentValue() throws Exception {
+    protected BigDecimal handleGetStrategyCashBalance() throws Exception {
 
-        Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
-        return account.getSecuritiesCurrentValue();
+        return getReportingService().getStrategyCashBalance(StrategyUtil.getStartedStrategyName());
     }
 
-    protected BigDecimal handleGetAccountMaintenanceMargin() throws Exception {
+    protected BigDecimal handleGetStrategySecuritiesCurrentValue() throws Exception {
 
-        Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
-        return account.getMaintenanceMargin();
+        return getReportingService().getStrategySecuritiesCurrentValue(StrategyUtil.getStartedStrategyName());
     }
 
-    protected BigDecimal handleGetAccountNetLiqValue() throws Exception {
+    protected BigDecimal handleGetStrategyMaintenanceMargin() throws Exception {
 
-        Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
-        return account.getNetLiqValue();
+        return getReportingService().getStrategyMaintenanceMargin(StrategyUtil.getStartedStrategyName());
     }
 
-    protected BigDecimal handleGetAccountAvailableFunds() throws Exception {
+    protected BigDecimal handleGetStrategyNetLiqValue() throws Exception {
 
-        Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
-        return account.getAvailableFunds();
+        return getReportingService().getStrategyNetLiqValue(StrategyUtil.getStartedStrategyName());
     }
 
-    protected int handleGetAccountOpenPositionCount() throws Exception {
+    protected BigDecimal handleGetStrategyAvailableFunds() throws Exception {
 
-        Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
-        return account.getOpenPositions().size();
+        return getReportingService().getStrategyAvailableFunds(StrategyUtil.getStartedStrategyName());
     }
 
-    protected double handleGetAccountLeverage() throws Exception {
+    protected double handleGetStrategyLeverage() throws Exception {
 
-        Account account = getAccountDao().findByCurrency(Currency.fromString(currency));
-        return account.getLeverage();
+        return getReportingService().getStrategyLeverage(StrategyUtil.getStartedStrategyName());
     }
 
-    protected BigDecimal handleGetAccountUnderlaying() throws Exception {
+    protected BigDecimal handleGetStrategyUnderlaying() throws Exception {
 
-        Security underlaying = getSecurityDao().findByISIN(isin);
-        Tick tick = underlaying.getLastTick();
-        if (tick != null) {
-            return tick.getLast();
-        } else {
-            return null;
-        }
+        return getReportingService().getStrategyUnderlaying(StrategyUtil.getStartedStrategyName());
     }
 
-    protected BigDecimal handleGetAccountVolatility() throws Exception {
+    protected BigDecimal handleGetStrategyVolatility() throws Exception {
 
-        Security underlaying = getSecurityDao().findByISIN(isin);
-        Security volatility = underlaying.getVolatility();
-        Tick tick = volatility.getLastTick();
-        if (tick != null) {
-            return tick.getLast();
-        } else {
-            return null;
-        }
+        return getReportingService().getStrategyVolatility(StrategyUtil.getStartedStrategyName());
     }
 
     @SuppressWarnings("unchecked")
-    protected List<TickVO> handleGetDataLastTicks() throws Exception {
+    protected List<TickVO> handleGetDataLastTicks() {
 
-        List ticks = getTickDao().getLastTicks();
-        getTickDao().toTickVOCollection(ticks);
-        return ticks;
+        return getRuleService().getAllEventsProperty(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK", "tick");
     }
 
     @SuppressWarnings("unchecked")
     protected List<PositionVO> handleGetDataOpenPositions() throws Exception {
 
-        return getPositionDao().findOpenPositions(PositionDao.TRANSFORM_POSITIONVO);
+        return getReportingService().getDataOpenPositions(StrategyUtil.getStartedStrategyName());
     }
 
     @SuppressWarnings("unchecked")
     protected List<TransactionVO> handleGetDataTransactions() throws Exception {
 
-        return getTransactionDao().findLastNTransactions(TransactionDao.TRANSFORM_TRANSACTIONVO, 10);
+        return getReportingService().getDataTransactions(StrategyUtil.getStartedStrategyName());
+    }
+
+    protected void handleActivate(String ruleName) throws Exception {
+
+        getRuleService().activate(StrategyUtil.getStartedStrategyName(), ruleName);
+    }
+
+    protected void handleDeactivate(String ruleName) throws Exception {
+
+        getRuleService().deactivate(StrategyUtil.getStartedStrategyName(), ruleName);
     }
 }
