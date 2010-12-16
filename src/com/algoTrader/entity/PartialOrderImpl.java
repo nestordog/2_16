@@ -2,7 +2,7 @@ package com.algoTrader.entity;
 
 import com.algoTrader.enumeration.OrderStatus;
 
-public class PartialOrderImpl extends com.algoTrader.entity.PartialOrder {
+public class PartialOrderImpl extends PartialOrder {
 
     private static final long serialVersionUID = -7341726577868580753L;
 
