@@ -1,12 +1,15 @@
 package com.algoTrader.stockOption;
 
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.algoTrader.entity.StockOption;
+import com.algoTrader.entity.StockOptionFamily;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.BaseConverterUtil;
 
@@ -14,37 +17,48 @@ public class StockOptionSymbol {
 
     private static final String[] monthCallEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
     private static final String[] monthPutEnc = { "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X" };
-    private static final String[] yearEnc = { "A", "B", "C", "D", "E" };
+    private static final String[] yearEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
 
-    public static String getSymbol(StockOption stockOption) {
+    public static String getSymbol(StockOptionFamily family, Date expiration, OptionType type, BigDecimal strike) {
+
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(expiration);
+
+        String symbol = family.getName() + " " +
+            new SimpleDateFormat("MMM").format(cal.getTime()).toUpperCase() + "/" +
+            (cal.get(Calendar.YEAR) + "-").substring(2) +
+            type.toString().substring(0, 1) + " " +
+            strike.intValue() + " " +
+            family.getContractSize();
+
+        return symbol;
+    }
+
+    public static String getIsin(StockOptionFamily family, Date expiration, OptionType type, BigDecimal strike) {
 
         int week = 1;
 
-        char type = 'O';
-
-        String underlaying = stockOption.getUnderlaying().getSymbol();
-
         String month;
         Calendar cal = new GregorianCalendar();
-        cal.setTime(stockOption.getExpiration());
-        if (OptionType.CALL.equals(stockOption.getType())) {
+        cal.setTime(expiration);
+        if (OptionType.CALL.equals(type)) {
             month = monthCallEnc[cal.get(Calendar.MONTH)];
         } else {
             month = monthPutEnc[cal.get(Calendar.MONTH)];
         }
 
-        String year = yearEnc[cal.get(Calendar.YEAR) - 2010];
+        int yearIndex = cal.get(Calendar.YEAR) % 10;
+        String year = yearEnc[yearIndex];
 
-        String strike36 = BaseConverterUtil.toBase36(stockOption.getStrike().intValue());
-        String strike = StringUtils.leftPad(strike36, 5, "0");
+        String strike36 = BaseConverterUtil.toBase36(strike.intValue());
+        String strikeVal = StringUtils.leftPad(strike36, 5, "0");
 
         StringBuffer buffer = new StringBuffer();
         buffer.append(week);
-        buffer.append(type);
-        buffer.append(underlaying);
+        buffer.append(family.getName());
         buffer.append(month);
         buffer.append(year);
-        buffer.append(strike);
+        buffer.append(strikeVal);
 
         return buffer.toString();
     }
