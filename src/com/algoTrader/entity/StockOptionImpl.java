@@ -1,30 +1,14 @@
 package com.algoTrader.entity;
 
-import java.math.BigDecimal;
-
-import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.service.TickServiceException;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.ConfigurationUtil;
-import com.algoTrader.util.RoundUtil;
 
-public class StockOptionImpl extends com.algoTrader.entity.StockOption {
+public class StockOptionImpl extends StockOption {
 
     private static final long serialVersionUID = -3168298592370987085L;
 
-    private static final double commission = ConfigurationUtil.getBaseConfig().getDouble("strategie.commission");
     private static int minVol = ConfigurationUtil.getBaseConfig().getInt("minVol");
-    private static double maxSpreadSlope = ConfigurationUtil.getBaseConfig().getDouble("strategie.maxSpreadSlope");
-    private static double maxSpreadConstant = ConfigurationUtil.getBaseConfig().getDouble("strategie.maxSpreadConstant");
-
-    public BigDecimal getCommission(long quantity, TransactionType transactionType) {
-
-        if (TransactionType.SELL.equals(transactionType) || TransactionType.BUY.equals(transactionType)) {
-            return RoundUtil.getBigDecimal(quantity * commission);
-        } else {
-            return new BigDecimal(0);
-        }
-    }
 
     public double getLeverage() {
 
@@ -60,8 +44,13 @@ public class StockOptionImpl extends com.algoTrader.entity.StockOption {
 
     public void validateTickSpread(Tick tick) {
 
-        double mean = getContractSize() * (tick.getAsk().doubleValue() + tick.getBid().doubleValue()) / 2.0;
-        double spread = getContractSize() * (tick.getAsk().doubleValue() - tick.getBid().doubleValue());
+        SecurityFamily family = tick.getSecurity().getSecurityFamily();
+        int contractSize = family.getContractSize();
+        double maxSpreadSlope = family.getMaxSpreadSlope();
+        double maxSpreadConstant = family.getMaxSpreadConstant();
+
+        double mean = contractSize * (tick.getAsk().doubleValue() + tick.getBid().doubleValue()) / 2.0;
+        double spread = contractSize * (tick.getAsk().doubleValue() - tick.getBid().doubleValue());
         double maxSpread = mean * maxSpreadSlope + maxSpreadConstant;
 
         if (spread > maxSpread) {
