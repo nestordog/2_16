@@ -1,18 +1,18 @@
 package com.algoTrader.service;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
 import java.util.Collection;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
-import com.algoTrader.entity.Account;
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Order;
+import com.algoTrader.entity.OrderImpl;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.PositionImpl;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
+import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.OrderStatus;
@@ -20,13 +20,11 @@ import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
-import com.algoTrader.util.EsperService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
+import com.algoTrader.vo.OrderVO;
 
-public abstract class TransactionServiceImpl extends com.algoTrader.service.TransactionServiceBase {
-
-    private static final int firstTradingHour = ConfigurationUtil.getBaseConfig().getInt("simulation.firstTradingHour");
+public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
     private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".TransactionMail");
@@ -36,10 +34,14 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
     private static long eventsPerDay = ConfigurationUtil.getBaseConfig().getLong("simulation.eventsPerDay");
 
     @SuppressWarnings("unchecked")
-    protected void handleExecuteTransaction(Order order) throws Exception {
+    protected Order handleExecuteTransaction(String strategyName, OrderVO orderVO) throws Exception {
+
+        Strategy strategy = getStrategyDao().findByName(strategyName);
+
+        // construct a order-entity from the orderVO
+        Order order = orderVOToEntity(orderVO);
 
         Security security = order.getSecurity();
-        Account account = getAccountDao().findByCurrency(security.getCurrency());
         TransactionType transactionType = order.getTransactionType();
         long requestedQuantity = order.getRequestedQuantity();
 
@@ -64,10 +66,11 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
 
             transaction.setType(transactionType);
             transaction.setSecurity(security);
+            transaction.setCurrency(security.getSecurityFamily().getCurrency());
 
-            // Account
-            transaction.setAccount(account);
-            account.getTransactions().add(transaction);
+            // Strategy
+            transaction.setStrategy(strategy);
+            strategy.getTransactions().add(transaction);
 
             // Position
             Position position = security.getPosition();
@@ -85,8 +88,8 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
                 position.getTransactions().add(transaction);
                 transaction.setPosition(position);
 
-                position.setAccount(account);
-                account.getPositions().add(position);
+                position.setStrategy(strategy);
+                strategy.getPositions().add(position);
 
                 getPositionDao().create(position);
 
@@ -107,7 +110,7 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
             }
 
             getTransactionDao().create(transaction);
-            getAccountDao().update(account);
+            getStrategyDao().update(strategy);
             getSecurityDao().update(security);
 
             totalQuantity += transaction.getQuantity();
@@ -118,19 +121,21 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
                     " of " + security.getSymbol() + " price: " + transaction.getPrice() +
                     " commission: " + transaction.getCommission());
 
-            EsperService.route(transaction);
+            // not needed at the moment
+            // getRuleService().routeEvent(strategy.getName(), transaction);
         }
 
-        if (order.getTransactions().size() > 0) {
+        if (order.getTransactions().size() > 0 && !simulation) {
             mailLogger.info("executed transaction type: " + transactionType + " totalQuantity: " + totalQuantity +
                     " of " + security.getSymbol() + " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) +
-                    " commission: " + totalCommission + " netLiqValue: " + account.getNetLiqValue());
+                    " commission: " + totalCommission + " netLiqValue: " + strategy.getNetLiqValue());
 
         }
+        return order;
     }
 
     @SuppressWarnings("unchecked")
-    protected void handleExecuteInternalTransaction(Order order) {
+    private void executeInternalTransaction(Order order) {
 
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(DateUtil.getCurrentEPTime());
@@ -143,25 +148,24 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
         if (simulation && TransactionType.BUY.equals(order.getTransactionType()) && (eventsPerDay <= 33)) {
 
             double exitValue = stockOption.getPosition().getExitValue().doubleValue();
-            long currentHour = DateUtils.getFragmentInHours(DateUtil.getCurrentEPTime(), Calendar.DAY_OF_YEAR);
-            if (currentValue > exitValue && currentHour > firstTradingHour) {
+            if (currentValue > exitValue && DateUtil.compareToTime(stockOption.getSecurityFamily().getMarketOpen()) > 0) {
 
                 logger.info("adjusted currentValue (" + currentValue + ") to exitValue (" + exitValue+ ") in closePosition for order on " + order.getSecurity().getSymbol());
                 currentValue = exitValue;
             }
         }
 
-        int contractSize = stockOption.getContractSize();
+        int contractSize = stockOption.getSecurityFamily().getContractSize();
 
         if (TransactionType.SELL.equals(order.getTransactionType())) {
 
-            double dummyBid = StockOptionUtil.getDummyBid(currentValue, contractSize);
+            double dummyBid = stockOption.getDummyBid(currentValue);
             transaction.setPrice(RoundUtil.getBigDecimal(dummyBid));
             transaction.setQuantity(-Math.abs(order.getRequestedQuantity()));
 
         } else if (TransactionType.BUY.equals(order.getTransactionType())) {
 
-            double dummyAsk = StockOptionUtil.getDummyAsk(currentValue, contractSize);
+            double dummyAsk = stockOption.getDummyAsk(currentValue);
             transaction.setPrice(RoundUtil.getBigDecimal(dummyAsk));
             transaction.setQuantity(Math.abs(order.getRequestedQuantity()));
 
@@ -174,7 +178,11 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
             transaction.setQuantity(Math.abs(order.getRequestedQuantity()));
         }
 
-        transaction.setCommission(order.getSecurity().getCommission(order.getRequestedQuantity(), order.getTransactionType()));
+        if (TransactionType.SELL.equals(order.getTransactionType()) || TransactionType.BUY.equals(order.getTransactionType())) {
+            transaction.setCommission(RoundUtil.getBigDecimal(order.getRequestedQuantity() * stockOption.getSecurityFamily().getCommission().doubleValue()));
+        } else {
+            transaction.setCommission(new BigDecimal(0));
+        }
         transaction.setNumber(null);
 
         order.setStatus(OrderStatus.AUTOMATIC);
@@ -191,5 +199,31 @@ public abstract class TransactionServiceImpl extends com.algoTrader.service.Tran
         }
 
         return RoundUtil.roundTo10Cent(RoundUtil.getBigDecimal(price)).doubleValue();
+    }
+
+    /**
+     * implemented here because Order is nonPersistent
+     */
+    private Order orderVOToEntity(OrderVO orderVO) {
+
+        Order order = new OrderImpl();
+        order.setTransactionType(orderVO.getTransactionType());
+        order.setRequestedQuantity(orderVO.getRequestedQuantity());
+        order.setSecurity(getSecurityDao().load(orderVO.getSecurityId()));
+
+        return order;
+    }
+
+    public static class RerunOrderSubscriber {
+
+        public void update(String strategyName, OrderVO orderVO) {
+
+            long startTime = System.currentTimeMillis();
+            logger.debug("retrieveTicks start");
+
+            ServiceLocator.serverInstance().getDispatcherService().getTransactionService().executeTransaction(strategyName, orderVO);
+
+            logger.debug("retrieveTicks end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+        }
     }
 }
