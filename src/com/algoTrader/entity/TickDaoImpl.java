@@ -1,14 +1,7 @@
 package com.algoTrader.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.algoTrader.enumeration.RuleName;
-import com.algoTrader.util.EsperService;
+import com.algoTrader.vo.RawTickVO;
 import com.algoTrader.vo.TickVO;
-import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.SafeIterator;
 
 public class TickDaoImpl extends TickDaoBase {
 
@@ -28,39 +21,46 @@ public class TickDaoImpl extends TickDaoBase {
         return tickVO;
     }
 
+    public void toRawTickVO(Tick tick, RawTickVO rawTickVO) {
+
+        super.toRawTickVO(tick, rawTickVO);
+
+        completeRawTickVO(tick, rawTickVO);
+    }
+
+    public RawTickVO toRawTickVO(final Tick tick) {
+
+        RawTickVO rawTickVO = super.toRawTickVO(tick);
+
+        completeRawTickVO(tick, rawTickVO);
+
+        return rawTickVO;
+    }
+
     private void completeTickVO(Tick tick, TickVO tickVO) {
 
         tickVO.setSymbol(tick.getSecurity().getSymbol());
         tickVO.setMidpoint(tick.getCurrentValue());
     }
 
+    private void completeRawTickVO(Tick tick, RawTickVO rawTickVO) {
+
+        rawTickVO.setIsin(tick.getSecurity().getIsin());
+    }
+
     public Tick tickVOToEntity(TickVO tickVO) {
 
         throw new UnsupportedOperationException("tickVOToEntity not yet implemented.");
-
     }
 
-    protected synchronized List<Tick> handleGetLastTicks() throws Exception {
+    public Tick rawTickVOToEntity(RawTickVO rawTickVO) {
 
-        EPStatement statement = EsperService.getStatement(RuleName.GET_LAST_TICK);
+        Tick tick = new TickImpl();
+        super.rawTickVOToEntity(rawTickVO, tick, true);
 
-        List<Tick> ticks = new ArrayList<Tick>();
-        if (statement != null && statement.isStarted()) {
-            SafeIterator<EventBean> it = statement.safeIterator();
-            try {
-                while (it.hasNext()) {
-                    EventBean bean = it.next();
-                    ticks.add((Tick)bean.get("tick"));
-                }
-            } finally {
-                it.close();
-            }
-        }
-        return ticks;
-    }
+        Security security = getSecurityDao().findByIsin(rawTickVO.getIsin());
+        tick.setSecurity(security);
 
-    protected synchronized boolean handleHasLastTicks() {
-
-        return (EsperService.getLastEvent(RuleName.GET_LAST_TICK) != null);
+        return tick;
     }
 }
