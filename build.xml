@@ -31,6 +31,21 @@
         </copy>
     </target>
 
+    <target name="instrument" depends="compile">
+      <taskdef name="instrument" classname="org.hibernate.tool.instrument.javassist.InstrumentTask">
+          <classpath refid="classpath"/>
+      </taskdef>
+
+      <instrument verbose="true">
+        <fileset dir="classes">
+          <include name="/com/algoTrader/entity/*.class"/>
+          <exclude name="/com/algoTrader/entity/*Dao*.class"/>
+            <exclude name="/com/algoTrader/entity/*Factory.class"/>
+        </fileset>
+      </instrument>
+    </target>
+
+
     <target name="create-schema">
         <java classname="org.hibernate.tool.hbm2ddl.SchemaExport" fork="true">
             <arg value="--output=sql/schema-create.sql"/>
