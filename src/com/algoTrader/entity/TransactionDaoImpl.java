@@ -22,8 +22,8 @@ public class TransactionDaoImpl extends TransactionDaoBase {
 
     private void completeTransactionVO(Transaction transaction, TransactionVO transactionVO) {
 
-        transactionVO.setCurrency(transaction.getAccount().getCurrency());
         transactionVO.setValue(transaction.getValue());
+
         Security security = transaction.getSecurity();
         if (security != null) {
             transactionVO.setSymbol(security.getSymbol());
