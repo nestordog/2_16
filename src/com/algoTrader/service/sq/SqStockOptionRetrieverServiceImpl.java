@@ -23,8 +23,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 
 import com.algoTrader.entity.Security;
+import com.algoTrader.entity.SecurityFamily;
+import com.algoTrader.entity.SecurityFamilyImpl;
 import com.algoTrader.entity.SecurityImpl;
 import com.algoTrader.entity.StockOption;
+import com.algoTrader.entity.StockOptionFamily;
 import com.algoTrader.entity.StockOptionImpl;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
@@ -42,10 +45,12 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
     private static Logger logger = MyLogger.getLogger(StockOptionRetrieverServiceImpl.class.getName());
     private static String [] markets = new String[] {"eu", "eu", "eu", "eu", "eu", "eu", "eu", "ud"};
     private static String [] groups = new String[] {"sw", "id", "de", "fr", "it", "sk", "xx", null };
-    private static SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss");
 
-    protected StockOption handleRetrieveStockOption(Security underlaying, Date expiration, BigDecimal strike,
+    protected StockOption handleRetrieveStockOption(int underlayingId, Date expiration, BigDecimal strike,
             OptionType type) throws ParseException, TransformerException, IOException {
+
+        Security underlaying = getSecurityDao().load(underlayingId);
+        StockOptionFamily family = getStockOptionFamilyDao().findByUnderlaying(underlaying.getId());
 
         Calendar cal = new GregorianCalendar();
         cal.setTime(expiration);
@@ -80,12 +85,8 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
         String optionUrl = SqUtil.getValue(listDocument, "//td[contains(a/@class,'list')][" + (OptionType.CALL.equals(type) ? 1 : 2) + "]/a/@href");
         String param = optionUrl.split("=")[1];
         String isin = param.split("_")[0];
-        String market = param.split("_")[1];
-        String currency = param.split("_")[2];
 
         stockOption.setIsin(isin);
-        stockOption.setMarket(SqMarketConverter.marketFromString(market));
-        stockOption.setCurrency(Currency.fromString(currency));
 
         stockOption.setType(type);
         stockOption.setStrike(strike);
@@ -95,27 +96,23 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
         String dateValue = SqUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[4]/strong");
         Date expirationDate = new SimpleDateFormat("dd-MM-yyyy kk:mm:ss").parse(dateValue + " 13:00:00");
 
-        String contractSizeValue = SqUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[3]/strong");
-        int contractSize = (int) Double.parseDouble(contractSizeValue);
-
         String symbolValue = SqUtil.getValue(optionDocument, "//body/div[1]//h1/text()[2]");
         String symbol = symbolValue.split("\\(")[0].trim().substring(1);
 
         stockOption.setExpiration(expirationDate);
         stockOption.setSymbol(symbol);
-        stockOption.setContractSize(contractSize);
-        stockOption.setMarketOpen(timeFormat.parse("09:00:00"));
-        stockOption.setMarketClose(timeFormat.parse("17:20:00"));
-
         stockOption.setUnderlaying(underlaying);
+        stockOption.setSecurityFamily(family);
 
         logger.debug("retrieved option " + stockOption.getSymbol());
 
         return stockOption;
     }
 
-    protected void handleRetrieveAllStockOptions(Security underlaying) throws ParseException, TransformerException,
-            IOException {
+    protected void handleRetrieveAllStockOptionsForUnderlaying(int underlayingId) throws ParseException, TransformerException, IOException {
+
+        Security underlaying = getSecurityDao().load(underlayingId);
+        StockOptionFamily family = getStockOptionFamilyDao().findByUnderlaying(underlaying.getId());
 
         String url = optionUrl + "&underlying=" + underlaying.getIsin() + "&market=eu&group=id";
 
@@ -150,14 +147,9 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
             String isin = param.split("_")[0];
 
-            if (getSecurityDao().findByISIN(isin) != null) continue;
-
-            String market = param.split("_")[1];
-            String currency = param.split("_")[2];
+            if (getSecurityDao().findByIsin(isin) != null) continue;
 
             stockOption.setIsin(isin);
-            stockOption.setMarket(SqMarketConverter.marketFromString(market));
-            stockOption.setCurrency(Currency.fromString(currency));
 
             Document optionDocument = SqUtil.getSecurityDocument(stockOption);
 
@@ -173,18 +165,12 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
             String symbolValue = SqUtil.getValue(optionDocument, "//body/div[1]//h1/text()[2]");
             String symbol = symbolValue.split("\\(")[0].trim().substring(1);
 
-            String contractSizeValue = SqUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[3]/strong");
-            int contractSize = (int) Double.parseDouble(contractSizeValue);
-
             stockOption.setType(type);
             stockOption.setStrike(strike);
             stockOption.setExpiration(expirationDate);
             stockOption.setSymbol(symbol);
-            stockOption.setContractSize(contractSize);
-            stockOption.setMarketOpen(timeFormat.parse("09:00:00"));
-            stockOption.setMarketClose(timeFormat.parse("17:20:00"));
-
             stockOption.setUnderlaying(underlaying);
+            stockOption.setSecurityFamily(family);
 
             getSecurityDao().create(stockOption);
 
@@ -282,8 +268,9 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
                 List<Security> securities = new ArrayList<Security>();
                 List<Tick> ticks = new ArrayList<Tick>();
+                List<SecurityFamily> families = new ArrayList<SecurityFamily>();
 
-                Security underlaying = getSecurityDao().findByISIN(underlayingIsin);
+                Security underlaying = getSecurityDao().findByIsin(underlayingIsin);
                 if (underlaying == null) {
 
                     String underlayingSymbol = SqUtil.getValue(underlayingTable, "td[1]/a");
@@ -292,8 +279,11 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
                     underlaying = new SecurityImpl();
                     underlaying.setSymbol(underlayingSymbol);
                     underlaying.setIsin(underlayingIsin);
-                    underlaying.setMarket(SqMarketConverter.marketFromString(underlayingMarketId));
-                    underlaying.setCurrency(Currency.fromString(underlayingCurreny));
+
+                    SecurityFamily family = new SecurityFamilyImpl();
+                    family.setMarket(SqMarketConverter.marketFromString(underlayingMarketId));
+                    family.setCurrency(Currency.fromString(underlayingCurreny));
+                    underlaying.setSecurityFamily(family);
 
                     Tick underlayingTick = new TickImpl();
                     underlayingTick.setDateTime(new Date());
@@ -304,6 +294,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
                     securities.add(underlaying);
                     ticks.add(underlayingTick);
+                    families.add(family);
                 }
 
                 // get the contract size
@@ -314,8 +305,11 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
                 StockOption stockOption = new StockOptionImpl();
                 stockOption.setIsin(optionIsin);
-                stockOption.setMarket(SqMarketConverter.marketFromString(optionMarketId));
-                stockOption.setCurrency(Currency.fromString(optionCurreny));
+
+                SecurityFamily family = new SecurityFamilyImpl();
+                family.setMarket(SqMarketConverter.marketFromString(optionMarketId));
+                family.setCurrency(Currency.fromString(optionCurreny));
+                stockOption.setSecurityFamily(family);
 
                 Document optionDocument = SqUtil.getSecurityDocument(stockOption);
                 String contractSize = SqUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[3]/strong");
@@ -347,14 +341,18 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
                         StockOption callOption = new StockOptionImpl();
                         callOption.setIsin(callOptionIsin);
-                        callOption.setMarket(SqMarketConverter.marketFromString(optionMarketId));
-                        callOption.setCurrency(Currency.fromString(optionCurreny));
                         callOption.setStrike(RoundUtil.getBigDecimal(SqUtil.getDouble(optionStrike)));
-                        callOption.setContractSize(SqUtil.getInt(contractSize));
                         callOption.setType(OptionType.CALL);
                         callOption.setExpiration(optionExpiration);
                         callOption.setUnderlaying(underlaying);
                         securities.add(callOption);
+
+                        SecurityFamily callOptionFamily = new SecurityFamilyImpl();
+                        callOptionFamily.setMarket(SqMarketConverter.marketFromString(optionMarketId));
+                        callOptionFamily.setCurrency(Currency.fromString(optionCurreny));
+                        callOptionFamily.setContractSize(SqUtil.getInt(contractSize));
+                        callOption.setSecurityFamily(family);
+                        families.add(callOptionFamily);
 
                         Tick callOptionTick = new TickImpl();
                         callOptionTick.setDateTime(new Date());
@@ -370,14 +368,18 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
                         StockOption putOption = new StockOptionImpl();
                         putOption.setIsin(putOptionIsin);
-                        putOption.setMarket(SqMarketConverter.marketFromString(optionMarketId));
-                        putOption.setCurrency(Currency.fromString(optionCurreny));
                         putOption.setStrike(RoundUtil.getBigDecimal(SqUtil.getDouble(optionStrike)));
-                        putOption.setContractSize(SqUtil.getInt(contractSize));
                         putOption.setType(OptionType.PUT);
                         putOption.setExpiration(optionExpiration);
                         putOption.setUnderlaying(underlaying);
                         securities.add(putOption);
+
+                        SecurityFamily putOptionFamily = new SecurityFamilyImpl();
+                        putOptionFamily.setMarket(SqMarketConverter.marketFromString(optionMarketId));
+                        putOptionFamily.setCurrency(Currency.fromString(optionCurreny));
+                        putOptionFamily.setContractSize(SqUtil.getInt(contractSize));
+                        putOption.setSecurityFamily(family);
+                        families.add(putOptionFamily);
 
                         Tick putOptionTick = new TickImpl();
                         putOptionTick.setDateTime(new Date());
@@ -394,6 +396,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
                 }
                 getSecurityDao().create(securities);
                 getTickDao().create(ticks);
+                getSecurityFamilyDao().create(ticks);
 
                 System.out.println(title);
             }
