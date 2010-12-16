@@ -1,10 +1,14 @@
 ## only assign a transaction if specified using tagged-value
+## also assign transactions for non abstract methods of abstract superclasses
 ## only output EntityDao if tag @algoTrader.entity.nonPersistent is not set
 ## only output hbm.xml if tag @algoTrader.entity.nonPersistent is not set
-<?xml version="1.0" encoding="$xmlEncoding"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+## add schema definition
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
     <!-- ========================= GENERAL DEFINITIONS ========================= -->
 
@@ -160,9 +164,16 @@
         <property name="transactionAttributeSource">
             <value>
 #foreach ($service in $services)
-#foreach ($operation in $springUtils.filterUniqueByName($service.implementationOperations))
+#foreach ($operation in $service.operations)
 #if ($operation.findTaggedValue("@andromda.spring.transaction.type"))
                 ${service.fullyQualifiedName}.${operation.name}=${operation.transactionType}
+#end
+#end
+#if ($service.superClass.abstract)
+#foreach ($operation in $service.superClass.operations)
+#if ($operation.findTaggedValue("@andromda.spring.transaction.type") && !$operation.abstract)
+                ${service.superClass.fullyQualifiedName}.${operation.name}=${operation.transactionType}
+#end	
 #end
 #end
 #end
@@ -275,7 +286,6 @@
 			<map>
 #foreach($service in $services)
 #if($stringUtils.isNotBlank($service.findTaggedValue('@algoTrader.service.manageable')))
-
 				<entry key="$service.getPackageName(false):name=$service.getBeanName(false)" value-ref="$service.getBeanName(false)" />
 #end
 #end
