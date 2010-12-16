@@ -3,14 +3,20 @@ package com.algoTrader.entity;
 import java.math.BigDecimal;
 import java.util.Collection;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
 
-public class AccountImpl extends Account {
+public class StrategyImpl extends Strategy {
 
     private static final long serialVersionUID = -2271735085273721632L;
 
-    private static double initialMarginMarkup = ConfigurationUtil.getBaseConfig().getDouble("strategie.initialMarginMarkup");
+    private static double initialMarginMarkup = ConfigurationUtil.getBaseConfig().getDouble("initialMarginMarkup");
+
+    public final static String BASE = "BASE";
+    public final static String SMI = "SMI";
+
+    public final static String THETA = "THETA";
 
     public BigDecimal getCashBalance() {
         return RoundUtil.getBigDecimal(getCashBalanceDouble());
@@ -19,11 +25,21 @@ public class AccountImpl extends Account {
     @SuppressWarnings("unchecked")
     public double getCashBalanceDouble() {
 
+        // sum of all transactions that belongs to this strategy
         double balance = 0.0;
         Collection<Transaction> transactions = getTransactions();
         for (Transaction transaction : transactions) {
             balance += transaction.getValueDouble();
         }
+
+        // plus part of all cashFlows
+        double cashFlows = 0.0;
+        Transaction[] cashFlowTransactions = ServiceLocator.commonInstance().getLookupService().getAllCashFlows();
+        for (Transaction transaction : cashFlowTransactions) {
+            cashFlows += transaction.getValueDouble();
+        }
+        balance += (cashFlows * getAllocation());
+
         return balance;
     }
 
@@ -118,5 +134,9 @@ public class AccountImpl extends Account {
         }
 
         return deltaRisk / getNetLiqValueDouble();
+    }
+
+    public boolean isBase() {
+        return (BASE.equals(getName()));
     }
 }
