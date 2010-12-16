@@ -1,6 +1,6 @@
 package com.algoTrader.entity;
 
-public class RuleImpl extends com.algoTrader.entity.Rule {
+public class RuleImpl extends Rule {
 
     private static final long serialVersionUID = -8481295095357769646L;
 
