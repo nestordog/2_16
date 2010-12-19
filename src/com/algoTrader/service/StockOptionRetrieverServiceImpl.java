@@ -27,10 +27,10 @@ public abstract class StockOptionRetrieverServiceImpl extends StockOptionRetriev
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
 
     @SuppressWarnings("unchecked")
-    protected void handleCalculateSabr(String strategyName, String isin, String startDateString, String expirationDateString, String optionType) throws Exception {
+    protected void handleCalculateSabr(String isin, String startDateString, String expirationDateString, String optionType) throws Exception {
 
-        StockOptionFamily family = getStockOptionFamilyDao().findByIsin(isin);
         Security underlaying = getSecurityDao().findByIsin(isin);
+        StockOptionFamily family = getStockOptionFamilyDao().findByUnderlaying(underlaying.getId());
 
         OptionType type = OptionType.fromString(optionType);
         Date startDate = inputFormat.parse(startDateString);
@@ -84,7 +84,7 @@ public abstract class StockOptionRetrieverServiceImpl extends StockOptionRetriev
                     double currentValue = tick.getCurrentValueDouble();
 
                     try {
-                        double volatility = StockOptionUtil.getVolatility(stockOption, underlayingSpot.doubleValue(), currentValue);
+                        double volatility = StockOptionUtil.getVolatility(underlayingSpot.doubleValue(), stockOption.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), type);
                         strikes.add(strike);
                         volatilities.add(volatility);
 
