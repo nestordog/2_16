@@ -208,6 +208,10 @@ public abstract class TickServiceImpl extends TickServiceBase {
         if (file.exists()) {
 
             Security security = getSecurityDao().findByIsin(isin);
+            if (security == null) {
+                throw new TickServiceException("security was not found: " + isin);
+            }
+
             CsvTickReader reader = new CsvTickReader(isin);
 
             Tick tick;
