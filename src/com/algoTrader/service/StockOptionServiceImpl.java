@@ -157,7 +157,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
     public static class ExpirePositionSubscriber {
 
-        public void update(int positionId, int underlayingId, BigDecimal underlayingSpot) {
+        public void update(int positionId) {
 
             long startTime = System.currentTimeMillis();
             logger.debug("expireStockOptions start");
