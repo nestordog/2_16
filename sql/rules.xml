@@ -13,7 +13,6 @@ where simulation != true</field>
         <field name="LISTENERS">com.algoTrader.service.TickServiceImpl$RetrieveTickListener</field>
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">2</field>
@@ -24,7 +23,6 @@ where simulation != true</field>
         <field name="LISTENERS">com.algoTrader.service.StockOptionServiceImpl$SetMarginsListener</field>
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">3</field>
@@ -37,7 +35,6 @@ where simulation != false</field>
         <field name="LISTENERS">com.algoTrader.service.AccountServiceImpl$ProcessCashTransactionsListener</field>
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">4</field>
@@ -53,7 +50,6 @@ where LookupUtil.hasLastTicks()</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">5</field>
@@ -70,7 +66,6 @@ portfolio.value.netLiqValue != prior(1, portfolio.value.netLiqValue)
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">10</field>
@@ -83,16 +78,13 @@ from Tick.std:groupwin(security.id).win:time(7 days).win:length(1) as tick
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">13</field>
         <field name="NAME">EXPIRE_POSITION</field>
         <field name="PRIORITY">2</field>
-        <field name="DEFINITION">select option.position.id as positionId,
-indexTick.security.id,
-indexTick.currentValue
-from Tick as indexTick,
+        <field name="DEFINITION">select option.position.id as positionId
+from Tick(security.strategyUnderlaying = true) as indexTick,
 method:LookupUtil.getStockOptionsOnWatchlist() as option
 where option.expiration.time &lt; current_timestamp()
 and option.position != null
@@ -101,7 +93,6 @@ and option.position.quantity != 0</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">14</field>
@@ -117,7 +108,6 @@ and tick.currentValue  &gt;= tick.security.position.exitValue</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">16</field>
@@ -136,7 +126,6 @@ and optionTick.currentValueDouble != 0</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">17</field>
@@ -155,7 +144,6 @@ and optionTick.security.position.quantity != 0</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">18</field>
@@ -174,7 +162,6 @@ from pattern [(indexTick=Tick(security.isin = strategy.underlaying.isin) -&gt; v
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">00</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">19</field>
@@ -191,8 +178,7 @@ having count(id) &gt;= cast(Math.max(callKFastDays,putKFastDays) * simulation_ev
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
-        <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
+        <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
         <field name="id">20</field>
@@ -204,8 +190,7 @@ from pattern [every tick=Tick(security.isin = strategy.underlaying.isin) -&gt; (
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
-        <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
+        <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
         <field name="id">21</field>
@@ -223,7 +208,6 @@ from EndOfDayTick
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">23</field>
@@ -238,8 +222,7 @@ having count(*) &gt; Math.round(macdSlow * macdWeight)
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
-        <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
+        <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
         <field name="id">30</field>
@@ -254,8 +237,7 @@ having count(security) &gt;= cast(Math.max(callKSlowDays,putKSlowDays) * simulat
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
-        <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
+        <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
         <field name="id">31</field>
@@ -270,8 +252,7 @@ having count(security) &gt;= cast(Math.max(callDSlowDays,putDSlowDays) * simulat
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
-        <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
+        <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
         <field name="id">32</field>
@@ -290,7 +271,6 @@ and putEnabled = true</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">33</field>
@@ -309,7 +289,6 @@ and callEnabled = true</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">34</field>
@@ -328,8 +307,7 @@ from pattern [every (indexTick=Tick(security.isin=strategy.underlaying.isin) -&g
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
-        <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
+        <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
         <field name="id">35</field>
@@ -339,8 +317,7 @@ from pattern [every (indexTick=Tick(security.isin=strategy.underlaying.isin) -&g
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
-        <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
+        <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
         <field name="id">36</field>
@@ -354,14 +331,14 @@ having count(*) &gt; Math.round(macdSignal * macdWeight)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
-        <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
+        <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
         <field name="id">37</field>
         <field name="NAME">SET_TREND</field>
         <field name="PRIORITY">0</field>
-        <field name="DEFINITION">select strategy.name as strategyName,
+        <field name="DEFINITION">select
+strategy.name as strategyName,
 case when macd.value &gt; signal.value then true else false end as bullish
 from pattern [every (macd=Macd -&gt; signal=MacdSignal)]
 where ((select last(size) from MacdSignal.std:size()) = 1) or
@@ -371,8 +348,7 @@ where ((select last(size) from MacdSignal.std:size()) = 1) or
         <field name="SUBSCRIBER">com.algoTrader.service.theta.ThetaServiceImpl$TrendSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
-        <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
+        <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
         <field name="id">38</field>
@@ -387,8 +363,7 @@ from pattern [every (indexTick=Tick(security.isin=strategy.underlaying.isin) -&g
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
-        <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
+        <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
         <field name="id">39</field>
@@ -399,8 +374,7 @@ from MacdVO.win:keepall()</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
-        <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
+        <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
         <field name="id">41</field>
@@ -418,7 +392,6 @@ from MonthlyPerformance.win:keepall().stat:uni(value) as uni</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">42</field>
@@ -430,7 +403,6 @@ from MonthlyPerformance.win:keepall()</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">43</field>
@@ -444,7 +416,6 @@ from Portfolio as portfolio</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">44</field>
@@ -458,7 +429,6 @@ from DrawDown as drawDown</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     <row>
         <field name="id">50</field>
@@ -470,7 +440,6 @@ from PrearrangedOrder</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
-        <field name="TARGET_FK" xsi:nil="true" />
     </row>
     </table_data>
 </database>
