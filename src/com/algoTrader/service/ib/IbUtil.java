@@ -6,6 +6,7 @@ import org.apache.commons.lang.time.DateUtils;
 
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
+import com.algoTrader.enumeration.Market;
 import com.ib.client.Contract;
 
 public class IbUtil {
@@ -24,11 +25,16 @@ public class IbUtil {
             contract.m_secType = "OPT";
             contract.m_exchange = IbMarketConverter.marketToString(stockOption.getSecurityFamily().getMarket());
             contract.m_currency = stockOption.getSecurityFamily().getCurrency().getValue();
-            contract.m_expiry = format.format(DateUtils.addDays(stockOption.getExpiration(), -1));
-            // IB expiration is one day before effective expiration
             contract.m_strike = stockOption.getStrike().intValue();
             contract.m_right = stockOption.getType().getValue();
             contract.m_multiplier = String.valueOf(stockOption.getSecurityFamily().getContractSize());
+
+            if (security.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {
+                // IB expiration is one day before effective expiration for SOFFEX options
+                contract.m_expiry = format.format(DateUtils.addDays(stockOption.getExpiration(), -1));
+            } else {
+                contract.m_expiry = format.format(stockOption.getExpiration());
+            }
         } else {
 
             contract.m_symbol = security.getSymbol();
