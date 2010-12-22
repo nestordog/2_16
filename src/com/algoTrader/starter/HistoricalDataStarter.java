@@ -21,6 +21,8 @@ public class HistoricalDataStarter {
 
         IbHistoricalDataService service = ServiceLocator.serverInstance().getIbHistoricalDataService();
 
+        service.init();
+
         service.requestHistoricalData(securityIds, whatToShow, startDate, endDate);
     }
 }
