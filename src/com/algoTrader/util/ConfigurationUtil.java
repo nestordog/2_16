@@ -14,7 +14,7 @@ import com.algoTrader.entity.StrategyImpl;
 
 public class ConfigurationUtil {
 
-    private static String baseFileName = "base.properties";
+    private static String baseFileName = "conf-base.properties";
 
     private static CompositeConfiguration baseConfig;
     private static Map<String, CompositeConfiguration> strategyConfigMap = new HashMap<String, CompositeConfiguration>();
@@ -48,7 +48,7 @@ public class ConfigurationUtil {
             strategyConfig = new CompositeConfiguration();
             strategyConfig.addConfiguration(new SystemConfiguration());
             try {
-                strategyConfig.addConfiguration(new PropertiesConfiguration(strategyName.toLowerCase() + ".properties"));
+                strategyConfig.addConfiguration(new PropertiesConfiguration("conf-" + strategyName.toLowerCase() + ".properties"));
                 strategyConfig.addConfiguration(new PropertiesConfiguration(baseFileName));
             } catch (ConfigurationException e) {
                 logger.error("error loading " + strategyName.toLowerCase() + ".properties", e);
