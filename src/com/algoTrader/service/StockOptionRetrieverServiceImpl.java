@@ -16,10 +16,13 @@ import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.sabr.SABRCalibration;
 import com.algoTrader.sabr.SABRCalibrationParams;
 import com.algoTrader.stockOption.StockOptionUtil;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.RoundUtil;
 
 public abstract class StockOptionRetrieverServiceImpl extends StockOptionRetrieverServiceBase {
+
+    private static double beta = ConfigurationUtil.getBaseConfig().getDouble("sabrBeta");
 
     private static SimpleDateFormat inputFormat = new SimpleDateFormat("yyyyMMdd-kkmmss");
     private static double MILLISECONDS_PER_YEAR = 31536000000l;
@@ -104,7 +107,7 @@ public abstract class StockOptionRetrieverServiceImpl extends StockOptionRetriev
                 Double[] strikesArray = strikes.toArray(new Double[0]);
                 Double[] volatilitiesArray = volatilities.toArray(new Double[0]);
 
-                SABRCalibrationParams params = sabr.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years, family.getBeta());
+                SABRCalibrationParams params = sabr.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years, beta);
 
                 if (params.getA() < 100) {
                     System.out.println(outputFormat.format(date) + " " + params.getA() + " " + params.getR() + " " + params.getV());
