@@ -6,10 +6,14 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolver;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
+import com.algoTrader.entity.StockOption;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.sabr.SABRVol;
+import com.algoTrader.util.DateUtil;
 
 public class Volatility {
+
+    private static final double MILLISECONDS_PER_DAY = 86400000;
 
     public static double getIndexVola(double underlayingSpot, double atmVola, double years, double intrest, double dividend, double strikeDistance, double beta, double correlation, double volVol) {
 
@@ -73,11 +77,35 @@ public class Volatility {
         UnivariateRealSolver solver = factory.newDefaultSolver();
         solver.setAbsoluteAccuracy(0.0001);
 
-        return solver.solve(function, indexVola * 0.7 , indexVola * 1.1, indexVola);
+        try {
+            // normaly atmVola is above 80% of indexVola
+            return solver.solve(function, indexVola * 0.8, indexVola, indexVola);
+        } catch (Exception e) {
+            // in rare cases atmVola is as low as 25% of indexVola
+            return solver.solve(function, indexVola * 0.1, indexVola, indexVola);
+        }
     }
 
     private static double getFactor(double strike, double accumulation, double strikeDistance, double outOfTheMoneyPrice) {
 
         return outOfTheMoneyPrice * accumulation * (strikeDistance / (strike * strike));
+    }
+
+    public static double getCorrelation(StockOption stockOption) {
+        double days = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_DAY;
+        if (OptionType.CALL.equals(stockOption.getType())) {
+            return Math.exp(0.5623 - 0.02989 * Math.log(days) - 0.01095 * days + 0.002167 * Math.log(days) * days) - 2.0;
+        } else {
+            return Math.exp(1.111 - 0.131 * Math.log(days) - 0.062 * days + 0.0128 * Math.log(days) * days) - 2.0;
+        }
+    }
+
+    public static double getVolVol(StockOption stockOption) {
+        double days = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_DAY;
+        if (OptionType.CALL.equals(stockOption.getType())) {
+            return Math.exp(3.332 - 0.65 * Math.log(days) + 0.0325 * days - 0.0048 * Math.log(days) * days) - 2.0;
+        } else {
+            return Math.exp(3.589 - 0.908 * Math.log(days) + 0.056 * days - 0.00827 * Math.log(days) * days) - 2.0;
+        }
     }
 }
