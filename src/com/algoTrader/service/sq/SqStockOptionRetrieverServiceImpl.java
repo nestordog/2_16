@@ -142,6 +142,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
         while ((node = iterator.nextNode()) != null) {
 
             StockOption stockOption = new StockOptionImpl();
+            stockOption.setSecurityFamily(family);
 
             String param = node.getNodeValue().split("=")[1];
 
