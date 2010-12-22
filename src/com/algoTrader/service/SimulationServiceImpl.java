@@ -83,7 +83,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         }
 
         // delete all StockOptions
-        getSecurityDao().remove(getStockOptionDao().loadAll());
+        // getSecurityDao().remove(getStockOptionDao().loadAll());
     }
 
     @SuppressWarnings("unchecked")
@@ -91,7 +91,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         getRuleService().initCoordination(StrategyImpl.BASE);
 
-        List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
+        List<Security> securities = getSecurityDao().findSecuritiesOnActiveWatchlist();
         for (Security security : securities) {
 
             if (security.getIsin() == null) {
