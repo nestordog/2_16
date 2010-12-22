@@ -17,6 +17,7 @@ public class StockOptionUtil {
 
     private static final double MILLISECONDS_PER_YEAR = 31536000000l;
     private static boolean sabrEnabled = ConfigurationUtil.getBaseConfig().getBoolean("sabrEnabled");
+    private static double beta = ConfigurationUtil.getBaseConfig().getDouble("sabrBeta");
 
     public static double getOptionPrice(StockOption stockOption, double underlayingSpot, double vola) throws MathException, IllegalArgumentException {
 
@@ -47,10 +48,14 @@ public class StockOptionUtil {
 
         StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
 
+        double correlation = Volatility.getCorrelation(stockOption);
+        double volVol = Volatility.getVolVol(stockOption);
+
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
 
-        return getOptionPriceSabr(underlayingSpot, stockOption.getStrike().doubleValue(), vola, years, family.getIntrest(), family.getDividend(), stockOption.getType(),
-        family.getStrikeDistance(), family.getBeta(), family.getCorrelation(), family.getVolVol());
+        return getOptionPriceSabr(underlayingSpot, stockOption.getStrike().doubleValue(), vola, years,
+                family.getIntrest(), family.getDividend(), stockOption.getType(), family.getStrikeDistance(),
+                beta, correlation, volVol);
     }
 
     public static double getOptionPriceBS(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
