@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
@@ -110,8 +111,9 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase {
                     String whatToShow = IbHistoricalDataServiceImpl.this.requestIdWhatToShowMap.get(requestId);
 
                     if ("TRADES".equals(whatToShow)) {
-                        Tick lastTick = IbHistoricalDataServiceImpl.this.dateTickMap.lowerEntry(date).getValue();
-                        if (lastTick != null) {
+                        Entry<Date, Tick> entry = IbHistoricalDataServiceImpl.this.dateTickMap.lowerEntry(date);
+                        if (entry != null) {
+                            Tick lastTick = entry.getValue();
                             if (volume > 0) {
                                 tick.setVol(lastTick.getVol() + volume);
                                 tick.setLastDateTime(date);
@@ -135,7 +137,8 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase {
                         tick.setAsk(ask);
                     }
 
-                    String message = "whatToShow = " + whatToShow + " date = " + dateString +
+                    String message = whatToShow +
+                            " " + dateString +
                             " open=" + open +
                             " high=" + high +
                             " low=" + low +
@@ -266,6 +269,8 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase {
             tick.setSecurity(security);
             this.writer.write(tick);
         }
+
+        logger.debug("done for: " + security.getSymbol() + " on date: " + date);
     }
 
     private void requestHistoricalDataForWhatToShow(Date date, Contract contract, String whatToShow) throws Exception {
