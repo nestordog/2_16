@@ -149,9 +149,9 @@ public class ThetaServiceImpl extends ThetaServiceBase {
     }
 
     /**
-     * invested capital: maintenanceMargin (=additionalMargin) max risk:
-     * exitValue - current Value atRiskRatioPerTrade = max risk / invested
-     * capital
+     * invested capital: maintenanceMargin (=additionalMargin)
+     * max risk: exitValue - current Value
+     * atRiskRatioPerTrade = max risk / invested capital
      */
     private double getExitValueByMaxAtRiskRatioPerTrade(Strategy strategy, double currentValueDouble, double maintenanceMargin) {
 
