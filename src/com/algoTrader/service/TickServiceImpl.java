@@ -3,11 +3,13 @@ package com.algoTrader.service;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.supercsv.exception.SuperCSVException;
@@ -214,8 +216,19 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
             CsvTickReader reader = new CsvTickReader(isin);
 
+            // the set will eliminate ticks of the same date
+            Comparator<Tick> comp = new Comparator<Tick>() {
+                public int compare(Tick t1, Tick t2) {
+                    int result = t1.getDateTime().compareTo(t2.getDateTime());
+                    if (result == 0) {
+                        System.currentTimeMillis();
+                    }
+                    return result;
+                }
+            };
+            Set<Tick> ticks = new TreeSet<Tick>(comp);
+
             Tick tick;
-            List<Tick> ticks = new ArrayList<Tick>();
             while ((tick = reader.readTick()) != null) {
 
                 if (tick.getLast().equals(new BigDecimal(0)))
