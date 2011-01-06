@@ -14,7 +14,7 @@
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils-1.8.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar">
+	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar" sourcepath="D:/commons-collections-3.2.1-src/src/java">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/collections/api-release/"/>
 		</attributes>
