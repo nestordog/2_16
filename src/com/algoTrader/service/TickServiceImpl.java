@@ -203,6 +203,7 @@ public abstract class TickServiceImpl extends TickServiceBase {
      * must be run with simulation=false (to get correct values for bid, ask and settlement)
      * also recommended to turn of ehache on commandline (to avoid out of memory error)
      */
+    @SuppressWarnings("unchecked")
     protected void handleImportTicks(String isin) throws Exception {
 
         File file = new File("results/tickdata/" + dataSet + "/" + isin + ".csv");
@@ -216,18 +217,15 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
             CsvTickReader reader = new CsvTickReader(isin);
 
-            // the set will eliminate ticks of the same date
+            // create a set that will eliminate ticks of the same date (not considering milliseconds)
             Comparator<Tick> comp = new Comparator<Tick>() {
                 public int compare(Tick t1, Tick t2) {
-                    int result = t1.getDateTime().compareTo(t2.getDateTime());
-                    if (result == 0) {
-                        System.currentTimeMillis();
-                    }
-                    return result;
+                    return (int) ((t1.getDateTime().getTime() - t2.getDateTime().getTime()) / 1000);
                 }
             };
-            Set<Tick> ticks = new TreeSet<Tick>(comp);
+            Set<Tick> newTicks = new TreeSet<Tick>(comp);
 
+            // fetch all ticks from the file
             Tick tick;
             while ((tick = reader.readTick()) != null) {
 
@@ -235,16 +233,25 @@ public abstract class TickServiceImpl extends TickServiceBase {
                     tick.setLast(null);
 
                 tick.setSecurity(security);
-                ticks.add(tick);
+                newTicks.add(tick);
 
             }
+
+            // eliminate ticks that are already in the DB
+            List<Tick> existingTicks = getTickDao().findBySecurity(security);
+
+            for (Tick tick2 : existingTicks) {
+                 newTicks.remove(tick2);
+            }
+
+            // insert the newTicks into the DB
             try {
-                getTickDao().create(ticks);
+                getTickDao().create(newTicks);
             } catch (Exception e) {
                 logger.error("problem import ticks for " + isin, e);
             }
 
-            logger.info("imported ticks for: " + isin);
+            logger.info("imported " + newTicks.size() + " ticks for: " + isin);
         } else {
             logger.info("file does not exist: " + isin);
         }
