@@ -29,6 +29,8 @@ import com.espertech.esper.client.time.CurrentTimeEvent;
 
 public class VerificationServiceImpl extends VerificationServiceBase {
 
+    private static final double MILLISECONDS_PER_YEAR = 31536000000l;
+
     private Map<String, List<Tick>> optionMap = new HashMap<String, List<Tick>>();
 
     @SuppressWarnings("unchecked")
@@ -38,81 +40,41 @@ public class VerificationServiceImpl extends VerificationServiceBase {
 
         Collection<Transaction> transactions = getTransactionDao().findAllTrades();
 
-        CsvTickReader underlayingReader = new CsvTickReader("CH0008616382");
-        Tick tick;
-        List<Tick> underlayings = new ArrayList<Tick>();
-        while ((tick = underlayingReader.readTick()) != null) {
-            underlayings.add(tick);
-        }
-
-        CsvTickReader volaReader = new CsvTickReader("CH0019900841");
-        List<Tick> volatilities = new ArrayList<Tick>();
-        while ((tick = volaReader.readTick()) != null) {
-            volatilities.add(tick);
-        }
-
         for (Transaction transaction : transactions) {
 
             Date date = transaction.getDateTime();
             getRuleService().sendEvent(StrategyImpl.BASE, new CurrentTimeEvent(date.getTime()));
 
-            if (transaction.getType().equals(TransactionType.CREDIT) || transaction.getType().equals(TransactionType.EXPIRATION)) continue;
+            if (!(transaction.getType().equals(TransactionType.BUY) || transaction.getType().equals(TransactionType.SELL)))
+                continue;
 
             StockOption stockOption = (StockOption)transaction.getSecurity();
 
-            Tick underlayingTick = selectTickByDate(underlayings, date);
-            Tick volaTick = selectTickByDate(volatilities, date);
-            Tick optionTick = selectTickByDate(getOptionTicks(transaction.getSecurity().getIsin()), date);
+            Tick optionTick = getTickDao().findByDateAndSecurity(date, stockOption.getId());
+            Tick underlayingTick = getTickDao().findByDateAndSecurity(date, stockOption.getUnderlaying().getId());
+            Tick volaTick = getTickDao().findByDateAndSecurity(date, stockOption.getUnderlaying().getVolatility().getId());
 
-            if (volaTick == null) continue;
+            if (optionTick == null || underlayingTick == null | volaTick == null || underlayingTick.getLast() == null) {
+                continue;
+            }
 
-
-            // actual price
+            // date / transactionType / stockOptionType / strikeDistance / years
             System.out.print(date + ",");
             System.out.print(transaction.getType().toString() + ",");
-            System.out.print(RoundUtil.getBigDecimal(transaction.getPrice().doubleValue() / 10.0) + ",");
+            System.out.print(stockOption.getType() + ",");
+            System.out.print((stockOption.getStrike().doubleValue() - underlayingTick.getLast().doubleValue()) + ",");
+            System.out.print(((stockOption.getExpiration().getTime() - date.getTime()) / MILLISECONDS_PER_YEAR) + ",");
 
-            // real bid/ask
-            if (TransactionType.SELL.equals(transaction.getType())) {
-                System.out.print(optionTick.getBid() + ",");
-            } else if (TransactionType.BUY.equals(transaction.getType())) {
-                System.out.print(optionTick.getAsk() + ",");
-            }
-
-            // simulated bid/ask
-            double meanValue = (optionTick.getAsk().doubleValue() + optionTick.getBid().doubleValue()) / 2.0;
-            if (TransactionType.SELL.equals(transaction.getType())) {
-                System.out.print(RoundUtil.getBigDecimal(stockOption.getDummyBid(meanValue)) + ",");
-            } else if (TransactionType.BUY.equals(transaction.getType())) {
-                System.out.print(RoundUtil.getBigDecimal(stockOption.getDummyAsk(meanValue)) + ",");
-            }
+            // real price of option
+            System.out.print(optionTick.getCurrentValue() + ",");
 
             // sabr
             double underlayingValue = underlayingTick.getLast().doubleValue();
             double volaValue = volaTick.getLast().doubleValue() / 100.0;
             double sabrValue = StockOptionUtil.getOptionPriceSabr(stockOption, underlayingValue, volaValue);
-
-            if (TransactionType.SELL.equals(transaction.getType())) {
-                System.out.print(RoundUtil.getBigDecimal(stockOption.getDummyBid(sabrValue)) + ",");
-            } else if (TransactionType.BUY.equals(transaction.getType())) {
-                System.out.print(RoundUtil.getBigDecimal(stockOption.getDummyAsk(sabrValue)) + ",");
-            }
-
-            // bs
-            double bsValue = StockOptionUtil.getOptionPriceBS(stockOption, underlayingValue, volaValue);
-
-            if (TransactionType.SELL.equals(transaction.getType())) {
-                System.out.print(RoundUtil.getBigDecimal(stockOption.getDummyBid(bsValue)));
-            } else if (TransactionType.BUY.equals(transaction.getType())) {
-                System.out.print(RoundUtil.getBigDecimal(stockOption.getDummyAsk(bsValue)));
-            }
-
-            if (Math.abs(underlayingTick.getDateTime().getTime() - transaction.getDateTime().getTime()) > 300000) System.out.print(",underlaying invalid!");
-            if (Math.abs(volaTick.getDateTime().getTime() - transaction.getDateTime().getTime()) > 300000) System.out.print(",vola invalid!");
-            if (Math.abs(optionTick.getDateTime().getTime() - transaction.getDateTime().getTime()) > 300000) System.out.print(",option invalid!");
+            System.out.print(RoundUtil.getBigDecimal(sabrValue) + ",");
 
             System.out.println();
-
         }
     }
 
