@@ -30,7 +30,7 @@ CREATE TABLE `history` (
   `COL` varchar(255) DEFAULT NULL,
   `VALUE` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=40924 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=120579 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -50,7 +50,7 @@ CREATE TABLE `position` (
   KEY `QUANTITY` (`QUANTITY`),
   KEY `POSITION_STRATEGY_FKC` (`STRATEGY_FK`),
   CONSTRAINT `POSITION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=226 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1748 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -131,7 +131,6 @@ DROP TABLE IF EXISTS `saldo`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 /*!50001 CREATE TABLE `saldo` (
-  `id` int(11),
   `date_time` datetime,
   `type` enum('BUY','SELL','DIVIDEND','DEBIT','CREDIT','FEES','INTREST','EXPIRATION'),
   `symbol` varchar(30),
@@ -142,7 +141,7 @@ SET character_set_client = utf8;
   `quantity` bigint(20),
   `price` decimal(9,2),
   `commission` decimal(15,2),
-  `saldo` decimal(61,2)
+  `saldo` decimal(51,2)
 ) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
@@ -171,7 +170,7 @@ CREATE TABLE `security` (
   CONSTRAINT `SECURITY_SECURITY_FAMILY_FKC` FOREIGN KEY (`SECURITY_FAMILY_FK`) REFERENCES `security_family` (`id`),
   CONSTRAINT `SECURITY_UNDERLAYING_FKC` FOREIGN KEY (`UNDERLAYING_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `SECURITY_VOLATILITY_FKC` FOREIGN KEY (`VOLATILITY_FK`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=252 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=13692 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -206,7 +205,7 @@ DROP TABLE IF EXISTS `security_family`;
 CREATE TABLE `security_family` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `NAME` varchar(255) NOT NULL,
-  `MARKET` enum('EUREX','DE') NOT NULL,
+  `MARKET` enum('SOFFEX','DTB') NOT NULL,
   `CURRENCY` enum('CHF','EUR') NOT NULL,
   `CONTRACT_SIZE` int(11) NOT NULL,
   `TICK_SIZE` double NOT NULL,
@@ -221,7 +220,7 @@ CREATE TABLE `security_family` (
   PRIMARY KEY (`id`),
   KEY `SECURITY_FAMILY_UNDERLAYING_FC` (`UNDERLAYING_FK`),
   CONSTRAINT `SECURITY_FAMILY_UNDERLAYING_FC` FOREIGN KEY (`UNDERLAYING_FK`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -285,7 +284,7 @@ CREATE TABLE `strategy` (
   UNIQUE KEY `NAME` (`NAME`),
   KEY `STRATEGY_UNDERLAYING_FKC` (`UNDERLAYING_FK`),
   CONSTRAINT `STRATEGY_UNDERLAYING_FKC` FOREIGN KEY (`UNDERLAYING_FK`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -300,18 +299,18 @@ CREATE TABLE `tick` (
   `DATE_TIME` datetime NOT NULL,
   `LAST` decimal(11,2) DEFAULT NULL,
   `LAST_DATE_TIME` datetime DEFAULT NULL,
-  `VOL` int(11) DEFAULT NULL,
-  `VOL_BID` int(11) DEFAULT NULL,
-  `VOL_ASK` int(11) DEFAULT NULL,
-  `BID` decimal(11,2) DEFAULT NULL,
-  `ASK` decimal(11,2) DEFAULT NULL,
-  `OPEN_INTREST` int(11) DEFAULT NULL,
-  `SETTLEMENT` decimal(11,2) DEFAULT NULL,
+  `VOL` int(11) NOT NULL,
+  `VOL_BID` int(11) NOT NULL,
+  `VOL_ASK` int(11) NOT NULL,
+  `BID` decimal(11,2) NOT NULL,
+  `ASK` decimal(11,2) NOT NULL,
+  `OPEN_INTREST` int(11) NOT NULL,
+  `SETTLEMENT` decimal(11,2) NOT NULL,
   `SECURITY_FK` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `DATE_TIME_SECURITY_FK_UNIQUE` (`DATE_TIME`,`SECURITY_FK`),
-  KEY `DATE_TIME` (`DATE_TIME`),
-  KEY `SECURITY_FKC` (`SECURITY_FK`)
+  UNIQUE KEY `DATE_TIME_SECURITY_FK` (`DATE_TIME`,`SECURITY_FK`),
+  KEY `TICK_SECURITY_FKC` (`SECURITY_FK`),
+  KEY `DATE_TIME` (`DATE_TIME`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -342,7 +341,7 @@ CREATE TABLE `transaction` (
   CONSTRAINT `TRANSACTION_POSITION_FKC` FOREIGN KEY (`POSITION_FK`) REFERENCES `position` (`id`),
   CONSTRAINT `TRANSACTION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `TRANSACTION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=630 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=5048 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -377,7 +376,7 @@ CREATE TABLE `watchers2watchlist` (
 /*!50001 SET collation_connection      = latin1_swedish_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `saldo` AS select `t1`.`id` AS `id`,`t1`.`DATE_TIME` AS `date_time`,`t1`.`TYPE` AS `type`,`s1`.`SYMBOL` AS `symbol`,`s1`.`ISIN` AS `isin`,`s1`.`POSITION_FK` AS `position_fk`,`o1`.`STRIKE` AS `STRIKE`,`o1`.`EXPIRATION` AS `expiration`,`t1`.`QUANTITY` AS `quantity`,`t1`.`PRICE` AS `price`,`t1`.`COMMISSION` AS `commission`,(select sum((case `t2`.`TYPE` when 'CREDIT' then `t2`.`PRICE` when 'DEBIT' then -(`t2`.`PRICE`) when 'FEES' then -(`t2`.`PRICE`) else (((-(`t2`.`QUANTITY`) * `f2`.`CONTRACT_SIZE`) * `t2`.`PRICE`) - `t2`.`COMMISSION`) end)) AS `FIELD_1` from (((`transaction` `t2` left join `stock_option` `o2` on((`t2`.`SECURITY_FK` = `o2`.`ID`))) left join `security` `s2` on((`t2`.`SECURITY_FK` = `s2`.`id`))) left join `security_family` `f2` on((`s2`.`SECURITY_FAMILY_FK` = `f2`.`id`))) where (`t2`.`DATE_TIME` <= `t1`.`DATE_TIME`)) AS `saldo` from ((`transaction` `t1` left join `security` `s1` on((`t1`.`SECURITY_FK` = `s1`.`id`))) left join `stock_option` `o1` on((`s1`.`id` = `o1`.`ID`))) order by `t1`.`id` */;
+/*!50001 VIEW `saldo` AS select `t1`.`DATE_TIME` AS `date_time`,`t1`.`TYPE` AS `type`,`s1`.`SYMBOL` AS `symbol`,`s1`.`ISIN` AS `isin`,`s1`.`POSITION_FK` AS `position_fk`,`o1`.`STRIKE` AS `STRIKE`,`o1`.`EXPIRATION` AS `expiration`,`t1`.`QUANTITY` AS `quantity`,`t1`.`PRICE` AS `price`,`t1`.`COMMISSION` AS `commission`,(select sum((case `t2`.`TYPE` when 'CREDIT' then `t2`.`PRICE` when 'DEBIT' then `t2`.`PRICE` else ((-(`t2`.`QUANTITY`) * `t2`.`PRICE`) - `t2`.`COMMISSION`) end)) from `transaction` `t2` where (`t2`.`id` <= `t1`.`id`)) AS `saldo` from ((`transaction` `t1` left join `security` `s1` on((`t1`.`SECURITY_FK` = `s1`.`id`))) left join `stock_option` `o1` on((`o1`.`ID` = `s1`.`id`))) order by `t1`.`id` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -391,4 +390,4 @@ CREATE TABLE `watchers2watchlist` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2010-12-16 17:44:39
+-- Dump completed on 2011-01-06 18:21:39
