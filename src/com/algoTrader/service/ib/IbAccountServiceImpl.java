@@ -261,6 +261,11 @@ public class IbAccountServiceImpl extends IbAccountServiceBase {
             get.releaseConnection();
         }
 
+        Node errorNode = XPathAPI.selectSingleNode(document, "/FlexStatementResponse/code/text()");
+        if (errorNode != null) {
+            throw new IbAccountServiceException(errorNode.getNodeValue());
+        }
+
         NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//CashTransaction");
 
         Node node;
@@ -316,10 +321,10 @@ public class IbAccountServiceImpl extends IbAccountServiceBase {
             }
         });
 
-        // create / update transactions / accounts
-        getTransactionDao().create(transactions);
 
         for (Transaction transaction : transactions) {
+
+            getTransactionDao().create(transaction);
 
             logger.info("executed cash transaction" +
                     " dateTime: " + transactionFormat.format(transaction.getDateTime()) +
