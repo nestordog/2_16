@@ -28,8 +28,8 @@ public class StockOptionUtil {
         }
     }
 
-    public static double getOptionPriceSabr(double underlayingSpot, double strike, double vola, double years, double intrest, double dividend, OptionType type, double strikeDistance, double beta,
-            double correlation, double volVol) throws MathException, IllegalArgumentException {
+    public static double getOptionPriceSabr(double underlayingSpot, double strike, double vola, double years, double intrest, double dividend, OptionType type, double strikeDistance)
+            throws MathException, IllegalArgumentException {
 
         if (years <= 0 ) {
             return getIntrinsicValue(underlayingSpot, strike, type);
@@ -37,9 +37,22 @@ public class StockOptionUtil {
             return getOptionPriceBS(underlayingSpot, strike, vola, years, intrest, dividend, type); //sabr evaluates to zero on the last day before expiration
         }
 
-        double atmVola = Volatility.getAtmVola(underlayingSpot, vola, years, intrest, dividend, strikeDistance, beta, correlation, volVol);
         double forward = getForward(underlayingSpot, years, intrest, dividend);
-        double sabrVola = SABRVol.volByAtmVol(forward, strike, atmVola, years, beta, correlation, volVol);
+        double days = years * 365;
+
+        double rhoCall = Math.exp(0.5623 - 0.02989 * Math.log(days) - 0.01095 * days + 0.002167 * Math.log(days) * days) - 2.0;
+        double rhoPut = Math.exp(1.111 - 0.131 * Math.log(days) - 0.062 * days + 0.0128 * Math.log(days) * days) - 2.0;
+        double volVolCall = Math.exp(3.332 - 0.65 * Math.log(days) + 0.0325 * days - 0.0048 * Math.log(days) * days) - 2.0;
+        double volVolPut = Math.exp(3.589 - 0.908 * Math.log(days) + 0.056 * days - 0.00827 * Math.log(days) * days) - 2.0;
+
+        double sabrVola;
+        if (OptionType.CALL.equals(type)) {
+            double callAtmVola = VolatilityUtil.getCallAtmVola(underlayingSpot, vola, years, intrest, dividend, strikeDistance, beta, rhoCall, volVolCall, rhoPut, volVolPut);
+            sabrVola = SABRVol.volByAtmVol(forward, strike, callAtmVola, years, beta, rhoCall, volVolCall);
+        } else {
+            double putAtmVola = VolatilityUtil.getPutAtmVola(underlayingSpot, vola, years, intrest, dividend, strikeDistance, beta, rhoCall, volVolCall, rhoPut, volVolPut);
+            sabrVola = SABRVol.volByAtmVol(forward, strike, putAtmVola, years, beta, rhoPut, volVolPut);
+        }
 
         return getOptionPriceBS(underlayingSpot, strike, sabrVola, years, intrest, dividend, type);
     }
@@ -48,14 +61,11 @@ public class StockOptionUtil {
 
         StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
 
-        double correlation = Volatility.getCorrelation(stockOption);
-        double volVol = Volatility.getVolVol(stockOption);
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
 
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
 
         return getOptionPriceSabr(underlayingSpot, stockOption.getStrike().doubleValue(), vola, years,
-                family.getIntrest(), family.getDividend(), stockOption.getType(), family.getStrikeDistance(),
-                beta, correlation, volVol);
+                family.getIntrest(), family.getDividend(), stockOption.getType(), family.getStrikeDistance());
     }
 
     public static double getOptionPriceBS(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
@@ -105,6 +115,33 @@ public class StockOptionUtil {
         return solver.solve(function, 0.01, 0.90);
     }
 
+    /**
+     * Newton Rapson Method
+     * about as fast as getVolatility()
+     */
+    public static double getVolatilityNR(final double underlayingSpot, final double strike, final double currentValue, final double years, final double intrest, final double dividend, final OptionType type) throws MathException {
+
+        double e = 0.1;
+
+        double vi = Math.sqrt(Math.abs(Math.log(strike / strike) + intrest * years) * 2 / years);
+        double ci = getOptionPriceBS(underlayingSpot, strike, vi, years, intrest, dividend, type);
+        double vegai = getVega(underlayingSpot, strike, vi, years, intrest, dividend);
+        double minDiff = Math.abs(currentValue - ci);
+
+        while ((Math.abs(currentValue - ci) >= e) && (Math.abs(currentValue - ci) <= minDiff)) {
+            vi = vi - (ci - currentValue) / vegai;
+            ci = getOptionPriceBS(underlayingSpot, strike, vi, years, intrest, dividend, type);
+            vegai = getVega(underlayingSpot, strike, vi, years, intrest, dividend);
+            minDiff = Math.abs(currentValue - ci);
+        }
+
+        if (Math.abs(currentValue - ci) < e) {
+            return vi;
+        } else {
+            throw new IllegalArgumentException("cannot calculate volatility");
+        }
+    }
+
     public static double getVolatility(StockOption stockOption, double underlayingSpot, final double currentValue) throws MathException {
 
         StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
@@ -128,18 +165,28 @@ public class StockOptionUtil {
         return getIntrinsicValue(underlayingSpot, stockOption.getStrike().doubleValue(), stockOption.getType());
     }
 
-    public static double getDelta(double underlayingSpot, double strike, double volatility, double years, double intrest, OptionType type) {
+    public static double getDelta(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
 
         if (years < 0)
             throw new IllegalArgumentException("years cannot be negative");
 
-        double d1 = (Math.log(underlayingSpot/strike) + (intrest + volatility * volatility/2) * years) / (volatility * Math.sqrt(years));
+        double costOfCarry = intrest - dividend;
+        double d1 = (Math.log(underlayingSpot / strike) + (costOfCarry + volatility * volatility / 2) * years) / (volatility * Math.sqrt(years));
 
         if (OptionType.CALL.equals(type)) {
-            return Gaussian.Phi(d1);
+            return Math.exp((costOfCarry - intrest) * years) * Gaussian.Phi(d1);
         } else {
-            return Gaussian.Phi(d1) -1;
+            return -Math.exp((costOfCarry - intrest) * years) * Gaussian.Phi(d1);
         }
+    }
+
+    public static double getVega(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend) {
+
+        double costOfCarry = intrest - dividend;
+        double d1 = (Math.log(underlayingSpot / strike) + (intrest + volatility * volatility / 2) * years) / (volatility * Math.sqrt(years));
+
+        return underlayingSpot * Math.exp((costOfCarry - intrest) * years) * Gaussian.Phi(d1) * Math.sqrt(years);
+
     }
 
     public static double getDelta(StockOption stockOption, double currentValue, double underlayingSpot) throws MathException {
@@ -149,7 +196,7 @@ public class StockOptionUtil {
         double strike = stockOption.getStrike().doubleValue();
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
         double volatility = getVolatility(underlayingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
-        return StockOptionUtil.getDelta(underlayingSpot, strike, volatility, years, family.getIntrest(), stockOption.getType());
+        return StockOptionUtil.getDelta(underlayingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), stockOption.getType());
 
     }
 
