@@ -73,7 +73,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             strategy.getTransactions().add(transaction);
 
             // Position
-            Position position = security.getPosition();
+            Position position = getPositionDao().findBySecurityAndStrategy(security.getId(), strategyName);
             if (position == null) {
 
                 position = new PositionImpl();
@@ -83,7 +83,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 position.setMaintenanceMargin(null);
 
                 position.setSecurity(security);
-                security.setPosition(position);
+                security.getPositions().add(position);
 
                 position.getTransactions().add(transaction);
                 transaction.setPosition(position);
@@ -147,7 +147,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         // instead of the currentValue! because we will have passed the exitValue in the meantime
         if (simulation && TransactionType.BUY.equals(order.getTransactionType()) && (eventsPerDay <= 33)) {
 
-            double exitValue = stockOption.getPosition().getExitValue().doubleValue();
+            double exitValue = getPositionDao().findBySecurityAndStrategy(stockOption.getId(), order.getStrategy().getName()).getExitValue().doubleValue();
             if (currentValue > exitValue && DateUtil.compareToTime(stockOption.getSecurityFamily().getMarketOpen()) > 0) {
 
                 logger.info("adjusted currentValue (" + currentValue + ") to exitValue (" + exitValue+ ") in closePosition for order on " + order.getSecurity().getSymbol());
@@ -207,9 +207,10 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     private Order orderVOToEntity(OrderVO orderVO) {
 
         Order order = new OrderImpl();
-        order.setTransactionType(orderVO.getTransactionType());
-        order.setRequestedQuantity(orderVO.getRequestedQuantity());
+        order.setStrategy(getStrategyDao().findByName(orderVO.getStrategyName()));
         order.setSecurity(getSecurityDao().load(orderVO.getSecurityId()));
+        order.setRequestedQuantity(orderVO.getRequestedQuantity());
+        order.setTransactionType(orderVO.getTransactionType());
 
         return order;
     }
