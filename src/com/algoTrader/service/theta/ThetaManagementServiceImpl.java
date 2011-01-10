@@ -1,6 +1,7 @@
 package com.algoTrader.service.theta;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.algoTrader.entity.Security;
@@ -19,7 +20,7 @@ public class ThetaManagementServiceImpl extends ThetaManagementServiceBase {
         if (StrategyImpl.THETA.equals(strategy.getGroup())) {
             return getRuleService().getAllEvents(strategy.getName(), "KEEP_MACD_VO");
         } else {
-            throw new ThetaManagementServiceException("GetMACD can only be called from THETA strategy group");
+            return new ArrayList<MacdVO>();
         }
     }
 
@@ -30,7 +31,7 @@ public class ThetaManagementServiceImpl extends ThetaManagementServiceBase {
         if (StrategyImpl.THETA.equals(strategy.getGroup())) {
             return getRuleService().getAllEvents(strategy.getName(), "KEEP_STOCHASTIC_VO");
         } else {
-            throw new ThetaManagementServiceException("GetStochastic can only be called from THETA strategy group");
+            return new ArrayList<StochasticVO>();
         }
     }
 
