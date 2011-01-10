@@ -15,7 +15,7 @@ public class SecurityImpl extends Security {
 
     public boolean isStrategyUnderlaying() {
 
-        return Hibernate.isInitialized(getStrategies()) && (getStrategies().size() != 0);
+        return getStrategies().size() != 0;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
