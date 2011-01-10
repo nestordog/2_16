@@ -1,6 +1,7 @@
 package com.algoTrader.util;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Strategy;
@@ -21,6 +22,17 @@ public class LookupUtil {
     public static Security getSecurityByIsin(String isin) {
 
         return ServiceLocator.commonInstance().getLookupService().getSecurityByIsin(isin);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Position[] getPositions(Security security) {
+
+        return (Position[]) security.getPositions().toArray(new Position[0]);
+    }
+
+    public static Position[] getOpenPositions() {
+
+        return ServiceLocator.commonInstance().getLookupService().getOpenPositions();
     }
 
     public static Strategy[] getAllStrategies() {
