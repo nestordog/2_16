@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 import org.supercsv.exception.SuperCSVException;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Order;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.SecurityFamily;
@@ -120,11 +119,14 @@ public class ThetaServiceImpl extends ThetaServiceBase {
         long numberOfContracts = Math.min(numberOfContractsByMargin, Math.min(numberOfContractsByRedemptionValue, numberOfContractsByLeverage));
 
         if (numberOfContracts <= 0) {
-            if (stockOption.getPosition() == null || !stockOption.getPosition().isOpen()) {
+
+            // if there is no money left, and there is no open position, remove the stockOption from the watchlist
+            Position position = getLookupService().getPositionBySecurityAndStrategy(stockOption.getId(), strategyName);
+            if (position == null || !position.isOpen()) {
                 getDispatcherService().getTickService().removeFromWatchlist(strategy, stockOption);
             }
             getRuleService().deactivate(strategy.getName(), "OPEN_POSITION");
-            return; // there is no money available
+            return;
         }
 
         // the stockOption might have been removed from the watchlist by another statement (i.e. closePosition)
@@ -133,16 +135,18 @@ public class ThetaServiceImpl extends ThetaServiceBase {
         }
 
         OrderVO order = new OrderVO();
+        order.setStrategyName(strategyName);
         order.setSecurityId(stockOption.getId());
         order.setRequestedQuantity(numberOfContracts);
         order.setTransactionType(TransactionType.SELL);
 
-        Order executedOrder = getDispatcherService().getTransactionService().executeTransaction(strategy.getName(), order);
+        getDispatcherService().getTransactionService().executeTransaction(strategy.getName(), order);
 
-        Position position = executedOrder.getSecurity().getPosition();
+        // if a position was open (or already existed) set margin and exitValue
+        Position position = getLookupService().getPositionBySecurityAndStrategy(stockOption.getId(), strategyName);
         if (position != null) {
             getStockOptionService().setMargin(position.getId());
-            getPositionService().setExitValue(stockOption.getPosition().getId(), exitValue, true);
+            getPositionService().setExitValue(position.getId(), exitValue, true);
         }
 
         getRuleService().deactivate(strategy.getName(), "OPEN_POSITION");
