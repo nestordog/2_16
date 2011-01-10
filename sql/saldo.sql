@@ -4,7 +4,7 @@ SELECT
   t1.TYPE AS type,
   s1.SYMBOL AS symbol,
   s1.ISIN AS isin,
-  s1.POSITION_FK AS position_fk,
+  t1.POSITION_FK AS position_fk,
   o1.STRIKE AS STRIKE,
   o1.EXPIRATION AS expiration,
   t1.QUANTITY AS quantity,

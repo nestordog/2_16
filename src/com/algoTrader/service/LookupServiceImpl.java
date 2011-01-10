@@ -35,7 +35,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
     protected Security handleGetSecurityFetched(int stockOptionId) throws Exception {
 
-        return getSecurityDao().findSecurityFetched(stockOptionId);
+        return getSecurityDao().findByIdFetched(stockOptionId);
     }
 
     protected StockOption handleGetNearestStockOption(int underlayingId, Date expirationDate, BigDecimal underlayingSpot, String optionTypeString) throws Exception {
@@ -76,6 +76,11 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected Position handleGetPositionFetched(int id) throws Exception {
 
         return getPositionDao().findByIdFetched(id);
+    }
+
+    protected Position handleGetPositionBySecurityAndStrategy(int securityId, String strategyName) throws Exception {
+
+        return getPositionDao().findBySecurityAndStrategy(securityId, strategyName);
     }
 
     protected Rule handleGetRule(int id) throws java.lang.Exception {
@@ -163,7 +168,6 @@ public class LookupServiceImpl extends LookupServiceBase {
 
     protected List<Tick> handleGetPreFeedTicks(int securityId, int numberOfTicks) {
 
-        getTickDao().findLastNTicksForSecurity(securityId, numberOfTicks);
         List<Integer> recentIds = getTickDao().findLastNTickIdsForSecurity(securityId, numberOfTicks);
         List<Integer> ids = getTickDao().findEndOfDayTickIds(securityId, recentIds.get(0));
 
@@ -190,14 +194,5 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Strategy> handleGetAutoActivateStrategies() throws Exception {
 
         return getStrategyDao().findAutoActivateStrategies();
-    }
-
-    protected Object handleTest(Object object) throws Exception {
-
-        Security security = (Security) object;
-        getSecurityDao().update(security);
-        security.getIsin();
-
-        return null;
     }
 }

@@ -83,12 +83,12 @@ from Tick.std:groupwin(security.id).win:time(7 days).win:length(1) as tick
         <field name="id">13</field>
         <field name="NAME">EXPIRE_POSITION</field>
         <field name="PRIORITY">2</field>
-        <field name="DEFINITION">select option.position.id as positionId
+        <field name="DEFINITION">select position.id as positionId
 from Tick(security.strategyUnderlaying = true) as indexTick,
-method:LookupUtil.getStockOptionsOnWatchlist() as option
-where option.expiration.time &lt; current_timestamp()
-and option.position != null
-and option.position.quantity != 0</field>
+method:LookupUtil.getOpenPositions() as position
+where instanceof(position.security, com.algoTrader.entity.StockOption)
+and cast(position.security?.expiration.time, long) &lt; current_timestamp()
+and position.quantity != 0</field>
         <field name="SUBSCRIBER">com.algoTrader.service.StockOptionServiceImpl$ExpirePositionSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
@@ -98,12 +98,12 @@ and option.position.quantity != 0</field>
         <field name="id">14</field>
         <field name="NAME">CLOSE_POSITION</field>
         <field name="PRIORITY">1</field>
-        <field name="DEFINITION">select
-tick.security.position.id as positionId
-from Tick as tick
-where tick.security.position.quantity != 0
-and tick.security.position.exitValue != null
-and tick.currentValue  &gt;= tick.security.position.exitValue</field>
+        <field name="DEFINITION">select position.id
+from Tick as tick,
+method:LookupUtil.getPositions(tick.security) as position
+where position.quantity != 0
+and position.exitValue != null
+and tick.currentValue  &gt;= position.exitValue</field>
         <field name="SUBSCRIBER">com.algoTrader.service.PositionServiceImpl$ClosePositionSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
@@ -113,14 +113,13 @@ and tick.currentValue  &gt;= tick.security.position.exitValue</field>
         <field name="id">16</field>
         <field name="NAME">CREATE_EXIT_VALUE</field>
         <field name="PRIORITY">4</field>
-        <field name="DEFINITION">select
-optionTick.security.position.id as positionId,
+        <field name="DEFINITION">select position.id as positionId,
 exitValue.value as value
 from pattern [every (indexTick=Tick(security.isin = strategy.underlaying.isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id)) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = strategy.underlaying.isin)],
-method:ThetaUtil.getExitValue(strategy.name, cast(optionTick.security, com.algoTrader.entity.StockOption), indexTick.currentValueDouble, volaTick.currentValueDouble / 100) as exitValue
-where exitValue.value &lt; optionTick.security.position.exitValue
-and optionTick.security.position != null
-and optionTick.security.position.quantity != 0
+method:LookupUtil.getPositions(optionTick.security) as position,
+method:ThetaUtil.getExitValue(position.strategy.name, cast(optionTick.security, com.algoTrader.entity.StockOption), indexTick.currentValueDouble, volaTick.currentValueDouble / 100) as exitValue
+where exitValue.value &lt; position.exitValue
+and position.quantity != 0
 and optionTick.currentValueDouble != 0</field>
         <field name="SUBSCRIBER">com.algoTrader.service.PositionServiceImpl$SetExitValueSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
@@ -131,15 +130,15 @@ and optionTick.currentValueDouble != 0</field>
         <field name="id">17</field>
         <field name="NAME">ROLL_POSITION</field>
         <field name="PRIORITY">3</field>
-        <field name="DEFINITION">select
-strategy.name as strategyName,
-optionTick.security.position.id as positionId,
+        <field name="DEFINITION">select position.strategy.name as strategyName,
+position.id as positionId,
 indexTick.security.id as underlayingId,
 indexTick.currentValue as underlayingSpot
-from pattern [every indexTick=Tick(security.isin = strategy.underlaying.isin) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = strategy.underlaying.isin)]
-where ThetaUtil.isDeltaTooLow(strategy.name, cast(optionTick.security, com.algoTrader.entity.StockOption), optionTick.currentValueDouble, indexTick.currentValueDouble)
-and optionTick.security.position != null
-and optionTick.security.position.quantity != 0</field>
+from pattern [every indexTick=Tick(security.isin = strategy.underlaying.isin) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = strategy.underlaying.isin)],
+method:LookupUtil.getPositions(optionTick.security) as position
+where ThetaUtil.isDeltaTooLow(position.strategy.name, cast(optionTick.security, com.algoTrader.entity.StockOption), optionTick.currentValueDouble, indexTick.currentValueDouble)
+and position != null
+and position.quantity != 0</field>
         <field name="SUBSCRIBER">com.algoTrader.service.theta.ThetaServiceImpl$RollPositionSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>

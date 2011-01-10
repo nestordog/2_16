@@ -27,6 +27,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         Security security = position.getSecurity();
 
         OrderVO order = new OrderVO();
+        order.setStrategyName(position.getStrategy().getName());
         order.setSecurityId(security.getId());
         order.setRequestedQuantity(Math.abs(quantity));
         order.setTransactionType((position.getQuantity() > 0) ? TransactionType.SELL : TransactionType.BUY);

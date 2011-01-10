@@ -157,6 +157,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         // create orders
         for (Transaction transaction : existingTransactions) {
             Order order = new OrderImpl();
+            order.setStrategy(transaction.getStrategy());
             order.setRequestedQuantity(Math.abs(transaction.getQuantity()));
             order.setTransactionType(transaction.getType());
             order.setStatus(OrderStatus.PREARRANGED);

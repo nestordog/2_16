@@ -74,6 +74,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         long numberOfContracts = Math.abs(position.getQuantity());
 
         OrderVO order = new OrderVO();
+        order.setStrategyName(position.getStrategy().getName());
         order.setSecurityId(stockOption.getId());
         order.setRequestedQuantity(numberOfContracts);
         order.setTransactionType(TransactionType.EXPIRATION);

@@ -238,7 +238,7 @@ public abstract class TickServiceImpl extends TickServiceBase {
             }
 
             // eliminate ticks that are already in the DB
-            List<Tick> existingTicks = getTickDao().findBySecurity(security);
+            List<Tick> existingTicks = getTickDao().findBySecurity(security.getId());
 
             for (Tick tick2 : existingTicks) {
                  newTicks.remove(tick2);
