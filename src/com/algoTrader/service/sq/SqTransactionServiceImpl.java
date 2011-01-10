@@ -171,7 +171,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         }
 
         // transactionType
-        Position position = security.getPosition();
+        Position position = getPositionDao().findBySecurityAndStrategy(security.getId(), order.getStrategy().getName());
         String openClose = (position != null && position.isOpen()) ? "CLOSE" : "OPEN";
         String transactionTypeString = TransactionType.SELL.equals(transactionType) ? "SELL to " + openClose : "BUY to " + openClose;
         String orderTransactionValue = SqUtil.getValue(orderScreen, "//tr[td/font/strong='" + transactionTypeString + "']/td/input/@value");
