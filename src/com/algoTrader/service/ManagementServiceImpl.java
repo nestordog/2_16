@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import com.algoTrader.entity.TickDaoImpl;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.TickVO;
@@ -64,10 +65,15 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         return getReportingService().getStrategyVolatility(StrategyUtil.getStartedStrategyName());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected List<TickVO> handleGetDataLastTicks() {
 
-        return getRuleService().getAllEventsProperty(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK", "tick");
+        List ticks = getRuleService().getAllEventsProperty(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK", "tick");
+
+        // we don't have access to the "real" TickDao in client services, but since we just use the conversion methods
+        // we just instanciate a new Dao
+        (new TickDaoImpl()).toTickVOCollection(ticks);
+        return ticks;
     }
 
     @SuppressWarnings("unchecked")
