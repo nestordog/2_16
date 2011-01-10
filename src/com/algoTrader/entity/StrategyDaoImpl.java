@@ -33,7 +33,7 @@ public class StrategyDaoImpl extends StrategyDaoBase {
     protected double handleGetPortfolioSecuritiesCurrentValueDouble() throws Exception {
 
         double securitiesValue = 0.0;
-        Collection<Position> positions = getPositionDao().loadAll();
+        Collection<Position> positions = getPositionDao().findOpenPositions();
         for (Position position : positions) {
             securitiesValue += position.getMarketValueDouble();
         }
@@ -48,7 +48,7 @@ public class StrategyDaoImpl extends StrategyDaoBase {
     protected double handleGetPortfolioMaintenanceMarginDouble() throws Exception {
 
         double margin = 0.0;
-        Collection<Position> positions = getPositionDao().loadAll();
+        Collection<Position> positions = getPositionDao().findOpenPositions();
         for (Position position : positions) {
             margin += position.getMaintenanceMarginDouble();
         }
@@ -86,17 +86,11 @@ public class StrategyDaoImpl extends StrategyDaoBase {
     @SuppressWarnings("unchecked")
     protected double handleGetPortfolioLeverageDouble() throws Exception {
 
-        Collection<Strategy> strategys = loadAll();
         double deltaRisk = 0.0;
-        for (Strategy strategy : strategys) {
-            Collection<Position> positions = strategy.getPositions();
-            for (Position position : positions) {
-                if (position.isOpen()) {
-                    deltaRisk += position.getDeltaRisk();
-                }
-            }
+        Collection<Position> positions = getPositionDao().findOpenPositions();
+        for (Position position : positions) {
+            deltaRisk += position.getDeltaRisk();
         }
-
         return deltaRisk / getPortfolioNetLiqValueDouble();
     }
 
