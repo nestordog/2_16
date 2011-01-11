@@ -25,7 +25,7 @@
     </appender>
 
     <appender name="DEBUG" class="org.apache.log4j.FileAppender">
-        <param name="file" value="log/debug.log" />
+        <param name="file" value="log/debug-${strategyName}.log" />
         <param name="append" value="false" />
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d %-5p %c{1} %m %n" />
@@ -37,7 +37,7 @@
     </appender>
 
     <appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="file" value="log/algoTrader.log" />
+        <param name="file" value="log/algoTrader-${strategyName}.log" />
         <param name="datePattern" value="'.'yyyy-MM-dd" />
         <param name="append" value="true" />
         <layout class="org.apache.log4j.PatternLayout">
@@ -99,7 +99,7 @@
     <appender name="SIMULATION" class="org.apache.log4j.ConsoleAppender">
         <param name="Target" value="System.out" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%m %n" />
+            <param name="ConversionPattern" value="%d %m %n" />
         </layout>
     </appender>
 
@@ -179,7 +179,8 @@
 
     <!--
         <logger name="com.algoTrader.service.SimulationServiceImpl">
-            <level value="info"/> <appender-ref ref="SIMULATION" />
+            <level value="info"/>
+            <appender-ref ref="SIMULATION" />
         </logger>
     -->
 
