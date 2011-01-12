@@ -38,6 +38,7 @@
                 <property name="parameterNameMask">none</property>
                 <property name="hibernateVersion">3</property>
                 <property name="defaultIdentifierType">datatype::int</property>
+                <property name="typeSafeEnumsEnabled">true</property>
             </properties>
         </namespace>
         <namespace name="spring">
