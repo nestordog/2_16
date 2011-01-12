@@ -124,7 +124,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         NameValuePair[] params = new NameValuePair[] {
                 new NameValuePair("commandName", "trade"),
                 new NameValuePair("isin", security.getIsin()),
-                new NameValuePair("currency", security.getSecurityFamily().getCurrency().getValue()),
+                new NameValuePair("currency", security.getSecurityFamily().getCurrency().toString()),
                 new NameValuePair("stockExchange", SqMarketConverter.marketToString(security.getSecurityFamily().getMarket())) };
 
         GetMethod get = new GetMethod(dispatchUrl);

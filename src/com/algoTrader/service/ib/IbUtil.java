@@ -24,9 +24,9 @@ public class IbUtil {
             contract.m_symbol = stockOption.getUnderlaying().getSymbol();
             contract.m_secType = "OPT";
             contract.m_exchange = IbMarketConverter.marketToString(stockOption.getSecurityFamily().getMarket());
-            contract.m_currency = stockOption.getSecurityFamily().getCurrency().getValue();
+            contract.m_currency = stockOption.getSecurityFamily().getCurrency().toString();
             contract.m_strike = stockOption.getStrike().intValue();
-            contract.m_right = stockOption.getType().getValue();
+            contract.m_right = stockOption.getType().toString();
             contract.m_multiplier = String.valueOf(stockOption.getSecurityFamily().getContractSize());
 
             if (security.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {

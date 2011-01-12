@@ -331,7 +331,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
         Contract contract = IbUtil.getContract(partialOrder.getParentOrder().getSecurity());
 
         com.ib.client.Order ibOrder = new com.ib.client.Order();
-        ibOrder.m_action = partialOrder.getParentOrder().getTransactionType().getValue();
+        ibOrder.m_action = partialOrder.getParentOrder().getTransactionType().toString();
         ibOrder.m_totalQuantity = (int) partialOrder.getRequestedQuantity();
         ibOrder.m_orderType = "LMT";
         ibOrder.m_lmtPrice = getPrice(partialOrder.getParentOrder(), partialOrder.getSpreadPosition(), tick.getBid().doubleValue(), tick.getAsk().doubleValue());

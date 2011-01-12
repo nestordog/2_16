@@ -274,7 +274,7 @@ public class ThetaServiceImpl extends ThetaServiceBase {
 
         Date targetExpirationDate = new Date(DateUtil.getCurrentEPTime().getTime() + minAge);
 
-        StockOption stockOption = getLookupService().getNearestStockOption(underlayingSecurityId, targetExpirationDate, underlayingSpot, optionType.getValue());
+        StockOption stockOption = getLookupService().getNearestStockOption(underlayingSecurityId, targetExpirationDate, underlayingSpot, optionType.toString());
 
         if (simulation) {
             if ((stockOption == null)
