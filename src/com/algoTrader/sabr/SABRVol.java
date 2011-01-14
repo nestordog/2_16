@@ -60,7 +60,6 @@ public class SABRVol {
     public static double volByAtmVol(double forward, double strike, double atmVola, double years, double b, double r, double v) {
 
         double alpha = findAlpha(forward, strike, atmVola, years, b, r, v);
-        double result = vol(forward, strike, years, alpha, b, r, v);
-        return result;
+        return vol(forward, strike, years, alpha, b, r, v);
     }
 }
