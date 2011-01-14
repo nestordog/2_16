@@ -8,7 +8,6 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.enumeration.OptionType;
-import com.algoTrader.sabr.SABRCalibration;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 
@@ -190,24 +189,24 @@ public class TestServiceImpl extends TestServiceBase {
 
     protected void handleTestSabr() throws Exception {
 
-        Date date = (new SimpleDateFormat("dd.MM.yyyy kk:mm:ss")).parse("13.10.2010 09:33:00");
+        String dateString = "07.12.2010 09:13:00";
+        int underlayingId = 4;
+        int volaId = 5;
+        int stockOptionId = 717;
+
+        Date date = (new SimpleDateFormat("dd.MM.yyyy kk:mm:ss")).parse(dateString);
 
         RuleService ruleService = (RuleService) ServiceLocator.serverInstance().getService("ruleService");
         ruleService.initServiceProvider(StrategyImpl.BASE);
         ruleService.sendEvent(StrategyImpl.BASE, new CurrentTimeEvent(date.getTime()));
 
-        StockOption stockOption = (StockOption) getStockOptionDao().load(10711);
-        double underlayingValue = 6412.9;
-        double volaValue = 0.1534;
+        double underlayingValue = getTickDao().findByDateAndSecurity(date, underlayingId).getCurrentValueDouble();
+        double volaValue = getTickDao().findByDateAndSecurity(date, volaId).getCurrentValueDouble() / 100.0;
+
+        StockOption stockOption = (StockOption) getStockOptionDao().load(stockOptionId);
 
         double optionPrice = StockOptionUtil.getOptionPriceSabr(stockOption, underlayingValue, volaValue);
 
         System.out.println(optionPrice);
-
-        ServiceLocator.serverInstance().getDispatcherService().getStockOptionRetrieverService().calculateSabrForDate(stockOption.getUnderlaying(), OptionType.CALL, date, stockOption.getExpiration());
-        ServiceLocator.serverInstance().getDispatcherService().getStockOptionRetrieverService().calculateSabrForDate(stockOption.getUnderlaying(), OptionType.PUT, date, stockOption.getExpiration());
-
-         SABRCalibration.getInstance().dispose();
     }
-
 }
