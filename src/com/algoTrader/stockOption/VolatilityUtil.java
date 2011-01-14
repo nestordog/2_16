@@ -29,7 +29,7 @@ public class VolatilityUtil {
             double call = StockOptionUtil.getOptionPriceBS(underlayingSpot, atmStrike, volaCall, years, intrest, dividend, OptionType.CALL);
             double put = StockOptionUtil.getOptionPriceBS(underlayingSpot, atmStrike, volaPut, years, intrest, dividend, OptionType.PUT);
             double outOfTheMoneyPrice = (put + call) / 2;
-            double factor = getFactor(atmStrike, accumulation, strikeDistance, outOfTheMoneyPrice);
+            double factor = outOfTheMoneyPrice * accumulation * (strikeDistance / (atmStrike * atmStrike));
             factorSum += factor;
         }
 
@@ -40,7 +40,7 @@ public class VolatilityUtil {
             double put = StockOptionUtil.getOptionPriceBS(underlayingSpot, strike, volaPut, years, intrest, dividend, OptionType.PUT);
             if (put < 0.5)
                 break;
-            double factor = getFactor(strike, accumulation, strikeDistance, put);
+            double factor = put * accumulation * (strikeDistance / (strike * strike));
             if ((factor / factorSum) < 0.0001)
                 break;
             factorSum += factor;
@@ -54,7 +54,7 @@ public class VolatilityUtil {
             double call = StockOptionUtil.getOptionPriceBS(underlayingSpot, strike, volaCall, years, intrest, dividend, OptionType.CALL);
             if (call < 0.5)
                 break;
-            double factor = getFactor(strike, accumulation, strikeDistance, call);
+            double factor = call * accumulation * (strikeDistance / (strike * strike));
             if ((factor / factorSum) < 0.0001)
                 break;
             factorSum += factor;
@@ -75,7 +75,7 @@ public class VolatilityUtil {
 
         UnivariateRealSolverFactory factory = UnivariateRealSolverFactory.newInstance();
         UnivariateRealSolver solver = factory.newDefaultSolver();
-        solver.setAbsoluteAccuracy(0.0001);
+        solver.setAbsoluteAccuracy(0.001);
 
         try {
             // normaly atmVola is above 80% of indexVola
@@ -99,10 +99,5 @@ public class VolatilityUtil {
         double delta = 1.5636 * years - 0.0107;
         double callAtmVola = (1 + delta) * putAtmVola;
         return callAtmVola;
-    }
-
-    private static double getFactor(double strike, double accumulation, double strikeDistance, double outOfTheMoneyPrice) {
-
-        return outOfTheMoneyPrice * accumulation * (strikeDistance / (strike * strike));
     }
 }
