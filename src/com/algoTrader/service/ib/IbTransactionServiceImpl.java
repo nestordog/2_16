@@ -59,7 +59,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
     private Map<Integer, Boolean> executedMap;
     private Map<Integer, Boolean> deletedMap;
 
-    private static int clientId = 0;
+    private static int clientId = 3;
 
     protected void handleInit() {
 
