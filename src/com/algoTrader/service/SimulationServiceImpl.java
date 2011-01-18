@@ -4,7 +4,6 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -51,7 +50,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static DecimalFormat threeDigitFormat = new DecimalFormat("#,##0.000");
     private static DateFormat dateFormat = new SimpleDateFormat(" MMM-yy ");
-    private static boolean compressed = false;
+    private static boolean compressed = ConfigurationUtil.getBaseConfig().getBoolean("simulation.compressed");
 
     @SuppressWarnings("unchecked")
     protected void handleResetDB() throws Exception {
@@ -145,6 +144,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             getRuleService().destroyServiceProvider(strategy.getName());
         }
 
+        // reset all
+        ConfigurationUtil.resetConfig();
+
         return result;
     }
 
@@ -214,13 +216,36 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         getRuleService().destroyServiceProvider(StrategyImpl.BASE);
     }
 
-    protected void handleOptimizeLinear(String strategyName, String parameter, double min, double max, double increment) throws Exception {
+    protected void handleSimulateBySingleParam(String strategyName, String parameter, double value) throws Exception {
+
+        logger.info("optimize on " + parameter + " value=" + threeDigitFormat.format(value) + " ");
+        ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, String.valueOf(value));
+
+        ServiceLocator.serverInstance().getSimulationService().simulateByUnderlayings();
+
+        if (!compressed) logger.info(""); else logger.info("\r\n");
+    }
+
+    protected void handleSimulateByMultiParam(String strategyName, String[] parameters, double[] values) throws Exception {
+
+        logger.info("optimize on ");
+        for (int i = 0; i < parameters.length; i++) {
+            logger.info(parameters[i] + " value=" + threeDigitFormat.format(values[i]) + " ");
+            ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameters[i], String.valueOf(values[i]));
+        }
+
+        ServiceLocator.serverInstance().getSimulationService().simulateByUnderlayings();
+
+        if (!compressed) logger.info(""); else logger.info("\r\n");
+    }
+
+    protected void handleOptimizeSingleParamLinear(String strategyName, String parameter, double min, double max, double increment) throws Exception {
 
         double result = min;
         double functionValue = 0;
         for (double i = min; i <= max; i += increment ) {
 
-            logger.info("optimize on " + parameter + " value " + threeDigitFormat.format(i));
+            logger.info("optimize on " + parameter + " value=" + threeDigitFormat.format(i) + " ");
             ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, String.valueOf(i));
 
             double value = ServiceLocator.serverInstance().getSimulationService().simulateByUnderlayings();
@@ -228,31 +253,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 functionValue = value;
                 result = i;
             }
-            if(!compressed) logger.info("");
+            if (!compressed) logger.info(""); else logger.info("\r\n");
         }
         logger.info("optimal value of " + parameter + " is " + threeDigitFormat.format(result) + "(functionValue: " + threeDigitFormat.format(functionValue) + ")");
     }
 
-    protected void handleOptimizeSingles(String strategyName, String[] parameter, double[] min, double[] max, double[] accuracies) {
-
-        List<OptimizationResultVO> optimizationResults = new ArrayList<OptimizationResultVO>();
-        for (int i = 0; i < parameter.length; i++) {
-
-            OptimizationResultVO optimizationResult = optimizeSingle(strategyName, parameter[i], min[i], max[i], accuracies[i]);
-            optimizationResults.add(optimizationResult);
-        }
-
-        for (OptimizationResultVO optimizationResult : optimizationResults) {
-
-            logger.info("optimal value for " + optimizationResult.getParameter()
-                    + ": " + threeDigitFormat.format(optimizationResult.getResult()) +
-                    " (sharpRatio: " + threeDigitFormat.format(optimizationResult.getFunctionValue()) +
-                    " needed iterations: " + optimizationResult.getIterations() + ")");
-        }
-
-    }
-
-    protected OptimizationResultVO handleOptimizeSingle(String strategyName, String parameter, double min, double max, double accuracy) throws ConvergenceException, FunctionEvaluationException {
+    protected OptimizationResultVO handleOptimizeSingleParam(String strategyName, String parameter, double min, double max, double accuracy) throws ConvergenceException, FunctionEvaluationException {
 
         UnivariateRealFunction function = new UnivariateFunction(strategyName, parameter);
         UnivariateRealOptimizer optimizer = new BrentOptimizer();
@@ -268,7 +274,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         return optimizationResult;
     }
 
-    protected void handleOptimizeMulti(String strategyName, String[] parameters, double[] starts) throws ConvergenceException, FunctionEvaluationException {
+    protected void handleOptimizeMultiParam(String strategyName, String[] parameters, double[] starts) throws ConvergenceException, FunctionEvaluationException {
 
         MultivariateRealFunction function = new MultivariateFunction(strategyName, parameters);
         MultivariateRealOptimizer optimizer = new MultiDirectional();
@@ -307,7 +313,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private double getStatistics() {
 
         double netLiqValue = getStrategyDao().getPortfolioNetLiqValueDouble();
-        logger.info("netLiqValue: " + twoDigitFormat.format(netLiqValue));
+        logger.info("netLiqValue=" + twoDigitFormat.format(netLiqValue) + " ");
 
         List<MonthlyPerformanceVO> MonthlyPerformanceVOs = getMonthlyPerformances();
         double maxDrawDownM = 0d;

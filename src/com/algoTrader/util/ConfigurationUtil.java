@@ -16,7 +16,7 @@ public class ConfigurationUtil {
 
     private static String baseFileName = "conf-base.properties";
 
-    private static CompositeConfiguration baseConfig;
+    private static CompositeConfiguration baseConfig = null;
     private static Map<String, CompositeConfiguration> strategyConfigMap = new HashMap<String, CompositeConfiguration>();
 
     private static Logger logger = MyLogger.getLogger(ConfigurationUtil.class.getName());
@@ -56,5 +56,11 @@ public class ConfigurationUtil {
             strategyConfigMap.put(strategyName.toUpperCase(), strategyConfig);
         }
         return strategyConfig;
+    }
+
+    public static void resetConfig() {
+
+        baseConfig = null;
+        strategyConfigMap = new HashMap<String, CompositeConfiguration>();
     }
 }

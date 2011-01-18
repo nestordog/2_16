@@ -17,29 +17,61 @@ public class SimulationStarter {
         if (args[0].equals("simulateByUnderlayings")) {
 
             ServiceLocator.serverInstance().getSimulationService().simulateByUnderlayings();
+
         } else if (args[0].equals("simulateByActualOrders")) {
 
             ServiceLocator.serverInstance().getSimulationService().simulateByActualTransactions();
-        } else if (args[0].equals("optimizeSingle")) {
 
-            String strategyName = args[0];
-            String[] parameters = new String[args.length - 2];
-            double[] mins = new double[args.length - 2];
-            double[] maxs = new double[args.length - 2];
-            double[] accuracies = new double[args.length - 2];
+        } else if (args[0].equals("simulateBySingleParam")) {
+
+            String strategyName = args[1];
             for (int i = 2; i < args.length; i++) {
                 String[] params = args[i].split(":");
-                parameters[i - 2] = params[0];
-                mins[i - 2] = Double.valueOf(params[1]);
-                maxs[i - 2] = Double.valueOf(params[2]);
-                accuracies[i - 2] = Double.valueOf(params[3]);
+                ServiceLocator.serverInstance().getSimulationService().simulateBySingleParam(strategyName, params[0], Double.valueOf(params[1]));
             }
 
-            ServiceLocator.serverInstance().getSimulationService().optimizeSingles(strategyName, parameters, mins, maxs, accuracies);
+        } else if (args[0].equals("simulateByMultiParam")) {
 
-        } else if (args[0].equals("optimizeMulti")) {
+            String strategyName = args[1];
+            for (int i = 2; i < args.length; i++) {
+                String[] touples = args[i].split(",");
+                String[] parameters = new String[touples.length];
+                double[] values = new double[touples.length];
+                for (int j = 0; j < touples.length; j++) {
+                    parameters[j] = touples[j].split(":")[0];
+                    values[j] = Double.valueOf(touples[j].split(":")[1]);
+                }
+                ServiceLocator.serverInstance().getSimulationService().simulateByMultiParam(strategyName, parameters, values);
+            }
 
-            String strategyName = args[0];
+        } else if (args[0].equals("optimizeSingleParamLinear")) {
+
+            String strategyName = args[1];
+            for (int i = 2; i < args.length; i++) {
+                String[] params = args[i].split(":");
+                String parameter = params[0];
+                double min = Double.parseDouble(params[1]);
+                double max = Double.parseDouble(params[2]);
+                double increment = Double.parseDouble(params[3]);
+
+                ServiceLocator.serverInstance().getSimulationService().optimizeSingleParamLinear(strategyName, parameter, min, max, increment);
+
+            }
+        } else if (args[0].equals("optimizeSingleParam")) {
+
+            String strategyName = args[1];
+
+            String[] params = args[2].split(":");
+            String parameter = params[0];
+            double min = Double.valueOf(params[1]);
+            double max = Double.valueOf(params[2]);
+            double accuracy = Double.valueOf(params[3]);
+
+            ServiceLocator.serverInstance().getSimulationService().optimizeSingleParam(strategyName, parameter, min, max, accuracy);
+
+        } else if (args[0].equals("optimizeMultiParam")) {
+
+            String strategyName = args[1];
             String[] parameters = new String[args.length - 2];
             double[] starts = new double[args.length - 2];
             for (int i = 2; i < args.length; i++) {
@@ -51,20 +83,8 @@ public class SimulationStarter {
                 starts[i - 2] = start;
             }
 
-            ServiceLocator.serverInstance().getSimulationService().optimizeMulti(strategyName, parameters, starts);
+            ServiceLocator.serverInstance().getSimulationService().optimizeMultiParam(strategyName, parameters, starts);
 
-        } else if (args[0].equals("optimizeLinear")) {
-
-            String strategyName = args[0];
-            for (int i = 2; i < args.length; i++) {
-                String[] params = args[i].split(":");
-                String parameter = params[0];
-                double min = Double.parseDouble(params[1]);
-                double max = Double.parseDouble(params[2]);
-                double increment = Double.parseDouble(params[3]);
-
-                ServiceLocator.serverInstance().getSimulationService().optimizeLinear(strategyName, parameter, min, max, increment);
-            }
         } else {
             logger.info("please specify simulateByUnderlayings or simulateByActualOrders on the commandline");
         }
