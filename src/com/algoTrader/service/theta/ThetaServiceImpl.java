@@ -123,7 +123,7 @@ public class ThetaServiceImpl extends ThetaServiceBase {
             // if there is no money left, and there is no open position, remove the stockOption from the watchlist
             Position position = getLookupService().getPositionBySecurityAndStrategy(stockOption.getId(), strategyName);
             if (position == null || !position.isOpen()) {
-                getDispatcherService().getTickService().removeFromWatchlist(strategy, stockOption);
+                getDispatcherService().getTickService().removeFromWatchlist(strategy.getName(), stockOption.getId());
             }
             getRuleService().deactivate(strategy.getName(), "OPEN_POSITION");
             return;
@@ -131,7 +131,7 @@ public class ThetaServiceImpl extends ThetaServiceBase {
 
         // the stockOption might have been removed from the watchlist by another statement (i.e. closePosition)
         if (!stockOption.isOnWatchlist()) {
-            getDispatcherService().getTickService().putOnWatchlist(strategy, stockOption);
+            getDispatcherService().getTickService().putOnWatchlist(strategy.getName(), stockOption.getId());
         }
 
         OrderVO order = new OrderVO();
