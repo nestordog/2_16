@@ -52,7 +52,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase {
     private Security security;
 
     private CsvTickWriter writer;
-    private static int clientId = 3;
+    private static int clientId = 4;
 
     protected void handleInit() throws Exception {
 
