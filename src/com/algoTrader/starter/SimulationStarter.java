@@ -14,13 +14,13 @@ public class SimulationStarter {
 
     public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
 
-        if (args[0].equals("simulateByUnderlayings")) {
+        if (args[0].equals("simulateWithCurrentParams")) {
 
-            ServiceLocator.serverInstance().getSimulationService().simulateByUnderlayings();
+            ServiceLocator.serverInstance().getSimulationService().simulateWithCurrentParams();
 
-        } else if (args[0].equals("simulateByActualOrders")) {
+        } else if (args[0].equals("runByActualTransactions")) {
 
-            ServiceLocator.serverInstance().getSimulationService().simulateByActualTransactions();
+            ServiceLocator.serverInstance().getSimulationService().runByActualTransactions();
 
         } else if (args[0].equals("simulateBySingleParam")) {
 

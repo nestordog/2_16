@@ -41,6 +41,7 @@ import com.algoTrader.vo.MaxDrawDownVO;
 import com.algoTrader.vo.MonthlyPerformanceVO;
 import com.algoTrader.vo.OptimizationResultVO;
 import com.algoTrader.vo.PerformanceKeysVO;
+import com.algoTrader.vo.SimulationResultVO;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 public class SimulationServiceImpl extends SimulationServiceBase {
@@ -50,7 +51,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static DecimalFormat threeDigitFormat = new DecimalFormat("#,##0.000");
     private static DateFormat dateFormat = new SimpleDateFormat(" MMM-yy ");
-    private static boolean compressed = ConfigurationUtil.getBaseConfig().getBoolean("simulation.compressed");
 
     @SuppressWarnings("unchecked")
     protected void handleResetDB() throws Exception {
@@ -116,7 +116,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     }
 
     @SuppressWarnings("unchecked")
-    protected double handleSimulateByUnderlayings() {
+    protected SimulationResultVO handleRunByUnderlayings() {
 
         long startTime = System.currentTimeMillis();
 
@@ -130,28 +130,27 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             getRuleService().activateAll(strategy.getName());
         }
 
+        // feed the ticks
         inputCSV();
 
-        // print execution times
-        double mins = ((double)(System.currentTimeMillis() - startTime)) / 60000;
-        if(!compressed) logger.info("execution time (min): " + (new DecimalFormat("0.00")).format(mins));
-        if(!compressed) logger.info("dataSet: " + dataSet);
+        // get the results
+        SimulationResultVO resultVO = getSimulationResultVO(startTime);
 
-        double result = getStatistics();
-
-        // destory all service providers
+        // destroy all service providers
         for (Strategy strategy : strategies) {
             getRuleService().destroyServiceProvider(strategy.getName());
         }
 
-        // reset all
+        // reset all configuration variables
         ConfigurationUtil.resetConfig();
 
-        return result;
+        return resultVO;
     }
 
     @SuppressWarnings("unchecked")
-    protected void handleSimulateByActualTransactions() {
+    protected void handleRunByActualTransactions() {
+
+        long startTime = System.currentTimeMillis();
 
         // get the existingTransactions before they are deleted
         Collection<Transaction> existingTransactions = Arrays.asList(ServiceLocator.serverInstance().getLookupService().getAllTrades());
@@ -211,32 +210,38 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             getRuleService().startCoordination(StrategyImpl.BASE);
         }
 
-        getStatistics();
+        SimulationResultVO resultVO = getSimulationResultVO(startTime);
+        logMultiLineString(convertStatisticsToLongString(resultVO));
 
         getRuleService().destroyServiceProvider(StrategyImpl.BASE);
     }
 
+    protected void handleSimulateWithCurrentParams() throws Exception {
+
+        SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+        logMultiLineString(convertStatisticsToLongString(resultVO));
+    }
+
     protected void handleSimulateBySingleParam(String strategyName, String parameter, double value) throws Exception {
 
-        logger.info("optimize on " + parameter + " value=" + threeDigitFormat.format(value) + " ");
         ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, String.valueOf(value));
 
-        ServiceLocator.serverInstance().getSimulationService().simulateByUnderlayings();
-
-        if (!compressed) logger.info(""); else logger.info("\r\n");
+        SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+        logger.info("optimize on " + parameter + " value=" + threeDigitFormat.format(value) + " " + convertStatisticsToShortString(resultVO));
     }
 
     protected void handleSimulateByMultiParam(String strategyName, String[] parameters, double[] values) throws Exception {
 
-        logger.info("optimize on ");
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("optimize on ");
         for (int i = 0; i < parameters.length; i++) {
-            logger.info(parameters[i] + " value=" + threeDigitFormat.format(values[i]) + " ");
+            buffer.append(parameters[i] + " value=" + threeDigitFormat.format(values[i]) + " ");
             ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameters[i], String.valueOf(values[i]));
         }
 
-        ServiceLocator.serverInstance().getSimulationService().simulateByUnderlayings();
-
-        if (!compressed) logger.info(""); else logger.info("\r\n");
+        SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+        buffer.append(convertStatisticsToShortString(resultVO));
+        logger.info(buffer.toString());
     }
 
     protected void handleOptimizeSingleParamLinear(String strategyName, String parameter, double min, double max, double increment) throws Exception {
@@ -245,15 +250,16 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         double functionValue = 0;
         for (double i = min; i <= max; i += increment ) {
 
-            logger.info("optimize on " + parameter + " value=" + threeDigitFormat.format(i) + " ");
             ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, String.valueOf(i));
 
-            double value = ServiceLocator.serverInstance().getSimulationService().simulateByUnderlayings();
+            SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+            logger.info("optimize on " + parameter + " value=" + threeDigitFormat.format(i) + " " + convertStatisticsToShortString(resultVO));
+
+            double value = resultVO.getPerformanceKeysVO().getSharpRatio();
             if (value > functionValue) {
                 functionValue = value;
                 result = i;
             }
-            if (!compressed) logger.info(""); else logger.info("\r\n");
         }
         logger.info("optimal value of " + parameter + " is " + threeDigitFormat.format(result) + "(functionValue: " + threeDigitFormat.format(functionValue) + ")");
     }
@@ -287,74 +293,88 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         logger.info("functionValue: " + twoDigitFormat.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
     }
 
-    protected PerformanceKeysVO handleGetPerformanceKeys() throws Exception {
-
+    @SuppressWarnings("unchecked")
+    protected SimulationResultVO handleGetSimulationResultVO(long startTime) {
 
         PerformanceKeysVO performanceKeys = (PerformanceKeysVO) getRuleService().getLastEvent(StrategyImpl.BASE, "CREATE_PERFORMANCE_KEYS");
+        List<MonthlyPerformanceVO> monthlyPerformances = getRuleService().getAllEvents(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
+        MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) getRuleService().getLastEvent(StrategyImpl.BASE, "CREATE_MAX_DRAW_DOWN");
 
-        if (performanceKeys == null || performanceKeys.getStdY() == 0.0)
-            return null;
+        // assemble the result
+        SimulationResultVO resultVO = new SimulationResultVO();
+        resultVO.setMins(((double) (System.currentTimeMillis() - startTime)) / 60000);
+        resultVO.setDataSet(dataSet);
+        resultVO.setNetLiqValue(getStrategyDao().getPortfolioNetLiqValueDouble());
+        resultVO.setMonthlyPerformanceVOs(monthlyPerformances);
+        resultVO.setPerformanceKeysVO(performanceKeys);
+        resultVO.setMaxDrawDownVO(maxDrawDown);
+        return resultVO;
+    }
 
-        return performanceKeys;
+    private static String convertStatisticsToShortString(SimulationResultVO resultVO) {
+
+        StringBuffer buffer = new StringBuffer();
+
+        double netLiqValue = resultVO.getNetLiqValue();
+        buffer.append("netLiqValue=" + twoDigitFormat.format(netLiqValue));
+
+        double sharpRatio = resultVO.getPerformanceKeysVO().getSharpRatio();
+        buffer.append(" sharpRatio=" + threeDigitFormat.format(sharpRatio));
+
+        return buffer.toString();
     }
 
     @SuppressWarnings("unchecked")
-    protected List<MonthlyPerformanceVO> handleGetMonthlyPerformances() throws Exception {
+    private static String convertStatisticsToLongString(SimulationResultVO resultVO) {
 
-        return getRuleService().getAllEvents(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
-    }
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("execution time (min): " + (new DecimalFormat("0.00")).format(resultVO.getMins()) + "\r\n");
+        buffer.append("dataSet: " + dataSet + "\r\n");
 
-    protected MaxDrawDownVO handleGetMaxDrawDown() throws Exception {
+        double netLiqValue = resultVO.getNetLiqValue();
+        buffer.append("netLiqValue=" + twoDigitFormat.format(netLiqValue) + "\r\n");
 
-        return (MaxDrawDownVO) getRuleService().getLastEvent(StrategyImpl.BASE, "CREATE_MAX_DRAW_DOWN");
-    }
-
-    @SuppressWarnings("unchecked")
-    private double getStatistics() {
-
-        double netLiqValue = getStrategyDao().getPortfolioNetLiqValueDouble();
-        logger.info("netLiqValue=" + twoDigitFormat.format(netLiqValue) + " ");
-
-        List<MonthlyPerformanceVO> MonthlyPerformanceVOs = getMonthlyPerformances();
+        List<MonthlyPerformanceVO> monthlyPerformanceVOs = resultVO.getMonthlyPerformanceVOs();
         double maxDrawDownM = 0d;
-        double bestMonthlyPerformanceVO = Double.NEGATIVE_INFINITY;
-        if ((MonthlyPerformanceVOs != null) && !compressed) {
+        double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
+        if ((monthlyPerformanceVOs != null)) {
             StringBuffer dateBuffer= new StringBuffer("month-year:         ");
             StringBuffer performanceBuffer = new StringBuffer("MonthlyPerformance: ");
-            for (MonthlyPerformanceVO MonthlyPerformanceVO : MonthlyPerformanceVOs) {
+            for (MonthlyPerformanceVO MonthlyPerformanceVO : monthlyPerformanceVOs) {
                 maxDrawDownM = Math.min(maxDrawDownM, MonthlyPerformanceVO.getValue());
-                bestMonthlyPerformanceVO = Math.max(bestMonthlyPerformanceVO, MonthlyPerformanceVO.getValue());
+                bestMonthlyPerformance = Math.max(bestMonthlyPerformance, MonthlyPerformanceVO.getValue());
                 dateBuffer.append(dateFormat.format(MonthlyPerformanceVO.getDate()));
                 performanceBuffer.append(StringUtils.leftPad(twoDigitFormat.format(MonthlyPerformanceVO.getValue() * 100), 6) + "% ");
             }
-            logger.info(dateBuffer.toString());
-            logger.info(performanceBuffer.toString());
+            buffer.append(dateBuffer.toString() + "\r\n");
+            buffer.append(performanceBuffer.toString() + "\r\n");
         }
 
-        PerformanceKeysVO performanceKeys = getPerformanceKeys();
-        MaxDrawDownVO maxDrawDownVO = getMaxDrawDown();
+        PerformanceKeysVO performanceKeys = resultVO.getPerformanceKeysVO();
+        MaxDrawDownVO maxDrawDownVO = resultVO.getMaxDrawDownVO();
         if (performanceKeys != null && maxDrawDownVO != null) {
-            StringBuffer buffer = new StringBuffer();
-            if(!compressed) buffer.append("n=" + performanceKeys.getN());
-            if(!compressed) buffer.append(" avgM=" + twoDigitFormat.format(performanceKeys.getAvgM() * 100) + "%");
-            if(!compressed) buffer.append(" stdM=" + twoDigitFormat.format(performanceKeys.getStdM() * 100) + "%");
-            if(!compressed) buffer.append(" avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100) + "%");
-            if(!compressed) buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "% ");
-            buffer.append("sharpRatio=" + threeDigitFormat.format(performanceKeys.getSharpRatio()));
-            logger.info(buffer.toString());
+            buffer.append("n=" + performanceKeys.getN());
+            buffer.append(" avgM=" + twoDigitFormat.format(performanceKeys.getAvgM() * 100) + "%");
+            buffer.append(" stdM=" + twoDigitFormat.format(performanceKeys.getStdM() * 100) + "%");
+            buffer.append(" avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100) + "%");
+            buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "% ");
+            buffer.append(" sharpRatio=" + threeDigitFormat.format(performanceKeys.getSharpRatio()) + "\r\n");
 
-            buffer = new StringBuffer();
-            if(!compressed) buffer.append("maxDrawDownM=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
-            if(!compressed) buffer.append(" bestMonthlyPerformance=" + twoDigitFormat.format(bestMonthlyPerformanceVO * 100) + "%");
-            if(!compressed) buffer.append(" maxDrawDown=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100) + "%");
-            if(!compressed) buffer.append(" maxDrawDownPeriod=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000) + "days");
-            if(!compressed) buffer.append(" colmarRatio=" + twoDigitFormat.format(performanceKeys.getAvgY() / maxDrawDownVO.getAmount()));
-            logger.info(buffer.toString());
+            buffer.append("maxDrawDownM=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
+            buffer.append(" bestMonthlyPerformance=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
+            buffer.append(" maxDrawDown=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100) + "%");
+            buffer.append(" maxDrawDownPeriod=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000) + "days");
+            buffer.append(" colmarRatio=" + twoDigitFormat.format(performanceKeys.getAvgY() / maxDrawDownVO.getAmount()));
+        }
 
-            return performanceKeys.getSharpRatio();
-        } else {
-            logger.info("statistic not available because there was no performance");
-            return Double.NaN;
+        return buffer.toString();
+    }
+
+    private static void logMultiLineString(String input) {
+
+        String[] lines = input.split("\r\n");
+        for (String line : lines) {
+            logger.info(line);
         }
     }
 
@@ -373,11 +393,10 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             ConfigurationUtil.getStrategyConfig(this.strategyName).setProperty(this.param, String.valueOf(input));
 
-            logger.info("optimize on " + this.param + " value " + threeDigitFormat.format(input));
+            SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+            double result = resultVO.getPerformanceKeysVO().getSharpRatio();
 
-            double result = ServiceLocator.serverInstance().getSimulationService().simulateByUnderlayings();
-
-            if(!compressed) logger.info("");
+            logger.info("optimize on " + this.param + " value " + threeDigitFormat.format(input) + " " + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
 
             return result;
         }
@@ -396,7 +415,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         public double value(double[] input) throws FunctionEvaluationException {
 
-
             StringBuffer buffer = new StringBuffer("optimize on ");
             for (int i =0; i < input.length; i++) {
 
@@ -407,11 +425,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
                 buffer.append(param + ": " + threeDigitFormat.format(value) + " ");
             }
-            logger.info(buffer.toString());
 
-            double result = ServiceLocator.serverInstance().getSimulationService().simulateByUnderlayings();
+            SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+            double result = resultVO.getPerformanceKeysVO().getSharpRatio();
 
-            logger.info("");
+            logger.info(buffer.toString() + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
+
             return result;
         }
     }
