@@ -135,6 +135,11 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase {
                     } else if ("ASK".equals(whatToShow)) {
                         BigDecimal ask = RoundUtil.getBigDecimal(close);
                         tick.setAsk(ask);
+                    } else if ("BID_ASK".equals(whatToShow)) {
+                        BigDecimal bid = RoundUtil.getBigDecimal(open);
+                        tick.setBid(bid);
+                        BigDecimal ask = RoundUtil.getBigDecimal(close);
+                        tick.setAsk(ask);
                     }
 
                     String message = whatToShow +
