@@ -56,20 +56,6 @@
         </layout>
     </appender>
 
-    <appender name="STOCHASTIC" class="org.apache.log4j.FileAppender">
-        <param name="file" value="log/stochastic.csv" />
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss},%m %n" />
-        </layout>
-    </appender>
-
-    <appender name="MACD" class="org.apache.log4j.FileAppender">
-        <param name="file" value="log/macd.csv" />
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss},%m %n" />
-        </layout>
-    </appender>
-
     <appender name="EMAIL" class="org.apache.log4j.net.SMTPAppender">
         <param name="SMTPHost" value="smtp.mail.yahoo.com" />
         <param name="SMTPUsername" value="andy_flury" />
@@ -93,13 +79,6 @@
         <param name="MaxEMails" value="3" />
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value=" " />
-        </layout>
-    </appender>
-
-    <appender name="SIMULATION" class="org.apache.log4j.ConsoleAppender">
-        <param name="Target" value="System.out" />
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %m %n" />
         </layout>
     </appender>
 
@@ -129,6 +108,10 @@
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%m" />
         </layout>
+    </appender>
+
+    <appender name="SOCKET" class="org.apache.log4j.net.SocketAppender">
+        <param name="RemoteHost" value="localhost" />
     </appender>
 
     <logger name="org.springframework">
@@ -181,6 +164,7 @@
         <logger name="com.algoTrader.service.SimulationServiceImpl">
             <level value="info"/>
             <appender-ref ref="SIMULATION" />
+            <appender-ref ref="SOCKET" />
         </logger>
     -->
 
