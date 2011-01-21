@@ -8,7 +8,7 @@
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">select *
 from pattern[every timer:at (*, 9:17, *, *, 1:5)]
-where simulation != true</field>
+where simulation = false</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS">com.algoTrader.service.TickServiceImpl$RetrieveTickListener</field>
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
@@ -29,8 +29,8 @@ where simulation != true</field>
         <field name="NAME">PROCESS_CASH_TRANSACTIONS</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">select *
-from pattern[every timer:at (0, 7, *, *, 1:5)]
-where simulation != false</field>
+from pattern[every timer:at (0, 8, *, *, 1:5)]
+where simulation = false</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS">com.algoTrader.service.AccountServiceImpl$ProcessCashTransactionsListener</field>
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
@@ -437,7 +437,7 @@ from DrawDown as drawDown</field>
 from PrearrangedOrder</field>
         <field name="SUBSCRIBER">com.algoTrader.service.TransactionServiceImpl$RerunOrderSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
-        <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
+        <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">00</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
     </row>
     </table_data>
