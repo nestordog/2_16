@@ -104,7 +104,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             long startTime = System.currentTimeMillis();
             logger.debug("setExitValue start");
 
-            ServiceLocator.serverInstance().getPositionService().setExitValue(positionId, exitValue, false);
+            ServiceLocator.commonInstance().getPositionService().setExitValue(positionId, exitValue, false);
 
             logger.debug("setExitValue end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
