@@ -539,7 +539,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
 #if($argument.type.primitive)
 #set ($argumentValue = "new ${argument.type.wrapperName}($argument.name)")
 #elseif ($argument.type.enumeration)
-#set ($argumentValue = "${argument.name}.getValue()")
+#set ($argumentValue = "${argument.name}")
 #end
 #set ($setParameterOperation = "setParameter")
 #if ($argument.type.collectionType || $argument.type.arrayType)
