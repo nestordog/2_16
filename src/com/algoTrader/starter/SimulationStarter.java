@@ -86,7 +86,7 @@ public class SimulationStarter {
             ServiceLocator.serverInstance().getSimulationService().optimizeMultiParam(strategyName, parameters, starts);
 
         } else {
-            logger.info("please specify simulateByUnderlayings or simulateByActualOrders on the commandline");
+            logger.info("invalid command " + args[0]);
         }
     }
 }
