@@ -54,6 +54,7 @@ public abstract class StockOptionRetrieverServiceImpl extends StockOptionRetriev
 
             while (DateUtil.compareTime(cal.getTime(), closeHour) <= 0) {
 
+                System.out.print(outputFormat.format(cal.getTime()));
 
                 SabrVO SABRparams = calculateSabrForDate(underlaying, type, cal.getTime(), expirationDate);
 
@@ -63,7 +64,7 @@ public abstract class StockOptionRetrieverServiceImpl extends StockOptionRetriev
 
                 AtmVolaVO atmVola = calculateAtmVola(underlaying, cal.getTime());
                 if (atmVola != null) {
-                    System.out.print(atmVola.getYears() + " " + atmVola.getCallVola() + " " + atmVola.getPutVola());
+                    System.out.print(" " + atmVola.getYears() + " " + atmVola.getCallVola() + " " + atmVola.getPutVola());
                 }
 
                 System.out.println();
@@ -97,7 +98,7 @@ public abstract class StockOptionRetrieverServiceImpl extends StockOptionRetriev
         double forward = StockOptionUtil.getForward(underlayingSpot.doubleValue(), years, family.getIntrest(), family.getDividend());
         double atmStrike = RoundUtil.roundToNextN(underlayingSpot, family.getStrikeDistance(), type).doubleValue();
 
-        List<Tick> ticks = getTickDao().findByDateTypeAndExpiration(date, type, expirationDate);
+        List<Tick> ticks = getTickDao().findBySecurityDateTypeExpiration(underlaying, date, type, expirationDate);
         List<Double> strikes = new ArrayList<Double>();
         List<Double> currentValues = new ArrayList<Double>();
         List<Double> volatilities = new ArrayList<Double>();
@@ -153,12 +154,12 @@ public abstract class StockOptionRetrieverServiceImpl extends StockOptionRetriev
         StockOption putOption = getStockOptionDao().findNearestStockOption(underlaying.getId(), date, underlayingTick.getLast(), "PUT");
 
         Tick callTick = getTickDao().findByDateAndSecurity(date, callOption.getId());
-        if (callTick == null || callTick.getLast() == null) {
+        if (callTick == null || callTick.getBid() == null || callTick.getAsk() == null) {
             return null;
         }
 
         Tick putTick = getTickDao().findByDateAndSecurity(date, putOption.getId());
-        if (putTick == null || putTick.getLast() == null) {
+        if (putTick == null || putTick.getBid() == null || putTick.getAsk() == null) {
             return null;
         }
 
