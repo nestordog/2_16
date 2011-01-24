@@ -3,25 +3,82 @@ package com.algoTrader.service;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.Security;
+import com.algoTrader.entity.SecurityImpl;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.entity.Tick;
+import com.algoTrader.entity.TickImpl;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.stockOption.StockOptionUtil;
+import com.algoTrader.util.MyLogger;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class TestServiceImpl extends TestServiceBase {
 
-    protected void handleTest() {
+    private static Logger logger = MyLogger.getLogger(TestServiceImpl.class.getName());
 
-        // Collection col = getPositionDao().loadAll();
-        // System.out.println(col.size());
+    @Override
+    protected void handleTest() throws Exception {
+        // TODO Auto-generated method stub
 
-         double cv = getStrategyDao().getPortfolioSecuritiesCurrentValueDouble();
-        System.out.println(cv);
+    }
+
+    protected void handleTestPattern() {
+
+
+        RuleService ruleService = ServiceLocator.serverInstance().getRuleService();
+        ruleService.initServiceProvider("SMI");
+        ruleService.activate("SMI", "TEST");
+
+        Security index = getSecurityDao().load(4);
+        Security vola = getSecurityDao().load(5);
+        Security option = getSecurityDao().load(5557);
+
+        Tick indexTick1 = new TickImpl();
+        indexTick1.setId(1);
+        indexTick1.setSecurity(index);
+        Tick indexTick2 = new TickImpl();
+        indexTick2.setId(2);
+        indexTick2.setSecurity(index);
+
+        Tick volaTick1 = new TickImpl();
+        volaTick1.setId(1);
+        volaTick1.setSecurity(vola);
+        Tick volaTick2 = new TickImpl();
+        volaTick2.setId(2);
+        volaTick2.setSecurity(vola);
+
+        Tick optionTick1 = new TickImpl();
+        optionTick1.setId(1);
+        optionTick1.setSecurity(option);
+        Tick optionTick2 = new TickImpl();
+        optionTick2.setId(2);
+        optionTick2.setSecurity(option);
+        Tick optionTick3 = new TickImpl();
+        optionTick3.setId(3);
+        optionTick3.setSecurity(option);
+        Tick optionTick4 = new TickImpl();
+        optionTick4.setId(4);
+        optionTick4.setSecurity(option);
+
+        ruleService.sendEvent("SMI", indexTick1);
+        ruleService.sendEvent("SMI", volaTick1);
+        ruleService.sendEvent("SMI", optionTick1);
+        ruleService.sendEvent("SMI", optionTick2);
+
+        ruleService.sendEvent("SMI", indexTick2);
+        ruleService.sendEvent("SMI", volaTick2);
+        ruleService.sendEvent("SMI", optionTick3);
+        ruleService.sendEvent("SMI", optionTick4);
+
     }
 
     protected void handleTestSelects(int number) throws Exception {
@@ -143,7 +200,7 @@ public class TestServiceImpl extends TestServiceBase {
             getTickDao().load(370552);
             break;
         case 37:
-            getTickDao().findByDateTypeAndExpiration(new Date(), OptionType.PUT, new Date());
+            getTickDao().findBySecurityDateTypeExpiration(new SecurityImpl(), new Date(), OptionType.PUT, new Date());
             break;
         case 38:
             getTickDao().findBySecurity(9);
@@ -208,5 +265,17 @@ public class TestServiceImpl extends TestServiceBase {
         double optionPrice = StockOptionUtil.getOptionPriceSabr(stockOption, underlayingValue, volaValue);
 
         System.out.println(optionPrice);
+    }
+
+    public static class TestSubscriber {
+
+        public void update(Map<?, ?> map) {
+
+            Tick indexTick = (Tick) (map.get("indexTick"));
+            Tick volaTick = (Tick) (map.get("volaTick"));
+            Tick optionTick = (Tick) (map.get("optionTick"));
+
+            logger.info(indexTick.getId() + " " + volaTick.getId() + " " + optionTick.getId());
+        }
     }
 }
