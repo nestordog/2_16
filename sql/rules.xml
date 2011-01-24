@@ -70,7 +70,7 @@ portfolio.value.netLiqValue != prior(1, portfolio.value.netLiqValue)
     <row>
         <field name="id">10</field>
         <field name="NAME">GET_LAST_TICK</field>
-        <field name="PRIORITY">5</field>
+        <field name="PRIORITY">6</field>
         <field name="DEFINITION">select tick.security.id as securityId, tick.* as tick
 from Tick.std:groupwin(security.id).win:time(7 days).win:length(1) as tick
 </field>
@@ -110,12 +110,26 @@ and tick.currentValue  &gt;= position.exitValue</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
     </row>
     <row>
+        <field name="id">15</field>
+        <field name="NAME">CREATE_AGGREGATED_TICK</field>
+        <field name="PRIORITY">5</field>
+        <field name="DEFINITION">insert into AggregatedTick
+select indexTick, volaTick, optionTick
+from pattern [every indexTick=Tick(security.isin = strategy.underlaying.isin)
+-&gt; volaTick=Tick(security.id=indexTick.security.volatility.id) and not Tick(security.isin = strategy.underlaying.isin)
+-&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = strategy.underlaying.isin or security.id=indexTick.security.volatility.id)]</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
+        <field name="INIT" xsi:type="xs:hexBinary">00</field>
+    </row>
+    <row>
         <field name="id">16</field>
         <field name="NAME">CREATE_EXIT_VALUE</field>
         <field name="PRIORITY">4</field>
         <field name="DEFINITION">select position.id as positionId,
 exitValue.value as value
-from pattern [every (indexTick=Tick(security.isin = strategy.underlaying.isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id)) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = strategy.underlaying.isin)],
+from AggregatedTick,
 method:LookupUtil.getPositions(optionTick.security) as position,
 method:ThetaUtil.getExitValue(position.strategy.name, cast(optionTick.security, com.algoTrader.entity.StockOption), indexTick.currentValueDouble, volaTick.currentValueDouble / 100) as exitValue
 where exitValue.value &lt; position.exitValue
@@ -134,7 +148,7 @@ and optionTick.currentValueDouble != 0</field>
 position.id as positionId,
 indexTick.security.id as underlayingId,
 indexTick.currentValue as underlayingSpot
-from pattern [every indexTick=Tick(security.isin = strategy.underlaying.isin) -&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = strategy.underlaying.isin)],
+from AggregatedTick,
 method:LookupUtil.getPositions(optionTick.security) as position
 where ThetaUtil.isDeltaTooLow(position.strategy.name, cast(optionTick.security, com.algoTrader.entity.StockOption), optionTick.currentValueDouble, indexTick.currentValueDouble)
 and position != null
@@ -150,13 +164,14 @@ and position.quantity != 0</field>
         <field name="PRIORITY">2</field>
         <field name="DEFINITION">select
 strategy.name as strategyName,
-stockOptionTick.security.id as securityId,
-stockOptionTick.currentValue as currentValue,
+optionTick.security.id as securityId,
+optionTick.currentValue as currentValue,
 indexTick.currentValue as underlayingSpot,
-stockOptionTick.settlement as stockOptionSettlement,
+optionTick.settlement as stockOptionSettlement,
 indexTick.settlement as underlayingSettlement,
 volaTick.currentValueDouble / 100 as volatility
-from pattern [(indexTick=Tick(security.isin = strategy.underlaying.isin) -&gt; volaTick=Tick(security.id=indexTick.security.volatility.id) -&gt; stockOptionTick=Tick(security.id = ?,security.underlaying.id=indexTick.security.id))]</field>
+from AggregatedTick
+where optionTick.security.id = ?</field>
         <field name="SUBSCRIBER">com.algoTrader.service.theta.ThetaServiceImpl$OpenPositionSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">00</field>
