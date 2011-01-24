@@ -144,6 +144,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         // reset all configuration variables
         ConfigurationUtil.resetConfig();
 
+        // run a garbage collection
+        System.gc();
+
         return resultVO;
     }
 
