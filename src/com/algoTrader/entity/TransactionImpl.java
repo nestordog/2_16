@@ -16,6 +16,10 @@ public class TransactionImpl extends Transaction {
         return RoundUtil.getBigDecimal(getValueDouble());
     }
 
+    /**
+     * SELL / CREDIT / INTREST: positive cashflow
+     * BUY / EXPIRATION / DEBIT / FEES: negative cashflow
+     */
     public double getValueDouble() {
 
         if (this.value == null) {
