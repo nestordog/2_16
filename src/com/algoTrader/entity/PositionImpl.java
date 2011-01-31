@@ -2,6 +2,7 @@ package com.algoTrader.entity;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.algoTrader.enumeration.TransactionType;
@@ -16,6 +17,9 @@ public class PositionImpl extends Position {
         return (getQuantity() != 0);
     }
 
+    /**
+     * always positive
+     */
     public double getMarketPriceDouble() {
 
         if (isOpen()) {
@@ -39,6 +43,9 @@ public class PositionImpl extends Position {
         }
     }
 
+    /**
+     * short positions: negative long positions: positive
+     */
     public double getMarketValueDouble() {
 
         if (isOpen()) {
@@ -49,6 +56,9 @@ public class PositionImpl extends Position {
         }
     }
 
+    /**
+     * always positive
+     */
     @SuppressWarnings("unchecked")
     public double getAveragePriceDouble() {
 
@@ -56,7 +66,13 @@ public class PositionImpl extends Position {
         double totalPrice = 0.0;
         long maxQuantity = getQuantity();
         List<Transaction> transactions = new ArrayList<Transaction>(getTransactions());
-        Collections.reverse(transactions);
+
+        // sort by date descending
+        Collections.sort(transactions, new Comparator<Transaction>() {
+            public int compare(Transaction t1, Transaction t2) {
+                return (t2.getDateTime().compareTo(t1.getDateTime()));
+            }
+        });
 
         // by FIFO principle
         // we go through all transactions (in reverse order) until we have considered to total quantity of the position
@@ -67,7 +83,7 @@ public class PositionImpl extends Position {
             // (part might already have been sold again)
             double pricePerContract = (transaction.getPrice().doubleValue() * transaction.getSecurity().getSecurityFamily().getContractSize() + transaction.getCommission().doubleValue() / transaction.getQuantity());
 
-            if ((maxQuantity < 0) && TransactionType.SELL.equals(transaction.getType()) && (totalQuantity != maxQuantity)) {
+            if ((maxQuantity < 0) && TransactionType.SELL.equals(transaction.getType())) {
 
                 // for short positions look at sells
                 long quantity = Math.max(transaction.getQuantity(), maxQuantity - totalQuantity);
@@ -75,7 +91,7 @@ public class PositionImpl extends Position {
                 totalQuantity += quantity;
                 totalPrice += quantity * pricePerContract;
 
-            } else if ((maxQuantity > 0) && TransactionType.BUY.equals(transaction.getType()) && (totalQuantity != maxQuantity)) {
+            } else if ((maxQuantity > 0) && TransactionType.BUY.equals(transaction.getType())) {
 
                 // for long positions look at buys
                 long quantity = Math.min(transaction.getQuantity(), maxQuantity - totalQuantity);
@@ -83,10 +99,18 @@ public class PositionImpl extends Position {
                 totalQuantity += quantity;
                 totalPrice += quantity * pricePerContract;
             }
+
+            if (totalQuantity == maxQuantity) {
+                break;
+            }
+
         }
         return totalPrice / totalQuantity / getSecurity().getSecurityFamily().getContractSize();
     }
 
+    /**
+     * short positions: negative long positions: positive
+     */
     public double getCostDouble() {
 
         if (isOpen()) {
