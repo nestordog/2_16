@@ -28,9 +28,11 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
     private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".TransactionMail");
+    private static Logger simulationLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
 
     private static boolean externalTransactionsEnabled = ConfigurationUtil.getBaseConfig().getBoolean("externalTransactionsEnabled");
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+    private static boolean logTransactions = ConfigurationUtil.getBaseConfig().getBoolean("simulation.logTransactions");
     private static long eventsPerDay = ConfigurationUtil.getBaseConfig().getLong("simulation.eventsPerDay");
 
     @SuppressWarnings("unchecked")
@@ -62,6 +64,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         long totalQuantity = 0;
         double totalPrice = 0.0;
         double totalCommission = 0.0;
+        double totalProfit = 0.0;
+        double profit = 0.0;
         for (Transaction transaction : transactions) {
 
             transaction.setType(transactionType);
@@ -95,7 +99,14 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
             } else {
 
-                // attach the object
+                // evaluate the profit in closing transactions
+                // must get this before attaching the new transaction
+                if (Long.signum(position.getQuantity()) * Long.signum(transaction.getQuantity()) == -1) {
+                    double cost = position.getCostDouble();
+                    double value = transaction.getValueDouble();
+                    profit = value - cost;
+                }
+
                 position.setQuantity(position.getQuantity() + transaction.getQuantity());
 
                 if (!position.isOpen()) {
@@ -116,19 +127,23 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             totalQuantity += transaction.getQuantity();
             totalPrice += transaction.getPrice().doubleValue() * transaction.getQuantity();
             totalCommission += transaction.getCommission().doubleValue();
+            totalProfit += profit;
 
-            logger.info("executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() +
+            String logMessage = "executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() +
                     " of " + security.getSymbol() + " price: " + transaction.getPrice() +
-                    " commission: " + transaction.getCommission());
+                    " commission: " + transaction.getCommission() + ((profit != 0.0) ? (" gain: " + RoundUtil.getBigDecimal(profit)) : "");
 
-            // not needed at the moment
-            // getRuleService().routeEvent(strategy.getName(), transaction);
+            if (simulation && logTransactions) {
+                simulationLogger.info(logMessage);
+            } else {
+                logger.info(logMessage);
+            }
         }
 
         if (order.getTransactions().size() > 0 && !simulation) {
             mailLogger.info("executed transaction type: " + transactionType + " totalQuantity: " + totalQuantity +
                     " of " + security.getSymbol() + " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) +
-                    " commission: " + totalCommission + " netLiqValue: " + strategy.getNetLiqValue());
+                    " commission: " + totalCommission + " netLiqValue: " + strategy.getNetLiqValue() + ((totalProfit != 0) ? (" gain: " + RoundUtil.getBigDecimal(totalProfit)) : ""));
 
         }
         return order;
