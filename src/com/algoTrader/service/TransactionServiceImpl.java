@@ -65,6 +65,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         double totalPrice = 0.0;
         double totalCommission = 0.0;
         double totalProfit = 0.0;
+
+        double avgAge = 0;
         double profit = 0.0;
         for (Transaction transaction : transactions) {
 
@@ -102,9 +104,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 // evaluate the profit in closing transactions
                 // must get this before attaching the new transaction
                 if (Long.signum(position.getQuantity()) * Long.signum(transaction.getQuantity()) == -1) {
-                    double cost = position.getCostDouble();
-                    double value = transaction.getValueDouble();
-                    profit = value - cost;
+                    profit = transaction.getValueDouble() - position.getCostDouble();
+                    avgAge = position.getAverageAge();
                 }
 
                 position.setQuantity(position.getQuantity() + transaction.getQuantity());
@@ -130,8 +131,9 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             totalProfit += profit;
 
             String logMessage = "executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() +
-                    " of " + security.getSymbol() + " price: " + transaction.getPrice() +
-                    " commission: " + transaction.getCommission() + ((profit != 0.0) ? (" gain: " + RoundUtil.getBigDecimal(profit)) : "");
+                    " of " + security.getSymbol() + " price: " + transaction.getPrice() + " commission: " + transaction.getCommission() +
+                    ((profit != 0.0) ? (" gain: " + RoundUtil.getBigDecimal(profit)) : "") +
+                    ((avgAge != 0.0) ? (" avgAge: " + RoundUtil.getBigDecimal(avgAge)) : "");
 
             if (simulation && logTransactions) {
                 simulationLogger.info(logMessage);

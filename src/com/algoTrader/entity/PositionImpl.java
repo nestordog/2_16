@@ -3,9 +3,10 @@ package com.algoTrader.entity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
-import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.util.DateUtil;
 
 
 public class PositionImpl extends Position {
@@ -59,53 +60,46 @@ public class PositionImpl extends Position {
     /**
      * always positive
      */
-    @SuppressWarnings("unchecked")
     public double getAveragePriceDouble() {
 
         long totalQuantity = 0;
         double totalPrice = 0.0;
-        long maxQuantity = getQuantity();
-        List<Transaction> transactions = new ArrayList<Transaction>(getTransactions());
 
-        // sort by date descending
-        Collections.sort(transactions, new Comparator<Transaction>() {
-            public int compare(Transaction t1, Transaction t2) {
-                return (t2.getDateTime().compareTo(t1.getDateTime()));
-            }
-        });
+        List<QuantityTransaction> quantityTransactions = getFIFIQueue();
+        for (QuantityTransaction queueTransaction : quantityTransactions) {
 
-        // by FIFO principle
-        // we go through all transactions (in reverse order) until we have considered to total quantity of the position
-        for (Transaction transaction : transactions) {
+            Transaction transaction = queueTransaction.getTransaction();
+            long quantity = queueTransaction.getQuantity();
+            double pricePerContract = Math.abs(transaction.getValueDouble() / transaction.getQuantity());
 
-            // price per Contract of this transaction
-            // we need this because we might not consider to whole quantity of the transaction
-            // (part might already have been sold again)
-            double pricePerContract = (transaction.getPrice().doubleValue() * transaction.getSecurity().getSecurityFamily().getContractSize() + transaction.getCommission().doubleValue() / transaction.getQuantity());
+            totalQuantity += quantity;
+            totalPrice += quantity * pricePerContract;
 
-            if ((maxQuantity < 0) && TransactionType.SELL.equals(transaction.getType())) {
-
-                // for short positions look at sells
-                long quantity = Math.max(transaction.getQuantity(), maxQuantity - totalQuantity);
-
-                totalQuantity += quantity;
-                totalPrice += quantity * pricePerContract;
-
-            } else if ((maxQuantity > 0) && TransactionType.BUY.equals(transaction.getType())) {
-
-                // for long positions look at buys
-                long quantity = Math.min(transaction.getQuantity(), maxQuantity - totalQuantity);
-
-                totalQuantity += quantity;
-                totalPrice += quantity * pricePerContract;
-            }
-
-            if (totalQuantity == maxQuantity) {
-                break;
-            }
 
         }
         return totalPrice / totalQuantity / getSecurity().getSecurityFamily().getContractSize();
+    }
+
+    /**
+     * in days
+     */
+    public double getAverageAge() {
+
+        long totalQuantity = 0;
+        long totalAge = 0;
+
+        List<QuantityTransaction> quantityTransactions = getFIFIQueue();
+        for (QuantityTransaction queueTransaction : quantityTransactions) {
+
+            Transaction transaction = queueTransaction.getTransaction();
+            long quantity = queueTransaction.getQuantity();
+            long age = DateUtil.getCurrentEPTime().getTime() - transaction.getDateTime().getTime();
+
+            totalQuantity += quantity;
+            totalAge += quantity * age;
+
+        }
+        return totalAge / totalQuantity / 86400000.0;
     }
 
     /**
@@ -159,6 +153,82 @@ public class PositionImpl extends Position {
 
         } else {
             return 0.0;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<QuantityTransaction> getFIFIQueue() {
+
+        List<Transaction> transactions = new ArrayList<Transaction>(getTransactions());
+
+        // sort by date ascending
+        Collections.sort(transactions, new Comparator<Transaction>() {
+            public int compare(Transaction t1, Transaction t2) {
+                return (t1.getDateTime().compareTo(t2.getDateTime()));
+            }
+        });
+
+        List<QuantityTransaction> queue = new ArrayList<QuantityTransaction>();
+        long totalQuantity = 0;
+        for (Transaction transaction : transactions) {
+
+            // if queue is empty or transaction increases existing position -> add transaction to queue
+            if (queue.size() == 0 || Long.signum(totalQuantity) == Long.signum(transaction.getQuantity())) {
+                queue.add(new QuantityTransaction(transaction.getQuantity(), transaction));
+
+                // if transaction is reducing quantity -> go through the queue and remove as many items as necessary
+            } else {
+                long runningQuantity = transaction.getQuantity();
+                for (Iterator<QuantityTransaction> it = queue.iterator(); it.hasNext();) {
+
+                    QuantityTransaction queueTransaction = it.next();
+
+                    // transaction will be completely removed
+                    if (Math.abs(queueTransaction.getQuantity()) <= Math.abs(runningQuantity)) {
+                        runningQuantity += queueTransaction.getQuantity();
+                        it.remove();
+
+                    // transaction will be partly removed
+                    } else {
+                        queueTransaction.setQuantity(queueTransaction.getQuantity() + runningQuantity);
+                        runningQuantity = 0;
+                        break;
+                    }
+                }
+
+                // if not the entire runningQuantity could be eliminated,
+                // create a new Quantity Transaction with the reminder
+                if (runningQuantity != 0) {
+                    queue.add(new QuantityTransaction(runningQuantity, transaction));
+                }
+            }
+            totalQuantity += transaction.getQuantity();
+        }
+
+        return queue;
+    }
+
+    private static class QuantityTransaction {
+
+        private long quantity;
+        private Transaction transaction;
+
+        public QuantityTransaction(long quantity, Transaction transaction) {
+            super();
+            this.quantity = quantity;
+            this.transaction = transaction;
+        }
+
+        public long getQuantity() {
+            return this.quantity;
+        }
+
+        public void setQuantity(long quantity) {
+            this.quantity = quantity;
+        }
+
+        public Transaction getTransaction() {
+            return this.transaction;
         }
     }
 }
