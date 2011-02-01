@@ -15,15 +15,16 @@ public class StrategyUtil {
     public static Strategy getStartedStrategy() {
 
         if (startedStrategy == null) {
+            String strategyName;
             if (simulation) {
-                startedStrategy = ServiceLocator.commonInstance().getLookupService().getStrategyByNameFetched(StrategyImpl.BASE);
+                strategyName = StrategyImpl.BASE;
             } else {
-                String strategyName = ConfigurationUtil.getBaseConfig().getString("strategyName");
+                strategyName = ConfigurationUtil.getBaseConfig().getString("strategyName");
                 if (strategyName == null) {
                     throw new RuntimeException("no strategy defined on commandline");
                 }
-                startedStrategy = ServiceLocator.commonInstance().getLookupService().getStrategyByNameFetched(strategyName);
             }
+            startedStrategy = ServiceLocator.commonInstance().getLookupService().getStrategyByNameFetched(strategyName);
         }
         return startedStrategy;
     }
