@@ -65,9 +65,10 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         double totalPrice = 0.0;
         double totalCommission = 0.0;
         double totalProfit = 0.0;
-
-        double avgAge = 0;
         double profit = 0.0;
+        double profitPct = 0.0;
+        double avgAge = 0;
+
         for (Transaction transaction : transactions) {
 
             transaction.setType(transactionType);
@@ -104,7 +105,10 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 // evaluate the profit in closing transactions
                 // must get this before attaching the new transaction
                 if (Long.signum(position.getQuantity()) * Long.signum(transaction.getQuantity()) == -1) {
-                    profit = transaction.getValueDouble() - position.getCostDouble();
+                    double cost = position.getCostDouble();
+                    double value = transaction.getValueDouble();
+                    profit = value - cost;
+                    profitPct = (cost - value) / cost;
                     avgAge = position.getAverageAge();
                 }
 
@@ -132,8 +136,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
             String logMessage = "executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() +
                     " of " + security.getSymbol() + " price: " + transaction.getPrice() + " commission: " + transaction.getCommission() +
-                    ((profit != 0.0) ? (" gain: " + RoundUtil.getBigDecimal(profit)) : "") +
-                    ((avgAge != 0.0) ? (" avgAge: " + RoundUtil.getBigDecimal(avgAge)) : "");
+                    ((profit != 0.0) ? (" profit: " + RoundUtil.getBigDecimal(profit) + " profitPct: " + RoundUtil.getBigDecimal(profitPct)
+                    + " avgAge: " + RoundUtil.getBigDecimal(avgAge)) : "");
 
             if (simulation && logTransactions) {
                 simulationLogger.info(logMessage);
@@ -145,7 +149,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         if (order.getTransactions().size() > 0 && !simulation) {
             mailLogger.info("executed transaction type: " + transactionType + " totalQuantity: " + totalQuantity +
                     " of " + security.getSymbol() + " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) +
-                    " commission: " + totalCommission + " netLiqValue: " + strategy.getNetLiqValue() + ((totalProfit != 0) ? (" gain: " + RoundUtil.getBigDecimal(totalProfit)) : ""));
+                    " commission: " + totalCommission + " netLiqValue: " + strategy.getNetLiqValue() +
+                    ((totalProfit != 0) ? (" profit: " + RoundUtil.getBigDecimal(totalProfit)) : ""));
 
         }
         return order;
