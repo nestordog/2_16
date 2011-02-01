@@ -102,7 +102,7 @@ public class ThetaServiceImpl extends ThetaServiceBase {
         double exitValueByMaxAtRiskRatioPerTrade = getExitValueByMaxAtRiskRatioPerTrade(strategy, currentValueDouble, maintenanceMargin);
 
         // choose which ever is lower
-        logger.info("exitValueByVola: " + exitValueByVola + " exitValueByMaxAtRiskRatio: " + exitValueByMaxAtRiskRatioPerTrade);
+        logger.info("exitValueByVola: " + exitValueByVola + " exitValueByMaxAtRiskRatioPerTrade: " + exitValueByMaxAtRiskRatioPerTrade);
         double exitValue = Math.min(exitValueByVola, exitValueByMaxAtRiskRatioPerTrade);
 
         // get numberOfContracts based on margin
