@@ -7,17 +7,23 @@ import java.util.List;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.MacdVO;
 import com.algoTrader.vo.StochasticVO;
 
 public class ThetaManagementServiceImpl extends ThetaManagementServiceBase {
 
+    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+    private static String thetaStrategyName = ConfigurationUtil.getBaseConfig().getString("thetaStrategyName");
+
     @SuppressWarnings("unchecked")
     protected List<MacdVO> handleGetMACD() throws Exception {
 
         Strategy strategy = StrategyUtil.getStartedStrategy();
-        if (StrategyImpl.THETA.equals(strategy.getGroup())) {
+        if (simulation == true && thetaStrategyName != null) {
+            return getRuleService().getAllEvents(thetaStrategyName, "KEEP_MACD_VO");
+        } else if (StrategyImpl.THETA.equals(strategy.getGroup())) {
             return getRuleService().getAllEvents(strategy.getName(), "KEEP_MACD_VO");
         } else {
             return new ArrayList<MacdVO>();
@@ -28,7 +34,9 @@ public class ThetaManagementServiceImpl extends ThetaManagementServiceBase {
     protected List<StochasticVO> handleGetStochastic() throws Exception {
 
         Strategy strategy = StrategyUtil.getStartedStrategy();
-        if (StrategyImpl.THETA.equals(strategy.getGroup())) {
+        if (simulation == true && thetaStrategyName != null) {
+            return getRuleService().getAllEvents(thetaStrategyName, "KEEP_STOCHASTIC_VO");
+        } else if (StrategyImpl.THETA.equals(strategy.getGroup())) {
             return getRuleService().getAllEvents(strategy.getName(), "KEEP_STOCHASTIC_VO");
         } else {
             return new ArrayList<StochasticVO>();
