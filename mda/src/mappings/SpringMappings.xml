@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <mappings name="Java">
 
+        <!-- add hibernate.generate_statistics to applicationContext.xml -->
+        <mapping>
+            <from><![CDATA[<!-- applicationContext hibernateProperties merge-point -->]]></from>
+            <to><![CDATA[<prop key="hibernate.generate_statistics">true</prop>]]></to>
+        </mapping>
+
         <!-- add applicationContext-algoTrader.xml to beanRefFactory -->
         <mapping>
             <from><![CDATA[<!-- beanRefFactory merge-point -->]]></from>
