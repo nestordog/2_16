@@ -19,6 +19,7 @@ public class TransactionImpl extends Transaction {
     /**
      * SELL / CREDIT / INTREST: positive cashflow
      * BUY / EXPIRATION / DEBIT / FEES: negative cashflow
+     * REBALANCE: positive or negative cashflow (depending on quantity equals 1 or -1)
      */
     public double getValueDouble() {
 
@@ -33,6 +34,9 @@ public class TransactionImpl extends Transaction {
             } else if (getType().equals(TransactionType.DEBIT) ||
                     getType().equals(TransactionType.FEES)) {
                 this.value = -getPrice().doubleValue();
+            } else if (getType().equals(TransactionType.REBALANCE)) {
+                this.value = getQuantity() * getPrice().doubleValue();
+                ;
             } else {
                 throw new IllegalArgumentException("unsupported transactionType: " + getType());
             }
