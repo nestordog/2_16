@@ -54,7 +54,7 @@ where LookupUtil.hasLastTicks()</field>
     <row>
         <field name="id">5</field>
         <field name="NAME">CREATE_MONTHLY_PERFORMANCE</field>
-        <field name="PRIORITY">0</field>
+        <field name="PRIORITY">2</field>
         <field name="DEFINITION">insert into MonthlyPerformance
 select DateUtil.toDate(current_timestamp()) as date,
 portfolio.value.netLiqValue / prior(1, portfolio.value.netLiqValue) - 1 as value
@@ -64,6 +64,16 @@ portfolio.value.netLiqValue != prior(1, portfolio.value.netLiqValue)
 </field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
+        <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
+        <field name="INIT" xsi:type="xs:hexBinary">00</field>
+    </row>
+    <row>
+        <field name="id">6</field>
+        <field name="NAME">REBALANCE_PORTFOLIO</field>
+        <field name="PRIORITY">1</field>
+        <field name="DEFINITION">every timer:at (0, 18, lastweekday, *, *) -&gt; Portfolio</field>
+        <field name="SUBSCRIBER" xsi:nil="true" />
+        <field name="LISTENERS">com.algoTrader.service.AccountServiceImpl$RebalancePortfolioListener</field>
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
     </row>
