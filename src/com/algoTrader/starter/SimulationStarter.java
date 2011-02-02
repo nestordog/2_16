@@ -87,6 +87,9 @@ public class SimulationStarter {
 
         } else {
             logger.info("invalid command " + args[0]);
+            return;
         }
+
+        ServiceLocator.serverInstance().shutdown();
     }
 }

@@ -24,5 +24,7 @@ public class HistoricalDataStarter {
         service.init();
 
         service.requestHistoricalData(securityIds, whatToShow, startDate, endDate);
+
+        ServiceLocator.serverInstance().shutdown();
     }
 }

@@ -13,5 +13,7 @@ public class ImportTickStarter {
         for (String isin : isins) {
             service.importTicks(isin);
         }
+
+        ServiceLocator.serverInstance().shutdown();
     }
 }
