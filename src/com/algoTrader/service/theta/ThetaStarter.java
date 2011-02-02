@@ -28,7 +28,6 @@ public class ThetaStarter {
 
         // switch to internalClock
         ruleService.setInternalClock(strategyName, true);
-        ruleService.enableManagement(strategyName);
 
         //activate the rest of the rules
         ruleService.activateAll(strategyName);

@@ -22,6 +22,5 @@ public class TickStarter {
         ruleService.initServiceProvider(StrategyImpl.BASE);
         ruleService.setInternalClock(StrategyImpl.BASE, true);
         ruleService.activateAll(StrategyImpl.BASE);
-        ruleService.enableManagement(StrategyImpl.BASE);
     }
 }
