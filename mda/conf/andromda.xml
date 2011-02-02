@@ -53,7 +53,7 @@
                 <property name="hibernateQueryUseNamedParameters">true</property>
                 <property name="sessionFactory">org.springframework.orm.hibernate3.LocalSessionFactoryBean</property>
                 <property name="localTransactionManager">org.springframework.orm.hibernate3.HibernateTransactionManager</property>
-                <property name="hibernateCacheProvider">org.hibernate.cache.EhCacheProvider</property>
+                <property name="hibernateCacheProvider">org.hibernate.cache.SingletonEhCacheProvider</property>
                 <property name="hibernateQueryCacheFactory">org.hibernate.cache.StandardQueryCacheFactory</property>
                 <property name="hibernateEnableCache">true</property>
                 <property name="hibernateInheritanceStrategy">${hibernate.inheritance.strategy}</property>
