@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.1.48, for Win64 (unknown)
 --
--- Host: localhost    Database: algotrader
+-- Host: localhost    Database: algotraderlive
 -- ------------------------------------------------------
 -- Server version    5.1.48-community-log
 
@@ -30,7 +30,7 @@ CREATE TABLE `history` (
   `COL` varchar(255) DEFAULT NULL,
   `VALUE` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=133952 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=311 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,13 +48,12 @@ CREATE TABLE `position` (
   `SECURITY_FK` int(11) NOT NULL,
   `STRATEGY_FK` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `SECURITY_FK_STRATEGY_FK_UNIQUE` (`SECURITY_FK`,`STRATEGY_FK`),
   KEY `QUANTITY` (`QUANTITY`),
-  KEY `POSITION_STRATEGY_FKC` (`STRATEGY_FK`),
   KEY `POSITION_SECURITY_FKC` (`SECURITY_FK`),
+  KEY `POSITION_STRATEGY_FKC` (`STRATEGY_FK`),
   CONSTRAINT `POSITION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `POSITION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1981 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4995 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -136,7 +135,7 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 /*!50001 CREATE TABLE `saldo` (
   `date_time` datetime,
-  `type` enum('BUY','SELL','DIVIDEND','DEBIT','CREDIT','FEES','INTREST','EXPIRATION'),
+  `type` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST','FEES','REBALANCE'),
   `symbol` varchar(30),
   `isin` varchar(20),
   `position_fk` int(11),
@@ -145,7 +144,7 @@ SET character_set_client = utf8;
   `quantity` bigint(20),
   `price` decimal(9,2),
   `commission` decimal(15,2),
-  `saldo` decimal(51,2)
+  `saldo` decimal(61,2)
 ) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
@@ -172,30 +171,8 @@ CREATE TABLE `security` (
   CONSTRAINT `SECURITY_SECURITY_FAMILY_FKC` FOREIGN KEY (`SECURITY_FAMILY_FK`) REFERENCES `security_family` (`id`),
   CONSTRAINT `SECURITY_UNDERLAYING_FKC` FOREIGN KEY (`UNDERLAYING_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `SECURITY_VOLATILITY_FKC` FOREIGN KEY (`VOLATILITY_FK`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13947 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=13225 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = latin1 */ ;
-/*!50003 SET character_set_results = latin1 */ ;
-/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `security_after_update` AFTER UPDATE ON `security`
-  FOR EACH ROW
-BEGIN
-     IF NOT NEW.POSITION_FK = OLD.POSITION_FK OR (NEW.POSITION_FK IS NULL XOR OLD.POSITION_FK IS NULL) THEN
-        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
-        VALUES ('security', NEW.id, NOW(), 'POSITION_FK', NEW.POSITION_FK);
-     END IF;
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `security_family`
@@ -310,10 +287,10 @@ CREATE TABLE `tick` (
   `SETTLEMENT` decimal(11,2) NOT NULL,
   `SECURITY_FK` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `DATE_TIME_SECURITY_FK` (`DATE_TIME`,`SECURITY_FK`),
-  KEY `TICK_SECURITY_FKC` (`SECURITY_FK`),
-  KEY `DATE_TIME` (`DATE_TIME`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  UNIQUE KEY `DATE_TIME_SECURITY_FK_UNIQUE` (`DATE_TIME`,`SECURITY_FK`),
+  KEY `DATE_TIME` (`DATE_TIME`),
+  KEY `SECURITY_FKC` (`SECURITY_FK`)
+) ENGINE=MyISAM AUTO_INCREMENT=648312 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -331,7 +308,7 @@ CREATE TABLE `transaction` (
   `PRICE` decimal(9,2) NOT NULL,
   `COMMISSION` decimal(15,2) DEFAULT NULL,
   `CURRENCY` enum('CHF','EUR') NOT NULL,
-  `TYPE` enum('BUY','SELL','DIVIDEND','DEBIT','CREDIT','FEES','INTREST','EXPIRATION') NOT NULL,
+  `TYPE` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST','FEES','REBALANCE') NOT NULL,
   `DESCRIPTION` varchar(255) DEFAULT NULL,
   `SECURITY_FK` int(11) DEFAULT NULL,
   `STRATEGY_FK` int(11) DEFAULT NULL,
@@ -343,7 +320,7 @@ CREATE TABLE `transaction` (
   CONSTRAINT `TRANSACTION_POSITION_FKC` FOREIGN KEY (`POSITION_FK`) REFERENCES `position` (`id`),
   CONSTRAINT `TRANSACTION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `TRANSACTION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5676 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=11144 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -378,7 +355,7 @@ CREATE TABLE `watchers2watchlist` (
 /*!50001 SET collation_connection      = latin1_swedish_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `saldo` AS select `t1`.`DATE_TIME` AS `date_time`,`t1`.`TYPE` AS `type`,`s1`.`SYMBOL` AS `symbol`,`s1`.`ISIN` AS `isin`,`t1`.`POSITION_FK` AS `position_fk`,`o1`.`STRIKE` AS `STRIKE`,`o1`.`EXPIRATION` AS `expiration`,`t1`.`QUANTITY` AS `quantity`,`t1`.`PRICE` AS `price`,`t1`.`COMMISSION` AS `commission`,(select sum((case `t2`.`TYPE` when 'CREDIT' then `t2`.`PRICE` when 'DEBIT' then `t2`.`PRICE` else ((-(`t2`.`QUANTITY`) * `t2`.`PRICE`) - `t2`.`COMMISSION`) end)) from `transaction` `t2` where (`t2`.`id` <= `t1`.`id`)) AS `saldo` from ((`transaction` `t1` left join `security` `s1` on((`t1`.`SECURITY_FK` = `s1`.`id`))) left join `stock_option` `o1` on((`o1`.`ID` = `s1`.`id`))) order by `t1`.`id` */;
+/*!50001 VIEW `saldo` AS select `t1`.`DATE_TIME` AS `date_time`,`t1`.`TYPE` AS `type`,`s1`.`SYMBOL` AS `symbol`,`s1`.`ISIN` AS `isin`,`t1`.`POSITION_FK` AS `position_fk`,`o1`.`STRIKE` AS `STRIKE`,`o1`.`EXPIRATION` AS `expiration`,`t1`.`QUANTITY` AS `quantity`,`t1`.`PRICE` AS `price`,`t1`.`COMMISSION` AS `commission`,(select sum((case `t2`.`TYPE` when 'CREDIT' then `t2`.`PRICE` when 'DEBIT' then `t2`.`PRICE` else (((-(`t2`.`QUANTITY`) * `t2`.`PRICE`) * `f2`.`CONTRACT_SIZE`) - `t2`.`COMMISSION`) end)) from ((`transaction` `t2` left join `security` `s2` on((`t2`.`SECURITY_FK` = `s2`.`id`))) left join `security_family` `f2` on((`s2`.`SECURITY_FAMILY_FK` = `f2`.`id`))) where (`t2`.`id` <= `t1`.`id`)) AS `saldo` from ((`transaction` `t1` left join `security` `s1` on((`t1`.`SECURITY_FK` = `s1`.`id`))) left join `stock_option` `o1` on((`o1`.`ID` = `s1`.`id`))) order by `t1`.`id` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -392,4 +369,4 @@ CREATE TABLE `watchers2watchlist` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-01-10 16:33:47
+-- Dump completed on 2011-02-02 15:40:16
