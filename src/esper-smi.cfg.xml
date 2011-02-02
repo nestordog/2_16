@@ -46,6 +46,10 @@
     <variable name="putVolaPeriod" type="double"/>
     <variable name="putTrigger" type="double"/>
 
+    <plugin-loader name="EsperJMX" class-name="com.espertech.esper.jmx.client.EsperJMXPlugin">
+        <init-arg name="use-platform-mbean-server" value="true" />
+    </plugin-loader>
+
     <plugin-loader name="EsperIOSocketAdapter" class-name="com.espertech.esperio.socket.EsperIOSocketAdapterPlugin">
         <config-xml>
             <esperio-socket-configuration>
