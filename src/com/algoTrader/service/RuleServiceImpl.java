@@ -32,9 +32,7 @@ import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.TimerControlEvent;
-import com.espertech.esper.jmx.client.ConnectorConfigPlatform;
-import com.espertech.esper.jmx.client.JMXEndpoint;
-import com.espertech.esper.jmx.client.JMXEndpointConfiguration;
+import com.espertech.esper.core.EPServiceProviderImpl;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
@@ -257,8 +255,12 @@ public class RuleServiceImpl extends RuleServiceBase {
 
         if (internal) {
             sendEvent(strategyName, new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_INTERNAL));
+            EPServiceProviderImpl provider = (EPServiceProviderImpl) getServiceProvider(strategyName);
+            provider.getTimerService().enableStats();
         } else {
             sendEvent(strategyName, new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_EXTERNAL));
+            EPServiceProviderImpl provider = (EPServiceProviderImpl) getServiceProvider(strategyName);
+            provider.getTimerService().disableStats();
         }
 
         logger.debug("set internal clock to: " + internal + " for strategy: " + strategyName);
@@ -280,24 +282,6 @@ public class RuleServiceImpl extends RuleServiceBase {
     protected long handleGetCurrentTime(String strategyName) {
 
         return getServiceProvider(strategyName).getEPRuntime().getCurrentTime();
-    }
-
-    protected void handleEnableManagement(String strategyName) {
-
-        // Indicate that the platform MBeanServer should be used
-        EPServiceProvider serviceProvider = getServiceProvider(strategyName);
-        ConnectorConfigPlatform platformConfig = new ConnectorConfigPlatform();
-
-        // Configure EsperJMX endpoint
-        JMXEndpointConfiguration jmxConfig = new JMXEndpointConfiguration();
-        jmxConfig.setConnectorConfiguration(platformConfig);
-        jmxConfig.setCreateStmtListenerMBean(true);
-
-        // Start EsperJMX endpoint
-        JMXEndpoint endpoint = new JMXEndpoint(serviceProvider, jmxConfig);
-        endpoint.start();
-
-        logger.debug("enable management for strategy: " + strategyName);
     }
 
     protected void handleInitCoordination(String strategyName) throws Exception {
