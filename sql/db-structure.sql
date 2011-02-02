@@ -48,6 +48,7 @@ CREATE TABLE `position` (
   `SECURITY_FK` int(11) NOT NULL,
   `STRATEGY_FK` int(11) NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `SECURITY_FK_STRATEGY_FK_UNIQUE` (`SECURITY_FK`,`STRATEGY_FK`),
   KEY `QUANTITY` (`QUANTITY`),
   KEY `POSITION_SECURITY_FKC` (`SECURITY_FK`),
   KEY `POSITION_STRATEGY_FKC` (`STRATEGY_FK`),
@@ -124,6 +125,27 @@ CREATE TABLE `rules2strategies` (
   CONSTRAINT `STRATEGY_RULES_FKC` FOREIGN KEY (`RULES_FK`) REFERENCES `rule` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Temporary table structure for view `rules_by_strategy`
+--
+
+DROP TABLE IF EXISTS `rules_by_strategy`;
+/*!50001 DROP VIEW IF EXISTS `rules_by_strategy`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE TABLE `rules_by_strategy` (
+  `STRATEGY_NAME` varchar(30),
+  `RULE_NAME` varchar(30),
+  `PRIORITY` tinyint(4),
+  `DEFINITION` text,
+  `SUBSCRIBER` varchar(100),
+  `LISTENERS` varchar(100),
+  `AUTO_ACTIVATE` bit(1),
+  `INIT` bit(1),
+  `id` int(11)
+) ENGINE=MyISAM */;
+SET character_set_client = @saved_cs_client;
 
 --
 -- Temporary table structure for view `saldo`
@@ -287,7 +309,7 @@ CREATE TABLE `tick` (
   `SETTLEMENT` decimal(11,2) NOT NULL,
   `SECURITY_FK` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `DATE_TIME_SECURITY_FK_UNIQUE` (`DATE_TIME`,`SECURITY_FK`),
+  UNIQUE KEY `DATE_TIME_SECURITY_FK` (`DATE_TIME`,`SECURITY_FK`),
   KEY `DATE_TIME` (`DATE_TIME`),
   KEY `SECURITY_FKC` (`SECURITY_FK`)
 ) ENGINE=MyISAM AUTO_INCREMENT=648312 DEFAULT CHARSET=latin1;
@@ -342,6 +364,25 @@ CREATE TABLE `watchers2watchlist` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Final view structure for view `rules_by_strategy`
+--
+
+/*!50001 DROP TABLE IF EXISTS `rules_by_strategy`*/;
+/*!50001 DROP VIEW IF EXISTS `rules_by_strategy`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = latin1 */;
+/*!50001 SET character_set_results     = latin1 */;
+/*!50001 SET collation_connection      = latin1_swedish_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `rules_by_strategy` AS select `strategy`.`NAME` AS `STRATEGY_NAME`,`rule`.`NAME` AS `RULE_NAME`,`rule`.`PRIORITY` AS `PRIORITY`,`rule`.`DEFINITION` AS `DEFINITION`,`rule`.`SUBSCRIBER` AS `SUBSCRIBER`,`rule`.`LISTENERS` AS `LISTENERS`,`rule`.`AUTO_ACTIVATE` AS `AUTO_ACTIVATE`,`rule`.`INIT` AS `INIT`,`rule`.`id` AS `id` from ((`rules2strategies` join `strategy` on((`rules2strategies`.`STRATEGIES_FK` = `strategy`.`id`))) join `rule` on((`rules2strategies`.`RULES_FK` = `rule`.`id`))) order by `strategy`.`NAME`,`rule`.`id` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
 -- Final view structure for view `saldo`
 --
 
@@ -369,4 +410,4 @@ CREATE TABLE `watchers2watchlist` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-02-02 15:40:16
+-- Dump completed on 2011-02-02 15:48:26
