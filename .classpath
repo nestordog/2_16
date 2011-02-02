@@ -4,6 +4,7 @@
 	<classpathentry kind="src" path="target"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/activation-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/activemq-all-5.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/ant.jar" sourcepath="D:/ant-1.6.5/src/main"/>
 	<classpathentry kind="lib" path="lib/antlr-3.2.jar"/>
 	<classpathentry kind="lib" path="lib/aopalliance.jar"/>
@@ -36,13 +37,18 @@
 	<classpathentry kind="lib" path="lib/currency-converter.jar"/>
 	<classpathentry kind="lib" path="lib/ehcache-1.5.0.jar" sourcepath="D:/ehcache-1.5-src/ehcache-1.5.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib/esper-4.0.0.jar" sourcepath="D:/esper-4.0.0/esper/src"/>
-	<classpathentry kind="lib" path="lib/esper-jmx-3.3.0.jar"/>
+	<classpathentry kind="lib" path="lib/esper-dds-4.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/esper-jmx-4.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/esper-server-4.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/esper-servicexml-4.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/esperio-csv-4.0.0.jar" sourcepath="D:/esper-4.0.0/esper/src"/>
 	<classpathentry kind="lib" path="lib/esperio-socket-4.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/hibernate-3.6.0.jar" sourcepath="D:/hibernate-distribution-3.6.0.Final/project/core/src/main/java"/>
 	<classpathentry kind="lib" path="lib/hibernate-jpa-2.0-api-1.0.0.Final.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.12.0.GA.jar"/>
 	<classpathentry kind="lib" path="lib/javabuilder.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-6.1.23.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-6.1.23.jar"/>
 	<classpathentry kind="lib" path="lib/jta-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jtsclient.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar" sourcepath="D:/log4j-1.2.15/src/main/java/">
@@ -56,6 +62,7 @@
 	<classpathentry kind="lib" path="lib/org.springframework.asm-3.0.5.RELEASE.jar" sourcepath="D:/spring-framework-3.0.5/src/org.springframework.asm-sources-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/org.springframework.beans-3.0.5.RELEASE.jar" sourcepath="D:/spring-framework-3.0.5/src/org.springframework.beans-sources-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/org.springframework.context.jar"/>
+	<classpathentry kind="lib" path="lib/org.springframework.context.support-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/org.springframework.core-3.0.5.RELEASE.jar" sourcepath="D:/spring-framework-3.0.5/src/org.springframework.core-sources-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/org.springframework.expression-3.0.5.RELEASE.jar" sourcepath="D:/spring-framework-3.0.5/src/org.springframework.expression-sources-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/org.springframework.instrument-3.0.5.RELEASE.jar"/>
@@ -64,6 +71,7 @@
 	<classpathentry kind="lib" path="lib/org.springframework.transaction-3.0.5.RELEASE.jar" sourcepath="D:/spring-framework-3.0.5/src/org.springframework.transaction-sources-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="lib" path="lib/sabr.jar"/>
 	<classpathentry kind="lib" path="lib/serializer-2.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5-6.1.14.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/smtp-1.4.3.jar"/>
@@ -71,15 +79,8 @@
 	<classpathentry kind="lib" path="lib/SuperCSV-1.52.jar" sourcepath="D:/SuperCSV-1.52/src/SuperCVS.zip"/>
 	<classpathentry kind="lib" path="lib/tidy.jar"/>
 	<classpathentry kind="lib" path="lib/xalan-2.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/xbean.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis-2.7.1.jar"/>
-	<classpathentry kind="lib" path="lib/activemq-all-5.3.0.jar"/>
-	<classpathentry kind="lib" path="lib/esper-dds-4.0.0.jar"/>
-	<classpathentry kind="lib" path="lib/esper-servicexml-4.0.0.jar"/>
-	<classpathentry kind="lib" path="lib/jetty-6.1.23.jar"/>
-	<classpathentry kind="lib" path="lib/esper-server-4.0.0.jar"/>
-	<classpathentry kind="lib" path="lib/xbean.jar"/>
-	<classpathentry kind="lib" path="lib/jetty-util-6.1.23.jar"/>
-	<classpathentry kind="lib" path="lib/servlet-api-2.5-6.1.14.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
