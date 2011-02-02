@@ -1,4 +1,5 @@
-// line: 155 do not run as daemon-thread
+// line: 122 - 124 check if timertask exists
+// line: 160 do not run as daemon-thread
 /*
  * *************************************************************************************
  * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
@@ -119,7 +120,9 @@ public final class TimerServiceImpl implements TimerService
 
 
     public void enableStats() {
-        timerTask._enableStats = true;
+        if (timerTask != null) {
+            timerTask._enableStats = true;
+        }
     }
 
     public void disableStats() {
