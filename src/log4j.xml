@@ -6,6 +6,7 @@
         <param name="Target" value="System.out" />
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d %-5p %c{1} %m %n" />
+<!--            <param name="ConversionPattern" value="%m" />-->
         </layout>
         <filter class="org.apache.log4j.varia.LevelRangeFilter">
             <param name="LevelMin" value="DEBUG" />
@@ -146,6 +147,10 @@
         <level value="warn" />
     </logger>
 
+    <logger name="com.mchange.v2">
+        <level value="warn" />
+    </logger>
+
     <logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog">
         <level value="error" />
     </logger>
@@ -163,7 +168,7 @@
     <!--
         <logger name="com.algoTrader.service.SimulationServiceImpl">
             <level value="info"/>
-            <appender-ref ref="SIMULATION" />
+            <appender-ref ref="STDOUT" />
             <appender-ref ref="SOCKET" />
         </logger>
     -->
