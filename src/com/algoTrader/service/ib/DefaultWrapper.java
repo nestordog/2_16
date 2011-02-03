@@ -95,9 +95,6 @@ public class DefaultWrapper implements EWrapper {
     public void tickGeneric(int tickerId, int tickType, double value) {
     }
 
-    public void tickOptionComputation(int tickerId, int field, double impliedVol, double delta, double modelPrice, double pvDividend) {
-    }
-
     public void tickPrice(int tickerId, int field, double price, int canAutoExecute) {
     }
 
@@ -108,6 +105,10 @@ public class DefaultWrapper implements EWrapper {
     }
 
     public void tickString(int tickerId, int tickType, String value) {
+    }
+
+    public void tickOptionComputation(int arg0, int arg1, double arg2, double arg3, double arg4, double arg5, double arg6, double arg7, double arg8, double arg9) {
+
     }
 
     public void updateAccountTime(String timeStamp) {
