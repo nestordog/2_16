@@ -20,13 +20,10 @@ public class EClientSocket {
     // Client version history
     //
     // 6 = Added parentId to orderStatus
-    // 7 = The new execDetails event returned for an order filled status and
-    // reqExecDetails
+    // 7 = The new execDetails event returned for an order filled status and reqExecDetails
     // Also market depth is available.
-    // 8 = Added lastFillPrice to orderStatus() event and permId to execution
-    // details
-    // 9 = Added 'averageCost', 'unrealizedPNL', and 'unrealizedPNL' to
-    // updatePortfolio event
+    // 8 = Added lastFillPrice to orderStatus() event and permId to execution details
+    // 9 = Added 'averageCost', 'unrealizedPNL', and 'unrealizedPNL' to updatePortfolio event
     // 10 = Added 'serverId' to the 'open order' & 'order status' events.
     // We send back all the API open orders upon connection.
     // Added new methods reqAllOpenOrders, reqAutoOpenOrders()
@@ -37,12 +34,9 @@ public class EClientSocket {
     // 13 = added goodAfterTime
     // 14 = always send size on bid/ask/last tick
     // 15 = send allocation description string on openOrder
-    // 16 = can receive account name in account and portfolio updates, and fa
-    // params in openOrder
-    // 17 = can receive liquidation field in exec reports, and notAutoAvailable
-    // field in mkt data
-    // 18 = can receive good till date field in open order messages, and request
-    // intraday backfill
+    // 16 = can receive account name in account and portfolio updates, and fa params in openOrder
+    // 17 = can receive liquidation field in exec reports, and notAutoAvailable field in mkt data
+    // 18 = can receive good till date field in open order messages, and request intraday backfill
     // 19 = can receive rthOnly flag in ORDER_STATUS
     // 20 = expects TWS time string on connection after server version >= 20.
     // 21 = can receive bond contract details.
@@ -51,20 +45,15 @@ public class EClientSocket {
     // 24 = can receive volatility order parameters in open order messages
     // 25 = can receive HMDS query start and end times
     // 26 = can receive option vols in option market data messages
-    // 27 = can receive delta neutral order type and delta neutral aux price in
-    // place order version 20: API 8.85
+    // 27 = can receive delta neutral order type and delta neutral aux price in place order version 20: API 8.85
     // 28 = can receive option model computation ticks: API 8.9
-    // 29 = can receive trail stop limit price in open order and can place them:
-    // API 8.91
-    // 30 = can receive extended bond contract def, new ticks, and trade count
-    // in bars
-    // 31 = can receive EFP extensions to scanner and market data, and combo
-    // legs on open orders
+    // 29 = can receive trail stop limit price in open order and can place them: API 8.91
+    // 30 = can receive extended bond contract def, new ticks, and trade count in bars
+    // 31 = can receive EFP extensions to scanner and market data, and combo legs on open orders
     // ; can receive RT bars
     // 32 = can receive TickType.LAST_TIMESTAMP
     // ; can receive "whyHeld" in order status messages
-    // 33 = can receive ScaleNumComponents and ScaleComponentSize is open order
-    // messages
+    // 33 = can receive ScaleNumComponents and ScaleComponentSize is open order messages
     // 34 = can receive whatIf orders / order state
     // 35 = can receive contId field for Contract objects
     // 36 = can receive outsideRth field for Order objects
@@ -74,8 +63,7 @@ public class EClientSocket {
     // ; can receive fundamental data
     // ; can receive underComp for Contract objects
     // ; can receive reqId and end marker in contractDetails/bondContractDetails
-    // ; can receive ScaleInitComponentSize and ScaleSubsComponentSize for Order
-    // objects
+    // ; can receive ScaleInitComponentSize and ScaleSubsComponentSize for Order objects
     // 39 = can receive underConId in contractDetails
     // 40 = can receive algoStrategy/algoParams in openOrder
     // 41 = can receive end marker for openOrder
@@ -87,12 +75,11 @@ public class EClientSocket {
     // ; can receive RTVolume tick
     // 44 = can receive end market for ticker snapshot
     // 45 = can receive notHeld field in openOrder
-    // 46 = can receive contractMonth, industry, category, subcategory fields in
-    // contractDetails
-    // ; can receive timeZoneId, tradingHours, liquidHours fields in
-    // contractDetails
+    // 46 = can receive contractMonth, industry, category, subcategory fields in contractDetails
+    // ; can receive timeZoneId, tradingHours, liquidHours fields in contractDetails
+    // 47 = can receive gamma, vega, theta, undPrice fields in TICK_OPTION_COMPUTATION
 
-    private static final int CLIENT_VERSION = 46;
+    private static final int CLIENT_VERSION = 47;
     private static final int SERVER_VERSION = 38;
     private static final byte[] EOL = { 0 };
     private static final String BAG_SEC_TYPE = "BAG";
@@ -147,6 +134,10 @@ public class EClientSocket {
     private static final int CANCEL_REAL_TIME_BARS = 51;
     private static final int REQ_FUNDAMENTAL_DATA = 52;
     private static final int CANCEL_FUNDAMENTAL_DATA = 53;
+    private static final int REQ_CALC_IMPLIED_VOLAT = 54;
+    private static final int REQ_CALC_OPTION_PRICE = 55;
+    private static final int CANCEL_CALC_IMPLIED_VOLAT = 56;
+    private static final int CANCEL_CALC_OPTION_PRICE = 57;
 
     private static final int MIN_SERVER_VER_REAL_TIME_BARS = 34;
     private static final int MIN_SERVER_VER_SCALE_ORDERS = 35;
@@ -163,6 +154,12 @@ public class EClientSocket {
     private static final int MIN_SERVER_VER_EXECUTION_DATA_CHAIN = 42;
     private static final int MIN_SERVER_VER_NOT_HELD = 44;
     private static final int MIN_SERVER_VER_SEC_ID_TYPE = 45;
+    private static final int MIN_SERVER_VER_PLACE_ORDER_CONID = 46;
+    private static final int MIN_SERVER_VER_REQ_MKT_DATA_CONID = 47;
+    private static final int MIN_SERVER_VER_REQ_CALC_IMPLIED_VOLAT = 49;
+    private static final int MIN_SERVER_VER_REQ_CALC_OPTION_PRICE = 50;
+    private static final int MIN_SERVER_VER_CANCEL_CALC_IMPLIED_VOLAT = 50;
+    private static final int MIN_SERVER_VER_CANCEL_CALC_OPTION_PRICE = 50;
 
     private AnyWrapper m_anyWrapper; // msg handler
     private DataOutputStream m_dos; // the socket output stream
@@ -186,6 +183,7 @@ public class EClientSocket {
     public EReader reader() {
         return this.m_reader;
     }
+
 
     public EClientSocket(AnyWrapper anyWrapper) {
         this.m_anyWrapper = anyWrapper;
@@ -413,7 +411,14 @@ public class EClientSocket {
             }
         }
 
-        final int VERSION = 8;
+        if (this.m_serverVersion < MIN_SERVER_VER_REQ_MKT_DATA_CONID) {
+            if (contract.m_conId > 0) {
+                error(tickerId, EClientErrors.UPDATE_TWS, "  It does not support conId parameter.");
+                return;
+            }
+        }
+
+        final int VERSION = 9;
 
         try {
             // send req mkt data msg
@@ -422,6 +427,9 @@ public class EClientSocket {
             send(tickerId);
 
             // send contract fields
+            if (this.m_serverVersion >= MIN_SERVER_VER_REQ_MKT_DATA_CONID) {
+                send(contract.m_conId);
+            }
             send(contract.m_symbol);
             send(contract.m_secType);
             send(contract.m_expiry);
@@ -469,9 +477,8 @@ public class EClientSocket {
 
             if (this.m_serverVersion >= 31) {
                 /*
-                 * Note: Even though SHORTABLE tick type supported only starting
-                 * server version 33 it would be relatively expensive to expose
-                 * this restriction here.
+                 * Note: Even though SHORTABLE tick type supported only starting server version 33 it would be relatively expensive to expose this
+                 * restriction here.
                  *
                  * Therefore we are relying on TWS doing validation.
                  */
@@ -551,7 +558,7 @@ public class EClientSocket {
                 return;
             }
 
-            send(REQ_HISTORICAL_DATA);
+          send(REQ_HISTORICAL_DATA);
             send(VERSION);
             send(tickerId);
 
@@ -585,7 +592,7 @@ public class EClientSocket {
                 } else {
                     send(contract.m_comboLegs.size());
 
-                    ComboLeg comboLeg;
+                  ComboLeg comboLeg;
                     for (int i = 0; i < contract.m_comboLegs.size(); i++) {
                         comboLeg = (ComboLeg) contract.m_comboLegs.get(i);
                         send(comboLeg.m_conId);
@@ -805,7 +812,7 @@ public class EClientSocket {
                 return;
             }
 
-            send(EXERCISE_OPTIONS);
+          send(EXERCISE_OPTIONS);
             send(VERSION);
             send(tickerId);
 
@@ -898,7 +905,14 @@ public class EClientSocket {
             }
         }
 
-        int VERSION = (this.m_serverVersion < MIN_SERVER_VER_NOT_HELD) ? 27 : 29;
+        if (this.m_serverVersion < MIN_SERVER_VER_PLACE_ORDER_CONID) {
+            if (contract.m_conId > 0) {
+                error(id, EClientErrors.UPDATE_TWS, "  It does not support conId parameter.");
+                return;
+            }
+        }
+
+        int VERSION = (this.m_serverVersion < MIN_SERVER_VER_NOT_HELD) ? 27 : 30;
 
         // send place order msg
         try {
@@ -907,6 +921,9 @@ public class EClientSocket {
             send(id);
 
             // send contract fields
+            if (this.m_serverVersion >= MIN_SERVER_VER_PLACE_ORDER_CONID) {
+                send(contract.m_conId);
+            }
             send(contract.m_symbol);
             send(contract.m_secType);
             send(contract.m_expiry);
@@ -1011,13 +1028,9 @@ public class EClientSocket {
                 send(order.m_faPercentage);
                 send(order.m_faProfile);
             }
-            if (this.m_serverVersion >= 18) { // institutional short sale slot
-                                                // fields.
-                send(order.m_shortSaleSlot); // 0 only for retail, 1 or 2 only
-                                                // for institution.
-                send(order.m_designatedLocation); // only populate when
-                                                    // order.m_shortSaleSlot =
-                                                    // 2.
+            if (this.m_serverVersion >= 18) { // institutional short sale slot fields.
+                send(order.m_shortSaleSlot); // 0 only for retail, 1 or 2 only for institution.
+                send(order.m_designatedLocation); // only populate when order.m_shortSaleSlot = 2.
             }
             if (this.m_serverVersion >= 19) {
                 send(order.m_ocaType);
@@ -1037,15 +1050,14 @@ public class EClientSocket {
                 sendMax(order.m_startingPrice);
                 sendMax(order.m_stockRefPrice);
                 sendMax(order.m_delta);
-                // Volatility orders had specific watermark price attribs in
-                // server version 26
+                // Volatility orders had specific watermark price attribs in server version 26
                 double lower = (this.m_serverVersion == 26 && order.m_orderType.equals("VOL")) ? Double.MAX_VALUE : order.m_stockRangeLower;
                 double upper = (this.m_serverVersion == 26 && order.m_orderType.equals("VOL")) ? Double.MAX_VALUE : order.m_stockRangeUpper;
                 sendMax(lower);
                 sendMax(upper);
             }
 
-            if (this.m_serverVersion >= 22) {
+           if (this.m_serverVersion >= 22) {
                 send(order.m_overridePercentageConstraints);
             }
 
@@ -1060,8 +1072,7 @@ public class EClientSocket {
                 }
                 send(order.m_continuousUpdate);
                 if (this.m_serverVersion == 26) {
-                    // Volatility orders had specific watermark price attribs in
-                    // server version 26
+                    // Volatility orders had specific watermark price attribs in server version 26
                     double lower = order.m_orderType.equals("VOL") ? order.m_stockRangeLower : Double.MAX_VALUE;
                     double upper = order.m_orderType.equals("VOL") ? order.m_stockRangeUpper : Double.MAX_VALUE;
                     sendMax(lower);
@@ -1095,7 +1106,7 @@ public class EClientSocket {
                 send(order.m_notHeld);
             }
 
-            if (this.m_serverVersion >= MIN_SERVER_VER_UNDER_COMP) {
+           if (this.m_serverVersion >= MIN_SERVER_VER_UNDER_COMP) {
                 if (contract.m_underComp != null) {
                     UnderComp underComp = contract.m_underComp;
                     send(true);
@@ -1123,7 +1134,7 @@ public class EClientSocket {
                 }
             }
 
-            if (this.m_serverVersion >= MIN_SERVER_VER_WHAT_IF_ORDERS) {
+           if (this.m_serverVersion >= MIN_SERVER_VER_WHAT_IF_ORDERS) {
                 send(order.m_whatIf);
             }
         } catch (Exception e) {
@@ -1298,7 +1309,7 @@ public class EClientSocket {
 
         final int VERSION = 1;
 
-        // send the set server logging level message
+                // send the set server logging level message
         try {
             send(SET_SERVER_LOGLEVEL);
             send(VERSION);
@@ -1496,6 +1507,138 @@ public class EClientSocket {
             send(reqId);
         } catch (Exception e) {
             error(reqId, EClientErrors.FAIL_SEND_CANFUNDDATA, "" + e);
+            close();
+        }
+    }
+
+    public synchronized void calculateImpliedVolatility(int reqId, Contract contract, double optionPrice, double underPrice) {
+
+        if (!this.m_connected) {
+            error(EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            return;
+        }
+
+        if (this.m_serverVersion < MIN_SERVER_VER_REQ_CALC_IMPLIED_VOLAT) {
+            error(reqId, EClientErrors.UPDATE_TWS, "  It does not support calculate implied volatility requests.");
+            return;
+        }
+
+        final int VERSION = 1;
+
+        try {
+            // send calculate implied volatility msg
+            send(REQ_CALC_IMPLIED_VOLAT);
+            send(VERSION);
+            send(reqId);
+
+            // send contract fields
+            send(contract.m_conId);
+            send(contract.m_symbol);
+            send(contract.m_secType);
+            send(contract.m_expiry);
+            send(contract.m_strike);
+            send(contract.m_right);
+            send(contract.m_multiplier);
+            send(contract.m_exchange);
+            send(contract.m_primaryExch);
+            send(contract.m_currency);
+            send(contract.m_localSymbol);
+
+            send(optionPrice);
+            send(underPrice);
+        } catch (Exception e) {
+            error(reqId, EClientErrors.FAIL_SEND_REQCALCIMPLIEDVOLAT, "" + e);
+            close();
+        }
+    }
+
+    public synchronized void cancelCalculateImpliedVolatility(int reqId) {
+
+        if (!this.m_connected) {
+            error(EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            return;
+        }
+
+        if (this.m_serverVersion < MIN_SERVER_VER_CANCEL_CALC_IMPLIED_VOLAT) {
+            error(reqId, EClientErrors.UPDATE_TWS, "  It does not support calculate implied volatility cancellation.");
+            return;
+        }
+
+        final int VERSION = 1;
+
+        try {
+            // send cancel calculate implied volatility msg
+            send(CANCEL_CALC_IMPLIED_VOLAT);
+            send(VERSION);
+            send(reqId);
+        } catch (Exception e) {
+            error(reqId, EClientErrors.FAIL_SEND_CANCALCIMPLIEDVOLAT, "" + e);
+            close();
+        }
+    }
+
+    public synchronized void calculateOptionPrice(int reqId, Contract contract, double volatility, double underPrice) {
+
+        if (!this.m_connected) {
+            error(EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            return;
+        }
+
+        if (this.m_serverVersion < MIN_SERVER_VER_REQ_CALC_OPTION_PRICE) {
+            error(reqId, EClientErrors.UPDATE_TWS, "  It does not support calculate option price requests.");
+            return;
+        }
+
+        final int VERSION = 1;
+
+        try {
+            // send calculate option price msg
+            send(REQ_CALC_OPTION_PRICE);
+            send(VERSION);
+            send(reqId);
+
+            // send contract fields
+            send(contract.m_conId);
+            send(contract.m_symbol);
+            send(contract.m_secType);
+            send(contract.m_expiry);
+            send(contract.m_strike);
+            send(contract.m_right);
+            send(contract.m_multiplier);
+            send(contract.m_exchange);
+            send(contract.m_primaryExch);
+            send(contract.m_currency);
+            send(contract.m_localSymbol);
+
+            send(volatility);
+            send(underPrice);
+        } catch (Exception e) {
+            error(reqId, EClientErrors.FAIL_SEND_REQCALCOPTIONPRICE, "" + e);
+            close();
+        }
+    }
+
+    public synchronized void cancelCalculateOptionPrice(int reqId) {
+
+        if (!this.m_connected) {
+            error(EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            return;
+        }
+
+        if (this.m_serverVersion < MIN_SERVER_VER_CANCEL_CALC_OPTION_PRICE) {
+            error(reqId, EClientErrors.UPDATE_TWS, "  It does not support calculate option price cancellation.");
+            return;
+        }
+
+        final int VERSION = 1;
+
+        try {
+            // send cancel calculate option price msg
+            send(CANCEL_CALC_OPTION_PRICE);
+            send(VERSION);
+            send(reqId);
+        } catch (Exception e) {
+            error(reqId, EClientErrors.FAIL_SEND_CANCALCOPTIONPRICE, "" + e);
             close();
         }
     }
