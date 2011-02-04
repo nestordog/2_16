@@ -1,12 +1,10 @@
 #!/bin/sh
 set -v off
 
-cd /usr/local/AlgoTrader/sql
+cd /usr/local/AlgoTrader/backup
 
 /usr/local/bin/mysqldump -u @localhost algotrader > backup.sql
 
-/usr/local/bin/smbclient -U aflury -c "cd aflury/Algotrader/backup;put backup.sql" //bubba/home franklin91
+/usr/local/bin/ftpsync.pl /usr/local/AlgoTrader/backup/ ftp://aflury:franklin91@bubba/AlgoTrader/backup/sql/
 
-cd /usr/local/AlgoTrader/results/tickdata
-
-/usr/local/bin/smbclient -U aflury -c "cd aflury/Algotrader/backup/tickdata;recurse;prompt;mput *" //bubba/home franklin91
+/usr/local/bin/ftpsync.pl /usr/local/AlgoTrader/results/tickdata/ ftp://aflury:franklin91@bubba/AlgoTrader/backup/tickdata/
