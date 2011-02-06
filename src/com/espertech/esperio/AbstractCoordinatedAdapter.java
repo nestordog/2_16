@@ -29,12 +29,12 @@ import com.espertech.esper.core.EPStatementHandle;
 import com.espertech.esper.core.EPStatementHandleCallback;
 import com.espertech.esper.core.ExtensionServicesContext;
 import com.espertech.esper.core.StatementFilterVersion;
+import com.espertech.esper.core.StatementRWLockImpl;
 import com.espertech.esper.epl.metric.StatementMetricHandle;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import com.espertech.esper.util.ManagedLockImpl;
 
 /**
  * A skeleton implementation for coordinated adapter reading, for adapters that
@@ -335,7 +335,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
         ScheduleHandleCallback nextScheduleCallback = new ScheduleHandleCallback() { public void scheduledTrigger(ExtensionServicesContext extensionServicesContext) { continueSendingEvents(); } };
         EPServiceProviderSPI spi = (EPServiceProviderSPI) this.epService;
         StatementMetricHandle metricsHandle = spi.getMetricReportingService().getStatementHandle("AbstractCoordinatedAdapter", "AbstractCoordinatedAdapter");
-        EPStatementHandleCallback scheduleCSVHandle = new EPStatementHandleCallback(new EPStatementHandle("AbstractCoordinatedAdapter", "AbstractCoordinatedAdapter", null, new ManagedLockImpl("CSV"), "AbstractCoordinatedAdapter", false, metricsHandle, 0, false, new StatementFilterVersion()), nextScheduleCallback);
+        EPStatementHandleCallback scheduleCSVHandle = new EPStatementHandleCallback(new EPStatementHandle("AbstractCoordinatedAdapter", "AbstractCoordinatedAdapter", null, new StatementRWLockImpl("CSV", false), "AbstractCoordinatedAdapter", false, metricsHandle, 0, false, new StatementFilterVersion()), nextScheduleCallback);
         ScheduleSlot nextScheduleSlot;
 
         if (this.eventsToSend.isEmpty())
