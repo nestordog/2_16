@@ -7,14 +7,11 @@
     <!-- ========================= DATASOURCE DEFINITION ========================= -->
 
     <!-- Local DataSource that works in any environment -->
-    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
-        <property name="driverClass"><value>${dataSource.driver}</value></property>
-        <property name="user"><value>${dataSource.user}</value></property>
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName"><value>${dataSource.driver}</value></property>
+        <property name="username"><value>${dataSource.user}</value></property>
         <property name="password"><value>${dataSource.password}</value></property>
-        <property name="jdbcUrl"><value>${dataSource.url}</value></property>
-        <property name="minPoolSize"><value>5</value></property>
-        <property name="maxPoolSize"><value>10</value></property>
-        <property name="maxStatements"><value>0</value></property>
+        <property name="url"><value>${dataSource.url}</value></property>
     </bean>
 
     <!-- ====================== End of DATASOURCE DEFINITION ====================== -->
