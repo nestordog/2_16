@@ -3,6 +3,7 @@ package com.algoTrader.service;
 import java.math.BigDecimal;
 import java.util.Collection;
 
+import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
@@ -32,8 +33,8 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
         Collection<Strategy> strategies = getStrategyDao().loadAll();
         for (Strategy strategy : strategies) {
 
-            double actualNetLiqValue = strategy.getNetLiqValueDouble();
-            double targetNetLiqValue = portfolioNetLiqValue * strategy.getAllocation();
+            double actualNetLiqValue = MathUtils.round(strategy.getNetLiqValueDouble(), 2);
+            double targetNetLiqValue = MathUtils.round(portfolioNetLiqValue * strategy.getAllocation(), 2);
             totalAllocation += strategy.getAllocation();
 
             if (targetNetLiqValue != actualNetLiqValue) {
