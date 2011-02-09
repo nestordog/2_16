@@ -3,9 +3,10 @@ Id's:
 0 : Timers
 10: Based on RawTick/Tick
 20: Based on EndOfDayTick
-30: Based on Characteristic (or derivations of Tick/EndOfDayTick)
-40: Based on Transaction (or other Statistic Events)
-50: Based on Orders
+30: Based on derivations of Tick
+40: Based on derivations of EndOfDayTick
+50: Based on Transaction (or other Statistic Events)
+60: Based on Orders
 
 Order:
 --------------------------
