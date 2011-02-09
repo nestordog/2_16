@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.DateUtil;
 
 
@@ -16,6 +17,26 @@ public class PositionImpl extends Position {
     public boolean isOpen() {
 
         return (getQuantity() != 0);
+    }
+
+    /**
+     * empty positions and sideways positons return null
+     */
+    public Boolean isBullish() {
+
+        if (!isOpen())
+            return null;
+
+        if (getSecurity() instanceof StockOption) {
+            if (((StockOption) getSecurity()).getType().equals(OptionType.PUT)) {
+                return getQuantity() < 0;
+            } else {
+                return getQuantity() > 0;
+            }
+        } else {
+            // we have nothing else yet
+            return null;
+        }
     }
 
     /**

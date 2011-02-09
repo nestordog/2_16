@@ -144,6 +144,16 @@ public class LookupServiceImpl extends LookupServiceBase {
         return (Position[])getPositionDao().findOpenPositions().toArray(new Position[0]);
     }
 
+    protected Position[] handleGetBullishPositionsByStrategy(String strategyName) throws Exception {
+
+        return (Position[]) getPositionDao().findBullishPositionsByStrategy(strategyName).toArray(new Position[0]);
+    }
+
+    protected Position[] handleGetBearishPositionsByStrategy(String strategyName) throws Exception {
+
+        return (Position[]) getPositionDao().findBearishPositionsByStrategy(strategyName).toArray(new Position[0]);
+    }
+
     protected PortfolioValueVO handleGetPortfolioValue() throws Exception {
 
         PortfolioValueVO portfolioValueVO = new PortfolioValueVO();

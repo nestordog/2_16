@@ -43,27 +43,27 @@ public class ThetaManagementServiceImpl extends ThetaManagementServiceBase {
         }
     }
 
-    protected void handleBuySignal() {
+    protected void handleGoLong() {
 
         Strategy strategy = StrategyUtil.getStartedStrategy();
         if (StrategyImpl.THETA.equals(strategy.getGroup())) {
             Security underlaying = strategy.getUnderlaying();
             BigDecimal underlayingSpot = underlaying.getLastTick().getCurrentValue();
 
-            getThetaService().buySignal(strategy.getName(), underlaying.getId(), underlayingSpot);
+            getThetaService().goLong(strategy.getName(), underlaying.getId(), underlayingSpot);
         } else {
             throw new ThetaManagementServiceException("BuySignal can only be called from THETA strategy group");
         }
     }
 
-    protected void handleSellSignal() {
+    protected void handleGoShort() {
 
         Strategy strategy = StrategyUtil.getStartedStrategy();
         if (StrategyImpl.THETA.equals(strategy.getGroup())) {
             Security underlaying = strategy.getUnderlaying();
             BigDecimal underlayingSpot = underlaying.getLastTick().getCurrentValue();
 
-            getThetaService().sellSignal(strategy.getName(), underlaying.getId(), underlayingSpot);
+            getThetaService().goShort(strategy.getName(), underlaying.getId(), underlayingSpot);
         } else {
             throw new ThetaManagementServiceException("SellSignal can only be called from THETA strategy group");
         }

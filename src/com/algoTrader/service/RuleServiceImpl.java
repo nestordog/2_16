@@ -60,7 +60,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         initVariables(strategyName, configuration);
 
         Strategy strategy = getLookupService().getStrategyByNameFetched(strategyName);
-        configuration.getVariables().get("strategy").setInitializationValue(strategy);
+        configuration.getVariables().get("engineStrategy").setInitializationValue(strategy);
 
         EPServiceProvider serviceProvider = EPServiceProviderManager.getProvider(providerURI, configuration);
 

@@ -215,7 +215,7 @@ public class ThetaServiceImpl extends ThetaServiceBase {
         return -(long) ((signedMaxLeverage - strategy.getLeverage()) * strategy.getNetLiqValueDouble() / stockOption.getLeverage() / contractSize / currentValueDouble);
     }
 
-    protected void handleBuySignal(String strategyName, int underlayingId, BigDecimal underlayingSpot) throws Exception {
+    protected void handleGoLong(String strategyName, int underlayingId, BigDecimal underlayingSpot) throws Exception {
 
         if (firstBuyTime != 0 && getRuleService().getCurrentTime(strategyName) < firstBuyTime) {
             logger.debug("ignoring signal, because we are before firstBuyTime");
@@ -234,7 +234,7 @@ public class ThetaServiceImpl extends ThetaServiceBase {
         }
     }
 
-    protected void handleSellSignal(String strategyName, int underlayingId, BigDecimal underlayingSpot) throws Exception {
+    protected void handleGoShort(String strategyName, int underlayingId, BigDecimal underlayingSpot) throws Exception {
 
         if (firstBuyTime != 0 && getRuleService().getCurrentTime(strategyName) < firstBuyTime) {
             logger.debug("ignoring signal, because we are before firstBuyTime");
@@ -251,6 +251,17 @@ public class ThetaServiceImpl extends ThetaServiceBase {
             getDispatcherService().getTickService().putOnWatchlist(strategyName, stockOption.getId());
             getRuleService().activate(strategyName, "OPEN_POSITION", stockOption.getId());
         }
+    }
+
+    protected void handleTakeProfit(String strategyName, int positionId) throws Exception {
+
+        Strategy strategy = getLookupService().getStrategyByNameFetched(strategyName);
+        double takeProfitRatio = ConfigurationUtil.getStrategyConfig(strategy.getName()).getDouble("takeProfitRatio");
+
+        Position position = getLookupService().getPosition(positionId);
+        long quantity = (long) (Math.abs(position.getQuantity()) * takeProfitRatio);
+
+        getPositionService().reducePosition(positionId, quantity);
     }
 
     protected void handleRollPosition(String strategyName, int positionId, int underlayingId, BigDecimal underlayingSpot) throws Exception {
@@ -314,29 +325,42 @@ public class ThetaServiceImpl extends ThetaServiceBase {
         }
     }
 
-    public static class BuySignalSubscriber {
+    public static class GoLongSubscriber {
 
         public void update(String strategyName, int underlayingId, BigDecimal underlayingSpot) {
 
             long startTime = System.currentTimeMillis();
-            logger.debug("buySignal start");
+            logger.debug("goLong start");
 
-            ServiceLocator.commonInstance().getThetaService().buySignal(strategyName, underlayingId, underlayingSpot);
+            ServiceLocator.commonInstance().getThetaService().goLong(strategyName, underlayingId, underlayingSpot);
 
-            logger.debug("buySignal end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+            logger.debug("goLong end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
     }
 
-    public static class SellSignalSubscriber {
+    public static class GoShortSubscriber {
 
         public void update(String strategyName, int underlayingId, BigDecimal underlayingSpot) {
 
             long startTime = System.currentTimeMillis();
-            logger.debug("sellSignal start");
+            logger.debug("goShort start");
 
-            ServiceLocator.commonInstance().getThetaService().sellSignal(strategyName, underlayingId, underlayingSpot);
+            ServiceLocator.commonInstance().getThetaService().goShort(strategyName, underlayingId, underlayingSpot);
 
-            logger.debug("sellSignal end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+            logger.debug("goShort end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+        }
+    }
+
+    public static class TakeProfitSubscriber {
+
+        public void update(String strategyName, int positionId) {
+
+            long startTime = System.currentTimeMillis();
+            logger.debug("takeProfit start");
+
+            ServiceLocator.commonInstance().getThetaService().takeProfit(strategyName, positionId);
+
+            logger.debug("takeProfit end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
     }
 

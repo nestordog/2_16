@@ -23,7 +23,7 @@
     <variable name="simulation" type="boolean"/>
     <variable name="simulation_eventsPerDay" type="long"/>
 
-    <variable name="strategy" type="com.algoTrader.entity.Strategy"/>
+    <variable name="engineStrategy" type="com.algoTrader.entity.Strategy"/>
 
     <variable name="macdFast" type="int"/>
     <variable name="macdSlow" type="int"/>

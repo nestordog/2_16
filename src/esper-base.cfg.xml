@@ -28,7 +28,7 @@
     <variable name="simulation_eventsPerDay" type="long"/>
     <variable name="marketIntrest" type="double"/>
 
-    <variable name="strategy" type="com.algoTrader.entity.Strategy"/>
+    <variable name="engineStrategy" type="com.algoTrader.entity.Strategy"/>
 
     <plugin-loader name="EsperJMX" class-name="com.espertech.esper.jmx.client.EsperJMXPlugin">
         <init-arg name="use-platform-mbean-server" value="true" />

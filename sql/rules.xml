@@ -125,9 +125,9 @@ and tick.currentValue  &gt;= position.exitValue</field>
         <field name="PRIORITY">5</field>
         <field name="DEFINITION">insert into AggregatedTick
 select indexTick, volaTick, optionTick
-from pattern [every indexTick=Tick(security.isin = strategy.underlaying.isin)
--&gt; volaTick=Tick(security.id=indexTick.security.volatility.id) and not Tick(security.isin = strategy.underlaying.isin)
--&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = strategy.underlaying.isin or security.id=indexTick.security.volatility.id)]</field>
+from pattern [every indexTick=Tick(security.isin = engineStrategy.underlaying.isin)
+-&gt; volaTick=Tick(security.id=indexTick.security.volatility.id) and not Tick(security.isin = engineStrategy.underlaying.isin)
+-&gt; every optionTick=Tick(security.underlaying.id=indexTick.security.id) and not Tick(security.isin = engineStrategy.underlaying.isin or security.id=indexTick.security.volatility.id)]</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
@@ -173,7 +173,7 @@ and position.quantity != 0</field>
         <field name="NAME">OPEN_POSITION</field>
         <field name="PRIORITY">2</field>
         <field name="DEFINITION">select
-strategy.name as strategyName,
+engineStrategy.name as strategyName,
 optionTick.security.id as securityId,
 optionTick.currentValue as currentValue,
 indexTick.currentValue as underlayingSpot,
@@ -194,10 +194,10 @@ where optionTick.security.id = ?</field>
         <field name="DEFINITION">insert into KFast
 select security,
 (select (last(currentValueDouble) - min(currentValueDouble))/(max(currentValueDouble) - min(currentValueDouble)) as call
-from Tick(security.isin = strategy.underlaying.isin).win:length(cast(callKFastDays * simulation_eventsPerDay, int))),
+from Tick(security.isin = engineStrategy.underlaying.isin).win:length(cast(callKFastDays * simulation_eventsPerDay, int))),
 (select (last(currentValueDouble) - min(currentValueDouble))/(max(currentValueDouble) - min(currentValueDouble)) as put
-from Tick(security.isin = strategy.underlaying.isin).win:length(cast(putKFastDays * simulation_eventsPerDay, int)))
-from Tick(security.isin = strategy.underlaying.isin)
+from Tick(security.isin = engineStrategy.underlaying.isin).win:length(cast(putKFastDays * simulation_eventsPerDay, int)))
+from Tick(security.isin = engineStrategy.underlaying.isin)
 having count(id) &gt;= cast(Math.max(callKFastDays,putKFastDays) * simulation_eventsPerDay ,int)</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
@@ -210,7 +210,7 @@ having count(id) &gt;= cast(Math.max(callKFastDays,putKFastDays) * simulation_ev
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into EndOfDayTick
 select tick.*
-from pattern [every tick=Tick(security.isin = strategy.underlaying.isin) -&gt; (timer:at (0, 18, *, *, 1:5) and not Tick(security.isin = strategy.underlaying.isin))]</field>
+from pattern [every tick=Tick(security.isin = engineStrategy.underlaying.isin) -&gt; (timer:at (0, 18, *, *, 1:5) and not Tick(security.isin = engineStrategy.underlaying.isin))]</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
@@ -280,42 +280,75 @@ having count(security) &gt;= cast(Math.max(callDSlowDays,putDSlowDays) * simulat
     </row>
     <row>
         <field name="id">32</field>
-        <field name="NAME">GET_BUY_SIGNAL</field>
+        <field name="NAME">GO_LONG</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">select
-strategy.name as strategyName,
+engineStrategy.name as strategyName,
 indexTick.security.id as underlayingid,
 indexTick.currentValue as underlayingSpot
-from pattern [every (indexTick=Tick(security.isin=strategy.underlaying.isin) -&gt; k=KSlow -&gt; d=DSlow)]
+from pattern [every (indexTick=Tick(security.isin=engineStrategy.underlaying.isin) -&gt; k=KSlow -&gt; d=DSlow)]
 where k.put &gt; d.put
 and prior(1, k.put) &lt; prior(1, d.put)
 and d.put &lt; putTrigger
 and putEnabled = true</field>
-        <field name="SUBSCRIBER">com.algoTrader.service.theta.ThetaServiceImpl$BuySignalSubscriber</field>
+        <field name="SUBSCRIBER">com.algoTrader.service.theta.ThetaServiceImpl$GoLongSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
     </row>
     <row>
         <field name="id">33</field>
-        <field name="NAME">GET_SELL_SIGNAL</field>
+        <field name="NAME">TAKE_PROFIT_LONG</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">select
-strategy.name as strategyName,
-indexTick.security.id as underlayingid,
-indexTick.currentValue as underlayingSpot
-from pattern [every (indexTick=Tick(security.isin=strategy.underlaying.isin) -&gt; k=KSlow -&gt; d=DSlow)]
+engineStrategy.name as strategyName,
+position.id
+from pattern [every (indexTick=Tick(security.isin=engineStrategy.underlaying.isin) -&gt; k=KSlow -&gt; d=DSlow)],
+method:LookupUtil.getBullishPositionsByStrategy(engineStrategy.name) as position
 where k.call &lt; d.call
 and prior(1, k.call) &gt; prior(1, d.call)
-and d.call &gt; callTrigger
-and callEnabled = true</field>
-        <field name="SUBSCRIBER">com.algoTrader.service.theta.ThetaServiceImpl$SellSignalSubscriber</field>
+and d.call &gt; callTrigger</field>
+        <field name="SUBSCRIBER">com.algoTrader.service.theta.ThetaServiceImpl$TakeProfitSubscriber</field>
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
     </row>
     <row>
         <field name="id">34</field>
+        <field name="NAME">GO_SHORT</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">select
+engineStrategy.name as strategyName,
+indexTick.security.id as underlayingid,
+indexTick.currentValue as underlayingSpot
+from pattern [every (indexTick=Tick(security.isin=engineStrategy.underlaying.isin) -&gt; k=KSlow -&gt; d=DSlow)]
+where k.call &lt; d.call
+and prior(1, k.call) &gt; prior(1, d.call)
+and d.call &gt; callTrigger
+and callEnabled = true</field>
+        <field name="SUBSCRIBER">com.algoTrader.service.theta.ThetaServiceImpl$GoShortSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
+        <field name="INIT" xsi:type="xs:hexBinary">00</field>
+    </row>
+    <row>
+        <field name="id">35</field>
+        <field name="NAME">TAKE_PROFIT_SHORT</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">select
+engineStrategy.name as strategyName,
+position.id
+from pattern [every (indexTick=Tick(security.isin=engineStrategy.underlaying.isin) -&gt; k=KSlow -&gt; d=DSlow)],
+method:LookupUtil.getBearishPositionsByStrategy(engineStrategy.name) as position
+where k.put &gt; d.put
+and prior(1, k.put) &lt; prior(1, d.put)</field>
+        <field name="SUBSCRIBER">com.algoTrader.service.theta.ThetaServiceImpl$TakeProfitSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
+        <field name="INIT" xsi:type="xs:hexBinary">00</field>
+    </row>
+    <row>
+        <field name="id">36</field>
         <field name="NAME">CREATE_STOCHASTIC_VO</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into StochasticVO
@@ -327,14 +360,14 @@ kSlow.call as KSlowCall,
 kSlow.put as KSlowPut,
 dSlow.call as DSlowCall,
 dSlow.put as DSlowPut
-from pattern [every (indexTick=Tick(security.isin=strategy.underlaying.isin) -&gt; kFast=KFast -&gt; kSlow=KSlow -&gt; dSlow=DSlow)]</field>
+from pattern [every (indexTick=Tick(security.isin=engineStrategy.underlaying.isin) -&gt; kFast=KFast -&gt; kSlow=KSlow -&gt; dSlow=DSlow)]</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
-        <field name="id">35</field>
+        <field name="id">37</field>
         <field name="NAME">KEEP_STOCHASTIC_VO</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">select * from StochasticVO.win:length(cast((Math.max(callKSlowDays,putKSlowDays) + Math.max(callDSlowDays,putDSlowDays) + Math.max(callKFastDays,putKFastDays)) * simulation_eventsPerDay, int))</field>
@@ -344,7 +377,7 @@ from pattern [every (indexTick=Tick(security.isin=strategy.underlaying.isin) -&g
         <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
-        <field name="id">36</field>
+        <field name="id">40</field>
         <field name="NAME">CREATE_MACD_SIGNAL</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into MacdSignal
@@ -358,11 +391,11 @@ having count(*) &gt; Math.round(macdSignal * macdWeight)</field>
         <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
-        <field name="id">37</field>
+        <field name="id">41</field>
         <field name="NAME">SET_TREND</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">select
-strategy.name as strategyName,
+engineStrategy.name as strategyName,
 case when macd.value &gt; signal.value then true else false end as bullish
 from pattern [every (macd=Macd -&gt; signal=MacdSignal)]
 where ((select last(size) from MacdSignal.std:size()) = 1) or
@@ -375,7 +408,7 @@ where ((select last(size) from MacdSignal.std:size()) = 1) or
         <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
-        <field name="id">38</field>
+        <field name="id">42</field>
         <field name="NAME">CREATE_MACD_VO</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into MacdVO
@@ -383,14 +416,14 @@ select indexTick.currentValueDouble as underlaying,
 DateUtil.toDate(current_timestamp()) as dateTime,
 macd.value as macd,
 signal.value as signal
-from pattern [every (indexTick=Tick(security.isin=strategy.underlaying.isin) -&gt; macd=Macd -&gt; signal=MacdSignal)]</field>
+from pattern [every (indexTick=Tick(security.isin=engineStrategy.underlaying.isin) -&gt; macd=Macd -&gt; signal=MacdSignal)]</field>
         <field name="SUBSCRIBER" xsi:nil="true" />
         <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
-        <field name="id">39</field>
+        <field name="id">43</field>
         <field name="NAME">KEEP_MACD_VO</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">select *
@@ -401,7 +434,7 @@ from MacdVO.win:keepall()</field>
         <field name="INIT" xsi:type="xs:hexBinary">01</field>
     </row>
     <row>
-        <field name="id">41</field>
+        <field name="id">51</field>
         <field name="NAME">CREATE_PERFORMANCE_KEYS</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into PerformanceKeys
@@ -418,7 +451,7 @@ from MonthlyPerformance.win:keepall().stat:uni(value) as uni</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
     </row>
     <row>
-        <field name="id">42</field>
+        <field name="id">52</field>
         <field name="NAME">KEEP_MONTHLY_PERFORMANCE</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">select *
@@ -429,7 +462,7 @@ from MonthlyPerformance.win:keepall()</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
     </row>
     <row>
-        <field name="id">43</field>
+        <field name="id">53</field>
         <field name="NAME">CREATE_DRAW_DOWN</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into DrawDown
@@ -442,7 +475,7 @@ from Portfolio as portfolio</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
     </row>
     <row>
-        <field name="id">44</field>
+        <field name="id">54</field>
         <field name="NAME">CREATE_MAX_DRAW_DOWN</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into MaxDrawDown
@@ -455,7 +488,7 @@ from DrawDown as drawDown</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
     </row>
     <row>
-        <field name="id">50</field>
+        <field name="id">60</field>
         <field name="NAME">PROCESS_PREARRANGED_ORDERS</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">select 'SMI',*
