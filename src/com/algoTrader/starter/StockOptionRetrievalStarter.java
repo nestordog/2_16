@@ -8,13 +8,16 @@ public class StockOptionRetrievalStarter {
 
     public static void main(String[] args) throws ParseException {
 
-        start(Integer.parseInt(args[0]));
+        for (String arg : args) {
+            retrieve(Integer.parseInt(arg));
+        }
+
+        ServiceLocator.serverInstance().shutdown();
     }
 
-    public static void start(int underlayingId) {
+    public static void retrieve(int underlayingId) {
 
         ServiceLocator.serverInstance().getDispatcherService().getStockOptionRetrieverService().retrieveAllStockOptionsForUnderlaying(underlayingId);
 
-        ServiceLocator.serverInstance().shutdown();
     }
 }
