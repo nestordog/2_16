@@ -183,22 +183,34 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
                 connect();
             }
 
-            public void error(int orderId, int code, String errorMsg) {
+            public void error(int id, int code, String errorMsg) {
+
+                String message = "client: " + IbTransactionServiceImpl.clientId + " id: " + id + " code: " + code + " " + errorMsg.replaceAll("\n", " ");
 
                 if (code == 202) {
+
+                    // Order cancelled
                     // do nothing, since we cancelled the order ourself
+                    logger.debug(message);
+
+                } else if (code == 201) {
+
+                    // Order rejected - reason:To late to replace order
+                    // do nothing, we modified the price too late
+                    logger.debug(message);
+
                 } else {
-                    super.error(orderId, code, errorMsg);
+                    super.error(id, code, errorMsg);
 
                     IbTransactionServiceImpl.this.lock.lock();
                     try {
 
-                        PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(orderId);
+                        PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(id);
 
                         if (partialOrder != null) {
                             partialOrder.setStatus(OrderStatus.CANCELED);
 
-                            IbTransactionServiceImpl.this.deletedMap.put(orderId, true);
+                            IbTransactionServiceImpl.this.deletedMap.put(id, true);
                             IbTransactionServiceImpl.this.condition.signalAll();
                         }
 
