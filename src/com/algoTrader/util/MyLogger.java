@@ -42,7 +42,7 @@ public class MyLogger extends Logger {
         try {
             String strategyName = StrategyUtil.getStartedStrategyName();
             RuleService ruleService = ServiceLocator.commonInstance().getRuleService();
-            if (ruleService.isInitialized(strategyName)) {
+            if (ruleService.isInitialized(strategyName) && !ruleService.isInternalClock(strategyName)) {
                 time = ruleService.getCurrentTime(strategyName);
             }
         } catch (Exception e) {

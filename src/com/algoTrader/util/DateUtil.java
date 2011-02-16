@@ -18,7 +18,7 @@ public class DateUtil {
 
         String strategyName = StrategyUtil.getStartedStrategyName();
         RuleService ruleService = ServiceLocator.commonInstance().getRuleService();
-        if (ruleService.isInitialized(strategyName)) {
+        if (ruleService.isInitialized(strategyName) && !ruleService.isInternalClock(strategyName)) {
             return new Date(ruleService.getCurrentTime(strategyName));
         } else {
             return new Date();
