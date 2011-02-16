@@ -146,13 +146,13 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
                         Date dateTime = format.parse(execution.m_time);
                         String number = execution.m_execId;
                         int executedQuantity = Math.abs(execution.m_shares);
-                        executedQuantity = TransactionType.SELL.equals(order.getTransactionType()) ? -executedQuantity : executedQuantity;
+                        int signedExecutedQuantity = TransactionType.SELL.equals(order.getTransactionType()) ? -executedQuantity : executedQuantity;
                         BigDecimal price = RoundUtil.getBigDecimal(execution.m_price);
 
                         Transaction transaction = new TransactionImpl();
                         transaction.setDateTime(dateTime);
                         transaction.setNumber(number);
-                        transaction.setQuantity(executedQuantity);
+                        transaction.setQuantity(signedExecutedQuantity);
                         transaction.setPrice(price);
 
                         if (TransactionType.SELL.equals(order.getTransactionType()) || TransactionType.BUY.equals(order.getTransactionType())) {
