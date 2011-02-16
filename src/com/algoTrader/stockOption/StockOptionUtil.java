@@ -176,7 +176,7 @@ public class StockOptionUtil {
         if (OptionType.CALL.equals(type)) {
             return Math.exp((costOfCarry - intrest) * years) * Gaussian.Phi(d1);
         } else {
-            return -Math.exp((costOfCarry - intrest) * years) * Gaussian.Phi(d1);
+            return -Math.exp((costOfCarry - intrest) * years) * Gaussian.Phi(-d1);
         }
     }
 
