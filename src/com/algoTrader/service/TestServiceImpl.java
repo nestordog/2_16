@@ -27,8 +27,8 @@ public class TestServiceImpl extends TestServiceBase {
 
     @Override
     protected void handleTest() throws Exception {
-        // TODO Auto-generated method stub
 
+        // implement as needed
     }
 
     protected void handleTestPattern() {
