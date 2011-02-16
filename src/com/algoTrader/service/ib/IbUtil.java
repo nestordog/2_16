@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 
 import org.apache.commons.lang.time.DateUtils;
 
+import com.algoTrader.entity.Forex;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.enumeration.Market;
@@ -35,6 +36,15 @@ public class IbUtil {
             } else {
                 contract.m_expiry = format.format(stockOption.getExpiration());
             }
+        } else if (security instanceof Forex) {
+
+            String[] currencies = security.getSymbol().split("\\.");
+
+            contract.m_symbol = currencies[0];
+            contract.m_secType = "CASH";
+            contract.m_exchange = IbMarketConverter.marketToString(security.getSecurityFamily().getMarket());
+            contract.m_currency = currencies[1];
+
         } else {
 
             contract.m_symbol = security.getSymbol();
