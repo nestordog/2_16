@@ -21,7 +21,7 @@ public class TickImpl extends Tick {
         if (simulation) {
             return getLast();
         } else {
-            if (this.getSecurity() instanceof StockOption) {
+            if (this.getSecurity() instanceof StockOption || this.getSecurity() instanceof Forex) {
                 return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0);
             } else {
                 return getLast();
