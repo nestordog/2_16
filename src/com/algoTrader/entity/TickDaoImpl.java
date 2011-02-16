@@ -1,5 +1,7 @@
 package com.algoTrader.entity;
 
+import org.hibernate.Hibernate;
+
 import com.algoTrader.vo.RawTickVO;
 import com.algoTrader.vo.TickVO;
 
@@ -58,7 +60,13 @@ public class TickDaoImpl extends TickDaoBase {
         Tick tick = new TickImpl();
         super.rawTickVOToEntity(rawTickVO, tick, true);
 
-        Security security = getSecurityDao().findByIsin(rawTickVO.getIsin());
+        Security security = getSecurityDao().findByIsinFetched(rawTickVO.getIsin());
+
+        // initialize the proxys
+        Hibernate.initialize(security.getUnderlaying());
+        Hibernate.initialize(security.getVolatility());
+        Hibernate.initialize(security.getSecurityFamily());
+
         tick.setSecurity(security);
 
         return tick;
