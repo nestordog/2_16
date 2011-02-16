@@ -65,6 +65,11 @@ public class PositionImpl extends Position {
         }
     }
 
+    public double getMarketPriceBaseDouble() {
+
+        return getMarketPriceDouble() * getSecurity().getFXRateBase();
+    }
+
     /**
      * short positions: negative long positions: positive
      */
@@ -76,6 +81,11 @@ public class PositionImpl extends Position {
         } else {
             return 0.0;
         }
+    }
+
+    public double getMarketValueBaseDouble() {
+
+        return getMarketValueDouble() * getSecurity().getFXRateBase();
     }
 
     /**
@@ -99,6 +109,11 @@ public class PositionImpl extends Position {
 
         }
         return totalPrice / totalQuantity / getSecurity().getSecurityFamily().getContractSize();
+    }
+
+    public double getAveragePriceBaseDouble() {
+
+        return getAveragePriceDouble() * getSecurity().getFXRateBase();
     }
 
     /**
@@ -136,6 +151,11 @@ public class PositionImpl extends Position {
         }
     }
 
+    public double getCostBaseDouble() {
+
+        return getCostDouble() * getSecurity().getFXRateBase();
+    }
+
     public double getUnrealizedPLDouble() {
         if (isOpen()) {
 
@@ -143,6 +163,11 @@ public class PositionImpl extends Position {
         } else {
             return 0.0;
         }
+    }
+
+    public double getUnrealizedPLBaseDouble() {
+
+        return getUnrealizedPLDouble() * getSecurity().getFXRateBase();
     }
 
     public double getMaintenanceMarginDouble() {
@@ -154,7 +179,12 @@ public class PositionImpl extends Position {
         }
     }
 
-    public double getRedemptionValue() {
+    public double getMaintenanceMarginBaseDouble() {
+
+        return getMaintenanceMarginDouble() * getSecurity().getFXRateBase();
+    }
+
+    public double getRedemptionValueDouble() {
 
         if (isOpen() && getExitValue() != null) {
 
@@ -162,6 +192,11 @@ public class PositionImpl extends Position {
         } else {
             return 0.0;
         }
+    }
+
+    public double getRedemptionValueBaseDouble() {
+
+        return getRedemptionValueDouble() * getSecurity().getFXRateBase();
     }
 
     public double getDeltaRisk() {

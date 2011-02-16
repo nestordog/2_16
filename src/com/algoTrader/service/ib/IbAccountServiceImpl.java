@@ -189,12 +189,12 @@ public class IbAccountServiceImpl extends IbAccountServiceBase {
         return accounts;
     }
 
-    protected long handleGetNumberOfContractsByMargin(String strategyName, double initialMarginPerContract) throws Exception {
+    protected long handleGetNumberOfContractsByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception {
 
         long numberOfContractsByMargin = 0;
         for (String account : getAccounts()) {
             double availableAmount = Double.parseDouble(retrieveAccountValue(account, "CHF", "AvailableFunds"));
-            long numberOfContracts = (long) (availableAmount / initialMarginPerContract);
+            long numberOfContracts = (long) (availableAmount / initialMarginPerContractInBase);
             numberOfContractsByMargin += numberOfContracts;
 
             logger.debug("assign " + numberOfContracts + " to account " + account);

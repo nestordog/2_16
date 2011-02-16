@@ -5,6 +5,7 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Strategy;
+import com.algoTrader.enumeration.Periodicity;
 import com.algoTrader.vo.PortfolioValueVO;
 
 public class LookupUtil {
@@ -17,6 +18,12 @@ public class LookupUtil {
     public static StockOption[] getStockOptionsOnWatchlist() {
 
         return ServiceLocator.commonInstance().getLookupService().getStockOptionsOnWatchlist();
+    }
+
+    public static Security[] getSecuritiesOnWatchlistByPeriodicity(String periodicityString) {
+
+        Periodicity periodicity = Periodicity.valueOf(periodicityString);
+        return ServiceLocator.commonInstance().getLookupService().getSecuritiesOnWatchlistByPeriodicity(periodicity);
     }
 
     public static Security getSecurityByIsin(String isin) {

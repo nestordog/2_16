@@ -13,6 +13,9 @@ import com.algoTrader.entity.StockOptionFamily;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.Transaction;
+import com.algoTrader.enumeration.Currency;
+import com.algoTrader.enumeration.Periodicity;
+import com.algoTrader.util.DateUtil;
 import com.algoTrader.vo.PortfolioValueVO;
 
 @SuppressWarnings("unchecked")
@@ -36,6 +39,11 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected Security handleGetSecurityFetched(int stockOptionId) throws Exception {
 
         return getSecurityDao().findByIdFetched(stockOptionId);
+    }
+
+    protected Security[] handleGetSecuritiesOnWatchlistByPeriodicity(Periodicity periodicity) throws Exception {
+
+        return (Security[]) getSecurityDao().findSecuritiesOnWatchlistByPeriodicity(periodicity).toArray(new Security[0]);
     }
 
     protected StockOption handleGetNearestStockOption(int underlayingId, Date expirationDate, BigDecimal underlayingSpot, String optionTypeString) throws Exception {
@@ -168,12 +176,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
     protected Tick handleGetLastTick(int securityId) throws Exception {
 
-        List<Tick> list = getTickDao().findLastNTicksForSecurity(securityId, 1);
-        if (list.size() > 0) {
-            return list.get(0);
-        } else {
-            return null;
-        }
+        return getTickDao().findLastTickForSecurityAndMaxDate(securityId, DateUtil.getCurrentEPTime());
     }
 
     protected List<Tick> handleGetPreFeedTicks(int securityId, int numberOfTicks) {
@@ -204,5 +207,20 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Strategy> handleGetAutoActivateStrategies() throws Exception {
 
         return getStrategyDao().findAutoActivateStrategies();
+    }
+
+    protected double handleGetForexRateDouble(Currency baseCurrency, Currency transactionCurrency) throws Exception {
+
+        return getForexDao().getRateDouble(baseCurrency, transactionCurrency);
+    }
+
+    protected List<Currency> handleGetHeldCurrencies(String strategyName) throws Exception {
+
+        return getStrategyDao().findHeldCurrencies(strategyName);
+    }
+
+    protected List<Currency> handleGetHeldCurrencies() throws Exception {
+
+        return getStrategyDao().findPortfolioHeldCurrencies();
     }
 }

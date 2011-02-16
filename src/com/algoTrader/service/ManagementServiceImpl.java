@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.algoTrader.entity.TickDaoImpl;
 import com.algoTrader.util.StrategyUtil;
+import com.algoTrader.vo.BalanceVO;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.TickVO;
 import com.algoTrader.vo.TransactionVO;
@@ -50,6 +51,11 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         return getReportingService().getStrategyAvailableFunds(StrategyUtil.getStartedStrategyName());
     }
 
+    protected double handleGetStrategyAllocation() throws Exception {
+
+        return getReportingService().getStrategyAllocation(StrategyUtil.getStartedStrategyName());
+    }
+
     protected double handleGetStrategyLeverage() throws Exception {
 
         return getReportingService().getStrategyLeverage(StrategyUtil.getStartedStrategyName());
@@ -80,6 +86,12 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected List<PositionVO> handleGetDataOpenPositions() throws Exception {
 
         return getReportingService().getDataOpenPositions(StrategyUtil.getStartedStrategyName());
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<BalanceVO> handleGetDataBalances() throws Exception {
+
+        return getReportingService().getDataBalances(StrategyUtil.getStartedStrategyName());
     }
 
     @SuppressWarnings("unchecked")

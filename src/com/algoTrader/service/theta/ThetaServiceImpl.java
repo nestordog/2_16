@@ -73,7 +73,7 @@ public class ThetaServiceImpl extends ThetaServiceBase {
 
         // only log INFO if we are in realtime
         String message = "switched trend to " + (bullish ? "bullish" : "bearish");
-        if (getRuleService().getInternalClock(strategyName) == true) {
+        if (getRuleService().isInternalClock(strategyName) == true) {
             logger.info(message);
         } else {
             logger.debug(message);
@@ -93,7 +93,7 @@ public class ThetaServiceImpl extends ThetaServiceBase {
         int contractSize = stockOption.getSecurityFamily().getContractSize();
 
         double maintenanceMargin = StockOptionUtil.getMaintenanceMargin(stockOption, stockOptionSettlementDouble, underlayingSettlementDouble);
-        double initialMargin = maintenanceMargin * initialMarginMarkup;
+        double initialMarginPerContractInBase = maintenanceMargin * initialMarginMarkup * stockOption.getFXRateBase();
 
         // get the exitValue based on the current Volatility
         double exitValueByVola = ThetaUtil.getExitValueDouble(strategy.getName(), stockOption, underlayingValueDouble, volatility);
@@ -106,7 +106,7 @@ public class ThetaServiceImpl extends ThetaServiceBase {
         double exitValue = Math.min(exitValueByVola, exitValueByMaxAtRiskRatioPerTrade);
 
         // get numberOfContracts based on margin
-        long numberOfContractsByMargin = getNumberOfContractsByMargin(strategy, contractSize, initialMargin);
+        long numberOfContractsByMargin = getNumberOfContractsByMargin(strategy, contractSize, initialMarginPerContractInBase);
 
         // get numberOfContracts based on redemption value
         long numberOfContractsByRedemptionValue = getNumberOfContractsByRedemptionValue(strategy, contractSize, currentValueDouble, exitValue);
@@ -166,9 +166,9 @@ public class ThetaServiceImpl extends ThetaServiceBase {
     /**
      * how many options can we sell for the available amount of cash
      */
-    private long getNumberOfContractsByMargin(Strategy strategy, int contractSize, double initialMargin) {
+    private long getNumberOfContractsByMargin(Strategy strategy, int contractSize, double initialMarginPerContractInBase) {
 
-        long numberOfContractsByAvailableFunds = (long) ((strategy.getAvailableFundsDouble() / initialMargin) / contractSize);
+        long numberOfContractsByAvailableFunds = (long) ((strategy.getAvailableFundsDouble() / initialMarginPerContractInBase) / contractSize);
 
         if (simulation) {
 
@@ -177,7 +177,7 @@ public class ThetaServiceImpl extends ThetaServiceBase {
         } else {
 
             // check max numberOfContracts for ManagedAccounts
-            long numberOfContractsFromAccounts = getDispatcherService().getAccountService().getNumberOfContractsByMargin(strategy.getName(), contractSize * initialMargin);
+            long numberOfContractsFromAccounts = getDispatcherService().getAccountService().getNumberOfContractsByMargin(strategy.getName(), contractSize * initialMarginPerContractInBase);
 
             return Math.min(numberOfContractsByAvailableFunds, numberOfContractsFromAccounts);
         }
@@ -197,7 +197,7 @@ public class ThetaServiceImpl extends ThetaServiceBase {
 
         double maxAtRiskRatioOfPortfolio = ConfigurationUtil.getStrategyConfig(strategy.getName()).getDouble("maxAtRiskRatioOfPortfolio");
 
-        return (long) ((maxAtRiskRatioOfPortfolio * strategy.getCashBalanceDouble() - strategy.getRedemptionValue()) / (contractSize * (exitValue - maxAtRiskRatioOfPortfolio * currentValueDouble)));
+        return (long) ((maxAtRiskRatioOfPortfolio * strategy.getCashBalanceDouble() - strategy.getRedemptionValueDouble()) / (contractSize * (exitValue - maxAtRiskRatioOfPortfolio * currentValueDouble)));
     }
 
     /**
@@ -261,7 +261,9 @@ public class ThetaServiceImpl extends ThetaServiceBase {
         Position position = getLookupService().getPosition(positionId);
         long quantity = (long) (Math.abs(position.getQuantity()) * takeProfitRatio);
 
-        getPositionService().reducePosition(positionId, quantity);
+        if (quantity > 0) {
+            getPositionService().reducePosition(positionId, quantity);
+        }
     }
 
     protected void handleRollPosition(String strategyName, int positionId, int underlayingId, BigDecimal underlayingSpot) throws Exception {

@@ -4,18 +4,32 @@
     <table_data name="rule">
     <row>
         <field name="id">1</field>
-        <field name="NAME">RETRIEVE_TICKS</field>
+        <field name="NAME">RETRIEVE_MINUTE_TICKS</field>
         <field name="PRIORITY">0</field>
-        <field name="DEFINITION">select *
-from pattern[every timer:at (*, 9:17, *, *, 1:5)]
+        <field name="DEFINITION">select security.id
+from pattern[every timer:at (*, 9:17, *, *, 1:5)],
+method:LookupUtil.getSecuritiesOnWatchlistByPeriodicity('MINUTE') as security
 where simulation = false</field>
-        <field name="SUBSCRIBER" xsi:nil="true" />
-        <field name="LISTENERS">com.algoTrader.service.TickServiceImpl$RetrieveTickListener</field>
+        <field name="SUBSCRIBER">com.algoTrader.service.TickServiceImpl$RetrieveTickSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
         <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
     </row>
     <row>
         <field name="id">2</field>
+        <field name="NAME">RETRIEVE_HOUR_TICKS</field>
+        <field name="PRIORITY">0</field>
+        <field name="DEFINITION">select security.id
+from pattern[every timer:at (0, 9:18, *, *, 1:5)],
+method:LookupUtil.getSecuritiesOnWatchlistByPeriodicity('HOUR') as security
+where simulation = false</field>
+        <field name="SUBSCRIBER">com.algoTrader.service.TickServiceImpl$RetrieveTickSubscriber</field>
+        <field name="LISTENERS" xsi:nil="true" />
+        <field name="AUTO_ACTIVATE" xsi:type="xs:hexBinary">01</field>
+        <field name="INIT" xsi:type="xs:hexBinary">00</field>
+    </row>
+    <row>
+        <field name="id">3</field>
         <field name="NAME">SET_MARGINS</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">every timer:at (0, 7, *, *, 1:5)</field>
@@ -25,7 +39,7 @@ where simulation = false</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
     </row>
     <row>
-        <field name="id">3</field>
+        <field name="id">4</field>
         <field name="NAME">PROCESS_CASH_TRANSACTIONS</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">select *
@@ -37,7 +51,7 @@ where simulation = false</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
     </row>
     <row>
-        <field name="id">4</field>
+        <field name="id">5</field>
         <field name="NAME">CREATE_PORTFOLIO_VALUE</field>
         <field name="PRIORITY">0</field>
         <field name="DEFINITION">insert into Portfolio
@@ -52,7 +66,7 @@ where LookupUtil.hasLastTicks()</field>
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
     </row>
     <row>
-        <field name="id">5</field>
+        <field name="id">6</field>
         <field name="NAME">CREATE_MONTHLY_PERFORMANCE</field>
         <field name="PRIORITY">2</field>
         <field name="DEFINITION">insert into MonthlyPerformance
@@ -68,7 +82,7 @@ portfolio.value.netLiqValue != prior(1, portfolio.value.netLiqValue)
         <field name="INIT" xsi:type="xs:hexBinary">00</field>
     </row>
     <row>
-        <field name="id">6</field>
+        <field name="id">7</field>
         <field name="NAME">REBALANCE_PORTFOLIO</field>
         <field name="PRIORITY">1</field>
         <field name="DEFINITION">every timer:at (0, 18, lastweekday, *, *) -&gt; Portfolio</field>

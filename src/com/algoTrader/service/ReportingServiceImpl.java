@@ -8,6 +8,7 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TransactionDao;
+import com.algoTrader.vo.BalanceVO;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.TransactionVO;
 
@@ -64,6 +65,12 @@ public class ReportingServiceImpl extends ReportingServiceBase {
         }
     }
 
+    protected double handleGetStrategyAllocation(String strategyName) throws Exception {
+
+        Strategy strategy = getStrategyDao().findByName(strategyName);
+        return strategy.getAllocation();
+    }
+
     protected double handleGetStrategyLeverage(String strategyName) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -106,6 +113,17 @@ public class ReportingServiceImpl extends ReportingServiceBase {
             return getPositionDao().findOpenPositions(PositionDao.TRANSFORM_POSITIONVO);
         } else {
             return getPositionDao().findOpenPositionsByStrategy(PositionDao.TRANSFORM_POSITIONVO, strategyName);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<BalanceVO> handleGetDataBalances(String strategyName) throws Exception {
+
+        Strategy strategy = getStrategyDao().findByName(strategyName);
+        if (strategy.isBase()) {
+            return getStrategyDao().getPortfolioBalances();
+        } else {
+            return strategy.getBalances();
         }
     }
 

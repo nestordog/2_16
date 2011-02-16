@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Predicate;
 import org.supercsv.exception.SuperCSVException;
 
 import com.algoTrader.entity.Security;
@@ -117,9 +117,9 @@ public class VerificationServiceImpl extends VerificationServiceBase {
         }
 
         final Date startDate = format.parse("2010.03.30 15:00");
-        CollectionUtils.filter(optionTicks, new Predicate() {
-            public boolean evaluate(Object obj) {
-                return ((Tick)obj).getDateTime().compareTo(startDate) > 0;
+        CollectionUtils.filter(optionTicks, new Predicate<Tick>() {
+            public boolean evaluate(Tick tick) {
+                return tick.getDateTime().compareTo(startDate) > 0;
             }});
 
         Collections.sort(optionTicks, new Comparator<Tick>() {
@@ -165,10 +165,9 @@ public class VerificationServiceImpl extends VerificationServiceBase {
     private Tick selectTickByDate(final List<Tick> list, final Date date) {
 
         List<Tick> truncatedList = new ArrayList<Tick>();
-        CollectionUtils.select(list, new Predicate() {
-            public boolean evaluate(Object obj) {
+        CollectionUtils.select(list, new Predicate<Tick>() {
+            public boolean evaluate(Tick tick) {
 
-                Tick tick = (Tick)obj;
                 return tick.getDateTime().compareTo(date) < 0 ;
             }}, truncatedList);
 

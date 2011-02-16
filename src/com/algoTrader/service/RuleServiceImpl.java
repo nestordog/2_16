@@ -266,7 +266,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         logger.debug("set internal clock to: " + internal + " for strategy: " + strategyName);
     }
 
-    protected boolean handleGetInternalClock(String strategyName) {
+    protected boolean handleIsInternalClock(String strategyName) {
 
         return this.internalClock.get(strategyName);
     }

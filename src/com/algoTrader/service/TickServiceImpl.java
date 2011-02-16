@@ -29,8 +29,6 @@ import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.io.CsvTickReader;
 import com.algoTrader.util.io.CsvTickWriter;
 import com.algoTrader.vo.RawTickVO;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.UpdateListener;
 
 public abstract class TickServiceImpl extends TickServiceBase {
 
@@ -41,43 +39,40 @@ public abstract class TickServiceImpl extends TickServiceBase {
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
     private Map<Integer, Tick> securities = new HashMap<Integer, Tick>();
 
-    @SuppressWarnings("unchecked")
-    protected void handleRetrieveTicks() throws SuperCSVException, IOException  {
+    protected void handleProcessTick(int securityId) throws SuperCSVException, IOException {
 
-        List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
-        for (Security security : securities) {
+        Security security = getSecurityDao().load(securityId);
 
-            // retrieve ticks only between marketOpen & close
-            if (DateUtil.compareToTime(security.getSecurityFamily().getMarketOpen()) >= 0 &&
-                DateUtil.compareToTime(security.getSecurityFamily().getMarketClose()) <= 0) {
+        // retrieve ticks only between marketOpen & close
+        if (DateUtil.compareToTime(security.getSecurityFamily().getMarketOpen()) >= 0 &&
+            DateUtil.compareToTime(security.getSecurityFamily().getMarketClose()) <= 0) {
 
-                RawTickVO rawTick = retrieveTick(security);
+            RawTickVO rawTick = retrieveTick(security);
 
-                // if we hit a timeout, we get null
-                if (rawTick != null) {
+            // if we hit a timeout, we get null
+            if (rawTick != null) {
 
-                    Tick tick = completeRawTick(rawTick);
+                Tick tick = completeRawTick(rawTick);
 
-                    try {
-                        tick.validate();
-                    } catch (Exception e) {
-                        // do nothing, just ignore invalideTicks
-                    }
-
-                    propagateTick(tick);
-                    createSimulatedTicks(tick);
-
-                    // write the tick to file (even if not valid)
-                    CsvTickWriter csvWriter = this.csvWriters.get(security);
-                    if (csvWriter == null) {
-                        csvWriter = new CsvTickWriter(security.getIsin());
-                        this.csvWriters.put(security, csvWriter);
-                    }
-                    csvWriter.write(tick);
-
-                    // write the tick to the DB
-                    getTickDao().create(tick);
+                try {
+                    tick.validate();
+                } catch (Exception e) {
+                    // do nothing, just ignore invalideTicks
                 }
+
+                propagateTick(tick);
+                createSimulatedTicks(tick);
+
+                // write the tick to file (even if not valid)
+                CsvTickWriter csvWriter = this.csvWriters.get(security);
+                if (csvWriter == null) {
+                    csvWriter = new CsvTickWriter(security.getIsin());
+                    this.csvWriters.put(security, csvWriter);
+                }
+                csvWriter.write(tick);
+
+                // write the tick to the DB
+                getTickDao().create(tick);
             }
         }
     }
@@ -257,11 +252,11 @@ public abstract class TickServiceImpl extends TickServiceBase {
         }
     }
 
-    public static class RetrieveTickListener implements UpdateListener {
+    public static class RetrieveTickSubscriber {
 
-        public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+        public void update(int securityId) {
 
-            ServiceLocator.serverInstance().getDispatcherService().getTickService().retrieveTicks();
+            ServiceLocator.serverInstance().getDispatcherService().getTickService().processTick(securityId);
         }
     }
 }

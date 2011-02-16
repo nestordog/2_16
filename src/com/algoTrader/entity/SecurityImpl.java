@@ -6,12 +6,16 @@ import java.util.Map;
 import org.hibernate.Hibernate;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.enumeration.Currency;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.StrategyUtil;
 import com.espertech.esper.event.bean.BeanEventBean;
 
 public class SecurityImpl extends Security {
 
     private static final long serialVersionUID = -6631052475125813394L;
+
+    private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
 
     public boolean isStrategyUnderlaying() {
 
@@ -70,5 +74,15 @@ public class SecurityImpl extends Security {
     public void validateTick(Tick tick) {
 
         // do nothing, this method will be overwritten
+    }
+
+    public double getFXRate(Currency transactionCurrency) {
+
+        return ServiceLocator.commonInstance().getLookupService().getForexRateDouble(getSecurityFamily().getCurrency(), transactionCurrency);
+    }
+
+    public double getFXRateBase() {
+
+        return getFXRate(portfolioBaseCurrency);
     }
 }
