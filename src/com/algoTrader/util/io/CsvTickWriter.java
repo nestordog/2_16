@@ -20,7 +20,7 @@ import com.algoTrader.util.ConfigurationUtil;
 public class CsvTickWriter {
 
     private static String[] header = new String[] { "dateTime", "last", "lastDateTime", "volBid", "volAsk", "bid", "ask", "vol", "openIntrest", "settlement" };
-    private static CellProcessor[] processor = new CellProcessor[] { new DateConverter(), new ConvertNullTo(""), new DateConverter(), null, null, null, null, null, null, null };
+    private static CellProcessor[] processor = new CellProcessor[] { new DateConverter(), new ConvertNullTo(""), new DateConverter(), null, null, null, null, null, null, new ConvertNullTo("") };
     private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
 
     private CsvBeanWriter writer;
