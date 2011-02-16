@@ -9,6 +9,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.log4j.Logger;
 
+import com.algoTrader.entity.Forex;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Tick;
@@ -150,6 +151,7 @@ public class IbTickServiceImpl extends IbTickServiceBase {
                 if (tick.getSecurity() instanceof StockOption) {
 
                     // stockOptions need to have a bis/ask volume / openIntrest
+                    // but might not have a last/lastDateTime yet on the current day
                     if (tick.getVolBid() == 0)
                         return false;
                     if (tick.getVolAsk() == 0)
@@ -160,12 +162,21 @@ public class IbTickServiceImpl extends IbTickServiceBase {
                         return false;
                     if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0)
                         return false;
+                    if (tick.getSettlement() == null)
+                        return false;
+
+                } else if (tick.getSecurity() instanceof Forex) {
+
+                    // no special checks
+
                 } else {
 
-                    // stockOptions might not have a last/lastDateTime yet on the current day
+
                     if (tick.getLast() == null)
                         return false;
                     if (tick.getLastDateTime() == null)
+                        return false;
+                    if (tick.getSettlement() == null)
                         return false;
                 }
 
@@ -173,8 +184,6 @@ public class IbTickServiceImpl extends IbTickServiceBase {
                 if (tick.getBid() == null)
                     return false;
                 if (tick.getAsk() == null)
-                    return false;
-                if (tick.getSettlement() == null)
                     return false;
 
                 return true;
