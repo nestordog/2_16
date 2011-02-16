@@ -23,7 +23,7 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
 
     private static Logger logger = MyLogger.getLogger(AccountServiceImpl.class.getName());
 
-    private static Currency baseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("baseCurrency"));
+    private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
 
     @SuppressWarnings("unchecked")
     protected void handleRebalancePortfolio() throws Exception {
@@ -43,7 +43,7 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
                 transaction.setQuantity(targetNetLiqValue > actualNetLiqValue ? +1 : -1);
                 transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(targetNetLiqValue - actualNetLiqValue)));
                 transaction.setCommission(new BigDecimal(0.0));
-                transaction.setCurrency(baseCurrency);
+                transaction.setCurrency(portfolioBaseCurrency);
                 transaction.setType(TransactionType.REBALANCE);
                 transaction.setStrategy(strategy);
                 getTransactionDao().create(transaction);
