@@ -201,7 +201,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         }
 
         if (TransactionType.SELL.equals(order.getTransactionType()) || TransactionType.BUY.equals(order.getTransactionType())) {
-            transaction.setCommission(RoundUtil.getBigDecimal(order.getRequestedQuantity() * stockOption.getSecurityFamily().getCommission().doubleValue()));
+            double commission = Math.abs(order.getRequestedQuantity() * stockOption.getSecurityFamily().getCommission().doubleValue());
+            transaction.setCommission(RoundUtil.getBigDecimal(commission));
         } else {
             transaction.setCommission(new BigDecimal(0));
         }
