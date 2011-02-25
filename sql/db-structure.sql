@@ -64,7 +64,7 @@ CREATE TABLE `history` (
   `COL` varchar(255) DEFAULT NULL,
   `VALUE` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=519 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=525 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -136,66 +136,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-
---
--- Table structure for table `rule`
---
-
-DROP TABLE IF EXISTS `rule`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `rule` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `NAME` varchar(30) NOT NULL,
-  `PRIORITY` tinyint(4) NOT NULL DEFAULT '0',
-  `DEFINITION` text NOT NULL,
-  `SUBSCRIBER` varchar(100) DEFAULT NULL,
-  `LISTENERS` varchar(100) DEFAULT NULL,
-  `AUTO_ACTIVATE` bit(1) NOT NULL DEFAULT b'1',
-  `INIT` bit(1) NOT NULL DEFAULT b'0',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `NAME` (`NAME`(20))
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `rules2strategies`
---
-
-DROP TABLE IF EXISTS `rules2strategies`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `rules2strategies` (
-  `RULES_FK` int(11) NOT NULL,
-  `STRATEGIES_FK` int(11) NOT NULL,
-  PRIMARY KEY (`RULES_FK`,`STRATEGIES_FK`),
-  KEY `STRATEGY_RULES_FKC` (`RULES_FK`),
-  KEY `RULE_STRATEGIES_FKC` (`STRATEGIES_FK`),
-  CONSTRAINT `STRATEGY_RULES_FKC` FOREIGN KEY (`RULES_FK`) REFERENCES `rule` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `RULE_STRATEGIES_FKC` FOREIGN KEY (`STRATEGIES_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Temporary table structure for view `rules_by_strategy`
---
-
-DROP TABLE IF EXISTS `rules_by_strategy`;
-/*!50001 DROP VIEW IF EXISTS `rules_by_strategy`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE TABLE `rules_by_strategy` (
-  `STRATEGY_NAME` varchar(30),
-  `RULE_NAME` varchar(30),
-  `PRIORITY` tinyint(4),
-  `DEFINITION` text,
-  `SUBSCRIBER` varchar(100),
-  `LISTENERS` varchar(100),
-  `AUTO_ACTIVATE` bit(1),
-  `INIT` bit(1),
-  `id` int(11)
-) ENGINE=MyISAM */;
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `sabr_params`
@@ -354,12 +294,13 @@ CREATE TABLE `strategy` (
   `GROUP` varchar(20) NOT NULL,
   `AUTO_ACTIVATE` bit(1) NOT NULL,
   `ALLOCATION` double(15,3) NOT NULL,
+  `MODULES` varchar(50) NOT NULL,
   `UNDERLAYING_FK` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `NAME` (`NAME`),
   KEY `STRATEGY_UNDERLAYING_FKC` (`UNDERLAYING_FK`),
   CONSTRAINT `STRATEGY_UNDERLAYING_FKC` FOREIGN KEY (`UNDERLAYING_FK`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -386,7 +327,7 @@ CREATE TABLE `tick` (
   UNIQUE KEY `DATE_TIME_SECURITY_FK` (`DATE_TIME`,`SECURITY_FK`),
   KEY `DATE_TIME` (`DATE_TIME`),
   KEY `TICK_SECURITY_FKC` (`SECURITY_FK`)
-) ENGINE=MyISAM AUTO_INCREMENT=675641 DEFAULT CHARSET=latin1 ROW_FORMAT=FIXED;
+) ENGINE=MyISAM AUTO_INCREMENT=676827 DEFAULT CHARSET=latin1 ROW_FORMAT=FIXED;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -416,7 +357,7 @@ CREATE TABLE `transaction` (
   CONSTRAINT `TRANSACTION_POSITION_FKC` FOREIGN KEY (`POSITION_FK`) REFERENCES `position` (`id`),
   CONSTRAINT `TRANSACTION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `TRANSACTION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11200 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=11202 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -436,25 +377,6 @@ CREATE TABLE `watchers2watchlist` (
   CONSTRAINT `STRATEGY_WATCHLIST_FKC` FOREIGN KEY (`WATCHLIST_FK`) REFERENCES `security` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Final view structure for view `rules_by_strategy`
---
-
-/*!50001 DROP TABLE IF EXISTS `rules_by_strategy`*/;
-/*!50001 DROP VIEW IF EXISTS `rules_by_strategy`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = latin1 */;
-/*!50001 SET character_set_results     = latin1 */;
-/*!50001 SET collation_connection      = latin1_swedish_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `rules_by_strategy` AS select `strategy`.`NAME` AS `STRATEGY_NAME`,`rule`.`NAME` AS `RULE_NAME`,`rule`.`PRIORITY` AS `PRIORITY`,`rule`.`DEFINITION` AS `DEFINITION`,`rule`.`SUBSCRIBER` AS `SUBSCRIBER`,`rule`.`LISTENERS` AS `LISTENERS`,`rule`.`AUTO_ACTIVATE` AS `AUTO_ACTIVATE`,`rule`.`INIT` AS `INIT`,`rule`.`id` AS `id` from ((`rules2strategies` join `strategy` on((`rules2strategies`.`STRATEGIES_FK` = `strategy`.`id`))) join `rule` on((`rules2strategies`.`RULES_FK` = `rule`.`id`))) order by `strategy`.`NAME`,`rule`.`id` */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
 -- Final view structure for view `saldo`
@@ -484,4 +406,4 @@ CREATE TABLE `watchers2watchlist` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-02-16 18:03:38
+-- Dump completed on 2011-02-25 13:39:41

@@ -1,5 +1,6 @@
 package com.algoTrader.service;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,7 +9,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.algoTrader.entity.Rule;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.util.ConfigurationUtil;
@@ -21,15 +21,25 @@ import com.espertech.esper.adapter.InputAdapter;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationVariable;
 import com.espertech.esper.client.EPAdministrator;
+import com.espertech.esper.client.EPPreparedStatementImpl;
 import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EPSubscriberException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.SafeIterator;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
+import com.espertech.esper.client.annotation.Tag;
+import com.espertech.esper.client.deploy.DeploymentInformation;
+import com.espertech.esper.client.deploy.DeploymentOptions;
+import com.espertech.esper.client.deploy.DeploymentResult;
+import com.espertech.esper.client.deploy.EPDeploymentAdmin;
+import com.espertech.esper.client.deploy.Module;
+import com.espertech.esper.client.deploy.ModuleItem;
+import com.espertech.esper.client.soda.AnnotationAttribute;
+import com.espertech.esper.client.soda.AnnotationPart;
+import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.TimerControlEvent;
 import com.espertech.esper.core.EPServiceProviderImpl;
@@ -86,37 +96,99 @@ public class RuleServiceImpl extends RuleServiceBase {
         logger.debug("destroyed service provider: " + strategyName);
     }
 
-    protected void handleActivate(String strategyName, String ruleName) throws Exception {
+    protected void handleDeployRule(String strategyName, String moduleName, String ruleName) throws Exception {
 
-        Rule rule = getLookupService().getRuleByName(ruleName);
-        activate(strategyName, rule, null);
+        deployRule(strategyName, moduleName, ruleName, null);
     }
 
-    protected void handleActivate(String strategyName, String ruleName, int targetId) throws Exception {
+    protected void handleDeployRule(String strategyName, String moduleName, String ruleName, Integer targetId) throws Exception {
 
-        Rule rule = getLookupService().getRuleByName(ruleName);
-        activate(strategyName, rule, targetId);
+        EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
+
+        // do nothing if the statement already exists
+        EPStatement oldStatement = administrator.getStatement(ruleName);
+        if (oldStatement != null && oldStatement.isStarted()) {
+            return;
+        }
+
+        // read the statement from the module
+        EPDeploymentAdmin deployAdmin = administrator.getDeploymentAdmin();
+        Module module = deployAdmin.read("module-" + moduleName + ".epl");
+        List<ModuleItem> items = module.getItems();
+
+        // go through all statements in the module
+        EPStatement newStatement = null;
+        items: for (ModuleItem item : items) {
+            String exp = item.getExpression();
+
+            // get the ObjectModel for the statement
+            EPStatementObjectModel model;
+            EPPreparedStatementImpl prepared = null;
+            if (exp.contains("?")) {
+                prepared = ((EPPreparedStatementImpl) administrator.prepareEPL(exp));
+                model = prepared.getModel();
+            } else {
+                model = administrator.compileEPL(exp);
+            }
+
+            // go through all annotations and check if the statement has the 'name' 'ruleName'
+            List<AnnotationPart> annotations = model.getAnnotations();
+            for (AnnotationPart annotation : annotations) {
+                if (annotation.getName().equals("Name")) {
+                    for (AnnotationAttribute attribute : annotation.getAttributes()) {
+                        if (attribute.getValue().equals(ruleName)) {
+
+                            // for preparedStatements set the target
+                            if (prepared != null) {
+                                exp = exp.replace("?", String.valueOf(targetId));
+                            }
+
+                            // create the statement
+                            newStatement = administrator.createEPL(exp);
+
+                            // break iterating over the statements
+                            break items;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (newStatement != null) {
+
+            addSubscriberAndListeners(newStatement);
+
+            logger.debug("deployed rule " + newStatement.getName() + " on service provider: " + strategyName);
+        }
+
     }
 
-    @SuppressWarnings("unchecked")
-    protected void handleActivateInit(String strategyName) throws Exception {
+    protected void handleDeployModule(String strategyName, String moduleName) throws java.lang.Exception {
 
-        List<Rule> rules = getLookupService().getInitRules(strategyName);
-        for (Rule rule : rules) {
-            activate(strategyName, rule, null);
+        EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
+        EPDeploymentAdmin deployAdmin = administrator.getDeploymentAdmin();
+        Module module = deployAdmin.read("module-" + moduleName + ".epl");
+        DeploymentResult deployResult = deployAdmin.deploy(module, new DeploymentOptions());
+        List<EPStatement> statements = deployResult.getStatements();
+
+        for (EPStatement statement : statements) {
+
+            addSubscriberAndListeners(statement);
+        }
+
+        logger.debug("deployed module " + moduleName + " on service provider: " + strategyName);
+    }
+
+    protected void handleDeployAllModules(String strategyName) throws Exception {
+
+        Strategy strategy = getLookupService().getStrategyByName(strategyName);
+        String[] modules = strategy.getModules().split(",");
+        for (String module : modules) {
+            deployModule(strategyName, module);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    protected void handleActivateAll(String strategyName) throws java.lang.Exception {
-
-        List<Rule> rules = getLookupService().getAutoActivateRules(strategyName);
-        for (Rule rule : rules) {
-            activate(strategyName, rule, null);
-        }
-    }
-
-    protected boolean handleIsActive(String strategyName, String ruleName) throws Exception {
+    protected boolean handleIsDeployed(String strategyName, String ruleName) throws Exception {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
 
@@ -127,35 +199,39 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
-    protected void handleDeactivate(String strategyName, String ruleName) throws Exception {
+    protected void handleUndeployRule(String strategyName, String ruleName) throws Exception {
 
         // destroy the statement
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
 
         if (statement != null && statement.isStarted()) {
             statement.destroy();
-            logger.debug("deactivated rule " + ruleName);
+            logger.debug("undeployed rule " + ruleName);
         }
     }
 
-    protected void handleDeactivateDependingOnTarget(String strategyName, String ruleName, int targetId) throws Exception {
+    protected void handleUndeployRuleByTarget(String strategyName, String ruleName, int targetId) throws Exception {
 
         if (hasServiceProvider(strategyName)) {
             EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
             if (statement != null && statement.isStarted() && statement.getText().contains(String.valueOf(targetId))) {
                 statement.destroy();
-                logger.debug("deactivated rule " + ruleName);
+                logger.debug("undeployed rule " + ruleName);
             }
         }
     }
 
-    protected void handleDeactivateAll(String strategyName) throws java.lang.Exception {
+    protected void handleUndeployModule(String strategyName, String moduleName) throws java.lang.Exception {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
-        administrator.getStatementNames();
-        for (String statementName : administrator.getStatementNames()) {
-            deactivate(strategyName, statementName);
+        EPDeploymentAdmin deployAdmin = administrator.getDeploymentAdmin();
+        for (DeploymentInformation deploymentInformation : deployAdmin.getDeploymentInformation()) {
+            if (deploymentInformation.getModule().getName().equals(moduleName)) {
+                deployAdmin.undeploy(deploymentInformation.getDeploymentId());
+            }
         }
+
+        logger.debug("undeployed module " + moduleName);
     }
 
     protected void handleSendEvent(String strategyName, Object obj) {
@@ -323,71 +399,6 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
-    @SuppressWarnings("rawtypes")
-    private void activate(String strategyName, Rule rule, Integer targetId) throws java.lang.Exception {
-
-        String definition = rule.getPrioritisedDefinition();
-        String name = rule.getName();
-
-        EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
-
-        // do nothing if the statement already exists
-        EPStatement oldStatement = administrator.getStatement(name);
-        if (oldStatement != null && oldStatement.isStarted()) {
-            return;
-        }
-
-        if (targetId != null) {
-            if (!rule.isPrepared()) {
-                throw new RuleServiceException("target is allowed only on prepared rules");
-            } else {
-                definition = definition.replace("?", String.valueOf(targetId));
-            }
-        }
-
-        // create the new statement
-        EPStatement newStatement = null;
-        try {
-            if (rule.isPattern()) {
-                newStatement = administrator.createPattern(definition, name);
-            } else {
-                newStatement = administrator.createEPL(definition, name);
-            }
-
-        } catch (Exception e) {
-            logger.error("problem activating rule: " + name, e);
-            throw e;
-        }
-
-        // add the subscribers
-        if (rule.getSubscriber() != null) {
-            Class cl = Class.forName(rule.getSubscriber().trim());
-            Object obj = cl.newInstance();
-            try {
-                newStatement.setSubscriber(obj);
-            } catch (EPSubscriberException e) {
-                logger.error("problem activating rule: " + name, e);
-                throw e;
-            }
-        }
-
-        // add the listeners
-        if (rule.getListeners() != null) {
-            String[] listeners = rule.getListeners().split("\\s");
-            for (String listener : listeners) {
-                Class cl = Class.forName(listener);
-                Object obj = cl.newInstance();
-                if (obj instanceof StatementAwareUpdateListener) {
-                    newStatement.addListener((StatementAwareUpdateListener) obj);
-                } else {
-                    newStatement.addListener((UpdateListener) obj);
-                }
-            }
-        }
-
-        logger.debug("activated rule " + rule.getName() + " on service provider: " + strategyName);
-    }
-
     private String getProviderURI(String strategyName) {
 
         return (strategyName == null || "".equals(strategyName)) ? StrategyImpl.BASE : strategyName.toUpperCase();
@@ -432,6 +443,32 @@ public class RuleServiceImpl extends RuleServiceBase {
             }
         } catch (ClassNotFoundException e) {
             throw new RuleServiceException(e);
+        }
+    }
+
+    private void addSubscriberAndListeners(EPStatement statement) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+
+        Annotation[] annotations = statement.getAnnotations();
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof Tag) {
+                Tag tag = (Tag) annotation;
+                if (tag.name().equals("subscriber")) {
+                    Class<?> cl = Class.forName(tag.value());
+                    Object obj = cl.newInstance();
+                    statement.setSubscriber(obj);
+                } else if (tag.name().equals("listeners")) {
+                    String[] listeners = tag.value().split("\\s");
+                    for (String listener : listeners) {
+                        Class<?> cl = Class.forName(listener);
+                        Object obj = cl.newInstance();
+                        if (obj instanceof StatementAwareUpdateListener) {
+                            statement.addListener((StatementAwareUpdateListener) obj);
+                        } else {
+                            statement.addListener((UpdateListener) obj);
+                        }
+                    }
+                }
+            }
         }
     }
 }

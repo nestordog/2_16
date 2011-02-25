@@ -127,7 +127,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         List<Strategy> strategies = getStrategyDao().findAutoActivateStrategies();
         for (Strategy strategy : strategies) {
             getRuleService().initServiceProvider(strategy.getName());
-            getRuleService().activateAll(strategy.getName());
+            getRuleService().deployAllModules(strategy.getName());
         }
 
         // feed the ticks
@@ -178,14 +178,14 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         getRuleService().initServiceProvider(StrategyImpl.BASE);
 
         // activate the necessary rules
-        getRuleService().activate(StrategyImpl.BASE, "CREATE_PORTFOLIO_VALUE");
-        getRuleService().activate(StrategyImpl.BASE, "CREATE_MONTHLY_PERFORMANCE");
-        getRuleService().activate(StrategyImpl.BASE, "GET_LAST_TICK");
-        getRuleService().activate(StrategyImpl.BASE, "CREATE_PERFORMANCE_KEYS");
-        getRuleService().activate(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
-        getRuleService().activate(StrategyImpl.BASE, "CREATE_DRAW_DOWN");
-        getRuleService().activate(StrategyImpl.BASE, "CREATE_MAX_DRAW_DOWN");
-        getRuleService().activate(StrategyImpl.BASE, "PROCESS_PREARRANGED_ORDERS");
+        getRuleService().deployRule(StrategyImpl.BASE, "base", "CREATE_PORTFOLIO_VALUE");
+        getRuleService().deployRule(StrategyImpl.BASE, "base", "CREATE_MONTHLY_PERFORMANCE");
+        getRuleService().deployRule(StrategyImpl.BASE, "base", "GET_LAST_TICK");
+        getRuleService().deployRule(StrategyImpl.BASE, "base", "CREATE_PERFORMANCE_KEYS");
+        getRuleService().deployRule(StrategyImpl.BASE, "base", "KEEP_MONTHLY_PERFORMANCE");
+        getRuleService().deployRule(StrategyImpl.BASE, "base", "CREATE_DRAW_DOWN");
+        getRuleService().deployRule(StrategyImpl.BASE, "base", "CREATE_MAX_DRAW_DOWN");
+        getRuleService().deployRule(StrategyImpl.BASE, "base", "PROCESS_PREARRANGED_ORDERS");
 
         // runt the cvs files through
         {

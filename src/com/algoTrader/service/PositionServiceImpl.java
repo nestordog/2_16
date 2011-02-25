@@ -40,7 +40,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
 
         // if there is a and OPEN_POSITION rule active for this stockOption deactivate it
-        getRuleService().deactivateDependingOnTarget(position.getStrategy().getName(), "OPEN_POSITION", security.getId());
+        getRuleService().undeployRuleByTarget(position.getStrategy().getName(), "OPEN_POSITION", security.getId());
     }
 
     protected void handleSetExitValue(int positionId, double exitValue, boolean force) throws MathException {

@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Rule;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.SecurityFamily;
 import com.algoTrader.entity.StockOption;
@@ -91,11 +90,6 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getPositionDao().findBySecurityAndStrategy(securityId, strategyName);
     }
 
-    protected Rule handleGetRule(int id) throws java.lang.Exception {
-
-        return getRuleDao().load(id);
-    }
-
     protected Transaction handleGetTransaction(int id) throws java.lang.Exception {
 
         return getTransactionDao().load(id);
@@ -114,12 +108,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected Position[] handleGetAllPositions() throws Exception {
 
         return (Position[])getPositionDao().loadAll().toArray(new Position[0]);
-    }
-
-    protected Rule[] handleGetAllRules() throws Exception {
-
-        return (Rule[])getRuleDao().loadAll().toArray(new Rule[0]);
-
     }
 
     protected Transaction[] handleGetAllTransactions() throws Exception {
@@ -187,21 +175,6 @@ public class LookupServiceImpl extends LookupServiceBase {
         ids.addAll(recentIds);
 
         return getTickDao().findByIdsFetched(ids);
-    }
-
-    protected Rule handleGetRuleByName(String name) throws Exception {
-
-        return getRuleDao().findByName(name);
-    }
-
-    protected List<Rule> handleGetInitRules(String strategyName) throws Exception {
-
-        return getRuleDao().findInitRules(strategyName);
-    }
-
-    protected List<Rule> handleGetAutoActivateRules(String strategyName) throws Exception {
-
-        return getRuleDao().findAutoActivateRules(strategyName);
     }
 
     protected List<Strategy> handleGetAutoActivateStrategies() throws Exception {

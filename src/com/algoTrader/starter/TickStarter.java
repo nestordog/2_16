@@ -21,6 +21,6 @@ public class TickStarter {
         RuleService ruleService = ServiceLocator.serverInstance().getRuleService();
         ruleService.initServiceProvider(StrategyImpl.BASE);
         ruleService.setInternalClock(StrategyImpl.BASE, true);
-        ruleService.activateAll(StrategyImpl.BASE);
+        ruleService.deployAllModules(StrategyImpl.BASE);
     }
 }

@@ -100,13 +100,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         return getReportingService().getDataTransactions(StrategyUtil.getStartedStrategyName());
     }
 
-    protected void handleActivate(String ruleName) throws Exception {
+    protected void handleActivate(String moduleName, String ruleName) throws Exception {
 
-        getRuleService().activate(StrategyUtil.getStartedStrategyName(), ruleName);
+        getRuleService().deployRule(StrategyUtil.getStartedStrategyName(), moduleName, ruleName);
     }
 
     protected void handleDeactivate(String ruleName) throws Exception {
 
-        getRuleService().deactivate(StrategyUtil.getStartedStrategyName(), ruleName);
+        getRuleService().undeployRule(StrategyUtil.getStartedStrategyName(), ruleName);
     }
 }
