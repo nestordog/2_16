@@ -36,7 +36,7 @@ public class TestServiceImpl extends TestServiceBase {
 
         RuleService ruleService = ServiceLocator.serverInstance().getRuleService();
         ruleService.initServiceProvider("SMI");
-        ruleService.activate("SMI", "TEST");
+        ruleService.deployRule("SMI", "test", "TEST");
 
         Security index = getSecurityDao().load(4);
         Security vola = getSecurityDao().load(5);
@@ -175,25 +175,6 @@ public class TestServiceImpl extends TestServiceBase {
             break;
         case 29:
             getTransactionDao().findLastNTransactionsByStrategy(10, "SMI");
-            break;
-
-        case 30:
-            getRuleDao().load(32);
-            break;
-        case 31:
-            getRuleDao().loadAll();
-            break;
-        case 32:
-            getRuleDao().findByName("GET_LAST_TICK");
-            break;
-        case 33:
-            getRuleDao().findAutoActivateRules("SMI");
-            break;
-        case 34:
-            getRuleDao().findPreparedRules();
-            break;
-        case 35:
-            getRuleDao().findInitRules("SMI");
             break;
 
         case 36:
