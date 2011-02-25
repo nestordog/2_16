@@ -7,10 +7,28 @@
             <to><![CDATA[<prop key="hibernate.generate_statistics">true</prop>]]></to>
         </mapping>
 
-        <!-- add applicationContext-algoTrader.xml to beanRefFactory -->
+        <!-- do not generate beanRefFactory -->
         <mapping>
-            <from><![CDATA[<!-- beanRefFactory merge-point -->]]></from>
-            <to><![CDATA[<value>applicationContext-algoTrader.xml</value>]]></to>
+            <from><![CDATA[<template
+        path="templates/spring/beanRefFactory.xml.vsl"
+        outputPattern="$beanRefFactory"
+        outlet="spring-configuration"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+        <modelElements>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService"/>
+            </modelElement>
+            <modelElement>
+                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
+            </modelElement>
+            <modelElement variable="manageables">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringManageableEntity"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to><![CDATA[]]></to>
         </mapping>
 
         <!--  property serviceLocatorInterfaceName in cartridge.xml-->
