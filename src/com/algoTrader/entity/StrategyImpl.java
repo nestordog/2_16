@@ -21,9 +21,6 @@ public class StrategyImpl extends Strategy {
     private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
 
     public final static String BASE = "BASE";
-    public final static String SMI = "SMI";
-
-    public final static String THETA = "THETA";
 
     public boolean isBase() {
         return (BASE.equals(getName()));
