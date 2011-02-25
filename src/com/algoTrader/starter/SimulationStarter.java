@@ -14,6 +14,8 @@ public class SimulationStarter {
 
     public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
 
+        ServiceLocator.serverInstance().init("beanRefFactorySimulation.xml");
+
         if (args[0].equals("simulateWithCurrentParams")) {
 
             ServiceLocator.serverInstance().getSimulationService().simulateWithCurrentParams();
