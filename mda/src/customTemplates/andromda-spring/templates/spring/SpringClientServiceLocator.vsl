@@ -11,28 +11,11 @@ package $springTypesPackage;
 #set ($generatedFile = "${stringUtils.replace($springTypesPackage,'.','/')}/${generatedFile}")
 #end
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 /**
  * Locates and provides all available application services.
  */
 public class $clientServiceLocatorName implements CommonServiceLocator
 {
-    /**
-     * The default application context location.
-     */
-    private final String DEFAULT_CONTEXT_LOCATION = "$applicationContextClient";
-
-    /**
-     * The spring application context shared instance.
-     */
-    private ClassPathXmlApplicationContext context = null;
-
-    /**
-     * The application context location.
-     */
-    private String contextLocation;
 
     private ${clientServiceLocatorName}()
     {
@@ -49,53 +32,98 @@ public class $clientServiceLocatorName implements CommonServiceLocator
      *
      * @return the shared service locator instance.
      */
-    public static ${clientServiceLocatorName} instance()
+    public static final $clientServiceLocatorName instance()
     {
         return instance;
     }
 
     /**
+     * The bean factory reference instance.
+     */
+    private org.springframework.beans.factory.access.BeanFactoryReference beanFactoryReference;
+    
+    /**
+     * The bean factory reference location.
+     */
+    private String beanFactoryReferenceLocation;
+    
+    /**
+     * The bean factory reference id.
+     */
+    private String beanRefFactoryReferenceId;
+
+    /**
      * Initializes the Spring application context from
-     * the given <code>applicationContextLocation</code>.  If <code>null</code>
-     * is specified for the <code>applicationContextLocation</code>
+     * the given <code>beanFactoryReferenceLocation</code>.  If <code>null</code>
+     * is specified for the <code>beanFactoryReferenceLocation</code>
      * then the default application context will be used.
      *
-     * @param applicationContextLocation the location of the context
+     * @param beanFactoryReferenceLocation the location of the beanRefFactory reference.
      */
-    public synchronized void init(String applicationContextLocation)
+    public synchronized void init(final String beanFactoryReferenceLocation, final String beanRefFactoryReferenceId)
     {
-        contextLocation = applicationContextLocation;
-        context = null;
+        this.beanFactoryReferenceLocation = beanFactoryReferenceLocation;
+        this.beanRefFactoryReferenceId = beanRefFactoryReferenceId;
+        this.beanFactoryReference = null;
     }
+
+    /**
+     * Initializes the Spring application context from
+     * the given <code>beanFactoryReferenceLocation</code>.  If <code>null</code>
+     * is specified for the <code>beanFactoryReferenceLocation</code>
+     * then the default application context will be used.
+     *
+     * @param beanFactoryReferenceLocation the location of the beanRefFactory reference.
+     */
+    public synchronized void init(final String beanFactoryReferenceLocation)
+    {
+        this.beanFactoryReferenceLocation = beanFactoryReferenceLocation;
+        this.beanFactoryReference = null;
+    }
+    
+    /**
+     * The default bean reference factory location.
+     */
+    private final String DEFAULT_BEAN_REFERENCE_LOCATION = "beanRefFactoryClient.xml";
+    
+    /**
+     * The default bean reference factory ID.
+     */
+    private final String DEFAULT_BEAN_REFERENCE_ID = "$beanRefFactoryId";
 
     /**
      * Gets the Spring ApplicationContext.
      */
-    protected synchronized ApplicationContext getContext()
+    protected synchronized org.springframework.context.ApplicationContext getContext()
     {
-        if (context == null)
+        if (this.beanFactoryReference == null)
         {
-            if (contextLocation == null)
+            if (this.beanFactoryReferenceLocation == null)
             {
-                contextLocation = DEFAULT_CONTEXT_LOCATION;
+                this.beanFactoryReferenceLocation = DEFAULT_BEAN_REFERENCE_LOCATION;
             }
-#if ($clientServiceLocatorClassloaderSwitching.equalsIgnoreCase("on"))
-            Thread currentThread = Thread.currentThread();
-            ClassLoader originalClassloader = currentThread.getContextClassLoader();
-            try
+            if (this.beanRefFactoryReferenceId == null)
             {
-                currentThread.setContextClassLoader(this.getClass().getClassLoader());
-#end
-                context = new ClassPathXmlApplicationContext(contextLocation);
-#if ($clientServiceLocatorClassloaderSwitching.equalsIgnoreCase("on"))
+                this.beanRefFactoryReferenceId = DEFAULT_BEAN_REFERENCE_ID;
             }
-            finally
-            {
-                currentThread.setContextClassLoader(originalClassloader);
-            }
-#end
+            org.springframework.beans.factory.access.BeanFactoryLocator beanFactoryLocator =
+                org.springframework.context.access.ContextSingletonBeanFactoryLocator.getInstance(
+                    this.beanFactoryReferenceLocation);
+            this.beanFactoryReference = beanFactoryLocator.useBeanFactory(this.beanRefFactoryReferenceId);
         }
-        return context;
+        return (org.springframework.context.ApplicationContext)this.beanFactoryReference.getFactory();
+    }
+
+    /**
+     * Shuts down the ServiceLocator and releases any used resources.
+     */
+    public synchronized void shutdown()
+    {
+        if (this.beanFactoryReference != null)
+        {
+            this.beanFactoryReference.release();
+            this.beanFactoryReference = null;
+        }
     }
 
 #foreach ($service in $services)
