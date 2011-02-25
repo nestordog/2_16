@@ -56,12 +56,13 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
                 try {
                     tick.validate();
+
+                    // propagateTick and createSimulatedTick only for valid ticks
+                    propagateTick(tick);
+                    createSimulatedTicks(tick);
                 } catch (Exception e) {
                     // do nothing, just ignore invalideTicks
                 }
-
-                propagateTick(tick);
-                createSimulatedTicks(tick);
 
                 // write the tick to file (even if not valid)
                 CsvTickWriter csvWriter = this.csvWriters.get(security);
@@ -71,7 +72,7 @@ public abstract class TickServiceImpl extends TickServiceBase {
                 }
                 csvWriter.write(tick);
 
-                // write the tick to the DB
+                // write the tick to the DB (even if not valid)
                 getTickDao().create(tick);
             }
         }
