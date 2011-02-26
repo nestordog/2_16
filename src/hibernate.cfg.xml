@@ -26,7 +26,6 @@
 
     <mapping resource="com/algoTrader/entity/Dividend.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Position.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/Rule.hbm.xml" />
     <mapping resource="com/algoTrader/entity/SabrParams.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Security.hbm.xml" />
     <mapping resource="com/algoTrader/entity/SecurityFamily.hbm.xml" />
