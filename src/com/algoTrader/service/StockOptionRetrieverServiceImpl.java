@@ -33,6 +33,44 @@ public abstract class StockOptionRetrieverServiceImpl extends StockOptionRetriev
     private static int advanceMinutes = 10;
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
 
+    @SuppressWarnings("unchecked")
+    protected void handleCalculateSabr(String isin) throws Exception {
+
+        Security underlaying = getSecurityDao().findByIsin(isin);
+
+        List<Date> dates = getTickDao().findUniqueDates();
+
+        for (Date date : dates) {
+
+            List<Date> expirationDates = getStockOptionDao().findExpirationsByDate(date);
+
+            // only consider the next two expiration dates
+            if (expirationDates.size() > 2) {
+                expirationDates = expirationDates.subList(0, 2);
+            }
+
+            for (Date expirationDate : expirationDates) {
+
+                for (OptionType type :  new OptionType[]{OptionType.PUT, OptionType.CALL} ) {
+
+                    SabrVO SABRparams = null;
+                    try {
+                        SABRparams = calculateSabrForDate(underlaying, type, date, expirationDate);
+                    } catch (Exception e) {
+                        continue;
+                    }
+
+                    if (SABRparams != null && SABRparams.getAlpha() < 100) {
+
+                        System.out.print(outputFormat.format(date) + " " + outputFormat.format(expirationDate) + " " + type + " ");
+                        System.out.println(SABRparams.getAlpha() + " " + SABRparams.getRho() + " " + SABRparams.getVolVol());
+                    }
+                }
+            }
+        }
+        SABRCalibration.getInstance().dispose();
+    }
+
     protected void handleCalculateSabr(String isin, String startDateString, String expirationDateString, String optionType) throws Exception {
 
         Security underlaying = getSecurityDao().findByIsin(isin);
