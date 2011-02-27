@@ -1,5 +1,8 @@
 package com.algoTrader.service;
 
+import java.util.Map;
+
+import com.algoTrader.enumeration.ConnectionState;
 
 public class BaseManagementServiceImpl extends BaseManagementServiceBase {
 
@@ -27,5 +30,11 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     protected void handleReducePosition(int positionId, int quantity) throws Exception {
 
         getPositionService().reducePosition(positionId, quantity);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Map<String, ConnectionState> handleGetAllConnectionStates() {
+
+        return getIbService().getAllConnectionStates();
     }
 }
