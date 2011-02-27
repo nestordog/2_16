@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import com.algoTrader.entity.StockOption;
+import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.OptionType;
 
 public class IbStockOptionRetrieverServiceImpl extends IbStockOptionRetrieverServiceBase {
@@ -26,5 +27,9 @@ public class IbStockOptionRetrieverServiceImpl extends IbStockOptionRetrieverSer
 
     protected void handleConnect() throws Exception {
         throw new UnsupportedOperationException("handleConnect is not implemented yet");
+    }
+
+    protected ConnectionState handleGetConnectionState() throws Exception {
+        throw new UnsupportedOperationException("handleGetConnectionState is not implemented yet");
     }
 }

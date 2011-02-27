@@ -209,6 +209,15 @@ public class IbTickServiceImpl extends IbTickServiceBase {
         }
     }
 
+    protected ConnectionState handleGetConnectionState() {
+
+        if (this.wrapper == null) {
+            return ConnectionState.DISCONNECTED;
+        } else {
+            return this.wrapper.getState();
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private void requestMarketData() {
 

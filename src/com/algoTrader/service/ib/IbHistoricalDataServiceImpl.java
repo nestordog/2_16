@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
+import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.service.HistoricalDataServiceException;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
@@ -238,6 +239,15 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase {
 
             requestHistoricalDataForSecurity(contract, security, startDate, endDate, whatToShow);
 
+        }
+    }
+
+    protected ConnectionState handleGetConnectionState() {
+
+        if (this.wrapper == null) {
+            return ConnectionState.DISCONNECTED;
+        } else {
+            return this.wrapper.getState();
         }
     }
 

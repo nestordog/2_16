@@ -35,6 +35,7 @@ import org.xml.sax.InputSource;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
+import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.service.sq.HttpClientUtil;
@@ -129,6 +130,15 @@ public class IbAccountServiceImpl extends IbAccountServiceBase {
         this.allAccountValues = new HashMap<String, Map<String, String>>();
 
         this.client.connect(clientId);
+    }
+
+    protected ConnectionState handleGetConnectionState() {
+
+        if (this.wrapper == null) {
+            return ConnectionState.DISCONNECTED;
+        } else {
+            return this.wrapper.getState();
+        }
     }
 
     private String retrieveAccountValue(String accountName, String currency, String key) throws InterruptedException {

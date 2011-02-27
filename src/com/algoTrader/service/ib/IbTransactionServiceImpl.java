@@ -21,6 +21,7 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
+import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.service.TickServiceException;
@@ -233,6 +234,15 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
         this.deletedMap = new HashMap<Integer, Boolean>();
 
         this.client.connect(clientId);
+    }
+
+    protected ConnectionState handleGetConnectionState() {
+
+        if (this.wrapper == null) {
+            return ConnectionState.DISCONNECTED;
+        } else {
+            return this.wrapper.getState();
+        }
     }
 
     protected void handleExecuteExternalTransaction(Order order) throws Exception {
