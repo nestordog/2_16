@@ -146,7 +146,7 @@ public abstract class StockOptionRetrieverServiceImpl extends StockOptionRetriev
             StockOption stockOption = (StockOption) tick.getSecurity();
 
             try {
-                stockOption.validateTickSpread(tick);
+                stockOption.validateTick(tick);
             } catch (Exception ex) {
                 continue;
             }

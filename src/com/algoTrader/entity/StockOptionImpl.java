@@ -2,13 +2,10 @@ package com.algoTrader.entity;
 
 import com.algoTrader.service.TickServiceException;
 import com.algoTrader.stockOption.StockOptionUtil;
-import com.algoTrader.util.ConfigurationUtil;
 
 public class StockOptionImpl extends StockOption {
 
     private static final long serialVersionUID = -3168298592370987085L;
-
-    private static int minVol = ConfigurationUtil.getBaseConfig().getInt("minVol");
 
     public double getLeverage() {
 
@@ -26,23 +23,6 @@ public class StockOptionImpl extends StockOption {
     }
 
     public void validateTick(Tick tick) {
-
-        validateTickVol(tick);
-        validateTickSpread(tick);
-    }
-
-    public void validateTickVol(Tick tick) {
-
-        if (tick.getVolAsk() <= minVol) {
-            throw new TickServiceException("vol ask (" + tick.getVolAsk() + ") ist too low for security " + getSymbol());
-        }
-
-        if (tick.getVolBid() <= minVol) {
-            throw new TickServiceException("vol bid (" + tick.getVolBid() + ") ist too low for security " + getSymbol());
-        }
-    }
-
-    public void validateTickSpread(Tick tick) {
 
         SecurityFamily family = tick.getSecurity().getSecurityFamily();
         int contractSize = family.getContractSize();
