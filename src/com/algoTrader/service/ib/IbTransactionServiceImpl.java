@@ -229,6 +229,9 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
 
     protected void handleConnect() {
 
+        if (!ibEnabled || simulation || !transactionServiceEnabled)
+            return;
+
         this.partialOrdersMap = new HashMap<Integer, PartialOrder>();
         this.executedMap = new HashMap<Integer, Boolean>();
         this.deletedMap = new HashMap<Integer, Boolean>();

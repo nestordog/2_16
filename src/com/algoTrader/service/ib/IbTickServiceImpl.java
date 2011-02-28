@@ -197,6 +197,9 @@ public class IbTickServiceImpl extends IbTickServiceBase {
 
     protected void handleConnect() {
 
+        if (!ibEnabled || simulation || !tickServiceEnabled)
+            return;
+
         this.requestIdToTickMap = new ConcurrentHashMap<Integer, Tick>();
         this.securityToRequestIdMap = new ConcurrentHashMap<Security, Integer>();
         this.validSecurities = new CopyOnWriteArraySet<Security>();

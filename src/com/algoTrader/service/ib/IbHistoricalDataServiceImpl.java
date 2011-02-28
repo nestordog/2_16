@@ -215,6 +215,9 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase {
 
     protected void handleConnect() {
 
+        if (!ibEnabled || simulation || !historicalDataServiceEnabled)
+            return;
+
         this.requestIdBooleanMap = new HashMap<Integer, Boolean>();
         this.requestIdDateMap = new HashMap<Integer, Date>();
         this.requestIdWhatToShowMap = new HashMap<Integer, String>();

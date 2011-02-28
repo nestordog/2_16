@@ -127,6 +127,9 @@ public class IbAccountServiceImpl extends IbAccountServiceBase {
 
     protected void handleConnect() {
 
+        if (!ibEnabled || simulation || !accountServiceEnabled)
+            return;
+
         this.allAccountValues = new HashMap<String, Map<String, String>>();
 
         this.client.connect(clientId);
