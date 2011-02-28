@@ -3,14 +3,14 @@ module base;
 @Name('RETRIEVE_MINUTE_TICKS')
 @Tag(name='subscriber', value='com.algoTrader.service.TickServiceImpl$RetrieveTickSubscriber')
 select security.id
-from pattern[every timer:at (*, 9:22, *, *, 1:5,*/15)],
+from pattern[every timer:at (*, 9:22, *, *, 1:5)],
 method:LookupUtil.getSecuritiesOnWatchlistByPeriodicity('MINUTE') as security
 where simulation = false;
 
 @Name('RETRIEVE_HOUR_TICKS')
 @Tag(name='subscriber', value='com.algoTrader.service.TickServiceImpl$RetrieveTickSubscriber')
 select security.id
-from pattern[every timer:at (*, 9:22, *, *, 1:5)],
+from pattern[every timer:at (0, 9:22, *, *, 1:5)],
 method:LookupUtil.getSecuritiesOnWatchlistByPeriodicity('HOUR') as security
 where simulation = false;
 
