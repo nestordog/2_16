@@ -86,6 +86,11 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
 
                     PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(orderId);
 
+                    if (partialOrder == null) {
+                        logger.error("orderId " + orderId + " was not found");
+                        return;
+                    }
+
                     partialOrder.setExecutedQuantity(filled);
 
                     if ("Submitted".equals(status) || "PendingSubmit".equals(status)) {
@@ -249,6 +254,11 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
     }
 
     protected void handleExecuteExternalTransaction(Order order) throws Exception {
+
+        if (!this.wrapper.getState().equals(ConnectionState.READY)) {
+            logger.error("transaction cannot be executed, because IB is not connected");
+            return;
+        }
 
         getPartialOrder(order);
 
