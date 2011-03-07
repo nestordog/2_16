@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.PartialOrder;
+import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.Transaction;
@@ -31,6 +32,8 @@ import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.RawTickVO;
 import com.ib.client.Contract;
 import com.ib.client.Execution;
+import com.ib.client.OrderState;
+import com.ib.client.Util;
 
 public class IbTransactionServiceImpl extends IbTransactionServiceBase {
 
@@ -41,6 +44,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
     private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
     private static boolean transactionServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.transactionServiceEnabled");
+    private static boolean faEnabled = ConfigurationUtil.getBaseConfig().getBoolean("if.faEnabled");
 
     private static String[] spreadPositions = ConfigurationUtil.getBaseConfig().getStringArray("spreadPositions");
 
@@ -69,10 +73,92 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
 
         this.wrapper = new DefaultWrapper(clientId) {
 
+            public void openOrder(int orderId, Contract contract, com.ib.client.Order order, OrderState orderState) {
+
+                logger.debug("open order: orderId=" + orderId +
+                " action=" + order.m_action +
+                " quantity=" + order.m_totalQuantity +
+                " symbol=" + contract.m_symbol +
+                " exchange=" + contract.m_exchange +
+                " secType=" + contract.m_secType +
+                " type=" + order.m_orderType +
+                " lmtPrice=" + order.m_lmtPrice +
+                " auxPrice=" + order.m_auxPrice +
+                " TIF=" + order.m_tif +
+                " localSymbol=" + contract.m_localSymbol +
+                " client Id=" + order.m_clientId +
+                " parent Id=" + order.m_parentId +
+                " permId=" + order.m_permId +
+                " outsideRth=" + order.m_outsideRth +
+                " hidden=" + order.m_hidden +
+                " discretionaryAmt=" + order.m_discretionaryAmt +
+                " triggerMethod=" + order.m_triggerMethod +
+                " goodAfterTime=" + order.m_goodAfterTime +
+                " goodTillDate=" + order.m_goodTillDate +
+                " faGroup=" + order.m_faGroup +
+                " faMethod=" + order.m_faMethod +
+                " faPercentage=" + order.m_faPercentage +
+                " faProfile=" + order.m_faProfile +
+                " shortSaleSlot=" + order.m_shortSaleSlot +
+                " designatedLocation=" + order.m_designatedLocation +
+                " ocaGroup=" + order.m_ocaGroup +
+                " ocaType=" + order.m_ocaType +
+                " rule80A=" + order.m_rule80A +
+                " allOrNone=" + order.m_allOrNone +
+                " minQty=" + order.m_minQty +
+                " percentOffset=" + order.m_percentOffset +
+                " eTradeOnly=" + order.m_eTradeOnly +
+                " firmQuoteOnly=" + order.m_firmQuoteOnly +
+                " nbboPriceCap=" + order.m_nbboPriceCap +
+                " auctionStrategy=" + order.m_auctionStrategy +
+                " startingPrice=" + order.m_startingPrice +
+                " stockRefPrice=" + order.m_stockRefPrice +
+                " delta=" + order.m_delta +
+                " stockRangeLower=" + order.m_stockRangeLower +
+                " stockRangeUpper=" + order.m_stockRangeUpper +
+                " volatility=" + order.m_volatility +
+                " volatilityType=" + order.m_volatilityType +
+                " deltaNeutralOrderType=" + order.m_deltaNeutralOrderType +
+                " deltaNeutralAuxPrice=" + order.m_deltaNeutralAuxPrice +
+                " continuousUpdate=" + order.m_continuousUpdate +
+                " referencePriceType=" + order.m_referencePriceType +
+                " trailStopPrice=" + order.m_trailStopPrice +
+                " scaleInitLevelSize=" + Util.IntMaxString(order.m_scaleInitLevelSize) +
+                " scaleSubsLevelSize=" + Util.IntMaxString(order.m_scaleSubsLevelSize) +
+                " scalePriceIncrement=" + Util.DoubleMaxString(order.m_scalePriceIncrement) +
+                " account=" + order.m_account +
+                " settlingFirm=" + order.m_settlingFirm +
+                " clearingAccount=" + order.m_clearingAccount +
+                " clearingIntent=" + order.m_clearingIntent +
+                " notHeld=" + order.m_notHeld +
+                " whatIf=" + order.m_whatIf);
+
+                IbTransactionServiceImpl.this.lock.lock();
+                try {
+
+                    // adjust the requestedQuantity if necessary
+                    // Example:
+                    //         Acct1: has 2 / Acct2: has 2
+                    //         requestedQuantity: 1 -> 25%
+                    //         PctChange will result int qty = 2
+                    PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(orderId);
+                    if (faEnabled && partialOrder.getRequestedQuantity() != order.m_totalQuantity) {
+
+                        long oldRequestedQuantity = partialOrder.getRequestedQuantity();
+                        partialOrder.setRequestedQuantity(order.m_totalQuantity);
+
+                        logger.info("adjusted quantity from " + oldRequestedQuantity + " to " + partialOrder.getRequestedQuantity());
+                    }
+
+                } finally {
+                    IbTransactionServiceImpl.this.lock.unlock();
+                }
+            }
+
             @Override
             public void orderStatus(int orderId, String status, int filled, int remaining, double avgFillPrice, int permId, int parentId, double lastFillPrice, int clientId, String whyHeld) {
 
-                logger.debug("orderId: " + orderId +
+                logger.debug("order status: orderId: " + orderId +
                         " orderStatus: " + status +
                         " filled: " + filled +
                         " remaining: " + remaining +
@@ -367,23 +453,56 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
 
         com.ib.client.Order ibOrder = new com.ib.client.Order();
         ibOrder.m_action = partialOrder.getParentOrder().getTransactionType().toString();
-        ibOrder.m_totalQuantity = (int) partialOrder.getRequestedQuantity();
         ibOrder.m_orderType = "LMT";
         ibOrder.m_lmtPrice = getPrice(partialOrder.getParentOrder(), partialOrder.getSpreadPosition(), tick.getBid().doubleValue(), tick.getAsk().doubleValue());
-        ibOrder.m_faGroup = group;
 
-        if (TransactionType.SELL.equals(partialOrder.getParentOrder().getTransactionType())) {
-            ibOrder.m_faMethod = openMethod;
-        }
-        if (TransactionType.BUY.equals(partialOrder.getParentOrder().getTransactionType())) {
-            ibOrder.m_faMethod = closeMethod;
-            ibOrder.m_faPercentage = "-100";
+        if (faEnabled) {
+            TransactionType transactionType = partialOrder.getParentOrder().getTransactionType();
+            Order order = partialOrder.getParentOrder();
+            Position position = getPositionDao().findBySecurityAndStrategy(order.getSecurity().getId(), order.getStrategy().getName());
+
+            long existingQuantity = 0;
+            if (position != null) {
+                existingQuantity = position.getQuantity();
+            }
+
+            // evaluate weather the transaction is opening or closing
+            boolean opening = false;
+            if (existingQuantity > 0 && TransactionType.SELL.equals(transactionType)) {
+                opening = false;
+            } else if (existingQuantity <= 0 && TransactionType.SELL.equals(transactionType)) {
+                opening = true;
+            } else if (existingQuantity < 0 && TransactionType.BUY.equals(transactionType)) {
+                opening = false;
+            } else if (existingQuantity >= 0 && TransactionType.BUY.equals(transactionType)) {
+                opening = true;
+            }
+
+            ibOrder.m_faGroup = group;
+
+            if (opening) {
+                ibOrder.m_faMethod = openMethod;
+                ibOrder.m_totalQuantity = (int) partialOrder.getRequestedQuantity();
+
+            } else {
+
+                // reduce by percentage
+                ibOrder.m_faMethod = closeMethod;
+
+                if (OrderStatus.OPEN.equals(partialOrder.getStatus())) {
+                    double percentage = Math.abs(partialOrder.getRequestedQuantity() * 100 / existingQuantity);
+                    ibOrder.m_faPercentage = "-" + percentage;
+                } else {
+                    ibOrder.m_totalQuantity = (int) partialOrder.getRequestedQuantity();
+                }
+            }
+        } else {
+            ibOrder.m_totalQuantity = (int) partialOrder.getRequestedQuantity();
         }
 
         this.client.placeOrder(partialOrder.getOrderId(), contract, ibOrder);
 
-        logger.debug("orderId: " + partialOrder.getOrderId() + " placeOrder for quantity: " + partialOrder.getRequestedQuantity() + " limit: " + ibOrder.m_lmtPrice + " spreadPosition: "
-                + partialOrder.getSpreadPosition());
+        logger.debug("orderId: " + partialOrder.getOrderId() + " placeOrder for quantity: " + partialOrder.getRequestedQuantity() + " limit: " + ibOrder.m_lmtPrice + " spreadPosition: " + partialOrder.getSpreadPosition());
 
         this.lock.lock();
 
