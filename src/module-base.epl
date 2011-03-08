@@ -39,7 +39,7 @@ where LookupUtil.hasLastTicks();
 insert into MonthlyPerformance
 select DateUtil.toDate(current_timestamp()) as date,
 portfolio.value.netLiqValue / prior(1, portfolio.value.netLiqValue) - 1 as value
-from pattern[every timer:at (0, 18, lastweekday, *, *) -> portfolio=Portfolio]
+from pattern[every timer:at (0, 0, 1, *, *) -> portfolio=Portfolio]
 having prior(1, portfolio.value.netLiqValue) != null and
 portfolio.value.netLiqValue != prior(1, portfolio.value.netLiqValue);
 
