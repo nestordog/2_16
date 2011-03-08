@@ -14,6 +14,11 @@ public class ForexDaoImpl extends ForexDaoBase {
         if (forex != null) {
 
             Tick tick = forex.getLastTick();
+
+            if (tick == null) {
+                throw new RuntimeException("cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no last tick is available");
+            }
+
             return tick.getCurrentValueDouble();
 
         } else {
