@@ -14,7 +14,7 @@ import com.algoTrader.vo.TransactionVO;
 
 public class ManagementServiceImpl extends ManagementServiceBase {
 
-    private static final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yy kk:mm");
+    private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
 
     protected String handleGetCurrentTime() throws Exception {
 
