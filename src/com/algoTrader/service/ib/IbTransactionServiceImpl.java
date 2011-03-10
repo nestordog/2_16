@@ -33,7 +33,6 @@ import com.algoTrader.vo.RawTickVO;
 import com.ib.client.Contract;
 import com.ib.client.Execution;
 import com.ib.client.OrderState;
-import com.ib.client.Util;
 
 public class IbTransactionServiceImpl extends IbTransactionServiceBase {
 
@@ -83,55 +82,10 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
                 " secType=" + contract.m_secType +
                 " type=" + order.m_orderType +
                 " lmtPrice=" + order.m_lmtPrice +
-                " auxPrice=" + order.m_auxPrice +
                 " TIF=" + order.m_tif +
                 " localSymbol=" + contract.m_localSymbol +
                 " client Id=" + order.m_clientId +
-                " parent Id=" + order.m_parentId +
-                " permId=" + order.m_permId +
-                " outsideRth=" + order.m_outsideRth +
-                " hidden=" + order.m_hidden +
-                " discretionaryAmt=" + order.m_discretionaryAmt +
-                " triggerMethod=" + order.m_triggerMethod +
-                " goodAfterTime=" + order.m_goodAfterTime +
-                " goodTillDate=" + order.m_goodTillDate +
-                " faGroup=" + order.m_faGroup +
-                " faMethod=" + order.m_faMethod +
-                " faPercentage=" + order.m_faPercentage +
-                " faProfile=" + order.m_faProfile +
-                " shortSaleSlot=" + order.m_shortSaleSlot +
-                " designatedLocation=" + order.m_designatedLocation +
-                " ocaGroup=" + order.m_ocaGroup +
-                " ocaType=" + order.m_ocaType +
-                " rule80A=" + order.m_rule80A +
-                " allOrNone=" + order.m_allOrNone +
-                " minQty=" + order.m_minQty +
-                " percentOffset=" + order.m_percentOffset +
-                " eTradeOnly=" + order.m_eTradeOnly +
-                " firmQuoteOnly=" + order.m_firmQuoteOnly +
-                " nbboPriceCap=" + order.m_nbboPriceCap +
-                " auctionStrategy=" + order.m_auctionStrategy +
-                " startingPrice=" + order.m_startingPrice +
-                " stockRefPrice=" + order.m_stockRefPrice +
-                " delta=" + order.m_delta +
-                " stockRangeLower=" + order.m_stockRangeLower +
-                " stockRangeUpper=" + order.m_stockRangeUpper +
-                " volatility=" + order.m_volatility +
-                " volatilityType=" + order.m_volatilityType +
-                " deltaNeutralOrderType=" + order.m_deltaNeutralOrderType +
-                " deltaNeutralAuxPrice=" + order.m_deltaNeutralAuxPrice +
-                " continuousUpdate=" + order.m_continuousUpdate +
-                " referencePriceType=" + order.m_referencePriceType +
-                " trailStopPrice=" + order.m_trailStopPrice +
-                " scaleInitLevelSize=" + Util.IntMaxString(order.m_scaleInitLevelSize) +
-                " scaleSubsLevelSize=" + Util.IntMaxString(order.m_scaleSubsLevelSize) +
-                " scalePriceIncrement=" + Util.DoubleMaxString(order.m_scalePriceIncrement) +
-                " account=" + order.m_account +
-                " settlingFirm=" + order.m_settlingFirm +
-                " clearingAccount=" + order.m_clearingAccount +
-                " clearingIntent=" + order.m_clearingIntent +
-                " notHeld=" + order.m_notHeld +
-                " whatIf=" + order.m_whatIf);
+                " permId=" + order.m_permId);
 
                 IbTransactionServiceImpl.this.lock.lock();
                 try {
@@ -284,32 +238,49 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
                     // Order cancelled
                     // do nothing, since we cancelled the order ourself
                     logger.debug(message);
+                    return;
 
                 } else if (code == 201) {
 
                     // Order rejected - reason:To late to replace order
                     // do nothing, we modified the price too late
                     logger.debug(message);
+                    return;
+
+                } else if (code == 434) {
+
+                    // The order size cannot be zero
+                    // This happens in a closing order using PctChange where the percentage is
+                    // small enough to round to zero for each individual client account
+                    logger.debug(message);
 
                 } else {
+
+                    // in all other cases delete the order
                     super.error(id, code, errorMsg);
-
-                    IbTransactionServiceImpl.this.lock.lock();
-                    try {
-
-                        PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(id);
-
-                        if (partialOrder != null) {
-                            partialOrder.setStatus(OrderStatus.CANCELED);
-
-                            IbTransactionServiceImpl.this.deletedMap.put(id, true);
-                            IbTransactionServiceImpl.this.condition.signalAll();
-                        }
-
-                    } finally {
-                        IbTransactionServiceImpl.this.lock.unlock();
-                    }
                 }
+
+                IbTransactionServiceImpl.this.lock.lock();
+                try {
+
+                    PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(id);
+
+                    if (partialOrder != null) {
+
+                        IbTransactionServiceImpl.this.client.cancelOrder(partialOrder.getOrderId());
+
+                        partialOrder.setStatus(OrderStatus.CANCELED);
+
+                        IbTransactionServiceImpl.this.deletedMap.put(id, true);
+                        IbTransactionServiceImpl.this.condition.signalAll();
+
+                        logger.info("client: " + IbTransactionServiceImpl.clientId + " order: " + id + " has been cancelled ");
+                    }
+
+                } finally {
+                    IbTransactionServiceImpl.this.lock.unlock();
+                }
+
             }
         };
 
