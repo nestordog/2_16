@@ -82,7 +82,7 @@ public class SqUtil {
 
         if (inputString.contains("-")) return 0;
 
-        return NumberFormat.getNumberInstance().parse(inputString.split("\\s")[0]).doubleValue();
+        return NumberFormat.getNumberInstance().parse(inputString.split("\\xA0")[0]).doubleValue();
     }
 
     public  static Date getDate(String date) throws ParseException {
