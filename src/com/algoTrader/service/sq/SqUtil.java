@@ -5,6 +5,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import javax.xml.transform.TransformerException;
 
@@ -82,7 +83,7 @@ public class SqUtil {
 
         if (inputString.contains("-")) return 0;
 
-        return NumberFormat.getNumberInstance().parse(inputString.split("\\xA0")[0]).doubleValue();
+        return NumberFormat.getNumberInstance(new Locale("de", "CH")).parse(inputString.split("\\xA0")[0]).doubleValue();
     }
 
     public  static Date getDate(String date) throws ParseException {
