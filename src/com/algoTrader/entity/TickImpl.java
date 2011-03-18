@@ -11,22 +11,10 @@ public class TickImpl extends Tick {
 
     private static final long serialVersionUID = 7518020445322413106L;
 
-    /**
-     * 1. in simulation only "last" is used
-     * 2. on indexes (smi & vsmi) there is no bid and ask (only last)
-     * Note: ticks that are not valid (i.e. low volume) are not fed into esper, so we don't need to check
-     */
     public BigDecimal getCurrentValue() {
 
-        if (simulation) {
-            return getLast();
-        } else {
-            if (this.getSecurity() instanceof StockOption || this.getSecurity() instanceof Forex) {
-                return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0);
-            } else {
-                return getLast();
-            }
-        }
+        return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0);
+
     }
 
     public double getCurrentValueDouble() {
@@ -36,7 +24,7 @@ public class TickImpl extends Tick {
 
     public BigDecimal getBid() {
 
-        if (simulation) {
+        if (simulation && super.getBid().equals(new BigDecimal(0))) {
             return getLast();
         } else {
             return super.getBid();
@@ -45,7 +33,7 @@ public class TickImpl extends Tick {
 
     public BigDecimal getAsk() {
 
-        if (simulation) {
+        if (simulation && super.getAsk().equals(new BigDecimal(0))) {
             return getLast();
         } else {
             return super.getAsk();
@@ -54,7 +42,7 @@ public class TickImpl extends Tick {
 
     public BigDecimal getSettlement() {
 
-        if (simulation) {
+        if (simulation && super.getSettlement().equals(new BigDecimal(0))) {
             return getLast();
         } else {
             return super.getSettlement();

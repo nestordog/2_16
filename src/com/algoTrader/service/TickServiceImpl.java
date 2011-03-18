@@ -29,6 +29,8 @@ import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
+import com.algoTrader.entity.WatchListItem;
+import com.algoTrader.entity.WatchListItemImpl;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.stockOption.StockOptionSymbol;
 import com.algoTrader.stockOption.StockOptionUtil;
@@ -146,9 +148,9 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
         getRuleService().sendEvent(StrategyImpl.BASE, tick);
 
-        Collection<Strategy> strategies = tick.getSecurity().getWatchers();
-        for (Strategy strategy : strategies) {
-            getRuleService().sendEvent(strategy.getName(), tick);
+        Collection<WatchListItem> watchListItems = tick.getSecurity().getWatchListItems();
+        for (WatchListItem watchListItem : watchListItems) {
+            getRuleService().sendEvent(watchListItem.getStrategy().getName(), tick);
         }
     }
 
@@ -162,17 +164,24 @@ public abstract class TickServiceImpl extends TickServiceBase {
     @SuppressWarnings("unchecked")
     protected void handlePutOnWatchlist(Strategy strategy, Security security) throws Exception {
 
-        if (!security.getWatchers().contains(strategy)) {
+        if (getWatchListItemDao().findByStrategyAndSecurity(strategy, security) == null) {
 
             // only put on external watchlist if nobody was watching this security so far
-            if (security.getWatchers().size() == 0) {
+            if (security.getWatchListItems().size() == 0) {
                 putOnExternalWatchlist(security);
             }
 
             // update links
-            security.getWatchers().add(strategy);
+            WatchListItem watchListItem = new WatchListItemImpl();
+            watchListItem.setSecurity(security);
+            watchListItem.setStrategy(strategy);
+            watchListItem.setPersistent(false);
+            getWatchListItemDao().create(watchListItem);
+
+             security.getWatchListItems().add(watchListItem);
             getSecurityDao().update(security);
-            strategy.getWatchlist().add(security);
+
+            strategy.getWatchListItems().add(watchListItem);
             getStrategyDao().update(strategy);
 
             logger.info("put security on watchlist " + security.getSymbol());
@@ -189,16 +198,21 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
     protected void handleRemoveFromWatchlist(Strategy strategy, Security security) throws Exception {
 
-        if (security.getWatchers().contains(strategy)) {
+        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategy, security);
+
+        if (watchListItem != null && !watchListItem.isPersistent()) {
 
             // update links
-            security.getWatchers().remove(strategy);
+            security.getWatchListItems().remove(watchListItem);
             getSecurityDao().update(security);
-            strategy.getWatchlist().remove(security);
+
+            strategy.getWatchListItems().remove(watchListItem);
             getStrategyDao().update(strategy);
 
-            // only remove from external watchlist if nobody is watch this security anymore
-            if (security.getWatchers().size() == 0) {
+            getWatchListItemDao().remove(watchListItem);
+
+            // only remove from external watchlist if nobody is watching this security anymore
+            if (security.getWatchListItems().size() == 0) {
                 removeFromExternalWatchlist(security);
             }
 

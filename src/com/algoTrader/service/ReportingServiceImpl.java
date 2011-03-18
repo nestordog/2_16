@@ -4,9 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.algoTrader.entity.PositionDao;
-import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TransactionDao;
 import com.algoTrader.vo.BalanceVO;
 import com.algoTrader.vo.PositionVO;
@@ -79,30 +77,6 @@ public class ReportingServiceImpl extends ReportingServiceBase {
         } else {
             return strategy.getLeverage();
         }
-    }
-
-    protected BigDecimal handleGetStrategyUnderlaying(String strategyName) throws Exception {
-
-        Security underlaying = getStrategyDao().findByName(strategyName).getUnderlaying();
-        if (underlaying != null) {
-            Tick tick = underlaying.getLastTick();
-            if (tick != null) {
-                return tick.getLast();
-            }
-        }
-        return null;
-    }
-
-    protected BigDecimal handleGetStrategyVolatility(String strategyName) throws Exception {
-
-        Security underlaying = getStrategyDao().findByName(strategyName).getUnderlaying();
-        if (underlaying != null) {
-            Tick tick = underlaying.getVolatility().getLastTick();
-            if (tick != null) {
-                return tick.getLast();
-            }
-        }
-        return null;
     }
 
     @SuppressWarnings("unchecked")

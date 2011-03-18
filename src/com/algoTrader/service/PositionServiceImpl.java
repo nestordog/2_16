@@ -1,14 +1,21 @@
 package com.algoTrader.service;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Security;
+import com.algoTrader.entity.Strategy;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.MyLogger;
+import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.OrderVO;
+import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
 
 public class PositionServiceImpl extends PositionServiceBase {
 
@@ -52,36 +59,83 @@ public class PositionServiceImpl extends PositionServiceBase {
             throw new StockOptionServiceException("position does not exist: " + positionId);
         }
 
-        // in generall there should have been set a exitValue on creation of the
-        // position
+        // in generall there should have been set a exitValue on creation of the position
         if (!force && position.getExitValue() == null) {
             logger.warn("no exitValue was set for position: " + positionId);
             return;
         }
 
-        // we don't want to set the exitValue to Zero
+        // we don't want to set the exitValue to (almost)Zero
         if (exitValue <= 0.05) {
             logger.warn("setting of exitValue below 0.05 is prohibited: " + exitValue);
             return;
         }
 
-        // in generall, exit value should not be set higher than existing
-        // exitValue
-        if (!force && exitValue > position.getExitValue().doubleValue()) {
-            logger.warn("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of position " + positionId);
-            return;
+        // in generall, exit value should not be set higher than existing exitValue
+        if (!force) {
+            if (position.isShort() && exitValue > position.getExitValue().doubleValue()) {
+                logger.warn("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of short position " + positionId);
+                return;
+            } else if (position.isLong() && exitValue < position.getExitValue().doubleValue()) {
+                logger.warn("exit value " + exitValue + " is lower than existing exit value " + position.getExitValue() + " of long position " + positionId);
+                return;
+            }
         }
 
         // exitValue cannot be lower than currentValue
         double currentValue = position.getSecurity().getLastTick().getCurrentValueDouble();
-        if (exitValue < currentValue ) {
-            throw new StockOptionServiceException("ExitValue (" + exitValue + ") for position " + position.getId() + " is lower than currentValue: " + currentValue);
+        if (position.isShort() && exitValue < currentValue) {
+            throw new StockOptionServiceException("ExitValue (" + exitValue + ") for short-position " + position.getId() + " is lower than currentValue: " + currentValue);
+        } else if (position.isLong() && exitValue > currentValue) {
+            throw new StockOptionServiceException("ExitValue (" + exitValue + ") for long-position " + position.getId() + " is higher than currentValue: " + currentValue);
         }
 
         position.setExitValue(exitValue);
         getPositionDao().update(position);
 
         logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + exitValue);
+    }
+
+    protected void handleSetMargin(int positionId) throws Exception {
+
+        Position position = getPositionDao().load(positionId);
+        setMargin(position);
+    }
+
+    protected void handleSetMargin(Position position) throws Exception {
+
+        Security security = position.getSecurity();
+        double marginPerContract = security.getMargin();
+
+        if (marginPerContract != 0) {
+
+            long numberOfContracts = Math.abs(position.getQuantity());
+            BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
+            position.setMaintenanceMargin(totalMargin);
+
+            getPositionDao().update(position);
+
+            Strategy strategy = position.getStrategy();
+
+            int percent = (int) (strategy.getAvailableFundsDouble() / strategy.getCashBalanceDouble() * 100.0);
+            if (strategy.getAvailableFundsDouble() >= 0) {
+                logger.info("set margin for " + security.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + strategy.getMaintenanceMargin()
+                        + " availableFunds: " + strategy.getAvailableFunds() + " (" + percent + "% of balance)");
+            } else {
+                logger.warn("set margin for " + security.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + strategy.getMaintenanceMargin()
+                        + " availableFunds: " + strategy.getAvailableFunds() + " (" + percent + "% of balance)");
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void handleSetMargins() throws Exception {
+
+        List<Position> positions = getPositionDao().findOpenPositions();
+
+        for (Position position : positions) {
+            setMargin(position);
+        }
     }
 
     public static class ClosePositionSubscriber {
@@ -107,6 +161,19 @@ public class PositionServiceImpl extends PositionServiceBase {
             ServiceLocator.commonInstance().getPositionService().setExitValue(positionId, exitValue, false);
 
             logger.debug("setExitValue end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+        }
+    }
+
+    public static class SetMarginsListener implements UpdateListener {
+
+        public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+
+            long startTime = System.currentTimeMillis();
+            logger.debug("setMargins start");
+
+            ServiceLocator.serverInstance().getPositionService().setMargins();
+
+            logger.debug("setMargins end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
     }
 }

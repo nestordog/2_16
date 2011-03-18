@@ -15,7 +15,7 @@ method:LookupUtil.getSecuritiesOnWatchlistByPeriodicity('HOUR') as security
 where simulation = false;
 
 @Name('SET_MARGINS')
-@Tag(name='listeners', value='com.algoTrader.service.StockOptionServiceImpl$SetMarginsListener')
+@Tag(name='listeners', value='com.algoTrader.service.PositionServiceImpl$SetMarginsListener')
 select *
 from pattern[every timer:at (0, 7, *, *, 1:5)];
 
@@ -58,9 +58,10 @@ from Tick.std:groupwin(security.id).win:time(7 days).win:length(1) as tick;
 @Priority(2)
 @Tag(name='subscriber', value='com.algoTrader.service.StockOptionServiceImpl$ExpirePositionSubscriber')
 select position.id as positionId
-from Tick(security.strategyUnderlaying = true) as indexTick,
+from Tick as tick,
 method:LookupUtil.getOpenPositions() as position
-where instanceof(position.security, com.algoTrader.entity.StockOption)
+where position.security.underlaying = tick.security
+and instanceof(position.security, com.algoTrader.entity.StockOption)
 and cast(position.security?.expiration.time, long) < current_timestamp()
 and position.quantity != 0;
 
@@ -72,7 +73,7 @@ from Tick as tick,
 method:LookupUtil.getPositions(tick.security) as position
 where position.quantity != 0
 and position.exitValue != null
-and tick.currentValue  >= position.exitValue;
+and ((position.short and (tick.currentValue >= position.exitValue)) or (position.long and (tick.currentValue <= position.exitValue)));
 
 @Name('CREATE_PERFORMANCE_KEYS')
 insert into PerformanceKeys

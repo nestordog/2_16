@@ -63,16 +63,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         return getReportingService().getStrategyLeverage(StrategyUtil.getStartedStrategyName());
     }
 
-    protected BigDecimal handleGetStrategyUnderlaying() throws Exception {
-
-        return getReportingService().getStrategyUnderlaying(StrategyUtil.getStartedStrategyName());
-    }
-
-    protected BigDecimal handleGetStrategyVolatility() throws Exception {
-
-        return getReportingService().getStrategyVolatility(StrategyUtil.getStartedStrategyName());
-    }
-
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected List<TickVO> handleGetDataLastTicks() {
 

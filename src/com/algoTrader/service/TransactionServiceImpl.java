@@ -13,6 +13,7 @@ import com.algoTrader.entity.PositionImpl;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Strategy;
+import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.enumeration.OrderStatus;
@@ -108,7 +109,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                     double cost = position.getCostDouble();
                     double value = transaction.getValueDouble();
                     profit = value - cost;
-                    profitPct = (cost - value) / cost;
+                    profitPct = position.isLong() ? ((value - cost) / cost) : ((cost - value) / cost);
                     avgAge = position.getAverageAge();
                 }
 
@@ -162,46 +163,67 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(DateUtil.getCurrentEPTime());
 
-        StockOption stockOption = (StockOption)order.getSecurity();
-        double currentValue = stockOption.getLastTick().getCurrentValueDouble();
+        Security security = order.getSecurity();
+        Tick tick = security.getLastTick();
+        double currentValue = tick.getCurrentValueDouble();
 
         // in daily / hourly / 30min / 15min simulation, if exitValue is reached during the day, take the exitValue
         // instead of the currentValue! because we will have passed the exitValue in the meantime
         if (simulation && TransactionType.BUY.equals(order.getTransactionType()) && (eventsPerDay <= 33)) {
 
-            double exitValue = getPositionDao().findBySecurityAndStrategy(stockOption.getId(), order.getStrategy().getName()).getExitValue().doubleValue();
-            if (currentValue > exitValue && DateUtil.compareToTime(stockOption.getSecurityFamily().getMarketOpen()) > 0) {
+            double exitValue = getPositionDao().findBySecurityAndStrategy(security.getId(), order.getStrategy().getName()).getExitValue().doubleValue();
+            if (currentValue > exitValue && DateUtil.compareToTime(security.getSecurityFamily().getMarketOpen()) > 0) {
 
                 logger.info("adjusted currentValue (" + currentValue + ") to exitValue (" + exitValue+ ") in closePosition for order on " + order.getSecurity().getSymbol());
                 currentValue = exitValue;
             }
         }
 
-        int contractSize = stockOption.getSecurityFamily().getContractSize();
+        int contractSize = security.getSecurityFamily().getContractSize();
 
         if (TransactionType.SELL.equals(order.getTransactionType())) {
 
-            double dummyBid = stockOption.getDummyBid(currentValue);
-            transaction.setPrice(RoundUtil.getBigDecimal(dummyBid));
+            double bid = tick.getBid().doubleValue();
+            if (bid == 0.0) {
+                bid = security.getDummyBid(currentValue);
+            }
+
+            transaction.setPrice(RoundUtil.getBigDecimal(bid));
             transaction.setQuantity(-Math.abs(order.getRequestedQuantity()));
 
         } else if (TransactionType.BUY.equals(order.getTransactionType())) {
 
-            double dummyAsk = stockOption.getDummyAsk(currentValue);
-            transaction.setPrice(RoundUtil.getBigDecimal(dummyAsk));
+            double ask = tick.getAsk().doubleValue();
+            if (ask == 0.0) {
+                ask = security.getDummyAsk(currentValue);
+            }
+
+            transaction.setPrice(RoundUtil.getBigDecimal(ask));
             transaction.setQuantity(Math.abs(order.getRequestedQuantity()));
 
         } else if (TransactionType.EXPIRATION.equals(order.getTransactionType())) {
 
-            double underlayingSpot = stockOption.getUnderlaying().getLastTick().getCurrentValueDouble();
-            double intrinsicValue = StockOptionUtil.getIntrinsicValue(stockOption, underlayingSpot);
-            BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue * contractSize);
-            transaction.setPrice(price);
-            transaction.setQuantity(Math.abs(order.getRequestedQuantity()));
+            if (security instanceof StockOption) {
+
+                StockOption stockOption = (StockOption) security;
+                double underlayingSpot = security.getUnderlaying().getLastTick().getCurrentValueDouble();
+                double intrinsicValue = StockOptionUtil.getIntrinsicValue(stockOption, underlayingSpot);
+                BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue * contractSize);
+                transaction.setPrice(price);
+                transaction.setQuantity(Math.abs(order.getRequestedQuantity()));
+
+            } else {
+                throw new IllegalArgumentException("EXPIRATION only allowed for StockOptions");
+            }
         }
 
         if (TransactionType.SELL.equals(order.getTransactionType()) || TransactionType.BUY.equals(order.getTransactionType())) {
-            double commission = Math.abs(order.getRequestedQuantity() * stockOption.getSecurityFamily().getCommission().doubleValue());
+
+            if(security.getSecurityFamily().getCommission() == null) {
+                throw new RuntimeException("commission is undefined for " + security.getSymbol());
+            }
+
+            double commission = Math.abs(order.getRequestedQuantity() * security.getSecurityFamily().getCommission().doubleValue());
             transaction.setCommission(RoundUtil.getBigDecimal(commission));
         } else {
             transaction.setCommission(new BigDecimal(0));

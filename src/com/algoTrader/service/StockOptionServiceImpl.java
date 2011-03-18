@@ -2,7 +2,6 @@ package com.algoTrader.service;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -13,19 +12,14 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.StockOptionFamily;
 import com.algoTrader.entity.StockOptionImpl;
-import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.Tick;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionSymbol;
-import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.OrderVO;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.UpdateListener;
 
 public class StockOptionServiceImpl extends StockOptionServiceBase {
 
@@ -86,73 +80,6 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         if (OrderStatus.EXECUTED.equals(executedOrder.getStatus()) || OrderStatus.AUTOMATIC.equals(executedOrder.getStatus())) {
 
             getDispatcherService().getTickService().removeFromWatchlist(position.getStrategy(), stockOption);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    protected void handleSetMargins() throws Exception {
-
-        List<Position> positions = getPositionDao().findOpenPositions();
-
-        for (Position position : positions) {
-            setMargin(position);
-        }
-    }
-
-    protected void handleSetMargin(int positionId) throws Exception {
-
-        Position position = getPositionDao().load(positionId);
-        setMargin(position);
-    }
-
-    protected void handleSetMargin(Position position) throws Exception {
-
-        StockOption stockOption = (StockOption) position.getSecurity();
-        Tick stockOptionTick = stockOption.getLastTick();
-        Tick underlayingTick = stockOption.getUnderlaying().getLastTick();
-
-        if (stockOptionTick != null && underlayingTick != null && stockOptionTick.getCurrentValueDouble() > 0.0) {
-
-            double marginPerContract = 0;
-            try {
-                marginPerContract = StockOptionUtil.getMaintenanceMargin(stockOption, stockOptionTick.getSettlement().doubleValue(), underlayingTick.getSettlement().doubleValue())
-                        * stockOption.getSecurityFamily().getContractSize();
-            } catch (IllegalArgumentException e) {
-                logger.warn("could not calculate margin for " + stockOption.getSymbol(), e);
-                return;
-            }
-            long numberOfContracts = Math.abs(position.getQuantity());
-            BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
-
-            position.setMaintenanceMargin(totalMargin);
-
-            getPositionDao().update(position);
-
-            Strategy strategy = position.getStrategy();
-
-            int percent = (int) (strategy.getAvailableFundsDouble() / strategy.getCashBalanceDouble() * 100.0);
-            if (strategy.getAvailableFundsDouble() >= 0) {
-                logger.info("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + strategy.getMaintenanceMargin()
-                        + " availableFunds: " + strategy.getAvailableFunds() + " (" + percent + "% of balance)");
-            } else {
-                logger.warn("set margin for " + stockOption.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + strategy.getMaintenanceMargin()
-                        + " availableFunds: " + strategy.getAvailableFunds() + " (" + percent + "% of balance)");
-            }
-        } else {
-            logger.warn("no last tick available or currentValue to low to set margin on " + stockOption.getSymbol());
-        }
-    }
-
-    public static class SetMarginsListener implements UpdateListener {
-
-        public void update(EventBean[] newEvents, EventBean[] oldEvents) {
-
-            long startTime = System.currentTimeMillis();
-            logger.debug("setMargins start");
-
-            ServiceLocator.serverInstance().getStockOptionService().setMargins();
-
-            logger.debug("setMargins end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
     }
 

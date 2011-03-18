@@ -32,6 +32,7 @@ import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
+import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.ConfigurationUtil;
@@ -80,6 +81,10 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             getStrategyDao().update(strategy);
         }
+
+        // delete all non-presistent watchListItems
+        List<WatchListItem> watchListItems = getWatchListItemDao().findNonPersistent();
+        getWatchListItemDao().remove(watchListItems);
 
         // delete all StockOptions
         getSecurityDao().remove(getStockOptionDao().loadAll());
