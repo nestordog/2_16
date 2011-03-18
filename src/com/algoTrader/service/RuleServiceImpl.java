@@ -285,11 +285,10 @@ public class RuleServiceImpl extends RuleServiceBase {
         return null;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected List handleGetAllEvents(String strategyName, String ruleName) {
+    protected List<Object> handleGetAllEvents(String strategyName, String ruleName) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
-        List list = new ArrayList();
+        List<Object> list = new ArrayList<Object>();
         if (statement != null && statement.isStarted()) {
             SafeIterator<EventBean> it = statement.safeIterator();
             try {
@@ -305,11 +304,10 @@ public class RuleServiceImpl extends RuleServiceBase {
         return list;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected List handleGetAllEventsProperty(String strategyName, String ruleName, String property) throws Exception {
+    protected List<Object> handleGetAllEventsProperty(String strategyName, String ruleName, String property) throws Exception {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
-        List list = new ArrayList();
+        List<Object> list = new ArrayList<Object>();
         if (statement != null && statement.isStarted()) {
             SafeIterator<EventBean> it = statement.safeIterator();
             try {
