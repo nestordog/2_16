@@ -2,6 +2,7 @@
 ## output client services
 ## add schema definition
 ## MBeanExporter
+## RmiProxyFactoryBean: add refreshStubOnConnectFailure
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -57,6 +58,7 @@ http://www.springframework.org/schema/context/spring-context-3.0.xsd">
             <bean class="org.springframework.remoting.caucho.BurlapProxyFactoryBean">
 #elseif($service.remotingTypeRmi)
             <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
+				<property name="refreshStubOnConnectFailure"><value>true</value></property>				
 #end
                 <property name="serviceUrl"><value>$service.remoteUrl</value></property>
                 <property name="serviceInterface"><value>$service.fullyQualifiedName</value></property>
