@@ -16,7 +16,22 @@ public class PositionImpl extends Position {
 
     public boolean isOpen() {
 
-        return (getQuantity() != 0);
+        return getQuantity() != 0;
+    }
+
+    public boolean isLong() {
+
+        return getQuantity() > 0;
+    }
+
+    public boolean isShort() {
+
+        return getQuantity() < 0;
+    }
+
+    public boolean isFlat() {
+
+        return getQuantity() == 0;
     }
 
     /**
@@ -37,6 +52,11 @@ public class PositionImpl extends Position {
             // we have nothing else yet
             return null;
         }
+    }
+
+    public boolean isBearish() {
+
+        return !isBullish();
     }
 
     /**
