@@ -25,6 +25,12 @@ public interface $serviceLocatorInterfaceName
      * @param beanFactoryReferenceLocation the location of the beanRefFactory reference.
      */
     public void init(final String beanFactoryReferenceLocation);
+	
+
+    /**
+     * Shuts down the ServiceLocator and releases any used resources.
+     */
+    public void shutdown();	
 
 #foreach ($service in $services)
 #if(($service.remotable && !$service.abstract) || !$stringUtils.isBlank($service.findTaggedValue('@algoTrader.service.client')))	
