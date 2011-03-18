@@ -83,6 +83,5 @@
 	<classpathentry kind="lib" path="lib/xbean.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis-2.7.1.jar"/>
-	<classpathentry kind="lib" path="lib/ta-lib-0.4.0.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
