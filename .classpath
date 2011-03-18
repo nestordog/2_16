@@ -36,7 +36,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math-2.1.jar" sourcepath="D:/commons-math-2.1-src/src/main/java"/>
-	<classpathentry kind="lib" path="lib/currency-converter.jar"/>
 	<classpathentry kind="lib" path="lib/ehcache-1.5.0.jar" sourcepath="D:/ehcache-1.5-src/ehcache-1.5.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib/esper-4.1.0.jar" sourcepath="D:/esper-4.1.0/esper/src"/>
 	<classpathentry kind="lib" path="lib/esper-dds-4.0.0.jar"/>
@@ -44,7 +43,7 @@
 	<classpathentry kind="lib" path="lib/esper-server-4.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/esper-servicexml-4.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/esperio-csv-4.1.0.jar" sourcepath="D:/esper-4.1.0/esperio-csv/src"/>
-	<classpathentry kind="lib" path="lib/esperio-socket-4.1.0.jar" sourcepath="D:/esper-4.1.0/esperio-socket/src"/>
+	<classpathentry kind="lib" path="lib/esperio-socket-4.1.0.jar" sourcepath="D:/esper-4.1.0/esperio-socket/src/java"/>
 	<classpathentry kind="lib" path="lib/hibernate-3.6.0.jar" sourcepath="D:/hibernate-distribution-3.6.0.Final/project/core/src/main/java"/>
 	<classpathentry kind="lib" path="lib/hibernate-jpa-2.0-api-1.0.0.Final.jar"/>
 	<classpathentry kind="lib" path="lib/javassist-3.12.0.GA.jar"/>
@@ -84,5 +83,6 @@
 	<classpathentry kind="lib" path="lib/xbean.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis-2.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/ta-lib-0.4.0.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
