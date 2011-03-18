@@ -461,7 +461,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
                 ibOrder.m_faMethod = closeMethod;
 
                 if (OrderStatus.OPEN.equals(partialOrder.getStatus())) {
-                    double percentage = Math.abs(partialOrder.getRequestedQuantity() * 100 / existingQuantity);
+                    double percentage = Math.abs(partialOrder.getRequestedQuantity() * 100 / (existingQuantity - partialOrder.getExecutedQuantity()));
                     ibOrder.m_faPercentage = "-" + percentage;
                 } else {
                     ibOrder.m_totalQuantity = (int) partialOrder.getRequestedQuantity();
