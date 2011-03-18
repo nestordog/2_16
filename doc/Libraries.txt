@@ -1,60 +1,75 @@
-commons-beanutils-1.8.2.jar                    common
-commons-collections-3.2.1.jar                    common
-commons-lang-2.4.jar                        common
-commons-logging-1.1.1.jar                    common
-commons-math-2.1.jar                        common
-commons-codec-1.4.jar                        common
-commons-httpclient-3.0.1.jar                    common (not up to date)
-log4j-1.2.15.jar                            common
+collections-generic-4.01.jar                        common
+commons-beanutils-1.8.2.jar                        common
+commons-configuration-1.6.jar                        common
+commons-collections-3.2.1.jar                        common
+commons-lang-2.4.jar                            common
+commons-logging-1.1.1.jar                        common
+commons-math-2.1.jar                            common
+commons-codec-1.4.jar                            common
+commons-httpclient-3.0.1.jar                        common (not up to date)
 
-aopalliance.jar                            hibernate
-backport-util.concurrent.jar                    hibernate (required by ehcache)
-antlr-3.2.jar                                hibernate & esper
-asm-3.3.jar                                hibernate
-cglib-2.2.jar                                hibernate & esper
-dom4j-1.6.1.jar                            hibernate
-ehcache-1.5.0.jar                            hibernate
-hibernate-3.6.0.jar                            hibernate
-hibernate-jpa-2.0-api-1.0.0.Final.jar            hibernate
-jta-1.1.jar                                hibernate
-slf4j-api-1.6.1.jar                            hibernate
-slf4j-log4j12-1.6.1.jar                        hibernate
+aopalliance.jar                                hibernate
+backport-util.concurrent.jar                        hibernate (required by ehcache)
+antlr-3.2.jar                                    hibernate & esper
+asm-3.3.jar                                    hibernate
+c3p0-0.9.1                                    hibernate (connection pool)
+cglib-2.2.jar                                    hibernate & esper
+dom4j-1.6.1.jar                                hibernate
+ehcache-1.5.0.jar                                hibernate
+hibernate-3.6.0.jar                                hibernate
+hibernate-jpa-2.0-api-1.0.0.Final.jar                hibernate
+jta-1.1.jar                                    hibernate
+slf4j-api-1.6.1.jar                                hibernate
+slf4j-log4j12-1.6.1.jar                            hibernate
 javaassist-3.12.0.GA.jar
 
-org.springframework.aop-3.0.5.RELEASE.jar        spring
-org.springframework.asm-3.0.5.RELEASE.jar        spring
-org.springframework.beans-3.0.5.RELEASE.jar        spring
-org.springframework.context-3.0.5.RELEASE.jar    spring
-org.springframework.core-3.0.5.RELEASE.jar        spring
-org.springframework.expression-3.0.5.RELEASE.jar    spring
-org.springframework.jdbc-3.0.5.RELEASE.jar        spring
-org.springframework.orm-3.0.5.RELEASE.jar        spring
-org.springframework.transaction-3.0.5.RELEASE.jar    spring
-org.springframework.instrument-3.0.5.RELEASE.jar    spring
+org.springframework.aop-3.0.5.RELEASE.jar            spring
+org.springframework.asm-3.0.5.RELEASE.jar            spring
+org.springframework.beans-3.0.5.RELEASE.jar            spring
+org.springframework.context-3.0.5.RELEASE.jar        spring
+org.springframework.context.support-3.0.5.RELEASE.jar    spring
+org.springframework.core-3.0.5.RELEASE.jar            spring
+org.springframework.expression-3.0.5.RELEASE.jar        spring
+org.springframework.jdbc-3.0.5.RELEASE.jar            spring
+org.springframework.orm-3.0.5.RELEASE.jar            spring
+org.springframework.transaction-3.0.5.RELEASE.jar        spring
+org.springframework.instrument-3.0.5.RELEASE.jar        spring
 
-serializer-2.7.1.jar                        xalan
-xalan-2.7.1.jar                            xalan
-xercesImpl-2.7.1.jar                        xalan
-xml-apis-2.7.1.jar                            xalan
+serializer-2.7.1.jar                            xalan
+xalan-2.7.1.jar                                xalan
+xercesImpl-2.7.1.jar                            xalan
+xml-apis-2.7.1.jar                                xalan
 
-esper-4.0.0.jar                            esper
-esperjmx-3.3.0.jar                            esper (from Esper EE)
-esper-csv-4.0.0.jar                            esper
-esper-socket-4.0.0.jar                        esper
+esper-4.0.0.jar                                esper
+esper-csv-4.0.0.jar                                esper
+esper-socket-4.0.0.jar                            esper
 
-activation-1.1.1.jar                        mail
-mailapi-1.4.3.jar                            mail
-smtp-1.4.3.jar                                mail
+esperjmx-3.3.0.jar                                EsperEE
+activemq-all-5.3.0.jar                            EsperEE
+esper-dds-4.0.0.jar                                EsperEE
+esper-server-4.0.0.jar                            EsperEE
+esper-servicexml-4.0.0.jar                        EsperEE
+jetty-6.1.23.jar                                EsperEE
+jetty-util-6.1.23.jar                            EsperEE
+servlet-api-2.5-6.1.14.jar                        EsperEE
+xbean.jar
 
-aspectjrt.jar                                aspectJ
-aspectjweaver.jar                            aspectJ
+activation-1.1.1.jar                            mail
+mailapi-1.4.3.jar                                mail
+smtp-1.4.3.jar                                    mail
 
-spiffy-all-0.05.jar                            supercvs
-SuperCSV-1.52.jar                            supercvs
+aspectjrt.jar                                    aspectJ
+aspectjweaver.jar                                aspectJ
 
-javabuilder.jar                            Matlab
-sabr.jar                                    Matlab sabr
+spiffy-all-0.05.jar                                supercvs
+SuperCSV-1.52.jar                                supercvs
 
-Tidy.jar                                    tidy
-mysql-connector-java-5.1.13-bin.jar            mysql
-jtsclient.jar                                IBClient
+javabuilder.jar                                Matlab
+sabr.jar                                        Matlab sabr
+
+Tidy.jar                                        tidy
+mysql-connector-java-5.1.13-bin.jar                mysql
+jtsclient.jar                                    IBClient
+log4j-1.2.15.jar                                logging
+agent.jar                                        JMX Agent
+ant.jar                                        ant
