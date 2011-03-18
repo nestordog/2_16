@@ -14,6 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.xml.transform.TransformerException;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.DisposableBean;
 
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.PartialOrder;
@@ -34,7 +35,7 @@ import com.ib.client.Contract;
 import com.ib.client.Execution;
 import com.ib.client.OrderState;
 
-public class IbTransactionServiceImpl extends IbTransactionServiceBase {
+public class IbTransactionServiceImpl extends IbTransactionServiceBase implements DisposableBean {
 
     private static Logger logger = MyLogger.getLogger(IbTransactionServiceImpl.class.getName());
 
@@ -536,6 +537,13 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase {
 
             logger.warn("order on: " + order.getSecurity().getSymbol() + " did not execute fully, requestedQuantity: " + order.getRequestedQuantity() + " executedQuantity: "
                     + order.getPartialOrderExecutedQuantity());
+        }
+    }
+
+    public void destroy() throws Exception {
+
+        if (this.client != null) {
+            this.client.disconnect();
         }
     }
 }

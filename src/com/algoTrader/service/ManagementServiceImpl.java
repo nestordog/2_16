@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.TickDaoImpl;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
@@ -108,5 +110,22 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected void handleDeactivate(String ruleName) throws Exception {
 
         getRuleService().undeployRule(StrategyUtil.getStartedStrategyName(), ruleName);
+    }
+
+    protected void handleRegisterStrategy() throws Exception {
+
+        String strategyName = StrategyUtil.getStartedStrategyName();
+
+        if (!StrategyImpl.BASE.equals(strategyName) && !getStrategyService().isStrategyRegistered(strategyName)) {
+            getStrategyService().registerStrategy(strategyName);
+        }
+    }
+
+    protected void handleShutdown() throws Exception {
+
+        ServiceLocator.commonInstance().shutdown();
+
+        // need to force exit because grafefull shutdown of esper-service (and esper-jmx) does not work
+        System.exit(0);
     }
 }

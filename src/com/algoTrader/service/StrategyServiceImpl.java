@@ -7,12 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.DisposableBean;
 
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 
-public class StrategyServiceImpl extends StrategyServiceBase {
+public class StrategyServiceImpl extends StrategyServiceBase implements DisposableBean {
 
     private static int basePort = ConfigurationUtil.getBaseConfig().getInt("basePort");
     private static Logger logger = MyLogger.getLogger(StrategyServiceImpl.class.getName());
@@ -75,6 +76,13 @@ public class StrategyServiceImpl extends StrategyServiceBase {
                 // probably the client has been shut down, so unregister
                 unregisterStrategy(strategyName);
             }
+        }
+    }
+
+    public void destroy() throws Exception {
+
+        for (Map.Entry<String, Socket> entry : this.socketMap.entrySet()) {
+            unregisterStrategy(entry.getKey());
         }
     }
 }

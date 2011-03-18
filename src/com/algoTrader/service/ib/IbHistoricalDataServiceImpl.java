@@ -16,6 +16,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.DisposableBean;
 
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Tick;
@@ -29,7 +30,7 @@ import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.io.CsvTickWriter;
 import com.ib.client.Contract;
 
-public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase {
+public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase implements DisposableBean {
 
     private static Logger logger = MyLogger.getLogger(IbHistoricalDataServiceImpl.class.getName());
 
@@ -251,6 +252,13 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase {
             return ConnectionState.DISCONNECTED;
         } else {
             return this.wrapper.getState();
+        }
+    }
+
+    public void destroy() throws Exception {
+
+        if (this.client != null) {
+            this.client.disconnect();
         }
     }
 

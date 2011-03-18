@@ -67,6 +67,13 @@ public class DefaultClientSocket extends EClientSocket {
         }
     }
 
+    public void disconnect() {
+
+        if (isConnected()) {
+            eDisconnect();
+        }
+    }
+
     private static synchronized boolean connectionAvailable() {
         try {
             Socket socket = new Socket("127.0.0.1", port);

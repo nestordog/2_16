@@ -27,6 +27,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
+import org.springframework.beans.factory.DisposableBean;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
@@ -44,7 +45,7 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.XmlUtil;
 
-public class IbAccountServiceImpl extends IbAccountServiceBase {
+public class IbAccountServiceImpl extends IbAccountServiceBase implements DisposableBean {
 
     private static Logger logger = MyLogger.getLogger(IbAccountServiceImpl.class.getName());
 
@@ -346,6 +347,13 @@ public class IbAccountServiceImpl extends IbAccountServiceBase {
                     " description: " + transaction.getDescription());
 
             getRuleService().sendEvent(StrategyImpl.BASE, transaction);
+        }
+    }
+
+    public void destroy() throws Exception {
+
+        if (this.client != null) {
+            this.client.disconnect();
         }
     }
 }

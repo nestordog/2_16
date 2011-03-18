@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.DisposableBean;
 
 import com.algoTrader.entity.Forex;
 import com.algoTrader.entity.Security;
@@ -24,7 +25,7 @@ import com.algoTrader.vo.RawTickVO;
 import com.ib.client.Contract;
 import com.ib.client.TickType;
 
-public class IbTickServiceImpl extends IbTickServiceBase {
+public class IbTickServiceImpl extends IbTickServiceBase implements DisposableBean {
 
     private static Logger logger = MyLogger.getLogger(IbTickServiceBase.class.getName());
 
@@ -316,6 +317,13 @@ public class IbTickServiceImpl extends IbTickServiceBase {
                 this.securityToRequestIdMap.remove(security);
                 this.validSecurities.remove(security);
             }
+        }
+    }
+
+    public void destroy() throws Exception {
+
+        if (this.client != null) {
+            this.client.disconnect();
         }
     }
 }
