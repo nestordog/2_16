@@ -25,11 +25,6 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getSecurityDao().load(id);
     }
 
-    protected Security handleGetSecurityByStrategyName(String strategyName) throws Exception {
-
-        return getSecurityDao().findByStrategyName(strategyName);
-    }
-
     protected Security handleGetSecurityByIsin(String isin) throws Exception {
 
         return getSecurityDao().findByIsin(isin);

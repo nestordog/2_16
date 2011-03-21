@@ -103,9 +103,6 @@ public class TestServiceImpl extends TestServiceBase {
         case 6:
             getSecurityDao().findSecuritiesOnActiveWatchlist();
             break;
-        case 7:
-            getSecurityDao().findByStrategyName("SMI");
-            break;
         case 8:
             getSecurityDao().findByIdFetched(6);
             break;
