@@ -58,6 +58,11 @@ public class IbTickServiceImpl extends IbTickServiceBase implements DisposableBe
                 if (tick == null)
                     return;
 
+                // for indexes we get -1 if there is no data available
+                if (price == -1) {
+                    price = 0;
+                }
+
                 if (field == TickType.BID) {
                     tick.setBid(RoundUtil.getBigDecimal(price));
                 } else if (field == TickType.ASK) {

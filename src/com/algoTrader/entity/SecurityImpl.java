@@ -40,37 +40,6 @@ public class SecurityImpl extends Security {
         return tick;
     }
 
-    /**
-     * spread depends on the pricePerContract (i.e. spread should be the same
-     * for 12.- à contractSize 10 as for 1.20 à contractSize 100)
-     *
-     * @return price per option
-     */
-    public double getDummyBid(double price) {
-
-        if (getSecurityFamily().getSpreadSlope() == null || getSecurityFamily().getSpreadConstant() == null) {
-
-            throw new RuntimeException("SpreadSlope and SpreadConstant have to be defined for " + getSymbol());
-        }
-
-        double pricePerContract = price * getSecurityFamily().getContractSize();
-        double spread = pricePerContract * getSecurityFamily().getSpreadSlope() + getSecurityFamily().getSpreadConstant();
-        return (pricePerContract - (spread / 2.0)) / getSecurityFamily().getContractSize();
-    }
-
-    /**
-     * spread depends on the pricePerContract (i.e. spread should be the same
-     * for 12.- à contractSize 10 as for 1.20 à contractSize 100)
-     *
-     * @return price per option
-     */
-    public double getDummyAsk(double price) {
-
-        double pricePerContract = price * getSecurityFamily().getContractSize();
-        double spread = pricePerContract * getSecurityFamily().getSpreadSlope() + getSecurityFamily().getSpreadConstant();
-        return (pricePerContract + (spread / 2.0)) / getSecurityFamily().getContractSize();
-    }
-
     public boolean isOnWatchlist() {
 
         return Hibernate.isInitialized(getWatchListItems()) && (getWatchListItems().size() != 0);

@@ -106,7 +106,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 // evaluate the profit in closing transactions
                 // must get this before attaching the new transaction
                 if (Long.signum(position.getQuantity()) * Long.signum(transaction.getQuantity()) == -1) {
-                    double cost = position.getCostDouble();
+                    double cost = position.getCostDouble() * Math.abs((double) transaction.getQuantity() / (double) position.getQuantity());
                     double value = transaction.getValueDouble();
                     profit = value - cost;
                     profitPct = position.isLong() ? ((value - cost) / cost) : ((cost - value) / cost);
@@ -184,9 +184,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         if (TransactionType.SELL.equals(order.getTransactionType())) {
 
             double bid = tick.getBid().doubleValue();
-            if (bid == 0.0) {
-                bid = security.getDummyBid(currentValue);
-            }
 
             transaction.setPrice(RoundUtil.getBigDecimal(bid));
             transaction.setQuantity(-Math.abs(order.getRequestedQuantity()));
@@ -194,9 +191,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         } else if (TransactionType.BUY.equals(order.getTransactionType())) {
 
             double ask = tick.getAsk().doubleValue();
-            if (ask == 0.0) {
-                ask = security.getDummyAsk(currentValue);
-            }
 
             transaction.setPrice(RoundUtil.getBigDecimal(ask));
             transaction.setQuantity(Math.abs(order.getRequestedQuantity()));

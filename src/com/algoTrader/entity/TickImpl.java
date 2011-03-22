@@ -11,10 +11,24 @@ public class TickImpl extends Tick {
 
     private static final long serialVersionUID = 7518020445322413106L;
 
+    /**
+     * Note: ticks that are not valid (i.e. low volume) are not fed into esper, so we don't need to check
+     */
     public BigDecimal getCurrentValue() {
 
-        return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0);
-
+        if (simulation) {
+            if (!super.getBid().equals(new BigDecimal(0)) & !super.getAsk().equals(new BigDecimal(0))) {
+                return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0);
+            } else {
+                return getLast();
+            }
+        } else {
+            if (this.getSecurity().getSecurityFamily().isTradeable()) {
+                return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0);
+            } else {
+                return getLast();
+            }
+        }
     }
 
     public double getCurrentValueDouble() {
@@ -25,7 +39,24 @@ public class TickImpl extends Tick {
     public BigDecimal getBid() {
 
         if (simulation && super.getBid().equals(new BigDecimal(0))) {
-            return getLast();
+
+            // tradeable securities with bid = 0 should return a simulated value
+            SecurityFamily family = getSecurity().getSecurityFamily();
+            if (family.isTradeable()) {
+
+                if (family.getSpreadSlope() == null || family.getSpreadConstant() == null) {
+                    throw new RuntimeException("SpreadSlope and SpreadConstant have to be defined for dummyBid " + getSecurity().getSymbol());
+                }
+
+                // spread depends on the pricePerContract (i.e. spread should be the same
+                // for 12.- à contractSize 10 as for 1.20 à contractSize 100)
+                double pricePerContract = getLast().doubleValue() * family.getContractSize();
+                double spread = pricePerContract * family.getSpreadSlope() + family.getSpreadConstant();
+                double dummyBid = (pricePerContract - (spread / 2.0)) / family.getContractSize();
+                return RoundUtil.getBigDecimal(dummyBid);
+            } else {
+                return super.getBid();
+            }
         } else {
             return super.getBid();
         }
@@ -34,7 +65,24 @@ public class TickImpl extends Tick {
     public BigDecimal getAsk() {
 
         if (simulation && super.getAsk().equals(new BigDecimal(0))) {
-            return getLast();
+
+            // tradeable securities with ask = 0 should return a simulated value
+            SecurityFamily family = getSecurity().getSecurityFamily();
+            if (family.isTradeable()) {
+
+                if (family.getSpreadSlope() == null || family.getSpreadConstant() == null) {
+                    throw new RuntimeException("SpreadSlope and SpreadConstant have to be defined for dummyAsk " + getSecurity().getSymbol());
+                }
+
+                // spread depends on the pricePerContract (i.e. spread should be the same
+                // for 12.- à contractSize 10 as for 1.20 à contractSize 100)
+                double pricePerContract = getLast().doubleValue() * family.getContractSize();
+                double spread = pricePerContract * family.getSpreadSlope() + family.getSpreadConstant();
+                double dummyAsk = (pricePerContract + (spread / 2.0)) / family.getContractSize();
+                return RoundUtil.getBigDecimal(dummyAsk);
+            } else {
+                return super.getAsk();
+            }
         } else {
             return super.getAsk();
         }
