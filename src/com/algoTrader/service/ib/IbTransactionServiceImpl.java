@@ -119,8 +119,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                         " remaining: " + remaining +
                         " avgFillPrice: " + avgFillPrice +
                         " permId: " + permId +
-                        " lastFillPrice: " + lastFillPrice +
-                        " whyHeld: " + whyHeld);
+                        " lastFillPrice: " + lastFillPrice);
 
                 IbTransactionServiceImpl.this.lock.lock();
                 try {
