@@ -244,7 +244,9 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             price = ask - spreadPosition * (ask - bid);
         }
 
-        return RoundUtil.roundTo10Cent(RoundUtil.getBigDecimal(price)).doubleValue();
+        double tickSize = order.getSecurity().getSecurityFamily().getTickSize();
+
+        return RoundUtil.roundToNextN(price, tickSize);
     }
 
     /**
