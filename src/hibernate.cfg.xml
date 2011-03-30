@@ -32,5 +32,6 @@
     <mapping resource="com/algoTrader/entity/Strategy.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Tick.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Transaction.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/WatchListItem.hbm.xml" />
 </session-factory>
 </hibernate-configuration>
