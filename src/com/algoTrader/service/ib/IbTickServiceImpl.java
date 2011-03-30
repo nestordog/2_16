@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
 import com.algoTrader.entity.Forex;
+import com.algoTrader.entity.Future;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Tick;
@@ -171,9 +172,28 @@ public class IbTickServiceImpl extends IbTickServiceBase implements DisposableBe
                     if (tick.getSettlement() == null)
                         return false;
 
+                } else if (tick.getSecurity() instanceof Future) {
+
+                    // futures need to have a bis/ask volume
+                    // but might not have a last/lastDateTime yet on the current day
+                    if (tick.getVolBid() == 0)
+                        return false;
+                    if (tick.getVolAsk() == 0)
+                        return false;
+                    if (tick.getBid() != null && tick.getBid().doubleValue() <= 0)
+                        return false;
+                    if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0)
+                        return false;
+                    if (tick.getSettlement() == null)
+                        return false;
+
                 } else if (tick.getSecurity() instanceof Forex) {
 
                     // no special checks
+                    if (tick.getVolBid() == 0)
+                        return false;
+                    if (tick.getVolAsk() == 0)
+                        return false;
 
                 } else {
 
