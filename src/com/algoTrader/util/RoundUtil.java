@@ -8,28 +8,30 @@ import com.algoTrader.enumeration.OptionType;
 
 public class RoundUtil {
 
-    public static BigDecimal roundTo5Cent(BigDecimal decimal) {
-
-        double rounded = Math.round(decimal.doubleValue() * 20.0) / 20.0;
-        return getBigDecimal(rounded);
-    }
-
     public static BigDecimal roundTo10Cent(BigDecimal decimal) {
 
         double rounded = Math.round(decimal.doubleValue() * 10.0) / 10.0;
         return getBigDecimal(rounded);
     }
 
-    public static BigDecimal roundToNextN(BigDecimal spot, double n, OptionType type) {
+    public static double roundToNextN(double value, double n) {
 
-        if (OptionType.CALL.equals(type)) {
+        return MathUtils.round((value) / n, 0) * n;
+    }
 
-            // increase by strikeOffset and round to upper n
-            return RoundUtil.getBigDecimal(MathUtils.round((spot.doubleValue()) / n, 0, BigDecimal.ROUND_CEILING) * n);
-        } else {
-            // reduce by strikeOffset and round to lower n
-            return RoundUtil.getBigDecimal(MathUtils.round((spot.doubleValue()) / n, 0, BigDecimal.ROUND_FLOOR) * n);
-        }
+    public static BigDecimal roundToNextN(BigDecimal value, double n) {
+
+        return RoundUtil.getBigDecimal(roundToNextN(value.doubleValue(), n));
+    }
+
+    public static double roundToNextN(double value, double n, int roundingMethod) {
+
+        return MathUtils.round((value) / n, 0, roundingMethod) * n;
+    }
+
+    public static BigDecimal roundToNextN(BigDecimal value, double n, int roundingMethod) {
+
+        return RoundUtil.getBigDecimal(roundToNextN(value.doubleValue(), n, roundingMethod));
     }
 
     public static BigDecimal getBigDecimal(double value) {
@@ -42,9 +44,14 @@ public class RoundUtil {
         }
     }
 
-    public static double round(double value, int scale) {
+    public static BigDecimal roundStockOptionStrikeToNextN(BigDecimal spot, double n, OptionType type) {
 
-        double factor = Math.pow(10, scale);
-        return (Math.round(value * factor)) / factor;
+        if (OptionType.CALL.equals(type)) {
+            // increase by strikeOffset and round to upper n
+            return roundToNextN(spot, n, BigDecimal.ROUND_CEILING);
+        } else {
+            // reduce by strikeOffset and round to lower n
+            return roundToNextN(spot, n, BigDecimal.ROUND_FLOOR);
+        }
     }
 }

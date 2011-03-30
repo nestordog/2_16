@@ -47,7 +47,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         // set third Friday of the month
         Date expiration = DateUtil.getNextThirdFriday(expirationDate);
 
-        BigDecimal strike = RoundUtil.roundToNextN(underlayingSpot, family.getStrikeDistance(), type);
+        BigDecimal strike = RoundUtil.roundStockOptionStrikeToNextN(underlayingSpot, family.getStrikeDistance(), type);
 
         // symbol / isin
         String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike);
@@ -170,7 +170,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         BigDecimal underlayingSpot = underlayingTick.getLast();
 
         double forward = StockOptionUtil.getForward(underlayingSpot.doubleValue(), years, family.getIntrest(), family.getDividend());
-        double atmStrike = RoundUtil.roundToNextN(underlayingSpot, family.getStrikeDistance(), type).doubleValue();
+        double atmStrike = RoundUtil.roundStockOptionStrikeToNextN(underlayingSpot, family.getStrikeDistance(), type).doubleValue();
 
         List<Tick> ticks = getTickDao().findBySecurityDateTypeExpiration(underlaying, date, type, expirationDate);
         List<Double> strikes = new ArrayList<Double>();
