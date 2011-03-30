@@ -48,6 +48,9 @@ public class PositionImpl extends Position {
             } else {
                 return getQuantity() > 0;
             }
+        } else if (getSecurity() instanceof Future) {
+
+            return getQuantity() > 0;
         } else {
             // we have nothing else yet
             return null;
@@ -190,6 +193,16 @@ public class PositionImpl extends Position {
         return getUnrealizedPLDouble() * getSecurity().getFXRateBase();
     }
 
+    public double getExitValueDouble() {
+
+        return getExitValue().doubleValue();
+    }
+
+    public double getExitValueDoubleBase() {
+
+        return getExitValueDouble() * getSecurity().getFXRateBase();
+    }
+
     public double getMaintenanceMarginDouble() {
 
         if (isOpen() && getMaintenanceMargin() != null) {
@@ -208,7 +221,7 @@ public class PositionImpl extends Position {
 
         if (isOpen() && getExitValue() != null) {
 
-            return -getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getExitValue().doubleValue();
+            return -getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getExitValueDouble();
         } else {
             return 0.0;
         }
@@ -219,17 +232,29 @@ public class PositionImpl extends Position {
         return getRedemptionValueDouble() * getSecurity().getFXRateBase();
     }
 
-    public double getDeltaRisk() {
+    public double getMaxLossDouble() {
 
-        if (getSecurity() instanceof StockOption) {
+        if (isOpen() && getExitValue() != null) {
 
-            StockOption stockOption = (StockOption) getSecurity();
-
-            return getMarketValueDouble() * stockOption.getLeverage();
-
+            double maxLossPerItem;
+            if (isLong()) {
+                maxLossPerItem = getMarketPriceDouble() - getExitValueDouble();
+            } else {
+                maxLossPerItem = getExitValueDouble() - getMarketPriceDouble();
+            }
+            return -getQuantity() * getSecurity().getSecurityFamily().getContractSize() * maxLossPerItem;
         } else {
             return 0.0;
         }
+    }
+
+    public double getMaxLossBaseDouble() {
+
+        return getMaxLossDouble() * getSecurity().getFXRateBase();
+    }
+    public double getExposure() {
+
+        return getMarketValueDouble() * getSecurity().getLeverage();
     }
 
     @SuppressWarnings("unchecked")

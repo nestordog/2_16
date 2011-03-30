@@ -8,6 +8,7 @@ import org.hibernate.Hibernate;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.Currency;
+import com.algoTrader.service.TickServiceException;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
@@ -47,7 +48,18 @@ public class SecurityImpl extends Security {
 
     public void validateTick(Tick tick) {
 
-        // do nothing, this method will be overwritten
+        SecurityFamily family = tick.getSecurity().getSecurityFamily();
+        int contractSize = family.getContractSize();
+        double maxSpreadSlope = family.getMaxSpreadSlope();
+        double maxSpreadConstant = family.getMaxSpreadConstant();
+
+        double mean = contractSize * (tick.getAsk().doubleValue() + tick.getBid().doubleValue()) / 2.0;
+        double spread = contractSize * (tick.getAsk().doubleValue() - tick.getBid().doubleValue());
+        double maxSpread = mean * maxSpreadSlope + maxSpreadConstant;
+
+        if (spread > maxSpread) {
+            throw new TickServiceException("spread (" + spread + ") is higher than maxSpread (" + maxSpread + ") for security " + getSymbol());
+        }
     }
 
     public double getFXRate(Currency transactionCurrency) {
@@ -60,6 +72,13 @@ public class SecurityImpl extends Security {
         return getFXRate(portfolioBaseCurrency);
     }
 
+    public double getLeverage() {
+        return 0;
+    }
+
+    /**
+     * generic default margin
+     */
     public double getMargin() {
 
         Tick lastTick = getLastTick();

@@ -88,6 +88,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         // delete all StockOptions
         getSecurityDao().remove(getStockOptionDao().loadAll());
+
+        // delete all Futures
+        getSecurityDao().remove(getFutureDao().loadAll());
     }
 
     @SuppressWarnings("unchecked")

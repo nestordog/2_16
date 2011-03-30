@@ -52,6 +52,31 @@ public class DateUtil {
         return cal.getTime();
     }
 
+    public static Date getNextThirdFriday3MonthCycle(Date input) {
+
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(input);
+
+        // round to 3-month cycle
+        int month = (cal.get(Calendar.MONTH) + 1) / 3 * 3 - 1;
+
+        cal.set(Calendar.MONTH, month);
+        cal.set(Calendar.WEEK_OF_MONTH, 3);
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+        cal.set(Calendar.HOUR_OF_DAY, 13);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        if (cal.getTimeInMillis() < input.getTime()) {
+            cal.add(Calendar.MONTH, 3);
+            cal.set(Calendar.WEEK_OF_MONTH, 3);
+            cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+        }
+
+        return cal.getTime();
+    }
+
     /**
      *
      * @param first

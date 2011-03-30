@@ -21,9 +21,13 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
         getIbService().connect();
     }
 
-    protected void handleRunDailyJobs() throws Exception {
+    protected void handleSetMargins() throws Exception {
 
-        getStockOptionService().setMargins();
+        getPositionService().setMargins();
+    }
+
+    protected void handleProcessCashTransactions() throws Exception {
+
         getDispatcherService().getAccountService().processCashTransactions();
     }
 

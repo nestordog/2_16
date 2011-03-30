@@ -154,13 +154,14 @@ public class RuleServiceImpl extends RuleServiceBase {
             }
         }
 
-        if (newStatement != null) {
+        if (newStatement == null) {
 
+            logger.warn("statement " + ruleName + " was not found");
+        } else {
             addSubscriberAndListeners(newStatement);
 
             logger.debug("deployed rule " + newStatement.getName() + " on service provider: " + strategyName);
         }
-
     }
 
     protected void handleDeployModule(String strategyName, String moduleName) throws java.lang.Exception {

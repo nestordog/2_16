@@ -230,22 +230,28 @@ public class StrategyImpl extends Strategy {
         return redemptionValue;
     }
 
-    public double getAtRiskRatio() {
+    @SuppressWarnings("unchecked")
+    public double getMaxLossDouble() {
 
-        return getRedemptionValueDouble() / getCashBalanceDouble();
+        double maxLoss = 0.0;
+        Collection<Position> positions = getPositions();
+        for (Position position : positions) {
+            maxLoss += position.getMaxLossBaseDouble();
+        }
+        return maxLoss;
     }
 
     @SuppressWarnings("unchecked")
     public double getLeverage() {
 
-        double deltaRisk = 0.0;
+        double exposure = 0.0;
         Collection<Position> positions = getPositions();
         for (Position position : positions) {
             if (position.isOpen()) {
-                deltaRisk += position.getDeltaRisk();
+                exposure += position.getExposure();
             }
         }
 
-        return deltaRisk / getNetLiqValueDouble();
+        return exposure / getNetLiqValueDouble();
     }
 }

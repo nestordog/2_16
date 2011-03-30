@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import com.algoTrader.entity.Future;
+import com.algoTrader.entity.FutureFamily;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.SecurityFamily;
@@ -30,9 +32,9 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getSecurityDao().findByIsin(isin);
     }
 
-    protected Security handleGetSecurityFetched(int stockOptionId) throws Exception {
+    protected Security handleGetSecurityFetched(int securityId) throws Exception {
 
-        return getSecurityDao().findByIdFetched(stockOptionId);
+        return getSecurityDao().findByIdFetched(securityId);
     }
 
     protected Security[] handleGetSecuritiesOnWatchlistByPeriodicity(Periodicity periodicity) throws Exception {
@@ -43,6 +45,11 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected StockOption handleGetNearestStockOption(int underlayingId, Date expirationDate, BigDecimal underlayingSpot, String optionTypeString) throws Exception {
 
         return getStockOptionDao().findNearestStockOption(underlayingId, expirationDate, underlayingSpot, optionTypeString);
+    }
+
+    protected Future handleGetNearestFuture(int underlayingId, Date expirationDate) throws Exception {
+
+        return getFutureDao().findNearestFuture(underlayingId, expirationDate);
     }
 
     protected Strategy handleGetStrategy(int id) throws java.lang.Exception {
@@ -68,6 +75,11 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected StockOptionFamily handleGetStockOptionFamilyByUnderlaying(int id) throws Exception {
 
         return getStockOptionFamilyDao().findByUnderlaying(id);
+    }
+
+    protected FutureFamily handleGetFutureFamilyByUnderlaying(int id) throws Exception {
+
+        return getFutureFamilyDao().findByUnderlaying(id);
     }
 
     protected Position handleGetPosition(int id) throws java.lang.Exception {
@@ -122,7 +134,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
     protected Security[] handleGetAllSecuritiesInPortfolio() throws Exception {
 
-        return (Security[])getSecurityDao().findSecuritesInPortfolio().toArray(new Security[0]);
+        return (Security[])getSecurityDao().findSecuritiesInPortfolio().toArray(new Security[0]);
     }
 
     protected StockOption[] handleGetStockOptionsOnWatchlist() throws Exception {
@@ -133,6 +145,11 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected Position[] handleGetOpenPositions() throws Exception {
 
         return (Position[])getPositionDao().findOpenPositions().toArray(new Position[0]);
+    }
+
+    protected Position[] handleGetOpenPositionsByStrategy(String strategyName) throws Exception {
+
+        return (Position[]) getPositionDao().findOpenPositionsByStrategy(strategyName).toArray(new Position[0]);
     }
 
     protected Position[] handleGetBullishPositionsByStrategy(String strategyName) throws Exception {

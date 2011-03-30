@@ -176,11 +176,11 @@ public class StrategyDaoImpl extends StrategyDaoBase {
     @SuppressWarnings("unchecked")
     protected double handleGetPortfolioLeverageDouble() throws Exception {
 
-        double deltaRisk = 0.0;
+        double exposure = 0.0;
         Collection<Position> positions = getPositionDao().findOpenPositions();
         for (Position position : positions) {
-            deltaRisk += position.getDeltaRisk();
+            exposure += position.getExposure();
         }
-        return deltaRisk / getPortfolioNetLiqValueDouble();
+        return exposure / getPortfolioNetLiqValueDouble();
     }
 }

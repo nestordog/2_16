@@ -3,14 +3,14 @@ module base;
 @Name('RETRIEVE_MINUTE_TICKS')
 @Tag(name='subscriber', value='com.algoTrader.service.TickServiceImpl$RetrieveTickSubscriber')
 select security.id
-from pattern[every timer:at (*, 9:17, *, *, 1:5)],
+from pattern[every timer:at (*, 7:21, *, *, 1:5)],
 method:LookupUtil.getSecuritiesOnWatchlistByPeriodicity('MINUTE') as security
 where simulation = false;
 
 @Name('RETRIEVE_HOUR_TICKS')
 @Tag(name='subscriber', value='com.algoTrader.service.TickServiceImpl$RetrieveTickSubscriber')
 select security.id
-from pattern[every timer:at (0, 9:17, *, *, 1:5)],
+from pattern[every timer:at (0, 7:21, *, *, 1:5)],
 method:LookupUtil.getSecuritiesOnWatchlistByPeriodicity('HOUR') as security
 where simulation = false;
 
@@ -56,12 +56,12 @@ from Tick.std:groupwin(security.id).win:time(7 days).win:length(1) as tick;
 
 @Name('EXPIRE_POSITION')
 @Priority(2)
-@Tag(name='subscriber', value='com.algoTrader.service.StockOptionServiceImpl$ExpirePositionSubscriber')
+@Tag(name='subscriber', value='com.algoTrader.service.PositionServiceImpl$ExpirePositionSubscriber')
 select position.id as positionId
 from Tick as tick,
 method:LookupUtil.getOpenPositions() as position
 where position.security.underlaying = tick.security
-and instanceof(position.security, com.algoTrader.entity.StockOption)
+and position.security.securityFamily.simulatable
 and cast(position.security?.expiration.time, long) < current_timestamp()
 and position.quantity != 0;
 

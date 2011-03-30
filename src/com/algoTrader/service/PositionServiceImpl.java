@@ -7,9 +7,11 @@ import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.Order;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Strategy;
+import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -19,7 +21,7 @@ import com.espertech.esper.client.UpdateListener;
 
 public class PositionServiceImpl extends PositionServiceBase {
 
-    private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(PositionServiceImpl.class.getName());
 
     protected void handleClosePosition(int positionId) throws Exception {
 
@@ -41,13 +43,10 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         getDispatcherService().getTransactionService().executeTransaction(position.getStrategy().getName(), order);
 
-        // only remove the stockOption from the watchlist, if the position is closed
+        // only remove the security from the watchlist, if the position is closed
         if (!position.isOpen()) {
             getDispatcherService().getTickService().removeFromWatchlist(position.getStrategy(), security);
         }
-
-        // if there is a and OPEN_POSITION rule active for this stockOption deactivate it
-        getRuleService().undeployRuleByTarget(position.getStrategy().getName(), "OPEN_POSITION", security.getId());
     }
 
     protected void handleSetExitValue(int positionId, double exitValue, boolean force) throws MathException {
@@ -56,7 +55,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         // there needs to be a position
         if (position == null) {
-            throw new StockOptionServiceException("position does not exist: " + positionId);
+            throw new PositionServiceException("position does not exist: " + positionId);
         }
 
         // in generall there should have been set a exitValue on creation of the position
@@ -73,10 +72,10 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         // in generall, exit value should not be set higher than existing exitValue
         if (!force) {
-            if (position.isShort() && exitValue > position.getExitValue().doubleValue()) {
+            if (position.isShort() && exitValue > position.getExitValueDouble()) {
                 logger.warn("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of short position " + positionId);
                 return;
-            } else if (position.isLong() && exitValue < position.getExitValue().doubleValue()) {
+            } else if (position.isLong() && exitValue < position.getExitValueDouble()) {
                 logger.warn("exit value " + exitValue + " is lower than existing exit value " + position.getExitValue() + " of long position " + positionId);
                 return;
             }
@@ -85,9 +84,9 @@ public class PositionServiceImpl extends PositionServiceBase {
         // exitValue cannot be lower than currentValue
         double currentValue = position.getSecurity().getLastTick().getCurrentValueDouble();
         if (position.isShort() && exitValue < currentValue) {
-            throw new StockOptionServiceException("ExitValue (" + exitValue + ") for short-position " + position.getId() + " is lower than currentValue: " + currentValue);
+            throw new PositionServiceException("ExitValue (" + exitValue + ") for short-position " + position.getId() + " is lower than currentValue: " + currentValue);
         } else if (position.isLong() && exitValue > currentValue) {
-            throw new StockOptionServiceException("ExitValue (" + exitValue + ") for long-position " + position.getId() + " is higher than currentValue: " + currentValue);
+            throw new PositionServiceException("ExitValue (" + exitValue + ") for long-position " + position.getId() + " is higher than currentValue: " + currentValue);
         }
 
         position.setExitValue(exitValue);
@@ -117,7 +116,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             Strategy strategy = position.getStrategy();
 
-            int percent = (int) (strategy.getAvailableFundsDouble() / strategy.getCashBalanceDouble() * 100.0);
+            int percent = (int) (strategy.getAvailableFundsDouble() / strategy.getNetLiqValueDouble() * 100.0);
             if (strategy.getAvailableFundsDouble() >= 0) {
                 logger.info("set margin for " + security.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + strategy.getMaintenanceMargin()
                         + " availableFunds: " + strategy.getAvailableFunds() + " (" + percent + "% of balance)");
@@ -135,6 +134,39 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         for (Position position : positions) {
             setMargin(position);
+        }
+    }
+
+    protected void handleExpirePosition(int positionId) throws Exception {
+
+        Position position = getPositionDao().load(positionId);
+
+        if (position.getExitValue() == null || position.getExitValueDouble() == 0d) {
+            logger.warn(position.getSecurity().getSymbol() + " expired but did not have a exit value specified");
+        }
+
+        Security security = position.getSecurity();
+        if (!security.getSecurityFamily().isExpirable()) {
+            logger.warn("position is not expirable");
+            return;
+        }
+
+        // reverse the quantity
+        long numberOfContracts = -position.getQuantity();
+
+        OrderVO order = new OrderVO();
+        order.setStrategyName(position.getStrategy().getName());
+        order.setSecurityId(security.getId());
+        order.setRequestedQuantity(numberOfContracts);
+        order.setTransactionType(TransactionType.EXPIRATION);
+
+        Order executedOrder = getDispatcherService().getTransactionService().executeTransaction(position.getStrategy().getName(), order);
+
+        // only remove the security from the watchlist, if the transaction did execute fully.
+        // otherwise the next tick will execute the reminder of the order
+        if (OrderStatus.EXECUTED.equals(executedOrder.getStatus()) || OrderStatus.AUTOMATIC.equals(executedOrder.getStatus())) {
+
+            getDispatcherService().getTickService().removeFromWatchlist(position.getStrategy(), security);
         }
     }
 
@@ -174,6 +206,19 @@ public class PositionServiceImpl extends PositionServiceBase {
             ServiceLocator.serverInstance().getPositionService().setMargins();
 
             logger.debug("setMargins end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+        }
+    }
+
+    public static class ExpirePositionSubscriber {
+
+        public void update(int positionId) {
+
+            long startTime = System.currentTimeMillis();
+            logger.debug("expirePosition start");
+
+            ServiceLocator.serverInstance().getPositionService().expirePosition(positionId);
+
+            logger.debug("expirePosition end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
     }
 }

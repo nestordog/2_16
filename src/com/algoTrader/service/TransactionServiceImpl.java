@@ -6,6 +6,7 @@ import java.util.Collection;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.Future;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.OrderImpl;
 import com.algoTrader.entity.Position;
@@ -171,7 +172,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         // instead of the currentValue! because we will have passed the exitValue in the meantime
         if (simulation && TransactionType.BUY.equals(order.getTransactionType()) && (eventsPerDay <= 33)) {
 
-            double exitValue = getPositionDao().findBySecurityAndStrategy(security.getId(), order.getStrategy().getName()).getExitValue().doubleValue();
+            double exitValue = getPositionDao().findBySecurityAndStrategy(security.getId(), order.getStrategy().getName()).getExitValueDouble();
             if (currentValue > exitValue && DateUtil.compareToTime(security.getSecurityFamily().getMarketOpen()) > 0) {
 
                 logger.info("adjusted currentValue (" + currentValue + ") to exitValue (" + exitValue+ ") in closePosition for order on " + order.getSecurity().getSymbol());
@@ -206,8 +207,14 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 transaction.setPrice(price);
                 transaction.setQuantity(Math.abs(order.getRequestedQuantity()));
 
+            } else if (security instanceof Future) {
+
+                BigDecimal price = security.getUnderlaying().getLastTick().getCurrentValue();
+                transaction.setPrice(price);
+                transaction.setQuantity(Math.abs(order.getRequestedQuantity()));
+
             } else {
-                throw new IllegalArgumentException("EXPIRATION only allowed for StockOptions");
+                throw new IllegalArgumentException("EXPIRATION only allowed for " + security.getClass().getName());
             }
         }
 

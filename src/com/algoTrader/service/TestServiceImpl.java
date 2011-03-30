@@ -95,7 +95,7 @@ public class TestServiceImpl extends TestServiceBase {
             getSecurityDao().findByIsin("1OSMIMA003QQ");
             break;
         case 4:
-            getSecurityDao().findSecuritesInPortfolio();
+            getSecurityDao().findSecuritiesInPortfolio();
             break;
         case 5:
             getSecurityDao().findSecuritiesOnWatchlist();

@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.supercsv.exception.SuperCSVException;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.Future;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.StockOptionFamily;
@@ -32,6 +33,7 @@ import com.algoTrader.entity.TickImpl;
 import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.entity.WatchListItemImpl;
 import com.algoTrader.enumeration.OptionType;
+import com.algoTrader.future.FutureUtil;
 import com.algoTrader.stockOption.StockOptionSymbol;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.ConfigurationUtil;
@@ -103,10 +105,11 @@ public abstract class TickServiceImpl extends TickServiceBase {
         if (!simulation)
             return;
 
-        List<StockOption> stockOptions = getStockOptionDao().findStockOptionsOnWatchlist();
-        for (StockOption stockOption : stockOptions) {
+        List<Security> securities = getSecurityDao().findSimulatableSecuritiesOnWatchlist();
 
-            Security underlaying = stockOption.getSecurityFamily().getUnderlaying();
+        for (Security security : securities) {
+
+            Security underlaying = security.getSecurityFamily().getUnderlaying();
             if (tick.getSecurity().getId() == underlaying.getId()) {
 
                 // save the underlyingTick for later
@@ -114,28 +117,39 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
             } else if (tick.getSecurity().getId() == underlaying.getVolatility().getId()) {
 
-                // only create StockOptionTicks when a volaTick arrives
+                // so we got the volaTick
+                Tick volaTick = tick;
+
+                // only create SimulatedTicks when a volaTick arrives
                 Tick underlayingTick = this.securities.get(underlaying.getId());
 
                 if (underlayingTick != null) {
 
-                    double lastDouble = StockOptionUtil.getOptionPrice(stockOption, underlayingTick.getCurrentValueDouble(), tick.getCurrentValueDouble() / 100);
+                    double lastDouble;
+                    if (security instanceof StockOption) {
+                        lastDouble = StockOptionUtil.getOptionPrice((StockOption) security, underlayingTick.getCurrentValueDouble(), volaTick.getCurrentValueDouble() / 100);
+                    } else if (security instanceof Future) {
+                        lastDouble = FutureUtil.getFuturePrice((Future) security, underlayingTick.getCurrentValueDouble());
+                    } else {
+                        throw new IllegalArgumentException(security.getClass().getName() + " cannot be simulated");
+                    }
+
                     BigDecimal last = RoundUtil.getBigDecimal(lastDouble);
 
-                    Tick stockOptionTick = new TickImpl();
-                    stockOptionTick.setDateTime(tick.getDateTime());
-                    stockOptionTick.setLast(last);
-                    stockOptionTick.setLastDateTime(tick.getDateTime());
-                    stockOptionTick.setVol(0);
-                    stockOptionTick.setVolBid(0);
-                    stockOptionTick.setVolAsk(0);
-                    stockOptionTick.setBid(new BigDecimal(0));
-                    stockOptionTick.setAsk(new BigDecimal(0));
-                    stockOptionTick.setOpenIntrest(0);
-                    stockOptionTick.setSettlement(new BigDecimal(0));
-                    stockOptionTick.setSecurity(stockOption);
+                    Tick simulatedTick = new TickImpl();
+                    simulatedTick.setDateTime(volaTick.getDateTime());
+                    simulatedTick.setLast(last);
+                    simulatedTick.setLastDateTime(volaTick.getDateTime());
+                    simulatedTick.setVol(0);
+                    simulatedTick.setVolBid(0);
+                    simulatedTick.setVolAsk(0);
+                    simulatedTick.setBid(new BigDecimal(0));
+                    simulatedTick.setAsk(new BigDecimal(0));
+                    simulatedTick.setOpenIntrest(0);
+                    simulatedTick.setSettlement(new BigDecimal(0));
+                    simulatedTick.setSecurity(security);
 
-                    propagateTick(stockOptionTick);
+                    propagateTick(simulatedTick);
                 }
             }
         }
