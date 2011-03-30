@@ -1,6 +1,7 @@
 package com.algoTrader.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -181,12 +182,15 @@ public class LookupServiceImpl extends LookupServiceBase {
 
     protected List<Tick> handleGetPreFeedTicks(int securityId, int numberOfTicks) {
 
+
         List<Integer> recentIds = getTickDao().findLastNTickIdsForSecurity(securityId, numberOfTicks);
-        List<Integer> ids = getTickDao().findEndOfDayTickIds(securityId, recentIds.get(0));
-
-        ids.addAll(recentIds);
-
-        return getTickDao().findByIdsFetched(ids);
+        if (recentIds.size() > 0) {
+            List<Integer> ids = getTickDao().findEndOfDayTickIds(securityId, recentIds.get(0));
+            ids.addAll(recentIds);
+            return getTickDao().findByIdsFetched(ids);
+        } else {
+            return new ArrayList<Tick>();
+        }
     }
 
     protected List<Strategy> handleGetAutoActivateStrategies() throws Exception {
