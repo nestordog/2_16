@@ -44,7 +44,7 @@
     <bean id="hibernateExporter" class="org.springframework.jmx.export.MBeanExporter">
         <property name="beans">
             <map>
-                <entry key="org.hibernate:name=statistcs" value-ref="hibernateStatisticsMBean" />
+                <entry key="Hibernate:application=Statistics" value-ref="hibernateStatisticsMBean" />
             </map>
         </property>
         <property name="server" ref="mbeanServer" />
@@ -67,6 +67,17 @@
                 <value>true</value>
             </list>
         </property>
+    </bean>
+
+    <bean id="log4JExporter" class="org.springframework.jmx.export.MBeanExporter">
+        <property name="beans">
+            <map>
+                <entry key="log4j:hiearchy=default">
+                    <bean class="org.apache.log4j.jmx.HierarchyDynamicMBean"/>
+                </entry>
+            </map>
+        </property>
+        <property name="server" ref="mbeanServer"/>
     </bean>
 
 </beans>
