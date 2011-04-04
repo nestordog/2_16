@@ -117,13 +117,17 @@ public final class TimerServiceImpl implements TimerService
 
 
     public void enableStats() {
-        timerTask._enableStats = true;
+        if (timerTask != null) {
+            timerTask._enableStats = true;
+        }
     }
 
     public void disableStats() {
-        timerTask._enableStats = false;
-        //now it is safe to reset stats without any synchronization
-        timerTask.resetStats();
+        if (timerTask != null) {
+            timerTask._enableStats = false;
+            // now it is safe to reset stats without any synchronization
+            timerTask.resetStats();
+        }
     }
 
     public long getMaxDrift() {
@@ -152,7 +156,7 @@ public final class TimerServiceImpl implements TimerService
                     uri = "default";
                 }
                 Thread t = new Thread(r, "com.espertech.esper.Timer-" + uri + "-" + id);
-                t.setDaemon(true);
+                //t.setDaemon(true);
                 return t;
             }
         });
