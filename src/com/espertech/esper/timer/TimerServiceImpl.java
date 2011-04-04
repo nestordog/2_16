@@ -1,13 +1,7 @@
-// line: 122 - 124 check if timertask exists
-// line: 160 do not run as daemon-thread
-/*
- * *************************************************************************************
- * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
- * http://esper.codehaus.org                                                          *
- * http://www.espertech.com                                                           *
- * ---------------------------------------------------------------------------------- *
- * The software in this package is published under the terms of the GPL license       *
- * a copy of which has been included with this distribution in the license.txt file.  *
+/**************************************************************************************
+ * Copyright (C) 2008 EsperTech, Inc. All rights reserved. * http://esper.codehaus.org * http://www.espertech.com *
+ * ---------------------------------------------------------------------------------- * The software in this package is published under the terms of
+ * the GPL license * a copy of which has been included with this distribution in the license.txt file. *
  **************************************************************************************/
 package com.espertech.esper.timer;
 
@@ -43,7 +37,7 @@ public final class TimerServiceImpl implements TimerService
     {
         this.engineURI = engineURI;
         this.msecTimerResolution = msecTimerResolution;
-        id = NEXT_ID.getAndIncrement();
+        this.id = NEXT_ID.getAndIncrement();
     }
 
     /**
@@ -53,7 +47,7 @@ public final class TimerServiceImpl implements TimerService
      */
     public long getMsecTimerResolution()
     {
-        return msecTimerResolution;
+        return this.msecTimerResolution;
     }
 
     public void setCallback(TimerCallback timerCallback)
@@ -63,7 +57,7 @@ public final class TimerServiceImpl implements TimerService
 
     public final void startInternalClock()
     {
-        if (timer != null)
+        if (this.timer != null)
         {
             log.warn(".startInternalClock Internal clock is already started, stop first before starting, operation not completed");
             return;
@@ -71,25 +65,25 @@ public final class TimerServiceImpl implements TimerService
 
         if (log.isDebugEnabled())
         {
-            log.debug(".startInternalClock Starting internal clock daemon thread, resolution=" + msecTimerResolution);
+            log.debug(".startInternalClock Starting internal clock daemon thread, resolution=" + this.msecTimerResolution);
         }
 
-        if (timerCallback == null)
+        if (this.timerCallback == null)
         {
             throw new IllegalStateException("Timer callback not set");
         }
 
         getScheduledThreadPoolExecutorDaemonThread();
-        timerTask = new EPLTimerTask(timerCallback);
+        this.timerTask = new EPLTimerTask(this.timerCallback);
 
         // With no delay start every internal
-        ScheduledFuture<?> future = timer.scheduleAtFixedRate(timerTask, 0, msecTimerResolution, TimeUnit.MILLISECONDS);
-        timerTask.setFuture(future);
+        ScheduledFuture<?> future = this.timer.scheduleAtFixedRate(this.timerTask, 0, this.msecTimerResolution, TimeUnit.MILLISECONDS);
+        this.timerTask.setFuture(future);
     }
 
     public final void stopInternalClock(boolean warnIfNotStarted)
     {
-        if (timer == null)
+        if (this.timer == null)
         {
             if (warnIfNotStarted)
             {
@@ -103,7 +97,7 @@ public final class TimerServiceImpl implements TimerService
             log.debug(".stopInternalClock Stopping internal clock daemon thread");
         }
 
-        timer.shutdown();
+        this.timer.shutdown();
 
         try
         {
@@ -115,55 +109,55 @@ public final class TimerServiceImpl implements TimerService
             log.info("Timer start wait interval interruped");
         }
 
-        timer = null;
+        this.timer = null;
     }
 
 
     public void enableStats() {
-        if (timerTask != null) {
-            timerTask._enableStats = true;
+        if (this.timerTask != null) {
+            this.timerTask._enableStats = true;
         }
     }
 
     public void disableStats() {
-        if (timerTask != null) {
-            timerTask._enableStats = false;
+        if (this.timerTask != null) {
+            this.timerTask._enableStats = false;
             // now it is safe to reset stats without any synchronization
-            timerTask.resetStats();
+            this.timerTask.resetStats();
         }
     }
 
     public long getMaxDrift() {
-        return timerTask._maxDrift;
+        return this.timerTask._maxDrift;
     }
 
     public long getLastDrift() {
-        return timerTask._lastDrift;
+        return this.timerTask._lastDrift;
     }
 
     public long getTotalDrift() {
-        return timerTask._totalDrift;
+        return this.timerTask._totalDrift;
     }
 
     public long getInvocationCount() {
-        return timerTask._invocationCount;
+        return this.timerTask._invocationCount;
     }
 
        private void getScheduledThreadPoolExecutorDaemonThread() {
-        timer = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
+        this.timer = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
             // set new thread as daemon thread and name appropriately
             public Thread newThread(Runnable r) {
-                String uri = engineURI;
-                if (engineURI == null)
+                String uri = TimerServiceImpl.this.engineURI;
+                if (TimerServiceImpl.this.engineURI == null)
                 {
                     uri = "default";
                 }
-                Thread t = new Thread(r, "com.espertech.esper.Timer-" + uri + "-" + id);
+                Thread t = new Thread(r, "com.espertech.esper.Timer-" + uri + "-" + TimerServiceImpl.this.id);
                 //t.setDaemon(true);
                 return t;
             }
         });
-        timer.setMaximumPoolSize(timer.getCorePoolSize());
+        this.timer.setMaximumPoolSize(this.timer.getCorePoolSize());
     }
 
     private static final Log log = LogFactory.getLog(TimerServiceImpl.class);
