@@ -47,6 +47,11 @@ public enum ViewFieldEnum
     UNIVARIATE_STATISTICS__VARIANCE ("variance"),
 
     /**
+     * Geometric Average.
+     */
+    UNIVARIATE_STATISTICS__GEOMAVERAGE("geomaverage"),
+
+    /**
      * Weighted average.
      */
     WEIGHTED_AVERAGE__AVERAGE ("average"),
