@@ -168,6 +168,7 @@ public final class UnivariateStatisticsView extends ViewSupport implements Clone
         result.put(ViewFieldEnum.UNIVARIATE_STATISTICS__STDDEVPA.getName(), baseStatisticsBean.getXStandardDeviationPop());
         result.put(ViewFieldEnum.UNIVARIATE_STATISTICS__VARIANCE.getName(), baseStatisticsBean.getXVariance());
         result.put(ViewFieldEnum.UNIVARIATE_STATISTICS__AVERAGE.getName(), baseStatisticsBean.getXAverage());
+        result.put(ViewFieldEnum.UNIVARIATE_STATISTICS__GEOMAVERAGE.getName(), baseStatisticsBean.getProdX());
         if (additionalProps != null) {
             additionalProps.addProperties(result, lastNewValues);
         }
@@ -188,6 +189,7 @@ public final class UnivariateStatisticsView extends ViewSupport implements Clone
         eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__STDDEVPA.getName(), Double.class);
         eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__VARIANCE.getName(), Double.class);
         eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__AVERAGE.getName(), Double.class);
+        eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__GEOMAVERAGE.getName(), double.class);
         StatViewAdditionalProps.addCheckDupProperties(eventTypeMap, additionalProps,
                 ViewFieldEnum.UNIVARIATE_STATISTICS__DATAPOINTS,
                 ViewFieldEnum.UNIVARIATE_STATISTICS__TOTAL,
