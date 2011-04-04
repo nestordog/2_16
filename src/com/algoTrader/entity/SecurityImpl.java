@@ -49,16 +49,22 @@ public class SecurityImpl extends Security {
     public void validateTick(Tick tick) {
 
         SecurityFamily family = tick.getSecurity().getSecurityFamily();
-        int contractSize = family.getContractSize();
-        double maxSpreadSlope = family.getMaxSpreadSlope();
-        double maxSpreadConstant = family.getMaxSpreadConstant();
 
-        double mean = contractSize * (tick.getAsk().doubleValue() + tick.getBid().doubleValue()) / 2.0;
-        double spread = contractSize * (tick.getAsk().doubleValue() - tick.getBid().doubleValue());
-        double maxSpread = mean * maxSpreadSlope + maxSpreadConstant;
+        // only check spread on tradeable ticks
+        if (!family.isTradeable()) {
+            return;
+        } else {
+            int contractSize = family.getContractSize();
+            double maxSpreadSlope = family.getMaxSpreadSlope();
+            double maxSpreadConstant = family.getMaxSpreadConstant();
 
-        if (spread > maxSpread) {
-            throw new TickServiceException("spread (" + spread + ") is higher than maxSpread (" + maxSpread + ") for security " + getSymbol());
+            double mean = contractSize * (tick.getAsk().doubleValue() + tick.getBid().doubleValue()) / 2.0;
+            double spread = contractSize * (tick.getAsk().doubleValue() - tick.getBid().doubleValue());
+            double maxSpread = mean * maxSpreadSlope + maxSpreadConstant;
+
+            if (spread > maxSpread) {
+                throw new TickServiceException("spread (" + spread + ") is higher than maxSpread (" + maxSpread + ") for security " + getSymbol());
+            }
         }
     }
 
