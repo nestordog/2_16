@@ -28,7 +28,7 @@ import com.ib.client.TickType;
 
 public class IbTickServiceImpl extends IbTickServiceBase implements DisposableBean {
 
-    private static Logger logger = MyLogger.getLogger(IbTickServiceBase.class.getName());
+    private static Logger logger = MyLogger.getLogger(IbTickServiceImpl.class.getName());
 
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
     private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
