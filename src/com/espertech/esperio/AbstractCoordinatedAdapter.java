@@ -1,6 +1,3 @@
-// line 82: use CustomSender
-// line 298: send CurrentTimeEvent for the currentEventTime not the lastEventTime
-// line 304: do not send final time processTimeEvent
 /**************************************************************************************
  * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
  * http://esper.codehaus.org                                                          *
@@ -11,30 +8,25 @@
  **************************************************************************************/
 package com.espertech.esperio;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.algoTrader.util.io.CustomSender;
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.adapter.AdapterStateManager;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.core.EPServiceProviderSPI;
-import com.espertech.esper.core.EPStatementHandle;
-import com.espertech.esper.core.EPStatementHandleCallback;
-import com.espertech.esper.core.ExtensionServicesContext;
-import com.espertech.esper.core.StatementFilterVersion;
-import com.espertech.esper.core.StatementRWLockImpl;
+import com.espertech.esper.core.*;
 import com.espertech.esper.epl.metric.StatementMetricHandle;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.util.ExecutionPathDebugLog;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import com.algoTrader.util.io.CustomSender;
 
 /**
  * A skeleton implementation for coordinated adapter reading, for adapters that
@@ -91,12 +83,12 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
         }
         this.epService = epService;
         this.runtime = epService.getEPRuntime();
-        this.schedulingService = ((EPServiceProviderSPI) epService).getSchedulingService();
+        this.schedulingService = ((EPServiceProviderSPI)epService).getSchedulingService();
     }
 
     public AdapterState getState()
     {
-        return this.stateManager.getState();
+        return stateManager.getState();
     }
 
     public void start() throws EPException
@@ -105,37 +97,37 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
         {
             log.debug(".start");
         }
-        if (this.runtime == null)
+        if(runtime == null)
         {
             throw new EPException("Attempting to start an Adapter that hasn't had the epService provided");
         }
-        this.startTime = getCurrentTime();
+        startTime = getCurrentTime();
         if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
         {
-            log.debug(".start startTime==" + this.startTime);
+            log.debug(".start startTime==" + startTime);
         }
-        this.stateManager.start();
-        this.sender.setRuntime(this.runtime);
+        stateManager.start();
+        sender.setRuntime(runtime);
         continueSendingEvents();
     }
 
     public void pause() throws EPException
     {
-        this.stateManager.pause();
+        stateManager.pause();
     }
 
     public void resume() throws EPException
     {
-        this.stateManager.resume();
+        stateManager.resume();
         continueSendingEvents();
     }
 
     public void destroy() throws EPException
     {
-        if (this.sender != null) {
-            this.sender.onFinish();
+        if (sender != null) {
+            sender.onFinish();
         }
-        this.stateManager.destroy();
+        stateManager.destroy();
         close();
     }
 
@@ -145,9 +137,9 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
         {
             log.debug(".stop");
         }
-        this.stateManager.stop();
-        this.eventsToSend.clear();
-        this.currentTime = 0;
+        stateManager.stop();
+        eventsToSend.clear();
+        currentTime = 0;
         reset();
     }
 
@@ -156,7 +148,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
      */
     public void disallowStateTransitions()
     {
-        this.stateManager.disallowStateTransitions();
+        stateManager.disallowStateTransitions();
     }
 
     /* (non-Javadoc)
@@ -198,9 +190,9 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
             throw new IllegalArgumentException("Invalid type of EPServiceProvider");
         }
         EPServiceProviderSPI spi = (EPServiceProviderSPI)epService;
-        this.runtime = spi.getEPRuntime();
-        this.schedulingService = spi.getSchedulingService();
-        this.sender.setRuntime(this.runtime);
+        runtime = spi.getEPRuntime();
+        schedulingService = spi.getSchedulingService();
+        sender.setRuntime(runtime);
     }
 
     /**
@@ -224,12 +216,12 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
     private void continueSendingEvents()
     {
         boolean keepLooping = true;
-        while (this.stateManager.getState() == AdapterState.STARTED && keepLooping)
+        while(stateManager.getState() == AdapterState.STARTED && keepLooping)
         {
-            this.currentTime = getCurrentTime();
+            currentTime = getCurrentTime();
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
             {
-                log.debug(".continueSendingEvents currentTime==" + this.currentTime);
+                log.debug(".continueSendingEvents currentTime==" + currentTime);
             }
             fillEventsToSend();
             sendSoonestEvents();
@@ -239,11 +231,11 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
 
     private boolean waitToSendEvents()
     {
-        if (this.usingExternalTimer)
+        if(usingExternalTimer)
         {
             return false;
         }
- else if (this.usingEngineThread)
+        else if(usingEngineThread)
         {
             scheduleNextCallback();
             return false;
@@ -251,13 +243,13 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
         else
         {
             long sleepTime = 0;
-            if (this.eventsToSend.isEmpty())
+            if(eventsToSend.isEmpty())
             {
                 sleepTime = 100;
             }
             else
             {
-                sleepTime = this.eventsToSend.first().getSendTime() - (this.currentTime - this.startTime);
+                sleepTime = eventsToSend.first().getSendTime() - (currentTime - startTime);
             }
 
             try
@@ -274,34 +266,34 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
 
     private long getCurrentTime()
     {
-        return this.usingEngineThread ? this.schedulingService.getTime() : System.currentTimeMillis();
+        return usingEngineThread ? schedulingService.getTime() : System.currentTimeMillis();
     }
 
     private void fillEventsToSend()
     {
-        if (this.eventsToSend.isEmpty())
+        if(eventsToSend.isEmpty())
         {
             SendableEvent event = read();
             if(event != null)
             {
-                this.eventsToSend.add(event);
+                eventsToSend.add(event);
             }
         }
     }
 
     private void sendSoonestEvents()
     {
-        if (this.usingExternalTimer)
+        if (usingExternalTimer)
         {
             // send all events in order and when time clicks over send time event for previous time
-            while (!this.eventsToSend.isEmpty())
+            while (!eventsToSend.isEmpty())
             {
-                long currentEventTime = this.eventsToSend.first().getSendTime();
+                long currentEventTime = eventsToSend.first().getSendTime();
                 // check whether time has increased. Cannot go backwards due to checks elsewhere
-                if (currentEventTime > this.lastEventTime)
+                if (currentEventTime > lastEventTime)
                 {
                     this.sender.sendEvent(null, new CurrentTimeEvent(currentEventTime));
-                    this.lastEventTime = currentEventTime;
+                    lastEventTime = currentEventTime;
                 }
                 sendFirstEvent();
             }
@@ -311,7 +303,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
         else
         {
             // watch time and send events to catch up
-            while (!this.eventsToSend.isEmpty() && this.eventsToSend.first().getSendTime() <= this.currentTime - this.startTime)
+            while(!eventsToSend.isEmpty() && eventsToSend.first().getSendTime() <= currentTime - startTime)
             {
                 sendFirstEvent();
             }
@@ -322,43 +314,43 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
     {
         if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
         {
-            log.debug(".sendFirstEvent currentTime==" + this.currentTime);
-            log.debug(".sendFirstEvent sending event " + this.eventsToSend.first() + ", its sendTime==" + this.eventsToSend.first().getSendTime());
+            log.debug(".sendFirstEvent currentTime==" + currentTime);
+            log.debug(".sendFirstEvent sending event " + eventsToSend.first() + ", its sendTime==" + eventsToSend.first().getSendTime());
         }
-        this.sender.setRuntime(this.runtime);
-        this.eventsToSend.first().send(this.sender);
+        sender.setRuntime(runtime);
+        eventsToSend.first().send(sender);
         replaceFirstEventToSend();
     }
 
     private void scheduleNextCallback()
     {
         ScheduleHandleCallback nextScheduleCallback = new ScheduleHandleCallback() { public void scheduledTrigger(ExtensionServicesContext extensionServicesContext) { continueSendingEvents(); } };
-        EPServiceProviderSPI spi = (EPServiceProviderSPI) this.epService;
+        EPServiceProviderSPI spi = (EPServiceProviderSPI)epService;
         StatementMetricHandle metricsHandle = spi.getMetricReportingService().getStatementHandle("AbstractCoordinatedAdapter", "AbstractCoordinatedAdapter");
         EPStatementHandleCallback scheduleCSVHandle = new EPStatementHandleCallback(new EPStatementHandle("AbstractCoordinatedAdapter", "AbstractCoordinatedAdapter", null, new StatementRWLockImpl("CSV", false), "AbstractCoordinatedAdapter", false, metricsHandle, 0, false, new StatementFilterVersion()), nextScheduleCallback);
         ScheduleSlot nextScheduleSlot;
 
-        if (this.eventsToSend.isEmpty())
+        if(eventsToSend.isEmpty())
         {
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
             {
                 log.debug(".scheduleNextCallback no events to send, scheduling callback in 100 ms");
             }
             nextScheduleSlot = new ScheduleSlot(0,0);
-            this.schedulingService.add(100, scheduleCSVHandle, nextScheduleSlot);
+            schedulingService.add(100, scheduleCSVHandle, nextScheduleSlot);
         }
         else
         {
             // Offset is not a function of the currentTime alone.
-            long baseMsec = this.currentTime - this.startTime;
-            long afterMsec = this.eventsToSend.first().getSendTime() - baseMsec;
+            long baseMsec = currentTime - startTime;
+            long afterMsec = eventsToSend.first().getSendTime() - baseMsec;
 
-            nextScheduleSlot = this.eventsToSend.first().getScheduleSlot();
+            nextScheduleSlot = eventsToSend.first().getScheduleSlot();
             if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
             {
                 log.debug(".scheduleNextCallback schedulingCallback in " + afterMsec + " milliseconds");
             }
-            this.schedulingService.add(afterMsec, scheduleCSVHandle, nextScheduleSlot);
+            schedulingService.add(afterMsec, scheduleCSVHandle, nextScheduleSlot);
         }
     }
 
@@ -367,7 +359,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
      * @return runtime
      */
     public EPRuntime getRuntime() {
-        return this.runtime;
+        return runtime;
     }
 
     /**
