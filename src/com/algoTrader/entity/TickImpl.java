@@ -17,7 +17,7 @@ public class TickImpl extends Tick {
     public BigDecimal getCurrentValue() {
 
         if (simulation) {
-            if (!super.getBid().equals(new BigDecimal(0)) & !super.getAsk().equals(new BigDecimal(0))) {
+            if ((super.getBid().doubleValue() != 0) && (super.getAsk().doubleValue() != 0)) {
                 return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0);
             } else {
                 return getLast();

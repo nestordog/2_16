@@ -1,4 +1,5 @@
 ## extend BaseObject
+## add implements $entity.implementedInterfaceList in case of generalization
 #set ($generatedFile = "${entity.packagePath}/${entity.entityName}.java")
 // license-header java merge-point
 //
@@ -15,6 +16,9 @@ $entity.getDocumentation(" * ")
 public abstract class $entity.entityName
 #if($entity.generalization)
     extends $entity.generalization.fullyQualifiedEntityImplementationName
+#if (!$entity.interfaceAbstractions.empty)
+    implements $entity.implementedInterfaceList
+#end
 #else
     extends com.algoTrader.BaseObject
     implements java.io.Serializable

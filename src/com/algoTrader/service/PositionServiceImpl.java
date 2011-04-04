@@ -1,18 +1,21 @@
 package com.algoTrader.service;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.Expirable;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.OrderVO;
@@ -137,22 +140,31 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
     }
 
-    protected void handleExpirePosition(int positionId) throws Exception {
+    @SuppressWarnings("unchecked")
+    protected void handleExpirePositions() throws Exception {
 
-        Position position = getPositionDao().load(positionId);
+        Date date = DateUtil.getCurrentEPTime();
+        List<Position> positions = getPositionDao().findExpirablePositions(date);
+
+        for (Position position : positions) {
+            expirePosition(position);
+        }
+    }
+
+    protected void handleExpirePosition(Position position) throws Exception {
 
         if (position.getExitValue() == null || position.getExitValueDouble() == 0d) {
             logger.warn(position.getSecurity().getSymbol() + " expired but did not have a exit value specified");
         }
 
         Security security = position.getSecurity();
-        if (!security.getSecurityFamily().isExpirable()) {
+        if (!(security instanceof Expirable)) {
             logger.warn("position is not expirable");
             return;
         }
 
         // reverse the quantity
-        long numberOfContracts = -position.getQuantity();
+        long numberOfContracts = Math.abs(position.getQuantity());
 
         OrderVO order = new OrderVO();
         order.setStrategyName(position.getStrategy().getName());
@@ -209,14 +221,14 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
     }
 
-    public static class ExpirePositionSubscriber {
+    public static class ExpirePositionListener implements UpdateListener {
 
-        public void update(int positionId) {
+        public void update(EventBean[] newEvents, EventBean[] oldEvents) {
 
             long startTime = System.currentTimeMillis();
             logger.debug("expirePosition start");
 
-            ServiceLocator.serverInstance().getPositionService().expirePosition(positionId);
+            ServiceLocator.serverInstance().getPositionService().expirePositions();
 
             logger.debug("expirePosition end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }

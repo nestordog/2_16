@@ -132,10 +132,10 @@ public class RuleServiceImpl extends RuleServiceBase {
             }
 
             // go through all annotations and check if the statement has the 'name' 'ruleName'
-            List<AnnotationPart> annotations = model.getAnnotations();
-            for (AnnotationPart annotation : annotations) {
-                if (annotation.getName().equals("Name")) {
-                    for (AnnotationAttribute attribute : annotation.getAttributes()) {
+            List<AnnotationPart> annotationParts = model.getAnnotations();
+            for (AnnotationPart annotationPart : annotationParts) {
+                if (annotationPart.getName().equals("Name")) {
+                    for (AnnotationAttribute attribute : annotationPart.getAttributes()) {
                         if (attribute.getValue().equals(ruleName)) {
 
                             // for preparedStatements set the target
@@ -146,6 +146,9 @@ public class RuleServiceImpl extends RuleServiceBase {
                             // create the statement
                             newStatement = administrator.createEPL(exp);
 
+                            // check if the statement is elgible, other destory it righ away
+                            processAnnotations(newStatement);
+
                             // break iterating over the statements
                             break items;
                         }
@@ -155,11 +158,8 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
 
         if (newStatement == null) {
-
             logger.warn("statement " + ruleName + " was not found");
         } else {
-            addSubscriberAndListeners(newStatement);
-
             logger.debug("deployed rule " + newStatement.getName() + " on service provider: " + strategyName);
         }
     }
@@ -174,7 +174,8 @@ public class RuleServiceImpl extends RuleServiceBase {
 
         for (EPStatement statement : statements) {
 
-            addSubscriberAndListeners(statement);
+            // check if the statement is elgible, other destory it righ away
+            processAnnotations(statement);
         }
 
         logger.debug("deployed module " + moduleName + " on service provider: " + strategyName);
@@ -445,7 +446,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
-    private void addSubscriberAndListeners(EPStatement statement) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    private void processAnnotations(EPStatement statement) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 
         Annotation[] annotations = statement.getAnnotations();
         for (Annotation annotation : annotations) {
@@ -466,6 +467,12 @@ public class RuleServiceImpl extends RuleServiceBase {
                             statement.addListener((UpdateListener) obj);
                         }
                     }
+                } else if (tag.name().equals("runTimeOnly") && simulation) {
+                    statement.destroy();
+                    return;
+                } else if (tag.name().equals("simulationOnly") && !simulation) {
+                    statement.destroy();
+                    return;
                 }
             }
         }

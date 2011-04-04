@@ -17,6 +17,7 @@ import java.util.TreeSet;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.supercsv.exception.SuperCSVException;
 
@@ -158,7 +159,10 @@ public abstract class TickServiceImpl extends TickServiceBase {
     @SuppressWarnings("unchecked")
     protected void handlePropagateTick(Tick tick) {
 
-        logger.debug(tick.getSecurity().getSymbol() + " " + tick);
+        // tick.toString is expensive, so only log if debug is anabled
+        if (!logger.getParent().getLevel().isGreaterOrEqual(Level.INFO)) {
+            logger.debug(tick.getSecurity().getSymbol() + " " + tick);
+        }
 
         getRuleService().sendEvent(StrategyImpl.BASE, tick);
 

@@ -165,6 +165,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setDateTime(DateUtil.getCurrentEPTime());
 
         Security security = order.getSecurity();
+        Position position = getPositionDao().findBySecurityAndStrategy(security.getId(), order.getStrategy().getName());
         Tick tick = security.getLastTick();
         double currentValue = tick.getCurrentValueDouble();
 
@@ -172,7 +173,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         // instead of the currentValue! because we will have passed the exitValue in the meantime
         if (simulation && TransactionType.BUY.equals(order.getTransactionType()) && (eventsPerDay <= 33)) {
 
-            double exitValue = getPositionDao().findBySecurityAndStrategy(security.getId(), order.getStrategy().getName()).getExitValueDouble();
+            double exitValue = position.getExitValueDouble();
             if (currentValue > exitValue && DateUtil.compareToTime(security.getSecurityFamily().getMarketOpen()) > 0) {
 
                 logger.info("adjusted currentValue (" + currentValue + ") to exitValue (" + exitValue+ ") in closePosition for order on " + order.getSecurity().getSymbol());
@@ -198,6 +199,9 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         } else if (TransactionType.EXPIRATION.equals(order.getTransactionType())) {
 
+            long quantity = -(int) Math.signum(position.getQuantity()) * Math.abs(order.getRequestedQuantity());
+            transaction.setQuantity(quantity);
+
             if (security instanceof StockOption) {
 
                 StockOption stockOption = (StockOption) security;
@@ -205,13 +209,11 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 double intrinsicValue = StockOptionUtil.getIntrinsicValue(stockOption, underlayingSpot);
                 BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue * contractSize);
                 transaction.setPrice(price);
-                transaction.setQuantity(Math.abs(order.getRequestedQuantity()));
 
             } else if (security instanceof Future) {
 
                 BigDecimal price = security.getUnderlaying().getLastTick().getCurrentValue();
                 transaction.setPrice(price);
-                transaction.setQuantity(Math.abs(order.getRequestedQuantity()));
 
             } else {
                 throw new IllegalArgumentException("EXPIRATION only allowed for " + security.getClass().getName());
