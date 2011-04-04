@@ -151,6 +151,10 @@
         <level value="warn" />
     </logger>
 
+    <logger name="org.apache.log4j.jmx">
+        <level value="warn" />
+    </logger>
+
     <logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog">
         <level value="error" />
     </logger>
@@ -168,7 +172,6 @@
     <!--
         <logger name="com.algoTrader.service.SimulationServiceImpl">
             <level value="info"/>
-            <appender-ref ref="STDOUT" />
             <appender-ref ref="SOCKET" />
         </logger>
     -->
