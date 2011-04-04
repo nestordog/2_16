@@ -23,6 +23,7 @@ public class BaseStatisticsBean implements Cloneable, Serializable
 {
     private double sumX;
     private double sumXSq;
+    private double prodX = 1;
     private double sumY;
     private double sumYSq;
     private double sumXY;
@@ -33,6 +34,7 @@ public class BaseStatisticsBean implements Cloneable, Serializable
     {
         sumX = 0;
         sumXSq = 0;
+        this.prodX = 1;
         sumY = 0;
         sumYSq = 0;
         sumXY = 0;
@@ -48,6 +50,7 @@ public class BaseStatisticsBean implements Cloneable, Serializable
         dataPoints++;
         sumX += x;
         sumXSq += x * x;
+        prodX *= 1 + x;
     }
 
     /**
@@ -60,6 +63,7 @@ public class BaseStatisticsBean implements Cloneable, Serializable
         dataPoints++;
         sumX += x;
         sumXSq += x * x;
+        prodX *= 1 + x;
         sumY += y;
         sumYSq += y * y;
         sumXY += x * y;
@@ -80,6 +84,7 @@ public class BaseStatisticsBean implements Cloneable, Serializable
         {
             sumX -= x;
             sumXSq -= x * x;
+            prodX /= 1 + x;
         }
     }
 
@@ -99,6 +104,7 @@ public class BaseStatisticsBean implements Cloneable, Serializable
         {
             sumX -= x;
             sumXSq -= x * x;
+            prodX /= 1 + x;
             sumY -= y;
             sumYSq -= y * y;
             sumXY -= x * y;
@@ -281,6 +287,10 @@ public class BaseStatisticsBean implements Cloneable, Serializable
         return sumXY;
     }
 
+    public final double getProdX() {
+        return Math.pow(prodX, (1.0 / dataPoints)) - 1.0;
+    }
+
     public final Object clone()
     {
         try
@@ -300,7 +310,8 @@ public class BaseStatisticsBean implements Cloneable, Serializable
                "  sumXSq=" + this.sumXSq +
                "  sumY=" + this.sumY +
                "  sumYSq=" + this.sumYSq +
-               "  sumXY=" + this.sumXY;
+               "  sumXY=" + this.sumXY +
+               "  prodX=" + this.prodX;
     }
 
     /**
@@ -319,6 +330,10 @@ public class BaseStatisticsBean implements Cloneable, Serializable
     public void setSumXSq(double sumXSq)
     {
         this.sumXSq = sumXSq;
+    }
+
+    public void setProdX(double prodX) {
+        this.prodX = prodX;
     }
 
     /**
