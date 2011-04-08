@@ -7,6 +7,7 @@
     <event-type name="Tick" class="com.algoTrader.entity.TickImpl"/>
     <event-type name="Transaction" class="com.algoTrader.entity.TransactionImpl"/>
     <event-type name="PrearrangedOrder" class="com.algoTrader.vo.OrderVO"/>
+    <event-type name="OHLCTick" class="com.espertech.esper.example.ohlc.OHLCTick"/>
 
     <event-type name="MonthlyPerformance" class="com.algoTrader.vo.MonthlyPerformanceVO"/>
     <event-type name="PerformanceKeys" class="com.algoTrader.vo.PerformanceKeysVO"/>
@@ -23,6 +24,10 @@
     <auto-import import-name="java.math.*"/>
     <auto-import import-name="java.text.*"/>
     <auto-import import-name="java.util.*"/>
+
+    <plugin-view factory-class="com.espertech.esper.ohlc.OHLCBarPlugInViewFactory" name="ohlcbar" namespace="custom"/>
+
+    <plugin-aggregation-function name="talib" function-class="com.algoTrader.util.GenericTALibFunction"/>
 
     <variable name="simulation" type="boolean"/>
     <variable name="simulation_eventsPerDay" type="long"/>

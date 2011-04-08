@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="esper-src"/>
 	<classpathentry kind="src" path="target"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/activation-1.1.1.jar"/>
@@ -15,7 +14,7 @@
 	<classpathentry kind="lib" path="lib/backport-util-concurrent.jar"/>
 	<classpathentry kind="lib" path="lib/c3p0-0.9.1.jar"/>
 	<classpathentry kind="lib" path="lib/cglib-2.2.jar"/>
-	<classpathentry kind="lib" path="lib/collections-generic-4.01.jar"/>
+	<classpathentry kind="lib" path="lib/collections-generic-4.01.jar" sourcepath="D:/collections-generic-4.01/src/java"/>
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils-1.8.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.4.jar"/>
@@ -84,5 +83,6 @@
 	<classpathentry kind="lib" path="lib/xbean.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis-2.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/ta-lib.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
