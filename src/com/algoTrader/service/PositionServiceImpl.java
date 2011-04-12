@@ -121,7 +121,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             int percent = (int) (strategy.getAvailableFundsDouble() / strategy.getNetLiqValueDouble() * 100.0);
             if (strategy.getAvailableFundsDouble() >= 0) {
-                logger.info("set margin for " + security.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + strategy.getMaintenanceMargin()
+                logger.debug("set margin for " + security.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + strategy.getMaintenanceMargin()
                         + " availableFunds: " + strategy.getAvailableFunds() + " (" + percent + "% of balance)");
             } else {
                 logger.warn("set margin for " + security.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + strategy.getMaintenanceMargin()
