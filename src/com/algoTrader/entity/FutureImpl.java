@@ -9,7 +9,7 @@ public class FutureImpl extends Future {
 
     public double getLeverage() {
 
-        return getSecurityFamily().getContractSize();
+        return 1.0;
     }
 
     public double getMargin() {
