@@ -22,14 +22,12 @@ from
 where
     simulation = false;
 
-/*
 @Name('SET_MARGINS')
 @Tag(name='listeners', value='com.algoTrader.service.PositionServiceImpl$SetMarginsListener')
 select
     *
 from
     pattern[every timer:at (0, 7, *, *, 1:5)];
-*/
 
 @Name('EXPIRE_POSITION')
 @Tag(name='listeners', value='com.algoTrader.service.PositionServiceImpl$ExpirePositionListener')
@@ -89,7 +87,6 @@ select
 from
     Tick.std:groupwin(security.id).win:time(7 days).win:length(1) as tick;
 
-/*
 @Name('CLOSE_POSITION')
 @Priority(1)
 @Tag(name='subscriber', value='com.algoTrader.service.PositionServiceImpl$ClosePositionSubscriber')
@@ -102,7 +99,6 @@ where
     position.quantity != 0
     and position.exitValue != null
     and ((position.short and (tick.currentValue >= position.exitValue)) or (position.long and (tick.currentValue <= position.exitValue)));
-*/
 
 @Name('CREATE_PERFORMANCE_KEYS')
 @Tag(name='simulationOnly', value='true')
