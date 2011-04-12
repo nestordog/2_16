@@ -43,6 +43,7 @@ import com.algoTrader.vo.MonthlyPerformanceVO;
 import com.algoTrader.vo.OptimizationResultVO;
 import com.algoTrader.vo.PerformanceKeysVO;
 import com.algoTrader.vo.SimulationResultVO;
+import com.algoTrader.vo.TradesVO;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 public class SimulationServiceImpl extends SimulationServiceBase {
@@ -310,6 +311,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         PerformanceKeysVO performanceKeys = (PerformanceKeysVO) getRuleService().getLastEvent(StrategyImpl.BASE, "CREATE_PERFORMANCE_KEYS");
         List<MonthlyPerformanceVO> monthlyPerformances = getRuleService().getAllEvents(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
         MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) getRuleService().getLastEvent(StrategyImpl.BASE, "CREATE_MAX_DRAW_DOWN");
+        TradesVO allTrades = (TradesVO) getRuleService().getLastEvent(StrategyImpl.BASE, "ALL_TRADES");
+        TradesVO winningTrades = (TradesVO) getRuleService().getLastEvent(StrategyImpl.BASE, "WINNING_TRADES");
+        TradesVO loosingTrades = (TradesVO) getRuleService().getLastEvent(StrategyImpl.BASE, "LOOSING_TRADES");
 
         // assemble the result
         SimulationResultVO resultVO = new SimulationResultVO();
@@ -319,6 +323,10 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         resultVO.setMonthlyPerformanceVOs(monthlyPerformances);
         resultVO.setPerformanceKeysVO(performanceKeys);
         resultVO.setMaxDrawDownVO(maxDrawDown);
+        resultVO.setAllTrades(allTrades);
+        resultVO.setWinningTrades(winningTrades);
+        resultVO.setLoosingTrades(loosingTrades);
+
         return resultVO;
     }
 
@@ -364,7 +372,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         PerformanceKeysVO performanceKeys = resultVO.getPerformanceKeysVO();
         MaxDrawDownVO maxDrawDownVO = resultVO.getMaxDrawDownVO();
         if (performanceKeys != null && maxDrawDownVO != null) {
-            buffer.append("n=" + performanceKeys.getN());
+            buffer.append("months=" + performanceKeys.getN());
             buffer.append(" avgM=" + twoDigitFormat.format(performanceKeys.getAvgM() * 100) + "%");
             buffer.append(" stdM=" + twoDigitFormat.format(performanceKeys.getStdM() * 100) + "%");
             buffer.append(" avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100) + "%");
@@ -376,9 +384,35 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             buffer.append(" maxDrawDown=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100) + "%");
             buffer.append(" maxDrawDownPeriod=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000) + "days");
             buffer.append(" colmarRatio=" + twoDigitFormat.format(performanceKeys.getAvgY() / maxDrawDownVO.getAmount()));
+
+            buffer.append("\r\n");
         }
 
+        buffer.append("WinningTrades:");
+        buffer.append(printTrades(resultVO.getWinningTrades()));
+
+        buffer.append("LoosingTrades:");
+        buffer.append(printTrades(resultVO.getLoosingTrades()));
+
+        buffer.append("AllTrades:");
+        buffer.append(printTrades(resultVO.getAllTrades()));
+
+        buffer.append("winningTradesPct: " + twoDigitFormat.format(100 * resultVO.getWinningTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
+
         return buffer.toString();
+    }
+
+    private static StringBuffer printTrades(TradesVO tradesVO) {
+
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(" count=" + tradesVO.getCount());
+        buffer.append(" totalProfit=" + twoDigitFormat.format(tradesVO.getTotalProfit()));
+        buffer.append(" avgProfit=" + twoDigitFormat.format(tradesVO.getAvgProfit()));
+        buffer.append(" avgProfitPct=" + twoDigitFormat.format(tradesVO.getAvgProfitPct() * 100) + "%");
+        buffer.append(" avgAge=" + twoDigitFormat.format(tradesVO.getAvgAge()));
+        buffer.append("\r\n");
+
+        return buffer;
     }
 
     private static void logMultiLineString(String input) {

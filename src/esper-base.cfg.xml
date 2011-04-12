@@ -7,11 +7,15 @@
     <event-type name="Tick" class="com.algoTrader.entity.TickImpl"/>
     <event-type name="Transaction" class="com.algoTrader.entity.TransactionImpl"/>
     <event-type name="PrearrangedOrder" class="com.algoTrader.vo.OrderVO"/>
-    <event-type name="OHLCTick" class="com.espertech.esper.example.ohlc.OHLCTick"/>
+    <event-type name="OHLCTick" class="com.espertech.esper.ohlc.OHLCTick"/>
 
     <event-type name="MonthlyPerformance" class="com.algoTrader.vo.MonthlyPerformanceVO"/>
     <event-type name="PerformanceKeys" class="com.algoTrader.vo.PerformanceKeysVO"/>
     <event-type name="MaxDrawDown" class="com.algoTrader.vo.MaxDrawDownVO"/>
+    <event-type name="TradePerformance" class="com.algoTrader.vo.TradePerformanceVO"/>
+    <event-type name="AllTrades" class="com.algoTrader.vo.TradesVO"/>
+    <event-type name="WinningTrades" class="com.algoTrader.vo.TradesVO"/>
+    <event-type name="LoosingTrades" class="com.algoTrader.vo.TradesVO"/>
 
     <auto-import import-name="com.algoTrader.enumeration.TransactionType"/>
     <auto-import import-name="com.algoTrader.stockOption.StockOptionUtil"/>

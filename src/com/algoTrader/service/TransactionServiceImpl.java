@@ -14,6 +14,7 @@ import com.algoTrader.entity.PositionImpl;
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.Strategy;
+import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
@@ -25,6 +26,7 @@ import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.OrderVO;
+import com.algoTrader.vo.TradePerformanceVO;
 
 public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
@@ -131,15 +133,32 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             getStrategyDao().update(strategy);
             getSecurityDao().update(security);
 
+            // create a TradePerformanceVO and send it back into Esper
+            if (profit != 0.0) {
+                TradePerformanceVO tradePerformance = new TradePerformanceVO();
+                tradePerformance.setProfit(profit);
+                tradePerformance.setProfitPct(profitPct);
+                tradePerformance.setAvgAge(avgAge);
+                tradePerformance.setWinning(profit > 0);
+
+                getRuleService().sendEvent(StrategyImpl.BASE, tradePerformance);
+            }
+
+            String logMessage = "executed transaction type: " + transactionType +
+                " quantity: " + transaction.getQuantity() +
+                " of " + security.getSymbol() +
+                " price: " + transaction.getPrice() +
+                " commission: " + transaction.getCommission() +
+                ((profit != 0.0) ? (
+                    " profit: " + RoundUtil.getBigDecimal(profit) +
+                    " profitPct: " + RoundUtil.getBigDecimal(profitPct) +
+                    " avgAge: " + RoundUtil.getBigDecimal(avgAge))
+                    : "");
+
             totalQuantity += transaction.getQuantity();
             totalPrice += transaction.getPrice().doubleValue() * transaction.getQuantity();
             totalCommission += transaction.getCommission().doubleValue();
             totalProfit += profit;
-
-            String logMessage = "executed transaction type: " + transactionType + " quantity: " + transaction.getQuantity() +
-                    " of " + security.getSymbol() + " price: " + transaction.getPrice() + " commission: " + transaction.getCommission() +
-                    ((profit != 0.0) ? (" profit: " + RoundUtil.getBigDecimal(profit) + " profitPct: " + RoundUtil.getBigDecimal(profitPct)
-                    + " avgAge: " + RoundUtil.getBigDecimal(avgAge)) : "");
 
             if (simulation && logTransactions) {
                 simulationLogger.info(logMessage);
@@ -149,10 +168,15 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         }
 
         if (order.getTransactions().size() > 0 && !simulation) {
-            mailLogger.info("executed transaction type: " + transactionType + " totalQuantity: " + totalQuantity +
-                    " of " + security.getSymbol() + " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) +
-                    " commission: " + totalCommission + " netLiqValue: " + strategy.getNetLiqValue() +
-                    ((totalProfit != 0) ? (" profit: " + RoundUtil.getBigDecimal(totalProfit)) : ""));
+            mailLogger.info("executed transaction type: " + transactionType +
+                    " totalQuantity: " + totalQuantity +
+                    " of " + security.getSymbol() +
+                    " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) +
+                    " commission: " + totalCommission +
+                    " netLiqValue: " + strategy.getNetLiqValue() +
+                    ((totalProfit != 0) ? (
+                        " profit: " + RoundUtil.getBigDecimal(totalProfit))
+                        : ""));
 
         }
         return order;
