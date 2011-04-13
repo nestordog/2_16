@@ -32,12 +32,21 @@ public class JavaLauncher {
                 java.createJvmarg().setValue(vmArg);
             }
 
-            FileSet fileset = new FileSet();
-            fileset.setDir(new File("lib"));
-            fileset.setIncludes("**/*.jar");
 
+            // add the classes of this Project
             Path path = new Path(project, new File("classes").getAbsolutePath());
-            path.addFileset(fileset);
+
+            // get the path to the AlgoTrader project
+            String algoTraderPath = System.getenv("ALGOTRADER_HOME");
+
+            // add the classes of AlgoTrader
+            path.add(new Path(project, new File(algoTraderPath + "/classes").getAbsolutePath()));
+
+            // add all jars in the lib directory of AlgoTrader
+            FileSet atFileSet = new FileSet();
+            atFileSet.setDir(new File(algoTraderPath + "/lib"));
+            atFileSet.setIncludes("**/*.jar");
+            path.addFileset(atFileSet);
 
             java.setClasspath(path);
 
