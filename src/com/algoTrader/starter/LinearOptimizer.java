@@ -12,18 +12,25 @@ public class LinearOptimizer {
 
     @SuppressWarnings("rawtypes")
     private static final Class starterClass = SimulationStarter.class;
-    private static final String commandName = "simulateBySingleParam";
-    private static final String[] vmArgs = { "-Dsimulation=true", "-DdataSource.dataSet=1year" };
+    private static final String commandName = "simulateByMultiParam";
+    private static final String[] vmArgs = { "-Dsimulation=true" };
     private static final String dataSource = "-DdataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTrader";
+    private static final int roundDigits = 4;
 
+    /**
+     * example call: SMI 4 99:99to10 flatRange:0.001:0.004:0.0001 putVolaPeriod:0.4:0.45:0.01
+     * strategy workers datasource1:datasource2 param1:start:end:increment param2:start:end:increment
+     */
     @SuppressWarnings({ "unchecked" })
     public static void main(String[] params) {
 
         String strategyName = params[0];
         int workers = Integer.valueOf(params[1]);
 
+        String[] dataSources = params[2].split("\\:");
+
         List<String> jobs = new ArrayList<String>();
-        for (int i = 2; i < params.length; i++) {
+        for (int i = 3; i < params.length; i++) {
 
             String[] args = params[i].split("\\:");
             String parameter = args[0];
@@ -31,10 +38,12 @@ public class LinearOptimizer {
             double max = Double.parseDouble(args[2]);
             double increment = Double.parseDouble(args[3]);
 
-            for (double value = min; value <= max; value = MathUtils.round(value + increment, 3)) {
+            for (double value = min; value <= max; value = MathUtils.round(value + increment, roundDigits)) {
 
-                String job = parameter + ":" + value;
-                jobs.add(job);
+                for (String dataSource : dataSources) {
+                    String job = "dataSource.dataSet:" + dataSource + "," + parameter + ":" + value;
+                    jobs.add(job);
+                }
             }
         }
 

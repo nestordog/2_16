@@ -8,7 +8,7 @@ import org.apache.commons.math.util.MathUtils;
 
 import com.algoTrader.util.JavaLauncher;
 
-public class AllCombinationOptimizer {
+public class CombinatoricOptimizer {
 
     @SuppressWarnings("rawtypes")
     private static final Class starterClass = SimulationStarter.class;

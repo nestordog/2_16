@@ -12,6 +12,18 @@ public class SimulationStarter {
 
     public static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
 
+    /**
+     * example calls:
+     *         simulateWithCurrentParams
+     *         runByActualTransactions
+     *
+     *         simulateBySingleParam SMI putTrigger:0.8 putTrigger:0.9
+     *        simulateByMultiParam SMI macdFast:85.0,macdSlow:150.0 macdFast:80.0,macdSlow:140.0
+     *
+     *        optimizeSingleParamLinear SMI flatRange:0.001:0.004:0.0005 putVolaPeriod:0.4:0.45:0.01
+     *         optimizeSingleParam SMI putVolaPeriod:0.4:0.45:0.01
+     *         optimizeMultiParam SMI macdFast:85.0 macdSlow:150.0
+     */
     public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
 
         ServiceLocator.serverInstance().init("beanRefFactorySimulation.xml");
@@ -29,7 +41,7 @@ public class SimulationStarter {
             String strategyName = args[1];
             for (int i = 2; i < args.length; i++) {
                 String[] params = args[i].split(":");
-                ServiceLocator.serverInstance().getSimulationService().simulateBySingleParam(strategyName, params[0], Double.valueOf(params[1]));
+                ServiceLocator.serverInstance().getSimulationService().simulateBySingleParam(strategyName, params[0], params[1]);
             }
 
         } else if (args[0].equals("simulateByMultiParam")) {
@@ -38,10 +50,10 @@ public class SimulationStarter {
             for (int i = 2; i < args.length; i++) {
                 String[] touples = args[i].split(",");
                 String[] parameters = new String[touples.length];
-                double[] values = new double[touples.length];
+                String[] values = new String[touples.length];
                 for (int j = 0; j < touples.length; j++) {
                     parameters[j] = touples[j].split(":")[0];
-                    values[j] = Double.valueOf(touples[j].split(":")[1]);
+                    values[j] = touples[j].split(":")[1];
                 }
                 ServiceLocator.serverInstance().getSimulationService().simulateByMultiParam(strategyName, parameters, values);
             }

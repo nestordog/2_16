@@ -49,7 +49,6 @@ import com.espertech.esperio.csv.CSVInputAdapterSpec;
 public class SimulationServiceImpl extends SimulationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
-    private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static DecimalFormat threeDigitFormat = new DecimalFormat("#,##0.000");
     private static DateFormat dateFormat = new SimpleDateFormat(" MMM-yy ");
@@ -107,6 +106,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 continue;
             }
 
+            String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
             File file = new File("results/tickdata/" + dataSet + "/" + security.getIsin() + ".csv");
 
             if (file == null || !file.exists()) {
@@ -201,6 +201,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             getRuleService().initCoordination(StrategyImpl.BASE);
 
+            String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
             File[] files = (new File("results/tickdata/" + dataSet)).listFiles();
             for (File file : files) {
 
@@ -234,21 +235,22 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         logMultiLineString(convertStatisticsToLongString(resultVO));
     }
 
-    protected void handleSimulateBySingleParam(String strategyName, String parameter, double value) throws Exception {
+    protected void handleSimulateBySingleParam(String strategyName, String parameter, String value) throws Exception {
 
-        ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, String.valueOf(value));
+        ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, value);
 
         SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
-        logger.info("optimize on " + parameter + " value=" + threeDigitFormat.format(value) + " " + convertStatisticsToShortString(resultVO));
+        logger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
     }
 
-    protected void handleSimulateByMultiParam(String strategyName, String[] parameters, double[] values) throws Exception {
+    protected void handleSimulateByMultiParam(String strategyName, String[] parameters, String[] values) throws Exception {
 
         StringBuffer buffer = new StringBuffer();
-        buffer.append("optimize on ");
+        buffer.append("optimize ");
         for (int i = 0; i < parameters.length; i++) {
-            buffer.append(parameters[i] + " value=" + threeDigitFormat.format(values[i]) + " ");
-            ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameters[i], String.valueOf(values[i]));
+            buffer.append(parameters[i] + "=" + values[i] + " ");
+            ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameters[i], values[i]);
+            ConfigurationUtil.getBaseConfig().setProperty(parameters[i], values[i]);
         }
 
         SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
@@ -265,7 +267,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, String.valueOf(i));
 
             SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
-            logger.info("optimize on " + parameter + " value=" + threeDigitFormat.format(i) + " " + convertStatisticsToShortString(resultVO));
+            logger.info(parameter + " val=" + threeDigitFormat.format(i) + " " + convertStatisticsToShortString(resultVO));
 
             double value = resultVO.getPerformanceKeysVO().getSharpRatio();
             if (value > functionValue) {
@@ -273,7 +275,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 result = i;
             }
         }
-        logger.info("optimal value of " + parameter + " is " + threeDigitFormat.format(result) + "(functionValue: " + threeDigitFormat.format(functionValue) + ")");
+        logger.info("optimal value of " + parameter + " is " + threeDigitFormat.format(result) + " (functionValue: " + threeDigitFormat.format(functionValue) + ")");
     }
 
     protected OptimizationResultVO handleOptimizeSingleParam(String strategyName, String parameter, double min, double max, double accuracy) throws ConvergenceException, FunctionEvaluationException {
@@ -318,7 +320,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         // assemble the result
         SimulationResultVO resultVO = new SimulationResultVO();
         resultVO.setMins(((double) (System.currentTimeMillis() - startTime)) / 60000);
-        resultVO.setDataSet(dataSet);
+        resultVO.setDataSet(ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet"));
         resultVO.setNetLiqValue(getStrategyDao().getPortfolioNetLiqValueDouble());
         resultVO.setMonthlyPerformanceVOs(monthlyPerformances);
         resultVO.setPerformanceKeysVO(performanceKeys);
@@ -334,11 +336,20 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         StringBuffer buffer = new StringBuffer();
 
-        double netLiqValue = resultVO.getNetLiqValue();
-        buffer.append("netLiqValue=" + twoDigitFormat.format(netLiqValue));
+        PerformanceKeysVO performanceKeys = resultVO.getPerformanceKeysVO();
+        MaxDrawDownVO maxDrawDownVO = resultVO.getMaxDrawDownVO();
 
-        double sharpRatio = resultVO.getPerformanceKeysVO().getSharpRatio();
-        buffer.append(" sharpRatio=" + threeDigitFormat.format(sharpRatio));
+        if (resultVO.getAllTrades().getCount() == 0) {
+            return ("no trades took place!");
+        }
+
+        buffer.append("avgY=" + twoDigitFormat.format(performanceKeys.getAvgY()));
+        buffer.append(" sharpe=" + threeDigitFormat.format(performanceKeys.getSharpRatio()));
+        buffer.append(" maxDD=" + threeDigitFormat.format(maxDrawDownVO.getAmount()));
+        buffer.append(" maxDDPer=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000) + "days");
+        buffer.append(" avgPPctWin=" + twoDigitFormat.format(resultVO.getWinningTrades().getAvgProfitPct() * 100) + "%");
+        buffer.append(" avgPPctLoos=" + twoDigitFormat.format(resultVO.getLoosingTrades().getAvgProfitPct() * 100) + "%");
+        buffer.append(" winTrdsPct=" + twoDigitFormat.format(100 * resultVO.getWinningTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
 
         return buffer.toString();
     }
@@ -346,9 +357,13 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @SuppressWarnings("unchecked")
     private static String convertStatisticsToLongString(SimulationResultVO resultVO) {
 
+        if (resultVO.getAllTrades().getCount() == 0) {
+            return ("no trades took place!");
+        }
+
         StringBuffer buffer = new StringBuffer();
         buffer.append("execution time (min): " + (new DecimalFormat("0.00")).format(resultVO.getMins()) + "\r\n");
-        buffer.append("dataSet: " + dataSet + "\r\n");
+        buffer.append("dataSet: " + ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet") + "\r\n");
 
         double netLiqValue = resultVO.getNetLiqValue();
         buffer.append("netLiqValue=" + twoDigitFormat.format(netLiqValue) + "\r\n");
