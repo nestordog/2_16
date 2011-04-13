@@ -239,10 +239,13 @@ public class RuleServiceImpl extends RuleServiceBase {
     protected void handleSendEvent(String strategyName, Object obj) {
 
         if (simulation) {
-            getServiceProvider(strategyName).getEPRuntime().sendEvent(obj);
+            Strategy strategy = getLookupService().getStrategyByName(strategyName);
+            if (strategy.isAutoActivate()) {
+                getServiceProvider(strategyName).getEPRuntime().sendEvent(obj);
+            }
         } else {
 
-            // check is it is the localStrategy
+            // check if it is the localStrategy
             if (StrategyUtil.getStartedStrategyName().equals(strategyName)) {
                 getServiceProvider(strategyName).getEPRuntime().sendEvent(obj);
             } else {
