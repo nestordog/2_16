@@ -379,23 +379,32 @@ public class GenericTALibFunction extends AggregationSupport {
     private Class<?> getReturnClass(String className, Map<String, Class<?>> fields) throws CannotCompileException, NotFoundException {
 
         ClassPool pool = ClassPool.getDefault();
-        CtClass ctClass = pool.makeClass(this.getClass().getPackage().getName() + "." + className);
+        String fqClassName = this.getClass().getPackage().getName() + "." + className;
 
-        for (Map.Entry<String, Class<?>> entry : fields.entrySet()) {
+        try {
+            // see if the class already exists
+            return Class.forName(fqClassName);
 
-            // generate a public field (we don't need a setter)
-            String fieldName = entry.getKey();
-            CtClass valueClass = pool.get(entry.getValue().getName());
-            CtField ctField = new CtField(valueClass, fieldName, ctClass);
-            ctField.setModifiers(Modifier.PUBLIC);
-            ctClass.addField(ctField);
+        } catch (ClassNotFoundException e) {
 
-            // generate the getter method
-            String methodName = "get" + StringUtils.capitalize(fieldName);
-            CtMethod ctMethod = CtNewMethod.make(valueClass, methodName, new CtClass[] {}, new CtClass[] {}, "{ return this." + fieldName + ";}", ctClass);
-            ctClass.addMethod(ctMethod);
+            // otherwise create the class
+            CtClass ctClass = pool.makeClass(fqClassName);
+
+            for (Map.Entry<String, Class<?>> entry : fields.entrySet()) {
+
+                // generate a public field (we don't need a setter)
+                String fieldName = entry.getKey();
+                CtClass valueClass = pool.get(entry.getValue().getName());
+                CtField ctField = new CtField(valueClass, fieldName, ctClass);
+                ctField.setModifiers(Modifier.PUBLIC);
+                ctClass.addField(ctField);
+
+                // generate the getter method
+                String methodName = "get" + StringUtils.capitalize(fieldName);
+                CtMethod ctMethod = CtNewMethod.make(valueClass, methodName, new CtClass[] {}, new CtClass[] {}, "{ return this." + fieldName + ";}", ctClass);
+                ctClass.addMethod(ctMethod);
+            }
+            return ctClass.toClass();
         }
-
-        return ctClass.toClass();
     }
 }
