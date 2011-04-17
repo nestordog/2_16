@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<aspectj>
-    <weaver options="-Xset:weaveJavaxPackages=true">
-        <include within="com.algoTrader..*" />
-    </weaver>
-    <aspects>
-        <aspect name="com.algoTrader.util.LazyLoaderAspect" />
-    </aspects>
-</aspectj>
