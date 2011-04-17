@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "http://logging.apache.org/log4j/docs/api/org/apache/log4j/xml/log4j.dtd">
+<log4j:configuration>
+
+    <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+        <param name="Target" value="System.out" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p %c{1} %m %n" />
+            <!-- <param name="ConversionPattern" value="%m" /> -->
+        </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="LevelMin" value="DEBUG" />
+            <param name="LevelMax" value="WARN" />
+        </filter>
+    </appender>
+
+    <appender name="STDERR" class="org.apache.log4j.ConsoleAppender">
+        <param name="Target" value="System.err" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p %c{1} %m %n" />
+        </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="LevelMin" value="ERROR" />
+            <param name="LevelMax" value="FATAL" />
+        </filter>
+    </appender>
+
+    <appender name="DEBUG" class="org.apache.log4j.FileAppender">
+        <param name="file" value="log/debug-${strategyName}.log" />
+        <param name="append" value="false" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p %c{1} %m %n" />
+        </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="LevelMin" value="DEBUG" />
+            <param name="LevelMax" value="FATAL" />
+        </filter>
+    </appender>
+
+    <appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="log/algoTrader-${strategyName}.log" />
+        <param name="datePattern" value="'.'yyyy-MM-dd" />
+        <param name="append" value="true" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p %c{1} %m %n" />
+        </layout>
+        <filter class="org.apache.log4j.varia.LevelRangeFilter">
+            <param name="LevelMin" value="INFO" />
+            <param name="LevelMax" value="FATAL" />
+        </filter>
+    </appender>
+
+    <appender name="PORTFOLIO" class="org.apache.log4j.FileAppender">
+        <param name="file" value="log/portfolio.csv" />
+        <param name="append" value="false" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss},%m %n" />
+        </layout>
+    </appender>
+
+    <appender name="EMAIL" class="org.apache.log4j.net.SMTPAppender">
+        <param name="SMTPHost" value="smtp.mail.yahoo.com" />
+        <param name="SMTPUsername" value="andy_flury" />
+        <param name="SMTPPassword" value="franklin91" />
+        <param name="From" value="andy_flury@yahoo.com" />
+        <param name="To" value="andy_flury@yahoo.com" />
+        <param name="Subject" value="AlgoTrader Error message" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d%n%n%-5p%n%n%c%n%n%m%n%n" />
+        </layout>
+    </appender>
+
+    <appender name="SMS" class="com.algoTrader.util.SMSAppender">
+        <param name="SMTPHost" value="smtp.mail.yahoo.com" />
+        <param name="SMTPUsername" value="andy_flury" />
+        <param name="SMTPPassword" value="franklin91" />
+        <param name="From" value="andy_flury@yahoo.com" />
+        <param name="To" value="0794080420@sms.mail2sms.ch" />
+        <param name="Subject" value="" />
+        <param name="TimeFrame" value="60" />
+        <param name="MaxEMails" value="3" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value=" " />
+        </layout>
+    </appender>
+
+    <appender name="TRANSACTION_EMAIL" class="org.apache.log4j.net.SMTPAppender">
+        <param name="EvaluatorClass" value="com.algoTrader.util.CustomEvaluator" />
+        <param name="SMTPHost" value="smtp.mail.yahoo.com" />
+        <param name="SMTPUsername" value="andy_flury" />
+        <param name="SMTPPassword" value="franklin91" />
+        <param name="From" value="andy_flury@yahoo.com" />
+        <param name="To" value="andy_flury@yahoo.com" />
+        <param name="Subject" value="AlgoTrader Transaction message" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d%n%n%-5p%n%n%c%n%n%m%n%n" />
+        </layout>
+    </appender>
+
+    <appender name="TRANSACTION_SMS" class="com.algoTrader.util.SMSAppender">
+        <param name="EvaluatorClass" value="com.algoTrader.util.CustomEvaluator" />
+        <param name="SMTPHost" value="smtp.mail.yahoo.com" />
+        <param name="SMTPUsername" value="andy_flury" />
+        <param name="SMTPPassword" value="franklin91" />
+        <param name="From" value="andy_flury@yahoo.com" />
+        <param name="To" value="0794080420@sms.mail2sms.ch" />
+        <param name="Subject" value="" />
+        <param name="TimeFrame" value="60" />
+        <param name="MaxEMails" value="3" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m" />
+        </layout>
+    </appender>
+
+    <appender name="SOCKET" class="org.apache.log4j.net.SocketAppender">
+        <param name="RemoteHost" value="localhost" />
+    </appender>
+
+    <logger name="org.springframework">
+        <level value="warn" />
+    </logger>
+
+    <logger name="org.hibernate">
+        <level value="warn" />
+    </logger>
+
+    <logger name="org.apache.commons">
+        <level value="warn" />
+    </logger>
+
+    <logger name="net.sf.ehcache">
+        <level value="warn" />
+    </logger>
+
+    <logger name="com.espertech">
+        <level value="warn" />
+    </logger>
+
+    <logger name="httpclient">
+        <level value="warn" />
+    </logger>
+
+    <logger name="org.apache.activemq">
+        <level value="warn" />
+    </logger>
+
+    <logger name="org.mortbay">
+        <level value="warn" />
+    </logger>
+
+    <logger name="com.mchange.v2">
+        <level value="warn" />
+    </logger>
+
+    <logger name="org.apache.log4j.jmx">
+        <level value="warn" />
+    </logger>
+
+    <logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog">
+        <level value="error" />
+    </logger>
+
+    <logger name="org.springframework.beans.factory.support.DisposableBeanAdapter">
+        <level value="error" />
+    </logger>
+
+    <!-- <logger name="com.algoTrader.service.TransactionServiceImpl.TransactionMail"> -->
+    <!-- <appender-ref ref="TRANSACTION_EMAIL" /> -->
+    <!-- <appender-ref ref="TRANSACTION_SMS" /> -->
+    <!-- </logger> -->
+
+<!--     <logger name="com.algoTrader.subscriber.PrintPortfolioValueSubscriber"> -->
+<!--         <level value="info" /> -->
+<!--         <appender-ref ref="PORTFOLIO" /> -->
+<!--     </logger> -->
+
+    <logger name="com.algoTrader.service.SimulationServiceImpl">
+        <level value="info" />
+        <appender-ref ref="SOCKET" />
+    </logger>
+
+    <root>
+        <level value="error" />
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="STDERR" />
+        <!-- <appender-ref ref="DEBUG" /> -->
+        <!-- <appender-ref ref="FILE"/> -->
+        <!-- <appender-ref ref="EMAIL"/> -->
+        <!-- <appender-ref ref="SMS"/> -->
+    </root>
+
+    <categoryFactory class="com.algoTrader.util.MyLoggerFactory" />
+
+</log4j:configuration>
