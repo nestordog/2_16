@@ -13,7 +13,9 @@ import com.algoTrader.entity.SecurityFamily;
 import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.StockOptionFamily;
 import com.algoTrader.entity.Strategy;
+import com.algoTrader.entity.StrategyDao;
 import com.algoTrader.entity.Tick;
+import com.algoTrader.entity.TickDao;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Periodicity;
@@ -40,7 +42,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
     protected Security[] handleGetSecuritiesOnWatchlistByPeriodicity(Periodicity periodicity) throws Exception {
 
-        return (Security[]) getSecurityDao().findSecuritiesOnWatchlistByPeriodicity(periodicity).toArray(new Security[0]);
+        return getSecurityDao().findSecuritiesOnWatchlistByPeriodicity(periodicity).toArray(new Security[0]);
     }
 
     protected StockOption handleGetNearestStockOption(int underlayingId, Date expirationDate, BigDecimal underlayingSpot, String optionTypeString) throws Exception {
@@ -105,62 +107,62 @@ public class LookupServiceImpl extends LookupServiceBase {
 
     protected Security[] handleGetAllSecurities() throws Exception {
 
-        return (Security[])getSecurityDao().loadAll().toArray(new Security[0]);
+        return getSecurityDao().loadAll().toArray(new Security[0]);
     }
 
     protected Strategy[] handleGetAllStrategies() throws Exception {
 
-        return (Strategy[]) getStrategyDao().loadAll().toArray(new Strategy[0]);
+        return getStrategyDao().loadAll().toArray(new Strategy[0]);
     }
 
     protected Position[] handleGetAllPositions() throws Exception {
 
-        return (Position[])getPositionDao().loadAll().toArray(new Position[0]);
+        return getPositionDao().loadAll().toArray(new Position[0]);
     }
 
     protected Transaction[] handleGetAllTransactions() throws Exception {
 
-        return (Transaction[])getTransactionDao().loadAll().toArray(new Transaction[0]);
+        return getTransactionDao().loadAll().toArray(new Transaction[0]);
     }
 
     protected Transaction[] handleGetAllTrades() throws Exception {
 
-        return (Transaction[])getTransactionDao().findAllTrades().toArray(new Transaction[0]);
+        return getTransactionDao().findAllTrades().toArray(new Transaction[0]);
     }
 
     protected Transaction[] handleGetAllCashFlows() throws Exception {
 
-        return (Transaction[]) getTransactionDao().findAllCashflows().toArray(new Transaction[0]);
+        return getTransactionDao().findAllCashflows().toArray(new Transaction[0]);
     }
 
     protected Security[] handleGetAllSecuritiesInPortfolio() throws Exception {
 
-        return (Security[])getSecurityDao().findSecuritiesInPortfolio().toArray(new Security[0]);
+        return getSecurityDao().findSecuritiesInPortfolio().toArray(new Security[0]);
     }
 
     protected StockOption[] handleGetStockOptionsOnWatchlist() throws Exception {
 
-        return (StockOption[]) getStockOptionDao().findStockOptionsOnWatchlist().toArray(new StockOption[0]);
+        return getStockOptionDao().findStockOptionsOnWatchlist().toArray(new StockOption[0]);
     }
 
     protected Position[] handleGetOpenPositions() throws Exception {
 
-        return (Position[])getPositionDao().findOpenPositions().toArray(new Position[0]);
+        return getPositionDao().findOpenPositions().toArray(new Position[0]);
     }
 
     protected Position[] handleGetOpenPositionsByStrategy(String strategyName) throws Exception {
 
-        return (Position[]) getPositionDao().findOpenPositionsByStrategy(strategyName).toArray(new Position[0]);
+        return getPositionDao().findOpenPositionsByStrategy(strategyName).toArray(new Position[0]);
     }
 
     protected Position[] handleGetBullishPositionsByStrategy(String strategyName) throws Exception {
 
-        return (Position[]) getPositionDao().findBullishPositionsByStrategy(strategyName).toArray(new Position[0]);
+        return getPositionDao().findBullishPositionsByStrategy(strategyName).toArray(new Position[0]);
     }
 
     protected Position[] handleGetBearishPositionsByStrategy(String strategyName) throws Exception {
 
-        return (Position[]) getPositionDao().findBearishPositionsByStrategy(strategyName).toArray(new Position[0]);
+        return getPositionDao().findBearishPositionsByStrategy(strategyName).toArray(new Position[0]);
     }
 
     protected PortfolioValueVO handleGetPortfolioValue() throws Exception {
@@ -183,9 +185,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Tick> handleGetPreFeedTicks(int securityId, int numberOfTicks) {
 
 
-        List<Integer> recentIds = getTickDao().findLastNTickIdsForSecurity(securityId, numberOfTicks);
+        List<Integer> recentIds = (List<Integer>) getTickDao().findLastNTickIdsForSecurity(TickDao.TRANSFORM_NONE, securityId, numberOfTicks);
         if (recentIds.size() > 0) {
-            List<Integer> ids = getTickDao().findEndOfDayTickIds(securityId, recentIds.get(0));
+            List<Integer> ids = (List<Integer>) getTickDao().findEndOfDayTickIds(TickDao.TRANSFORM_NONE, securityId, recentIds.get(0));
             ids.addAll(recentIds);
             return getTickDao().findByIdsFetched(ids);
         } else {
@@ -205,11 +207,11 @@ public class LookupServiceImpl extends LookupServiceBase {
 
     protected List<Currency> handleGetHeldCurrencies(String strategyName) throws Exception {
 
-        return getStrategyDao().findHeldCurrencies(strategyName);
+        return (List<Currency>) getStrategyDao().findHeldCurrencies(StrategyDao.TRANSFORM_NONE, strategyName);
     }
 
     protected List<Currency> handleGetHeldCurrencies() throws Exception {
 
-        return getStrategyDao().findPortfolioHeldCurrencies();
+        return (List<Currency>) getStrategyDao().findPortfolioHeldCurrencies(StrategyDao.TRANSFORM_NONE);
     }
 }

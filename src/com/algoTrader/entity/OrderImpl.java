@@ -13,7 +13,6 @@ public class OrderImpl extends Order {
         setStatus(OrderStatus.OPEN);
     }
 
-    @SuppressWarnings("unchecked")
     public long getPartialOrderExecutedQuantity() {
 
         long executedQuantity = 0;
@@ -24,7 +23,6 @@ public class OrderImpl extends Order {
         return executedQuantity;
     }
 
-    @SuppressWarnings("unchecked")
     public PartialOrder createPartialOrder() {
 
         PartialOrder partialOrder = new PartialOrderImpl();

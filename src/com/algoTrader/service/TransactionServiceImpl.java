@@ -39,7 +39,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     private static boolean logTransactions = ConfigurationUtil.getBaseConfig().getBoolean("simulation.logTransactions");
     private static long eventsPerDay = ConfigurationUtil.getBaseConfig().getLong("simulation.eventsPerDay");
 
-    @SuppressWarnings("unchecked")
     protected Order handleExecuteTransaction(String strategyName, OrderVO orderVO) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -182,7 +181,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         return order;
     }
 
-    @SuppressWarnings("unchecked")
     private void executeInternalTransaction(Order order) {
 
         Transaction transaction = new TransactionImpl();

@@ -17,7 +17,6 @@ public class PartialOrderImpl extends PartialOrder {
         super.setStatus(status);
     }
 
-    @SuppressWarnings("unchecked")
     public void addTransaction(Transaction transaction) {
 
         getTransactions().add(transaction);

@@ -100,7 +100,6 @@ public abstract class TickServiceImpl extends TickServiceBase {
         return getTickDao().rawTickVOToEntity(rawTick);
     }
 
-    @SuppressWarnings("unchecked")
     protected void handleCreateSimulatedTicks(Tick tick) throws Exception {
 
         if (!simulation)
@@ -156,7 +155,6 @@ public abstract class TickServiceImpl extends TickServiceBase {
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected void handlePropagateTick(Tick tick) {
 
         // tick.toString is expensive, so only log if debug is anabled
@@ -179,7 +177,6 @@ public abstract class TickServiceImpl extends TickServiceBase {
         putOnWatchlist(strategy, security);
     }
 
-    @SuppressWarnings("unchecked")
     protected void handlePutOnWatchlist(Strategy strategy, Security security) throws Exception {
 
         if (getWatchListItemDao().findByStrategyAndSecurity(strategy, security) == null) {
@@ -243,7 +240,6 @@ public abstract class TickServiceImpl extends TickServiceBase {
      * must be run with simulation=false (to get correct values for bid, ask and settlement)
      * also recommended to turn of ehache on commandline (to avoid out of memory error)
      */
-    @SuppressWarnings("unchecked")
     protected void handleImportTicks(String isin) throws Exception {
 
         File file = new File("results/tickdata/" + dataSet + "/" + isin + ".csv");
@@ -299,7 +295,7 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
     protected void handleImportIVolTicks() throws Exception {
 
-        StockOptionFamily family = (StockOptionFamily) getStockOptionFamilyDao().load(3);
+        StockOptionFamily family = getStockOptionFamilyDao().load(3);
         Set<StockOption> stockOptions = new HashSet<StockOption>();
         Date date = null;
 

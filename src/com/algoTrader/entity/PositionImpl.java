@@ -257,7 +257,6 @@ public class PositionImpl extends Position {
         return getMarketValueDouble() * getSecurity().getLeverage();
     }
 
-    @SuppressWarnings("unchecked")
     private List<QuantityTransaction> getFIFIQueue() {
 
         List<Transaction> transactions = new ArrayList<Transaction>(getTransactions());

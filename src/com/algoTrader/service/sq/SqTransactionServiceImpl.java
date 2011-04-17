@@ -356,7 +356,6 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void getExecutedTransactionsScreen(Order order, HttpClient client, Document openAndDailyOrdersScreen, String spreadPosition)
             throws TransformerException, ParseException, IOException, HttpException, UnsupportedEncodingException {
 

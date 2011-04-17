@@ -31,10 +31,9 @@ public class LookupUtil {
         return ServiceLocator.commonInstance().getLookupService().getSecurityByIsin(isin);
     }
 
-    @SuppressWarnings("unchecked")
     public static Position[] getPositions(Security security) {
 
-        return (Position[]) security.getPositions().toArray(new Position[0]);
+        return security.getPositions().toArray(new Position[0]);
     }
 
     public static Position[] getOpenPositions() {

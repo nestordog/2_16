@@ -2,6 +2,7 @@ package com.algoTrader.service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
@@ -18,8 +19,6 @@ import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.MyLogger;
 import com.espertech.esper.client.time.CurrentTimeEvent;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class TestServiceImpl extends TestServiceBase {
 
@@ -238,7 +237,7 @@ public class TestServiceImpl extends TestServiceBase {
         double underlayingValue = getTickDao().findByDateAndSecurity(date, underlayingId).getCurrentValueDouble();
         double volaValue = getTickDao().findByDateAndSecurity(date, volaId).getCurrentValueDouble() / 100.0;
 
-        StockOption stockOption = (StockOption) getStockOptionDao().load(stockOptionId);
+        StockOption stockOption = getStockOptionDao().load(stockOptionId);
 
         double optionPrice = StockOptionUtil.getOptionPriceSabr(stockOption, underlayingValue, volaValue);
 

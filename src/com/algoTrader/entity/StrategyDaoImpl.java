@@ -86,7 +86,6 @@ public class StrategyDaoImpl extends StrategyDaoBase {
         return RoundUtil.getBigDecimal(getPortfolioMaintenanceMarginDouble());
     }
 
-    @SuppressWarnings("unchecked")
     protected double handleGetPortfolioMaintenanceMarginDouble() throws Exception {
 
         double margin = 0.0;
@@ -173,7 +172,6 @@ public class StrategyDaoImpl extends StrategyDaoBase {
         return balances;
     }
 
-    @SuppressWarnings("unchecked")
     protected double handleGetPortfolioLeverageDouble() throws Exception {
 
         double exposure = 0.0;

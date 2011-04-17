@@ -25,7 +25,6 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
 
     private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
 
-    @SuppressWarnings("unchecked")
     protected void handleRebalancePortfolio() throws Exception {
 
         double portfolioNetLiqValue = getStrategyDao().getPortfolioNetLiqValueDouble();

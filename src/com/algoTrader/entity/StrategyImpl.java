@@ -112,7 +112,6 @@ public class StrategyImpl extends Strategy {
         return RoundUtil.getBigDecimal(getMaintenanceMarginDouble());
     }
 
-    @SuppressWarnings("unchecked")
     public double getMaintenanceMarginDouble() {
 
         double margin = 0.0;
@@ -219,7 +218,6 @@ public class StrategyImpl extends Strategy {
         return balances;
     }
 
-    @SuppressWarnings("unchecked")
     public double getRedemptionValueDouble() {
 
         double redemptionValue = 0.0;
@@ -230,7 +228,6 @@ public class StrategyImpl extends Strategy {
         return redemptionValue;
     }
 
-    @SuppressWarnings("unchecked")
     public double getMaxLossDouble() {
 
         double maxLoss = 0.0;
@@ -241,7 +238,6 @@ public class StrategyImpl extends Strategy {
         return maxLoss;
     }
 
-    @SuppressWarnings("unchecked")
     public double getLeverage() {
 
         double exposure = 0.0;

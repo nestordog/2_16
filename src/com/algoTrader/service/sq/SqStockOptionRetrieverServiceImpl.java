@@ -397,7 +397,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
                 }
                 getSecurityDao().create(securities);
                 getTickDao().create(ticks);
-                getSecurityFamilyDao().create(ticks);
+                getSecurityFamilyDao().create(families);
 
                 System.out.println(title);
             }

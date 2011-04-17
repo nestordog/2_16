@@ -84,9 +84,9 @@ public class ReportingServiceImpl extends ReportingServiceBase {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
         if (strategy.isBase()) {
-            return getPositionDao().findOpenPositions(PositionDao.TRANSFORM_POSITIONVO);
+            return (List<PositionVO>) getPositionDao().findOpenPositions(PositionDao.TRANSFORM_POSITIONVO);
         } else {
-            return getPositionDao().findOpenPositionsByStrategy(PositionDao.TRANSFORM_POSITIONVO, strategyName);
+            return (List<PositionVO>) getPositionDao().findOpenPositionsByStrategy(PositionDao.TRANSFORM_POSITIONVO, strategyName);
         }
     }
 
@@ -106,9 +106,9 @@ public class ReportingServiceImpl extends ReportingServiceBase {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
         if (strategy.isBase()) {
-            return getTransactionDao().findLastNTransactions(TransactionDao.TRANSFORM_TRANSACTIONVO, 10);
+            return (List<TransactionVO>) getTransactionDao().findLastNTransactions(TransactionDao.TRANSFORM_TRANSACTIONVO, 10);
         } else {
-            return getTransactionDao().findLastNTransactionsByStrategy(TransactionDao.TRANSFORM_TRANSACTIONVO, 10, strategyName);
+            return (List<TransactionVO>) getTransactionDao().findLastNTransactionsByStrategy(TransactionDao.TRANSFORM_TRANSACTIONVO, 10, strategyName);
         }
     }
 }

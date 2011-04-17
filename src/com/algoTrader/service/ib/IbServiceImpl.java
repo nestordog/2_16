@@ -11,18 +11,18 @@ import com.algoTrader.enumeration.ConnectionState;
 
 public class IbServiceImpl extends IbServiceBase {
 
-    private Set<IIbService> services;
+    private Set<IbServiceInterface> services;
 
     protected void handleInit() {
 
-        for (IIbService service : this.getAllIbServices()) {
+        for (IbServiceInterface service : this.getAllIbServices()) {
             service.init();
         }
     }
 
     protected void handleConnect() {
 
-        for (IIbService service : this.getAllIbServices()) {
+        for (IbServiceInterface service : this.getAllIbServices()) {
             service.connect();
         }
     }
@@ -30,17 +30,17 @@ public class IbServiceImpl extends IbServiceBase {
     protected Map<String, ConnectionState> handleGetAllConnectionStates() {
 
         Map<String, ConnectionState> connectionStates = new HashMap<String, ConnectionState>();
-        for (IIbService service : this.getAllIbServices()) {
+        for (IbServiceInterface service : this.getAllIbServices()) {
             connectionStates.put(ClassUtils.getShortName(service.getClass().getInterfaces()[0]), service.getConnectionState());
         }
         return connectionStates;
     }
 
-    private Set<IIbService> getAllIbServices() {
+    private Set<IbServiceInterface> getAllIbServices() {
 
         if (this.services == null) {
 
-            this.services = new HashSet<IIbService>();
+            this.services = new HashSet<IbServiceInterface>();
             this.services.add(getIbTickService());
             this.services.add(getIbTransactionService());
             this.services.add(getIbAccountService());

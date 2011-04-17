@@ -130,7 +130,6 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected void handleSetMargins() throws Exception {
 
         List<Position> positions = getPositionDao().findOpenPositions();
@@ -140,7 +139,6 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected void handleExpirePositions() throws Exception {
 
         Date date = DateUtil.getCurrentEPTime();

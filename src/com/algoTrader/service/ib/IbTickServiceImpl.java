@@ -247,7 +247,6 @@ public class IbTickServiceImpl extends IbTickServiceBase implements DisposableBe
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void requestMarketData() {
 
         if ((this.wrapper.getState().equals(ConnectionState.CONNECTED) || this.wrapper.getState().equals(ConnectionState.READY)) && !this.wrapper.isRequested()) {

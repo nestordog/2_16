@@ -13,9 +13,11 @@ import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.Security;
 import com.algoTrader.entity.StockOption;
+import com.algoTrader.entity.StockOptionDao;
 import com.algoTrader.entity.StockOptionFamily;
 import com.algoTrader.entity.StockOptionImpl;
 import com.algoTrader.entity.Tick;
+import com.algoTrader.entity.TickDao;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.sabr.SABRCalibration;
 import com.algoTrader.stockOption.StockOptionSymbol;
@@ -41,7 +43,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
     protected StockOption handleCreateDummyStockOption(int stockOptionFamilyId, Date expirationDate, BigDecimal underlayingSpot, OptionType type) throws Exception {
 
-        StockOptionFamily family = (StockOptionFamily) getStockOptionFamilyDao().load(stockOptionFamilyId);
+        StockOptionFamily family = getStockOptionFamilyDao().load(stockOptionFamilyId);
         Security underlaying = family.getUnderlaying();
 
         // set third Friday of the month
@@ -74,11 +76,11 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
         Security underlaying = getSecurityDao().findByIsin(isin);
 
-        List<Date> dates = getTickDao().findUniqueDates();
+        List<Date> dates = (List<Date>) getTickDao().findUniqueDates(TickDao.TRANSFORM_NONE);
 
         for (Date date : dates) {
 
-            List<Date> expirationDates = getStockOptionDao().findExpirationsByDate(date);
+            List<Date> expirationDates = (List<Date>) getStockOptionDao().findExpirationsByDate(StockOptionDao.TRANSFORM_NONE, date);
 
             // only consider the next two expiration dates
             if (expirationDates.size() > 2) {
@@ -155,7 +157,6 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
     }
 
-    @SuppressWarnings("unchecked")
     protected SabrVO handleCalculateSabrForDate(Security underlaying, OptionType type, Date date, Date expirationDate) throws MWException {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlaying(underlaying.getId());

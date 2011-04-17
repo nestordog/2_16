@@ -25,10 +25,12 @@ import org.apache.commons.math.optimization.univariate.BrentOptimizer;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.FutureDao;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.OrderImpl;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Security;
+import com.algoTrader.entity.StockOptionDao;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
@@ -87,13 +89,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         getWatchListItemDao().remove(watchListItems);
 
         // delete all StockOptions
-        getSecurityDao().remove(getStockOptionDao().loadAll());
+        getSecurityDao().remove((Collection<Security>) getStockOptionDao().loadAll(StockOptionDao.TRANSFORM_NONE));
 
         // delete all Futures
-        getSecurityDao().remove(getFutureDao().loadAll());
+        getSecurityDao().remove((Collection<Security>) getFutureDao().loadAll(FutureDao.TRANSFORM_NONE));
     }
 
-    @SuppressWarnings("unchecked")
     protected void handleInputCSV() {
 
         getRuleService().initCoordination(StrategyImpl.BASE);
@@ -124,7 +125,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         getRuleService().startCoordination(StrategyImpl.BASE);
     }
 
-    @SuppressWarnings("unchecked")
     protected SimulationResultVO handleRunByUnderlayings() {
 
         long startTime = System.currentTimeMillis();
@@ -159,7 +159,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         return resultVO;
     }
 
-    @SuppressWarnings("unchecked")
     protected void handleRunByActualTransactions() {
 
         long startTime = System.currentTimeMillis();

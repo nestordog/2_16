@@ -33,7 +33,6 @@ public class VerificationServiceImpl extends VerificationServiceBase {
 
     private Map<String, List<Tick>> optionMap = new HashMap<String, List<Tick>>();
 
-    @SuppressWarnings("unchecked")
     protected void handleVerifyTransactions() throws Exception {
 
         getRuleService().initServiceProvider(StrategyImpl.BASE);
