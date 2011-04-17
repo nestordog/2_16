@@ -6,7 +6,7 @@
         <param name="Target" value="System.out" />
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d %-5p %c{1} %m %n" />
-            <!-- <param name="ConversionPattern" value="%m" /> -->
+<!--            <param name="ConversionPattern" value="%m" />-->
         </layout>
         <filter class="org.apache.log4j.varia.LevelRangeFilter">
             <param name="LevelMin" value="DEBUG" />
@@ -52,7 +52,6 @@
 
     <appender name="PORTFOLIO" class="org.apache.log4j.FileAppender">
         <param name="file" value="log/portfolio.csv" />
-        <param name="append" value="false" />
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss},%m %n" />
         </layout>
@@ -160,33 +159,31 @@
         <level value="error" />
     </logger>
 
-    <logger name="org.springframework.beans.factory.support.DisposableBeanAdapter">
-        <level value="error" />
+    <logger name="com.algoTrader.service.TransactionServiceImpl.TransactionMail">
+        <appender-ref ref="TRANSACTION_EMAIL" />
+        <appender-ref ref="TRANSACTION_SMS" />
     </logger>
 
-    <!-- <logger name="com.algoTrader.service.TransactionServiceImpl.TransactionMail"> -->
-    <!-- <appender-ref ref="TRANSACTION_EMAIL" /> -->
-    <!-- <appender-ref ref="TRANSACTION_SMS" /> -->
-    <!-- </logger> -->
-
-<!--     <logger name="com.algoTrader.subscriber.PrintPortfolioValueSubscriber"> -->
-<!--         <level value="info" /> -->
-<!--         <appender-ref ref="PORTFOLIO" /> -->
-<!--     </logger> -->
-
-    <logger name="com.algoTrader.service.SimulationServiceImpl">
-        <level value="info" />
-        <appender-ref ref="SOCKET" />
+    <logger name="com.algoTrader.subscriber.PrintPortfolioValueSubscriber">
+        <appender-ref ref="PORTFOLIO" />
     </logger>
+
+
+    <!--
+        <logger name="com.algoTrader.service.SimulationServiceImpl">
+            <level value="info"/>
+            <appender-ref ref="SOCKET" />
+        </logger>
+    -->
 
     <root>
-        <level value="error" />
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="STDERR" />
-        <!-- <appender-ref ref="DEBUG" /> -->
-        <!-- <appender-ref ref="FILE"/> -->
-        <!-- <appender-ref ref="EMAIL"/> -->
-        <!-- <appender-ref ref="SMS"/> -->
+        <level value="debug" />
+        <!--<appender-ref ref="STDOUT"/>-->
+        <!--<appender-ref ref="STDERR"/>-->
+        <appender-ref ref="DEBUG" />
+        <appender-ref ref="FILE" />
+        <appender-ref ref="EMAIL" />
+        <appender-ref ref="SMS" />
     </root>
 
     <categoryFactory class="com.algoTrader.util.MyLoggerFactory" />
