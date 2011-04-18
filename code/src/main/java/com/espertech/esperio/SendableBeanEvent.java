@@ -1,3 +1,4 @@
+// line 44 -51: outcomment PropertyDescriptor
 /**************************************************************************************
  * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
  * http://esper.codehaus.org                                                          *
@@ -8,13 +9,12 @@
  **************************************************************************************/
 package com.espertech.esperio;
 
-import com.espertech.esper.client.EPException;
-import com.espertech.esper.schedule.ScheduleSlot;
-import net.sf.cglib.core.ReflectUtils;
+import java.util.Map;
+
 import org.apache.commons.beanutils.BeanUtils;
 
-import java.beans.PropertyDescriptor;
-import java.util.Map;
+import com.espertech.esper.client.EPException;
+import com.espertech.esper.schedule.ScheduleSlot;
 
 /**
  * An implementation of SendableEvent that wraps a Map event for
@@ -37,7 +37,7 @@ public class SendableBeanEvent extends AbstractSendableEvent
         super(timestamp, scheduleSlot);
 
         try {
-            beanToSend = beanClass.newInstance();
+            this.beanToSend = beanClass.newInstance();
             // pre-create nested properties if any, as BeanUtils does not otherwise populate 'null' objects from their respective properties
 
             /*
@@ -51,7 +51,7 @@ public class SendableBeanEvent extends AbstractSendableEvent
 
             // this method silently ignores read only properties on the dest bean but we should
             // have caught them in CSVInputAdapter.constructPropertyTypes.
-            BeanUtils.copyProperties(beanToSend, mapToSend);
+            BeanUtils.copyProperties(this.beanToSend, mapToSend);
         } catch (Exception e) {
             throw new EPException("Cannot populate bean instance", e);
         }
@@ -62,12 +62,12 @@ public class SendableBeanEvent extends AbstractSendableEvent
      */
     public void send(AbstractSender sender)
     {
-        sender.sendEvent(this, beanToSend);
+        sender.sendEvent(this, this.beanToSend);
     }
 
     public String toString()
     {
-        return beanToSend.toString();
+        return this.beanToSend.toString();
     }
 
     public Object getBeanToSend() {
