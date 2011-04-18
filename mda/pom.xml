@@ -13,41 +13,43 @@
     <packaging>pom</packaging>
     <name>AlgoTrader MDA</name>
     <dependencies>
+
+        <dependency>
+            <groupId>org.andromda.cartridges</groupId>
+            <artifactId>andromda-hibernate-cartridge</artifactId>
+            <version>${andromda.version}</version>
+            <scope>runtime</scope>
+        </dependency><dependency>
+            <groupId>org.andromda.cartridges</groupId>
+            <artifactId>andromda-java-cartridge</artifactId>
+            <version>${andromda.version}</version>
+            <scope>runtime</scope>
+        </dependency><dependency>
+            <groupId>org.andromda.cartridges</groupId>
+            <artifactId>andromda-spring-cartridge</artifactId>
+            <version>${andromda.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.andromda.profiles.uml14</groupId>
             <artifactId>andromda-profile</artifactId>
             <version>${andromda.version}</version>
             <type>xml.zip</type>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.andromda.cartridges</groupId>
-            <artifactId>andromda-spring-cartridge</artifactId>
-            <version>${andromda.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.andromda.cartridges</groupId>
-            <artifactId>andromda-hibernate-cartridge</artifactId>
-            <version>${andromda.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.andromda.cartridges</groupId>
-            <artifactId>andromda-java-cartridge</artifactId>
+        </dependency><dependency>
+            <groupId>org.andromda.translationlibraries</groupId>
+            <artifactId>andromda-ocl-query-library</artifactId>
             <version>${andromda.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.andromda.translationlibraries</groupId>
             <artifactId>andromda-ocl-validation-library</artifactId>
+            <version>${andromda.version}</version>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.andromda.translationlibraries</groupId>
-            <artifactId>andromda-ocl-query-library</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+
     </dependencies>
     <profiles>
         <profile>
