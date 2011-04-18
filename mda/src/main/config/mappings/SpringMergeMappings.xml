@@ -152,7 +152,7 @@
         <mapping>
             <from><![CDATA[<template
         path="templates/spring/applicationContext-server.xml.vsl"
-        outputPattern="$applicationContextServer"
+        outputPattern="${serviceRemoteContext}-servlet.xml"
         outlet="spring-configuration"
         overwrite="true"
         outputToSingleFile="true"
@@ -161,6 +161,7 @@
             <modelElement variable="services">
                 <type name="org.andromda.cartridges.spring.metafacades.SpringService">
                     <property name="remotable"/>
+                    <property name="richClient">true</property>
                 </type>
             </modelElement>
             <modelElement variable="manageables">
