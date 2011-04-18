@@ -126,6 +126,7 @@
     </bean>
 
 #foreach($entity in $entities)
+#if ($stringUtils.isBlank($entity.findTaggedValue('@algoTrader.entity.nonPersistent')))
 #if($implementationLanguage == "groovy" && $entity.daoImplementationRequired)
 #set($propertyPrefix="lang:")
     <lang:groovy id="$entity.fullyQualifiedDaoImplementationName" script-source="classpath:${entity.packagePath}/${entity.daoImplementationName}.groovy">
@@ -151,7 +152,6 @@
 #else
     </bean>
 #end
-#if ($stringUtils.isBlank($entity.findTaggedValue('@algoTrader.entity.nonPersistent')))
 
     <!-- $entity.name Entity Proxy with inner $entity.name Entity implementation -->
     <bean id="$entity.getBeanName(false)" class="org.springframework.aop.framework.ProxyFactoryBean">
