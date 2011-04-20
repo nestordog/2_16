@@ -66,7 +66,7 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
             long startTime = System.currentTimeMillis();
             logger.debug("processCashTransactions start");
 
-            ServiceLocator.serverInstance().getDispatcherService().getAccountService().processCashTransactions();
+            ServiceLocator.serverInstance().getAccountService().processCashTransactions();
 
             logger.debug("processCashTransactions end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
 
@@ -80,7 +80,7 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
             long startTime = System.currentTimeMillis();
             logger.debug("rebalancePortfolio start");
 
-            ServiceLocator.serverInstance().getDispatcherService().getAccountService().rebalancePortfolio();
+            ServiceLocator.serverInstance().getAccountService().rebalancePortfolio();
 
             logger.debug("rebalancePortfolio end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
 

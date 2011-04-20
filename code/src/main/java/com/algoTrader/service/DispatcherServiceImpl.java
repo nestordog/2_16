@@ -1,13 +1,10 @@
 package com.algoTrader.service;
 
 import com.algoTrader.enumeration.MarketChannel;
-import com.algoTrader.util.ConfigurationUtil;
 
 public class DispatcherServiceImpl extends DispatcherServiceBase {
 
-    private static String marketChannel = ConfigurationUtil.getBaseConfig().getString("marketChannel");
-
-    protected StockOptionRetrieverService handleGetStockOptionRetrieverService() {
+    protected StockOptionRetrieverService handleGetStockOptionRetrieverService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
             return getSqStockOptionRetrieverService();
@@ -18,7 +15,7 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
         }
     }
 
-    protected TransactionService handleGetTransactionService() {
+    protected TransactionService handleGetTransactionService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
             return getSqTransactionService();
@@ -29,7 +26,7 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
         }
     }
 
-    protected TickService handleGetTickService() {
+    protected TickService handleGetTickService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
             return getSqTickService();
@@ -40,7 +37,7 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
         }
     }
 
-    protected AccountService handleGetAccountService() {
+    protected AccountService handleGetAccountService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
             return getSqAccountService();
@@ -51,7 +48,7 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
         }
     }
 
-    protected HistoricalDataService handleGetHistoricalDataService() throws Exception {
+    protected HistoricalDataService handleGetHistoricalDataService(MarketChannel marketChannel) throws Exception {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
             return getSqHistoricalDataService();

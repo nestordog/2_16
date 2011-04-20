@@ -18,7 +18,7 @@ public class CustomSender extends AbstractSender {
         // raw Ticks are always sent using TickService
         if (beanToSend instanceof RawTickVO) {
 
-            TickService tickService = ServiceLocator.commonInstance().getDispatcherService().getTickService();
+            TickService tickService = ServiceLocator.commonInstance().getTickService();
 
             Tick tick = tickService.completeRawTick((RawTickVO) beanToSend);
             tickService.propagateTick(tick);

@@ -375,7 +375,7 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
         public void update(int securityId) {
 
-            ServiceLocator.serverInstance().getDispatcherService().getTickService().processTick(securityId);
+            ServiceLocator.serverInstance().getTickService().processTick(securityId);
         }
     }
 }

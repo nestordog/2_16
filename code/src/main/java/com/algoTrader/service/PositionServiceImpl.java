@@ -44,11 +44,11 @@ public class PositionServiceImpl extends PositionServiceBase {
         order.setRequestedQuantity(Math.abs(quantity));
         order.setTransactionType((position.getQuantity() > 0) ? TransactionType.SELL : TransactionType.BUY);
 
-        getDispatcherService().getTransactionService().executeTransaction(position.getStrategy().getName(), order);
+        getTransactionService().executeTransaction(position.getStrategy().getName(), order);
 
         // only remove the security from the watchlist, if the position is closed
         if (!position.isOpen()) {
-            getDispatcherService().getTickService().removeFromWatchlist(position.getStrategy(), security);
+            getTickService().removeFromWatchlist(position.getStrategy(), security);
         }
     }
 
@@ -170,13 +170,13 @@ public class PositionServiceImpl extends PositionServiceBase {
         order.setRequestedQuantity(numberOfContracts);
         order.setTransactionType(TransactionType.EXPIRATION);
 
-        Order executedOrder = getDispatcherService().getTransactionService().executeTransaction(position.getStrategy().getName(), order);
+        Order executedOrder = getTransactionService().executeTransaction(position.getStrategy().getName(), order);
 
         // only remove the security from the watchlist, if the transaction did execute fully.
         // otherwise the next tick will execute the reminder of the order
         if (OrderStatus.EXECUTED.equals(executedOrder.getStatus()) || OrderStatus.AUTOMATIC.equals(executedOrder.getStatus())) {
 
-            getDispatcherService().getTickService().removeFromWatchlist(position.getStrategy(), security);
+            getTickService().removeFromWatchlist(position.getStrategy(), security);
         }
     }
 

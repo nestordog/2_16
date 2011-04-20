@@ -17,7 +17,7 @@ public class StockOptionRetrievalStarter {
 
     public static void retrieve(int underlayingId) {
 
-        ServiceLocator.serverInstance().getDispatcherService().getStockOptionRetrieverService().retrieveAllStockOptionsForUnderlaying(underlayingId);
+        ServiceLocator.serverInstance().getStockOptionRetrieverService().retrieveAllStockOptionsForUnderlaying(underlayingId);
 
     }
 }

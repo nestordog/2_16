@@ -28,7 +28,7 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
 
     protected void handleProcessCashTransactions() throws Exception {
 
-        getDispatcherService().getAccountService().processCashTransactions();
+        getAccountService().processCashTransactions();
     }
 
     protected void handleReducePosition(int positionId, int quantity) throws Exception {

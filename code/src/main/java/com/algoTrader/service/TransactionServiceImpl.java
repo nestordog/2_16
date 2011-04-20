@@ -294,7 +294,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             long startTime = System.currentTimeMillis();
             logger.debug("retrieveTicks start");
 
-            ServiceLocator.serverInstance().getDispatcherService().getTransactionService().executeTransaction(strategyName, orderVO);
+            ServiceLocator.serverInstance().getTransactionService().executeTransaction(strategyName, orderVO);
 
             logger.debug("retrieveTicks end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
