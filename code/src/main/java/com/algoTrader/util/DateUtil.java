@@ -52,6 +52,20 @@ public class DateUtil {
         return cal.getTime();
     }
 
+    public static Date getThirdFridayNMonths(Date input, int months) {
+
+        Date nextThirdFriday = getNextThirdFriday(input);
+
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(nextThirdFriday);
+
+        cal.add(Calendar.MONTH, (months - 1));
+        cal.set(Calendar.WEEK_OF_MONTH, 3);
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+
+        return cal.getTime();
+    }
+
     public static Date getNextThirdFriday3MonthCycle(Date input) {
 
         Calendar cal = new GregorianCalendar();
