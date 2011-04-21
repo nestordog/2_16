@@ -84,6 +84,22 @@ CREATE TABLE `future_family` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `generic_future`
+--
+
+DROP TABLE IF EXISTS `generic_future`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `generic_future` (
+  `ID` int(11) NOT NULL,
+  `MONTHS` int(11) NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `GENERIC_FUTUREIFKC` (`ID`),
+  CONSTRAINT `GENERIC_FUTUREIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `history`
 --
 
@@ -237,10 +253,12 @@ CREATE TABLE `security` (
   KEY `SECURITY_SECURITY_FAMILY_FKC` (`SECURITY_FAMILY_FK`),
   KEY `SECURITY_UNDERLAYING_FKC` (`UNDERLAYING_FK`),
   KEY `SECURITY_VOLATILITY_FKC` (`VOLATILITY_FK`),
+  KEY `SECURITY_INTREST_RATE_FAMILY_C` (`INTREST_RATE_FAMILY_FK`),
+  CONSTRAINT `SECURITY_INTREST_RATE_FAMILY_C` FOREIGN KEY (`INTREST_RATE_FAMILY_FK`) REFERENCES `security_family` (`id`),
   CONSTRAINT `SECURITY_SECURITY_FAMILY_FKC` FOREIGN KEY (`SECURITY_FAMILY_FK`) REFERENCES `security_family` (`id`),
   CONSTRAINT `SECURITY_UNDERLAYING_FKC` FOREIGN KEY (`UNDERLAYING_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `SECURITY_VOLATILITY_FKC` FOREIGN KEY (`VOLATILITY_FK`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=114439 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=115021 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -439,4 +457,4 @@ CREATE TABLE `watch_list_item` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-04-15 14:19:47
+-- Dump completed on 2011-04-21 15:59:40
