@@ -8,7 +8,6 @@ import org.hibernate.Hibernate;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.Currency;
-import com.algoTrader.service.TickServiceException;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
@@ -54,6 +53,11 @@ public class SecurityImpl extends Security {
         if (!family.isTradeable()) {
             return;
         } else {
+
+            if (family.getSpreadSlope() == null || family.getSpreadConstant() == null) {
+                throw new RuntimeException("SpreadSlope and SpreadConstant have to be defined to validate a tradeable security");
+            }
+
             int contractSize = family.getContractSize();
             double maxSpreadSlope = family.getMaxSpreadSlope();
             double maxSpreadConstant = family.getMaxSpreadConstant();
@@ -63,7 +67,7 @@ public class SecurityImpl extends Security {
             double maxSpread = mean * maxSpreadSlope + maxSpreadConstant;
 
             if (spread > maxSpread) {
-                throw new TickServiceException("spread (" + spread + ") is higher than maxSpread (" + maxSpread + ") for security " + getSymbol());
+                throw new TickValidationException("spread (" + spread + ") is higher than maxSpread (" + maxSpread + ") for security " + getSymbol());
             }
         }
     }

@@ -31,6 +31,7 @@ import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.TickImpl;
+import com.algoTrader.entity.TickValidationException;
 import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.entity.WatchListItemImpl;
 import com.algoTrader.enumeration.OptionType;
@@ -77,8 +78,10 @@ public abstract class TickServiceImpl extends TickServiceBase {
                     // propagateTick and createSimulatedTick only for valid ticks
                     propagateTick(tick);
                     createSimulatedTicks(tick);
-                } catch (Exception e) {
-                    // do nothing, just ignore invalideTicks
+                } catch (RuntimeException e) {
+                    if (!(e instanceof TickValidationException)) {
+                        throw e;
+                    }
                 }
 
                 // write the tick to file (even if not valid)
