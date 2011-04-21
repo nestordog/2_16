@@ -48,7 +48,27 @@
         <level value="warn" />
     </logger>
 
+    <logger name="org.apache.activemq">
+        <level value="warn" />
+    </logger>
+
+    <logger name="org.mortbay">
+        <level value="warn" />
+    </logger>
+
+    <logger name="com.mchange.v2">
+        <level value="warn" />
+    </logger>
+
+    <logger name="org.apache.log4j.jmx">
+        <level value="warn" />
+    </logger>
+
     <logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog">
+        <level value="error" />
+    </logger>
+
+    <logger name="org.springframework.beans.factory.support.DisposableBeanAdapter">
         <level value="error" />
     </logger>
 
