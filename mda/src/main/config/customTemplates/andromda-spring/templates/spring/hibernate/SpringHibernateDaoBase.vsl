@@ -1,5 +1,6 @@
 ## line 756 - 763: handle algoTrader.entity.query.native
 ## line 764 - 766: if taggedValue @andromda.hibernate.query.useCache is set add queryObject.setCacheable(true);
+## line 776: Enumerations do not use SpringUtils (it will output param.getValue() for Enumerations, which is wrong)
 #set ($generatedFile = "${entity.packagePath}/${entity.daoBaseName}.java")
 // license-header java merge-point
 //
@@ -772,7 +773,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
 #end
 #if ($useNamedParametersInQueries || $finder.useNamedParameters || $argument.type.collectionType || $argument.type.arrayType)
 #if (!$argument.type.embeddedValue)
-            queryObject.${setParameterOperation}("$argument.name", $springUtils.formatHibernateQueryParameterValue($argument.type, $argument.name));
+            queryObject.${setParameterOperation}("$argument.name", $argument.name);
 #else
 #foreach ($attribute in $argument.type.getAttributes(true))
 #set ($parameterValue = "${argument.name}.${attribute.getterName}()")
