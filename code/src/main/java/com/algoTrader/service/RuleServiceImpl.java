@@ -1,13 +1,20 @@
 package com.algoTrader.service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
+import org.apache.commons.configuration.ConfigurationConverter;
 import org.apache.log4j.Logger;
+import org.springframework.util.PropertyPlaceholderHelper;
 
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
@@ -37,6 +44,7 @@ import com.espertech.esper.client.deploy.DeploymentResult;
 import com.espertech.esper.client.deploy.EPDeploymentAdmin;
 import com.espertech.esper.client.deploy.Module;
 import com.espertech.esper.client.deploy.ModuleItem;
+import com.espertech.esper.client.deploy.ParseException;
 import com.espertech.esper.client.soda.AnnotationAttribute;
 import com.espertech.esper.client.soda.AnnotationPart;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
@@ -112,8 +120,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
 
         // read the statement from the module
-        EPDeploymentAdmin deployAdmin = administrator.getDeploymentAdmin();
-        Module module = deployAdmin.read("module-" + moduleName + ".epl");
+        Module module = getModule(strategyName, moduleName);
         List<ModuleItem> items = module.getItems();
 
         // go through all statements in the module
@@ -168,7 +175,7 @@ public class RuleServiceImpl extends RuleServiceBase {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
         EPDeploymentAdmin deployAdmin = administrator.getDeploymentAdmin();
-        Module module = deployAdmin.read("module-" + moduleName + ".epl");
+        Module module = getModule(strategyName, moduleName);
         DeploymentResult deployResult = deployAdmin.deploy(module, new DeploymentOptions());
         List<EPStatement> statements = deployResult.getStatements();
 
@@ -400,6 +407,41 @@ public class RuleServiceImpl extends RuleServiceBase {
             Object castedObj = JavaClassHelper.parse(clazz, value);
             runtime.setVariableValue(key, castedObj);
         }
+    }
+
+    private Module getModule(String strategyName, String moduleName) throws IOException, ParseException {
+
+        EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
+        EPDeploymentAdmin deployAdmin = administrator.getDeploymentAdmin();
+
+        // get the input stream
+        InputStream stream = ClassLoader.getSystemResourceAsStream("module-" + moduleName + ".epl");
+
+        if (stream == null) {
+            throw new RuntimeException("module was not found: " + moduleName);
+        }
+        StringBuffer buffer = new StringBuffer();
+
+        // read it into a StringBuffer
+        try {
+            String line;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line).append("\n");
+            }
+        } finally {
+            stream.close();
+        }
+
+        // get the Configuaration as Properties
+        org.apache.commons.configuration.Configuration conf = ConfigurationUtil.getStrategyConfig(strategyName);
+        Properties props = ConfigurationConverter.getProperties(conf);
+
+        // replace all placeholders
+        String output = (new PropertyPlaceholderHelper("${", "}")).replacePlaceholders(buffer.toString(), props);
+
+        // get the Module
+        return deployAdmin.parse(output);
     }
 
     private String getProviderURI(String strategyName) {
