@@ -15,8 +15,4 @@ public class GenericFutureImpl extends GenericFuture {
 
         return DateUtil.getThirdFridayNMonths(date, getMonths());
     }
-
-    public void setExpiration(Date expiration) {
-        throw new IllegalArgumentException("setExpiration not available for GenericFuture");
-    }
 }
