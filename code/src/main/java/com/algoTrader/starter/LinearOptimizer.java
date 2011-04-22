@@ -1,5 +1,6 @@
 package com.algoTrader.starter;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +17,7 @@ public class LinearOptimizer {
     private static final String[] vmArgs = { "-Dsimulation=true" };
     private static final String dataSource = "-DdataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTrader";
     private static final int roundDigits = 4;
+    private static final NumberFormat format = NumberFormat.getInstance();
 
     /**
      * example call: SMI 4 99:99to10 flatRange:0.001:0.004:0.0001 putVolaPeriod:0.4:0.45:0.01
@@ -38,10 +40,10 @@ public class LinearOptimizer {
             double max = Double.parseDouble(args[2]);
             double increment = Double.parseDouble(args[3]);
 
-            for (double value = min; value <= max; value = MathUtils.round(value + increment, roundDigits)) {
+            for (double value = min; value <= max; value += increment) {
 
                 for (String dataSource : dataSources) {
-                    String job = "dataSource.dataSet:" + dataSource + "," + parameter + ":" + value;
+                    String job = "dataSource.dataSet:" + dataSource + "," + parameter + ":" + format.format(MathUtils.round(value, roundDigits));
                     jobs.add(job);
                 }
             }
