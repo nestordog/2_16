@@ -64,7 +64,7 @@ where
 insert into
     MonthlyPerformance
 select
-    DateUtil.toDate(current_timestamp()) as date,
+    current_timestamp().toDate() as date,
     portfolio.value.netLiqValue / prior(1, portfolio.value.netLiqValue) - 1 as value
 from
     pattern[every timer:at (0, 0, 1, *, *) -> portfolio=Portfolio]
