@@ -85,12 +85,12 @@
         <level value="error" />
     </logger>
 
-    <logger name="com.espertech.esper.util.MethodResolver.MethodResolver">
+    <logger name="com.espertech.esper.util.MethodResolver">
         <level value="error" />
     </logger>
 
     <logger name="com.algoTrader.subscriber.PrintPortfolioValueSubscriber">
-        <level value="info" />
+<!--         <level value="info" /> -->
         <appender-ref ref="PORTFOLIO" />
     </logger>
 
