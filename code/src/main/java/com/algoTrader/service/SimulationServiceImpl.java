@@ -3,6 +3,7 @@ package com.algoTrader.service;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,8 +53,13 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
-    private static DecimalFormat threeDigitFormat = new DecimalFormat("#,##0.000");
     private static DateFormat dateFormat = new SimpleDateFormat(" MMM-yy ");
+    private static final NumberFormat format = NumberFormat.getInstance();
+    private static final int roundDigits = 4;
+
+    static {
+        format.setMinimumFractionDigits(roundDigits);
+    }
 
     @SuppressWarnings("unchecked")
     protected void handleResetDB() throws Exception {
@@ -263,10 +269,10 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         double functionValue = 0;
         for (double i = min; i <= max; i += increment ) {
 
-            ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, String.valueOf(i));
+            ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, format.format(i));
 
             SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
-            logger.info(parameter + " val=" + threeDigitFormat.format(i) + " " + convertStatisticsToShortString(resultVO));
+            logger.info(parameter + " val=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
 
             double value = resultVO.getPerformanceKeysVO().getSharpRatio();
             if (value > functionValue) {
@@ -274,7 +280,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 result = i;
             }
         }
-        logger.info("optimal value of " + parameter + " is " + threeDigitFormat.format(result) + " (functionValue: " + threeDigitFormat.format(functionValue) + ")");
+        logger.info("optimal value of " + parameter + " is " + format.format(result) + " (functionValue: " + format.format(functionValue) + ")");
     }
 
     protected OptimizationResultVO handleOptimizeSingleParam(String strategyName, String parameter, double min, double max, double accuracy) throws ConvergenceException, FunctionEvaluationException {
@@ -301,9 +307,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         RealPointValuePair result = optimizer.optimize(function, GoalType.MAXIMIZE, starts);
 
         for (int i = 0; i < result.getPoint().length; i++) {
-            logger.info("optimal value for " + parameters[i] + ": " + twoDigitFormat.format(result.getPoint()[i]));
+            logger.info("optimal value for " + parameters[i] + ": " + format.format(result.getPoint()[i]));
         }
-        logger.info("functionValue: " + twoDigitFormat.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
+        logger.info("functionValue: " + format.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
     }
 
     @SuppressWarnings("unchecked")
@@ -342,10 +348,10 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             return ("no trades took place!");
         }
 
-        buffer.append("avgY=" + twoDigitFormat.format(performanceKeys.getAvgY()));
-        buffer.append(" sharpe=" + threeDigitFormat.format(performanceKeys.getSharpRatio()));
-        buffer.append(" maxDD=" + threeDigitFormat.format(maxDrawDownVO.getAmount()));
-        buffer.append(" maxDDPer=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000) + "days");
+        buffer.append("avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100) + "%");
+        buffer.append(" sharpe=" + twoDigitFormat.format(performanceKeys.getSharpRatio()));
+        buffer.append(" maxDD=" + twoDigitFormat.format(maxDrawDownVO.getAmount()));
+        buffer.append(" maxDDPer=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000));
         buffer.append(" avgPPctWin=" + twoDigitFormat.format(resultVO.getWinningTrades().getAvgProfitPct() * 100) + "%");
         buffer.append(" avgPPctLoos=" + twoDigitFormat.format(resultVO.getLoosingTrades().getAvgProfitPct() * 100) + "%");
         buffer.append(" winTrdsPct=" + twoDigitFormat.format(100 * resultVO.getWinningTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
@@ -391,7 +397,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             buffer.append(" stdM=" + twoDigitFormat.format(performanceKeys.getStdM() * 100) + "%");
             buffer.append(" avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100) + "%");
             buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "% ");
-            buffer.append(" sharpRatio=" + threeDigitFormat.format(performanceKeys.getSharpRatio()) + "\r\n");
+            buffer.append(" sharpRatio=" + twoDigitFormat.format(performanceKeys.getSharpRatio()) + "\r\n");
 
             buffer.append("maxDrawDownM=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
             buffer.append(" bestMonthlyPerformance=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
@@ -455,7 +461,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
             double result = resultVO.getPerformanceKeysVO().getSharpRatio();
 
-            logger.info("optimize on " + this.param + " value " + threeDigitFormat.format(input) + " " + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
+            logger.info("optimize on " + this.param + " value " + format.format(input) + " " + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
 
             return result;
         }
@@ -482,7 +488,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
                 ConfigurationUtil.getStrategyConfig(this.strategyName).setProperty(param, String.valueOf(value));
 
-                buffer.append(param + ": " + threeDigitFormat.format(value) + " ");
+                buffer.append(param + ": " + format.format(value) + " ");
             }
 
             SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
