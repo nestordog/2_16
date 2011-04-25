@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.espertech.esper.epl.agg.AggregationSupport;
 import com.espertech.esper.epl.agg.AggregationValidationContext;
+import com.espertech.esper.epl.expression.ExprEvaluator;
 import com.tictactec.ta.lib.CoreAnnotated;
 import com.tictactec.ta.lib.MAType;
 import com.tictactec.ta.lib.MInteger;
@@ -92,16 +93,10 @@ public class GenericTALibFunction extends AggregationSupport {
 
     public void validate(AggregationValidationContext validationContext) {
 
-        boolean[] isConstant = validationContext.getIsConstantValue();
-        Object[] constants = validationContext.getConstantValues();
         Class<?>[] paramTypes = validationContext.getParameterTypes();
 
         // get the functionname
-        if (isConstant[0] && paramTypes[0].equals(String.class)) {
-            this.functionName = (String) constants[0];
-        } else {
-            throw new IllegalArgumentException("param 0 has to be a constant and of type String");
-        }
+        this.functionName = (String) getConstant(validationContext, 0, String.class);
 
         // get the method by iterating over all core-methods
         // we have to do it this way, since we don't have the exact parameters
@@ -159,27 +154,13 @@ public class GenericTALibFunction extends AggregationSupport {
                 } else if (annotation instanceof OptInputParameterInfo) {
                     OptInputParameterInfo optInputParameterInfo = (OptInputParameterInfo) annotation;
                     if (optInputParameterInfo.type().equals(OptInputParameterType.TA_OptInput_IntegerRange)) {
-                        if (isConstant[paramCounter] && paramTypes[paramCounter].equals(Integer.class)) {
-                            this.optInputParams.add(constants[paramCounter]);
-                        } else {
-                            throw new IllegalArgumentException("param number " + paramCounter + " needs to be a constant of type int");
-                        }
+                        this.optInputParams.add(getConstant(validationContext, paramCounter, Integer.class));
                     } else if (optInputParameterInfo.type().equals(OptInputParameterType.TA_OptInput_RealRange)) {
-                        if (isConstant[paramCounter] && paramTypes[paramCounter].equals(Double.class)) {
-                            this.optInputParams.add(constants[paramCounter]);
-                        } else {
-                            throw new IllegalArgumentException("param number " + paramCounter + " needs to be a constant of type double");
-                        }
+                        this.optInputParams.add(getConstant(validationContext, paramCounter, Double.class));
                     } else if (optInputParameterInfo.type().equals(OptInputParameterType.TA_OptInput_IntegerList)) {
-                        if (isConstant[paramCounter] && paramTypes[paramCounter].equals(String.class)) {
-                            String value = (String) constants[paramCounter];
-
-                            // get the MAType Enum from the value
-                            MAType type = MAType.valueOf(value);
-                            this.optInputParams.add(type);
-                        } else {
-                            throw new IllegalArgumentException("param number " + paramCounter + " needs to be a constant of type String");
-                        }
+                        String value = (String) getConstant(validationContext, paramCounter, String.class);
+                        MAType type = MAType.valueOf(value);
+                        this.optInputParams.add(type);
                     }
                     paramCounter++;
 
@@ -405,6 +386,25 @@ public class GenericTALibFunction extends AggregationSupport {
                 ctClass.addMethod(ctMethod);
             }
             return ctClass.toClass();
+        }
+    }
+
+    private Object getConstant(AggregationValidationContext validationContext, int index, Class<?> clazz) {
+
+        if (validationContext.getIsConstantValue()[index]) {
+            if (validationContext.getParameterTypes()[index].equals(clazz)) {
+                return validationContext.getConstantValues()[index];
+            } else {
+                throw new IllegalArgumentException("param " + index + " has to be a constant of type " + clazz);
+            }
+        } else {
+            ExprEvaluator evaluator = (ExprEvaluator) validationContext.getExpressions()[index];
+            Object obj = evaluator.evaluate(null, true, null);
+            if (obj.getClass().equals(clazz)) {
+                return obj;
+            } else {
+                throw new IllegalArgumentException("param " + index + " has to be a constant of type " + clazz);
+            }
         }
     }
 }
