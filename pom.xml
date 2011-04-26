@@ -283,6 +283,13 @@
         <module>mda</module>
         <module>code</module>
     </modules>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>bubba</id>
+            <name>Bubba Repositiory</name>
+            <url>scp://bubba.gettheticket.ch/home/web/repo</url>
+        </snapshotRepository>
+    </distributionManagement>
     <properties>
         <andromda.version>3.4-SNAPSHOT</andromda.version>
         <java.version>1.6</java.version>
@@ -508,6 +515,11 @@
             <releases>
                 <enabled>false</enabled>
             </releases>
+        </repository>
+        <repository>
+            <id>bubba</id>
+            <name>Bubba Repository</name>
+            <url>http://bubba.gettheticket.ch/repo</url>
         </repository>
     </repositories>
     <pluginRepositories>
