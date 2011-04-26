@@ -285,7 +285,7 @@
     </modules>
     <distributionManagement>
         <snapshotRepository>
-            <id>bubba</id>
+            <id>bubba-deploy</id>
             <name>Bubba Repositiory</name>
             <url>scp://bubba.gettheticket.ch/home/web/repo</url>
         </snapshotRepository>
