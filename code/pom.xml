@@ -104,6 +104,10 @@
             <version>4.2.0</version>
             <type>jar</type>
             <scope>compile</scope>
+        </dependency><dependency>
+            <groupId>com.espertech</groupId>
+            <artifactId>esperee-jmx</artifactId>
+            <version>4.0.0</version>
         </dependency>
         <dependency>
             <groupId>javassist</groupId>
@@ -233,6 +237,7 @@
             <artifactId>javabuilder</artifactId>
             <version>1.0.0</version>
         </dependency>
+
     </dependencies>
     <build>
         <plugins>
