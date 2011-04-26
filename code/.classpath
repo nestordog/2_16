@@ -9,11 +9,8 @@
 	<classpathentry kind="lib" path="lib/esper-jmx-4.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/esper-server-4.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/esper-servicexml-4.0.0.jar"/>
-	<classpathentry kind="lib" path="lib/javabuilder.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-6.1.23.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-util-6.1.23.jar"/>
-	<classpathentry kind="lib" path="lib/jtsclient.jar"/>
-	<classpathentry kind="lib" path="lib/sabr.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5-6.1.14.jar"/>
 	<classpathentry kind="lib" path="lib/xbean.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
