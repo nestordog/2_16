@@ -191,11 +191,6 @@
             <type>pom</type>
             <scope>runtime</scope>
         </dependency>
-
-
-
-
-
         <dependency>
             <groupId>net.sourceforge.collections</groupId>
             <artifactId>collections-generic</artifactId>
@@ -209,17 +204,6 @@
             <version>5.1.15</version>
             <scope>runtime</scope>
         </dependency>
-
-
-
-
-
-
-
-
-
-
-
         <dependency>
             <groupId>xalan</groupId>
             <artifactId>xalan</artifactId>
@@ -227,11 +211,6 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
-
-
-
-
-
         <dependency>
             <groupId>xml-apis</groupId>
             <artifactId>xml-apis</artifactId>
@@ -239,10 +218,21 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
-
-
-
-
+        <dependency>
+            <groupId>com.interactivebrokers</groupId>
+            <artifactId>ibclient</artifactId>
+            <version>9.6.3</version>
+        </dependency>
+        <dependency>
+            <groupId>algotrader</groupId>
+            <artifactId>algotrader-sabr</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mathworks</groupId>
+            <artifactId>javabuilder</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
