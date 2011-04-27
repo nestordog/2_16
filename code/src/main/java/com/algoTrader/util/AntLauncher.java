@@ -8,7 +8,7 @@ import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 
-public class JavaLauncher {
+public class AntLauncher {
 
     public static void launch(Class<?> clazz, String[] args, String[] vmArgs) {
 
@@ -29,7 +29,7 @@ public class JavaLauncher {
             }
 
             for (String vmArg : vmArgs) {
-                java.createJvmarg().setValue(vmArg);
+                java.createJvmarg().setValue("-D" + vmArg);
             }
 
             // add the classes of this Project

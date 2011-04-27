@@ -7,21 +7,27 @@ import java.util.List;
 
 import org.apache.commons.math.util.MathUtils;
 
-import com.algoTrader.util.JavaLauncher;
+import com.algoTrader.util.MavenLauncher;
 
 public class LinearOptimizer {
 
     @SuppressWarnings("rawtypes")
     private static final Class starterClass = SimulationStarter.class;
     private static final String commandName = "simulateByMultiParam";
-    private static final String[] vmArgs = { "-Dsimulation=true" };
-    private static final String dataSource = "-DdataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTrader";
+    private static final String[] vmArgs = { "simulation=true" };
+    private static final String dataSource = "dataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTrader";
     private static final int roundDigits = 4;
     private static final NumberFormat format = NumberFormat.getInstance();
+
+    static {
+        format.setMinimumFractionDigits(roundDigits);
+    }
 
     /**
      * example call: SMI 4 99:99to10 flatRange:0.001:0.004:0.0001 putVolaPeriod:0.4:0.45:0.01
      * strategy workers datasource1:datasource2 param1:start:end:increment param2:start:end:increment
+     *
+     * Note: algotrader-code needs to be deployed with the correct log-level and SimulationService.roundDigits to the local repo
      */
     @SuppressWarnings({ "unchecked" })
     public static void main(String[] params) {
@@ -70,7 +76,7 @@ public class LinearOptimizer {
             String[] actualVmArgs = Arrays.copyOf(vmArgs, vmArgs.length + 1);
             actualVmArgs[vmArgs.length] = (i == 0) ? dataSource : dataSource + i;
 
-            JavaLauncher.launch(starterClass, actualProgArgs, actualVmArgs);
+            MavenLauncher.launch(starterClass, actualProgArgs, actualVmArgs);
         }
     }
 }

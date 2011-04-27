@@ -7,21 +7,27 @@ import java.util.List;
 
 import org.apache.commons.math.util.MathUtils;
 
-import com.algoTrader.util.JavaLauncher;
+import com.algoTrader.util.AntLauncher;
 
 public class AllCombinationOptimizer {
 
     @SuppressWarnings("rawtypes")
     private static final Class starterClass = SimulationStarter.class;
     private static final String commandName = "simulateByMultiParam";
-    private static final String[] vmArgs = { "-Dsimulation=true" };
-    private static final String dataSource = "-DdataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTrader";
+    private static final String[] vmArgs = { "simulation=true" };
+    private static final String dataSource = "dataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTrader";
     private static final int roundDigits = 0;
     private static final NumberFormat format = NumberFormat.getInstance();
+
+    static {
+        format.setMinimumFractionDigits(roundDigits);
+    }
 
     /**
      * example call: SMI 4 99:99to10 macdFast:5:100:5 macdSlow:5:100:5 macdSignal:5:100:5
      * strategy workers datasource1:datasource2 param1:start:end:increment param2:start:end:increment param3:start:end:increment
+
+     * Note: algotrader-code needs to be deployed with the correct log-level and SimulationService.roundDigits to the local repo
      */
     @SuppressWarnings("unchecked")
     public static void main(String[] params) {
@@ -88,7 +94,7 @@ public class AllCombinationOptimizer {
             String[] actualVmArgs = Arrays.copyOf(vmArgs, vmArgs.length + 1);
             actualVmArgs[vmArgs.length] = (i == 0) ? dataSource : dataSource + i;
 
-            JavaLauncher.launch(starterClass, actualProgArgs, actualVmArgs);
+            AntLauncher.launch(starterClass, actualProgArgs, actualVmArgs);
         }
     }
 }
