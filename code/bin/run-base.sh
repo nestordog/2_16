@@ -1,14 +1,11 @@
 #!/bin/sh
 
-cd $ALGOTRADER_HOME
+cd $ALGOTRADER_HOME/code
 
-CP=classes
-for name in lib/*.jar ; do
-  CP=$CP:$name
-done
+mvn -o -q dependency:build-classpath -Dmdep.outputFile=cp.txt
 
 nohup java \
--cp $CP \
+-cp `cat cp.txt` \
 -DstrategyName=BASE \
 -Dcom.algoTrarder.rmi.registryPort=1099 \
 -Dcom.algoTrarder.rmi.serverPort=1098 \
@@ -18,3 +15,4 @@ nohup java \
 -Xmx100m \
 com.algoTrader.starter.TickStarter \
 > log/nohup.log 2>&1 &
+
