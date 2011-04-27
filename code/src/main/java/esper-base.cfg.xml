@@ -38,9 +38,9 @@
 
     <variable name="engineStrategy" type="com.algoTrader.entity.Strategy"/>
 
-<!--     <plugin-loader name="EsperJMX" class-name="com.espertech.esper.jmx.client.EsperJMXPlugin"> -->
-<!--         <init-arg name="use-platform-mbean-server" value="true" /> -->
-<!--     </plugin-loader>         -->
+    <plugin-loader name="EsperJMX" class-name="com.espertech.esper.jmx.client.EsperJMXPlugin">
+        <init-arg name="use-platform-mbean-server" value="true" />
+    </plugin-loader>
 
 <!--    <plugin-loader name="BrokerMgmt" class-name="com.espertech.esperdds.client.JMSProviderMgmtPlugin">-->
 <!--        <init-arg name="type" value="ApacheActiveMQ" />-->
