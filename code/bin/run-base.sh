@@ -1,11 +1,13 @@
 #!/bin/sh
 
-cd $ALGOTRADER_HOME/code
+cd $ALGOTRADER_HOME
 
-mvn -o -q dependency:build-classpath -Dmdep.outputFile=cp.txt
+mvn -o -q -f bin/pom.xml \
+dependency:build-classpath \
+-Dmdep.outputFile=cp.txt
 
 nohup java \
--cp `cat cp.txt` \
+-cp `cat bin/cp.txt` \
 -DstrategyName=BASE \
 -Dcom.algoTrarder.rmi.registryPort=1099 \
 -Dcom.algoTrarder.rmi.serverPort=1098 \
