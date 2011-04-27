@@ -2,12 +2,12 @@
 
 cd $ALGOTRADER_HOME
 
-CP=classes
-for name in lib/*.jar ; do
-  CP=$CP:$name
-done
+mvn -o -q -f bin/pom.xml \
+dependency:build-classpath \
+-Dmdep.outputFile=cp.txt
 
-java -cp $CP \
+nohup java \
+-cp `cat bin/cp.txt` \
 -DstrategyName=BASE \
 -DmarketChannel=SQ \
 -DdataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTrader \

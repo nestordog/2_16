@@ -2,10 +2,14 @@
 
 cd $ALGOTRADER_HOME
 
-CP=classes
-for name in lib/*.jar ; do
-  CP=$CP:$name
-done
+mvn -o -q -f bin/pom.xml \
+dependency:build-classpath \
+-Dmdep.outputFile=cp.txt
 
-java -cp $CP -Dsimulation=true -DdataSource.dataSet=1year com.algoTrader.starter.SimulationStarter simulateWithCurrentParams
+nohup java \
+-cp `cat bin/cp.txt` \
+-Dsimulation=true \
+-DdataSource.dataSet=1year \
+com.algoTrader.starter.SimulationStarter \
+simulateWithCurrentParams
 

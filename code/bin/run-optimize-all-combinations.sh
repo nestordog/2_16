@@ -2,9 +2,10 @@
 
 cd $ALGOTRADER_HOME
 
-CP=classes
-for name in lib/*.jar ; do
-  CP=$CP:$name
-done
+mvn -o -q -f bin/pom.xml \
+dependency:build-classpath \
+-Dmdep.outputFile=cp.txt
 
-java -cp $CP com.algoTrader.starter.AllCombinationOptimizer $*
+nohup java \
+-cp `cat bin/cp.txt` \
+ com.algoTrader.starter.AllCombinationOptimizer $*
