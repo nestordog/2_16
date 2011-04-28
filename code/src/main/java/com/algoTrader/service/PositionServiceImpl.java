@@ -26,6 +26,13 @@ public class PositionServiceImpl extends PositionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(PositionServiceImpl.class.getName());
 
+    protected void handleCloseAllPositions() throws Exception {
+
+        for (Position position : getPositionDao().loadAll()) {
+            closePosition(position.getId());
+        }
+    }
+
     protected void handleClosePosition(int positionId) throws Exception {
 
         Position position = getPositionDao().load(positionId);
