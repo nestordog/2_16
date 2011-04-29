@@ -33,6 +33,14 @@
         </layout>
     </appender>
 
+    <appender name="INDICATOR" class="org.apache.log4j.FileAppender">
+        <param name="file" value="log/indicator.csv" />
+        <param name="append" value="false" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss},%m %n" />
+        </layout>
+    </appender>
+
     <appender name="SOCKET" class="org.apache.log4j.net.SocketAppender">
         <param name="RemoteHost" value="localhost" />
     </appender>
@@ -97,6 +105,11 @@
     <logger name="com.algoTrader.service.SimulationServiceImpl">
         <level value="info" />
 <!--         <appender-ref ref="SOCKET" /> -->
+    </logger>
+
+    <logger name="com.algoTrader.subscriber.IndicatorSubscriber">
+        <level value="info" />
+        <appender-ref ref="INDICATOR" />
     </logger>
 
     <root>
