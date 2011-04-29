@@ -47,7 +47,6 @@ import com.tictactec.ta.lib.meta.annotation.OutputParameterType;
  * </pre>
  *
  * The AggregationFunction can be used in an esper statement like this:
- *
  * <pre>
  * insert into StochF
  * select talib("stochF", high, low, close, 3, 2, "Sma") as values
@@ -56,6 +55,12 @@ import com.tictactec.ta.lib.meta.annotation.OutputParameterType;
  * select values.fastk, values.fastd
  * from StochF(values != null);
  * </pre>
+ * The following parameters from the com.tictactec.ta.lib.Core methods will be needed:
+ * <ul>
+ * <li>in...(i.e. inHigh, inLow, inClose)</li>
+ * <li>optIn..(i.e. optInFastK_Period, optInFastD_Period, optInFastD_MAType)</li>
+ * <li>startIdx, endIdx, outBegIdx & outNBElement can be ignored</li>
+ * </ul>
  * If the TA-Lib Function returns just one value, the value is directly exposed by the AggregationFunction.
  * </p>
  * If the TA-Lib Function returns multiple-values, a dynamic class will be generated on the fly, which gives
@@ -65,10 +70,12 @@ import com.tictactec.ta.lib.meta.annotation.OutputParameterType;
  * will have double typed properties by the name of: fastk and fastd (all lowercase)
  * </p>
  * The AggregationFunction needs the following libraries: </p>
+ * <ul>
  * <li><a href="http://commons.apache.org/lang/">Apache Commons Lang</a></li>
  * <li><a href="http://larvalabs.com/collections/">Commons Generics</a></li>
  * <li><a href="http://ta-lib.org/">TA-Lib</a></li> </p>
  * <li><a href="http://www.javassist.org/">Javaassist</a></li> </p>
+ * </ul>
  *
  * @author Andy Flury
  *
