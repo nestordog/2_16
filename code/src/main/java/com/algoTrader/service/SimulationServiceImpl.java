@@ -55,7 +55,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static DateFormat dateFormat = new SimpleDateFormat(" MMM-yy ");
     private static final NumberFormat format = NumberFormat.getInstance();
-    private static final int roundDigits = 4;
+    private static final int roundDigits = ConfigurationUtil.getBaseConfig().getInt("simulation.roundDigits");
 
     static {
         format.setMinimumFractionDigits(roundDigits);

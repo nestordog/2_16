@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.math.util.MathUtils;
 
 import com.algoTrader.util.AntLauncher;
+import com.algoTrader.util.ConfigurationUtil;
 
 public class AllCombinationOptimizer {
 
@@ -16,7 +17,7 @@ public class AllCombinationOptimizer {
     private static final String commandName = "simulateByMultiParam";
     private static final String[] vmArgs = { "simulation=true" };
     private static final String dataSource = "dataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTrader";
-    private static final int roundDigits = 0;
+    private static final int roundDigits = ConfigurationUtil.getBaseConfig().getInt("simulation.roundDigits");
     private static final NumberFormat format = NumberFormat.getInstance();
 
     static {
