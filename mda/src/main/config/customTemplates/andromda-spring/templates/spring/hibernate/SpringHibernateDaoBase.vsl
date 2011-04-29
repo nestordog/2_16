@@ -773,7 +773,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
 #end
 #if ($useNamedParametersInQueries || $finder.useNamedParameters || $argument.type.collectionType || $argument.type.arrayType)
 #if (!$argument.type.embeddedValue)
-            queryObject.${setParameterOperation}("$argument.name", $argument.name);
+            queryObject.${setParameterOperation}("$argument.name", $springUtils.formatHibernateQueryParameterValue($argument.type, $argument.name));
 #else
 #foreach ($attribute in $argument.type.getAttributes(true))
 #set ($parameterValue = "${argument.name}.${attribute.getterName}()")
