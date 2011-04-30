@@ -366,7 +366,6 @@ public class GenericTALibFunction extends AggregationSupport {
 
     private Class<?> getReturnClass(String className, Map<String, Class<?>> fields) throws CannotCompileException, NotFoundException {
 
-        ClassPool pool = ClassPool.getDefault();
         String fqClassName = this.getClass().getPackage().getName() + "." + className;
 
         try {
@@ -376,6 +375,7 @@ public class GenericTALibFunction extends AggregationSupport {
         } catch (ClassNotFoundException e) {
 
             // otherwise create the class
+            ClassPool pool = ClassPool.getDefault();
             CtClass ctClass = pool.makeClass(fqClassName);
 
             for (Map.Entry<String, Class<?>> entry : fields.entrySet()) {
