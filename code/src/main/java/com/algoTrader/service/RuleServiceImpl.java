@@ -14,6 +14,7 @@ import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
+import com.algoTrader.util.SubscriberCreator;
 import com.algoTrader.util.io.CsvTickInputAdapter;
 import com.algoTrader.util.io.CsvTickInputAdapterSpec;
 import com.algoTrader.util.io.DBInputAdapter;
@@ -456,8 +457,7 @@ public class RuleServiceImpl extends RuleServiceBase {
             if (annotation instanceof Tag) {
                 Tag tag = (Tag) annotation;
                 if (tag.name().equals("subscriber")) {
-                    Class<?> cl = Class.forName(tag.value());
-                    Object obj = cl.newInstance();
+                    Object obj = getSubscriber(tag.value());
                     statement.setSubscriber(obj);
                 } else if (tag.name().equals("listeners")) {
                     String[] listeners = tag.value().split("\\s");
@@ -479,5 +479,19 @@ public class RuleServiceImpl extends RuleServiceBase {
                 }
             }
         }
+    }
+
+    private Object getSubscriber(String fqdn) throws ClassNotFoundException {
+
+        // try to see if the fqdn represents a class
+        try {
+            Class<?> cl = Class.forName(fqdn);
+            return cl.newInstance();
+        } catch (Exception e) {
+            // do nothin
+        }
+
+        // otherwise the fqdn represents a method, in this case treate a subscriber
+        return SubscriberCreator.createSubscriber(fqdn);
     }
 }
