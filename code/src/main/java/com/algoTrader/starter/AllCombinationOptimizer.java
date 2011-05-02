@@ -2,23 +2,23 @@ package com.algoTrader.starter;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.math.util.MathUtils;
 
-import com.algoTrader.util.AntLauncher;
 import com.algoTrader.util.ConfigurationUtil;
+import com.algoTrader.util.ListPartitioner;
 
 public class AllCombinationOptimizer {
 
-    @SuppressWarnings("rawtypes")
-    private static final Class starterClass = SimulationStarter.class;
     private static final String commandName = "simulateByMultiParam";
     private static final String[] vmArgs = { "simulation=true" };
     private static final String dataSource = "dataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTrader";
     private static final int roundDigits = ConfigurationUtil.getBaseConfig().getInt("simulation.roundDigits");
     private static final NumberFormat format = NumberFormat.getInstance();
+    private static final int partitionSize = 10;
 
     static {
         format.setMinimumFractionDigits(roundDigits);
@@ -28,9 +28,8 @@ public class AllCombinationOptimizer {
      * example call: SMI 4 99:99to10 macdFast:5:100:5 macdSlow:5:100:5 macdSignal:5:100:5
      * strategy workers datasource1:datasource2 param1:start:end:increment param2:start:end:increment param3:start:end:increment
 
-     * Note: algotrader-code needs to be deployed with the correct log-level and SimulationService.roundDigits to the local repo
+     * Note: algotrader-code & strategy needs to be deployed with the correct log-level and SimulationService.roundDigits to the local repo
      */
-    @SuppressWarnings("unchecked")
     public static void main(String[] params) {
 
         String strategyName = params[0];
@@ -74,28 +73,25 @@ public class AllCombinationOptimizer {
             }
         }
 
-        List<String>[] progArgs = new List[workers];
-        for (int j = 0; j < workers; j++) {
-            progArgs[j] = new ArrayList<String>();
-            progArgs[j].add(commandName);
-            progArgs[j].add(strategyName);
-        }
+        System.out.println("executing " + jobs.size() + " jobs");
 
-        for (int i = 0; i < jobs.size(); i++) {
-            int worker = i % workers;
-            progArgs[worker].add(jobs.get(i));
-        }
+        ExecutorService service = Executors.newFixedThreadPool(workers, new CustomThreadFactory());
 
-        for (int i = 0; i < workers; i++) {
+        // partition the jobs into chunks of maximum partitionSize
+        List<List<String>> partitions = ListPartitioner.partition(jobs, partitionSize);
 
-            System.out.println("starting worker: " + i + " with progArgs: " + progArgs[i]);
+        // create ExecutionJobs
+        for (List<String> partition : partitions) {
 
-            String[] actualProgArgs = progArgs[i].toArray(new String[0]);
+            List<String> progArgs = new ArrayList<String>();
+            progArgs.add(commandName);
+            progArgs.add(strategyName);
+            progArgs.addAll(partition);
 
-            String[] actualVmArgs = Arrays.copyOf(vmArgs, vmArgs.length + 1);
-            actualVmArgs[vmArgs.length] = (i == 0) ? dataSource : dataSource + i;
+            ExecutionJob executionJob = new ExecutionJob(progArgs.toArray(new String[0]), vmArgs, dataSource);
+            service.execute(executionJob);
 
-            AntLauncher.launch(starterClass, actualProgArgs, actualVmArgs);
+            System.out.println("submitted job: " + progArgs);
         }
     }
 }
