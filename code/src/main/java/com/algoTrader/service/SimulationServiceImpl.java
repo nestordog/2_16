@@ -52,6 +52,8 @@ import com.espertech.esperio.csv.CSVInputAdapterSpec;
 public class SimulationServiceImpl extends SimulationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
+    private static Logger resultLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
+
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static DateFormat dateFormat = new SimpleDateFormat(" MMM-yy ");
     private static final NumberFormat format = NumberFormat.getInstance();
@@ -117,7 +119,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             File file = new File("results/tickdata/" + dataSet + "/" + security.getIsin() + ".csv");
 
             if (file == null || !file.exists()) {
-                logger.warn("no tickdata available for " + security.getSymbol());
+                //logger.info("no tickdata available for " + security.getSymbol());
                 continue;
             }
 
@@ -245,7 +247,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, value);
 
         SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
-        logger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
+        resultLogger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
     }
 
     protected void handleSimulateByMultiParam(String strategyName, String[] parameters, String[] values) throws Exception {
@@ -260,7 +262,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
         buffer.append(convertStatisticsToShortString(resultVO));
-        logger.info(buffer.toString());
+        resultLogger.info(buffer.toString());
     }
 
     protected void handleOptimizeSingleParamLinear(String strategyName, String parameter, double min, double max, double increment) throws Exception {
@@ -272,7 +274,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, format.format(i));
 
             SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
-            logger.info(parameter + " val=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
+            resultLogger.info(parameter + " val=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
 
             double value = resultVO.getPerformanceKeysVO().getSharpRatio();
             if (value > functionValue) {
@@ -280,7 +282,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 result = i;
             }
         }
-        logger.info("optimal value of " + parameter + " is " + format.format(result) + " (functionValue: " + format.format(functionValue) + ")");
+        resultLogger.info("optimal value of " + parameter + " is " + format.format(result) + " (functionValue: " + format.format(functionValue) + ")");
     }
 
     protected OptimizationResultVO handleOptimizeSingleParam(String strategyName, String parameter, double min, double max, double accuracy) throws ConvergenceException, FunctionEvaluationException {
@@ -307,9 +309,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         RealPointValuePair result = optimizer.optimize(function, GoalType.MAXIMIZE, starts);
 
         for (int i = 0; i < result.getPoint().length; i++) {
-            logger.info("optimal value for " + parameters[i] + ": " + format.format(result.getPoint()[i]));
+            resultLogger.info("optimal value for " + parameters[i] + ": " + format.format(result.getPoint()[i]));
         }
-        logger.info("functionValue: " + format.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
+        resultLogger.info("functionValue: " + format.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
     }
 
     @SuppressWarnings("unchecked")
@@ -439,7 +441,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         String[] lines = input.split("\r\n");
         for (String line : lines) {
-            logger.info(line);
+            resultLogger.info(line);
         }
     }
 
@@ -461,7 +463,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
             double result = resultVO.getPerformanceKeysVO().getSharpRatio();
 
-            logger.info("optimize on " + this.param + " value " + format.format(input) + " " + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
+            resultLogger.info("optimize on " + this.param + " value " + format.format(input) + " " + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
 
             return result;
         }
@@ -494,7 +496,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
             double result = resultVO.getPerformanceKeysVO().getSharpRatio();
 
-            logger.info(buffer.toString() + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
+            resultLogger.info(buffer.toString() + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
 
             return result;
         }
