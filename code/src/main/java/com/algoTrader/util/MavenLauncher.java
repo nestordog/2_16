@@ -13,6 +13,7 @@ import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.InvokerLogger;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.apache.maven.shared.invoker.SystemOutLogger;
+import org.codehaus.plexus.util.cli.CommandLineException;
 
 public class MavenLauncher {
 
@@ -26,7 +27,7 @@ public class MavenLauncher {
         this.vmArgs = vmArgs;
     }
 
-    public void lunch() {
+    public void lunch() throws CommandLineException {
 
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File("pom.xml"));
@@ -54,7 +55,11 @@ public class MavenLauncher {
         try {
             InvocationResult result = invoker.execute(request);
             if (result.getExitCode() != 0) {
-                throw new RuntimeException(result.getExecutionException());
+                if (result.getExecutionException() != null) {
+                    throw result.getExecutionException();
+                } else {
+                    throw new RuntimeException("unknown error execting maven exec:java");
+                }
             }
         } catch (MavenInvocationException e) {
             e.printStackTrace();
