@@ -1,5 +1,6 @@
 package com.algoTrader.util;
 
+import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -30,6 +31,7 @@ public class SubscriberCreator {
             // otherwise create the class
             try {
                 ClassPool pool = ClassPool.getDefault();
+                pool.insertClassPath(new ClassClassPath(SubscriberCreator.class));
 
                 // get the serviceClass & method
                 CtClass serviceClass = pool.get(serviceClassName);
@@ -54,8 +56,8 @@ public class SubscriberCreator {
 
                 // instanciate the subscriber
                 subscriber = (Subscriber) subscriberClass.toClass().newInstance();
-            } catch (Exception e1) {
-                throw new RuntimeException(subscriberClassName + " could not be created", e);
+            } catch (Exception e2) {
+                throw new RuntimeException(subscriberClassName + " could not be created", e2);
             }
 
         }
