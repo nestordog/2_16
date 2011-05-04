@@ -51,7 +51,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         order.setRequestedQuantity(Math.abs(quantity));
         order.setTransactionType((position.getQuantity() > 0) ? TransactionType.SELL : TransactionType.BUY);
 
-        getTransactionService().executeTransaction(position.getStrategy().getName(), order);
+        getTransactionService().executeTransaction(order);
 
         // only remove the security from the watchlist, if the position is closed
         if (!position.isOpen()) {
@@ -177,7 +177,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         order.setRequestedQuantity(numberOfContracts);
         order.setTransactionType(TransactionType.EXPIRATION);
 
-        Order executedOrder = getTransactionService().executeTransaction(position.getStrategy().getName(), order);
+        Order executedOrder = getTransactionService().executeTransaction(order);
 
         // only remove the security from the watchlist, if the transaction did execute fully.
         // otherwise the next tick will execute the reminder of the order

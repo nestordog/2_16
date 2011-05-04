@@ -31,21 +31,25 @@ import com.algoTrader.vo.TradePerformanceVO;
 public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
-    private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".TransactionMail");
-    private static Logger simulationLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
+    private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
+    private static Logger simulationLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
 
     private static boolean externalTransactionsEnabled = ConfigurationUtil.getBaseConfig().getBoolean("externalTransactionsEnabled");
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
     private static boolean logTransactions = ConfigurationUtil.getBaseConfig().getBoolean("simulation.logTransactions");
     private static long eventsPerDay = ConfigurationUtil.getBaseConfig().getLong("simulation.eventsPerDay");
 
-    protected Order handleExecuteTransaction(String strategyName, OrderVO orderVO) throws Exception {
-
-        Strategy strategy = getStrategyDao().findByName(strategyName);
+    protected Order handleExecuteTransaction(OrderVO orderVO) throws Exception {
 
         // construct a order-entity from the orderVO
         Order order = orderVOToEntity(orderVO);
 
+        return executeTransaction(order);
+    }
+
+    protected Order handleExecuteTransaction(Order order) throws Exception {
+
+        Strategy strategy = order.getStrategy();
         Security security = order.getSecurity();
         TransactionType transactionType = order.getTransactionType();
         long requestedQuantity = order.getRequestedQuantity();
@@ -83,7 +87,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             strategy.getTransactions().add(transaction);
 
             // Position
-            Position position = getPositionDao().findBySecurityAndStrategy(security.getId(), strategyName);
+            Position position = getPositionDao().findBySecurityAndStrategy(security.getId(), strategy.getName());
             if (position == null) {
 
                 position = new PositionImpl();
@@ -285,18 +289,5 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         order.setTransactionType(orderVO.getTransactionType());
 
         return order;
-    }
-
-    public static class RerunOrderSubscriber {
-
-        public void update(String strategyName, OrderVO orderVO) {
-
-            long startTime = System.currentTimeMillis();
-            logger.debug("retrieveTicks start");
-
-            ServiceLocator.serverInstance().getTransactionService().executeTransaction(strategyName, orderVO);
-
-            logger.debug("retrieveTicks end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
-        }
     }
 }

@@ -3,6 +3,7 @@ package com.algoTrader.service;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.util.SubscriberCreator;
+import com.algoTrader.util.io.BatchDBTickInputAdapter;
 import com.algoTrader.util.io.CsvTickInputAdapter;
 import com.algoTrader.util.io.CsvTickInputAdapterSpec;
 import com.algoTrader.util.io.DBInputAdapter;
@@ -99,7 +101,7 @@ public class RuleServiceImpl extends RuleServiceBase {
 
     protected void handleDeployRule(String strategyName, String moduleName, String ruleName) throws Exception {
 
-        deployRule(strategyName, moduleName, ruleName, null);
+        deployRule(strategyName, moduleName, ruleName, new Integer(0));
     }
 
     protected void handleDeployRule(String strategyName, String moduleName, String ruleName, Integer targetId) throws Exception {
@@ -384,6 +386,12 @@ public class RuleServiceImpl extends RuleServiceBase {
     protected void handleCoordinate(String strategyName, Collection baseObjects, String timeStampColumn) throws Exception {
 
         InputAdapter inputAdapter = new DBInputAdapter(getServiceProvider(strategyName), baseObjects, timeStampColumn);
+        this.coordinators.get(strategyName).coordinate(inputAdapter);
+    }
+
+    protected void handleCoordinateTicks(String strategyName, Date startDate) throws Exception {
+
+        InputAdapter inputAdapter = new BatchDBTickInputAdapter(getServiceProvider(strategyName), startDate);
         this.coordinators.get(strategyName).coordinate(inputAdapter);
     }
 

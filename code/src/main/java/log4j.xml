@@ -107,7 +107,7 @@
 <!--         <appender-ref ref="SOCKET" /> -->
     </logger>
 
-    <logger name="com.algoTrader.subscriber.IndicatorSubscriber">
+    <logger name="com.algoTrader.subscriber.IndicatorSubscriber" additivity="false">
         <level value="info" />
         <appender-ref ref="INDICATOR" />
     </logger>

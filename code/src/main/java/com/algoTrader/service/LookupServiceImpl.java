@@ -195,6 +195,11 @@ public class LookupServiceImpl extends LookupServiceBase {
         }
     }
 
+    protected List<Tick> handleGetTicksByTimePeriodOnWatchlist(Date startDate, Date endDate) throws Exception {
+
+        return getTickDao().findByTimePeriodOnWatchlist(startDate, endDate);
+    }
+
     protected List<Strategy> handleGetAutoActivateStrategies() throws Exception {
 
         return getStrategyDao().findAutoActivateStrategies();

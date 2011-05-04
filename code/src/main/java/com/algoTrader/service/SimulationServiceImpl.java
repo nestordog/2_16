@@ -5,8 +5,10 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,6 +60,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private static DateFormat dateFormat = new SimpleDateFormat(" MMM-yy ");
     private static final NumberFormat format = NumberFormat.getInstance();
     private static final int roundDigits = ConfigurationUtil.getBaseConfig().getInt("simulation.roundDigits");
+    private static final Date startDate = new Date(ConfigurationUtil.getBaseConfig().getLong("simulation.start"));
 
     static {
         format.setMinimumFractionDigits(roundDigits);
@@ -172,21 +175,20 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         long startTime = System.currentTimeMillis();
 
         // get the existingTransactions before they are deleted
-        Collection<Transaction> existingTransactions = Arrays.asList(ServiceLocator.serverInstance().getLookupService().getAllTrades());
+        Collection<Transaction> transactions = Arrays.asList(ServiceLocator.serverInstance().getLookupService().getAllTrades());
 
         // create orders
-        for (Transaction transaction : existingTransactions) {
+        List<Order> orders = new ArrayList<Order>();
+        for (Transaction transaction : transactions) {
             Order order = new OrderImpl();
             order.setStrategy(transaction.getStrategy());
             order.setRequestedQuantity(Math.abs(transaction.getQuantity()));
             order.setTransactionType(transaction.getType());
             order.setStatus(OrderStatus.PREARRANGED);
             order.getTransactions().add(transaction);
+            order.setSecurity(transaction.getSecurity());
 
-            Security security = transaction.getSecurity();
-
-            order.setSecurity(security);
-            transaction.setSecurity(security);
+            orders.add(order);
         }
 
         resetDB();
@@ -203,32 +205,14 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         getRuleService().deployRule(StrategyImpl.BASE, "base", "CREATE_MAX_DRAW_DOWN");
         getRuleService().deployRule(StrategyImpl.BASE, "base", "PROCESS_PREARRANGED_ORDERS");
 
-        // runt the cvs files through
-        {
+        // initialize the coordination
+        getRuleService().initCoordination(StrategyImpl.BASE);
 
-            getRuleService().initCoordination(StrategyImpl.BASE);
+        getRuleService().coordinateTicks(StrategyImpl.BASE, startDate);
 
-            String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
-            File[] files = (new File("results/tickdata/" + dataSet)).listFiles();
-            for (File file : files) {
+        getRuleService().coordinate(StrategyImpl.BASE, orders, "transactions[0].dateTime");
 
-                String isin = file.getName().split("\\.")[0];
-
-                Security security = getSecurityDao().findByIsin(isin);
-
-                CSVInputAdapterSpec spec = new CsvTickInputAdapterSpec(file);
-
-                getRuleService().coordinate(StrategyImpl.BASE, spec);
-
-                logger.debug("started simulation for security " + security.getSymbol());
-            }
-
-            getRuleService().coordinate(StrategyImpl.BASE, existingTransactions, "transaction.dateTime");
-
-            logger.debug("started simulation for transactions");
-
-            getRuleService().startCoordination(StrategyImpl.BASE);
-        }
+        getRuleService().startCoordination(StrategyImpl.BASE);
 
         SimulationResultVO resultVO = getSimulationResultVO(startTime);
         logMultiLineString(convertStatisticsToLongString(resultVO));
@@ -285,6 +269,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         resultLogger.info("optimal value of " + parameter + " is " + format.format(result) + " (functionValue: " + format.format(functionValue) + ")");
     }
 
+    @SuppressWarnings("deprecation")
     protected OptimizationResultVO handleOptimizeSingleParam(String strategyName, String parameter, double min, double max, double accuracy) throws ConvergenceException, FunctionEvaluationException {
 
         UnivariateRealFunction function = new UnivariateFunction(strategyName, parameter);

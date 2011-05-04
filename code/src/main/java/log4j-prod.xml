@@ -140,7 +140,7 @@
         <level value="error" />
     </logger>
 
-    <logger name="com.algoTrader.service.TransactionServiceImpl.TransactionMail">
+    <logger name="com.algoTrader.service.TransactionServiceImpl.MAIL" additivity="false">
         <appender-ref ref="TRANSACTION_EMAIL" />
         <appender-ref ref="TRANSACTION_SMS" />
     </logger>
