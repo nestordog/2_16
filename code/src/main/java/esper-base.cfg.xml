@@ -6,7 +6,6 @@
     <event-type name="RawTick" class="com.algoTrader.vo.RawTickVO"/>
     <event-type name="Tick" class="com.algoTrader.entity.TickImpl"/>
     <event-type name="Transaction" class="com.algoTrader.entity.TransactionImpl"/>
-    <event-type name="PrearrangedOrder" class="com.algoTrader.vo.OrderVO"/>
     <event-type name="OHLCTick" class="com.espertech.esper.ohlc.OHLCTick"/>
 
     <event-type name="MonthlyPerformance" class="com.algoTrader.vo.MonthlyPerformanceVO"/>
