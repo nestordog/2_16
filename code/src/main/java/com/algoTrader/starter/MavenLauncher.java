@@ -1,4 +1,4 @@
-package com.algoTrader.util;
+package com.algoTrader.starter;
 
 import java.io.File;
 import java.util.Collections;
