@@ -5,7 +5,6 @@ import java.util.Arrays;
 import org.codehaus.plexus.util.cli.CommandLineException;
 
 import com.algoTrader.starter.CustomThreadFactory.CustomThread;
-import com.algoTrader.util.MavenLauncher;
 
 public class ExecutionJob implements Runnable {
 
