@@ -48,27 +48,41 @@ public class AllCombinationOptimizer {
 
             String job1 = parameter1 + ":" + format.format(MathUtils.round(value1, roundDigits));
 
-            String[] args2 = params[4].split("\\:");
-            String parameter2 = args2[0];
-            double min2 = Double.parseDouble(args2[1]);
-            double max2 = Double.parseDouble(args2[2]);
-            double increment2 = Double.parseDouble(args2[3]);
-            for (double value2 = min2; value2 <= max2; value2 += increment2) {
+            if (params.length > 4) {
+                String[] args2 = params[4].split("\\:");
+                String parameter2 = args2[0];
+                double min2 = Double.parseDouble(args2[1]);
+                double max2 = Double.parseDouble(args2[2]);
+                double increment2 = Double.parseDouble(args2[3]);
+                for (double value2 = min2; value2 <= max2; value2 += increment2) {
 
-                String job2 = "," + parameter2 + ":" + format.format(MathUtils.round(value2, roundDigits));
+                    String job2 = "," + parameter2 + ":" + format.format(MathUtils.round(value2, roundDigits));
 
-                String[] args3 = params[5].split("\\:");
-                String parameter3 = args3[0];
-                double min3 = Double.parseDouble(args3[1]);
-                double max3 = Double.parseDouble(args3[2]);
-                double increment3 = Double.parseDouble(args3[3]);
-                for (double value3 = min3; value3 <= max3; value3 += increment3) {
+                    if (params.length > 5) {
+                        String[] args3 = params[5].split("\\:");
+                        String parameter3 = args3[0];
+                        double min3 = Double.parseDouble(args3[1]);
+                        double max3 = Double.parseDouble(args3[2]);
+                        double increment3 = Double.parseDouble(args3[3]);
+                        for (double value3 = min3; value3 <= max3; value3 += increment3) {
 
-                    String job3 = "," + parameter3 + ":" + format.format(MathUtils.round(value3, roundDigits));
-                    for (String dataSource : dataSources) {
-                        String job = "dataSource.dataSet:" + dataSource + "," + job1 + job2 + job3;
-                        jobs.add(job);
+                            String job3 = "," + parameter3 + ":" + format.format(MathUtils.round(value3, roundDigits));
+                            for (String dataSource : dataSources) {
+                                String job = "dataSource.dataSet:" + dataSource + "," + job1 + job2 + job3;
+                                jobs.add(job);
+                            }
+                        }
+                    } else {
+                        for (String dataSource : dataSources) {
+                            String job = "dataSource.dataSet:" + dataSource + "," + job1 + job2;
+                            jobs.add(job);
+                        }
                     }
+                }
+            } else {
+                for (String dataSource : dataSources) {
+                    String job = "dataSource.dataSet:" + dataSource + "," + job1;
+                    jobs.add(job);
                 }
             }
         }
