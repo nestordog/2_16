@@ -64,7 +64,7 @@ import com.tictactec.ta.lib.meta.annotation.OutputParameterType;
  * If the TA-Lib Function returns just one value, the value is directly exposed by the AggregationFunction.
  * </p>
  * If the TA-Lib Function returns multiple-values, a dynamic class will be generated on the fly, which gives
- * access to properly typed return-values.
+ * access to properly typed return-values. all return value names are lower-case!
  * </p>
  * Example: the TA-Lib function stochF has return values: outFastK and outFastD. The returned dynamic class
  * will have double typed properties by the name of: fastk and fastd (all lowercase)
@@ -252,7 +252,12 @@ public class GenericTALibFunction extends AggregationSupport {
         // if we only have one outPutParam return that value
         // otherwise return the dynamically generated class
         if (this.outputParams.size() == 1) {
-            return this.outputParams.values().iterator().next().getClass();
+            Class<?> clazz = this.outputParams.values().iterator().next().getClass();
+            if (clazz.isArray()) {
+                return clazz.getComponentType();
+            } else {
+                return clazz;
+            }
         } else {
             return this.outputClass;
         }
@@ -397,6 +402,10 @@ public class GenericTALibFunction extends AggregationSupport {
     }
 
     private Object getConstant(AggregationValidationContext validationContext, int index, Class<?> clazz) {
+
+        if (index >= validationContext.getIsConstantValue().length) {
+            throw new IllegalArgumentException("only " + validationContext.getIsConstantValue().length + " params have been specified, should be " + (index + 1));
+        }
 
         if (validationContext.getIsConstantValue()[index]) {
             if (validationContext.getParameterTypes()[index].equals(clazz)) {
