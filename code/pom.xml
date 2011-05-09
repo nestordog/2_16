@@ -261,6 +261,7 @@
                     <!-- set this to false if you don't want to execute the generated SQL
                         scripts (creates and saves DDL under app/target/schema*.sql -->
                     <executeScripts>false</executeScripts>
+                    <tasks>create</tasks>
                     <properties>
                         <property>
                             <name>mappingsLocation</name>
