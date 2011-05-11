@@ -14,7 +14,10 @@ nohup java \
 -Djava.rmi.server.hostname=127.0.0.1 \
 -javaagent:lib/agent.jar \
 -agentlib:jdwp=transport=dt_socket,suspend=n,server=y,address=localhost:8000 \
--Xmx100m \
+-Xmx150m \
+-XX:MaxHeapFreeRatio=10 \
+-XX:MinHeapFreeRatio=5 \
+-XX:-UseParallelGC \
 com.algoTrader.starter.TickStarter \
 > log/nohup.log 2>&1 &
 
