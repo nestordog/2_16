@@ -17,8 +17,8 @@ import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import com.algoTrader.entity.Security;
-import com.algoTrader.entity.StockOption;
+import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.util.TidyUtil;
 import com.algoTrader.util.XmlUtil;
 

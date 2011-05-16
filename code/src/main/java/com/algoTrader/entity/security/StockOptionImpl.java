@@ -1,8 +1,10 @@
-package com.algoTrader.entity;
+package com.algoTrader.entity.security;
 
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.MyLogger;
 

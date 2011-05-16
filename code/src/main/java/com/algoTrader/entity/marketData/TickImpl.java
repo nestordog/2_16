@@ -1,7 +1,9 @@
-package com.algoTrader.entity;
+package com.algoTrader.entity.marketData;
 
 import java.math.BigDecimal;
 
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
 

@@ -26,12 +26,12 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
         }
     }
 
-    protected TickService handleGetTickService(MarketChannel marketChannel) {
+    protected MarketDataService handleGetMarketDataService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
-            return getSqTickService();
+            return getSqMarketDataService();
         } else if (MarketChannel.IB.getValue().equals(marketChannel)) {
-            return getIbTickService();
+            return getIbMarketDataService();
         } else {
             throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
         }

@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
-import com.algoTrader.entity.TickDaoImpl;
+import com.algoTrader.entity.marketData.TickDaoImpl;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
 import com.algoTrader.vo.PositionVO;

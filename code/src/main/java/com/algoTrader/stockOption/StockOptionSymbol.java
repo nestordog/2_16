@@ -9,7 +9,7 @@ import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.algoTrader.entity.StockOptionFamily;
+import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.BaseConverterUtil;
 

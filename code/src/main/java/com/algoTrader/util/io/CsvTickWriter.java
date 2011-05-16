@@ -14,7 +14,7 @@ import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
-import com.algoTrader.entity.Tick;
+import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.util.ConfigurationUtil;
 
 public class CsvTickWriter {

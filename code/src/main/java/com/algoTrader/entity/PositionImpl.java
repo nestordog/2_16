@@ -6,6 +6,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.security.Future;
+import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.DateUtil;
 

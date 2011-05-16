@@ -1,7 +1,10 @@
-package com.algoTrader.entity;
+package com.algoTrader.entity.marketData;
 
 import org.hibernate.Hibernate;
 
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.marketData.TickDaoBase;
+import com.algoTrader.entity.security.Security;
 import com.algoTrader.vo.RawTickVO;
 import com.algoTrader.vo.TickVO;
 

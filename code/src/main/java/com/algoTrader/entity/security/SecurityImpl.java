@@ -1,4 +1,4 @@
-package com.algoTrader.entity;
+package com.algoTrader.entity.security;
 
 import java.util.List;
 import java.util.Map;
@@ -7,6 +7,10 @@ import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.TickValidationException;
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;

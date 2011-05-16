@@ -1,5 +1,6 @@
 package com.algoTrader.entity;
 
+import com.algoTrader.entity.security.Security;
 import com.algoTrader.vo.TransactionVO;
 
 public class TransactionDaoImpl extends TransactionDaoBase {

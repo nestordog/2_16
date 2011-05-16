@@ -8,8 +8,8 @@ import java.util.Date;
 
 import org.supercsv.exception.SuperCSVException;
 
-import com.algoTrader.entity.Tick;
-import com.algoTrader.entity.TickImpl;
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.marketData.TickImpl;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
 

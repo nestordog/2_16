@@ -6,8 +6,8 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolver;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
-import com.algoTrader.entity.StockOption;
-import com.algoTrader.entity.StockOptionFamily;
+import com.algoTrader.entity.security.StockOption;
+import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.sabr.SABRVol;
 import com.algoTrader.util.ConfigurationUtil;

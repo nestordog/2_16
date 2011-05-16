@@ -4,10 +4,10 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import com.algoTrader.entity.Future;
-import com.algoTrader.entity.FutureFamily;
-import com.algoTrader.entity.FutureImpl;
-import com.algoTrader.entity.Security;
+import com.algoTrader.entity.security.Future;
+import com.algoTrader.entity.security.FutureFamily;
+import com.algoTrader.entity.security.FutureImpl;
+import com.algoTrader.entity.security.Security;
 import com.algoTrader.future.FutureSymbol;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;

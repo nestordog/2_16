@@ -1,5 +1,6 @@
-package com.algoTrader.entity;
+package com.algoTrader.entity.security;
 
+import com.algoTrader.entity.security.Forex;
 import com.algoTrader.enumeration.Currency;
 
 public class ForexImpl extends Forex {

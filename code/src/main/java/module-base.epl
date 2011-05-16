@@ -1,7 +1,7 @@
 module base;
 
 @Name('RETRIEVE_MINUTE_TICKS')
-@Tag(name='subscriber', value='com.algoTrader.service.TickServiceImpl$RetrieveTickSubscriber')
+@Tag(name='subscriber', value='com.algoTrader.service.MarketDataServiceImpl$RetrieveTickSubscriber')
 @Tag(name='runTimeOnly', value='true')
 select
     security.id
@@ -12,7 +12,7 @@ where
     simulation = false;
 
 @Name('RETRIEVE_HOUR_TICKS')
-@Tag(name='subscriber', value='com.algoTrader.service.TickServiceImpl$RetrieveTickSubscriber')
+@Tag(name='subscriber', value='com.algoTrader.service.MarketDataServiceImpl$RetrieveTickSubscriber')
 @Tag(name='runTimeOnly', value='true')
 select
     security.id

@@ -1,7 +1,7 @@
 package com.algoTrader.future;
 
-import com.algoTrader.entity.Future;
-import com.algoTrader.entity.FutureFamily;
+import com.algoTrader.entity.security.Future;
+import com.algoTrader.entity.security.FutureFamily;
 import com.algoTrader.util.DateUtil;
 
 public class FutureUtil {

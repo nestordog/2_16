@@ -18,9 +18,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
-import com.algoTrader.entity.Security;
-import com.algoTrader.entity.Tick;
-import com.algoTrader.entity.TickImpl;
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.marketData.TickImpl;
+import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.service.HistoricalDataServiceException;
 import com.algoTrader.util.ConfigurationUtil;

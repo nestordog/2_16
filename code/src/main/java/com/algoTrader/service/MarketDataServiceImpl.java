@@ -22,18 +22,20 @@ import org.apache.log4j.Logger;
 import org.supercsv.exception.SuperCSVException;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Future;
-import com.algoTrader.entity.Security;
-import com.algoTrader.entity.StockOption;
-import com.algoTrader.entity.StockOptionFamily;
-import com.algoTrader.entity.StockOptionImpl;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
-import com.algoTrader.entity.Tick;
-import com.algoTrader.entity.TickImpl;
 import com.algoTrader.entity.TickValidationException;
 import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.entity.WatchListItemImpl;
+import com.algoTrader.entity.marketData.Bar;
+import com.algoTrader.entity.marketData.MarketDataEvent;
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.marketData.TickImpl;
+import com.algoTrader.entity.security.Future;
+import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.StockOption;
+import com.algoTrader.entity.security.StockOptionFamily;
+import com.algoTrader.entity.security.StockOptionImpl;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.future.FutureUtil;
 import com.algoTrader.stockOption.StockOptionSymbol;
@@ -45,12 +47,13 @@ import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.io.CsvIVolReader;
 import com.algoTrader.util.io.CsvTickReader;
 import com.algoTrader.util.io.CsvTickWriter;
+import com.algoTrader.vo.BarVO;
 import com.algoTrader.vo.IVolVO;
 import com.algoTrader.vo.RawTickVO;
 
-public abstract class TickServiceImpl extends TickServiceBase {
+public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
-    private static Logger logger = MyLogger.getLogger(TickServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
     private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
 
@@ -76,7 +79,7 @@ public abstract class TickServiceImpl extends TickServiceBase {
                     tick.validate();
 
                     // propagateTick and createSimulatedTick only for valid ticks
-                    propagateTick(tick);
+                    propagateMarketDataEvent(tick);
                     createSimulatedTicks(tick);
                 } catch (RuntimeException e) {
                     if (!(e instanceof TickValidationException)) {
@@ -101,6 +104,11 @@ public abstract class TickServiceImpl extends TickServiceBase {
     protected Tick handleCompleteRawTick(RawTickVO rawTick) {
 
         return getTickDao().rawTickVOToEntity(rawTick);
+    }
+
+    protected Bar handleCompleteBar(BarVO barVO) {
+
+        return getBarDao().barVOToEntity(barVO);
     }
 
     protected void handleCreateSimulatedTicks(Tick tick) throws Exception {
@@ -152,24 +160,24 @@ public abstract class TickServiceImpl extends TickServiceBase {
                     simulatedTick.setSettlement(new BigDecimal(0));
                     simulatedTick.setSecurity(security);
 
-                    propagateTick(simulatedTick);
+                    propagateMarketDataEvent(simulatedTick);
                 }
             }
         }
     }
 
-    protected void handlePropagateTick(Tick tick) {
+    protected void handlePropagateMarketDataEvent(MarketDataEvent marketDataEvent) {
 
-        // tick.toString is expensive, so only log if debug is anabled
+        // marketDataEvent.toString is expensive, so only log if debug is anabled
         if (!logger.getParent().getLevel().isGreaterOrEqual(Level.INFO)) {
-            logger.debug(tick.getSecurity().getSymbol() + " " + tick);
+            logger.debug(marketDataEvent.getSecurity().getSymbol() + " " + marketDataEvent);
         }
 
-        getRuleService().sendEvent(StrategyImpl.BASE, tick);
+        getRuleService().sendEvent(StrategyImpl.BASE, marketDataEvent);
 
-        Collection<WatchListItem> watchListItems = tick.getSecurity().getWatchListItems();
+        Collection<WatchListItem> watchListItems = marketDataEvent.getSecurity().getWatchListItems();
         for (WatchListItem watchListItem : watchListItems) {
-            getRuleService().sendEvent(watchListItem.getStrategy().getName(), tick);
+            getRuleService().sendEvent(watchListItem.getStrategy().getName(), marketDataEvent);
         }
     }
 
@@ -251,7 +259,7 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
             Security security = getSecurityDao().findByIsin(isin);
             if (security == null) {
-                throw new TickServiceException("security was not found: " + isin);
+                throw new MarketDataServiceException("security was not found: " + isin);
             }
 
             CsvTickReader reader = new CsvTickReader(isin);
@@ -378,7 +386,7 @@ public abstract class TickServiceImpl extends TickServiceBase {
 
         public void update(int securityId) {
 
-            ServiceLocator.serverInstance().getTickService().processTick(securityId);
+            ServiceLocator.serverInstance().getMarketDataService().processTick(securityId);
         }
     }
 }

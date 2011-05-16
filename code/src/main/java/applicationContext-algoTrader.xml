@@ -25,14 +25,14 @@
     <!-- Interactive Broker Aliases -->
     <alias name="ibStockOptionRetrieverService" alias="stockOptionRetrieverService"/>
     <alias name="ibTransactionService" alias="transactionService"/>
-    <alias name="ibTickService" alias="tickService"/>
+    <alias name="ibMarketDataService" alias="marketDataService"/>
     <alias name="ibAccountService" alias="accountService"/>
     <alias name="ibHistoricalDataService" alias="historicalDataService"/>
 
     <!-- Swissquote Aliases -->
 <!--     <alias name="sqStockOptionRetrieverService" alias="stockOptionRetrieverService"/> -->
 <!--     <alias name="sqTransactionService" alias="transactionService"/> -->
-<!--     <alias name="sqTickService" alias="tickService"/> -->
+<!--     <alias name="sqMarketDataService" alias="marketDataService"/> -->
 <!--     <alias name="sqAccountService" alias="accountService"/> -->
 <!--     <alias name="sqHistoricalDataService" alias="historicalDataService"/>     -->
 

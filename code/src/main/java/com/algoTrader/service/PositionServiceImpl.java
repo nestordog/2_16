@@ -8,11 +8,11 @@ import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Expirable;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Security;
 import com.algoTrader.entity.Strategy;
+import com.algoTrader.entity.security.Expirable;
+import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.DateUtil;
@@ -55,7 +55,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         // only remove the security from the watchlist, if the position is closed
         if (!position.isOpen()) {
-            getTickService().removeFromWatchlist(position.getStrategy(), security);
+            getMarketDataService().removeFromWatchlist(position.getStrategy(), security);
         }
     }
 
@@ -183,7 +183,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         // otherwise the next tick will execute the reminder of the order
         if (OrderStatus.EXECUTED.equals(executedOrder.getStatus()) || OrderStatus.AUTOMATIC.equals(executedOrder.getStatus())) {
 
-            getTickService().removeFromWatchlist(position.getStrategy(), security);
+            getMarketDataService().removeFromWatchlist(position.getStrategy(), security);
         }
     }
 

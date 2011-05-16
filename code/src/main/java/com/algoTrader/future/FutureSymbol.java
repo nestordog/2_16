@@ -6,7 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import com.algoTrader.entity.FutureFamily;
+import com.algoTrader.entity.security.FutureFamily;
 
 public class FutureSymbol {
 

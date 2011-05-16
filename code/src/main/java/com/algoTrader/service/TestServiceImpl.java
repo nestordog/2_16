@@ -9,12 +9,12 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Security;
-import com.algoTrader.entity.SecurityImpl;
-import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.StrategyImpl;
-import com.algoTrader.entity.Tick;
-import com.algoTrader.entity.TickImpl;
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.marketData.TickImpl;
+import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.SecurityImpl;
+import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.MyLogger;

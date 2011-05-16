@@ -28,20 +28,22 @@ import org.apache.commons.math.optimization.univariate.BrentOptimizer;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.FutureDao;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.OrderImpl;
 import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Security;
-import com.algoTrader.entity.StockOptionDao;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.WatchListItem;
+import com.algoTrader.entity.security.FutureDao;
+import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.StockOptionDao;
+import com.algoTrader.enumeration.MarketDataType;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
+import com.algoTrader.util.io.CsvBarInputAdapterSpec;
 import com.algoTrader.util.io.CsvTickInputAdapterSpec;
 import com.algoTrader.vo.MaxDrawDownVO;
 import com.algoTrader.vo.MonthlyPerformanceVO;
@@ -114,19 +116,30 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         for (Security security : securities) {
 
             if (security.getIsin() == null) {
-                logger.warn("no tickdata available for " + security.getSymbol());
+                logger.warn("no data available for " + security.getSymbol());
                 continue;
             }
 
-            String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
-            File file = new File("results/tickdata/" + dataSet + "/" + security.getIsin() + ".csv");
+            String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet").split(":")[1];
+            MarketDataType marketDataType = MarketDataType.fromString(ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet").split(":")[0].toUpperCase());
+
+            File file = new File("results/" + marketDataType.toString().toLowerCase() + "data/" + dataSet + "/" + security.getIsin() + ".csv");
 
             if (file == null || !file.exists()) {
-                //logger.info("no tickdata available for " + security.getSymbol());
+                logger.warn("no data available for " + security.getSymbol());
                 continue;
+            } else {
+                logger.info("data available for " + security.getSymbol());
             }
 
-            CSVInputAdapterSpec spec = new CsvTickInputAdapterSpec(file);
+            CSVInputAdapterSpec spec;
+            if (MarketDataType.TICK.equals(marketDataType)) {
+                spec = new CsvTickInputAdapterSpec(file);
+            } else if (MarketDataType.BAR.equals(marketDataType)) {
+                spec = new CsvBarInputAdapterSpec(file);
+            } else {
+                throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
+            }
 
             getRuleService().coordinate(StrategyImpl.BASE, spec);
 

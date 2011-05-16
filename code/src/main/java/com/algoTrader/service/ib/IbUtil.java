@@ -4,10 +4,10 @@ import java.text.SimpleDateFormat;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import com.algoTrader.entity.Forex;
-import com.algoTrader.entity.Future;
-import com.algoTrader.entity.Security;
-import com.algoTrader.entity.StockOption;
+import com.algoTrader.entity.security.Forex;
+import com.algoTrader.entity.security.Future;
+import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.Market;
 import com.ib.client.Contract;
 

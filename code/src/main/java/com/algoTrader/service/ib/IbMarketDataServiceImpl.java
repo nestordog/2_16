@@ -10,12 +10,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
-import com.algoTrader.entity.Forex;
-import com.algoTrader.entity.Future;
-import com.algoTrader.entity.Security;
-import com.algoTrader.entity.StockOption;
-import com.algoTrader.entity.Tick;
-import com.algoTrader.entity.TickImpl;
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.marketData.TickImpl;
+import com.algoTrader.entity.security.Forex;
+import com.algoTrader.entity.security.Future;
+import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.ConfigurationUtil;
@@ -26,13 +26,13 @@ import com.algoTrader.vo.RawTickVO;
 import com.ib.client.Contract;
 import com.ib.client.TickType;
 
-public class IbTickServiceImpl extends IbTickServiceBase implements DisposableBean {
+public class IbMarketDataServiceImpl extends IbMarketDataServiceBase implements DisposableBean {
 
-    private static Logger logger = MyLogger.getLogger(IbTickServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(IbMarketDataServiceImpl.class.getName());
 
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
     private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
-    private static boolean tickServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.tickServiceEnabled");
+    private static boolean marketDataServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.marketDataServiceEnabled");
 
     private static String genericTickList = ConfigurationUtil.getBaseConfig().getString("ib.genericTickList");
 
@@ -47,14 +47,14 @@ public class IbTickServiceImpl extends IbTickServiceBase implements DisposableBe
 
     protected void handleInit() throws InterruptedException {
 
-        if (!ibEnabled || simulation || !tickServiceEnabled)
+        if (!ibEnabled || simulation || !marketDataServiceEnabled)
             return;
 
         this.wrapper = new DefaultWrapper(clientId) {
 
             public void tickPrice(int requestId, int field, double price, int canAutoExecute) {
 
-                Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
+                Tick tick = IbMarketDataServiceImpl.this.requestIdToTickMap.get(requestId);
 
                 if (tick == null)
                     return;
@@ -78,7 +78,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements DisposableBe
 
             public void tickSize(int requestId, int field, int size) {
 
-                Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
+                Tick tick = IbMarketDataServiceImpl.this.requestIdToTickMap.get(requestId);
 
                 if (tick == null)
                     return;
@@ -104,7 +104,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements DisposableBe
 
             public void tickString(int requestId, int field, String value) {
 
-                Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(requestId);
+                Tick tick = IbMarketDataServiceImpl.this.requestIdToTickMap.get(requestId);
 
                 if (tick == null)
                     return;
@@ -127,7 +127,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements DisposableBe
 
                 if (code == 200) {
 
-                    Tick tick = IbTickServiceImpl.this.requestIdToTickMap.get(id);
+                    Tick tick = IbMarketDataServiceImpl.this.requestIdToTickMap.get(id);
                     logger.debug("No security definition has been found for: " + tick.getSecurity().getSymbol());
 
                 } else {
@@ -146,9 +146,9 @@ public class IbTickServiceImpl extends IbTickServiceBase implements DisposableBe
 
                 Security security = tick.getSecurity();
                 if (isValid(tick)) {
-                    IbTickServiceImpl.this.validSecurities.add(security);
+                    IbMarketDataServiceImpl.this.validSecurities.add(security);
                 } else {
-                    IbTickServiceImpl.this.validSecurities.remove(tick.getSecurity());
+                    IbMarketDataServiceImpl.this.validSecurities.remove(tick.getSecurity());
 
                 }
             }
@@ -223,7 +223,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements DisposableBe
 
     protected void handleConnect() {
 
-        if (!ibEnabled || simulation || !tickServiceEnabled)
+        if (!ibEnabled || simulation || !marketDataServiceEnabled)
             return;
 
         this.requestIdToTickMap = new ConcurrentHashMap<Integer, Tick>();
@@ -307,7 +307,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements DisposableBe
         if (!simulation) {
 
             if (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED)) {
-                throw new IbTickServiceException("TWS ist not subscribed, security cannot be put on watchlist " + security.getSymbol());
+                throw new IbMarketDataServiceException("TWS ist not subscribed, security cannot be put on watchlist " + security.getSymbol());
             }
 
             int requestId = RequestIdManager.getInstance().getNextRequestId();
@@ -329,7 +329,7 @@ public class IbTickServiceImpl extends IbTickServiceBase implements DisposableBe
         if (!simulation) {
 
             if (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED)) {
-                throw new IbTickServiceException("TWS ist not subscribed, security cannot be removed from watchlist " + security.getSymbol());
+                throw new IbMarketDataServiceException("TWS ist not subscribed, security cannot be removed from watchlist " + security.getSymbol());
             }
 
             Integer requestId = this.securityToRequestIdMap.get(security);

@@ -3,7 +3,7 @@ package com.algoTrader.service.ib;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.algoTrader.entity.StockOption;
+import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.OptionType;
 

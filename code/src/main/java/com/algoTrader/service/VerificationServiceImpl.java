@@ -16,11 +16,11 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.supercsv.exception.SuperCSVException;
 
-import com.algoTrader.entity.Security;
-import com.algoTrader.entity.StockOption;
 import com.algoTrader.entity.StrategyImpl;
-import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.Transaction;
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.RoundUtil;

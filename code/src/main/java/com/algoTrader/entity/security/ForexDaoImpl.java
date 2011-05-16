@@ -1,5 +1,8 @@
-package com.algoTrader.entity;
+package com.algoTrader.entity.security;
 
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.security.Forex;
+import com.algoTrader.entity.security.ForexDaoBase;
 import com.algoTrader.enumeration.Currency;
 
 public class ForexDaoImpl extends ForexDaoBase {

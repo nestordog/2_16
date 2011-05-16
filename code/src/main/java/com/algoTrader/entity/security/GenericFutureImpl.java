@@ -1,7 +1,8 @@
-package com.algoTrader.entity;
+package com.algoTrader.entity.security;
 
 import java.util.Date;
 
+import com.algoTrader.entity.security.GenericFuture;
 import com.algoTrader.util.DateUtil;
 
 public class GenericFutureImpl extends GenericFuture {

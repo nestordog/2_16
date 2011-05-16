@@ -19,14 +19,14 @@ import org.springframework.beans.factory.DisposableBean;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.PartialOrder;
 import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Security;
-import com.algoTrader.entity.Tick;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.service.TickServiceException;
+import com.algoTrader.service.MarketDataServiceException;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -380,15 +380,15 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         Tick tick;
         while (true) {
 
-            RawTickVO rawTick = getIbTickService().retrieveTick(order.getSecurity());
-            tick = getIbTickService().completeRawTick(rawTick);
+            RawTickVO rawTick = getIbMarketDataService().retrieveTick(order.getSecurity());
+            tick = getIbMarketDataService().completeRawTick(rawTick);
 
             // validity check (volume and bid/ask spread)
             try {
                 tick.validate();
                 break;
 
-            } catch (TickServiceException e) {
+            } catch (MarketDataServiceException e) {
 
                 logger.warn(e.getMessage());
 
@@ -515,11 +515,11 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 return false;
 
             } else {
-                throw new IbTickServiceException("orderId: " + partialOrder.getOrderId() + " unappropriate order status: " + partialOrder.getStatus());
+                throw new IbMarketDataServiceException("orderId: " + partialOrder.getOrderId() + " unappropriate order status: " + partialOrder.getStatus());
             }
 
         } catch (InterruptedException e) {
-            throw new IbTickServiceException("problem canceling order", e);
+            throw new IbMarketDataServiceException("problem canceling order", e);
         } finally {
             this.lock.unlock();
         }

@@ -41,7 +41,7 @@ public class IbServiceImpl extends IbServiceBase {
         if (this.services == null) {
 
             this.services = new HashSet<IbServiceInterface>();
-            this.services.add(getIbTickService());
+            this.services.add(getIbMarketDataService());
             this.services.add(getIbTransactionService());
             this.services.add(getIbAccountService());
             this.services.add(getIbHistoricalDataService());

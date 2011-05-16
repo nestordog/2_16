@@ -1,4 +1,6 @@
-package com.algoTrader.entity;
+package com.algoTrader.entity.security;
+
+import com.algoTrader.entity.security.IntrestRate;
 
 public class IntrestRateImpl extends IntrestRate {
 

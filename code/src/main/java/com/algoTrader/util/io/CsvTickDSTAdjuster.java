@@ -6,7 +6,7 @@ import java.util.GregorianCalendar;
 
 import org.supercsv.exception.SuperCSVException;
 
-import com.algoTrader.entity.Tick;
+import com.algoTrader.entity.marketData.Tick;
 
 public class CsvTickDSTAdjuster {
 

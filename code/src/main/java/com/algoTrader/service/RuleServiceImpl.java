@@ -17,6 +17,8 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.util.SubscriberCreator;
 import com.algoTrader.util.io.BatchDBTickInputAdapter;
+import com.algoTrader.util.io.CsvBarInputAdapter;
+import com.algoTrader.util.io.CsvBarInputAdapterSpec;
 import com.algoTrader.util.io.CsvTickInputAdapter;
 import com.algoTrader.util.io.CsvTickInputAdapterSpec;
 import com.algoTrader.util.io.DBInputAdapter;
@@ -376,6 +378,8 @@ public class RuleServiceImpl extends RuleServiceBase {
         InputAdapter inputAdapter;
         if (csvInputAdapterSpec instanceof CsvTickInputAdapterSpec) {
             inputAdapter = new CsvTickInputAdapter(getServiceProvider(strategyName), (CsvTickInputAdapterSpec) csvInputAdapterSpec);
+        } else if (csvInputAdapterSpec instanceof CsvBarInputAdapterSpec) {
+            inputAdapter = new CsvBarInputAdapter(getServiceProvider(strategyName), (CsvBarInputAdapterSpec) csvInputAdapterSpec);
         } else {
             inputAdapter = new CSVInputAdapter(getServiceProvider(strategyName), csvInputAdapterSpec);
         }

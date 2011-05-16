@@ -3,9 +3,11 @@ package com.algoTrader.util.io;
 import java.util.Map;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Tick;
+import com.algoTrader.entity.marketData.Bar;
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.service.MarketDataService;
 import com.algoTrader.service.RuleService;
-import com.algoTrader.service.TickService;
+import com.algoTrader.vo.BarVO;
 import com.algoTrader.vo.RawTickVO;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esperio.AbstractSendableEvent;
@@ -15,14 +17,22 @@ public class CustomSender extends AbstractSender {
 
     public void sendEvent(AbstractSendableEvent event, Object beanToSend) {
 
-        // raw Ticks are always sent using TickService
+        // raw Ticks are always sent using MarketDataService
         if (beanToSend instanceof RawTickVO) {
 
-            TickService tickService = ServiceLocator.commonInstance().getTickService();
+            MarketDataService marketDataService = ServiceLocator.commonInstance().getMarketDataService();
 
-            Tick tick = tickService.completeRawTick((RawTickVO) beanToSend);
-            tickService.propagateTick(tick);
-            tickService.createSimulatedTicks(tick);
+            Tick tick = marketDataService.completeRawTick((RawTickVO) beanToSend);
+            marketDataService.propagateMarketDataEvent(tick);
+            marketDataService.createSimulatedTicks(tick);
+
+            // Bars are always sent using MarketDataService
+        } else if (beanToSend instanceof BarVO) {
+
+            MarketDataService marketDataService = ServiceLocator.commonInstance().getMarketDataService();
+
+            Bar bar = marketDataService.completeBar((BarVO) beanToSend);
+            marketDataService.propagateMarketDataEvent(bar);
 
             // currentTimeEvents are sent to all started strategies
         } else if (beanToSend instanceof CurrentTimeEvent) {
