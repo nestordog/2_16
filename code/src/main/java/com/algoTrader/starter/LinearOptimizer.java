@@ -28,7 +28,7 @@ public class LinearOptimizer {
      * example call: SMI 4 99:99to10 flatRange:0.001:0.004:0.0001 putVolaPeriod:0.4:0.45:0.01
      * strategy workers datasource1:datasource2 param1:start:end:increment param2:start:end:increment
      *
-     * Note: algotrader-code % strategy needs to be deployed with the correct log-level and SimulationService.roundDigits to the local repo
+     * Note: algotrader-code % strategy needs to be deployed with the correct log-level to the local repo
      */
     public static void main(String[] params) {
 

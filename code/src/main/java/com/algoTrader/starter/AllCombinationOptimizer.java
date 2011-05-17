@@ -14,7 +14,7 @@ import com.algoTrader.util.ListPartitioner;
 public class AllCombinationOptimizer {
 
     private static final String commandName = "simulateByMultiParam";
-    private static final String[] vmArgs = { "simulation=true" };
+    private static final String[] vmArgs = { "simulation=true", "roundDigits=" + ConfigurationUtil.getBaseConfig().getInt("simulation.roundDigits") };
     private static final String dataSource = "dataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTrader";
     private static final int roundDigits = ConfigurationUtil.getBaseConfig().getInt("simulation.roundDigits");
     private static final NumberFormat format = NumberFormat.getInstance();
@@ -28,7 +28,7 @@ public class AllCombinationOptimizer {
      * example call: SMI 4 99:99to10 macdFast:5:100:5 macdSlow:5:100:5 macdSignal:5:100:5
      * strategy workers datasource1:datasource2 param1:start:end:increment param2:start:end:increment param3:start:end:increment
 
-     * Note: algotrader-code & strategy needs to be deployed with the correct log-level and SimulationService.roundDigits to the local repo
+     * Note: algotrader-code & strategy needs to be deployed with the correct log-level to the local repo
      */
     public static void main(String[] params) {
 
