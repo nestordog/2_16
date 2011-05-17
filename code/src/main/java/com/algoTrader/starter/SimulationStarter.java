@@ -22,6 +22,7 @@ public class SimulationStarter {
      *
      *        optimizeSingleParamLinear SMI flatRange:0.001:0.004:0.0005 putVolaPeriod:0.4:0.45:0.01
      *         optimizeSingleParam SMI putVolaPeriod:0.4:0.45:0.01
+     *         optimizeMultiParamLinear SMI flatRange:0.001:0.004:0.0005 putVolaPeriod:0.4:0.45:0.01
      *         optimizeMultiParam SMI macdFast:85.0 macdSlow:150.0
      */
     public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
@@ -82,6 +83,29 @@ public class SimulationStarter {
             double accuracy = Double.valueOf(params[3]);
 
             ServiceLocator.serverInstance().getSimulationService().optimizeSingleParam(strategyName, parameter, min, max, accuracy);
+
+        } else if (args[0].equals("optimizeMultiParamLinear")) {
+
+            String strategyName = args[1];
+            String[] parameters = new String[args.length - 2];
+            double[] mins = new double[args.length - 2];
+            double[] maxs = new double[args.length - 2];
+            double[] increments = new double[args.length - 2];
+            for (int i = 2; i < args.length; i++) {
+
+                String[] params = args[i].split(":");
+                String parameter = params[0];
+                double min = Double.valueOf(params[1]);
+                double max = Double.valueOf(params[2]);
+                double increment = Double.valueOf(params[3]);
+
+                parameters[i - 2] = parameter;
+                mins[i - 2] = min;
+                maxs[i - 2] = max;
+                increments[i - 2] = increment;
+            }
+
+            ServiceLocator.serverInstance().getSimulationService().optimizeMultiParamLinear(strategyName, parameters, mins, maxs, increments);
 
         } else if (args[0].equals("optimizeMultiParam")) {
 

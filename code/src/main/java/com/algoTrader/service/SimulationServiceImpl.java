@@ -25,6 +25,7 @@ import org.apache.commons.math.optimization.SimpleScalarValueChecker;
 import org.apache.commons.math.optimization.UnivariateRealOptimizer;
 import org.apache.commons.math.optimization.direct.MultiDirectional;
 import org.apache.commons.math.optimization.univariate.BrentOptimizer;
+import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
@@ -271,7 +272,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, format.format(i));
 
             SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
-            resultLogger.info(parameter + " val=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
+            resultLogger.info(parameter + "=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
 
             double value = resultVO.getPerformanceKeysVO().getSharpRatio();
             if (value > functionValue) {
@@ -299,6 +300,37 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         return optimizationResult;
     }
 
+    protected void handleOptimizeMultiParamLinear(String strategyName, String parameters[], double[] mins, double[] maxs, double[] increments) throws Exception {
+
+        for (double i0 = mins[0]; i0 <= maxs[0]; i0 += increments[0]) {
+            ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameters[0], format.format(i0));
+            String message0 = parameters[0] + "=" + format.format(MathUtils.round(i0, roundDigits));
+
+            if (parameters.length >= 2) {
+                for (double i1 = mins[1]; i1 <= maxs[1]; i1 += increments[1]) {
+                    ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameters[1], format.format(i1));
+                    String message1 = parameters[1] + "=" + format.format(MathUtils.round(i1, roundDigits));
+
+                    if (parameters.length >= 3) {
+                        for (double i2 = mins[2]; i2 <= maxs[2]; i2 += increments[2]) {
+                            ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameters[2], format.format(i2));
+                            String message2 = parameters[2] + "=" + format.format(MathUtils.round(i2, roundDigits));
+
+                            SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+                            resultLogger.info(message0 + " " + message1 + " " + message2 + " " + convertStatisticsToShortString(resultVO));
+                        }
+                    } else {
+                        SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+                        resultLogger.info(message0 + " " + message1 + " " + convertStatisticsToShortString(resultVO));
+                    }
+                }
+            } else {
+                SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+                resultLogger.info(message0 + " " + convertStatisticsToShortString(resultVO));
+            }
+        }
+    }
+
     protected void handleOptimizeMultiParam(String strategyName, String[] parameters, double[] starts) throws ConvergenceException, FunctionEvaluationException {
 
         MultivariateRealFunction function = new MultivariateFunction(strategyName, parameters);
@@ -307,7 +339,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         RealPointValuePair result = optimizer.optimize(function, GoalType.MAXIMIZE, starts);
 
         for (int i = 0; i < result.getPoint().length; i++) {
-            resultLogger.info("optimal value for " + parameters[i] + ": " + format.format(result.getPoint()[i]));
+            resultLogger.info("optimal value for " + parameters[i] + "=" + format.format(result.getPoint()[i]));
         }
         resultLogger.info("functionValue: " + format.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
     }
@@ -461,7 +493,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
             double result = resultVO.getPerformanceKeysVO().getSharpRatio();
 
-            resultLogger.info("optimize on " + this.param + " value " + format.format(input) + " " + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
+            resultLogger.info("optimize on " + this.param + "=" + format.format(input) + " " + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
 
             return result;
         }
@@ -488,7 +520,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
                 ConfigurationUtil.getStrategyConfig(this.strategyName).setProperty(param, String.valueOf(value));
 
-                buffer.append(param + ": " + format.format(value) + " ");
+                buffer.append(param + "=" + format.format(value) + " ");
             }
 
             SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
