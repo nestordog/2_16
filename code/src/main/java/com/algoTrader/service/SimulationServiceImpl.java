@@ -120,9 +120,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 logger.warn("no data available for " + security.getSymbol());
                 continue;
             }
-
-            String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet").split(":")[1];
-            MarketDataType marketDataType = MarketDataType.fromString(ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet").split(":")[0].toUpperCase());
+            MarketDataType marketDataType = MarketDataType.fromString(ConfigurationUtil.getBaseConfig().getString("dataSource.dataSetType").toUpperCase());
+            String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
 
             File file = new File("results/" + marketDataType.toString().toLowerCase() + "data/" + dataSet + "/" + security.getIsin() + ".csv");
 
