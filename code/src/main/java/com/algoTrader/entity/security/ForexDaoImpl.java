@@ -1,8 +1,6 @@
 package com.algoTrader.entity.security;
 
 import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.Forex;
-import com.algoTrader.entity.security.ForexDaoBase;
 import com.algoTrader.enumeration.Currency;
 
 public class ForexDaoImpl extends ForexDaoBase {
@@ -32,6 +30,11 @@ public class ForexDaoImpl extends ForexDaoBase {
             if (forex != null) {
 
                 Tick tick = forex.getLastTick();
+
+                if (tick == null) {
+                    throw new RuntimeException("cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no last tick is available");
+                }
+
                 return 1.0 / tick.getCurrentValueDouble();
 
             } else {
