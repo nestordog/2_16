@@ -33,6 +33,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
 
+import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
@@ -51,6 +52,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
 
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
     private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
+    private static boolean faEnabled = ConfigurationUtil.getBaseConfig().getBoolean("if.faEnabled");
     private static boolean accountServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.accountServiceEnabled");
 
     private static int retrievalTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.retrievalTimeout");
@@ -205,15 +207,25 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
 
     protected long handleGetNumberOfContractsByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception {
 
-        long numberOfContractsByMargin = 0;
-        for (String account : getAccounts()) {
-            double availableAmount = Double.parseDouble(retrieveAccountValue(account, "CHF", "AvailableFunds"));
-            long numberOfContracts = (long) (availableAmount / initialMarginPerContractInBase);
-            numberOfContractsByMargin += numberOfContracts;
+        if (faEnabled) {
 
-            logger.debug("assign " + numberOfContracts + " to account " + account);
+            // if financial advisor is enabled, we have to get the number of Contracts per account
+            // in order to avoid fractions
+            long numberOfContractsByMargin = 0;
+            for (String account : getAccounts()) {
+                double availableAmount = Double.parseDouble(retrieveAccountValue(account, "CHF", "AvailableFunds"));
+                long numberOfContracts = (long) (availableAmount / initialMarginPerContractInBase);
+                numberOfContractsByMargin += numberOfContracts;
+
+                logger.debug("assign " + numberOfContracts + " to account " + account);
+            }
+            return numberOfContractsByMargin;
+
+        } else {
+
+            Strategy strategy = getStrategyDao().findByName(strategyName);
+            return (long) (strategy.getAvailableFundsDouble() / initialMarginPerContractInBase);
         }
-        return numberOfContractsByMargin;
     }
 
     protected void handleProcessCashTransactions() throws Exception {
