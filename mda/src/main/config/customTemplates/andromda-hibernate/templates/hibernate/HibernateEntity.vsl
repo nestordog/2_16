@@ -246,7 +246,6 @@ $operation.getDocumentation("     * ")
 #end
 #end
      */
-    @Override
 #renderEqualsMethod($entity $entity.entityName $identifiers)
 
     /**
