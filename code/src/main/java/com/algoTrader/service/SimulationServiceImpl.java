@@ -379,13 +379,13 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             return ("no trades took place!");
         }
 
-        buffer.append("avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100) + "%");
+        buffer.append("avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100.0) + "%");
         buffer.append(" sharpe=" + twoDigitFormat.format(performanceKeys.getSharpRatio()));
-        buffer.append(" maxDD=" + twoDigitFormat.format(maxDrawDownVO.getAmount()));
+        buffer.append(" maxDD=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100.0) + "%");
         buffer.append(" maxDDPer=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000));
-        buffer.append(" avgPPctWin=" + twoDigitFormat.format(resultVO.getWinningTrades().getAvgProfitPct() * 100) + "%");
-        buffer.append(" avgPPctLoos=" + twoDigitFormat.format(resultVO.getLoosingTrades().getAvgProfitPct() * 100) + "%");
-        buffer.append(" winTrdsPct=" + twoDigitFormat.format(100 * resultVO.getWinningTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
+        buffer.append(" avgPPctWin=" + twoDigitFormat.format(resultVO.getWinningTrades().getAvgProfitPct() * 100.0) + "%");
+        buffer.append(" avgPPctLoos=" + twoDigitFormat.format(resultVO.getLoosingTrades().getAvgProfitPct() * 100.0) + "%");
+        buffer.append(" winTrdsPct=" + twoDigitFormat.format(100.0 * resultVO.getWinningTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
 
         return buffer.toString();
     }
@@ -448,7 +448,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         buffer.append("AllTrades:");
         buffer.append(printTrades(resultVO.getAllTrades()));
 
-        buffer.append("winningTradesPct: " + twoDigitFormat.format(100 * resultVO.getWinningTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
+        buffer.append("winningTradesPct: " + twoDigitFormat.format(100.0 * resultVO.getWinningTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
 
         return buffer.toString();
     }
