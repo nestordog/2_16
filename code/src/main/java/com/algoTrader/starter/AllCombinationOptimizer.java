@@ -28,7 +28,8 @@ public class AllCombinationOptimizer {
      * example call: SMI 4 99:99to10 macdFast:5:100:5 macdSlow:5:100:5 macdSignal:5:100:5
      * strategy workers datasource1:datasource2 param1:start:end:increment param2:start:end:increment param3:start:end:increment
 
-     * Note: algotrader-code & strategy needs to be deployed with the correct log-level to the local repo
+     * Note: - algotrader-code & strategy needs to be deployed with the correct log-level to the local repo
+     *       - also database needs to be copied to all clone databases
      */
     public static void main(String[] params) {
 
