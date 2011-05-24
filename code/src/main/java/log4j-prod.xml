@@ -136,7 +136,7 @@
         <level value="error" />
     </logger>
 
-    <logger name="com.espertech.esper.util.MethodResolver.MethodResolver">
+    <logger name="com.espertech.esper.util.MethodResolver">
         <level value="error" />
     </logger>
 
