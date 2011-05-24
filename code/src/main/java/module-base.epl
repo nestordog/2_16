@@ -78,7 +78,7 @@ having
 select
     *
 from
-    pattern[every timer:at (0, 18, lastweekday, *, *) -> Portfolio];
+    pattern[every timer:at (0, 18, 1, *, *) -> Portfolio];
 
 @Name('GET_LAST_TICK')
 @Priority(6)
