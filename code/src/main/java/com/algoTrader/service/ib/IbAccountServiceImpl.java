@@ -233,6 +233,10 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
         if (!ibEnabled || simulation)
             return;
 
+        if (("").equals(flexQueryId) || ("").equals(flexToken)) {
+            throw new IbAccountServiceException("flexQueryId and flexToken have to be defined");
+        }
+
         String url = requestUrl + "?t=" + flexToken + "&q=" + flexQueryId;
 
         // get the flex reference code
