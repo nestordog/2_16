@@ -97,8 +97,8 @@
         <level value="error" />
     </logger>
 
-    <logger name="com.algoTrader.subscriber.PrintPortfolioValueSubscriber">
-<!--         <level value="info" /> -->
+    <logger name="com.algoTrader.subscriber.PrintPortfolioValueSubscriber" additivity="false">
+        <level value="info" />
         <appender-ref ref="PORTFOLIO" />
     </logger>
 
