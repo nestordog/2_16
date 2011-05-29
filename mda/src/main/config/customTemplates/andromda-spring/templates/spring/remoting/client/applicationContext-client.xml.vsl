@@ -1,3 +1,4 @@
+## AndroMDA: 15075
 ## line 8 - 15: add schema definition
 ## line 50: do not output services with superclass services
 ## line 95: RmiProxyFactoryBean: add refreshStubOnConnectFailure
