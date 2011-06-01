@@ -415,6 +415,13 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
+    protected Object handleGetProperty(String strategyName, String key) {
+
+        key = key.replace(".", "_");
+        EPRuntime runtime = getServiceProvider(strategyName).getEPRuntime();
+        return runtime.getVariableValue(key);
+    }
+
     private String getProviderURI(String strategyName) {
 
         return (strategyName == null || "".equals(strategyName)) ? StrategyImpl.BASE : strategyName.toUpperCase();
