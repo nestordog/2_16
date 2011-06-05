@@ -9,8 +9,6 @@ import org.hibernate.Hibernate;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.TickValidationException;
 import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
@@ -106,5 +104,10 @@ public class SecurityImpl extends Security {
             logger.warn("no last tick available or currentValue to low to set margin on " + getSymbol());
         }
         return marginPerContract;
+    }
+
+    public String toString() {
+
+        return getSymbol();
     }
 }

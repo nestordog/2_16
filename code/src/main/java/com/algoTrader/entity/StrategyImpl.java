@@ -250,4 +250,9 @@ public class StrategyImpl extends Strategy {
 
         return exposure / getNetLiqValueDouble();
     }
+
+    public String toString() {
+
+        return getName();
+    }
 }

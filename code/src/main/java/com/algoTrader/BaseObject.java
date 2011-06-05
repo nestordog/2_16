@@ -6,7 +6,7 @@ import com.algoTrader.util.CustomToStringStyle;
 
 public class BaseObject {
 
-    public String toString() {
+    public String toLongString() {
 
         return ToStringBuilder.reflectionToString(this, CustomToStringStyle.getInstance());
     }

@@ -260,6 +260,11 @@ public class PositionImpl extends Position {
         return getMarketValueDouble() * getSecurity().getLeverage();
     }
 
+    public String toString() {
+
+        return getQuantity() + " " + getSecurity();
+    }
+
     private List<QuantityTransaction> getFIFIQueue() {
 
         List<Transaction> transactions = new ArrayList<Transaction>(getTransactions());
