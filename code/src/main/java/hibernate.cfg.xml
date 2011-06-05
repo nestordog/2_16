@@ -24,14 +24,14 @@
     <property name="current_session_context_class">thread</property>
     <property name="hibernate.jdbc.batch_size">50</property>
 
-    <mapping resource="com/algoTrader/entity/Dividend.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Position.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/SabrParams.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/Security.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/SecurityFamily.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Strategy.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/Tick.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Transaction.hbm.xml" />
     <mapping resource="com/algoTrader/entity/WatchListItem.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/marketData.MarketDataEvent.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/security/Dividend.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/security/SabrParams.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/security/Security.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/security/SecurityFamily.hbm.xml" />
 </session-factory>
 </hibernate-configuration>
