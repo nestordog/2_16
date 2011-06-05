@@ -14,6 +14,6 @@ public class GenericFutureImpl extends GenericFuture {
         // calculate expiration based on defined months
         Date date = DateUtil.getCurrentEPTime();
 
-        return DateUtil.getThirdFridayNMonths(date, getMonths());
+        return DateUtil.getThirdFridayNMonths(date, getDuration());
     }
 }
