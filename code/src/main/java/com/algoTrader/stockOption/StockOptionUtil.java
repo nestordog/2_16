@@ -74,14 +74,16 @@ public class StockOptionUtil {
             return getIntrinsicValue(underlayingSpot, strike, type);
         }
 
-        double adjustedSpot = underlayingSpot * Math.exp(-dividend * years);
-        double d1 = (Math.log(adjustedSpot/strike) + (intrest + volatility * volatility/2) * years) / (volatility * Math.sqrt(years));
+        double costOfCarry = intrest - dividend;
+        double d1 = (Math.log(underlayingSpot / strike) + (costOfCarry + volatility * volatility / 2.0) * years) / (volatility * Math.sqrt(years));
         double d2 = d1 - volatility * Math.sqrt(years);
+        double term1 = underlayingSpot * Math.exp((costOfCarry - intrest) * years);
+        double term2 = strike * Math.exp(-intrest * years);
 
         if (OptionType.CALL.equals(type)) {
-            return adjustedSpot * Gaussian.Phi(d1) - strike * Math.exp(-intrest * years) * Gaussian.Phi(d2);
+            return term1 * Gaussian.Phi(d1) - term2 * Gaussian.Phi(d2);
         } else {
-            return strike * Math.exp(-intrest * years) * Gaussian.Phi(-d2) - adjustedSpot * Gaussian.Phi(-d1);
+            return term2 * Gaussian.Phi(-d2) - term1 * Gaussian.Phi(-d1);
         }
     }
 
@@ -180,15 +182,6 @@ public class StockOptionUtil {
         }
     }
 
-    public static double getVega(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend) {
-
-        double costOfCarry = intrest - dividend;
-        double d1 = (Math.log(underlayingSpot / strike) + (intrest + volatility * volatility / 2) * years) / (volatility * Math.sqrt(years));
-
-        return underlayingSpot * Math.exp((costOfCarry - intrest) * years) * Gaussian.Phi(d1) * Math.sqrt(years);
-
-    }
-
     public static double getDelta(StockOption stockOption, double currentValue, double underlayingSpot) throws MathException {
 
         StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
@@ -198,6 +191,37 @@ public class StockOptionUtil {
         double volatility = getVolatility(underlayingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
         return StockOptionUtil.getDelta(underlayingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), stockOption.getType());
 
+    }
+
+    public static double getVega(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend) {
+
+        double costOfCarry = intrest - dividend;
+        double d1 = (Math.log(underlayingSpot / strike) + (costOfCarry + volatility * volatility / 2) * years) / (volatility * Math.sqrt(years));
+        double n = StandardNormalDensity.n(d1);
+
+        return underlayingSpot * Math.exp((costOfCarry - intrest) * years) * n * Math.sqrt(years);
+
+    }
+
+    public static double getTheta(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
+
+        double costOfCarry = intrest - dividend;
+        double d1 = (Math.log(underlayingSpot / strike) + (costOfCarry + volatility * volatility / 2) * years) / (volatility * Math.sqrt(years));
+        double d2 = d1 - volatility * Math.sqrt(years);
+
+        double term1 = -underlayingSpot * Math.exp((costOfCarry - intrest) * years) * StandardNormalDensity.n(d1) * volatility / (2.0 * Math.sqrt(years));
+        double term2 = (costOfCarry - intrest) * underlayingSpot * Math.exp((costOfCarry - intrest) * years);
+        double term3 = intrest * strike * Math.exp(-intrest * years);
+
+        if (OptionType.CALL.equals(type)) {
+            double N1 = Gaussian.Phi(d1);
+            double N2 = Gaussian.Phi(d2);
+            return term1 - term2 * N1 - term3 * N2;
+        } else {
+            double N1 = Gaussian.Phi(-d1);
+            double N2 = Gaussian.Phi(-d2);
+            return term1 + term2 * N1 + term3 * N2;
+        }
     }
 
     public static double getTotalMargin(double underlayingSettlement, double strike, double stockOptionSettlement, double years, double intrest, OptionType type, double marginParameter)
