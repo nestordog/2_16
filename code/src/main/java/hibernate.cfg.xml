@@ -28,7 +28,7 @@
     <mapping resource="com/algoTrader/entity/Strategy.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Transaction.hbm.xml" />
     <mapping resource="com/algoTrader/entity/WatchListItem.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/marketData.MarketDataEvent.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/marketData/MarketDataEvent.hbm.xml" />
     <mapping resource="com/algoTrader/entity/security/Dividend.hbm.xml" />
     <mapping resource="com/algoTrader/entity/security/SabrParams.hbm.xml" />
     <mapping resource="com/algoTrader/entity/security/Security.hbm.xml" />
