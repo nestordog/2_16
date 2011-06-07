@@ -1,7 +1,7 @@
 package com.algoTrader.entity.security;
 
-import com.algoTrader.entity.security.Future;
 import com.algoTrader.future.FutureUtil;
+import com.algoTrader.util.DateUtil;
 
 
 public class FutureImpl extends Future {
@@ -16,5 +16,10 @@ public class FutureImpl extends Future {
     public double getMargin() {
 
         return FutureUtil.getMaintenanceMargin(this) * getSecurityFamily().getContractSize();
+    }
+
+    public long getTimeToExpiration() {
+
+        return getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime();
     }
 }

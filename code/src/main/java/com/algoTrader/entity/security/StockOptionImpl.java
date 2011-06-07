@@ -4,8 +4,8 @@ import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.stockOption.StockOptionUtil;
+import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 
 public class StockOptionImpl extends StockOption {
@@ -49,4 +49,10 @@ public class StockOptionImpl extends StockOption {
         }
         return marginPerContract;
     }
+
+    public long getTimeToExpiration() {
+
+        return getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime();
+    }
+
 }
