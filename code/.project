@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>AlgoTrader-code</name>
+	<name>AlgoTraderCode</name>
 	<comment>The AlgoTrader Project. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
 	<projects>
 		<project>algotrader-mda</project>
@@ -36,7 +36,7 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1304159785388</id>
+			<id>0</id>
 			<name></name>
 			<type>6</type>
 			<matcher>
