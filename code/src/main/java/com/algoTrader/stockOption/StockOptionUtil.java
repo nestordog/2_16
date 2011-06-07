@@ -203,6 +203,16 @@ public class StockOptionUtil {
 
     }
 
+    public static double getVega(StockOption stockOption, double currentValue, double underlayingSpot) throws MathException {
+
+        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
+
+        double strike = stockOption.getStrike().doubleValue();
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+        double volatility = getVolatility(underlayingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
+        return StockOptionUtil.getVega(underlayingSpot, strike, volatility, years, family.getIntrest(), family.getDividend());
+    }
+
     public static double getTheta(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
 
         double costOfCarry = intrest - dividend;
@@ -222,6 +232,17 @@ public class StockOptionUtil {
             double N2 = Gaussian.Phi(-d2);
             return term1 + term2 * N1 + term3 * N2;
         }
+    }
+
+    public static double getTheta(StockOption stockOption, double currentValue, double underlayingSpot) throws MathException {
+
+        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
+
+        double strike = stockOption.getStrike().doubleValue();
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+        double volatility = getVolatility(underlayingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
+        return StockOptionUtil.getTheta(underlayingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), stockOption.getType());
+
     }
 
     public static double getTotalMargin(double underlayingSettlement, double strike, double stockOptionSettlement, double years, double intrest, OptionType type, double marginParameter)
@@ -258,5 +279,14 @@ public class StockOptionUtil {
     public static double getForward(double spot, double years, double intrest, double dividend) {
 
         return spot * (1 - years * dividend) * Math.exp(years * intrest);
+    }
+
+    public static double getMoneyness(StockOption stockOption, double underlayingSpot) {
+
+        if (OptionType.PUT.equals(stockOption.getType())) {
+            return (underlayingSpot - stockOption.getStrike().doubleValue()) / underlayingSpot;
+        } else {
+            return (stockOption.getStrike().doubleValue() - underlayingSpot) / underlayingSpot;
+        }
     }
 }
