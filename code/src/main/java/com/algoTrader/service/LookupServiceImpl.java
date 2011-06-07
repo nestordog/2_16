@@ -18,6 +18,7 @@ import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.enumeration.Currency;
+import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.Periodicity;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.vo.PortfolioValueVO;
@@ -45,9 +46,9 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getSecurityDao().findSecuritiesOnWatchlistByPeriodicity(periodicity).toArray(new Security[0]);
     }
 
-    protected StockOption handleGetNearestStockOption(int underlayingId, Date expirationDate, BigDecimal underlayingSpot, String optionTypeString) throws Exception {
+    protected StockOption handleGetNearestStockOption(int underlayingId, Date expirationDate, BigDecimal underlayingSpot, OptionType optionType) throws Exception {
 
-        return getStockOptionDao().findNearestStockOption(underlayingId, expirationDate, underlayingSpot, optionTypeString);
+        return getStockOptionDao().findNearestStockOption(underlayingId, expirationDate, underlayingSpot, optionType.getValue());
     }
 
     protected Future handleGetNearestFuture(int underlayingId, Date expirationDate) throws Exception {
