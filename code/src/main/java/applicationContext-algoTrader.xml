@@ -84,4 +84,12 @@
         <property name="server" ref="mbeanServer"/>
     </bean>
 
+    <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+        <property name="propertyEditorRegistrars">
+            <list>
+               <bean class="com.algoTrader.util.DatePropertyEditorRegistrar"/>
+            </list>
+        </property>
+    </bean>
+
 </beans>
