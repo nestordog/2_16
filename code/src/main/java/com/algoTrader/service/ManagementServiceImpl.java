@@ -10,6 +10,7 @@ import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.marketData.TickDaoImpl;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
+import com.algoTrader.vo.DiagramVO;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.TickVO;
 import com.algoTrader.vo.TransactionVO;
@@ -90,6 +91,21 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected List<TransactionVO> handleGetDataTransactions() throws Exception {
 
         return getReportingService().getDataTransactions(StrategyUtil.getStartedStrategyName());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected List<DiagramVO> handleGetIndicatorDiagrams(boolean param) throws Exception {
+
+        return super.getDiagrams();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected List<Object> handleGetAllEvents(String ruleName) throws Exception {
+
+        String strategyName = StrategyUtil.getStartedStrategyName();
+        return getRuleService().getAllEvents(strategyName, ruleName);
     }
 
     protected void handleActivate(String moduleName, String ruleName) throws Exception {

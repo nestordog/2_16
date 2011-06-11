@@ -1,15 +1,15 @@
 package com.algoTrader.util.io;
 
-import com.algoTrader.BaseObject;
+import com.algoTrader.entity.BaseEntity;
 import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esperio.AbstractSendableEvent;
 import com.espertech.esperio.AbstractSender;
 
 public class SendableBaseObjectEvent extends AbstractSendableEvent {
 
-    private final BaseObject eventToSend;
+    private final BaseEntity eventToSend;
 
-    public SendableBaseObjectEvent(BaseObject object, long timestamp, ScheduleSlot scheduleSlot) {
+    public SendableBaseObjectEvent(BaseEntity object, long timestamp, ScheduleSlot scheduleSlot) {
         super(timestamp, scheduleSlot);
 
         this.eventToSend = object;

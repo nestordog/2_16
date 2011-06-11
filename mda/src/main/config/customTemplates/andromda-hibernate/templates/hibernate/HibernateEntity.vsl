@@ -1,5 +1,4 @@
 ## AlgoTrader: 15055
-## extend BaseObject
 ## add implements $entity.implementedInterfaceList in case of generalization
 #set ($generatedFile = "${entity.packagePath}/${entity.entityName}.java")
 // license-header java merge-point
@@ -25,7 +24,6 @@ public abstract class $entity.entityName
     implements $entity.implementedInterfaceList
 #end
 #else
-    extends com.algoTrader.BaseObject
     implements Serializable
 #if (!$entity.interfaceAbstractions.empty)
         , $entity.implementedInterfaceList

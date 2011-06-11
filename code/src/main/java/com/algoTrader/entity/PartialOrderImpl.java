@@ -22,4 +22,9 @@ public class PartialOrderImpl extends PartialOrder {
         getTransactions().add(transaction);
         getParentOrder().getTransactions().add(transaction);
     }
+
+    public String toString() {
+
+        return String.valueOf(getId());
+    }
 }

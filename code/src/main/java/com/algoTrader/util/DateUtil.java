@@ -36,6 +36,8 @@ public class DateUtil {
 
         Calendar cal = new GregorianCalendar();
         cal.setTime(input);
+        cal.setFirstDayOfWeek(Calendar.SUNDAY);
+        cal.setMinimalDaysInFirstWeek(2);
         cal.set(Calendar.WEEK_OF_MONTH, 3);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
         cal.set(Calendar.HOUR_OF_DAY, 13);
@@ -52,24 +54,12 @@ public class DateUtil {
         return cal.getTime();
     }
 
-    public static Date getThirdFridayNMonths(Date input, int months) {
-
-        Date nextThirdFriday = getNextThirdFriday(input);
-
-        Calendar cal = new GregorianCalendar();
-        cal.setTime(nextThirdFriday);
-
-        cal.add(Calendar.MONTH, (months - 1));
-        cal.set(Calendar.WEEK_OF_MONTH, 3);
-        cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
-
-        return cal.getTime();
-    }
-
     public static Date getNextThirdFriday3MonthCycle(Date input) {
 
         Calendar cal = new GregorianCalendar();
         cal.setTime(input);
+        cal.setFirstDayOfWeek(Calendar.SUNDAY);
+        cal.setMinimalDaysInFirstWeek(2);
 
         // round to 3-month cycle
         int month = (cal.get(Calendar.MONTH) + 1) / 3 * 3 - 1;
@@ -87,6 +77,37 @@ public class DateUtil {
             cal.set(Calendar.WEEK_OF_MONTH, 3);
             cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
         }
+
+        return cal.getTime();
+    }
+
+    public static Date getThirdFridayNMonths(Date input, int months) {
+
+        Date nextThirdFriday = getNextThirdFriday(input);
+
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(nextThirdFriday);
+        cal.setFirstDayOfWeek(Calendar.SUNDAY);
+        cal.setMinimalDaysInFirstWeek(2);
+
+        cal.add(Calendar.MONTH, (months - 1));
+        cal.set(Calendar.WEEK_OF_MONTH, 3);
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+
+        return cal.getTime();
+    }
+
+    public static Date get30DayPrioToNextThirdFridayNMonths(Date input, int months) {
+
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(input);
+        cal.add(Calendar.DAY_OF_YEAR, 30);
+
+        Date date = getThirdFridayNMonths(cal.getTime(), months);
+
+        cal = new GregorianCalendar();
+        cal.setTime(date);
+        cal.add(Calendar.DAY_OF_YEAR, -30);
 
         return cal.getTime();
     }

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <mappings name="SpringMerge">
 
+        <mapping>
+            <from><![CDATA[<!-- ManagementService service property merge-point -->]]></from>
+            <to><![CDATA[<property name="diagrams" ref="managementServiceDiagrams"/>]]></to>
+        </mapping>
+
         <!-- add hibernate.generate_statistics to applicationContext.xml -->
         <mapping>
             <from><![CDATA[<!-- applicationContext hibernateProperties merge-point -->]]></from>

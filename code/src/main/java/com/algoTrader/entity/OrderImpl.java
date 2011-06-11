@@ -39,4 +39,8 @@ public class OrderImpl extends Order {
 
         return partialOrder;
     }
+
+    public String toString() {
+        return String.valueOf(getNumber());
+    }
 }
