@@ -2,10 +2,6 @@
 
 cd $ALGOTRADER_HOME
 
-mvn -o -q -f bin/pom.xml \
-dependency:build-classpath \
--Dmdep.outputFile=cp.txt
-
 java \
 -cp `cat bin/cp.txt` \
 -DstrategyName=BASE \

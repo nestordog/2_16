@@ -2,10 +2,6 @@
 
 cd $ALGOTRADER_HOME
 
-mvn -o -q -f bin/pom.xml \
-dependency:build-classpath \
--Dmdep.outputFile=cp.txt
-
 nohup java \
 -cp `cat bin/cp.txt` \
 -DstrategyName=BASE \
@@ -15,7 +11,7 @@ nohup java \
 -Dlog4j.configuration=log4j-prod.xml \
 -javaagent:lib/agent.jar \
 -agentlib:jdwp=transport=dt_socket,suspend=n,server=y,address=localhost:8000 \
--Xmx150m \
+-Xmx200m \
 -XX:MaxHeapFreeRatio=10 \
 -XX:MinHeapFreeRatio=5 \
 -XX:-UseParallelGC \
