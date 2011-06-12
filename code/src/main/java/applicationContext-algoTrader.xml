@@ -92,4 +92,12 @@
         </property>
     </bean>
 
+
+   <!-- Diagrams for Management Service (will be overwritten by clients)-->
+   <bean id="managementServiceDiagrams" class="org.springframework.beans.factory.config.ListFactoryBean">
+       <property name="sourceList">
+            <list/>
+        </property>
+   </bean>
+
 </beans>
