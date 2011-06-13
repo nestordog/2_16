@@ -208,6 +208,7 @@
                 <lookup-method name="$serviceRef.getterName" bean="$serviceRef.targetElement.beanName"/>
 #end
 #end
+        		<!-- $service.name service property merge-point -->
             </bean>
         </property>
         <property name="proxyInterfaces">
