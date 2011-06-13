@@ -17,6 +17,7 @@
         <property name="sessionFactory"><ref bean="sessionFactory"/></property>
     </bean>
 
+    <!--  PropertyPlaceholderConfigurer to overwrite settings form commandline -->
     <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="location"><value>/conf-base.properties</value></property>
         <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_OVERRIDE</value></property>
@@ -36,13 +37,15 @@
 <!--     <alias name="sqAccountService" alias="accountService"/> -->
 <!--     <alias name="sqHistoricalDataService" alias="historicalDataService"/>     -->
 
+    <!--  MBean Server -->
+    <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+        <property name="locateExistingServerIfPossible" value="true"/>
+    </bean>
+
+    <!--  Hibernate JMX Beans -->
     <bean id="hibernateStatisticsMBean" class="org.hibernate.jmx.StatisticsService">
         <property name="statisticsEnabled" value="true" />
         <property name="sessionFactory" ref="sessionFactory" />
-    </bean>
-
-    <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
-        <property name="locateExistingServerIfPossible" value="true"/>
     </bean>
 
     <bean id="hibernateExporter" class="org.springframework.jmx.export.MBeanExporter">
@@ -54,6 +57,7 @@
         <property name="server" ref="mbeanServer" />
     </bean>
 
+      <!--  EhCache JMX Beans -->
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
         <property name="configLocation" value="classpath:ehcache.xml" />
         <property name="shared" value="true" />
@@ -73,6 +77,7 @@
         </property>
     </bean>
 
+    <!-- Log4J JMX Beans -->
     <bean id="log4JExporter" class="org.springframework.jmx.export.MBeanExporter">
         <property name="beans">
             <map>
@@ -84,6 +89,7 @@
         <property name="server" ref="mbeanServer"/>
     </bean>
 
+   <!-- Diagrams for Management Service (and PropertyConfiguratet for java.util.Date)-->
     <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
         <property name="propertyEditorRegistrars">
             <list>
@@ -92,8 +98,6 @@
         </property>
     </bean>
 
-
-   <!-- Diagrams for Management Service (will be overwritten by clients)-->
    <bean id="managementServiceDiagrams" class="org.springframework.beans.factory.config.ListFactoryBean">
        <property name="sourceList">
             <list/>

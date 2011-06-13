@@ -11,6 +11,7 @@
         <constructor-arg>
            <list>
                 <value>applicationContext-import-remoteServices.xml</value>
+                <value>applicationContext-remote.xml</value>
                 <value>applicationContext-client.xml</value>
            </list>
         </constructor-arg>

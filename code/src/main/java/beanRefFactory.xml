@@ -12,7 +12,7 @@
            <list>
                 <value>applicationContext.xml</value>
                 <value>applicationContext-export-remoteServices.xml</value>
-                <value>applicationContext-algoTrader.xml</value>
+                <value>applicationContext-server.xml</value>
            </list>
         </constructor-arg>
     </bean>
