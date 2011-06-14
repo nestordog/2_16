@@ -29,7 +29,9 @@ public class PositionServiceImpl extends PositionServiceBase {
     protected void handleCloseAllPositions() throws Exception {
 
         for (Position position : getPositionDao().loadAll()) {
-            closePosition(position.getId());
+            if (position.isOpen()) {
+                closePosition(position.getId());
+            }
         }
     }
 
