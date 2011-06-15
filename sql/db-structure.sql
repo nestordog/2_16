@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.1.48, for Win64 (unknown)
 --
--- Host: localhost    Database: algotraderlive
+-- Host: localhost    Database: algotrader
 -- ------------------------------------------------------
 -- Server version    5.1.48-community-log
 
@@ -14,6 +14,72 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `ask`
+--
+
+DROP TABLE IF EXISTS `ask`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ask` (
+  `ID` int(11) NOT NULL,
+  `DATE_TIME` datetime NOT NULL,
+  `SECURITY_FK` int(11) NOT NULL,
+  `PRICE` double NOT NULL,
+  `SIZE` bigint(20) NOT NULL,
+  `EXT_ID` varchar(255) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
+  `VALID` datetime NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `MARKET_DATA_EVENT_SECURITY_FKC268f53e449d465cfe59` (`SECURITY_FK`),
+  CONSTRAINT `MARKET_DATA_EVENT_SECURITY_FKC268f53e449d465cfe59` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `bar`
+--
+
+DROP TABLE IF EXISTS `bar`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `bar` (
+  `ID` int(11) NOT NULL,
+  `DATE_TIME` datetime NOT NULL,
+  `SECURITY_FK` int(11) NOT NULL,
+  `OPEN` double NOT NULL,
+  `HIGH` double NOT NULL,
+  `LOW` double NOT NULL,
+  `CLOSE` double NOT NULL,
+  `ADJ_CLOSE` double DEFAULT NULL,
+  `VOL` int(11) NOT NULL,
+  `OPEN_INTEREST` int(11) NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `MARKET_DATA_EVENT_SECURITY_FKCfff3` (`SECURITY_FK`),
+  CONSTRAINT `MARKET_DATA_EVENT_SECURITY_FKCfff3` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `bid`
+--
+
+DROP TABLE IF EXISTS `bid`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `bid` (
+  `ID` int(11) NOT NULL,
+  `DATE_TIME` datetime NOT NULL,
+  `SECURITY_FK` int(11) NOT NULL,
+  `PRICE` double NOT NULL,
+  `SIZE` bigint(20) NOT NULL,
+  `EXT_ID` varchar(255) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
+  `VALID` datetime NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `MARKET_DATA_EVENT_SECURITY_FKC268f53e449d465c100dd` (`SECURITY_FK`),
+  CONSTRAINT `MARKET_DATA_EVENT_SECURITY_FKC268f53e449d465c100dd` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `dividend`
@@ -30,7 +96,22 @@ CREATE TABLE `dividend` (
   PRIMARY KEY (`id`),
   KEY `DIVIDEND_SECURITY_FKC` (`SECURITY_FK`),
   CONSTRAINT `DIVIDEND_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `equity_index`
+--
+
+DROP TABLE IF EXISTS `equity_index`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `equity_index` (
+  `ID` int(11) NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `EQUITY_INDEXIFKC` (`ID`),
+  CONSTRAINT `EQUITY_INDEXIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +123,7 @@ DROP TABLE IF EXISTS `forex`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `forex` (
   `ID` int(11) NOT NULL,
-  `BASE_CURRENCY` enum('CHF','EUR','USD') NOT NULL,
+  `BASE_CURRENCY` enum('CHF','EUR','USD','GBP') NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `FOREXIFKC` (`ID`),
   CONSTRAINT `FOREXIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
@@ -62,7 +143,7 @@ CREATE TABLE `future` (
   PRIMARY KEY (`ID`),
   KEY `FUTUREIFKC` (`ID`),
   CONSTRAINT `FUTUREIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -80,7 +161,7 @@ CREATE TABLE `future_family` (
   PRIMARY KEY (`ID`),
   KEY `FUTURE_FAMILYIFKC` (`ID`),
   CONSTRAINT `FUTURE_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `security_family` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -92,7 +173,7 @@ DROP TABLE IF EXISTS `generic_future`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `generic_future` (
   `ID` int(11) NOT NULL,
-  `MONTHS` int(11) NOT NULL,
+  `DURATION` int(11) NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `GENERIC_FUTUREIFKC` (`ID`),
   CONSTRAINT `GENERIC_FUTUREIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
@@ -154,7 +235,7 @@ CREATE TABLE `position` (
   KEY `POSITION_STRATEGY_FKC` (`STRATEGY_FK`),
   CONSTRAINT `POSITION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `POSITION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -206,7 +287,7 @@ CREATE TABLE `sabr_params` (
   PRIMARY KEY (`id`),
   KEY `SABR_PARAMS_STOCK_OPTION_FAMIC` (`STOCK_OPTION_FAMILY_FK`),
   CONSTRAINT `SABR_PARAMS_STOCK_OPTION_FAMIC` FOREIGN KEY (`STOCK_OPTION_FAMILY_FK`) REFERENCES `stock_option_family` (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -258,7 +339,7 @@ CREATE TABLE `security` (
   CONSTRAINT `SECURITY_SECURITY_FAMILY_FKC` FOREIGN KEY (`SECURITY_FAMILY_FK`) REFERENCES `security_family` (`id`),
   CONSTRAINT `SECURITY_UNDERLAYING_FKC` FOREIGN KEY (`UNDERLAYING_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `SECURITY_VOLATILITY_FKC` FOREIGN KEY (`VOLATILITY_FK`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=115021 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -271,7 +352,7 @@ DROP TABLE IF EXISTS `security_family`;
 CREATE TABLE `security_family` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `NAME` varchar(255) NOT NULL,
-  `MARKET` enum('SOFFEX','DTB','IDEALPRO') NOT NULL,
+  `MARKET` enum('SOFFEX','DTB','IDEALPRO','CBOE','SMART','CFE','GLOBEX','NYMEX','CME') NOT NULL,
   `CURRENCY` enum('CHF','EUR','USD') NOT NULL,
   `CONTRACT_SIZE` int(11) NOT NULL,
   `TICK_SIZE` double NOT NULL,
@@ -284,12 +365,27 @@ CREATE TABLE `security_family` (
   `SPREAD_CONSTANT` double DEFAULT NULL,
   `MAX_SPREAD_SLOPE` double DEFAULT NULL,
   `MAX_SPREAD_CONSTANT` double DEFAULT NULL,
-  `PERIODICITY` enum('MINUTE','HOUR','DAY') DEFAULT NULL,
+  `PERIODICITY` enum('MINUTE','HOUR','DAY') NOT NULL,
   `UNDERLAYING_FK` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `SECURITY_FAMILY_UNDERLAYING_FC` (`UNDERLAYING_FK`),
   CONSTRAINT `SECURITY_FAMILY_UNDERLAYING_FC` FOREIGN KEY (`UNDERLAYING_FK`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `stock`
+--
+
+DROP TABLE IF EXISTS `stock`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `stock` (
+  `ID` int(11) NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `STOCKIFKC` (`ID`),
+  CONSTRAINT `STOCKIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -309,7 +405,9 @@ CREATE TABLE `stock_option` (
   KEY `STRIKE` (`STRIKE`),
   KEY `EXPIRATION` (`EXPIRATION`),
   KEY `TYPE` (`TYPE`),
-  CONSTRAINT `OPTIONIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
+  KEY `STOCK_OPTIONIFKC` (`ID`),
+  CONSTRAINT `OPTIONIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`),
+  CONSTRAINT `STOCK_OPTIONIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -329,7 +427,7 @@ CREATE TABLE `stock_option_family` (
   PRIMARY KEY (`ID`),
   KEY `STOCK_OPTION_FAMILYIFKC` (`ID`),
   CONSTRAINT `STOCK_OPTION_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `security_family` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -347,8 +445,8 @@ CREATE TABLE `strategy` (
   `ALLOCATION` double(15,3) NOT NULL,
   `MODULES` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `NAME` (`NAME`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+  UNIQUE KEY `NAME` (`NAME`,`FAMILY`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -373,9 +471,29 @@ CREATE TABLE `tick` (
   `SECURITY_FK` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `DATE_TIME_SECURITY_FK` (`DATE_TIME`,`SECURITY_FK`),
+  KEY `TICK_SECURITY_FKC` (`SECURITY_FK`),
   KEY `DATE_TIME` (`DATE_TIME`),
-  KEY `TICK_SECURITY_FKC` (`SECURITY_FK`)
-) ENGINE=MyISAM AUTO_INCREMENT=150 DEFAULT CHARSET=latin1 ROW_FORMAT=FIXED;
+  KEY `MARKET_DATA_EVENT_SECURITY_FKC27499d` (`SECURITY_FK`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `trade`
+--
+
+DROP TABLE IF EXISTS `trade`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `trade` (
+  `ID` int(11) NOT NULL,
+  `DATE_TIME` datetime NOT NULL,
+  `SECURITY_FK` int(11) NOT NULL,
+  `PRICE` double NOT NULL,
+  `SIZE` bigint(20) NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `MARKET_DATA_EVENT_SECURITY_FKC268f53e44c5f944` (`SECURITY_FK`),
+  CONSTRAINT `MARKET_DATA_EVENT_SECURITY_FKC268f53e44c5f944` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -392,7 +510,7 @@ CREATE TABLE `transaction` (
   `QUANTITY` bigint(20) NOT NULL,
   `PRICE` decimal(9,2) NOT NULL,
   `COMMISSION` decimal(15,2) DEFAULT NULL,
-  `CURRENCY` enum('CHF','EUR') NOT NULL,
+  `CURRENCY` enum('CHF','EUR','USD','GBP') NOT NULL,
   `TYPE` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST','FEES','REBALANCE') NOT NULL,
   `DESCRIPTION` varchar(255) DEFAULT NULL,
   `SECURITY_FK` int(11) DEFAULT NULL,
@@ -405,7 +523,7 @@ CREATE TABLE `transaction` (
   CONSTRAINT `TRANSACTION_POSITION_FKC` FOREIGN KEY (`POSITION_FK`) REFERENCES `position` (`id`),
   CONSTRAINT `TRANSACTION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `TRANSACTION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11228 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -426,7 +544,7 @@ CREATE TABLE `watch_list_item` (
   KEY `WATCH_LIST_ITEM_STRATEGY_FKC` (`STRATEGY_FK`),
   CONSTRAINT `WATCH_LIST_ITEM_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `WATCH_LIST_ITEM_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -457,4 +575,4 @@ CREATE TABLE `watch_list_item` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-04-21 15:59:40
+-- Dump completed on 2011-06-15 17:59:28
