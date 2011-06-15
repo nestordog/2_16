@@ -1,174 +1,235 @@
-# SQL Manager 2005 for MySQL 3.7.0.1
-# ---------------------------------------
-# Host     : localhost
-# Port     : 3306
-# Database : algotrader
+-- MySQL dump 10.13  Distrib 5.1.48, for Win64 (unknown)
+--
+-- Host: localhost    Database: algotrader
+-- ------------------------------------------------------
+-- Server version    5.1.48-community-log
 
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-SET FOREIGN_KEY_CHECKS=0;
+--
+-- Dumping data for table `ask`
+--
 
-#
-# Data for the `security_family` table  (LIMIT 0,500)
-#
+LOCK TABLES `ask` WRITE;
+/*!40000 ALTER TABLE `ask` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ask` ENABLE KEYS */;
+UNLOCK TABLES;
 
-INSERT INTO `security_family` (`id`, `NAME`, `MARKET`, `CURRENCY`, `CONTRACT_SIZE`, `TICK_SIZE`, `COMMISSION`, `MARKET_OPEN`, `MARKET_CLOSE`, `TRADEABLE`, `SIMULATABLE`, `SPREAD_SLOPE`, `SPREAD_CONSTANT`, `MAX_SPREAD_SLOPE`, `MAX_SPREAD_CONSTANT`, `PERIODICITY`, `UNDERLAYING_FK`) VALUES
-  (1,'SMI','SOFFEX','CHF',1,0.1,0,'09:00:00','17:20:00',False,False,NULL,NULL,NULL,NULL,'MINUTE',NULL),
-  (2,'VSMI','DTB','CHF',1,0.01,NULL,'09:00:00','17:20:00',False,False,NULL,NULL,NULL,NULL,'MINUTE',4),
-  (3,'OSMI','SOFFEX','CHF',10,0.1,2.8,'09:00:00','17:20:00',True,True,0.033,11.7,0.037,25,'MINUTE',4),
-  (4,'ESTX50','DTB','EUR',1,0.01,NULL,'09:00:00','17:30:00',False,False,NULL,NULL,NULL,NULL,'MINUTE',NULL),
-  (5,'V2TX','DTB','EUR',1,0.01,NULL,'09:00:00','17:30:00',False,False,NULL,NULL,NULL,NULL,'MINUTE',2),
-  (6,'OESX','DTB','EUR',10,0.1,2.8,'09:00:00','17:30:00',True,True,0.0133,6.7265,0.015,20,'MINUTE',2),
-  (7,'DEPOSIT RATE CHF','IDEALPRO','CHF',1,0.01,NULL,'09:00:00','17:30:00',False,False,NULL,NULL,NULL,NULL,'DAY',NULL),
-  (8,'CHF FOREX','IDEALPRO','CHF',1,0.0001,2E-5,'09:00:00','18:00:00',True,False,NULL,NULL,NULL,NULL,'HOUR',NULL),
-  (9,'USD FOREX','IDEALPRO','USD',1,0.0001,2E-5,'09:00:00','18:00:00',True,False,NULL,NULL,NULL,NULL,'HOUR',NULL),
-  (10,'FSMI','SOFFEX','CHF',10,1,4,'07:50:00','22:00:00',True,True,0.0003,0,0.037,25,'MINUTE',4),
-  (11,'SPY','SMART','USD',1,0.01,0,'15:30:00','22:00:00',True,False,NULL,NULL,NULL,NULL,'MINUTE',NULL),
-  (12,'GFES','GLOBEX','USD',1,0.01,0,'08:00:00','18:00:00',False,False,NULL,NULL,NULL,NULL,'HOUR',NULL),
-  (13,'GFLH','CME','USD',1,0.01,0,'08:00:00','18:00:00',False,False,NULL,NULL,NULL,NULL,'HOUR',NULL),
-  (14,'GFNG','NYMEX','USD',1,0.01,0,'08:00:00','18:00:00',False,False,NULL,NULL,NULL,NULL,'HOUR',NULL),
-  (20,'VIX','CBOE','USD',1,0.01,NULL,'15:30:00','22:00:00',False,False,NULL,NULL,NULL,NULL,'MINUTE',NULL),
-  (21,'UX','CFE','USD',1000,0.05,1.85,'13:20:00','21:15:00',True,False,NULL,NULL,NULL,NULL,'MINUTE',NULL);
+--
+-- Dumping data for table `bar`
+--
 
-COMMIT;
+LOCK TABLES `bar` WRITE;
+/*!40000 ALTER TABLE `bar` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bar` ENABLE KEYS */;
+UNLOCK TABLES;
 
-#
-# Data for the `security` table  (LIMIT 0,500)
-#
+--
+-- Dumping data for table `bid`
+--
 
-INSERT INTO `security` (`id`, `ISIN`, `SYMBOL`, `UNDERLAYING_FK`, `VOLATILITY_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES
-  (2,'DE0009652396','ESTX50',NULL,3,4,NULL),
-  (3,'DE000A0C3QF1','V2TX',NULL,NULL,5,NULL),
-  (4,'CH0008616382','SMI',NULL,5,1,7),
-  (5,'CH0019900841','V3X',NULL,NULL,7,NULL),
-  (6,'CH0007475228','CHFDOMDEP1W',NULL,NULL,6,NULL),
-  (7,'CH0007473702','CHFDOMDEP1M',NULL,NULL,6,NULL),
-  (8,'EU0009654078','EUR.CHF',NULL,NULL,8,NULL),
-  (9,'XC0009652816','USD.CHF',NULL,NULL,8,NULL),
-  (10,'EU0009652759','EUR.USD',NULL,NULL,9,NULL),
-  (11,'GB0031973075','GBP.USD',NULL,NULL,9,NULL),
-  (12,'SPY','SPY',NULL,NULL,11,NULL),
-  (13,'GFES1M','GFES1M',NULL,NULL,12,NULL),
-  (14,'GFLH1M','GFLH1M',NULL,NULL,13,NULL),
-  (15,'GFNG1M','GFNG1M',NULL,NULL,14,NULL),
-  (20,'VIX','VIX',NULL,NULL,20,NULL),
-  (21,'UX1','UX1',NULL,NULL,21,NULL),
-  (22,'UX2','UX2',NULL,NULL,21,NULL),
-  (23,'UX3','UX3',NULL,NULL,21,NULL),
-  (24,'UX4','UX4',NULL,NULL,21,NULL),
-  (25,'UX5','UX5',NULL,NULL,21,NULL),
-  (26,'UX6','UX6',NULL,NULL,21,NULL),
-  (27,'UX7','UX7',NULL,NULL,21,NULL),
-  (28,'UX8','UX8',NULL,NULL,21,NULL);
+LOCK TABLES `bid` WRITE;
+/*!40000 ALTER TABLE `bid` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bid` ENABLE KEYS */;
+UNLOCK TABLES;
 
-COMMIT;
+--
+-- Dumping data for table `dividend`
+--
 
-#
-# Data for the `forex` table  (LIMIT 0,500)
-#
+LOCK TABLES `dividend` WRITE;
+/*!40000 ALTER TABLE `dividend` DISABLE KEYS */;
+/*!40000 ALTER TABLE `dividend` ENABLE KEYS */;
+UNLOCK TABLES;
 
-INSERT INTO `forex` (`ID`, `BASE_CURRENCY`) VALUES
-  (8,'EUR'),
-  (9,'USD'),
-  (10,'EUR'),
-  (11,'GBP');
+--
+-- Dumping data for table `equity_index`
+--
 
-COMMIT;
+LOCK TABLES `equity_index` WRITE;
+/*!40000 ALTER TABLE `equity_index` DISABLE KEYS */;
+/*!40000 ALTER TABLE `equity_index` ENABLE KEYS */;
+UNLOCK TABLES;
 
-#
-# Data for the `future_family` table  (LIMIT 0,500)
-#
+--
+-- Dumping data for table `forex`
+--
 
-INSERT INTO `future_family` (`ID`, `INTREST`, `DIVIDEND`, `MARGIN_PARAMETER`) VALUES
-  (10,0.0015,0.03,490.9);
+LOCK TABLES `forex` WRITE;
+/*!40000 ALTER TABLE `forex` DISABLE KEYS */;
+INSERT INTO `forex` (`ID`, `BASE_CURRENCY`) VALUES (8,'EUR'),(9,'USD'),(10,'EUR'),(11,'GBP');
+/*!40000 ALTER TABLE `forex` ENABLE KEYS */;
+UNLOCK TABLES;
 
-COMMIT;
+--
+-- Dumping data for table `future`
+--
 
-#
-# Data for the `generic_future` table  (LIMIT 0,500)
-#
+LOCK TABLES `future` WRITE;
+/*!40000 ALTER TABLE `future` DISABLE KEYS */;
+/*!40000 ALTER TABLE `future` ENABLE KEYS */;
+UNLOCK TABLES;
 
-INSERT INTO `generic_future` (`ID`, `DURATION`) VALUES
-  (13,1),
-  (14,1),
-  (15,1),
-  (21,1),
-  (22,2),
-  (23,3),
-  (24,4),
-  (25,5),
-  (26,6),
-  (27,7),
-  (28,8);
+--
+-- Dumping data for table `future_family`
+--
 
-COMMIT;
+LOCK TABLES `future_family` WRITE;
+/*!40000 ALTER TABLE `future_family` DISABLE KEYS */;
+INSERT INTO `future_family` (`ID`, `INTREST`, `DIVIDEND`, `MARGIN_PARAMETER`) VALUES (10,0.0015000000,0.0300000000,490.9000000000);
+/*!40000 ALTER TABLE `future_family` ENABLE KEYS */;
+UNLOCK TABLES;
 
-#
-# Data for the `intrest_rate` table  (LIMIT 0,500)
-#
+--
+-- Dumping data for table `generic_future`
+--
 
-INSERT INTO `intrest_rate` (`ID`, `DURATION`) VALUES
-  (6,604800000),
-  (7,2592000000);
+LOCK TABLES `generic_future` WRITE;
+/*!40000 ALTER TABLE `generic_future` DISABLE KEYS */;
+INSERT INTO `generic_future` (`ID`, `DURATION`) VALUES (13,1),(14,1),(15,1),(21,1),(22,2),(23,3),(24,4),(25,5),(26,6),(27,7),(28,8);
+/*!40000 ALTER TABLE `generic_future` ENABLE KEYS */;
+UNLOCK TABLES;
 
-COMMIT;
+--
+-- Dumping data for table `intrest_rate`
+--
 
-#
-# Data for the `strategy` table  (LIMIT 0,500)
-#
+LOCK TABLES `intrest_rate` WRITE;
+/*!40000 ALTER TABLE `intrest_rate` DISABLE KEYS */;
+INSERT INTO `intrest_rate` (`ID`, `DURATION`) VALUES (6,604800000),(7,2592000000);
+/*!40000 ALTER TABLE `intrest_rate` ENABLE KEYS */;
+UNLOCK TABLES;
 
-INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`) VALUES
-  (0,'BASE','BASE',True,0,'base');
-UPDATE `strategy` SET `id`=0 WHERE `id`=LAST_INSERT_ID();
-INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`) VALUES
-  (1,'SMI','THETA',True,1,'theta-init,theta-main'),
-  (2,'ESTX50','THETA',False,0,'theta-init,theta-main'),
-  (3,'MULTIIND','MULTIIND',False,0,'multiind-movavcross,multiind-main'),
-  (4,'EASTWEST','EASTWEST',False,0,'volcarry-main');
+--
+-- Dumping data for table `position`
+--
 
-COMMIT;
+LOCK TABLES `position` WRITE;
+/*!40000 ALTER TABLE `position` DISABLE KEYS */;
+/*!40000 ALTER TABLE `position` ENABLE KEYS */;
+UNLOCK TABLES;
 
-#
-# Data for the `stock_option_family` table  (LIMIT 0,500)
-#
+--
+-- Dumping data for table `sabr_params`
+--
 
-INSERT INTO `stock_option_family` (`ID`, `STRIKE_DISTANCE`, `INTREST`, `DIVIDEND`, `MARGIN_PARAMETER`) VALUES
-  (3,50,0.0015,0.03,0.075),
-  (6,50,0.006,0.03,0.075);
+LOCK TABLES `sabr_params` WRITE;
+/*!40000 ALTER TABLE `sabr_params` DISABLE KEYS */;
+/*!40000 ALTER TABLE `sabr_params` ENABLE KEYS */;
+UNLOCK TABLES;
 
-COMMIT;
+--
+-- Dumping data for table `security`
+--
 
-#
-# Data for the `transaction` table  (LIMIT 0,500)
-#
+LOCK TABLES `security` WRITE;
+/*!40000 ALTER TABLE `security` DISABLE KEYS */;
+INSERT INTO `security` (`id`, `ISIN`, `SYMBOL`, `UNDERLAYING_FK`, `VOLATILITY_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (2,'DE0009652396','ESTX50',NULL,3,4,NULL),(3,'DE000A0C3QF1','V2TX',NULL,NULL,5,NULL),(4,'CH0008616382','SMI',NULL,5,1,7),(5,'CH0019900841','V3X',NULL,NULL,7,NULL),(6,'CH0007475228','CHFDOMDEP1W',NULL,NULL,6,NULL),(7,'CH0007473702','CHFDOMDEP1M',NULL,NULL,6,NULL),(8,'EU0009654078','EUR.CHF',NULL,NULL,8,NULL),(9,'XC0009652816','USD.CHF',NULL,NULL,8,NULL),(10,'EU0009652759','EUR.USD',NULL,NULL,9,NULL),(11,'GB0031973075','GBP.USD',NULL,NULL,9,NULL),(12,'SPY','SPY',NULL,NULL,11,NULL),(13,'GFES1M','GFES1M',NULL,NULL,12,NULL),(14,'GFLH1M','GFLH1M',NULL,NULL,13,NULL),(15,'GFNG1M','GFNG1M',NULL,NULL,14,NULL),(20,'VIX','VIX',NULL,NULL,20,NULL),(21,'UX1','UX1',NULL,NULL,21,NULL),(22,'UX2','UX2',NULL,NULL,21,NULL),(23,'UX3','UX3',NULL,NULL,21,NULL),(24,'UX4','UX4',NULL,NULL,21,NULL),(25,'UX5','UX5',NULL,NULL,21,NULL),(26,'UX6','UX6',NULL,NULL,21,NULL),(27,'UX7','UX7',NULL,NULL,21,NULL),(28,'UX8','UX8',NULL,NULL,21,NULL);
+/*!40000 ALTER TABLE `security` ENABLE KEYS */;
+UNLOCK TABLES;
 
-INSERT INTO `transaction` (`id`, `NUMBER`, `DATE_TIME`, `QUANTITY`, `PRICE`, `COMMISSION`, `CURRENCY`, `TYPE`, `DESCRIPTION`, `SECURITY_FK`, `STRATEGY_FK`, `POSITION_FK`) VALUES
-  (1,NULL,'1990-01-01',1,1000000,0,'EUR','CREDIT',NULL,NULL,NULL,NULL);
+--
+-- Dumping data for table `security_family`
+--
 
-COMMIT;
+LOCK TABLES `security_family` WRITE;
+/*!40000 ALTER TABLE `security_family` DISABLE KEYS */;
+INSERT INTO `security_family` (`id`, `NAME`, `MARKET`, `CURRENCY`, `CONTRACT_SIZE`, `TICK_SIZE`, `COMMISSION`, `MARKET_OPEN`, `MARKET_CLOSE`, `TRADEABLE`, `SIMULATABLE`, `SPREAD_SLOPE`, `SPREAD_CONSTANT`, `MAX_SPREAD_SLOPE`, `MAX_SPREAD_CONSTANT`, `PERIODICITY`, `UNDERLAYING_FK`) VALUES (1,'SMI','SOFFEX','CHF',1,0.1,'0.00000','09:00:00','17:20:00','\0','\0',NULL,NULL,NULL,NULL,'MINUTE',NULL),(2,'VSMI','DTB','CHF',1,0.01,NULL,'09:00:00','17:20:00','\0','\0',NULL,NULL,NULL,NULL,'MINUTE',4),(3,'OSMI','SOFFEX','CHF',10,0.1,'2.80000','09:00:00','17:20:00','','',0.033,11.7,0.037,25,'MINUTE',4),(4,'ESTX50','DTB','EUR',1,0.01,NULL,'09:00:00','17:30:00','\0','\0',NULL,NULL,NULL,NULL,'MINUTE',NULL),(5,'V2TX','DTB','EUR',1,0.01,NULL,'09:00:00','17:30:00','\0','\0',NULL,NULL,NULL,NULL,'MINUTE',2),(6,'OESX','DTB','EUR',10,0.1,'2.80000','09:00:00','17:30:00','','',0.0133,6.7265,0.015,20,'MINUTE',2),(7,'DEPOSIT RATE CHF','IDEALPRO','CHF',1,0.01,NULL,'09:00:00','17:30:00','\0','\0',NULL,NULL,NULL,NULL,'DAY',NULL),(8,'CHF FOREX','IDEALPRO','CHF',1,0.0001,'0.00002','09:00:00','18:00:00','','\0',NULL,NULL,NULL,NULL,'HOUR',NULL),(9,'USD FOREX','IDEALPRO','USD',1,0.0001,'0.00002','09:00:00','18:00:00','','\0',NULL,NULL,NULL,NULL,'HOUR',NULL),(10,'FSMI','SOFFEX','CHF',10,1,'4.00000','07:50:00','22:00:00','','',0.0003,0,0.037,25,'MINUTE',4),(11,'SPY','SMART','USD',1,0.01,'0.00000','15:30:00','22:00:00','','\0',NULL,NULL,NULL,NULL,'MINUTE',NULL),(12,'GFES','GLOBEX','USD',1,0.01,'0.00000','08:00:00','18:00:00','\0','\0',NULL,NULL,NULL,NULL,'HOUR',NULL),(13,'GFLH','CME','USD',1,0.01,'0.00000','08:00:00','18:00:00','\0','\0',NULL,NULL,NULL,NULL,'HOUR',NULL),(14,'GFNG','NYMEX','USD',1,0.01,'0.00000','08:00:00','18:00:00','\0','\0',NULL,NULL,NULL,NULL,'HOUR',NULL),(20,'VIX','CBOE','USD',1,0.01,NULL,'15:30:00','22:00:00','\0','\0',NULL,NULL,NULL,NULL,'MINUTE',NULL),(21,'UX','CFE','USD',1000,0.05,'1.85000','13:20:00','21:15:00','','\0',NULL,NULL,NULL,NULL,'MINUTE',NULL);
+/*!40000 ALTER TABLE `security_family` ENABLE KEYS */;
+UNLOCK TABLES;
 
-#
-# Data for the `watch_list_item` table  (LIMIT 0,500)
-#
+--
+-- Dumping data for table `stock`
+--
 
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES
-  (1,True,2,2),
-  (2,True,3,2),
-  (3,True,4,1),
-  (4,True,8,2),
-  (5,True,5,1),
-  (6,True,12,3),
-  (7,True,13,3),
-  (8,True,14,3),
-  (9,True,15,3),
-  (10,True,20,4),
-  (11,True,21,4),
-  (12,True,22,4),
-  (13,True,23,4),
-  (14,True,24,4),
-  (15,True,25,4),
-  (16,True,26,4),
-  (17,True,27,4),
-  (18,True,28,4);
+LOCK TABLES `stock` WRITE;
+/*!40000 ALTER TABLE `stock` DISABLE KEYS */;
+/*!40000 ALTER TABLE `stock` ENABLE KEYS */;
+UNLOCK TABLES;
 
-COMMIT;
+--
+-- Dumping data for table `stock_option`
+--
 
+LOCK TABLES `stock_option` WRITE;
+/*!40000 ALTER TABLE `stock_option` DISABLE KEYS */;
+/*!40000 ALTER TABLE `stock_option` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `stock_option_family`
+--
+
+LOCK TABLES `stock_option_family` WRITE;
+/*!40000 ALTER TABLE `stock_option_family` DISABLE KEYS */;
+INSERT INTO `stock_option_family` (`ID`, `STRIKE_DISTANCE`, `INTREST`, `DIVIDEND`, `MARGIN_PARAMETER`) VALUES (3,50.0000000000,0.0015000000,0.0300000000,0.0750000000),(6,50.0000000000,0.0060000000,0.0300000000,0.0750000000);
+/*!40000 ALTER TABLE `stock_option_family` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `strategy`
+--
+
+LOCK TABLES `strategy` WRITE;
+/*!40000 ALTER TABLE `strategy` DISABLE KEYS */;
+INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`) VALUES (0,'BASE','BASE','',0.000,'base'),(1,'SMI','THETA','',1.000,'theta-init,theta-main'),(2,'ESTX50','THETA','\0',0.000,'theta-init,theta-main'),(3,'MULTIIND','MULTIIND','\0',0.000,'multiind-movavcross,multiind-main'),(4,'EASTWEST','EASTWEST','\0',0.000,'volcarry-main');
+/*!40000 ALTER TABLE `strategy` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `tick`
+--
+
+LOCK TABLES `tick` WRITE;
+/*!40000 ALTER TABLE `tick` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tick` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `trade`
+--
+
+LOCK TABLES `trade` WRITE;
+/*!40000 ALTER TABLE `trade` DISABLE KEYS */;
+/*!40000 ALTER TABLE `trade` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `transaction`
+--
+
+LOCK TABLES `transaction` WRITE;
+/*!40000 ALTER TABLE `transaction` DISABLE KEYS */;
+INSERT INTO `transaction` (`id`, `NUMBER`, `DATE_TIME`, `QUANTITY`, `PRICE`, `COMMISSION`, `CURRENCY`, `TYPE`, `DESCRIPTION`, `SECURITY_FK`, `STRATEGY_FK`, `POSITION_FK`) VALUES (1,NULL,'1990-01-01 00:00:00',1,'1000000.00','0.00','EUR','CREDIT',NULL,NULL,NULL,NULL);
+/*!40000 ALTER TABLE `transaction` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `watch_list_item`
+--
+
+LOCK TABLES `watch_list_item` WRITE;
+/*!40000 ALTER TABLE `watch_list_item` DISABLE KEYS */;
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (1,'',2,2),(2,'',3,2),(3,'',4,1),(4,'',8,2),(5,'',5,1),(6,'',12,3),(7,'',13,3),(8,'',14,3),(9,'',15,3),(10,'',20,4),(11,'',21,4),(12,'',22,4),(13,'',23,4),(14,'',24,4),(15,'',25,4),(16,'',26,4),(17,'',27,4),(18,'',28,4);
+/*!40000 ALTER TABLE `watch_list_item` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2011-06-15 18:23:07

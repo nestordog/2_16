@@ -218,6 +218,7 @@ CREATE TABLE `position` (
   CONSTRAINT `POSITION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `POSITION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `sabr_params`
@@ -397,7 +398,7 @@ CREATE TABLE `strategy` (
   `MODULES` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `NAME` (`NAME`,`FAMILY`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -526,4 +527,4 @@ CREATE TABLE `watch_list_item` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-06-15 17:59:28
+-- Dump completed on 2011-06-15 18:23:07
