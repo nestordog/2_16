@@ -35,6 +35,15 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
     }
 
+    protected void handleCloseAllPositionsByStrategy(String strategyName) throws Exception {
+
+        for (Position position : getPositionDao().findOpenPositionsByStrategy(strategyName)) {
+            if (position.isOpen()) {
+                closePosition(position.getId());
+            }
+        }
+    }
+
     protected void handleClosePosition(int positionId) throws Exception {
 
         Position position = getPositionDao().load(positionId);
