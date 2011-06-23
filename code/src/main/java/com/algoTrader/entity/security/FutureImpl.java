@@ -1,5 +1,7 @@
 package com.algoTrader.entity.security;
 
+import java.util.Date;
+
 import com.algoTrader.future.FutureUtil;
 import com.algoTrader.util.DateUtil;
 
@@ -21,5 +23,11 @@ public class FutureImpl extends Future {
     public long getTimeToExpiration() {
 
         return getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime();
+    }
+
+    public int getDuration() {
+
+        Date nextExpDate = DateUtil.get30DayPrioToNextThirdFridayNMonths(DateUtil.getCurrentEPTime(), 1);
+        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / 2592000000d));
     }
 }

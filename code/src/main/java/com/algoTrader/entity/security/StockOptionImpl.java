@@ -1,5 +1,7 @@
 package com.algoTrader.entity.security;
 
+import java.util.Date;
+
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
@@ -53,6 +55,12 @@ public class StockOptionImpl extends StockOption {
     public long getTimeToExpiration() {
 
         return getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime();
+    }
+
+    public int getDuration() {
+
+        Date nextExpDate = DateUtil.get30DayPrioToNextThirdFridayNMonths(DateUtil.getCurrentEPTime(), 1);
+        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / 2592000000d));    // TODO getNextThirdFridayNMonths
     }
 
 }

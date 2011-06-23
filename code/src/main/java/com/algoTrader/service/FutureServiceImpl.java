@@ -18,20 +18,16 @@ public class FutureServiceImpl extends FutureServiceBase {
 
     protected Future handleCreateDummyFuture(int futureFamilyId, java.util.Date expirationDate) throws java.lang.Exception {
 
-        FutureFamily family = (FutureFamily) getFutureFamilyDao().load(futureFamilyId);
+        FutureFamily family = getFutureFamilyDao().load(futureFamilyId);
         Security underlaying = family.getUnderlaying();
 
-        // set third Friday of next 3month cycle month
-        Date expiration = DateUtil.getNextThirdFriday3MonthCycle(expirationDate);
-
-        // symbol / isin
-        String symbol = FutureSymbol.getSymbol(family, expiration);
-        String isin = FutureSymbol.getIsin(family, expiration);
+        String symbol = FutureSymbol.getSymbol(family, expirationDate);
+        String isin = FutureSymbol.getIsin(family, expirationDate);
 
         Future future = new FutureImpl();
         future.setIsin(isin);
         future.setSymbol(symbol);
-        future.setExpiration(expiration);
+        future.setExpiration(expirationDate);
         future.setUnderlaying(underlaying);
         future.setSecurityFamily(family);
 
@@ -42,4 +38,11 @@ public class FutureServiceImpl extends FutureServiceBase {
         return future;
     }
 
+    protected Future handleCreateDummyFuture3MByTargetDate(int futureFamilyId, java.util.Date targetDate) throws java.lang.Exception {
+
+        // set third Friday of next 3month cycle month
+        Date expiration = DateUtil.getNextThirdFriday3MonthCycle(targetDate);
+
+        return createDummyFuture(futureFamilyId, expiration);
+    }
 }

@@ -78,9 +78,9 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
                 try {
                     tick.validate();
 
-                    // propagateTick and createSimulatedTick only for valid ticks
-                    propagateMarketDataEvent(tick);
-                    createSimulatedTicks(tick);
+                    // only valid ticks get send into esper
+                    getRuleService().sendEvent(StrategyImpl.BASE, tick);
+
                 } catch (RuntimeException e) {
                     if (!(e instanceof TickValidationException)) {
                         throw e;
@@ -112,6 +112,8 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
     }
 
     protected void handleCreateSimulatedTicks(Tick tick) throws Exception {
+
+        // TODO move logic into esper statements
 
         if (!simulation)
             return;
@@ -173,7 +175,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             logger.debug(marketDataEvent.getSecurity().getSymbol() + " " + marketDataEvent);
         }
 
-        getRuleService().sendEvent(StrategyImpl.BASE, marketDataEvent);
+        //getRuleService().sendEvent(StrategyImpl.BASE, marketDataEvent);
 
         Collection<WatchListItem> watchListItems = marketDataEvent.getSecurity().getWatchListItems();
         for (WatchListItem watchListItem : watchListItems) {
@@ -387,6 +389,14 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         public void update(int securityId) {
 
             ServiceLocator.serverInstance().getMarketDataService().processTick(securityId);
+        }
+    }
+
+    public static class PropagateTickSubscriber {
+
+        public void update(MarketDataEvent marketDataEvent) {
+
+            ServiceLocator.serverInstance().getMarketDataService().propagateMarketDataEvent(marketDataEvent);
         }
     }
 }

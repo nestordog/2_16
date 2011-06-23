@@ -56,6 +56,11 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getFutureDao().findNearestFuture(underlayingId, expirationDate);
     }
 
+    protected Future handleGetFutureByExpiration(int underlayingId, Date expirationDate) throws Exception {
+
+        return getFutureDao().findFutureByExpiration(underlayingId, expirationDate);
+    }
+
     protected Strategy handleGetStrategy(int id) throws java.lang.Exception {
 
         return getStrategyDao().load(id);
@@ -144,6 +149,11 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected StockOption[] handleGetStockOptionsOnWatchlist() throws Exception {
 
         return getStockOptionDao().findStockOptionsOnWatchlist().toArray(new StockOption[0]);
+    }
+
+    protected Future[] handleGetFuturesOnWatchlist() throws Exception {
+
+        return getFutureDao().findFuturesOnWatchlist().toArray(new Future[0]);
     }
 
     protected Position[] handleGetOpenPositions() throws Exception {
