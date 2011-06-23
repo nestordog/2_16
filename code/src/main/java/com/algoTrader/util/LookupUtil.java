@@ -3,6 +3,7 @@ package com.algoTrader.util;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
+import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.Periodicity;
@@ -18,6 +19,11 @@ public class LookupUtil {
     public static StockOption[] getStockOptionsOnWatchlist() {
 
         return ServiceLocator.commonInstance().getLookupService().getStockOptionsOnWatchlist();
+    }
+
+    public static Future[] getFuturesOnWatchlist() {
+
+        return ServiceLocator.commonInstance().getLookupService().getFuturesOnWatchlist();
     }
 
     public static Security[] getSecuritiesOnWatchlistByPeriodicity(String periodicityString) {
