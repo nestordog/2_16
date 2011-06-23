@@ -64,10 +64,12 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         getTransactionService().executeTransaction(order);
 
+        // TODO in Theta remove from Watchlist if not needed anymore
         // only remove the security from the watchlist, if the position is closed
-        if (!position.isOpen()) {
-            getMarketDataService().removeFromWatchlist(position.getStrategy(), security);
-        }
+        //        if (!position.isOpen()) {
+        //            getMarketDataService().removeFromWatchlist(position.getStrategy(), security);
+        //        }
+
     }
 
     protected void handleSetExitValue(int positionId, double exitValue, boolean force) throws MathException {
