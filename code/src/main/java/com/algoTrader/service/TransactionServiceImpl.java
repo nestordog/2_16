@@ -5,7 +5,6 @@ import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.OrderImpl;
 import com.algoTrader.entity.Position;
@@ -193,6 +192,11 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         Security security = order.getSecurity();
         Position position = getPositionDao().findBySecurityAndStrategy(security.getId(), order.getStrategy().getName());
         Tick tick = security.getLastTick();
+
+        if (tick == null) {
+            throw new TransactionServiceException("no last tick available for security " + security);
+        }
+
         double currentValue = tick.getCurrentValueDouble();
 
         // in daily / hourly / 30min / 15min simulation, if exitValue is reached during the day, take the exitValue
