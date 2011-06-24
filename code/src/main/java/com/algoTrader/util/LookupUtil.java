@@ -47,6 +47,11 @@ public class LookupUtil {
         return ServiceLocator.commonInstance().getLookupService().getOpenPositions();
     }
 
+    public static Position[] getOpenPositionsByStrategy(String strategyName) {
+
+        return ServiceLocator.commonInstance().getLookupService().getOpenPositionsByStrategy(strategyName);
+    }
+
     public static Position[] getBullishPositionsByStrategy(String strategyName) {
 
         return ServiceLocator.commonInstance().getLookupService().getBullishPositionsByStrategy(strategyName);
