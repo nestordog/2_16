@@ -59,8 +59,8 @@ public class StockOptionImpl extends StockOption {
 
     public int getDuration() {
 
-        Date nextExpDate = DateUtil.get30DayPrioToNextThirdFridayNMonths(DateUtil.getCurrentEPTime(), 1);
-        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / 2592000000d));    // TODO getNextThirdFridayNMonths
+        StockOptionFamily family = (StockOptionFamily) this.getSecurityFamily();
+        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), DateUtil.getCurrentEPTime());
+        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / 2592000000d));
     }
-
 }

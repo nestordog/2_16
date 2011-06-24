@@ -31,19 +31,15 @@ import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
-import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.entity.security.StockOptionImpl;
 import com.algoTrader.enumeration.OptionType;
-import com.algoTrader.future.FutureUtil;
 import com.algoTrader.stockOption.StockOptionSymbol;
-import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.io.CsvIVolReader;
 import com.algoTrader.util.io.CsvTickReader;
 import com.algoTrader.util.io.CsvTickWriter;
@@ -55,10 +51,8 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
     private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
-    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
-    private Map<Integer, Tick> securities = new HashMap<Integer, Tick>();
 
     protected void handleProcessTick(int securityId) throws SuperCSVException, IOException {
 
@@ -111,71 +105,12 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         return getBarDao().barVOToEntity(barVO);
     }
 
-    protected void handleCreateSimulatedTicks(Tick tick) throws Exception {
-
-        // TODO move logic into esper statements
-
-        if (!simulation)
-            return;
-
-        List<Security> securities = getSecurityDao().findSimulatableSecuritiesOnWatchlist();
-
-        for (Security security : securities) {
-
-            Security underlaying = security.getSecurityFamily().getUnderlaying();
-            if (tick.getSecurity().getId() == underlaying.getId()) {
-
-                // save the underlyingTick for later
-                this.securities.put(tick.getSecurity().getId(), tick);
-
-            } else if (tick.getSecurity().getId() == underlaying.getVolatility().getId()) {
-
-                // so we got the volaTick
-                Tick volaTick = tick;
-
-                // only create SimulatedTicks when a volaTick arrives
-                Tick underlayingTick = this.securities.get(underlaying.getId());
-
-                if (underlayingTick != null) {
-
-                    double lastDouble;
-                    if (security instanceof StockOption) {
-                        lastDouble = StockOptionUtil.getOptionPrice((StockOption) security, underlayingTick.getCurrentValueDouble(), volaTick.getCurrentValueDouble() / 100);
-                    } else if (security instanceof Future) {
-                        lastDouble = FutureUtil.getFuturePrice((Future) security, underlayingTick.getCurrentValueDouble());
-                    } else {
-                        throw new IllegalArgumentException(security.getClass().getName() + " cannot be simulated");
-                    }
-
-                    BigDecimal last = RoundUtil.getBigDecimal(lastDouble);
-
-                    Tick simulatedTick = new TickImpl();
-                    simulatedTick.setDateTime(volaTick.getDateTime());
-                    simulatedTick.setLast(last);
-                    simulatedTick.setLastDateTime(volaTick.getDateTime());
-                    simulatedTick.setVol(0);
-                    simulatedTick.setVolBid(0);
-                    simulatedTick.setVolAsk(0);
-                    simulatedTick.setBid(new BigDecimal(0));
-                    simulatedTick.setAsk(new BigDecimal(0));
-                    simulatedTick.setOpenIntrest(0);
-                    simulatedTick.setSettlement(new BigDecimal(0));
-                    simulatedTick.setSecurity(security);
-
-                    propagateMarketDataEvent(simulatedTick);
-                }
-            }
-        }
-    }
-
     protected void handlePropagateMarketDataEvent(MarketDataEvent marketDataEvent) {
 
         // marketDataEvent.toString is expensive, so only log if debug is anabled
         if (!logger.getParent().getLevel().isGreaterOrEqual(Level.INFO)) {
             logger.debug(marketDataEvent.getSecurity().getSymbol() + " " + marketDataEvent);
         }
-
-        //getRuleService().sendEvent(StrategyImpl.BASE, marketDataEvent);
 
         Collection<WatchListItem> watchListItems = marketDataEvent.getSecurity().getWatchListItems();
         for (WatchListItem watchListItem : watchListItems) {

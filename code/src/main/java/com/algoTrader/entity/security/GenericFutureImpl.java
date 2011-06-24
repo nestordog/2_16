@@ -10,9 +10,8 @@ public class GenericFutureImpl extends GenericFuture {
 
     public Date getExpiration() {
 
-        // calculate expiration based on defined months
-        Date date = DateUtil.getCurrentEPTime();
+        GenericFutureFamily family = (GenericFutureFamily) getSecurityFamily();
 
-        return DateUtil.get30DayPrioToNextThirdFridayNMonths(date, getDuration());
+        return DateUtil.getExpirationDateNMonths(family.getExpirationType(), DateUtil.getCurrentEPTime(), getDuration());
     }
 }

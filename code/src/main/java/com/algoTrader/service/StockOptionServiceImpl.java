@@ -47,7 +47,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         Security underlaying = family.getUnderlaying();
 
         // set third Friday of the month
-        Date expiration = DateUtil.getNextThirdFriday(expirationDate);
+        Date expiration = DateUtil.getExpirationDate(family.getExpirationType(), expirationDate);
 
         BigDecimal strike = RoundUtil.roundStockOptionStrikeToNextN(underlayingSpot, family.getStrikeDistance(), type);
 

@@ -27,7 +27,8 @@ public class FutureImpl extends Future {
 
     public int getDuration() {
 
-        Date nextExpDate = DateUtil.get30DayPrioToNextThirdFridayNMonths(DateUtil.getCurrentEPTime(), 1);
+        FutureFamily family = (FutureFamily) this.getSecurityFamily();
+        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), DateUtil.getCurrentEPTime());
         return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / 2592000000d));
     }
 }

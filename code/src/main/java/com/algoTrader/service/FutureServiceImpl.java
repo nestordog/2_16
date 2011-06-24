@@ -16,9 +16,26 @@ public class FutureServiceImpl extends FutureServiceBase {
 
     private static Logger logger = MyLogger.getLogger(FutureServiceImpl.class.getName());
 
-    protected Future handleCreateDummyFuture(int futureFamilyId, java.util.Date expirationDate) throws java.lang.Exception {
+    protected Future handleCreateDummyFuture(int futureFamilyId, Date targetExpirationDate) throws java.lang.Exception {
 
         FutureFamily family = getFutureFamilyDao().load(futureFamilyId);
+
+        Date expirationDate = DateUtil.getExpirationDate(family.getExpirationType(), targetExpirationDate);
+
+        return createDummyFuture(family, expirationDate);
+    }
+
+    protected Future handleCreateDummyFutureNMonths(int futureFamilyId, Date targetExpirationDate, int duration) throws java.lang.Exception {
+
+        FutureFamily family = getFutureFamilyDao().load(futureFamilyId);
+
+        Date expirationDate = DateUtil.getExpirationDateNMonths(family.getExpirationType(), targetExpirationDate, duration);
+
+        return createDummyFuture(family, expirationDate);
+    }
+
+    private Future createDummyFuture(FutureFamily family, Date expirationDate) {
+
         Security underlaying = family.getUnderlaying();
 
         String symbol = FutureSymbol.getSymbol(family, expirationDate);
@@ -36,13 +53,5 @@ public class FutureServiceImpl extends FutureServiceBase {
         logger.info("created dummy future " + future.getSymbol());
 
         return future;
-    }
-
-    protected Future handleCreateDummyFuture3MByTargetDate(int futureFamilyId, java.util.Date targetDate) throws java.lang.Exception {
-
-        // set third Friday of next 3month cycle month
-        Date expiration = DateUtil.getNextThirdFriday3MonthCycle(targetDate);
-
-        return createDummyFuture(futureFamilyId, expiration);
     }
 }

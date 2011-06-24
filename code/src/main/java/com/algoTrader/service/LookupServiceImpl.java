@@ -56,8 +56,10 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getFutureDao().findNearestFuture(underlayingId, expirationDate);
     }
 
-    protected Future handleGetFutureByExpiration(int underlayingId, Date expirationDate) throws Exception {
+    protected Future handleGetFutureByDuration(int underlayingId, Date targetDate, int duration) throws Exception {
 
+        FutureFamily futureFamily = getFutureFamilyDao().findByUnderlaying(underlayingId);
+        Date expirationDate = DateUtil.getExpirationDateNMonths(futureFamily.getExpirationType(), targetDate, duration);
         return getFutureDao().findFutureByExpiration(underlayingId, expirationDate);
     }
 
