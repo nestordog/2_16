@@ -198,7 +198,11 @@ public class PositionImpl extends Position {
 
     public double getExitValueDouble() {
 
-        return getExitValue().doubleValue();
+        if (getExitValue() != null) {
+            return getExitValue().doubleValue();
+        } else {
+            return 0.0;
+        }
     }
 
     public double getExitValueDoubleBase() {
