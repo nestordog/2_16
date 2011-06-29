@@ -245,6 +245,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
         try
         {
             final ${hibernateUtils.basePackage}.Criteria criteria = this.getSession(false).createCriteria(${entity.fullyQualifiedEntityImplementationName}.class);
+			criteria.setCacheable(true);
             if (pageNumber > 0 && pageSize > 0)
             {
                 criteria.setFirstResult(this.calculateFirstResult(pageNumber, pageSize));
