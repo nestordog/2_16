@@ -1,5 +1,7 @@
 package com.algoTrader.util;
 
+import java.util.Date;
+
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
@@ -24,6 +26,11 @@ public class LookupUtil {
     public static Future[] getFuturesOnWatchlist() {
 
         return ServiceLocator.commonInstance().getLookupService().getFuturesOnWatchlist();
+    }
+
+    public static Future getFutureByDuration(int underlayingId, Date targetDate, int duration) {
+
+        return ServiceLocator.commonInstance().getLookupService().getFutureByDuration(underlayingId, targetDate, duration);
     }
 
     public static Security[] getSecuritiesOnWatchlistByPeriodicity(String periodicityString) {
