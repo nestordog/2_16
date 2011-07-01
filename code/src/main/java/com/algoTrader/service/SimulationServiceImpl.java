@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.ConvergenceException;
 import org.apache.commons.math.FunctionEvaluationException;
@@ -301,18 +302,19 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
     protected void handleOptimizeMultiParamLinear(String strategyName, String parameters[], double[] mins, double[] maxs, double[] increments) throws Exception {
 
+        Configuration configuration = ConfigurationUtil.getStrategyConfig(strategyName);
         for (double i0 = mins[0]; i0 <= maxs[0]; i0 += increments[0]) {
-            ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameters[0], format.format(i0));
+            configuration.setProperty(parameters[0], format.format(i0));
             String message0 = parameters[0] + "=" + format.format(MathUtils.round(i0, roundDigits));
 
             if (parameters.length >= 2) {
                 for (double i1 = mins[1]; i1 <= maxs[1]; i1 += increments[1]) {
-                    ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameters[1], format.format(i1));
+                    configuration.setProperty(parameters[1], format.format(i1));
                     String message1 = parameters[1] + "=" + format.format(MathUtils.round(i1, roundDigits));
 
                     if (parameters.length >= 3) {
                         for (double i2 = mins[2]; i2 <= maxs[2]; i2 += increments[2]) {
-                            ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameters[2], format.format(i2));
+                            configuration.setProperty(parameters[2], format.format(i2));
                             String message2 = parameters[2] + "=" + format.format(MathUtils.round(i2, roundDigits));
 
                             SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
