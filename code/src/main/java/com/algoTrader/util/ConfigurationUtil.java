@@ -57,10 +57,4 @@ public class ConfigurationUtil {
         }
         return strategyConfig;
     }
-
-    public static void resetConfig() {
-
-        baseConfig = null;
-        strategyConfigMap = new HashMap<String, CompositeConfiguration>();
-    }
 }

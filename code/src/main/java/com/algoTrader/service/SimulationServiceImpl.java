@@ -175,9 +175,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             getRuleService().destroyServiceProvider(strategy.getName());
         }
 
-        // reset all configuration variables
-        ConfigurationUtil.resetConfig();
-
         // run a garbage collection
         System.gc();
 
