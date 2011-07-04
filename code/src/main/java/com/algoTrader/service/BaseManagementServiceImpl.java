@@ -41,4 +41,10 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
 
         return getIbService().getAllConnectionStates();
     }
+
+    @Override
+    protected void handleEqualizeForex() throws Exception {
+
+        getForexService().equalizeForex();
+    }
 }

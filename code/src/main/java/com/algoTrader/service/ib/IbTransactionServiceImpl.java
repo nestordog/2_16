@@ -247,6 +247,13 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                     logger.debug(message);
                     return;
 
+                } else if (code == 399) {
+
+                    // Order Message: Warning: Your order size is below the EUR 20000 IdealPro minimum and will be routed as an odd lot order.
+                    // do nothing, this is ok for small FX Orders
+                    logger.debug(message);
+                    return;
+
                 } else if (code == 434) {
 
                     // The order size cannot be zero

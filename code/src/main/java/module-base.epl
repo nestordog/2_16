@@ -79,6 +79,13 @@ select
 from
     pattern[every timer:at (0, 18, 1, *, *) -> Portfolio];
 
+@Name('EQUALIZE_FOREX_PORTFOLIO')
+@Tag(name='listeners', value='com.algoTrader.service.ForexServiceImpl$EqualizeForexListener')
+select
+    *
+from
+    pattern[every timer:at (0, 10, *, *, 3) -> Portfolio];
+
 @Name('GET_LAST_TICK')
 @Priority(3)
 select

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.security.Forex;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
@@ -147,9 +148,21 @@ public class StrategyDaoImpl extends StrategyDaoBase {
         // get the total value of all securites
         Collection<Position> positions = getPositionDao().findOpenPositions();
         for (Position position : positions) {
-            Currency currency = position.getSecurity().getSecurityFamily().getCurrency();
-            double securities = securitiesMap.get(currency) + position.getMarketValueDouble();
-            securitiesMap.put(currency, securities);
+
+            if (!position.isOpen())
+                continue;
+
+            // Forex are handled different then all other currencies
+            double marketValue;
+            Currency currency;
+            if (position.getSecurity() instanceof Forex) {
+                currency = ((Forex) position.getSecurity()).getBaseCurrency();
+                marketValue = position.getQuantity();
+            } else {
+                currency = position.getSecurity().getSecurityFamily().getCurrency();
+                marketValue = position.getMarketValueDouble();
+            }
+            securitiesMap.put(currency, securitiesMap.get(currency) + marketValue);
         }
 
         List<BalanceVO> balances = new ArrayList<BalanceVO>();
