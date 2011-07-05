@@ -249,8 +249,8 @@ public class GenericTALibFunction extends AggregationSupport {
 
         // Remove the last element of each buffer
         for (CircularFifoBuffer<Number> buffer : this.inputParams) {
-            if (!buffer.isEmpty()) {
-                buffer.remove();
+            if (buffer.contains(obj)) {
+                buffer.remove(obj);
             }
         }
     }
