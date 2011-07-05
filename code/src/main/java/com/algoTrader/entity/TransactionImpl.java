@@ -15,7 +15,13 @@ public class TransactionImpl extends Transaction {
 
     public BigDecimal getValue() {
 
-        return RoundUtil.getBigDecimal(getValueDouble());
+        if (getSecurity() != null) {
+            int scale = getSecurity().getSecurityFamily().getScale();
+            return RoundUtil.getBigDecimal(getValueDouble(), scale);
+        } else {
+            return RoundUtil.getBigDecimal(getValueDouble());
+        }
+
     }
 
     /**

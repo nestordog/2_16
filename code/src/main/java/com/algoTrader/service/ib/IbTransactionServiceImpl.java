@@ -22,6 +22,7 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.security.Forex;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.OrderStatus;
@@ -188,12 +189,13 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
                         PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(execution.m_orderId);
                         Order order = partialOrder.getParentOrder();
+                        int scale = order.getSecurity().getSecurityFamily().getScale();
 
                         Date dateTime = format.parse(execution.m_time);
                         String number = execution.m_execId;
                         int executedQuantity = Math.abs(execution.m_shares);
                         int signedExecutedQuantity = TransactionType.SELL.equals(order.getTransactionType()) ? -executedQuantity : executedQuantity;
-                        BigDecimal price = RoundUtil.getBigDecimal(execution.m_price);
+                        BigDecimal price = RoundUtil.getBigDecimal(execution.m_price, scale);
 
                         Transaction transaction = new TransactionImpl();
                         transaction.setDateTime(dateTime);
@@ -431,8 +433,14 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
         com.ib.client.Order ibOrder = new com.ib.client.Order();
         ibOrder.m_action = partialOrder.getParentOrder().getTransactionType().toString();
-        ibOrder.m_orderType = "LMT";
-        ibOrder.m_lmtPrice = getPrice(partialOrder.getParentOrder(), partialOrder.getSpreadPosition(), tick.getBid().doubleValue(), tick.getAsk().doubleValue());
+
+        if (tick.getSecurity() instanceof Forex) {
+            ibOrder.m_orderType = "MKT"; // TODO remove looping
+        } else {
+            ibOrder.m_orderType = "LMT";
+            ibOrder.m_lmtPrice = getPrice(partialOrder.getParentOrder(), partialOrder.getSpreadPosition(),
+                    tick.getBid().doubleValue(), tick.getAsk().doubleValue());
+        }
 
         if (faEnabled) {
             TransactionType transactionType = partialOrder.getParentOrder().getTransactionType();

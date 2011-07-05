@@ -64,14 +64,16 @@ public class IbMarketDataServiceImpl extends IbMarketDataServiceBase implements 
                     price = 0;
                 }
 
+                int scale = tick.getSecurity().getSecurityFamily().getScale();
+
                 if (field == TickType.BID) {
-                    tick.setBid(RoundUtil.getBigDecimal(price));
+                    tick.setBid(RoundUtil.getBigDecimal(price, scale));
                 } else if (field == TickType.ASK) {
-                    tick.setAsk(RoundUtil.getBigDecimal(price));
+                    tick.setAsk(RoundUtil.getBigDecimal(price, scale));
                 } else if (field == TickType.LAST) {
-                    tick.setLast(RoundUtil.getBigDecimal(price));
+                    tick.setLast(RoundUtil.getBigDecimal(price, scale));
                 } else if (field == TickType.CLOSE) {
-                    tick.setSettlement(RoundUtil.getBigDecimal(price));
+                    tick.setSettlement(RoundUtil.getBigDecimal(price, scale));
                 }
                 checkValidity(tick);
             }

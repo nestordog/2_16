@@ -21,6 +21,9 @@ public class StrategyImpl extends Strategy {
     private static double initialMarginMarkup = ConfigurationUtil.getBaseConfig().getDouble("initialMarginMarkup");
     private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
 
+    private int transactionCount = -1;
+    private double cashBalance = 0.0;
+
     public final static String BASE = "BASE";
 
     public boolean isBase() {
@@ -34,6 +37,13 @@ public class StrategyImpl extends Strategy {
     @SuppressWarnings("unchecked")
     public double getCashBalanceDouble() {
 
+        Collection<Transaction> transactions = getTransactions();
+
+        // take cashBalance from cache, if there where no new transactions
+        if (transactions.size() == this.transactionCount) {
+            return this.cashBalance;
+        }
+
         List<Currency> currencies = ServiceLocator.commonInstance().getLookupService().getHeldCurrencies(getName());
         Map<Currency, Double> cashMap = new HashMap<Currency, Double>();
         Map<Currency, Double> cashFlowMap = new HashMap<Currency, Double>();
@@ -44,7 +54,6 @@ public class StrategyImpl extends Strategy {
         }
 
         // sum of all transactions that belongs to this strategy
-        Collection<Transaction> transactions = getTransactions();
         for (Transaction transaction : transactions) {
             Currency currency = transaction.getCurrency();
             double cash = cashMap.get(currency) + transaction.getValueDouble();
@@ -59,17 +68,19 @@ public class StrategyImpl extends Strategy {
             cashFlowMap.put(currency, cashFlow);
         }
 
-        double balance = 0.0;
+        this.cashBalance = 0.0;
         for (Currency currency : currencies) {
 
             double cash = cashMap.get(currency);
             double cashFlow = cashFlowMap.get(currency);
             double totalCash = cash + cashFlow * getAllocation();
             double exchangeRate = ServiceLocator.commonInstance().getLookupService().getForexRateDouble(currency, portfolioBaseCurrency);
-            balance += (totalCash * exchangeRate);
+            this.cashBalance += (totalCash * exchangeRate);
         }
 
-        return balance;
+        this.transactionCount = transactions.size();
+
+        return this.cashBalance;
     }
 
     public BigDecimal getSecuritiesCurrentValue() {

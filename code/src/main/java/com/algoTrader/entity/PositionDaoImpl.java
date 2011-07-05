@@ -23,14 +23,15 @@ public class PositionDaoImpl extends PositionDaoBase {
 
     private void completePositionVO(Position position, PositionVO positionVO) {
 
+        int scale = position.getSecurity().getSecurityFamily().getScale();
         positionVO.setSymbol(position.getSecurity().getSymbol());
         positionVO.setCurrency(position.getSecurity().getSecurityFamily().getCurrency());
-        positionVO.setMarketPrice(RoundUtil.getBigDecimal(position.getMarketPriceDouble()));
+        positionVO.setMarketPrice(RoundUtil.getBigDecimal(position.getMarketPriceDouble(), scale));
         positionVO.setMarketValue(RoundUtil.getBigDecimal(position.getMarketValueDouble()));
-        positionVO.setAveragePrice(RoundUtil.getBigDecimal(position.getAveragePriceDouble()));
+        positionVO.setAveragePrice(RoundUtil.getBigDecimal(position.getAveragePriceDouble(), scale));
         positionVO.setCost(RoundUtil.getBigDecimal(position.getCostDouble()));
         positionVO.setUnrealizedPL(RoundUtil.getBigDecimal(position.getUnrealizedPLDouble()));
-        positionVO.setExitValue(position.getExitValue() != null ? RoundUtil.getBigDecimal(position.getExitValue()) : null);
+        positionVO.setExitValue(position.getExitValue() != null ? RoundUtil.getBigDecimal(position.getExitValue(), scale) : null);
         positionVO.setRedemptionValue(RoundUtil.getBigDecimal(position.getRedemptionValueDouble()));
         positionVO.setMaxLoss(RoundUtil.getBigDecimal(position.getMaxLossDouble()));
 

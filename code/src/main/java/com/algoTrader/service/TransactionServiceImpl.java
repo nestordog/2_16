@@ -212,19 +212,20 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         }
 
         int contractSize = security.getSecurityFamily().getContractSize();
+        int scale = security.getSecurityFamily().getScale();
 
         if (TransactionType.SELL.equals(order.getTransactionType())) {
 
             double bid = tick.getBid().doubleValue();
 
-            transaction.setPrice(RoundUtil.getBigDecimal(bid));
+            transaction.setPrice(RoundUtil.getBigDecimal(bid, scale));
             transaction.setQuantity(-Math.abs(order.getRequestedQuantity()));
 
         } else if (TransactionType.BUY.equals(order.getTransactionType())) {
 
             double ask = tick.getAsk().doubleValue();
 
-            transaction.setPrice(RoundUtil.getBigDecimal(ask));
+            transaction.setPrice(RoundUtil.getBigDecimal(ask, scale));
             transaction.setQuantity(Math.abs(order.getRequestedQuantity()));
 
         } else if (TransactionType.EXPIRATION.equals(order.getTransactionType())) {
@@ -237,7 +238,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 StockOption stockOption = (StockOption) security;
                 double underlayingSpot = security.getUnderlaying().getLastTick().getCurrentValueDouble();
                 double intrinsicValue = StockOptionUtil.getIntrinsicValue(stockOption, underlayingSpot);
-                BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue * contractSize);
+                BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue * contractSize, scale);
                 transaction.setPrice(price);
 
             } else if (security instanceof Future) {

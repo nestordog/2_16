@@ -2,7 +2,6 @@ package com.algoTrader.entity.marketData;
 
 import java.math.BigDecimal;
 
-import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
@@ -18,15 +17,16 @@ public class TickImpl extends Tick {
      */
     public BigDecimal getCurrentValue() {
 
+        int scale = getSecurity().getSecurityFamily().getScale();
         if (simulation) {
             if ((super.getBid().doubleValue() != 0) && (super.getAsk().doubleValue() != 0)) {
-                return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0);
+                return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0, scale);
             } else {
                 return getLast();
             }
         } else {
             if (this.getSecurity().getSecurityFamily().isTradeable()) {
-                return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0);
+                return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0, scale);
             } else {
                 return getLast();
             }
@@ -55,7 +55,7 @@ public class TickImpl extends Tick {
                 double pricePerContract = getLast().doubleValue() * family.getContractSize();
                 double spread = pricePerContract * family.getSpreadSlope() + family.getSpreadConstant();
                 double dummyBid = (pricePerContract - (spread / 2.0)) / family.getContractSize();
-                return RoundUtil.getBigDecimal(dummyBid);
+                return RoundUtil.getBigDecimal(dummyBid, family.getScale());
             } else {
                 return super.getBid();
             }
@@ -81,7 +81,7 @@ public class TickImpl extends Tick {
                 double pricePerContract = getLast().doubleValue() * family.getContractSize();
                 double spread = pricePerContract * family.getSpreadSlope() + family.getSpreadConstant();
                 double dummyAsk = (pricePerContract + (spread / 2.0)) / family.getContractSize();
-                return RoundUtil.getBigDecimal(dummyAsk);
+                return RoundUtil.getBigDecimal(dummyAsk, family.getScale());
             } else {
                 return super.getAsk();
             }

@@ -8,11 +8,7 @@ import com.algoTrader.enumeration.OptionType;
 
 public class RoundUtil {
 
-    public static BigDecimal roundTo10Cent(BigDecimal decimal) {
-
-        double rounded = Math.round(decimal.doubleValue() * 10.0) / 10.0;
-        return getBigDecimal(rounded);
-    }
+    private static final int portfolioDigits = ConfigurationUtil.getBaseConfig().getInt("portfolioDigits");
 
     public static double roundToNextN(double value, double n) {
 
@@ -21,7 +17,7 @@ public class RoundUtil {
 
     public static BigDecimal roundToNextN(BigDecimal value, double n) {
 
-        return RoundUtil.getBigDecimal(roundToNextN(value.doubleValue(), n));
+        return RoundUtil.getBigDecimal(roundToNextN(value.doubleValue(), n), getDigits(n));
     }
 
     public static double roundToNextN(double value, double n, int roundingMethod) {
@@ -31,14 +27,24 @@ public class RoundUtil {
 
     public static BigDecimal roundToNextN(BigDecimal value, double n, int roundingMethod) {
 
-        return RoundUtil.getBigDecimal(roundToNextN(value.doubleValue(), n, roundingMethod));
+        return RoundUtil.getBigDecimal(roundToNextN(value.doubleValue(), n, roundingMethod), getDigits(n));
     }
 
     public static BigDecimal getBigDecimal(double value) {
 
         if (!Double.isNaN(value)) {
             BigDecimal decimal = new BigDecimal(value);
-            return decimal.setScale(2, BigDecimal.ROUND_HALF_UP);
+            return decimal.setScale(portfolioDigits, BigDecimal.ROUND_HALF_UP);
+        } else {
+            return null;
+        }
+    }
+
+    public static BigDecimal getBigDecimal(double value, int scale) {
+
+        if (!Double.isNaN(value)) {
+            BigDecimal decimal = new BigDecimal(value);
+            return decimal.setScale(scale, BigDecimal.ROUND_HALF_UP);
         } else {
             return null;
         }
@@ -53,5 +59,11 @@ public class RoundUtil {
             // reduce by strikeOffset and round to lower n
             return roundToNextN(spot, n, BigDecimal.ROUND_FLOOR);
         }
+    }
+
+    public static int getDigits(double n) {
+        int exponent = -(int) Math.floor(Math.log10(n));
+        int digits = exponent >= 0 ? exponent : 0;
+        return digits;
     }
 }
