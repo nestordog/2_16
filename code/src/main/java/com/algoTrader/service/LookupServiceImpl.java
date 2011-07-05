@@ -59,8 +59,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected Future handleGetFutureByDuration(int underlayingId, Date targetDate, int duration) throws Exception {
 
         FutureFamily futureFamily = getFutureFamilyDao().findByUnderlaying(underlayingId);
-        Date expirationDate = DateUtil.getExpirationDateNMonths(futureFamily.getExpirationType(), targetDate, duration);
-        return getFutureDao().findFutureByExpiration(underlayingId, expirationDate);
+        if (futureFamily == null) {
+            throw new LookupServiceException("futureFamily by id: " + underlayingId + " does not exist");
+        } else {
+            Date expirationDate = DateUtil.getExpirationDateNMonths(futureFamily.getExpirationType(), targetDate, duration);
+            return getFutureDao().findFutureByExpiration(underlayingId, expirationDate);
+        }
     }
 
     protected Strategy handleGetStrategy(int id) throws java.lang.Exception {
