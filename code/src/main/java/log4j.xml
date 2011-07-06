@@ -97,7 +97,7 @@
         <level value="error" />
     </logger>
 
-    <logger name="com.algoTrader.subscriber.PrintPortfolioValueSubscriber" additivity="false">
+    <logger name="com.algoTrader.esper.subscriber.PrintPortfolioValueSubscriber" additivity="false">
         <level value="info" />
         <appender-ref ref="PORTFOLIO" />
     </logger>
@@ -107,7 +107,7 @@
 <!--         <appender-ref ref="SOCKET" /> -->
     </logger>
 
-    <logger name="com.algoTrader.subscriber.IndicatorSubscriber" additivity="false">
+    <logger name="com.algoTrader.esper.subscriber.IndicatorSubscriber" additivity="false">
         <level value="info" />
         <appender-ref ref="INDICATOR" />
     </logger>
