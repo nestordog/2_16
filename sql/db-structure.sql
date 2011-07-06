@@ -26,7 +26,7 @@ CREATE TABLE `ask` (
   `ID` int(11) NOT NULL,
   `DATE_TIME` datetime NOT NULL,
   `SECURITY_FK` int(11) NOT NULL,
-  `PRICE` double NOT NULL,
+  `PRICE` decimal(12,5) NOT NULL,
   `SIZE` bigint(20) NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `MARKET_DATA_EVENT_SECURITY_FKC268f53e449d465cfe59` (`SECURITY_FK`),
@@ -45,11 +45,11 @@ CREATE TABLE `bar` (
   `ID` int(11) NOT NULL,
   `DATE_TIME` datetime NOT NULL,
   `SECURITY_FK` int(11) NOT NULL,
-  `OPEN` double NOT NULL,
-  `HIGH` double NOT NULL,
-  `LOW` double NOT NULL,
-  `CLOSE` double NOT NULL,
-  `ADJ_CLOSE` double DEFAULT NULL,
+  `OPEN` decimal(21,5) NOT NULL,
+  `HIGH` decimal(21,5) NOT NULL,
+  `LOW` decimal(12,5) NOT NULL,
+  `CLOSE` decimal(12,5) NOT NULL,
+  `ADJ_CLOSE` decimal(12,5) DEFAULT NULL,
   `VOL` int(11) NOT NULL,
   `OPEN_INTEREST` int(11) NOT NULL,
   PRIMARY KEY (`ID`),
@@ -69,7 +69,7 @@ CREATE TABLE `bid` (
   `ID` int(11) NOT NULL,
   `DATE_TIME` datetime NOT NULL,
   `SECURITY_FK` int(11) NOT NULL,
-  `PRICE` double NOT NULL,
+  `PRICE` decimal(21,5) NOT NULL,
   `SIZE` bigint(20) NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `MARKET_DATA_EVENT_SECURITY_FKC268f53e449d465c100dd` (`SECURITY_FK`),
@@ -87,7 +87,7 @@ DROP TABLE IF EXISTS `dividend`;
 CREATE TABLE `dividend` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `DATE_TIME` datetime NOT NULL,
-  `AMOUNT` decimal(10,0) NOT NULL,
+  `AMOUNT` decimal(9,2) NOT NULL,
   `SECURITY_FK` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `DIVIDEND_SECURITY_FKC` (`SECURITY_FK`),
@@ -154,7 +154,7 @@ CREATE TABLE `future_family` (
   `INTREST` double(15,10) NOT NULL,
   `DIVIDEND` double(15,10) NOT NULL,
   `MARGIN_PARAMETER` double(15,10) NOT NULL,
-  `EXPIRATION_TYPE` enum('NEXT_3_RD_FRIDAY','NEXT_3_RD_FRIDAY_3_MONTHS','THIRTY_DAYS_BEFORE_NEXT_3_RD_FRIDAY') DEFAULT NULL,
+  `EXPIRATION_TYPE` enum('NEXT_3_RD_FRIDAY','NEXT_3_RD_FRIDAY_3_MONTHS','THIRTY_DAYS_BEFORE_NEXT_3_RD_FRIDAY') NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `FUTURE_FAMILYIFKC` (`ID`),
   CONSTRAINT `FUTURE_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `security_family` (`id`)
@@ -194,6 +194,24 @@ CREATE TABLE `generic_future_family` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `history`
+--
+
+DROP TABLE IF EXISTS `history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `history` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `TBL` varchar(255) NOT NULL,
+  `REF_ID` int(11) NOT NULL,
+  `TIME` datetime NOT NULL,
+  `COL` varchar(255) DEFAULT NULL,
+  `VALUE` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11397 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `intrest_rate`
 --
 
@@ -220,7 +238,7 @@ CREATE TABLE `position` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `QUANTITY` bigint(20) NOT NULL,
   `EXIT_VALUE` double(15,10) DEFAULT NULL,
-  `MAINTENANCE_MARGIN` decimal(17,2) DEFAULT NULL,
+  `MAINTENANCE_MARGIN` decimal(15,2) DEFAULT NULL,
   `SECURITY_FK` int(11) NOT NULL,
   `STRATEGY_FK` int(11) NOT NULL,
   PRIMARY KEY (`id`),
@@ -230,8 +248,38 @@ CREATE TABLE `position` (
   KEY `POSITION_STRATEGY_FKC` (`STRATEGY_FK`),
   CONSTRAINT `POSITION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `POSITION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=263 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=85865 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `position_after_update` AFTER UPDATE ON `position`
+  FOR EACH ROW
+BEGIN
+     IF NOT NEW.QUANTITY = OLD.QUANTITY OR (NEW.QUANTITY IS NULL XOR OLD.QUANTITY IS NULL) THEN
+        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
+        VALUES ('position', NEW.id, NOW(), 'QUANTITY', NEW.QUANTITY);
+     END IF;
+     IF NOT NEW.EXIT_VALUE = OLD.EXIT_VALUE OR (NEW.EXIT_VALUE IS NULL XOR OLD.EXIT_VALUE IS NULL) THEN
+        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
+        VALUES ('position', NEW.id, NOW(), 'EXIT_VALUE', NEW.EXIT_VALUE);
+     END IF;
+     IF NOT NEW.MAINTENANCE_MARGIN = OLD.MAINTENANCE_MARGIN OR (NEW.MAINTENANCE_MARGIN IS NULL XOR OLD.MAINTENANCE_MARGIN IS NULL) THEN
+        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
+        VALUES ('position', NEW.id, NOW(), 'MAINTENANCE_MARGIN', NEW.MAINTENANCE_MARGIN);
+     END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `sabr_params`
@@ -266,16 +314,16 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 /*!50001 CREATE TABLE `saldo` (
   `date_time` datetime,
-  `type` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST','FEES','REBALANCE'),
+  `type` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST_PAID','INTREST_RECEIVED','FEES','REBALANCE'),
   `symbol` varchar(30),
   `isin` varchar(20),
   `position_fk` int(11),
   `STRIKE` decimal(9,2),
   `expiration` datetime,
   `quantity` bigint(20),
-  `price` decimal(9,2),
+  `price` decimal(12,5),
   `commission` decimal(15,2),
-  `saldo` decimal(61,2)
+  `saldo` decimal(64,5)
 ) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
@@ -305,7 +353,7 @@ CREATE TABLE `security` (
   CONSTRAINT `SECURITY_SECURITY_FAMILY_FKC` FOREIGN KEY (`SECURITY_FAMILY_FK`) REFERENCES `security_family` (`id`),
   CONSTRAINT `SECURITY_UNDERLAYING_FKC` FOREIGN KEY (`UNDERLAYING_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `SECURITY_VOLATILITY_FKC` FOREIGN KEY (`VOLATILITY_FK`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=750 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=98901 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -322,7 +370,7 @@ CREATE TABLE `security_family` (
   `CURRENCY` enum('CHF','EUR','USD') NOT NULL,
   `CONTRACT_SIZE` int(11) NOT NULL,
   `TICK_SIZE` double NOT NULL,
-  `COMMISSION` decimal(10,5) DEFAULT NULL,
+  `COMMISSION` decimal(12,5) DEFAULT NULL,
   `MARKET_OPEN` time NOT NULL,
   `MARKET_CLOSE` time NOT NULL,
   `TRADEABLE` bit(1) DEFAULT NULL,
@@ -390,7 +438,7 @@ CREATE TABLE `stock_option_family` (
   `INTREST` double(15,10) NOT NULL,
   `DIVIDEND` double(15,10) NOT NULL,
   `MARGIN_PARAMETER` double(15,10) NOT NULL,
-  `EXPIRATION_TYPE` enum('NEXT_3_RD_FRIDAY','NEXT_3_RD_FRIDAY_3_MONTHS','THIRTY_DAYS_BEFORE_NEXT_3_RD_FRIDAY') DEFAULT NULL,
+  `EXPIRATION_TYPE` enum('NEXT_3_RD_FRIDAY','NEXT_3_RD_FRIDAY_3_MONTHS','THIRTY_DAYS_BEFORE_NEXT_3_RD_FRIDAY') NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `STOCK_OPTION_FAMILYIFKC` (`ID`),
   CONSTRAINT `STOCK_OPTION_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `security_family` (`id`)
@@ -426,15 +474,15 @@ DROP TABLE IF EXISTS `tick`;
 CREATE TABLE `tick` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `DATE_TIME` datetime NOT NULL,
-  `LAST` decimal(11,2) DEFAULT NULL,
+  `LAST` decimal(12,5) DEFAULT NULL,
   `LAST_DATE_TIME` datetime DEFAULT NULL,
   `VOL` int(11) NOT NULL,
   `VOL_BID` int(11) NOT NULL,
   `VOL_ASK` int(11) NOT NULL,
-  `BID` decimal(11,2) NOT NULL,
-  `ASK` decimal(11,2) NOT NULL,
+  `BID` decimal(12,5) NOT NULL,
+  `ASK` decimal(12,5) NOT NULL,
   `OPEN_INTREST` int(11) NOT NULL,
-  `SETTLEMENT` decimal(11,2) DEFAULT NULL,
+  `SETTLEMENT` decimal(12,5) DEFAULT NULL,
   `SECURITY_FK` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `DATE_TIME_SECURITY_FK` (`DATE_TIME`,`SECURITY_FK`),
@@ -455,7 +503,7 @@ CREATE TABLE `trade` (
   `ID` int(11) NOT NULL,
   `DATE_TIME` datetime NOT NULL,
   `SECURITY_FK` int(11) NOT NULL,
-  `PRICE` double NOT NULL,
+  `PRICE` decimal(21,5) NOT NULL,
   `SIZE` bigint(20) NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `MARKET_DATA_EVENT_SECURITY_FKC268f53e44c5f944` (`SECURITY_FK`),
@@ -475,10 +523,10 @@ CREATE TABLE `transaction` (
   `NUMBER` varchar(30) DEFAULT NULL,
   `DATE_TIME` datetime NOT NULL,
   `QUANTITY` bigint(20) NOT NULL,
-  `PRICE` decimal(9,2) NOT NULL,
+  `PRICE` decimal(12,5) NOT NULL,
   `COMMISSION` decimal(15,2) DEFAULT NULL,
   `CURRENCY` enum('CHF','EUR','USD','GBP') NOT NULL,
-  `TYPE` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST','FEES','REBALANCE') NOT NULL,
+  `TYPE` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST_PAID','INTREST_RECEIVED','FEES','REBALANCE') NOT NULL,
   `DESCRIPTION` varchar(255) DEFAULT NULL,
   `SECURITY_FK` int(11) DEFAULT NULL,
   `STRATEGY_FK` int(11) DEFAULT NULL,
@@ -490,7 +538,7 @@ CREATE TABLE `transaction` (
   CONSTRAINT `TRANSACTION_POSITION_FKC` FOREIGN KEY (`POSITION_FK`) REFERENCES `position` (`id`),
   CONSTRAINT `TRANSACTION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `TRANSACTION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1611 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=438390 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -511,7 +559,7 @@ CREATE TABLE `watch_list_item` (
   KEY `WATCH_LIST_ITEM_STRATEGY_FKC` (`STRATEGY_FK`),
   CONSTRAINT `WATCH_LIST_ITEM_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `WATCH_LIST_ITEM_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=751 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=98901 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -542,4 +590,4 @@ CREATE TABLE `watch_list_item` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-06-24 15:14:35
+-- Dump completed on 2011-07-06 13:21:07
