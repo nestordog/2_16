@@ -1,6 +1,8 @@
-package com.algoTrader.util;
+package com.algoTrader.esper.subscriber;
 
 import org.apache.log4j.Logger;
+
+import com.algoTrader.util.MyLogger;
 
 public class Subscriber {
 

@@ -35,7 +35,7 @@
 
     <plugin-view factory-class="com.espertech.esper.ohlc.OHLCBarPlugInViewFactory" name="ohlcbar" namespace="custom"/>
 
-    <plugin-aggregation-function name="talib" function-class="com.algoTrader.util.GenericTALibFunction"/>
+    <plugin-aggregation-function name="talib" function-class="com.algoTrader.esper.aggregation.GenericTALibFunction"/>
 
     <variable name="simulation" type="boolean"/>
     <variable name="simulation_eventsPerDay" type="long"/>

@@ -1,4 +1,4 @@
-package com.algoTrader.util;
+package com.algoTrader.esper.subscriber;
 
 import javassist.ClassClassPath;
 import javassist.ClassPool;
@@ -39,7 +39,7 @@ public class SubscriberCreator {
 
                 // make the subscriber class
                 CtClass subscriberClass = pool.makeClass(subscriberClassName);
-                subscriberClass.setSuperclass(pool.get("com.algoTrader.util.Subscriber"));
+                subscriberClass.setSuperclass(pool.get(Subscriber.class.getName()));
 
                 // create the "update" method
                 CtClass[] params = serviceMethod.getParameterTypes();

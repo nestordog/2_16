@@ -1,4 +1,4 @@
-package com.algoTrader.util;
+package com.algoTrader.esper.aggregation;
 
 import com.espertech.esper.epl.agg.AggregationSupport;
 import com.espertech.esper.epl.agg.AggregationValidationContext;
