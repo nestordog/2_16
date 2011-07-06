@@ -320,6 +320,10 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
             TransactionType transactionType;
             if (typeString.equals("Other Fees")) {
                 transactionType = TransactionType.FEES;
+            } else if (typeString.equals("Broker Interest Paid")) {
+                transactionType = TransactionType.INTREST_PAID;
+            } else if (typeString.equals("Broker Interest Received")) {
+                transactionType = TransactionType.INTREST_RECEIVED;
             } else if (typeString.equals("Deposits & Withdrawals")) {
                 if (amountDouble > 0) {
                     transactionType = TransactionType.CREDIT;

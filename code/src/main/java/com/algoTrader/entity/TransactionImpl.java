@@ -37,10 +37,11 @@ public class TransactionImpl extends Transaction {
                     getType().equals(TransactionType.EXPIRATION)) {
                 this.value = -getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getPrice().doubleValue() - getCommission().doubleValue();
             } else if (getType().equals(TransactionType.CREDIT) ||
-                    getType().equals(TransactionType.INTREST)) {
+                    getType().equals(TransactionType.INTREST_RECEIVED)) {
                 this.value = getPrice().doubleValue();
             } else if (getType().equals(TransactionType.DEBIT) ||
-                    getType().equals(TransactionType.FEES)) {
+                    getType().equals(TransactionType.FEES) ||
+                    getType().equals(TransactionType.INTREST_PAID)) {
                 this.value = -getPrice().doubleValue();
             } else if (getType().equals(TransactionType.REBALANCE)) {
                 this.value = getQuantity() * getPrice().doubleValue();
