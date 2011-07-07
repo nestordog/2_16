@@ -13,6 +13,7 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.security.Expirable;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.DateUtil;
@@ -89,10 +90,10 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         // in generall, exit value should not be set higher than existing exitValue
         if (!force) {
-            if (position.isShort() && exitValue > position.getExitValueDouble()) {
+            if (Direction.SHORT.equals(position.getDirection()) && exitValue > position.getExitValueDouble()) {
                 logger.warn("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of short position " + positionId);
                 return;
-            } else if (position.isLong() && exitValue < position.getExitValueDouble()) {
+            } else if (Direction.LONG.equals(position.getDirection()) && exitValue < position.getExitValueDouble()) {
                 logger.warn("exit value " + exitValue + " is lower than existing exit value " + position.getExitValue() + " of long position " + positionId);
                 return;
             }
@@ -100,9 +101,9 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         // exitValue cannot be lower than currentValue
         double currentValue = position.getSecurity().getLastTick().getCurrentValueDouble();
-        if (position.isShort() && exitValue < currentValue) {
+        if (Direction.SHORT.equals(position.getDirection()) && exitValue < currentValue) {
             throw new PositionServiceException("ExitValue (" + exitValue + ") for short-position " + position.getId() + " is lower than currentValue: " + currentValue);
-        } else if (position.isLong() && exitValue > currentValue) {
+        } else if (Direction.LONG.equals(position.getDirection()) && exitValue > currentValue) {
             throw new PositionServiceException("ExitValue (" + exitValue + ") for long-position " + position.getId() + " is higher than currentValue: " + currentValue);
         }
 

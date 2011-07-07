@@ -17,6 +17,7 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
+import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
@@ -114,7 +115,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                     double cost = position.getCostDouble() * Math.abs((double) transaction.getQuantity() / (double) position.getQuantity());
                     double value = transaction.getValueDouble();
                     profit = value - cost;
-                    profitPct = position.isLong() ? ((value - cost) / cost) : ((cost - value) / cost);
+                    profitPct = Direction.LONG.equals(position.getDirection()) ? ((value - cost) / cost) : ((cost - value) / cost);
                     avgAge = position.getAverageAge();
                 }
 

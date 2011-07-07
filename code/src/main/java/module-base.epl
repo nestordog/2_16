@@ -54,7 +54,14 @@ select
     LookupUtil.getPortfolioValue() as value,
     cashTransaction
 from
-    pattern[every(timer:at (0, 10:18, *, *, 1:5) or cashTransaction=Transaction(type=TransactionType.CREDIT or type=TransactionType.DEBIT or type=TransactionType.INTREST or type=TransactionType.FEES))]
+    pattern[
+        every(timer:at (0, 10:18, *, *, 1:5)
+        or cashTransaction=Transaction(
+            type=TransactionType.CREDIT
+            or type=TransactionType.DEBIT
+            or type=TransactionType.INTREST_PAID
+            or type=TransactionType.INTREST_RECEIVED
+            or type=TransactionType.FEES))]
 where
     LookupUtil.hasLastTicks();
 
@@ -157,7 +164,7 @@ from
 where
     position.quantity != 0
     and position.exitValue != null
-    and ((position.short and (tick.currentValue >= position.exitValue)) or (position.long and (tick.currentValue <= position.exitValue)));
+    and ((position.direction = Direction.SHORT and (tick.currentValue >= position.exitValue)) or (position.direction = Direction.LONG and (tick.currentValue <= position.exitValue)));
 
 @Name('PROPAGATE_TICKS')
 @Tag(name='subscriber', value='com.algoTrader.service.MarketDataServiceImpl$PropagateTickSubscriber')

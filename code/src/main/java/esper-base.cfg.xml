@@ -22,6 +22,7 @@
     <event-type name="LoosingTrades" class="com.algoTrader.vo.TradesVO"/>
 
     <auto-import import-name="com.algoTrader.enumeration.TransactionType"/>
+    <auto-import import-name="com.algoTrader.enumeration.Direction"/>
     <auto-import import-name="com.algoTrader.stockOption.StockOptionUtil"/>
     <auto-import import-name="com.algoTrader.future.FutureUtil"/>
     <auto-import import-name="com.algoTrader.util.LookupUtil"/>

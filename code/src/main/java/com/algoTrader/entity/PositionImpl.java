@@ -9,6 +9,7 @@ import java.util.List;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.StockOption;
+import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.DateUtil;
 
@@ -22,19 +23,15 @@ public class PositionImpl extends Position {
         return getQuantity() != 0;
     }
 
-    public boolean isLong() {
+    public Direction getDirection() {
 
-        return getQuantity() > 0;
-    }
-
-    public boolean isShort() {
-
-        return getQuantity() < 0;
-    }
-
-    public boolean isFlat() {
-
-        return getQuantity() == 0;
+        if (getQuantity() < 0) {
+            return Direction.SHORT;
+        } else if (getQuantity() > 0) {
+            return Direction.LONG;
+        } else {
+            return Direction.FLAT;
+        }
     }
 
     /**
@@ -244,7 +241,7 @@ public class PositionImpl extends Position {
         if (isOpen() && getExitValue() != null) {
 
             double maxLossPerItem;
-            if (isLong()) {
+            if (Direction.LONG.equals(getDirection())) {
                 maxLossPerItem = getMarketPriceDouble() - getExitValueDouble();
             } else {
                 maxLossPerItem = getExitValueDouble() - getMarketPriceDouble();
