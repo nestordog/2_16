@@ -13,7 +13,8 @@ import com.ib.client.Contract;
 
 public class IbUtil {
 
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+    private static SimpleDateFormat dayFormat = new SimpleDateFormat("yyyyMMdd");
+    private static SimpleDateFormat monthFormat = new SimpleDateFormat("yyyyMM");
 
     public static Contract getContract(Security security) {
 
@@ -33,9 +34,9 @@ public class IbUtil {
 
             if (security.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {
                 // IB expiration is one day before effective expiration for SOFFEX options
-                contract.m_expiry = format.format(DateUtils.addDays(stockOption.getExpiration(), -1));
+                contract.m_expiry = dayFormat.format(DateUtils.addDays(stockOption.getExpiration(), -1));
             } else {
-                contract.m_expiry = format.format(stockOption.getExpiration());
+                contract.m_expiry = dayFormat.format(stockOption.getExpiration());
             }
         } else if (security instanceof Future) {
 
@@ -45,7 +46,7 @@ public class IbUtil {
             contract.m_secType = "FUT";
             contract.m_exchange = IbMarketConverter.marketToString(future.getSecurityFamily().getMarket());
             contract.m_currency = future.getSecurityFamily().getCurrency().toString();
-            contract.m_expiry = format.format(future.getExpiration());
+            contract.m_expiry = monthFormat.format(future.getExpiration());
 
         } else if (security instanceof Forex) {
 
