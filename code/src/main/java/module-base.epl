@@ -117,6 +117,7 @@ from
 where
     option.underlaying.id = indexTick.security.id;
 
+/*
 @Name('SIMULATE_FUTURES_BY_UNDERLYING')
 @Priority(2)
 @Tag(name='simulationOnly', value='true')
@@ -133,6 +134,7 @@ from
     method:LookupUtil.getFuturesOnWatchlist() as future
 where
     future.underlaying.id = indexTick.security.id;
+*/
 
 @Name('SIMULATE_FUTURES_BY_GENERIC_FUTURES')
 @Priority(2)
