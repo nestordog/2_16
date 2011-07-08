@@ -157,6 +157,11 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getStockOptionDao().findStockOptionsOnWatchlist().toArray(new StockOption[0]);
     }
 
+    protected Security[] handleGetSecuritiesOnWatchlist() throws Exception {
+
+        return getSecurityDao().findSecuritiesOnWatchlist().toArray(new Security[0]);
+    }
+
     protected Future[] handleGetFuturesOnWatchlist() throws Exception {
 
         return getFutureDao().findFuturesOnWatchlist().toArray(new Future[0]);

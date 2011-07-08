@@ -33,6 +33,11 @@ public class LookupUtil {
         return ServiceLocator.commonInstance().getLookupService().getFutureByDuration(underlayingId, targetDate, duration);
     }
 
+    public static Security[] getSecuritiesOnWatchlist() {
+
+        return ServiceLocator.commonInstance().getLookupService().getSecuritiesOnWatchlist();
+    }
+
     public static Security[] getSecuritiesOnWatchlistByPeriodicity(String periodicityString) {
 
         Periodicity periodicity = Periodicity.valueOf(periodicityString);
