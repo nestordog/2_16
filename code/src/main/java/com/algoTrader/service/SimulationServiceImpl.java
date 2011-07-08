@@ -103,6 +103,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         List<WatchListItem> watchListItems = getWatchListItemDao().findNonPersistent();
         getWatchListItemDao().remove(watchListItems);
 
+        // load all securities to prevent having _$$_javassist for securities after db has been cleaned
+        getSecurityDao().loadAll();
+
         // delete all StockOptions
         getSecurityDao().remove((Collection<Security>) getStockOptionDao().loadAll(StockOptionDao.TRANSFORM_NONE));
 
