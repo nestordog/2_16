@@ -200,17 +200,17 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         double currentValue = tick.getCurrentValueDouble();
 
-        // in daily / hourly / 30min / 15min simulation, if exitValue is reached during the day, take the exitValue
+        // in daily / hourly / 30min / 15min simulation, if exitValue is reached during the day, take the exitValue (only valid for Theta)
         // instead of the currentValue! because we will have passed the exitValue in the meantime
-        if (simulation && TransactionType.BUY.equals(order.getTransactionType()) && (eventsPerDay <= 33)) {
-
-            double exitValue = position.getExitValueDouble();
-            if (currentValue > exitValue && DateUtil.compareToTime(security.getSecurityFamily().getMarketOpen()) > 0) {
-
-                logger.info("adjusted currentValue (" + currentValue + ") to exitValue (" + exitValue+ ") in closePosition for order on " + order.getSecurity().getSymbol());
-                currentValue = exitValue;
-            }
-        }
+        //        if (simulation && TransactionType.BUY.equals(order.getTransactionType()) && (eventsPerDay <= 33)) {
+        //
+        //            double exitValue = position.getExitValueDouble();
+        //            if (currentValue > exitValue && DateUtil.compareToTime(security.getSecurityFamily().getMarketOpen()) > 0) {
+        //
+        //                logger.info("adjusted currentValue (" + currentValue + ") to exitValue (" + exitValue+ ") in closePosition for order on " + order.getSecurity().getSymbol());
+        //                currentValue = exitValue;
+        //            }
+        //        }
 
         int contractSize = security.getSecurityFamily().getContractSize();
         int scale = security.getSecurityFamily().getScale();
