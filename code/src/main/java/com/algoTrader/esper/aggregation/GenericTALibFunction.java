@@ -136,14 +136,14 @@ public class GenericTALibFunction extends AggregationSupport {
                 if (annotation instanceof InputParameterInfo) {
                     InputParameterInfo inputParameterInfo = (InputParameterInfo) annotation;
                     if (inputParameterInfo.type().equals(InputParameterType.TA_Input_Real)) {
-                        if (paramTypes[paramCounter].equals(double.class)) {
+                        if (paramTypes[paramCounter].equals(double.class) || paramTypes[paramCounter].equals(Double.class)) {
                             this.inputParamCount++;
                             paramCounter++;
                         } else {
                             throw new IllegalArgumentException("param number " + paramCounter + " needs must be of type double");
                         }
                     } else if (inputParameterInfo.type().equals(InputParameterType.TA_Input_Integer)) {
-                        if (paramTypes[paramCounter].equals(int.class)) {
+                        if (paramTypes[paramCounter].equals(int.class) || paramTypes[paramCounter].equals(Integer.class)) {
                             this.inputParamCount++;
                             paramCounter++;
                         } else {
@@ -154,7 +154,7 @@ public class GenericTALibFunction extends AggregationSupport {
                         // the flags define the number of parameters in use by a bitwise or
                         int priceParamSize = numberOfSetBits(inputParameterInfo.flags());
                         for (int i = 0; i < priceParamSize; i++) {
-                            if (paramTypes[paramCounter].equals(double.class)) {
+                            if (paramTypes[paramCounter].equals(double.class) || paramTypes[paramCounter].equals(Double.class)) {
                                 this.inputParamCount++;
                                 paramCounter++;
                             } else {
