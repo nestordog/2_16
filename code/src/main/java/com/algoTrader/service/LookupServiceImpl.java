@@ -53,17 +53,45 @@ public class LookupServiceImpl extends LookupServiceBase {
 
     protected Future handleGetNearestFuture(int underlayingId, Date expirationDate) throws Exception {
 
-        return getFutureDao().findNearestFuture(underlayingId, expirationDate);
+        Future future = getFutureDao().findNearestFuture(underlayingId, expirationDate);
+
+        // if no future was found, we need to create the missing part of the future-chain
+        if (future == null) {
+
+            FutureFamily futureFamily = getFutureFamilyDao().findByUnderlaying(underlayingId);
+            getFutureService().createFutures(futureFamily.getId());
+
+            future = getFutureDao().findNearestFuture(underlayingId, expirationDate);
+
+            if (future == null) {
+                throw new LookupServiceException("the requested targetExpirationDate " + expirationDate + " is too far our");
+            }
+        }
+
+        return future;
     }
 
-    protected Future handleGetFutureByDuration(int underlayingId, Date targetDate, int duration) throws Exception {
+    protected Future handleGetFutureByDuration(int underlayingId, Date targetExpirationDate, int duration) throws Exception {
 
         FutureFamily futureFamily = getFutureFamilyDao().findByUnderlaying(underlayingId);
         if (futureFamily == null) {
-            throw new LookupServiceException("futureFamily by id: " + underlayingId + " does not exist");
+            throw new LookupServiceException("futureFamily for underlaying id: " + underlayingId + " does not exist");
         } else {
-            Date expirationDate = DateUtil.getExpirationDateNMonths(futureFamily.getExpirationType(), targetDate, duration);
-            return getFutureDao().findFutureByExpiration(underlayingId, expirationDate);
+            Date expirationDate = DateUtil.getExpirationDateNMonths(futureFamily.getExpirationType(), targetExpirationDate, duration);
+            Future future = getFutureDao().findFutureByExpiration(underlayingId, expirationDate);
+
+            // if no future was found, we need to create the missing part of the future-chain
+            if (future == null) {
+
+                getFutureService().createFutures(futureFamily.getId());
+
+                future = getFutureDao().findNearestFuture(underlayingId, expirationDate);
+
+                if (future == null) {
+                    throw new LookupServiceException("the requested targetExpirationDate " + targetExpirationDate + " is too far our");
+                }
+            }
+            return future;
         }
     }
 

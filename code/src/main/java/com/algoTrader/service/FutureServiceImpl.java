@@ -1,6 +1,7 @@
 package com.algoTrader.service;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -16,42 +17,32 @@ public class FutureServiceImpl extends FutureServiceBase {
 
     private static Logger logger = MyLogger.getLogger(FutureServiceImpl.class.getName());
 
-    protected Future handleCreateDummyFuture(int futureFamilyId, Date targetExpirationDate) throws java.lang.Exception {
+    protected void handleCreateFutures(int futureFamilyId) {
 
         FutureFamily family = getFutureFamilyDao().load(futureFamilyId);
-
-        Date expirationDate = DateUtil.getExpirationDate(family.getExpirationType(), targetExpirationDate);
-
-        return createDummyFuture(family, expirationDate);
-    }
-
-    protected Future handleCreateDummyFutureNMonths(int futureFamilyId, Date targetExpirationDate, int duration) throws java.lang.Exception {
-
-        FutureFamily family = getFutureFamilyDao().load(futureFamilyId);
-
-        Date expirationDate = DateUtil.getExpirationDateNMonths(family.getExpirationType(), targetExpirationDate, duration);
-
-        return createDummyFuture(family, expirationDate);
-    }
-
-    private Future createDummyFuture(FutureFamily family, Date expirationDate) {
-
         Security underlaying = family.getUnderlaying();
 
-        String symbol = FutureSymbol.getSymbol(family, expirationDate);
-        String isin = FutureSymbol.getIsin(family, expirationDate);
+        List<Future> futures = getFutureDao().findAllFutures(underlaying.getId(), DateUtil.getCurrentEPTime());
 
-        Future future = new FutureImpl();
-        future.setIsin(isin);
-        future.setSymbol(symbol);
-        future.setExpiration(expirationDate);
-        future.setUnderlaying(underlaying);
-        future.setSecurityFamily(family);
+        for (int i = futures.size() + 1; i <= family.getLength(); i++) {
 
-        getFutureDao().create(future);
+            int duration = i * family.getExpirationMonths();
 
-        logger.info("created dummy future " + future.getSymbol());
+            Date expirationDate = DateUtil.getExpirationDateNMonths(family.getExpirationType(), DateUtil.getCurrentEPTime(), duration);
 
-        return future;
+            String symbol = FutureSymbol.getSymbol(family, expirationDate);
+            String isin = FutureSymbol.getIsin(family, expirationDate);
+
+            Future future = new FutureImpl();
+            future.setIsin(isin);
+            future.setSymbol(symbol);
+            future.setExpiration(expirationDate);
+            future.setUnderlaying(underlaying);
+            future.setSecurityFamily(family);
+
+            getFutureDao().create(future);
+
+            logger.info("created dummy future " + future.getSymbol());
+        }
     }
 }
