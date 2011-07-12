@@ -1,9 +1,8 @@
 package com.algoTrader.entity.marketData;
 
 import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
 
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.marketData.TickDaoBase;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.vo.RawTickVO;
 import com.algoTrader.vo.TickVO;
@@ -64,6 +63,13 @@ public class TickDaoImpl extends TickDaoBase {
         super.rawTickVOToEntity(rawTickVO, tick, true);
 
         Security security = getSecurityDao().findByIsinFetched(rawTickVO.getIsin());
+
+        // for some reason security get's sometimes loaded as a javassist proxy
+        // so we have to manualy get the implementation
+        if (security instanceof HibernateProxy) {
+            HibernateProxy proxy = (HibernateProxy) security;
+            security = (Security) proxy.getHibernateLazyInitializer().getImplementation();
+        }
 
         // initialize the proxys
         Hibernate.initialize(security.getUnderlaying());
