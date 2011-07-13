@@ -228,12 +228,17 @@ public class LookupServiceImpl extends LookupServiceBase {
 
     protected PortfolioValueVO handleGetPortfolioValue() throws Exception {
 
+        double cashBalance = getStrategyDao().getPortfolioCashBalanceDouble();
+        double securitiesCurrentValue = getStrategyDao().getPortfolioSecuritiesCurrentValueDouble();
+        double maintenanceMargin = getStrategyDao().getPortfolioMaintenanceMarginDouble();
+        double leverage = getStrategyDao().getPortfolioLeverageDouble();
+
         PortfolioValueVO portfolioValueVO = new PortfolioValueVO();
-        portfolioValueVO.setSecuritiesCurrentValue(getStrategyDao().getPortfolioSecuritiesCurrentValueDouble());
-        portfolioValueVO.setCashBalance(getStrategyDao().getPortfolioCashBalanceDouble());
-        portfolioValueVO.setMaintenanceMargin(getStrategyDao().getPortfolioMaintenanceMarginDouble());
-        portfolioValueVO.setNetLiqValue(getStrategyDao().getPortfolioNetLiqValueDouble());
-        portfolioValueVO.setLeverage(getStrategyDao().getPortfolioLeverageDouble());
+        portfolioValueVO.setCashBalance(cashBalance);
+        portfolioValueVO.setSecuritiesCurrentValue(securitiesCurrentValue);
+        portfolioValueVO.setMaintenanceMargin(maintenanceMargin);
+        portfolioValueVO.setNetLiqValue(cashBalance + securitiesCurrentValue);
+        portfolioValueVO.setLeverage(leverage);
 
         return portfolioValueVO;
     }
