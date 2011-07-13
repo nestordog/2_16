@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
@@ -30,6 +29,7 @@ import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.CashBalance;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.OrderImpl;
 import com.algoTrader.entity.Position;
@@ -42,7 +42,6 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOptionDao;
 import com.algoTrader.enumeration.MarketDataType;
 import com.algoTrader.enumeration.OrderStatus;
-import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.io.CsvBarInputAdapterSpec;
@@ -77,19 +76,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         Collection<Strategy> strategies = getStrategyDao().loadAll();
         for (Strategy strategy : strategies) {
 
-            // delete all transactions except the initial CREDIT
+            // delete all transactions except the initial CREDIT (id = 1)
             Collection<Transaction> transactions = strategy.getTransactions();
-            Set<Transaction> toRemoveTransactions = new HashSet<Transaction>();
-            Set<Transaction> toKeepTransactions = new HashSet<Transaction>();
-            for (Transaction transaction : transactions) {
-                if (transaction.getType().equals(TransactionType.CREDIT)) {
-                    toKeepTransactions.add(transaction);
-                } else {
-                    toRemoveTransactions.add(transaction);
-                }
-            }
-            getTransactionDao().remove(toRemoveTransactions);
-            strategy.setTransactions(toKeepTransactions);
+            Transaction transaction = Transaction.Factory.newInstance();
+            transaction.setId(1);
+            transactions.remove(transaction);
+            getTransactionDao().remove(transactions);
 
             // delete all positions and references to them
             Collection<Position> positions = strategy.getPositions();
@@ -99,12 +91,16 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             getStrategyDao().update(strategy);
         }
 
+        // delete all balances except the base balance (with id 1)
+        Collection<CashBalance> cashBalances = getCashBalanceDao().loadAll();
+        CashBalance cashBalance = CashBalance.Factory.newInstance();
+        cashBalance.setId(1);
+        cashBalances.remove(cashBalance);
+        getCashBalanceDao().remove(cashBalances);
+
         // delete all non-presistent watchListItems
         List<WatchListItem> watchListItems = getWatchListItemDao().findNonPersistent();
         getWatchListItemDao().remove(watchListItems);
-
-        // load all securities to prevent having _$$_javassist for securities after db has been cleaned
-        getSecurityDao().loadAll();
 
         // delete all StockOptions
         getSecurityDao().remove((Collection<Security>) getStockOptionDao().loadAll(StockOptionDao.TRANSFORM_NONE));

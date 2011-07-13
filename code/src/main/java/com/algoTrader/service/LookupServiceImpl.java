@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.algoTrader.entity.CashBalance;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyDao;
@@ -200,9 +201,19 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getPositionDao().findOpenPositions().toArray(new Position[0]);
     }
 
+    protected Position[] handleGetOpenFXPositions() throws Exception {
+
+        return getPositionDao().findOpenFXPositions().toArray(new Position[0]);
+    }
+
     protected Position[] handleGetOpenPositionsByStrategy(String strategyName) throws Exception {
 
         return getPositionDao().findOpenPositionsByStrategy(strategyName).toArray(new Position[0]);
+    }
+
+    protected Position[] handleGetOpenFXPositionsByStrategy(String strategyName) throws Exception {
+
+        return getPositionDao().findOpenFXPositionsByStrategy(strategyName).toArray(new Position[0]);
     }
 
     protected Position[] handleGetBullishPositionsByStrategy(String strategyName) throws Exception {
@@ -268,5 +279,15 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Currency> handleGetHeldCurrencies() throws Exception {
 
         return (List<Currency>) getStrategyDao().findPortfolioHeldCurrencies(StrategyDao.TRANSFORM_NONE);
+    }
+
+    protected List<CashBalance> handleGetCashBalancesByStrategy(Strategy strategy) throws Exception {
+
+        return getCashBalanceDao().findCashBalancesByStrategy(strategy);
+    }
+
+    protected List<CashBalance> handleGetCashBalancesBase() throws Exception {
+
+        return getCashBalanceDao().findCashBalancesBase();
     }
 }

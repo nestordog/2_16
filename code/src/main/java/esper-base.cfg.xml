@@ -70,6 +70,7 @@
             </threading>
             <expression udf-cache="false"/>
             <execution prioritized="true"/>
+<!--             <metrics-reporting  enabled="true" engine-interval="10000" statement-interval="10000" threading="true" />         -->
         </defaults>
     </engine-settings>
 

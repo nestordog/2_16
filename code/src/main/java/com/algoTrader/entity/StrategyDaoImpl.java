@@ -23,64 +23,43 @@ public class StrategyDaoImpl extends StrategyDaoBase {
         return RoundUtil.getBigDecimal(getPortfolioCashBalanceDouble());
     }
 
-    @SuppressWarnings("unchecked")
     protected double handleGetPortfolioCashBalanceDouble() throws Exception {
 
-        List<Currency> currencies = ServiceLocator.commonInstance().getLookupService().getHeldCurrencies();
-        Map<Currency, Double> cashMap = new HashMap<Currency, Double>();
+        double amount = 0.0;
 
-        for (Currency currency : currencies) {
-            cashMap.put(currency, 0.0);
+        // sum of all cashBalances
+        Collection<CashBalance> cashBalances = getCashBalanceDao().loadAll();
+        for (CashBalance cashBalance : cashBalances) {
+            amount += cashBalance.getAmountBaseDouble();
         }
 
-        Collection<Transaction> transactions = getTransactionDao().loadAll();
-        for (Transaction transaction : transactions) {
-            Currency currency = transaction.getCurrency();
-            double cash = cashMap.get(currency) + transaction.getValueDouble();
-            cashMap.put(currency, cash);
+        // sum of all FX positions
+        List<Position> positions = getPositionDao().findOpenFXPositions();
+        for (Position position : positions) {
+            amount += position.getMarketValueBaseDouble();
         }
 
-        double balance = 0.0;
-        for (Currency currency : currencies) {
-
-            double cash = cashMap.get(currency);
-            double exchangeRate = ServiceLocator.commonInstance().getLookupService().getForexRateDouble(currency, portfolioBaseCurrency);
-            balance += (cash * exchangeRate);
-        }
-
-        return balance;
+        return amount;
     }
 
     protected BigDecimal handleGetPortfolioSecuritiesCurrentValue() throws Exception {
         return RoundUtil.getBigDecimal(getPortfolioSecuritiesCurrentValueDouble());
     }
 
-    @SuppressWarnings("unchecked")
     protected double handleGetPortfolioSecuritiesCurrentValueDouble() throws Exception {
 
-        List<Currency> currencies = ServiceLocator.commonInstance().getLookupService().getHeldCurrencies();
-        Map<Currency, Double> securitiesMap = new HashMap<Currency, Double>();
+        double amount = 0.0;
 
-        for (Currency currency : currencies) {
-            securitiesMap.put(currency, 0.0);
-        }
-
-        // get the total value of all securites
+        // sum of all non-FX positions
         Collection<Position> positions = getPositionDao().findOpenPositions();
         for (Position position : positions) {
-            Currency currency = position.getSecurity().getSecurityFamily().getCurrency();
-            double securities = securitiesMap.get(currency) + position.getMarketValueDouble();
-            securitiesMap.put(currency, securities);
+
+            if (!(position.getSecurity() instanceof Forex)) {
+                amount += position.getMarketValueBaseDouble();
+            }
         }
 
-        double securitiesValue = 0.0;
-        for (Currency currency : currencies) {
-            double securities = securitiesMap.get(currency);
-            double exchangeRate = ServiceLocator.commonInstance().getLookupService().getForexRateDouble(currency, portfolioBaseCurrency);
-            securitiesValue += securities * exchangeRate;
-        }
-
-        return securitiesValue;
+        return amount;
     }
 
     protected BigDecimal handleGetPortfolioMaintenanceMargin() throws Exception {
@@ -137,32 +116,28 @@ public class StrategyDaoImpl extends StrategyDaoBase {
             securitiesMap.put(currency, 0.0);
         }
 
-        // sum of all transactions
-        Collection<Transaction> transactions = getTransactionDao().loadAll();
-        for (Transaction transaction : transactions) {
-            Currency currency = transaction.getCurrency();
-            double cash = cashMap.get(currency) + transaction.getValueDouble();
-            cashMap.put(currency, cash);
+        // sum of all cashBalances
+        Collection<CashBalance> cashBalances = getCashBalanceDao().loadAll();
+        for (CashBalance cashBalance : cashBalances) {
+            Currency currency = cashBalance.getCurrency();
+            double amount = cashMap.get(currency) + cashBalance.getAmountDouble();
+            cashMap.put(currency, amount);
         }
 
-        // get the total value of all securites
+        // sum of all positions
         Collection<Position> positions = getPositionDao().findOpenPositions();
         for (Position position : positions) {
 
-            if (!position.isOpen())
-                continue;
-
-            // Forex are handled different then all other currencies
-            double marketValue;
-            Currency currency;
+            // Forex positions are considered cash
             if (position.getSecurity() instanceof Forex) {
-                currency = ((Forex) position.getSecurity()).getBaseCurrency();
-                marketValue = position.getQuantity();
+                Currency currency = ((Forex) position.getSecurity()).getBaseCurrency();
+                double amount = cashMap.get(currency) + position.getQuantity();
+                cashMap.put(currency, amount);
             } else {
-                currency = position.getSecurity().getSecurityFamily().getCurrency();
-                marketValue = position.getMarketValueDouble();
+                Currency currency = position.getSecurity().getSecurityFamily().getCurrency();
+                double amount = securitiesMap.get(currency) + position.getMarketValueDouble();
+                securitiesMap.put(currency, amount);
             }
-            securitiesMap.put(currency, securitiesMap.get(currency) + marketValue);
         }
 
         List<BalanceVO> balances = new ArrayList<BalanceVO>();
@@ -170,13 +145,20 @@ public class StrategyDaoImpl extends StrategyDaoBase {
 
             double cash = cashMap.get(currency);
             double securities = securitiesMap.get(currency);
+            double netLiqValue = cash + securities;
             double exchangeRate = ServiceLocator.commonInstance().getLookupService().getForexRateDouble(currency, portfolioBaseCurrency);
+            double cashBase = cash * exchangeRate;
+            double securitiesBase = securities * exchangeRate;
+            double netLiqValueBase = netLiqValue * exchangeRate;
 
             BalanceVO balance = new BalanceVO();
             balance.setCurrency(currency);
             balance.setCash(RoundUtil.getBigDecimal(cash));
             balance.setSecurities(RoundUtil.getBigDecimal(securities));
-            balance.setNetLiqValue(RoundUtil.getBigDecimal(cash + securities));
+            balance.setNetLiqValue(RoundUtil.getBigDecimal(netLiqValue));
+            balance.setCashBase(RoundUtil.getBigDecimal(cashBase));
+            balance.setSecuritiesBase(RoundUtil.getBigDecimal(securitiesBase));
+            balance.setNetLiqValueBase(RoundUtil.getBigDecimal(netLiqValueBase));
             balance.setExchangeRate(exchangeRate);
 
             balances.add(balance);

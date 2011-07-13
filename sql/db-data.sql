@@ -16,6 +16,17 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Dumping data for table `cash_balance`
+--
+
+LOCK TABLES `cash_balance` WRITE;
+/*!40000 ALTER TABLE `cash_balance` DISABLE KEYS */;
+INSERT INTO `cash_balance` (`ID`, `CURRENCY`, `AMOUNT`, `STRATEGY_FK`) VALUES (1,'EUR','1000000.00',0);
+INSERT INTO `cash_balance` (`ID`, `CURRENCY`, `AMOUNT`, `STRATEGY_FK`) VALUES (8,'USD','3071510.00',4);
+/*!40000 ALTER TABLE `cash_balance` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Dumping data for table `equity_index`
 --
 
@@ -255,4 +266,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-07-11 11:16:04
+-- Dump completed on 2011-07-13 15:19:10

@@ -47,6 +47,9 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
                 transaction.setStrategy(strategy);
                 getTransactionDao().create(transaction);
 
+                // add the amount to the balance
+                getCashBalanceService().addAmount(strategy, transaction.getCurrency(), transaction.getValue());
+
                 strategy.getTransactions().add(transaction);
                 getStrategyDao().update(strategy);
 

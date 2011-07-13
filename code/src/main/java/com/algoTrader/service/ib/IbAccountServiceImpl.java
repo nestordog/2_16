@@ -299,6 +299,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
         NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//CashTransaction");
 
         Node node;
+        Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
         List<Transaction> transactions = new ArrayList<Transaction>();
         while ((node = iterator.nextNode()) != null) {
 
@@ -344,6 +345,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
             transaction.setCurrency(currency);
             transaction.setType(transactionType);
             transaction.setDescription(description);
+            transaction.setStrategy(strategy);
 
             transactions.add(transaction);
         }
@@ -359,6 +361,9 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
         for (Transaction transaction : transactions) {
 
             getTransactionDao().create(transaction);
+
+            // add the amount to the balance
+            getCashBalanceService().addAmount(strategy, transaction.getCurrency(), transaction.getValue());
 
             logger.info("executed cash transaction" +
                     " dateTime: " + transactionFormat.format(transaction.getDateTime()) +

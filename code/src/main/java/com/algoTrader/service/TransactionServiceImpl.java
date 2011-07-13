@@ -37,7 +37,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     private static boolean externalTransactionsEnabled = ConfigurationUtil.getBaseConfig().getBoolean("externalTransactionsEnabled");
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
     private static boolean logTransactions = ConfigurationUtil.getBaseConfig().getBoolean("simulation.logTransactions");
-    private static long eventsPerDay = ConfigurationUtil.getBaseConfig().getLong("simulation.eventsPerDay");
+
+    //private static long eventsPerDay = ConfigurationUtil.getBaseConfig().getLong("simulation.eventsPerDay");
 
     protected Order handleExecuteTransaction(OrderVO orderVO) throws Exception {
 
@@ -132,6 +133,10 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 getPositionDao().update(position);
             }
 
+            // add the amount to the corresponding cashBalance
+            getCashBalanceService().addAmount(strategy, transaction.getCurrency(), transaction.getValue());
+
+            // update all entities
             getTransactionDao().create(transaction);
             getStrategyDao().update(strategy);
             getSecurityDao().update(security);
@@ -198,8 +203,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             throw new TransactionServiceException("no last tick available for security " + security);
         }
 
-        double currentValue = tick.getCurrentValueDouble();
-
+        // double currentValue = tick.getCurrentValueDouble();
+        //
         // in daily / hourly / 30min / 15min simulation, if exitValue is reached during the day, take the exitValue (only valid for Theta)
         // instead of the currentValue! because we will have passed the exitValue in the meantime
         //        if (simulation && TransactionType.BUY.equals(order.getTransactionType()) && (eventsPerDay <= 33)) {

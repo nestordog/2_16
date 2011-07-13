@@ -21,9 +21,6 @@ public class StrategyImpl extends Strategy {
     private static double initialMarginMarkup = ConfigurationUtil.getBaseConfig().getDouble("initialMarginMarkup");
     private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
 
-    private int transactionCount = -1;
-    private double cashBalance = 0.0;
-
     public final static String BASE = "BASE";
 
     public boolean isBase() {
@@ -34,53 +31,29 @@ public class StrategyImpl extends Strategy {
         return RoundUtil.getBigDecimal(getCashBalanceDouble());
     }
 
-    @SuppressWarnings("unchecked")
     public double getCashBalanceDouble() {
 
-        Collection<Transaction> transactions = getTransactions();
+        double amount = 0.0;
 
-        // take cashBalance from cache, if there where no new transactions
-        if (transactions.size() == this.transactionCount) {
-            return this.cashBalance;
+        // sum of all cashBalances of this strategy
+        Collection<CashBalance> cashBalances = getCashBalances();
+        for (CashBalance cashBalance : cashBalances) {
+            amount += cashBalance.getAmountBaseDouble();
         }
 
-        List<Currency> currencies = ServiceLocator.commonInstance().getLookupService().getHeldCurrencies(getName());
-        Map<Currency, Double> cashMap = new HashMap<Currency, Double>();
-        Map<Currency, Double> cashFlowMap = new HashMap<Currency, Double>();
-
-        for (Currency currency : currencies) {
-            cashMap.put(currency, 0.0);
-            cashFlowMap.put(currency, 0.0);
+        // sum of all cashBalances of base (i.e. cashFlows)
+        Collection<CashBalance> cashBalancesBase = getCashBalancesBase();
+        for (CashBalance cashBalance : cashBalancesBase) {
+            amount += cashBalance.getAmountBaseDouble() * getAllocation();
         }
 
-        // sum of all transactions that belongs to this strategy
-        for (Transaction transaction : transactions) {
-            Currency currency = transaction.getCurrency();
-            double cash = cashMap.get(currency) + transaction.getValueDouble();
-            cashMap.put(currency, cash);
+        // sum of all FX positions
+        Position[] positions = getOpenFXPositions();
+        for (Position position : positions) {
+            amount += position.getMarketValueBaseDouble();
         }
 
-        // plus part of all cashFlows
-        Transaction[] cashFlowTransactions = ServiceLocator.commonInstance().getLookupService().getAllCashFlows();
-        for (Transaction transaction : cashFlowTransactions) {
-            Currency currency = transaction.getCurrency();
-            double cashFlow = cashFlowMap.get(currency) + transaction.getValueDouble();
-            cashFlowMap.put(currency, cashFlow);
-        }
-
-        this.cashBalance = 0.0;
-        for (Currency currency : currencies) {
-
-            double cash = cashMap.get(currency);
-            double cashFlow = cashFlowMap.get(currency);
-            double totalCash = cash + cashFlow * getAllocation();
-            double exchangeRate = ServiceLocator.commonInstance().getLookupService().getForexRateDouble(currency, portfolioBaseCurrency);
-            this.cashBalance += (totalCash * exchangeRate);
-        }
-
-        this.transactionCount = transactions.size();
-
-        return this.cashBalance;
+        return amount;
     }
 
     public BigDecimal getSecuritiesCurrentValue() {
@@ -88,36 +61,20 @@ public class StrategyImpl extends Strategy {
         return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble());
     }
 
-    @SuppressWarnings("unchecked")
     public double getSecuritiesCurrentValueDouble() {
 
-        List<Currency> currencies = ServiceLocator.commonInstance().getLookupService().getHeldCurrencies(getName());
-        Map<Currency, Double> securitiesMap = new HashMap<Currency, Double>();
+        double amount = 0.0;
 
-        for (Currency currency : currencies) {
-            securitiesMap.put(currency, 0.0);
-        }
-
-        // get the total value of all securites
-        Collection<Position> positions = getPositions();
+        // sum of all non-FX positions
+        Position[] positions = getOpenPositions();
         for (Position position : positions) {
 
-            if (!position.isOpen())
-                continue;
-
-            Currency currency = position.getSecurity().getSecurityFamily().getCurrency();
-            double securities = securitiesMap.get(currency) + position.getMarketValueDouble();
-            securitiesMap.put(currency, securities);
+            if (!(position.getSecurity() instanceof Forex)) {
+                amount += position.getMarketValueBaseDouble();
+            }
         }
 
-        double securitiesValue = 0.0;
-        for (Currency currency : currencies) {
-            double securities = securitiesMap.get(currency);
-            double exchangeRate = ServiceLocator.commonInstance().getLookupService().getForexRateDouble(currency, portfolioBaseCurrency);
-            securitiesValue += securities * exchangeRate;
-        }
-
-        return securitiesValue;
+        return amount;
     }
 
     public BigDecimal getMaintenanceMargin() {
@@ -127,7 +84,7 @@ public class StrategyImpl extends Strategy {
     public double getMaintenanceMarginDouble() {
 
         double margin = 0.0;
-        Collection<Position> positions = getPositions();
+        Position[] positions = getOpenPositions();
         for (Position position : positions) {
             margin += position.getMaintenanceMarginBaseDouble();
         }
@@ -171,65 +128,64 @@ public class StrategyImpl extends Strategy {
 
         List<Currency> currencies = ServiceLocator.commonInstance().getLookupService().getHeldCurrencies(getName());
         Map<Currency, Double> cashMap = new HashMap<Currency, Double>();
-        Map<Currency, Double> cashFlowMap = new HashMap<Currency, Double>();
         Map<Currency, Double> securitiesMap = new HashMap<Currency, Double>();
 
         for (Currency currency : currencies) {
             cashMap.put(currency, 0.0);
-            cashFlowMap.put(currency, 0.0);
             securitiesMap.put(currency, 0.0);
         }
 
-        // sum of all transactions that belongs to this strategy
-        Collection<Transaction> transactions = getTransactions();
-        for (Transaction transaction : transactions) {
-            Currency currency = transaction.getCurrency();
-            double cash = cashMap.get(currency) + transaction.getValueDouble();
-            cashMap.put(currency, cash);
+        // sum of all cashBalances of this strategy
+        Collection<CashBalance> cashBalances = getCashBalances();
+        for (CashBalance cashBalance : cashBalances) {
+            Currency currency = cashBalance.getCurrency();
+            double amount = cashMap.get(currency) + cashBalance.getAmountDouble();
+            cashMap.put(currency, amount);
         }
 
-        // plus part of all cashFlows
-        Transaction[] cashFlowTransactions = ServiceLocator.commonInstance().getLookupService().getAllCashFlows();
-        for (Transaction transaction : cashFlowTransactions) {
-            Currency currency = transaction.getCurrency();
-            double cashFlow = cashFlowMap.get(currency) + transaction.getValueDouble();
-            cashFlowMap.put(currency, cashFlow);
+        // sum of all cashBalances of base (i.e. cashFlows)
+        Collection<CashBalance> cashBalancesBase = getCashBalancesBase();
+        for (CashBalance cashBalance : cashBalancesBase) {
+            Currency currency = cashBalance.getCurrency();
+            double amount = cashMap.get(currency) + cashBalance.getAmountDouble() * getAllocation();
+            cashMap.put(currency, amount);
         }
 
-        // get the total value of all securites
-        Collection<Position> positions = getPositions();
+        // sum of all positions
+        Position[] positions = getOpenPositions();
         for (Position position : positions) {
 
-            if (!position.isOpen())
-                continue;
-
-            // Forex are handled different then all other currencies
-            double marketValue;
-            Currency currency;
+            // Forex positions are considered cash
             if (position.getSecurity() instanceof Forex) {
-                currency = ((Forex) position.getSecurity()).getBaseCurrency();
-                marketValue = position.getQuantity();
+                Currency currency = ((Forex) position.getSecurity()).getBaseCurrency();
+                double amount = cashMap.get(currency) + position.getQuantity();
+                cashMap.put(currency, amount);
             } else {
-                currency = position.getSecurity().getSecurityFamily().getCurrency();
-                marketValue = position.getMarketValueDouble();
+                Currency currency = position.getSecurity().getSecurityFamily().getCurrency();
+                double amount = securitiesMap.get(currency) + position.getMarketValueDouble();
+                securitiesMap.put(currency, amount);
             }
-            securitiesMap.put(currency, securitiesMap.get(currency) + marketValue);
         }
 
         List<BalanceVO> balances = new ArrayList<BalanceVO>();
         for (Currency currency : currencies) {
 
             double cash = cashMap.get(currency);
-            double cashFlow = cashFlowMap.get(currency);
-            double totalCash = cash + cashFlow * getAllocation();
             double securities = securitiesMap.get(currency);
+            double netLiqValue = cash + securities;
             double exchangeRate = ServiceLocator.commonInstance().getLookupService().getForexRateDouble(currency, portfolioBaseCurrency);
+            double cashBase = cash * exchangeRate;
+            double securitiesBase = securities * exchangeRate;
+            double netLiqValueBase = netLiqValue * exchangeRate;
 
             BalanceVO balance = new BalanceVO();
             balance.setCurrency(currency);
-            balance.setCash(RoundUtil.getBigDecimal(totalCash));
+            balance.setCash(RoundUtil.getBigDecimal(cash));
             balance.setSecurities(RoundUtil.getBigDecimal(securities));
-            balance.setNetLiqValue(RoundUtil.getBigDecimal(totalCash + securities));
+            balance.setNetLiqValue(RoundUtil.getBigDecimal(netLiqValue));
+            balance.setCashBase(RoundUtil.getBigDecimal(cashBase));
+            balance.setSecuritiesBase(RoundUtil.getBigDecimal(securitiesBase));
+            balance.setNetLiqValueBase(RoundUtil.getBigDecimal(netLiqValueBase));
             balance.setExchangeRate(exchangeRate);
 
             balances.add(balance);
@@ -241,7 +197,7 @@ public class StrategyImpl extends Strategy {
     public double getRedemptionValueDouble() {
 
         double redemptionValue = 0.0;
-        Collection<Position> positions = getPositions();
+        Position[] positions = getOpenPositions();
         for (Position position : positions) {
             redemptionValue += position.getRedemptionValueBaseDouble();
         }
@@ -251,7 +207,7 @@ public class StrategyImpl extends Strategy {
     public double getMaxLossDouble() {
 
         double maxLoss = 0.0;
-        Collection<Position> positions = getPositions();
+        Position[] positions = getOpenPositions();
         for (Position position : positions) {
             maxLoss += position.getMaxLossBaseDouble();
         }
@@ -261,11 +217,9 @@ public class StrategyImpl extends Strategy {
     public double getLeverage() {
 
         double exposure = 0.0;
-        Collection<Position> positions = getPositions();
+        Position[] positions = getOpenPositions();
         for (Position position : positions) {
-            if (position.isOpen()) {
-                exposure += position.getExposure();
-            }
+            exposure += position.getExposure();
         }
 
         return exposure / getNetLiqValueDouble();
@@ -274,5 +228,18 @@ public class StrategyImpl extends Strategy {
     public String toString() {
 
         return getName();
+    }
+
+    private Position[] getOpenPositions() {
+        return ServiceLocator.commonInstance().getLookupService().getOpenPositionsByStrategy(getName());
+    }
+
+    private Position[] getOpenFXPositions() {
+        return ServiceLocator.commonInstance().getLookupService().getOpenFXPositionsByStrategy(getName());
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<CashBalance> getCashBalancesBase() {
+        return ServiceLocator.commonInstance().getLookupService().getCashBalancesBase();
     }
 }
