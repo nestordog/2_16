@@ -43,7 +43,6 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOptionDao;
 import com.algoTrader.enumeration.MarketDataType;
 import com.algoTrader.enumeration.OrderStatus;
-import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.io.CsvBarInputAdapterSpec;
@@ -83,7 +82,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             Set<Transaction> toRemoveTransactions = new HashSet<Transaction>();
             Set<Transaction> toKeepTransactions = new HashSet<Transaction>();
             for (Transaction transaction : transactions) {
-                if (transaction.getType().equals(TransactionType.CREDIT)) {
+                if (transaction.getId() == 1) {
                     toKeepTransactions.add(transaction);
                 } else {
                     toRemoveTransactions.add(transaction);
@@ -92,6 +91,20 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             getTransactionDao().remove(toRemoveTransactions);
             strategy.setTransactions(toKeepTransactions);
 
+            // delete all cashBalances except the initial CREDIT
+            Collection<CashBalance> cashBalances = strategy.getCashBalances();
+            Set<CashBalance> toRemoveCashBalance = new HashSet<CashBalance>();
+            Set<CashBalance> toKeepCashBalances = new HashSet<CashBalance>();
+            for (CashBalance cashBalance : cashBalances) {
+                if (cashBalance.getId() == 1) {
+                    toKeepCashBalances.add(cashBalance);
+                } else {
+                    toRemoveCashBalance.add(cashBalance);
+                }
+            }
+            getCashBalanceDao().remove(toRemoveCashBalance);
+            strategy.setCashBalances(toKeepCashBalances);
+
             // delete all positions and references to them
             Collection<Position> positions = strategy.getPositions();
             getPositionDao().remove(positions);
@@ -99,13 +112,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             getStrategyDao().update(strategy);
         }
-
-        // delete all balances except the base balance (with id 1)
-        Collection<CashBalance> cashBalances = getCashBalanceDao().loadAll();
-        CashBalance cashBalance = CashBalance.Factory.newInstance();
-        cashBalance.setId(1);
-        cashBalances.remove(cashBalance);
-        getCashBalanceDao().remove(cashBalances);
 
         // delete all non-presistent watchListItems
         List<WatchListItem> watchListItems = getWatchListItemDao().findNonPersistent();
