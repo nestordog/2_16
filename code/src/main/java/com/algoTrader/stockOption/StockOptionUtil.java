@@ -80,11 +80,14 @@ public class StockOptionUtil {
         double term1 = underlayingSpot * Math.exp((costOfCarry - intrest) * years);
         double term2 = strike * Math.exp(-intrest * years);
 
+        double result = 0.0;
         if (OptionType.CALL.equals(type)) {
-            return term1 * Gaussian.Phi(d1) - term2 * Gaussian.Phi(d2);
+            result = term1 * Gaussian.Phi(d1) - term2 * Gaussian.Phi(d2);
         } else {
-            return term2 * Gaussian.Phi(-d2) - term1 * Gaussian.Phi(-d1);
+            result = term2 * Gaussian.Phi(-d2) - term1 * Gaussian.Phi(-d1);
         }
+
+        return result;
     }
 
     public static double getOptionPriceBS(StockOption stockOption, double underlayingSpot, double vola) {
@@ -245,7 +248,8 @@ public class StockOptionUtil {
 
     }
 
-    public static double getTotalMargin(double underlayingSettlement, double strike, double stockOptionSettlement, double years, double intrest, OptionType type, double marginParameter)
+    public static double getTotalMargin(double underlayingSettlement, double strike, double stockOptionSettlement, double years, double intrest,
+            double dividend, OptionType type, double marginParameter)
             throws MathException {
 
         double marginLevel;
@@ -255,9 +259,7 @@ public class StockOptionUtil {
             marginLevel = underlayingSettlement * (1.0 - marginParameter);
         }
 
-        // in margin calculations the dividend is not used!
-
-        double volatility = StockOptionUtil.getVolatility(underlayingSettlement, strike, stockOptionSettlement, years, intrest, 0, type);
+        double volatility = StockOptionUtil.getVolatility(underlayingSettlement, strike, stockOptionSettlement, years, intrest, dividend, type);
 
         return getOptionPriceBS(marginLevel, strike, volatility, years, intrest, 0, type);
     }
@@ -268,7 +270,8 @@ public class StockOptionUtil {
 
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR ;
 
-        return getTotalMargin(underlayingSettlement, stockOption.getStrike().doubleValue(), stockOptionSettlement, years, family.getIntrest(), stockOption.getType(), family.getMarginParameter());
+        return getTotalMargin(underlayingSettlement, stockOption.getStrike().doubleValue(), stockOptionSettlement, years, family.getIntrest(),
+                family.getDividend(), stockOption.getType(), family.getMarginParameter());
     }
 
     public static double getMaintenanceMargin(StockOption stockOption, double stockOptionSettlement, double underlayingSettlement) throws MathException {
