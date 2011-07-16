@@ -22,9 +22,9 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.esper.io.CsvTickReader;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.RoundUtil;
-import com.algoTrader.util.io.CsvTickReader;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 
 public class VerificationServiceImpl extends VerificationServiceBase {

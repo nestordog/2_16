@@ -22,12 +22,12 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.ConnectionState;
+import com.algoTrader.esper.io.CsvTickWriter;
 import com.algoTrader.service.HistoricalDataServiceException;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
-import com.algoTrader.util.io.CsvTickWriter;
 import com.ib.client.Contract;
 
 public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase implements DisposableBean {
