@@ -381,6 +381,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         return resultVO;
     }
 
+    @SuppressWarnings("unchecked")
     private static String convertStatisticsToShortString(SimulationResultVO resultVO) {
 
         StringBuffer buffer = new StringBuffer();
@@ -392,8 +393,20 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             return ("no trades took place!");
         }
 
+        List<MonthlyPerformanceVO> monthlyPerformanceVOs = resultVO.getMonthlyPerformanceVOs();
+        double maxDrawDownM = 0d;
+        double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
+        if ((monthlyPerformanceVOs != null)) {
+            for (MonthlyPerformanceVO MonthlyPerformanceVO : monthlyPerformanceVOs) {
+                maxDrawDownM = Math.min(maxDrawDownM, MonthlyPerformanceVO.getValue());
+                bestMonthlyPerformance = Math.max(bestMonthlyPerformance, MonthlyPerformanceVO.getValue());
+            }
+        }
+
         buffer.append("avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100.0) + "%");
         buffer.append(" sharpe=" + twoDigitFormat.format(performanceKeys.getSharpRatio()));
+        buffer.append(" maxDDM=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
+        buffer.append(" bestMP=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
         buffer.append(" maxDD=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100.0) + "%");
         buffer.append(" maxDDPer=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000));
         buffer.append(" avgPPctWin=" + twoDigitFormat.format(resultVO.getWinningTrades().getAvgProfitPct() * 100.0) + "%");
