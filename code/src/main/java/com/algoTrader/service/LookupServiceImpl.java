@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.Hibernate;
+
 import com.algoTrader.entity.CashBalance;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
@@ -245,16 +247,27 @@ public class LookupServiceImpl extends LookupServiceBase {
 
     protected Tick handleGetLastTick(int securityId) throws Exception {
 
-        return getTickDao().findLastTickForSecurityAndMaxDate(securityId, DateUtil.getCurrentEPTime());
+        Tick tick = getTickDao().findLastTickForSecurityAndMaxDate(securityId, DateUtil.getCurrentEPTime());
+        Hibernate.initialize(tick.getSecurity());
+        Hibernate.initialize(tick.getSecurity().getSecurityFamily());
+        return tick;
     }
 
-    protected List<Tick> handleGetPreFeedTicks(int securityId, int numberOfTicks) {
+    protected List<Tick> handleGetLastNTicks(int securityId, int numberOfTicks) {
 
 
-        List<Integer> recentIds = (List<Integer>) getTickDao().findLastNTickIdsForSecurity(TickDao.TRANSFORM_NONE, securityId, numberOfTicks);
-        if (recentIds.size() > 0) {
-            List<Integer> ids = (List<Integer>) getTickDao().findEndOfDayTickIds(TickDao.TRANSFORM_NONE, securityId, recentIds.get(0));
-            ids.addAll(recentIds);
+        List<Integer> ids = (List<Integer>) getTickDao().findLastNTickIdsForSecurity(TickDao.TRANSFORM_NONE, securityId, numberOfTicks);
+        if (ids.size() > 0) {
+            return getTickDao().findByIdsFetched(ids);
+        } else {
+            return new ArrayList<Tick>();
+        }
+    }
+
+    protected List<Tick> handleGetEndOfDayTicks(int securityId, Date maxDate, Date maxTime) {
+
+        List<Integer> ids = (List<Integer>) getTickDao().findEndOfDayTickIds(TickDao.TRANSFORM_NONE, securityId, maxDate, maxTime);
+        if (ids.size() > 0) {
             return getTickDao().findByIdsFetched(ids);
         } else {
             return new ArrayList<Tick>();
