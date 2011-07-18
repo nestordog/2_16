@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/AlgoTraderCode/src/main/java/com/algoTrader/starter/ImportTickStarter.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.classpathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.algoTrader.starter.ImportTickStarter"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="EU0009652759:0FVIXVB00000:0FVIXXB00000:0FVIXFC00000:0FVIXZB00000:0FVIXGC00000:XD0016891059"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="AlgoTraderCode"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.sourcepathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DstrategyName=BASE&#13;&#10;-DdataSource.dataSet=vix&#13;&#10;-DdataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTraderTest&#13;&#10;-Dib.accountServiceEnabled=false&#13;&#10;-Dib.stockOptionRetrieverServiceEnabled=false&#13;&#10;-Dib.tickServiceEnabled=false&#13;&#10;-Dib.transactionServiceEnabled=false"/>
+</launchConfiguration>
