@@ -75,6 +75,7 @@ public class TickDaoImpl extends TickDaoBase {
         Hibernate.initialize(security.getUnderlaying());
         Hibernate.initialize(security.getVolatility());
         Hibernate.initialize(security.getSecurityFamily());
+        Hibernate.initialize(security.getPositions());
 
         tick.setSecurity(security);
 
