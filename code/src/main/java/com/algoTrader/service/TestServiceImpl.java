@@ -192,7 +192,7 @@ public class TestServiceImpl extends TestServiceBase {
             getTickDao().findLastNTickIdsForSecurity(4, 10);
             break;
         case 42:
-            getTickDao().findEndOfDayTickIds(4, 10);
+                getTickDao().findEndOfDayTickIds(4, new Date(), new Date());
             break;
         case 43:
             getTickDao().findByIdsFetched(Arrays.asList(new Integer[] { new Integer(4), new Integer(5) }));
