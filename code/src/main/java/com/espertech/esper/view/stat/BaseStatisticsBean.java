@@ -34,7 +34,7 @@ public class BaseStatisticsBean implements Cloneable, Serializable
     {
         sumX = 0;
         sumXSq = 0;
-        this.prodX = 1;
+        prodX = 1;
         sumY = 0;
         sumYSq = 0;
         sumXY = 0;
@@ -50,7 +50,7 @@ public class BaseStatisticsBean implements Cloneable, Serializable
         dataPoints++;
         sumX += x;
         sumXSq += x * x;
-        prodX *= 1 + x;
+        prodX *= x;
     }
 
     /**
@@ -63,7 +63,7 @@ public class BaseStatisticsBean implements Cloneable, Serializable
         dataPoints++;
         sumX += x;
         sumXSq += x * x;
-        prodX *= 1 + x;
+        prodX *= x;
         sumY += y;
         sumYSq += y * y;
         sumXY += x * y;
@@ -84,7 +84,7 @@ public class BaseStatisticsBean implements Cloneable, Serializable
         {
             sumX -= x;
             sumXSq -= x * x;
-            prodX /= 1 + x;
+            prodX /= x;
         }
     }
 
@@ -104,7 +104,7 @@ public class BaseStatisticsBean implements Cloneable, Serializable
         {
             sumX -= x;
             sumXSq -= x * x;
-            prodX /= 1 + x;
+            prodX /= x;
             sumY -= y;
             sumYSq -= y * y;
             sumXY -= x * y;
@@ -288,7 +288,11 @@ public class BaseStatisticsBean implements Cloneable, Serializable
     }
 
     public final double getProdX() {
-        return Math.pow(prodX, (1.0 / dataPoints)) - 1.0;
+        return prodX;
+    }
+
+    public final double getGeomAvgX() {
+        return Math.pow(prodX, (1.0 / this.dataPoints));
     }
 
     public final Object clone()

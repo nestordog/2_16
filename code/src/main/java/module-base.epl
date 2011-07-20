@@ -73,7 +73,7 @@ where
 insert into
     MonthlyPerformance
 select
-    current_timestamp().toDate() as date,
+    current_timestamp().toDate().minus(1 month) as date,
     portfolio.value.netLiqValue / prior(1, portfolio.value.netLiqValue) - 1 as value
 from
     pattern[every timer:at (0, 0, 1, *, *) -> portfolio=Portfolio]
@@ -186,14 +186,15 @@ from
 insert into
     PerformanceKeys
 select
-    uni.datapoints as n,
-    uni.geomaverage as avgM,
-    uni.stddev as stdM,
-    Math.pow(1 + uni.geomaverage,12) - 1  as avgY,
-    uni.stddev * Math.sqrt(12) as stdY,
-    (Math.pow(1 + uni.geomaverage,12) - 1 - marketIntrest) / (uni.stddev * Math.sqrt(12)) as sharpRatio
+    perf.datapoints as n,
+    perf.average as avgM,
+    perf.stddev as stdM,
+    Math.pow(factor.geomaverage,12) - 1  as avgY,
+    perf.stddev * Math.sqrt(12) as stdY,
+    (Math.pow(factor.geomaverage,12) - 1 - marketIntrest) / (perf.stddev * Math.sqrt(12)) as sharpRatio
 from
-    MonthlyPerformance.win:keepall().stat:uni(value) as uni;
+    MonthlyPerformance.win:keepall().stat:uni(value) as perf,
+    MonthlyPerformance.win:keepall().stat:uni(1 + value) as factor;
 
 @Name('ALL_TRADES')
 @Tag(name='simulationOnly', value='true')
