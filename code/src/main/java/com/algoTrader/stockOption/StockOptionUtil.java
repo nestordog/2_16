@@ -286,7 +286,7 @@ public class StockOptionUtil {
 
     public static double getMoneyness(StockOption stockOption, double underlayingSpot) {
 
-        if (OptionType.PUT.equals(stockOption.getType())) {
+        if (OptionType.CALL.equals(stockOption.getType())) {
             return (underlayingSpot - stockOption.getStrike().doubleValue()) / underlayingSpot;
         } else {
             return (stockOption.getStrike().doubleValue() - underlayingSpot) / underlayingSpot;
