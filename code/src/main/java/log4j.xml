@@ -37,7 +37,7 @@
         <param name="file" value="log/indicator.csv" />
         <param name="append" value="false" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss},%m %n" />
+            <param name="ConversionPattern" value="%m %n" />
         </layout>
     </appender>
 
@@ -108,6 +108,11 @@
     </logger>
 
     <logger name="com.algoTrader.esper.subscriber.IndicatorSubscriber" additivity="false">
+        <level value="info" />
+        <appender-ref ref="INDICATOR" />
+    </logger>
+
+    <logger name="com.algoTrader.esper.listener.IndicatorListener" additivity="false">
         <level value="info" />
         <appender-ref ref="INDICATOR" />
     </logger>
