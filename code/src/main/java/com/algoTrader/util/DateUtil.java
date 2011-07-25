@@ -88,6 +88,24 @@ public class DateUtil {
         return cal.getTime();
     }
 
+    private static Date getNext3rdFridayNMonths(Date input, int months) {
+
+        // get the next third friday
+        Date nextThirdFriday = getNext3rdFriday(input);
+
+        Calendar cal = new GregorianCalendar();
+        cal.setFirstDayOfWeek(Calendar.SUNDAY);
+        cal.setMinimalDaysInFirstWeek(2);
+        cal.setTime(nextThirdFriday);
+
+        // add months and set to friday 3rd week
+        cal.add(Calendar.MONTH, (months - 1));
+        cal.set(Calendar.WEEK_OF_MONTH, 3);
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+
+        return cal.getTime();
+    }
+
     private static Date getNext3rdFriday3Months(Date input) {
 
         Calendar cal = new GregorianCalendar();
@@ -163,7 +181,7 @@ public class DateUtil {
     public static Date getExpirationDateNMonths(ExpirationType type, Date input, int months) {
 
         if (ExpirationType.NEXT_3_RD_FRIDAY.equals(type)) {
-            throw new UnsupportedOperationException();
+            return getNext3rdFridayNMonths(input, months);
         } else if (ExpirationType.NEXT_3_RD_FRIDAY_3_MONTHS.equals(type)) {
             throw new UnsupportedOperationException();
         } else if (ExpirationType.THIRTY_DAYS_BEFORE_NEXT_3_RD_FRIDAY.equals(type)) {

@@ -103,16 +103,17 @@ public class RuleServiceImpl extends RuleServiceBase {
 
     protected void handleDeployRule(String strategyName, String moduleName, String ruleName) throws Exception {
 
-        deployRule(strategyName, moduleName, ruleName, new Integer(0));
+        deployRule(strategyName, moduleName, ruleName, null, new Object[] {});
     }
 
-    protected void handleDeployRule(String strategyName, String moduleName, String ruleName, Integer targetId) throws Exception {
+    protected void handleDeployRule(String strategyName, String moduleName, String ruleName, String alias, Object[] params) throws Exception {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
 
         // do nothing if the statement already exists
         EPStatement oldStatement = administrator.getStatement(ruleName);
         if (oldStatement != null && oldStatement.isStarted()) {
+            logger.warn(ruleName + " is already deployed and started");
             return;
         }
 
@@ -131,6 +132,9 @@ public class RuleServiceImpl extends RuleServiceBase {
             EPPreparedStatementImpl prepared = null;
             if (exp.contains("?")) {
                 prepared = ((EPPreparedStatementImpl) administrator.prepareEPL(exp));
+                for (int i = 0; i < params.length; i++) {
+                    prepared.setObject(i + 1, params[i]);
+                }
                 model = prepared.getModel();
             } else {
                 model = administrator.compileEPL(exp);
@@ -143,13 +147,13 @@ public class RuleServiceImpl extends RuleServiceBase {
                     for (AnnotationAttribute attribute : annotationPart.getAttributes()) {
                         if (attribute.getValue().equals(ruleName)) {
 
-                            // for preparedStatements set the target
-                            if (prepared != null) {
-                                exp = exp.replace("?", String.valueOf(targetId));
+                            // set the alias
+                            if (alias != null) {
+                                attribute.setValue(alias);
                             }
 
                             // create the statement
-                            newStatement = administrator.createEPL(exp);
+                            newStatement = administrator.createEPL(model.toEPL());
 
                             // check if the statement is elgible, other destory it righ away
                             processAnnotations(newStatement);
@@ -214,17 +218,6 @@ public class RuleServiceImpl extends RuleServiceBase {
         if (statement != null && statement.isStarted()) {
             statement.destroy();
             logger.debug("undeployed rule " + ruleName);
-        }
-    }
-
-    protected void handleUndeployRuleByTarget(String strategyName, String ruleName, int targetId) throws Exception {
-
-        if (hasServiceProvider(strategyName)) {
-            EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
-            if (statement != null && statement.isStarted() && statement.getText().contains(String.valueOf(targetId))) {
-                statement.destroy();
-                logger.debug("undeployed rule " + ruleName);
-            }
         }
     }
 

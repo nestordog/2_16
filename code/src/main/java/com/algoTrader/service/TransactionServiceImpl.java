@@ -96,6 +96,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
                 position.setExitValue(null);
                 position.setMaintenanceMargin(null);
+                position.setProfitValue(null);
+                position.setProfitLockIn(null);
 
                 position.setSecurity(security);
                 security.getPositions().add(position);
@@ -125,6 +127,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 if (!position.isOpen()) {
                     position.setExitValue(null);
                     position.setMaintenanceMargin(null);
+                    position.setProfitValue(null);
+                    position.setProfitLockIn(null);
                 }
 
                 position.getTransactions().add(transaction);
@@ -149,7 +153,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 tradePerformance.setAvgAge(avgAge);
                 tradePerformance.setWinning(profit > 0);
 
-                getRuleService().sendEvent(StrategyImpl.BASE, tradePerformance);
+                getRuleService().routeEvent(StrategyImpl.BASE, tradePerformance);
             }
 
             String logMessage = "executed transaction type: " + transactionType +

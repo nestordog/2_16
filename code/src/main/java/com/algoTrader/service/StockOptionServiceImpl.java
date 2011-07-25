@@ -41,7 +41,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     private static int advanceMinutes = 10;
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
 
-    protected StockOption handleCreateDummyStockOption(int stockOptionFamilyId, Date expirationDate, BigDecimal underlayingSpot, OptionType type) throws Exception {
+    protected StockOption handleCreateDummyStockOption(int stockOptionFamilyId, Date expirationDate, BigDecimal targetStrike, OptionType type) throws Exception {
 
         StockOptionFamily family = getStockOptionFamilyDao().load(stockOptionFamilyId);
         Security underlaying = family.getUnderlaying();
@@ -49,7 +49,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         // set third Friday of the month
         Date expiration = DateUtil.getExpirationDate(family.getExpirationType(), expirationDate);
 
-        BigDecimal strike = RoundUtil.roundStockOptionStrikeToNextN(underlayingSpot, family.getStrikeDistance(), type);
+        BigDecimal strike = RoundUtil.roundStockOptionStrikeToNextN(targetStrike, family.getStrikeDistance(), type);
 
         // symbol / isin
         String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike);
