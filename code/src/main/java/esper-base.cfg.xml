@@ -13,7 +13,7 @@
     <event-type name="Transaction" class="com.algoTrader.entity.Transaction"/>
     <event-type name="OHLCTick" class="com.espertech.esper.ohlc.OHLCTick"/>
 
-    <event-type name="MonthlyPerformance" class="com.algoTrader.vo.MonthlyPerformanceVO"/>
+    <event-type name="MonthlyPerformance" class="com.algoTrader.vo.PeriodPerformanceVO"/>
     <event-type name="PerformanceKeys" class="com.algoTrader.vo.PerformanceKeysVO"/>
     <event-type name="MaxDrawDown" class="com.algoTrader.vo.MaxDrawDownVO"/>
     <event-type name="TradePerformance" class="com.algoTrader.vo.TradePerformanceVO"/>

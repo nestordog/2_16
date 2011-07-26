@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.ConvergenceException;
 import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.MultivariateRealFunction;
@@ -48,9 +50,9 @@ import com.algoTrader.esper.io.CsvTickInputAdapterSpec;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.MaxDrawDownVO;
-import com.algoTrader.vo.MonthlyPerformanceVO;
 import com.algoTrader.vo.OptimizationResultVO;
 import com.algoTrader.vo.PerformanceKeysVO;
+import com.algoTrader.vo.PeriodPerformanceVO;
 import com.algoTrader.vo.SimulationResultVO;
 import com.algoTrader.vo.TradesVO;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
@@ -61,7 +63,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private static Logger resultLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
 
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
-    private static DateFormat dateFormat = new SimpleDateFormat(" MMM-yy ");
+    private static DateFormat monthFormat = new SimpleDateFormat(" MMM-yy ");
+    private static DateFormat yearFormat = new SimpleDateFormat("   yyyy ");
     private static final NumberFormat format = NumberFormat.getInstance();
     private static final int roundDigits = ConfigurationUtil.getBaseConfig().getInt("simulation.roundDigits");
     private static final Date startDate = new Date(ConfigurationUtil.getBaseConfig().getLong("simulation.start"));
@@ -360,11 +363,36 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     protected SimulationResultVO handleGetSimulationResultVO(long startTime) {
 
         PerformanceKeysVO performanceKeys = (PerformanceKeysVO) getRuleService().getLastEvent(StrategyImpl.BASE, "CREATE_PERFORMANCE_KEYS");
-        List<MonthlyPerformanceVO> monthlyPerformances = getRuleService().getAllEvents(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
+        List<PeriodPerformanceVO> monthlyPerformances = getRuleService().getAllEvents(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
         MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) getRuleService().getLastEvent(StrategyImpl.BASE, "CREATE_MAX_DRAW_DOWN");
         TradesVO allTrades = (TradesVO) getRuleService().getLastEvent(StrategyImpl.BASE, "ALL_TRADES");
         TradesVO winningTrades = (TradesVO) getRuleService().getLastEvent(StrategyImpl.BASE, "WINNING_TRADES");
         TradesVO loosingTrades = (TradesVO) getRuleService().getLastEvent(StrategyImpl.BASE, "LOOSING_TRADES");
+
+        // compile yearly performance
+        List<PeriodPerformanceVO> yearlyPerformances = null;
+        if ((monthlyPerformances != null)) {
+            yearlyPerformances = new ArrayList<PeriodPerformanceVO>();
+            double currentPerformance = 1.0;
+            for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
+                currentPerformance *= 1.0 + monthlyPerformance.getValue();
+                if (DateUtils.toCalendar(monthlyPerformance.getDate()).get(Calendar.MONTH) == 11) {
+                    PeriodPerformanceVO yearlyPerformance = new PeriodPerformanceVO();
+                    yearlyPerformance.setDate(monthlyPerformance.getDate());
+                    yearlyPerformance.setValue(currentPerformance - 1.0);
+                    yearlyPerformances.add(yearlyPerformance);
+                    currentPerformance = 1.0;
+                }
+            }
+
+            PeriodPerformanceVO lastMonthlyPerformance = monthlyPerformances.get(monthlyPerformances.size() - 1);
+            if (DateUtils.toCalendar(lastMonthlyPerformance.getDate()).get(Calendar.MONTH) != 11) {
+                PeriodPerformanceVO yearlyPerformance = new PeriodPerformanceVO();
+                yearlyPerformance.setDate(lastMonthlyPerformance.getDate());
+                yearlyPerformance.setValue(currentPerformance - 1.0);
+                yearlyPerformances.add(yearlyPerformance);
+            }
+        }
 
         // assemble the result
         SimulationResultVO resultVO = new SimulationResultVO();
@@ -372,6 +400,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         resultVO.setDataSet(ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet"));
         resultVO.setNetLiqValue(getStrategyDao().getPortfolioNetLiqValueDouble());
         resultVO.setMonthlyPerformanceVOs(monthlyPerformances);
+        resultVO.setYearlyPerformanceVOs(yearlyPerformances);
         resultVO.setPerformanceKeysVO(performanceKeys);
         resultVO.setMaxDrawDownVO(maxDrawDown);
         resultVO.setAllTrades(allTrades);
@@ -393,13 +422,13 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             return ("no trades took place!");
         }
 
-        List<MonthlyPerformanceVO> monthlyPerformanceVOs = resultVO.getMonthlyPerformanceVOs();
+        List<PeriodPerformanceVO> PeriodPerformanceVOs = resultVO.getMonthlyPerformanceVOs();
         double maxDrawDownM = 0d;
         double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
-        if ((monthlyPerformanceVOs != null)) {
-            for (MonthlyPerformanceVO MonthlyPerformanceVO : monthlyPerformanceVOs) {
-                maxDrawDownM = Math.min(maxDrawDownM, MonthlyPerformanceVO.getValue());
-                bestMonthlyPerformance = Math.max(bestMonthlyPerformance, MonthlyPerformanceVO.getValue());
+        if ((PeriodPerformanceVOs != null)) {
+            for (PeriodPerformanceVO PeriodPerformanceVO : PeriodPerformanceVOs) {
+                maxDrawDownM = Math.min(maxDrawDownM, PeriodPerformanceVO.getValue());
+                bestMonthlyPerformance = Math.max(bestMonthlyPerformance, PeriodPerformanceVO.getValue());
             }
         }
 
@@ -430,33 +459,68 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         double netLiqValue = resultVO.getNetLiqValue();
         buffer.append("netLiqValue=" + twoDigitFormat.format(netLiqValue) + "\r\n");
 
-        List<MonthlyPerformanceVO> monthlyPerformanceVOs = resultVO.getMonthlyPerformanceVOs();
+        // monthlyPerformances
+        List<PeriodPerformanceVO> monthlyPerformances = resultVO.getMonthlyPerformanceVOs();
         double maxDrawDownM = 0d;
         double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
-        if ((monthlyPerformanceVOs != null)) {
+        int positiveMonths = 0;
+        int negativeMonths = 0;
+        if ((monthlyPerformances != null)) {
             StringBuffer dateBuffer= new StringBuffer("month-year:         ");
-            StringBuffer performanceBuffer = new StringBuffer("MonthlyPerformance: ");
-            for (MonthlyPerformanceVO MonthlyPerformanceVO : monthlyPerformanceVOs) {
-                maxDrawDownM = Math.min(maxDrawDownM, MonthlyPerformanceVO.getValue());
-                bestMonthlyPerformance = Math.max(bestMonthlyPerformance, MonthlyPerformanceVO.getValue());
-                dateBuffer.append(dateFormat.format(MonthlyPerformanceVO.getDate()));
-                performanceBuffer.append(StringUtils.leftPad(twoDigitFormat.format(MonthlyPerformanceVO.getValue() * 100), 6) + "% ");
+            StringBuffer performanceBuffer = new StringBuffer("monthlyPerformance: ");
+            for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
+                maxDrawDownM = Math.min(maxDrawDownM, monthlyPerformance.getValue());
+                bestMonthlyPerformance = Math.max(bestMonthlyPerformance, monthlyPerformance.getValue());
+                dateBuffer.append(monthFormat.format(monthlyPerformance.getDate()));
+                performanceBuffer.append(StringUtils.leftPad(twoDigitFormat.format(monthlyPerformance.getValue() * 100), 6) + "% ");
+                if (monthlyPerformance.getValue() > 0) {
+                    positiveMonths++;
+                } else {
+                    negativeMonths++;
+                }
             }
             buffer.append(dateBuffer.toString() + "\r\n");
             buffer.append(performanceBuffer.toString() + "\r\n");
         }
 
+        // yearlyPerformances
+        int positiveYears = 0;
+        int negativeYears = 0;
+        List<PeriodPerformanceVO> yearlyPerformances = resultVO.getYearlyPerformanceVOs();
+        if ((yearlyPerformances != null)) {
+            StringBuffer dateBuffer = new StringBuffer("year:               ");
+            StringBuffer performanceBuffer = new StringBuffer("yearlyPerformance:  ");
+            for (PeriodPerformanceVO yearlyPerformance : yearlyPerformances) {
+                dateBuffer.append(yearFormat.format(yearlyPerformance.getDate()));
+                performanceBuffer.append(StringUtils.leftPad(twoDigitFormat.format(yearlyPerformance.getValue() * 100), 6) + "% ");
+                if (yearlyPerformance.getValue() > 0) {
+                    positiveYears++;
+                } else {
+                    negativeYears++;
+                }
+            }
+            buffer.append(dateBuffer.toString() + "\r\n");
+            buffer.append(performanceBuffer.toString() + "\r\n");
+        }
+
+        if ((monthlyPerformances != null)) {
+            buffer.append("posMonths=" + positiveMonths + " negMonths=" + negativeMonths);
+            if ((yearlyPerformances != null)) {
+                buffer.append(" posYears=" + positiveYears + " negYears=" + negativeYears);
+            }
+            buffer.append("\r\n");
+        }
+
         PerformanceKeysVO performanceKeys = resultVO.getPerformanceKeysVO();
         MaxDrawDownVO maxDrawDownVO = resultVO.getMaxDrawDownVO();
         if (performanceKeys != null && maxDrawDownVO != null) {
-            buffer.append("months=" + performanceKeys.getN());
-            buffer.append(" avgM=" + twoDigitFormat.format(performanceKeys.getAvgM() * 100) + "%");
+            buffer.append("avgM=" + twoDigitFormat.format(performanceKeys.getAvgM() * 100) + "%");
             buffer.append(" stdM=" + twoDigitFormat.format(performanceKeys.getStdM() * 100) + "%");
             buffer.append(" avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100) + "%");
             buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "% ");
             buffer.append(" sharpRatio=" + twoDigitFormat.format(performanceKeys.getSharpRatio()) + "\r\n");
 
-            buffer.append("maxDrawDownM=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
+            buffer.append("maxMonthlyDrawDown=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
             buffer.append(" bestMonthlyPerformance=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
             buffer.append(" maxDrawDown=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100) + "%");
             buffer.append(" maxDrawDownPeriod=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000) + "days");
