@@ -55,7 +55,7 @@ public class TickImpl extends Tick {
                 double pricePerContract = getLast().doubleValue() * family.getContractSize();
                 double spread = pricePerContract * family.getSpreadSlope() + family.getSpreadConstant();
                 double dummyBid = (pricePerContract - (spread / 2.0)) / family.getContractSize();
-                return RoundUtil.getBigDecimal(dummyBid, family.getScale());
+                return RoundUtil.getBigDecimal(dummyBid < 0 ? 0 : dummyBid, family.getScale());
             } else {
                 return super.getBid();
             }
