@@ -34,6 +34,6 @@ algotrader
 -r D:\AlgoTrader\code\sql\db-data-live.sql ^
 algotraderlive
 
-"D:\AlgoTrader\sql\unix2dos.exe" D:\AlgoTrader\code\sql\db-structure.sql
-"D:\AlgoTrader\sql\unix2dos.exe" D:\AlgoTrader\code\sql\db-data.sql
-"D:\AlgoTrader\sql\unix2dos.exe" D:\AlgoTrader\code\sql\db-data-live.sql
+"D:\AlgoTrader\code\sql\unix2dos.exe" D:\AlgoTrader\code\sql\db-structure.sql
+"D:\AlgoTrader\code\sql\unix2dos.exe" D:\AlgoTrader\code\sql\db-data.sql
+"D:\AlgoTrader\code\sql\unix2dos.exe" D:\AlgoTrader\code\sql\db-data-live.sql

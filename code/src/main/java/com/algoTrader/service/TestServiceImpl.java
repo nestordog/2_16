@@ -177,7 +177,7 @@ public class TestServiceImpl extends TestServiceBase {
             getTickDao().load(370552);
             break;
         case 37:
-            getTickDao().findBySecurityDateTypeExpiration(new SecurityImpl(), new Date(), OptionType.PUT, new Date());
+                getTickDao().findBySecurityDateTypeAndExpiration(new SecurityImpl(), new Date(), OptionType.PUT, new Date());
             break;
         case 38:
             getTickDao().findBySecurity(9);
