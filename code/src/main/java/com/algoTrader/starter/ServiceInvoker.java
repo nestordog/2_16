@@ -62,7 +62,11 @@ public class ServiceInvoker {
             }
 
             Method method = service.getClass().getMethod(methodName, signature);
-            return method.invoke(service, (Object[])params);
+            Object result = method.invoke(service, (Object[]) params);
+
+            serviceLocator.shutdown();
+
+            return result;
 
         } catch (NoSuchMethodException e) {
             logger.error("the specified service or method does not exist", e);
