@@ -5,6 +5,7 @@ import java.util.Date;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
+import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
@@ -92,5 +93,10 @@ public class LookupUtil {
     public static boolean hasLastTicks() {
 
         return (ServiceLocator.commonInstance().getRuleService().getLastEvent(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK") != null);
+    }
+
+    public static Tick getTickByDateAndSecurity(Date date, int securityId) {
+
+        return ServiceLocator.commonInstance().getLookupService().getTickByDateAndSecurity(date, securityId);
     }
 }

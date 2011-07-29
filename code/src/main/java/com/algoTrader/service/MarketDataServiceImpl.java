@@ -3,10 +3,14 @@ package com.algoTrader.service;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +23,7 @@ import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.supercsv.exception.SuperCSVException;
 
 import com.algoTrader.ServiceLocator;
@@ -48,6 +53,8 @@ import com.algoTrader.vo.IVolVO;
 import com.algoTrader.vo.RawTickVO;
 
 public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
+
+    private static final DateFormat fileFormat = new SimpleDateFormat("dd-MM-yyyy");
 
     private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
     private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
@@ -241,24 +248,48 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         }
     }
 
-    protected void handleImportIVolTicks() throws Exception {
+    protected void handleImportIVolTicks(String stockOptionFamilyId, String symbol) throws Exception {
 
-        StockOptionFamily family = getStockOptionFamilyDao().load(3);
+        StockOptionFamily family = getStockOptionFamilyDao().load(Integer.parseInt(stockOptionFamilyId));
         Set<StockOption> stockOptions = new HashSet<StockOption>();
+
+        for (Security security : family.getSecurities()) {
+            StockOption stockOption = (StockOption) security;
+            stockOptions.add(stockOption);
+        }
+
         Date date = null;
 
-        File dir = new File("results/iVol");
+        File dir = new File("results/iVol/" + symbol);
 
         for (File file : dir.listFiles()) {
 
-            CsvIVolReader csvReader = new CsvIVolReader(file.getName());
+            String dateString = file.getName().substring(5, 15);
+            Date fileDate = fileFormat.parse(dateString);
+            CsvIVolReader csvReader = new CsvIVolReader(symbol + "/" + file.getName());
 
             IVolVO iVol;
             List<Tick> ticks = new ArrayList<Tick>();
             while ((iVol = csvReader.readHloc()) != null) {
 
+
+                // prevent overlap
+                if (DateUtils.toCalendar(fileDate).get(Calendar.MONTH) != DateUtils.toCalendar(iVol.getDate()).get(Calendar.MONTH)) {
+                    continue;
+                }
+
                 if (iVol.getBid() == null || iVol.getAsk() == null)
                     continue;
+
+                // only consider 3rd Friday
+                Calendar expCal = new GregorianCalendar();
+                expCal.setMinimalDaysInFirstWeek(2);
+                expCal.setFirstDayOfWeek(Calendar.SUNDAY);
+                expCal.setTime(iVol.getExpiration());
+
+                if (!(expCal.get(Calendar.WEEK_OF_MONTH) == 3 && expCal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
+                    continue;
+                }
 
                 // for every day create an underlaying-Tick
                 if (!iVol.getDate().equals(date)) {
@@ -271,6 +302,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
                     tick.setBid(new BigDecimal(0));
                     tick.setAsk(new BigDecimal(0));
                     tick.setSecurity(family.getUnderlaying());
+                    tick.setSettlement(new BigDecimal(0));
 
                     ticks.add(tick);
                 }
@@ -283,7 +315,8 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
                 // check if we have the stockOption already
                 StockOption stockOption = CollectionUtils.find(stockOptions, new Predicate<StockOption>() {
                     public boolean evaluate(StockOption stockOption) {
-                        return stockOption.getStrike().equals(newStockOption.getStrike()) && stockOption.getExpiration().equals(newStockOption.getExpiration())
+                        return stockOption.getStrike().intValue() == newStockOption.getStrike().intValue()
+                                && stockOption.getExpiration().getTime() == newStockOption.getExpiration().getTime()
                                 && stockOption.getType().equals(newStockOption.getType());
                     }
                 });
@@ -309,13 +342,22 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
                 tick.setVol(iVol.getVolume());
                 tick.setOpenIntrest(iVol.getOpenIntrest());
                 tick.setSecurity(stockOption);
+                tick.setSettlement(new BigDecimal(0));
 
                 ticks.add(tick);
             }
 
             getTickDao().create(ticks);
 
-            logger.info("finished with file " + file.getName());
+            // perform memory release
+            Session session = getSessionFactory().getCurrentSession();
+            session.flush();
+            session.clear();
+
+            // gc
+            System.gc();
+
+            logger.info("finished with file " + file.getName() + " created " + ticks.size() + " ticks");
         }
     }
 

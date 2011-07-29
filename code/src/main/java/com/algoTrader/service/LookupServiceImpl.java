@@ -54,6 +54,12 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getStockOptionDao().findNearestStockOption(underlayingId, expirationDate, underlayingSpot, optionType.getValue());
     }
 
+    protected StockOption handleGetNearestStockOptionWithTicks(int underlayingId, Date expirationDate, BigDecimal underlayingSpot, OptionType optionType,
+            Date date) throws Exception {
+
+        return getStockOptionDao().findNearestStockOptionWithTicks(underlayingId, expirationDate, underlayingSpot, optionType.getValue(), date);
+    }
+
     protected Future handleGetNearestFuture(int underlayingId, Date expirationDate) throws Exception {
 
         Future future = getFutureDao().findNearestFuture(underlayingId, expirationDate);
@@ -277,6 +283,11 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Tick> handleGetTicksByTimePeriodOnWatchlist(Date startDate, Date endDate) throws Exception {
 
         return getTickDao().findByTimePeriodOnWatchlist(startDate, endDate);
+    }
+
+    protected Tick handleGetTickByDateAndSecurity(Date date, int securityId) {
+
+        return getTickDao().findByDateAndSecurity(date, securityId);
     }
 
     protected List<Strategy> handleGetAutoActivateStrategies() throws Exception {

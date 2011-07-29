@@ -92,8 +92,8 @@ public class TickImpl extends Tick {
 
     public BigDecimal getSettlement() {
 
-        if (simulation && super.getSettlement().equals(new BigDecimal(0))) {
-            return getLast();
+        if (simulation && (super.getSettlement() == null || super.getSettlement().compareTo(new BigDecimal(0)) == 0)) {
+            return getCurrentValue();
         } else {
             return super.getSettlement();
         }
