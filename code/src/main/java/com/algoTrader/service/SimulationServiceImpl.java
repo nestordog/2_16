@@ -42,7 +42,6 @@ import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.entity.security.FutureDao;
 import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.security.StockOptionDao;
 import com.algoTrader.enumeration.MarketDataType;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
@@ -121,7 +120,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         getWatchListItemDao().remove(watchListItems);
 
         // delete all StockOptions
-        getSecurityDao().remove((Collection<Security>) getStockOptionDao().loadAll(StockOptionDao.TRANSFORM_NONE));
+        //getSecurityDao().remove((Collection<Security>) getStockOptionDao().loadAll(StockOptionDao.TRANSFORM_NONE));
 
         // delete all Futures
         getSecurityDao().remove((Collection<Security>) getFutureDao().loadAll(FutureDao.TRANSFORM_NONE));
@@ -371,26 +370,28 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         // compile yearly performance
         List<PeriodPerformanceVO> yearlyPerformances = null;
-        if ((monthlyPerformances != null)) {
-            yearlyPerformances = new ArrayList<PeriodPerformanceVO>();
-            double currentPerformance = 1.0;
-            for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
-                currentPerformance *= 1.0 + monthlyPerformance.getValue();
-                if (DateUtils.toCalendar(monthlyPerformance.getDate()).get(Calendar.MONTH) == 11) {
+        if (monthlyPerformances.size() != 0) {
+            if ((monthlyPerformances != null)) {
+                yearlyPerformances = new ArrayList<PeriodPerformanceVO>();
+                double currentPerformance = 1.0;
+                for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
+                    currentPerformance *= 1.0 + monthlyPerformance.getValue();
+                    if (DateUtils.toCalendar(monthlyPerformance.getDate()).get(Calendar.MONTH) == 11) {
+                        PeriodPerformanceVO yearlyPerformance = new PeriodPerformanceVO();
+                        yearlyPerformance.setDate(monthlyPerformance.getDate());
+                        yearlyPerformance.setValue(currentPerformance - 1.0);
+                        yearlyPerformances.add(yearlyPerformance);
+                        currentPerformance = 1.0;
+                    }
+                }
+
+                PeriodPerformanceVO lastMonthlyPerformance = monthlyPerformances.get(monthlyPerformances.size() - 1);
+                if (DateUtils.toCalendar(lastMonthlyPerformance.getDate()).get(Calendar.MONTH) != 11) {
                     PeriodPerformanceVO yearlyPerformance = new PeriodPerformanceVO();
-                    yearlyPerformance.setDate(monthlyPerformance.getDate());
+                    yearlyPerformance.setDate(lastMonthlyPerformance.getDate());
                     yearlyPerformance.setValue(currentPerformance - 1.0);
                     yearlyPerformances.add(yearlyPerformance);
-                    currentPerformance = 1.0;
                 }
-            }
-
-            PeriodPerformanceVO lastMonthlyPerformance = monthlyPerformances.get(monthlyPerformances.size() - 1);
-            if (DateUtils.toCalendar(lastMonthlyPerformance.getDate()).get(Calendar.MONTH) != 11) {
-                PeriodPerformanceVO yearlyPerformance = new PeriodPerformanceVO();
-                yearlyPerformance.setDate(lastMonthlyPerformance.getDate());
-                yearlyPerformance.setValue(currentPerformance - 1.0);
-                yearlyPerformances.add(yearlyPerformance);
             }
         }
 
