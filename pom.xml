@@ -284,6 +284,11 @@
         <module>code</module>
     </modules>
     <distributionManagement>
+          <repository>
+              <id>bubba-deploy</id>
+              <name>Bubba Repositiory</name>
+              <url>scp://bubba.gettheticket.ch/home/web/repo</url>
+          </repository>
         <snapshotRepository>
             <id>bubba-deploy</id>
             <name>Bubba Repositiory</name>
