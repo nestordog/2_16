@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>algotrader</groupId>
   <artifactId>algotrader-prod</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.4</version>
   <packaging>pom</packaging>
   <repositories>
       <repository>
@@ -15,7 +15,7 @@
       <dependency>
           <groupId>algotrader</groupId>
           <artifactId>algotrader-code</artifactId>
-          <version>1.4-SNAPSHOT</version>
+          <version>1.4</version>
           <type>jar</type>
           <scope>compile</scope>
       </dependency>
