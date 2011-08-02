@@ -46,6 +46,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
     private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
     private static boolean transactionServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.transactionServiceEnabled");
     private static boolean faEnabled = ConfigurationUtil.getBaseConfig().getBoolean("if.faEnabled");
+    private static String faAccount = ConfigurationUtil.getBaseConfig().getString("if.faAccount");
 
     private static String[] spreadPositions = ConfigurationUtil.getBaseConfig().getStringArray("spreadPositions");
 
@@ -484,6 +485,11 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
             }
         } else {
             ibOrder.m_totalQuantity = (int) partialOrder.getRequestedQuantity();
+
+            // if fa is disabled, it is still possible to work with an IB FA setup if a single client account is specified
+            if (faAccount != null) {
+                ibOrder.m_account = faAccount;
+            }
         }
 
         this.client.placeOrder(partialOrder.getOrderId(), contract, ibOrder);
