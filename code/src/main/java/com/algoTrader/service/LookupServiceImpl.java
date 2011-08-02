@@ -60,6 +60,11 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getStockOptionDao().findNearestStockOptionWithTicks(underlayingId, expirationDate, underlayingSpot, optionType.getValue(), date);
     }
 
+    protected Date handleGetNearestExpirationWithTicks(int underlayingId, Date date, Date targetDate) throws Exception {
+
+        return getStockOptionDao().findNearestExpirationWithTicks(underlayingId, date, targetDate);
+    }
+
     protected Future handleGetNearestFuture(int underlayingId, Date expirationDate) throws Exception {
 
         Future future = getFutureDao().findNearestFuture(underlayingId, expirationDate);

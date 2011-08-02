@@ -242,6 +242,14 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
                 logger.error("problem import ticks for " + isin, e);
             }
 
+            // perform memory release
+            Session session = getSessionFactory().getCurrentSession();
+            session.flush();
+            session.clear();
+
+            // gc
+            System.gc();
+
             logger.info("imported " + newTicks.size() + " ticks for: " + isin);
         } else {
             logger.info("file does not exist: " + isin);

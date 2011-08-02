@@ -183,6 +183,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         // feed the ticks
         inputCSV();
 
+        // close all open positions that might still exist
+        getPositionService().closeAllPositions();
+
         // get the results
         SimulationResultVO resultVO = getSimulationResultVO(startTime);
 
