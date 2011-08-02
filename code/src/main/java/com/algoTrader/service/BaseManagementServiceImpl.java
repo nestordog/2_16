@@ -47,4 +47,17 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
 
         getForexService().equalizeForex();
     }
+
+    @Override
+    protected void handlePutOnWatchlist(String strategyName, int securityid) throws Exception {
+
+        getMarketDataService().putOnWatchlist(strategyName, securityid);
+    }
+
+    @Override
+    protected void handleRemoveFromWatchlist(String strategyName, int securityid) throws Exception {
+
+        getMarketDataService().removeFromWatchlist(strategyName, securityid);
+    }
+
 }
