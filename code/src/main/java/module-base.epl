@@ -79,7 +79,6 @@ having
     prior(1, portfolio.value.netLiqValue) != null and
     portfolio.value.netLiqValue != prior(1, portfolio.value.netLiqValue);
 
-/*
 @Name('REBALANCE_PORTFOLIO')
 @Tag(name='listeners', value='com.algoTrader.service.AccountServiceImpl$RebalancePortfolioListener')
 select
@@ -93,7 +92,6 @@ select
     *
 from
     pattern[every timer:at (0, 10, *, *, 3) -> Portfolio];
-*/
 
 @Name('GET_LAST_TICK')
 @Priority(3)
