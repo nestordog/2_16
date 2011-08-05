@@ -124,7 +124,7 @@ public class PositionImpl extends Position {
 
             Transaction transaction = queueTransaction.getTransaction();
             long quantity = queueTransaction.getQuantity();
-            double pricePerContract = Math.abs(transaction.getValueDouble() / transaction.getQuantity());
+            double pricePerContract = Math.abs(transaction.getNetValueDouble() / transaction.getQuantity());
 
             totalQuantity += quantity;
             totalPrice += quantity * pricePerContract;

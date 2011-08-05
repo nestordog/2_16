@@ -45,8 +45,8 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
     private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
     private static boolean transactionServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.transactionServiceEnabled");
-    private static boolean faEnabled = ConfigurationUtil.getBaseConfig().getBoolean("if.faEnabled");
-    private static String faAccount = ConfigurationUtil.getBaseConfig().getString("if.faAccount");
+    private static boolean faEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.faEnabled");
+    private static String faAccount = ConfigurationUtil.getBaseConfig().getString("ib.faAccount");
 
     private static String[] spreadPositions = ConfigurationUtil.getBaseConfig().getStringArray("spreadPositions");
 

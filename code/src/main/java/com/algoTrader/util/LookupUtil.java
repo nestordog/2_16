@@ -5,6 +5,7 @@ import java.util.Date;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
+import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
@@ -98,5 +99,10 @@ public class LookupUtil {
     public static Tick getTickByDateAndSecurity(Date date, int securityId) {
 
         return ServiceLocator.commonInstance().getLookupService().getTickByDateAndSecurity(date, securityId);
+    }
+
+    public static WatchListItem getWatchListItem(String strategyName, int securityId) {
+
+        return ServiceLocator.commonInstance().getLookupService().getWatchListItem(strategyName, securityId);
     }
 }

@@ -134,7 +134,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     protected void handlePutOnWatchlist(Strategy strategy, Security security) throws Exception {
 
-        if (getWatchListItemDao().findByStrategyAndSecurity(strategy, security) == null) {
+        if (getWatchListItemDao().findByStrategyAndSecurity(strategy.getName(), security.getId()) == null) {
 
             // only put on external watchlist if nobody was watching this security so far
             if (security.getWatchListItems().size() == 0) {
@@ -168,7 +168,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     protected void handleRemoveFromWatchlist(Strategy strategy, Security security) throws Exception {
 
-        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategy, security);
+        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategy.getName(), security.getId());
 
         if (watchListItem != null && !watchListItem.isPersistent()) {
 
@@ -189,6 +189,24 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             logger.info("removed security from watchlist " + security.getSymbol());
         }
+    }
+
+    protected void handleSetAlertValue(int watchListItemId, Double upper, Double lower) throws Exception {
+
+        WatchListItem watchListItem = getWatchListItemDao().load(watchListItemId);
+
+        watchListItem.setUpperAlertValue(upper);
+        watchListItem.setLowerAlertValue(lower);
+
+        StringBuffer buffer = new StringBuffer("watchListItem " + watchListItem);
+        if (upper != null) {
+            buffer.append(" set upper alert value to " + upper);
+        }
+        if (lower != null) {
+            buffer.append(" set lower alert value to " + lower);
+        }
+
+        logger.info(buffer.toString());
     }
 
     /**
@@ -382,6 +400,19 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         public void update(MarketDataEvent marketDataEvent) {
 
             ServiceLocator.serverInstance().getMarketDataService().propagateMarketDataEvent(marketDataEvent);
+        }
+    }
+
+    public static class SetAlertValueSubscriber {
+
+        public void update(int watchListItemId, Double upper, Double lower) {
+
+            long startTime = System.currentTimeMillis();
+            logger.debug("setAlertValue start");
+
+            ServiceLocator.commonInstance().getMarketDataService().setAlertValue(watchListItemId, upper, lower);
+
+            logger.debug("setAlertValue end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
     }
 }

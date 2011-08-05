@@ -116,7 +116,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 // must get this before attaching the new transaction
                 if (Long.signum(position.getQuantity()) * Long.signum(transaction.getQuantity()) == -1) {
                     double cost = position.getCostDouble() * Math.abs((double) transaction.getQuantity() / (double) position.getQuantity());
-                    double value = transaction.getValueDouble();
+                    double value = transaction.getNetValueDouble();
                     profit = value - cost;
                     profitPct = Direction.LONG.equals(position.getDirection()) ? ((value - cost) / cost) : ((cost - value) / cost);
                     avgAge = position.getAverageAge();
@@ -138,7 +138,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             }
 
             // add the amount to the corresponding cashBalance
-            getCashBalanceService().addAmount(strategy, transaction.getCurrency(), transaction.getValue());
+            getCashBalanceService().addAmount(transaction);
 
             // update all entities
             getTransactionDao().create(transaction);

@@ -36,7 +36,7 @@ public class TransactionDaoImpl extends TransactionDaoBase {
             transactionVO.setPrice(transaction.getPrice().setScale(portfolioDigits));
         }
 
-        transactionVO.setValue(transaction.getValue().setScale(portfolioDigits));
+        transactionVO.setValue(transaction.getNetValue().setScale(portfolioDigits));
         transactionVO.setCommission(transaction.getCommission().setScale(portfolioDigits));
     }
 

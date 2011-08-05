@@ -12,6 +12,7 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyDao;
 import com.algoTrader.entity.Transaction;
+import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickDao;
 import com.algoTrader.entity.security.Future;
@@ -47,6 +48,11 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected Security[] handleGetSecuritiesOnWatchlistByPeriodicity(Periodicity periodicity) throws Exception {
 
         return getSecurityDao().findSecuritiesOnWatchlistByPeriodicity(periodicity).toArray(new Security[0]);
+    }
+
+    protected WatchListItem handleGetWatchListItem(String strategyName, int securityId) throws Exception {
+
+        return getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
     }
 
     protected StockOption handleGetNearestStockOption(int underlayingId, Date expirationDate, BigDecimal underlayingSpot, OptionType optionType) throws Exception {

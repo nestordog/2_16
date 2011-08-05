@@ -52,7 +52,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
 
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
     private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
-    private static boolean faEnabled = ConfigurationUtil.getBaseConfig().getBoolean("if.faEnabled");
+    private static boolean faEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.faEnabled");
     private static boolean accountServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.accountServiceEnabled");
 
     private static int retrievalTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.retrievalTimeout");
@@ -363,7 +363,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
             getTransactionDao().create(transaction);
 
             // add the amount to the balance
-            getCashBalanceService().addAmount(strategy, transaction.getCurrency(), transaction.getValue());
+            getCashBalanceService().addAmount(transaction);
 
             logger.info("executed cash transaction" +
                     " dateTime: " + transactionFormat.format(transaction.getDateTime()) +

@@ -28,7 +28,7 @@ public class PrintPortfolioValueSubscriber {
                         RoundUtil.getBigDecimal(portfolioValue.getSecuritiesCurrentValue()) + "," +
                         RoundUtil.getBigDecimal(portfolioValue.getMaintenanceMargin()) + "," +
                         RoundUtil.getBigDecimal(portfolioValue.getLeverage())
-                        + ((transaction != null) ? ("," + transaction.getValue()) : ""));
+                    + ((transaction != null) ? ("," + transaction.getNetValue()) : ""));
         }
     }
 }

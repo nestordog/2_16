@@ -13,13 +13,13 @@ public class TransactionImpl extends Transaction {
 
     private Double value = null; // cache getValueDouble because getValue get's called very often
 
-    public BigDecimal getValue() {
+    public BigDecimal getGrossValue() {
 
         if (getSecurity() != null) {
             int scale = getSecurity().getSecurityFamily().getScale();
-            return RoundUtil.getBigDecimal(getValueDouble(), scale);
+            return RoundUtil.getBigDecimal(getGrossValueDouble(), scale);
         } else {
-            return RoundUtil.getBigDecimal(getValueDouble());
+            return RoundUtil.getBigDecimal(getGrossValueDouble());
         }
 
     }
@@ -29,13 +29,13 @@ public class TransactionImpl extends Transaction {
      * BUY / EXPIRATION / DEBIT / FEES: negative cashflow
      * REBALANCE: positive or negative cashflow (depending on quantity equals 1 or -1)
      */
-    public double getValueDouble() {
+    public double getGrossValueDouble() {
 
         if (this.value == null) {
             if (getType().equals(TransactionType.BUY) ||
                     getType().equals(TransactionType.SELL) ||
                     getType().equals(TransactionType.EXPIRATION)) {
-                this.value = -getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getPrice().doubleValue() - getCommission().doubleValue();
+                this.value = -getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getPrice().doubleValue();
             } else if (getType().equals(TransactionType.CREDIT) ||
                     getType().equals(TransactionType.INTREST_RECEIVED)) {
                 this.value = getPrice().doubleValue();
@@ -45,12 +45,26 @@ public class TransactionImpl extends Transaction {
                 this.value = -getPrice().doubleValue();
             } else if (getType().equals(TransactionType.REBALANCE)) {
                 this.value = getQuantity() * getPrice().doubleValue();
-                ;
             } else {
                 throw new IllegalArgumentException("unsupported transactionType: " + getType());
             }
         }
         return this.value;
+    }
+
+    public BigDecimal getNetValue() {
+
+        if (getSecurity() != null) {
+            int scale = getSecurity().getSecurityFamily().getScale();
+            return RoundUtil.getBigDecimal(getNetValueDouble(), scale);
+        } else {
+            return RoundUtil.getBigDecimal(getNetValueDouble());
+        }
+    }
+
+    public double getNetValueDouble() {
+
+        return getGrossValueDouble() - getCommission().doubleValue();
     }
 
     public String toString() {

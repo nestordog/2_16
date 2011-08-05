@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.security.Expirable;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.Direction;
@@ -50,6 +49,18 @@ public class PositionServiceImpl extends PositionServiceBase {
         Position position = getPositionDao().load(positionId);
 
         reducePosition(positionId, Math.abs(position.getQuantity()));
+
+        // close children if any
+        if (position.getChildren().size() != 0) {
+            for (Position childPosition : position.getChildren()) {
+
+                // childPosition
+                closePosition(childPosition.getId());
+
+                // remove the parent position
+                removeParentPosition(childPosition.getId());
+            }
+        }
     }
 
     protected void handleReducePosition(int positionId, long quantity) throws Exception {
@@ -71,24 +82,13 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         Position position = getPositionDao().load(positionId);
 
-        // there needs to be a position
-        if (position == null) {
-            throw new PositionServiceException("position does not exist: " + positionId);
-        }
-
-        // in generall there should have been set a exitValue on creation of the position
-        if (!force && position.getExitValue() == null) {
-            logger.warn("no exitValue was set for position: " + positionId);
-            return;
-        }
-
         // we don't want to set the exitValue to (almost)Zero
         if (exitValue <= 0.05) {
             logger.warn("setting of exitValue below 0.05 is prohibited: " + exitValue);
             return;
         }
 
-        // in generall, exit value should not be set higher than existing exitValue
+        // in generall, exit value should not be set higher (lower) than existing exitValue for long (short) positions
         if (!force) {
             if (Direction.SHORT.equals(position.getDirection()) && exitValue > position.getExitValueDouble()) {
                 logger.warn("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of short position " + positionId);
@@ -114,14 +114,21 @@ public class PositionServiceImpl extends PositionServiceBase {
     }
 
     @Override
-    protected void handleSetProfitTarget(int positionId, double profitValue, double profitLockIn) throws Exception {
+    protected void handleRemoveExitValue(int positionId) throws Exception {
 
         Position position = getPositionDao().load(positionId);
 
-        // there needs to be a position
-        if (position == null) {
-            throw new PositionServiceException("position does not exist: " + positionId);
-        }
+        position.setExitValue(null);
+        getPositionDao().update(position);
+
+        logger.info("removed exit value of " + position.getSecurity().getSymbol());
+
+    }
+
+    @Override
+    protected void handleSetProfitTarget(int positionId, double profitValue, double profitLockIn) throws Exception {
+
+        Position position = getPositionDao().load(positionId);
 
         // profit value cannot be lower than currentValue
         double currentValue = position.getSecurity().getLastTick().getCurrentValueDouble();
@@ -159,9 +166,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             getPositionDao().update(position);
 
-            Strategy strategy = position.getStrategy();
-
-            double maintenanceMargin = strategy.getMaintenanceMarginDouble();
+            double maintenanceMargin = position.getStrategy().getMaintenanceMarginDouble();
 
             logger.debug("set margin for " + security.getSymbol()
                     + " to " + RoundUtil.getBigDecimal(marginPerContract)
@@ -190,10 +195,6 @@ public class PositionServiceImpl extends PositionServiceBase {
 
     protected void handleExpirePosition(Position position) throws Exception {
 
-        if (position.getExitValue() == null || position.getExitValueDouble() == 0d) {
-            logger.warn(position.getSecurity().getSymbol() + " expired but did not have a exit value specified");
-        }
-
         Security security = position.getSecurity();
         if (!(security instanceof Expirable)) {
             logger.warn("position is not expirable");
@@ -216,6 +217,39 @@ public class PositionServiceImpl extends PositionServiceBase {
         if (OrderStatus.EXECUTED.equals(executedOrder.getStatus()) || OrderStatus.AUTOMATIC.equals(executedOrder.getStatus())) {
 
             getMarketDataService().removeFromWatchlist(position.getStrategy(), security);
+        }
+    }
+
+    @Override
+    protected void handleAddChildPosition(int parentPositionId, int childPositionId) throws Exception {
+
+        Position parentPosition = getPositionDao().load(parentPositionId);
+        Position childPosition = getPositionDao().load(childPositionId);
+
+        childPosition.setParent(parentPosition);
+        parentPosition.getChildren().add(childPosition);
+
+        getPositionDao().update(parentPosition);
+        getPositionDao().update(childPosition);
+
+        logger.info("added child position " + childPositionId + " to parent position " + parentPositionId);
+    }
+
+    @Override
+    protected void handleRemoveParentPosition(int positionId) throws Exception {
+
+        Position position = getPositionDao().load(positionId);
+        Position parentPosition = position.getParent();
+
+        if (parentPosition != null) {
+
+            parentPosition.getChildren().remove(position);
+            position.setParent(null);
+
+            getPositionDao().update(parentPosition);
+            getPositionDao().update(position);
+
+            logger.info("removed parent position of position " + positionId);
         }
     }
 
