@@ -4,7 +4,7 @@
     <parent>
         <groupId>algotrader</groupId>
         <artifactId>algotrader</artifactId>
-        <version>1.4</version>
+        <version>1.5-SNAPSHOT</version>
     </parent>
     <groupId>algotrader</groupId>
     <artifactId>algotrader-code</artifactId>
@@ -28,7 +28,7 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
             <version>1.5.4</version>
-            <scope>runtime</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -116,6 +116,20 @@
             <version>4.0.0</version>
         </dependency>
         <dependency>
+            <groupId>com.espertech</groupId>
+            <artifactId>esperee-servicexml</artifactId>
+            <version>4.0.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/esper-servicexml-4.0.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.espertech</groupId>
+            <artifactId>esperee-dds</artifactId>
+            <version>4.0.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/esper-dds-4.0.0.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.12.1.GA</version>
@@ -144,6 +158,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.xmlbeans</groupId>
+            <artifactId>xmlbeans</artifactId>
+            <version>2.4.0</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency><dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>3.5.6-Final</version>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/AlgoTraderCode/src/main/java/com/algoTrader/starter/SimulationStarter.java"/>
+<listEntry value="/algotrader-code/src/main/java/com/algoTrader/starter/SimulationStarter.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
@@ -17,7 +17,7 @@
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.algoTrader.starter.SimulationStarter"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="runByActualTransactions"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="AlgoTraderCode"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="algotrader-code"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.sourcepathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dsimulation=true &#13;&#10;-DdataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTraderFull&#13;&#10;-DlogLevel=ERROR"/>
 <stringAttribute key="org.eclipse.tptp.platform.jvmti.client.ATTR_FILTERSET_ID" value="org.eclipse.hyades.trace.ui.filterSet.default"/>
