@@ -67,7 +67,6 @@ where
 
 @Name('CREATE_MONTHLY_PERFORMANCE')
 @Tag(name='simulationOnly', value='true')
-@Priority(2)
 insert into
     MonthlyPerformance
 select
@@ -117,6 +116,30 @@ from
 where
     option.underlaying.id = indexTick.security.id;
 
+@Name('STOCK_OPTIONS_TICKS_FROM_DB')
+@Priority(2)
+@Tag(name='simulationOnly', value='true')
+insert into
+    com.algoTrader.entity.marketData.TickImpl
+select
+    tick.dateTime as dateTime,
+    tick.last as last,
+    tick.lastDateTime as lastDateTime,
+    tick.vol as vol,
+    tick.volBid as volBid,
+    tick.volAsk as volAsk,
+    case when tick.bid > 0 then tick.bid else 0.01 end as bid,
+    tick.ask as ask,
+    tick.openIntrest as openIntrest,
+    tick.settlement as settlement,
+    tick.security as security
+from
+    pattern [every (indexTick=Tick(instanceof(security, com.algoTrader.entity.security.EquityIndex)) -> volaTick=Tick(security.id=indexTick.security.volatility.id))],
+    method:LookupUtil.getStockOptionsOnWatchlist() as option,
+    method:LookupUtil.getTickByDateAndSecurity(indexTick.dateTime, option.id) as tick
+where
+    option.underlaying.id = indexTick.security.id;
+
 /*
 @Name('SIMULATE_FUTURES_BY_UNDERLYING')
 @Priority(2)
@@ -156,7 +179,6 @@ and
     future.expiration = cast(genericFutureTick.security.expiration?, java.util.Date);
 
 @Name('CLOSE_POSITION')
-@Priority(1)
 @Tag(name='subscriber', value='com.algoTrader.service.PositionServiceImpl$ClosePositionSubscriber')
 select
     position.id
@@ -165,10 +187,15 @@ from
     method:LookupUtil.getPositions(tick.security) as position
 where
     position.quantity != 0
-    and position.exitValue != null
-    and ((position.direction = Direction.SHORT and (tick.currentValue >= position.exitValue)) or (position.direction = Direction.LONG and (tick.currentValue <= position.exitValue)));
+and
+    position.exitValue != null
+and
+    ((position.direction = Direction.SHORT and (tick.currentValue >= position.exitValue))
+    or
+    (position.direction = Direction.LONG and (tick.currentValue <= position.exitValue)));
 
-@Name('PROPAGATE_TICKS')
+@Name('PROPAGATE_MARKET_DATA_EVENTS')
+@Priority(1)
 @Tag(name='subscriber', value='com.algoTrader.service.MarketDataServiceImpl$PropagateTickSubscriber')
 select
     *
