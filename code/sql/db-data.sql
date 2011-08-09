@@ -21,9 +21,31 @@
 
 LOCK TABLES `cash_balance` WRITE;
 /*!40000 ALTER TABLE `cash_balance` DISABLE KEYS */;
-INSERT INTO `cash_balance` (`ID`, `CURRENCY`, `AMOUNT`, `STRATEGY_FK`) VALUES (1,'EUR','10000000.00',0);
+INSERT INTO `cash_balance` (`ID`, `CURRENCY`, `AMOUNT`, `STRATEGY_FK`) VALUES (1,'EUR','1000000.00',0);
 /*!40000 ALTER TABLE `cash_balance` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `cash_balance_after_update` AFTER UPDATE ON `cash_balance`
+  FOR EACH ROW
+BEGIN
+     IF NOT NEW.AMOUNT = OLD.AMOUNT OR (NEW.AMOUNT IS NULL XOR OLD.AMOUNT IS NULL) THEN
+        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
+        VALUES ('cash_balance', NEW.id, NOW(), 'AMOUNT', NEW.AMOUNT);
+     END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Dumping data for table `equity_index`
@@ -261,26 +283,26 @@ UNLOCK TABLES;
 
 LOCK TABLES `watch_list_item` WRITE;
 /*!40000 ALTER TABLE `watch_list_item` DISABLE KEYS */;
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (1,'',2,2);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (2,'',3,2);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (3,'',4,1);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (4,'',8,1);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (5,'',5,1);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (6,'',12,3);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (7,'',13,3);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (8,'',14,3);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (9,'',15,3);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (10,'',29,4);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (11,'',21,4);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (12,'',22,4);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (13,'',23,4);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (14,'',24,4);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (15,'',25,4);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (16,'',26,4);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (17,'',27,4);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (18,'',28,4);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (19,'',10,4);
-INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (20,'',12,4);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (1,'',2,2,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (2,'',3,2,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (3,'',4,1,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (4,'',8,1,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (5,'',5,1,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (6,'',12,3,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (7,'',13,3,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (8,'',14,3,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (9,'',15,3,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (10,'',29,4,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (11,'',21,4,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (12,'',22,4,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (13,'',23,4,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (14,'',24,4,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (15,'',25,4,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (16,'',26,4,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (17,'',27,4,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (18,'',28,4,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (19,'',10,4,NULL,NULL);
+INSERT INTO `watch_list_item` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `UPPER_ALERT_VALUE`, `LOWER_ALERT_VALUE`) VALUES (20,'',12,4,NULL,NULL);
 /*!40000 ALTER TABLE `watch_list_item` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -293,4 +315,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-07-27 20:34:39
+-- Dump completed on 2011-08-09 12:34:31

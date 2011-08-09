@@ -92,7 +92,7 @@ CREATE TABLE `cash_balance` (
   PRIMARY KEY (`ID`),
   KEY `CASH_BALANCE_STRATEGY_FKC` (`STRATEGY_FK`),
   CONSTRAINT `CASH_BALANCE_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=817 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=963 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -116,24 +116,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-
---
--- Table structure for table `dividend`
---
-
-DROP TABLE IF EXISTS `dividend`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `dividend` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `DATE_TIME` datetime NOT NULL,
-  `AMOUNT` decimal(9,2) NOT NULL,
-  `SECURITY_FK` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `DIVIDEND_SECURITY_FKC` (`SECURITY_FK`),
-  CONSTRAINT `DIVIDEND_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `equity_index`
@@ -250,7 +232,7 @@ CREATE TABLE `history` (
   `COL` varchar(255) DEFAULT NULL,
   `VALUE` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=818993 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1092288 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -302,14 +284,17 @@ CREATE TABLE `position` (
   `MAINTENANCE_MARGIN` decimal(15,2) DEFAULT NULL,
   `SECURITY_FK` int(11) NOT NULL,
   `STRATEGY_FK` int(11) NOT NULL,
+  `PARENT_FK` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `SECURITY_FK_STRATEGY_FK` (`SECURITY_FK`,`STRATEGY_FK`),
   KEY `QUANTITY` (`QUANTITY`),
   KEY `POSITION_SECURITY_FKC` (`SECURITY_FK`),
   KEY `POSITION_STRATEGY_FKC` (`STRATEGY_FK`),
+  KEY `POSITION_PARENT_FKC` (`PARENT_FK`),
+  CONSTRAINT `POSITION_PARENT_FKC` FOREIGN KEY (`PARENT_FK`) REFERENCES `position` (`id`),
   CONSTRAINT `POSITION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `POSITION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=123370 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=131042 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -349,29 +334,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-
---
--- Table structure for table `sabr_params`
---
-
-DROP TABLE IF EXISTS `sabr_params`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sabr_params` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `DATE_TIME` datetime NOT NULL,
-  `ATM_VOLA_DELTA` double NOT NULL,
-  `RHO_CALL` double NOT NULL,
-  `RHO_PUT` double NOT NULL,
-  `VOL_VOL_CALL` double NOT NULL,
-  `VOL_VOL_PUT` double NOT NULL,
-  `STOCK_OPTION_FAMILY_FK` int(11) NOT NULL,
-  `DURATION` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `SABR_PARAMS_STOCK_OPTION_FAMIC` (`STOCK_OPTION_FAMILY_FK`),
-  CONSTRAINT `SABR_PARAMS_STOCK_OPTION_FAMIC` FOREIGN KEY (`STOCK_OPTION_FAMILY_FK`) REFERENCES `stock_option_family` (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Temporary table structure for view `saldo`
@@ -422,7 +384,7 @@ CREATE TABLE `security` (
   CONSTRAINT `SECURITY_SECURITY_FAMILY_FKC` FOREIGN KEY (`SECURITY_FAMILY_FK`) REFERENCES `security_family` (`id`),
   CONSTRAINT `SECURITY_UNDERLAYING_FKC` FOREIGN KEY (`UNDERLAYING_FK`) REFERENCES `security` (`id`),
   CONSTRAINT `SECURITY_VOLATILITY_FKC` FOREIGN KEY (`VOLATILITY_FK`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=139392 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=223344 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -558,7 +520,7 @@ CREATE TABLE `tick` (
   KEY `TICK_SECURITY_FKC` (`SECURITY_FK`),
   KEY `DATE_TIME` (`DATE_TIME`),
   KEY `MARKET_DATA_EVENT_SECURITY_FKC27499d` (`SECURITY_FK`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=1808242 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -607,7 +569,7 @@ CREATE TABLE `transaction` (
   CONSTRAINT `TRANSACTION_POSITION_FKC` FOREIGN KEY (`POSITION_FK`) REFERENCES `position` (`id`),
   CONSTRAINT `TRANSACTION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `TRANSACTION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=740397 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=838362 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -622,13 +584,15 @@ CREATE TABLE `watch_list_item` (
   `PERSISTENT` bit(1) NOT NULL,
   `SECURITY_FK` int(11) NOT NULL,
   `STRATEGY_FK` int(11) NOT NULL,
+  `UPPER_ALERT_VALUE` double DEFAULT NULL,
+  `LOWER_ALERT_VALUE` double DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `STRATEGY_SECURITY_UNIQUE` (`SECURITY_FK`,`STRATEGY_FK`),
   KEY `WATCH_LIST_ITEM_SECURITY_FKC` (`SECURITY_FK`),
   KEY `WATCH_LIST_ITEM_STRATEGY_FKC` (`STRATEGY_FK`),
   CONSTRAINT `WATCH_LIST_ITEM_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `WATCH_LIST_ITEM_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=144649 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=153514 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -659,4 +623,4 @@ CREATE TABLE `watch_list_item` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-07-27 20:34:39
+-- Dump completed on 2011-08-09 12:34:30
