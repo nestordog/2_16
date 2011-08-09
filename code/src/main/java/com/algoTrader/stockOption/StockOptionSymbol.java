@@ -24,12 +24,14 @@ public class StockOptionSymbol {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(expiration);
 
+        //@formatter:off
         String symbol = family.getName() + " " +
             new SimpleDateFormat("MMM").format(cal.getTime()).toUpperCase() + "/" +
             (cal.get(Calendar.YEAR) + "-").substring(2) +
             type.toString().substring(0, 1) + " " +
             strike.intValue() + " " +
             family.getContractSize();
+        //@formatter:on
 
         return symbol;
     }

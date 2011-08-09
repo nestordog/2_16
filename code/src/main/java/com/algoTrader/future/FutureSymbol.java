@@ -18,10 +18,12 @@ public class FutureSymbol {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(expiration);
 
+        //@formatter:off
         String symbol = family.getName() + " " +
         new SimpleDateFormat("MMM").format(cal.getTime()).toUpperCase() + "/" +
         (cal.get(Calendar.YEAR) + "").substring(2) + " " +
         family.getContractSize();
+        //@formatter:on
 
         return symbol;
     }
