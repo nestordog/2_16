@@ -42,6 +42,7 @@ import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.entity.security.FutureDao;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.StockOptionDao;
 import com.algoTrader.enumeration.MarketDataType;
 import com.algoTrader.enumeration.OrderStatus;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
@@ -65,8 +66,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private static DateFormat monthFormat = new SimpleDateFormat(" MMM-yy ");
     private static DateFormat yearFormat = new SimpleDateFormat("   yyyy ");
     private static final NumberFormat format = NumberFormat.getInstance();
+
     private static final int roundDigits = ConfigurationUtil.getBaseConfig().getInt("simulation.roundDigits");
     private static final Date startDate = new Date(ConfigurationUtil.getBaseConfig().getLong("simulation.start"));
+    private static boolean simulateStockOptions = ConfigurationUtil.getBaseConfig().getBoolean("");
+    private static boolean simulateFuturesByUnderlaying = ConfigurationUtil.getBaseConfig().getBoolean("simulateFuturesByUnderlaying");
+    private static boolean simulateFuturesByGenericFutures = ConfigurationUtil.getBaseConfig().getBoolean("simulateFuturesByGenericFutures");
 
     static {
         format.setMinimumFractionDigits(roundDigits);
@@ -128,11 +133,15 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             getWatchListItemDao().update(watchListItem);
         }
 
-        // delete all StockOptions
-        //getSecurityDao().remove((Collection<Security>) getStockOptionDao().loadAll(StockOptionDao.TRANSFORM_NONE));
+        // delete all StockOptions if they are beeing simulated
+        if (simulateStockOptions) {
+            getSecurityDao().remove((Collection<Security>) getStockOptionDao().loadAll(StockOptionDao.TRANSFORM_NONE));
+        }
 
-        // delete all Futures
-        getSecurityDao().remove((Collection<Security>) getFutureDao().loadAll(FutureDao.TRANSFORM_NONE));
+        // delete all Futures if they are beeing simulated
+        if (simulateFuturesByUnderlaying || simulateFuturesByGenericFutures) {
+            getSecurityDao().remove((Collection<Security>) getFutureDao().loadAll(FutureDao.TRANSFORM_NONE));
+        }
     }
 
     @Override
