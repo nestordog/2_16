@@ -47,10 +47,12 @@ public class StockOptionUtil {
 
         double sabrVola;
         if (OptionType.CALL.equals(type)) {
-            double callAtmVola = VolatilityUtil.getCallAtmVola(underlayingSpot, vola, years, intrest, dividend, strikeDistance, beta, rhoCall, volVolCall, rhoPut, volVolPut);
+            double callAtmVola = VolatilityUtil.getCallAtmVola(underlayingSpot, vola, years, intrest, dividend, strikeDistance, beta, rhoCall, volVolCall,
+                    rhoPut, volVolPut);
             sabrVola = SABRVol.volByAtmVol(forward, strike, callAtmVola, years, beta, rhoCall, volVolCall);
         } else {
-            double putAtmVola = VolatilityUtil.getPutAtmVola(underlayingSpot, vola, years, intrest, dividend, strikeDistance, beta, rhoCall, volVolCall, rhoPut, volVolPut);
+            double putAtmVola = VolatilityUtil.getPutAtmVola(underlayingSpot, vola, years, intrest, dividend, strikeDistance, beta, rhoCall, volVolCall,
+                    rhoPut, volVolPut);
             sabrVola = SABRVol.volByAtmVol(forward, strike, putAtmVola, years, beta, rhoPut, volVolPut);
         }
 
@@ -67,7 +69,8 @@ public class StockOptionUtil {
                 stockOption.getType(), family.getStrikeDistance());
     }
 
-    public static double getOptionPriceBS(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
+    public static double getOptionPriceBS(double underlayingSpot, double strike, double volatility, double years, double intrest, double dividend,
+            OptionType type) {
 
         if (years <= 0) {
             return getIntrinsicValue(underlayingSpot, strike, type);
@@ -129,7 +132,8 @@ public class StockOptionUtil {
      * Newton Rapson Method
      * about as fast as getVolatility()
      */
-    public static double getVolatilityNR(final double underlayingSpot, final double strike, final double currentValue, final double years, final double intrest, final double dividend, final OptionType type) throws MathException {
+    public static double getVolatilityNR(final double underlayingSpot, final double strike, final double currentValue, final double years,
+            final double intrest, final double dividend, final OptionType type) throws MathException {
 
         double e = 0.1;
 
@@ -158,7 +162,8 @@ public class StockOptionUtil {
 
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
 
-        return getVolatility(underlayingSpot, stockOption.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
+        return getVolatility(underlayingSpot, stockOption.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(),
+                stockOption.getType());
     }
 
     public static double getIntrinsicValue(double underlayingSpot, double strike, OptionType type) {

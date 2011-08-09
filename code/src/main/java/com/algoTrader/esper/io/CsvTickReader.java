@@ -26,6 +26,7 @@ public class CsvTickReader {
 
     private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
 
+    //@formatter:off
     private static CellProcessor[] processor = new CellProcessor[] {
         new ParseDate(),
         new Token("", new BigDecimal(0), new ParseBigDecimal()),
@@ -38,6 +39,7 @@ public class CsvTickReader {
         new ParseInt(),
         new ParseBigDecimal()
     };
+    //@formatter:on
 
     private String[] header;
     private CsvBeanReader reader;

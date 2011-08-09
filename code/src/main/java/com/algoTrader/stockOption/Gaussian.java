@@ -1,6 +1,7 @@
 package com.algoTrader.stockOption;
 
 /**
+ * @formatter:off
 *************************************************************************
 *  Compilation:  javac Gaussian.java
 *  Execution:    java Gaussian x mu sigma
@@ -38,8 +39,12 @@ public class Gaussian {
 
    // return Phi(z) = standard Gaussian cdf using Taylor approximation
    public static double Phi(double z) {
-       if (z < -8.0) return 0.0;
-       if (z >  8.0) return 1.0;
+       if (z < -8.0) {
+        return 0.0;
+    }
+       if (z >  8.0) {
+        return 1.0;
+    }
        double sum = 0.0, term = z;
        for (int i = 3; sum + term != sum; i += 2) {
            sum  = sum + term;
@@ -61,9 +66,14 @@ public class Gaussian {
    // bisection search
    private static double PhiInverse(double y, double delta, double lo, double hi) {
        double mid = lo + (hi - lo) / 2;
-       if (hi - lo < delta) return mid;
-       if (Phi(mid) > y) return PhiInverse(y, delta, lo, mid);
-       else              return PhiInverse(y, delta, mid, hi);
+       if (hi - lo < delta) {
+        return mid;
+    }
+       if (Phi(mid) > y) {
+        return PhiInverse(y, delta, lo, mid);
+    } else {
+        return PhiInverse(y, delta, mid, hi);
+    }
    }
 
 

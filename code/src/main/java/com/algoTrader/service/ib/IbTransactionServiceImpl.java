@@ -38,6 +38,8 @@ import com.ib.client.OrderState;
 
 public class IbTransactionServiceImpl extends IbTransactionServiceBase implements DisposableBean {
 
+    private static final long serialVersionUID = 53702942258607379L;
+
     private static Logger logger = MyLogger.getLogger(IbTransactionServiceImpl.class.getName());
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
@@ -68,27 +70,32 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
     private static int clientId = 3;
 
+    @Override
     protected void handleInit() {
 
-        if (!ibEnabled || simulation || !transactionServiceEnabled)
+        if (!ibEnabled || simulation || !transactionServiceEnabled) {
             return;
+        }
 
         this.wrapper = new DefaultWrapper(clientId) {
 
+            @Override
             public void openOrder(int orderId, Contract contract, com.ib.client.Order order, OrderState orderState) {
 
+                // @formatter:off
                 logger.debug("open order: orderId=" + orderId +
-                " action=" + order.m_action +
-                " quantity=" + order.m_totalQuantity +
-                " symbol=" + contract.m_symbol +
-                " exchange=" + contract.m_exchange +
-                " secType=" + contract.m_secType +
-                " type=" + order.m_orderType +
-                " lmtPrice=" + order.m_lmtPrice +
-                " TIF=" + order.m_tif +
-                " localSymbol=" + contract.m_localSymbol +
-                " client Id=" + order.m_clientId +
-                " permId=" + order.m_permId);
+                        " action=" + order.m_action +
+                        " quantity=" + order.m_totalQuantity +
+                        " symbol=" + contract.m_symbol +
+                        " exchange=" + contract.m_exchange +
+                        " secType=" + contract.m_secType +
+                        " type=" + order.m_orderType +
+                        " lmtPrice=" + order.m_lmtPrice +
+                        " TIF=" + order.m_tif +
+                        " localSymbol=" + contract.m_localSymbol +
+                        " client Id=" + order.m_clientId +
+                        " permId=" + order.m_permId);
+                // @formatter:on
 
                 IbTransactionServiceImpl.this.lock.lock();
                 try {
@@ -113,8 +120,10 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
             }
 
             @Override
-            public void orderStatus(int orderId, String status, int filled, int remaining, double avgFillPrice, int permId, int parentId, double lastFillPrice, int clientId, String whyHeld) {
+            public void orderStatus(int orderId, String status, int filled, int remaining, double avgFillPrice, int permId, int parentId, double lastFillPrice,
+                    int clientId, String whyHeld) {
 
+                //@formatter:off
                 logger.debug("order status: orderId: " + orderId +
                         " orderStatus: " + status +
                         " filled: " + filled +
@@ -122,6 +131,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                         " avgFillPrice: " + avgFillPrice +
                         " permId: " + permId +
                         " lastFillPrice: " + lastFillPrice);
+                //@formatter:on
 
                 IbTransactionServiceImpl.this.lock.lock();
                 try {
@@ -163,6 +173,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 }
             }
 
+            @Override
             public void nextValidId(int orderId) {
 
                 logger.debug("nextValidId: " + orderId);
@@ -170,8 +181,10 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 RequestIdManager.getInstance().initializeOrderId(orderId);
             }
 
+            @Override
             public void execDetails(int requestId, Contract contract, Execution execution) {
 
+                //@formatter:off
                 logger.debug("orderId: " + execution.m_orderId +
                         " execId: " + execution.m_execId +
                         " time: " + execution.m_time +
@@ -181,6 +194,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                         " permId: " + execution.m_permId +
                         " cumQty: " + execution.m_cumQty +
                         " avgPrice: " + execution.m_avgPrice);
+                //@formatter:on
 
                 IbTransactionServiceImpl.this.lock.lock();
                 try {
@@ -213,9 +227,8 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
                         partialOrder.addTransaction(transaction);
 
-                        logger.info("executed " + execution.m_shares +
-                                " of " + partialOrder.getParentOrder().getRequestedQuantity() +
-                                " at spreadPosition " + partialOrder.getSpreadPosition());
+                        logger.info("executed " + execution.m_shares + " of " + partialOrder.getParentOrder().getRequestedQuantity() + " at spreadPosition "
+                                + partialOrder.getSpreadPosition());
                     }
 
                 } catch (ParseException e) {
@@ -225,6 +238,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 }
             }
 
+            @Override
             public void connectionClosed() {
 
                 super.connectionClosed();
@@ -232,6 +246,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 connect();
             }
 
+            @Override
             public void error(int id, int code, String errorMsg) {
 
                 String message = "client: " + IbTransactionServiceImpl.clientId + " id: " + id + " code: " + code + " " + errorMsg.replaceAll("\n", " ");
@@ -299,10 +314,12 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         connect();
     }
 
+    @Override
     protected void handleConnect() {
 
-        if (!ibEnabled || simulation || !transactionServiceEnabled)
+        if (!ibEnabled || simulation || !transactionServiceEnabled) {
             return;
+        }
 
         this.partialOrdersMap = new HashMap<Integer, PartialOrder>();
         this.executedMap = new HashMap<Integer, Boolean>();
@@ -311,6 +328,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         this.client.connect(clientId);
     }
 
+    @Override
     protected ConnectionState handleGetConnectionState() {
 
         if (this.wrapper == null) {
@@ -320,6 +338,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         }
     }
 
+    @Override
     protected void handleExecuteExternalTransaction(Order order) throws Exception {
 
         if (!this.wrapper.getState().equals(ConnectionState.READY)) {
@@ -409,9 +428,11 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
         // validity check (available volume)
         if (TransactionType.BUY.equals(transactionType) && tick.getVolAsk() < requestedQuantity) {
-            logger.warn("available volume (" + tick.getVolAsk() + ") is smaler than requested quantity (" + requestedQuantity + ") for a order on " + security.getSymbol());
+            logger.warn("available volume (" + tick.getVolAsk() + ") is smaler than requested quantity (" + requestedQuantity + ") for a order on "
+                    + security.getSymbol());
         } else if (TransactionType.SELL.equals(transactionType) && tick.getVolBid() < requestedQuantity) {
-            logger.warn("available volume (" + tick.getVolBid() + ") is smaler than requested quantity (" + requestedQuantity + ") for a order on " + security.getSymbol());
+            logger.warn("available volume (" + tick.getVolBid() + ") is smaler than requested quantity (" + requestedQuantity + ") for a order on "
+                    + security.getSymbol());
         }
 
         return tick;
@@ -439,8 +460,8 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
             ibOrder.m_orderType = "MKT"; // TODO remove looping
         } else {
             ibOrder.m_orderType = "LMT";
-            ibOrder.m_lmtPrice = getPrice(partialOrder.getParentOrder(), partialOrder.getSpreadPosition(),
-                    tick.getBid().doubleValue(), tick.getAsk().doubleValue());
+            ibOrder.m_lmtPrice = getPrice(partialOrder.getParentOrder(), partialOrder.getSpreadPosition(), tick.getBid().doubleValue(), tick.getAsk()
+                    .doubleValue());
         }
 
         if (faEnabled) {
@@ -494,14 +515,16 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
         this.client.placeOrder(partialOrder.getOrderId(), contract, ibOrder);
 
-        logger.debug("orderId: " + partialOrder.getOrderId() + " placeOrder for quantity: " + partialOrder.getRequestedQuantity() + " limit: " + ibOrder.m_lmtPrice + " spreadPosition: " + partialOrder.getSpreadPosition());
+        logger.debug("orderId: " + partialOrder.getOrderId() + " placeOrder for quantity: " + partialOrder.getRequestedQuantity() + " limit: "
+                + ibOrder.m_lmtPrice + " spreadPosition: " + partialOrder.getSpreadPosition());
 
         this.lock.lock();
 
         try {
             while (!this.executedMap.get(partialOrder.getOrderId())) {
-                if (!this.condition.await(transactionTimeout, TimeUnit.MILLISECONDS))
+                if (!this.condition.await(transactionTimeout, TimeUnit.MILLISECONDS)) {
                     break;
+                }
             }
 
         } catch (InterruptedException e) {
@@ -555,11 +578,12 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
             cancelPartialOrder(order.getCurrentPartialOrder());
             order.setStatus(OrderStatus.CANCELED);
 
-            logger.warn("order on: " + order.getSecurity().getSymbol() + " did not execute fully, requestedQuantity: " + order.getRequestedQuantity() + " executedQuantity: "
-                    + order.getPartialOrderExecutedQuantity());
+            logger.warn("order on: " + order.getSecurity().getSymbol() + " did not execute fully, requestedQuantity: " + order.getRequestedQuantity()
+                    + " executedQuantity: " + order.getPartialOrderExecutedQuantity());
         }
     }
 
+    @Override
     public void destroy() throws Exception {
 
         if (this.client != null) {

@@ -57,6 +57,7 @@ public class IVolatilityDownloader {
         logout(httpclient);
     }
 
+    // @formatter:off
     private static void login(HttpClient httpclient) throws IOException, HttpException {
 
         // cookie settings http.protocol.cookie-policy
@@ -88,6 +89,7 @@ public class IVolatilityDownloader {
         }
     }
 
+    // @formatter:off
     private static void download(HttpClient httpclient, Date date) throws IOException, HttpException, TransformerException {
 
         Calendar startCal = new GregorianCalendar();
@@ -101,7 +103,6 @@ public class IVolatilityDownloader {
         // sessionUid
         NameValuePair[] sessionId = {};
         String sessionUid = post(httpclient, "sessionId", sessionId, "//input[@name='session_uid']/@value");
-
 
         // acccept
         NameValuePair[] accept = {

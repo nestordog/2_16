@@ -20,8 +20,10 @@ public class SABRVol {
             double fk = forward * strike;
             double z = v / a * Math.pow(fk, ((1 - b) / 2)) * Math.log(forward / strike);
             double x = Math.log((Math.sqrt(1 - 2 * r * z + z * z) + z - r) / (1 - r));
-            double term1 = a / Math.pow(fk, ((1 - b) / 2))
-                    / (1 + (1 - b) * (1 - b) / 24 * Math.pow(Math.log(forward / strike), 2) + Math.pow((1 - b), 4) / 1920 * Math.pow(Math.log(forward / strike), 4));
+            double term1 = a
+                    / Math.pow(fk, ((1 - b) / 2))
+                    / (1 + (1 - b) * (1 - b) / 24 * Math.pow(Math.log(forward / strike), 2) + Math.pow((1 - b), 4) / 1920
+                            * Math.pow(Math.log(forward / strike), 4));
 
             double term2;
             if (Math.abs(x - z) < 1e-10) {
@@ -30,7 +32,9 @@ public class SABRVol {
                 term2 = z / x;
             }
 
-            double term3 = 1 + (Math.pow((1 - b), 2) / 24 * a * a / Math.pow(fk, (1 - b)) + r * b * v * a / 4 / Math.pow(fk, ((1 - b) / 2)) + (2 - 3 * r * r) / 24 * v * v) * years;
+            double term3 = 1
+                    + (Math.pow((1 - b), 2) / 24 * a * a / Math.pow(fk, (1 - b)) + r * b * v * a / 4 / Math.pow(fk, ((1 - b) / 2)) + (2 - 3 * r * r) / 24 * v
+                            * v) * years;
             return term1 * term2 * term3;
 
         }

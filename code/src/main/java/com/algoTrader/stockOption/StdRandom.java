@@ -1,6 +1,8 @@
 package com.algoTrader.stockOption;
 
 /*************************************************************************
+ *  @formatter:off
+ *
  *  Compilation:  javac StdRandom.java
  *  Execution:    java StdRandom
  *
@@ -30,7 +32,6 @@ package com.algoTrader.stockOption;
  *
  *************************************************************************/
 
-
 /**
  *  <i>Standard random</i>. This class provides methods for generating
  *  random number from various distributions.
@@ -39,7 +40,6 @@ package com.algoTrader.stockOption;
  *  <i>Introduction to Programming in Java: An Interdisciplinary Approach</i> by Robert Sedgewick and Kevin Wayne.
  */
 public class StdRandom {
-
 
     /**
      * Return real number uniformly in [0, 1).
@@ -52,7 +52,7 @@ public class StdRandom {
      * Return real number uniformly in [a, b).
      */
     public static double uniform(double a, double b) {
-        return a + Math.random() * (b-a);
+        return a + Math.random() * (b - a);
     }
 
     /**
@@ -85,7 +85,7 @@ public class StdRandom {
         do {
             x = uniform(-1.0, 1.0);
             y = uniform(-1.0, 1.0);
-            r = x*x + y*y;
+            r = x * x + y * y;
         } while (r >= 1 || r == 0);
         return x * Math.sqrt(-2 * Math.log(r) / r);
 
@@ -121,14 +121,14 @@ public class StdRandom {
             k++;
             p *= uniform();
         } while (p >= L);
-        return k-1;
+        return k - 1;
     }
 
     /**
      * Return a real number with a Pareto distribution with parameter alpha.
      */
     public static double pareto(double alpha) {
-        return Math.pow(1 - uniform(), -1.0/alpha) - 1.0;
+        return Math.pow(1 - uniform(), -1.0 / alpha) - 1.0;
     }
 
     /**
@@ -147,7 +147,9 @@ public class StdRandom {
         double sum = 0.0;
         for (int i = 0; i < a.length; i++) {
             sum = sum + a[i];
-            if (sum >= r) return i;
+            if (sum >= r) {
+                return i;
+            }
         }
         //assert (false);
         return -1;
@@ -160,14 +162,13 @@ public class StdRandom {
         return -Math.log(1 - Math.random()) / lambda;
     }
 
-
     /**
      * Rearrange the elements of an array in random order.
      */
     public static void shuffle(Object[] a) {
         int N = a.length;
         for (int i = 0; i < N; i++) {
-            int r = i + uniform(N-i);     // between i and N-1
+            int r = i + uniform(N - i); // between i and N-1
             Object temp = a[i];
             a[i] = a[r];
             a[r] = temp;
@@ -180,7 +181,7 @@ public class StdRandom {
     public static void shuffle(double[] a) {
         int N = a.length;
         for (int i = 0; i < N; i++) {
-            int r = i + uniform(N-i);     // between i and N-1
+            int r = i + uniform(N - i); // between i and N-1
             double temp = a[i];
             a[i] = a[r];
             a[r] = temp;
@@ -193,13 +194,12 @@ public class StdRandom {
     public static void shuffle(int[] a) {
         int N = a.length;
         for (int i = 0; i < N; i++) {
-            int r = i + uniform(N-i);     // between i and N-1
+            int r = i + uniform(N - i); // between i and N-1
             int temp = a[i];
             a[i] = a[r];
             a[r] = temp;
         }
     }
-
 
     /**
      * Unit test.
@@ -210,14 +210,13 @@ public class StdRandom {
         double[] t = { .5, .3, .1, .1 };
 
         for (int i = 0; i < N; i++) {
-            System.out.print("%2d "  + uniform(100));
-            System.out.print("%8.5f "+ uniform(10.0, 99.0));
-            System.out.print("%5b "  + bernoulli(.5));
-            System.out.print("%7.5f "+ gaussian(9.0, .2));
-            System.out.print("%2d "  + discrete(t));
+            System.out.print("%2d " + uniform(100));
+            System.out.print("%8.5f " + uniform(10.0, 99.0));
+            System.out.print("%5b " + bernoulli(.5));
+            System.out.print("%7.5f " + gaussian(9.0, .2));
+            System.out.print("%2d " + discrete(t));
             System.out.println();
         }
     }
 
 }
-

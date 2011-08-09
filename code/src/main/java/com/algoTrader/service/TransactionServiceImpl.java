@@ -157,16 +157,18 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 getRuleService().routeEvent(StrategyImpl.BASE, tradePerformance);
             }
 
+            //@formatter:off
             String logMessage = "executed transaction type: " + transactionType +
-                " quantity: " + transaction.getQuantity() +
-                " of " + security.getSymbol() +
-                " price: " + transaction.getPrice() +
-                " commission: " + transaction.getCommission() +
-                ((profit != 0.0) ? (
-                    " profit: " + RoundUtil.getBigDecimal(profit) +
-                    " profitPct: " + RoundUtil.getBigDecimal(profitPct) +
-                    " avgAge: " + RoundUtil.getBigDecimal(avgAge))
-                    : "");
+            " quantity: " + transaction.getQuantity() +
+            " of " + security.getSymbol() +
+            " price: " + transaction.getPrice() +
+            " commission: " + transaction.getCommission() +
+            ((profit != 0.0) ? (
+                " profit: " + RoundUtil.getBigDecimal(profit) +
+                " profitPct: " + RoundUtil.getBigDecimal(profitPct) +
+                " avgAge: " + RoundUtil.getBigDecimal(avgAge))
+                : "");
+            //@formatter:on
 
             totalQuantity += transaction.getQuantity();
             totalPrice += transaction.getPrice().doubleValue() * transaction.getQuantity();
@@ -181,6 +183,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         }
 
         if (order.getTransactions().size() > 0 && !simulation) {
+
+            //@formatter:off
             mailLogger.info("executed transaction type: " + transactionType +
                     " totalQuantity: " + totalQuantity +
                     " of " + security.getSymbol() +
@@ -190,7 +194,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                     ((totalProfit != 0) ? (
                         " profit: " + RoundUtil.getBigDecimal(totalProfit))
                         : ""));
-
+            //@formatter:on
         }
         return order;
     }

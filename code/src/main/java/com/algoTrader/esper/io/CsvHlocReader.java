@@ -22,13 +22,14 @@ public class CsvHlocReader {
 
     private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
 
+    //@formatter:off
     private static CellProcessor[] processor = new CellProcessor[] {
         new ParseDate(),
         new ParseBigDecimal(),
         new ParseBigDecimal(),
         new ParseBigDecimal(),
         new ParseBigDecimal()};
-
+    //@formatter:on
     private String[] header;
     private CsvBeanReader reader;
 

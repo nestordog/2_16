@@ -19,6 +19,7 @@ import com.algoTrader.vo.IVolVO;
 
 public class CsvIVolReader {
 
+    //@formatter:off
     private static CellProcessor[] processor = new CellProcessor[] {
         null,
         null,
@@ -49,6 +50,7 @@ public class CsvIVolReader {
         "volume",
         "openIntrest",
         "unadjustedStockPrice"};
+    //@formatter:on
 
     private CsvBeanReader reader;
 

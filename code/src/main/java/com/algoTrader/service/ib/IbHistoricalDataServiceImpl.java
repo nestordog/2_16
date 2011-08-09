@@ -68,7 +68,8 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
         this.wrapper = new DefaultWrapper(clientId) {
 
             @Override
-            public void historicalData(int requestId, String dateString, double open, double high, double low, double close, int volume, int count, double WAP, boolean hasGaps) {
+            public void historicalData(int requestId, String dateString, double open, double high, double low, double close, int volume, int count, double WAP,
+                    boolean hasGaps) {
 
                 IbHistoricalDataServiceImpl.this.lock.lock();
                 try {
@@ -148,6 +149,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
                         tick.setAsk(ask);
                     }
 
+                    // @formatter:off
                     String message = whatToShow +
                             " " + dateString +
                             " open=" + open +
@@ -158,6 +160,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
                             " count=" + count +
                             " WAP=" + WAP +
                             " hasGaps=" + hasGaps;
+                    // @formatter:on
 
                     if (hasGaps) {
                         logger.error(message, new HistoricalDataServiceException(message));

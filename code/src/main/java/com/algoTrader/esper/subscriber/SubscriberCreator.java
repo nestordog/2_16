@@ -16,7 +16,8 @@ public class SubscriberCreator {
     public static Object createSubscriber(String fqdn) {
 
         String serviceClassName = StringUtils.substringBeforeLast(fqdn, ".");
-        String serviceName = StringUtils.remove(StringUtils.remove(StringUtils.uncapitalize(StringUtils.substringAfterLast(serviceClassName, ".")), "Base"), "Impl");
+        String serviceName = StringUtils.remove(StringUtils.remove(StringUtils.uncapitalize(StringUtils.substringAfterLast(serviceClassName, ".")), "Base"),
+                "Impl");
         String serviceMethodName = StringUtils.substringAfterLast(fqdn, ".");
         String subscriberClassName = serviceClassName + StringUtils.capitalize(serviceMethodName) + "Subscriber";
 
@@ -43,13 +44,13 @@ public class SubscriberCreator {
 
                 // create the "update" method
                 CtClass[] params = serviceMethod.getParameterTypes();
-                CtMethod updateMethod = CtNewMethod.make(Modifier.PUBLIC, CtClass.voidType, "update", params, new CtClass[] {}, "return null;", subscriberClass);
+                CtMethod updateMethod = CtNewMethod
+                        .make(Modifier.PUBLIC, CtClass.voidType, "update", params, new CtClass[] {}, "return null;", subscriberClass);
 
                 // assemble the body of the method
-                String updateMethodBody = "{long startTime = System.currentTimeMillis(); " +
-                    "logger.debug(\"" + serviceMethodName + " start\"); "+
-                    "((" + serviceClassName + ") getService())." + serviceMethodName + "($$); " +
-                    "logger.debug(\"" + serviceMethodName + " end (\" + (System.currentTimeMillis() - startTime) + \"ms execution)\");}";
+                String updateMethodBody = "{long startTime = System.currentTimeMillis(); " + "logger.debug(\"" + serviceMethodName + " start\"); " + "(("
+                        + serviceClassName + ") getService())." + serviceMethodName + "($$); " + "logger.debug(\"" + serviceMethodName
+                        + " end (\" + (System.currentTimeMillis() - startTime) + \"ms execution)\");}";
 
                 updateMethod.setBody(updateMethodBody);
                 subscriberClass.addMethod(updateMethod);

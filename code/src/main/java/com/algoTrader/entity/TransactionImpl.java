@@ -33,6 +33,7 @@ public class TransactionImpl extends Transaction {
     @Override
     public double getGrossValueDouble() {
 
+        //@formatter:off
         if (this.value == null) {
             if (getType().equals(TransactionType.BUY) ||
                     getType().equals(TransactionType.SELL) ||
@@ -51,6 +52,7 @@ public class TransactionImpl extends Transaction {
                 throw new IllegalArgumentException("unsupported transactionType: " + getType());
             }
         }
+        //@formatter:off
         return this.value;
     }
 
@@ -74,7 +76,7 @@ public class TransactionImpl extends Transaction {
     @Override
     public String toString() {
 
-        return format.format(getDateTime()) + " " + getType() + " " + getQuantity()
-        + (getSecurity() != null ? (" " + getSecurity()) : "") + " " + getPrice() + " " + getCurrency();
+        return format.format(getDateTime()) + " " + getType() + " " + getQuantity() + (getSecurity() != null ? (" " + getSecurity()) : "") + " " + getPrice()
+                + " " + getCurrency();
     }
 }

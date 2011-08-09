@@ -43,10 +43,12 @@ public class JMXAgent {
 
         Map<String, Object> env = new HashMap<String, Object>();
 
-        JMXServiceURL url = new JMXServiceURL("service:jmx:rmi://" + hostname + ":" + rmiServerPort + "/jndi/rmi://" + hostname + ":" + rmiRegistryPort + "/jmxrmi");
+        JMXServiceURL url = new JMXServiceURL("service:jmx:rmi://" + hostname + ":" + rmiServerPort + "/jndi/rmi://"
+                + hostname + ":" + rmiRegistryPort + "/jmxrmi");
 
         // Used only to display what the public address should be
-        JMXServiceURL publicUrl = new JMXServiceURL("service:jmx:rmi://" + publicHostName + ":" + rmiServerPort + "/jndi/rmi://" + publicHostName + ":" + rmiRegistryPort + "/jmxrmi");
+        JMXServiceURL publicUrl = new JMXServiceURL("service:jmx:rmi://" + publicHostName + ":" + rmiServerPort + "/jndi/rmi://"
+                + publicHostName + ":" + rmiRegistryPort + "/jmxrmi");
 
         logger.debug("Local Connection URL: " + url);
         logger.debug("Public Connection URL: " + publicUrl);

@@ -380,11 +380,13 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
             // add the amount to the balance
             getCashBalanceService().addAmount(transaction);
 
+            // @formatter:off
             logger.info("executed cash transaction" +
                     " dateTime: " + transactionFormat.format(transaction.getDateTime()) +
                     " price: " + transaction.getPrice() +
                     " type: " + transaction.getType() +
                     " description: " + transaction.getDescription());
+            // @formatter:on
 
             getRuleService().sendEvent(StrategyImpl.BASE, transaction);
         }

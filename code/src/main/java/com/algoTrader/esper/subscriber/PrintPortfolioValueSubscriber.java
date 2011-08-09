@@ -24,11 +24,13 @@ public class PrintPortfolioValueSubscriber {
         }
 
         if (initialized) {
+            //@formatter:off
             logger.info(RoundUtil.getBigDecimal(portfolioValue.getCashBalance()) + "," +
-                        RoundUtil.getBigDecimal(portfolioValue.getSecuritiesCurrentValue()) + "," +
-                        RoundUtil.getBigDecimal(portfolioValue.getMaintenanceMargin()) + "," +
-                        RoundUtil.getBigDecimal(portfolioValue.getLeverage())
-                    + ((transaction != null) ? ("," + transaction.getNetValue()) : ""));
+                    RoundUtil.getBigDecimal(portfolioValue.getSecuritiesCurrentValue()) + "," +
+                    RoundUtil.getBigDecimal(portfolioValue.getMaintenanceMargin()) + "," +
+                    RoundUtil.getBigDecimal(portfolioValue.getLeverage())
+                + ((transaction != null) ? ("," + transaction.getNetValue()) : ""));
+            //@formatter:on
         }
     }
 }

@@ -75,7 +75,8 @@ public class VolatilityUtil {
         UnivariateRealFunction function = new UnivariateRealFunction() {
             @Override
             public double value(double putAtmVola) throws FunctionEvaluationException {
-                double currentIndexVola = getIndexVola(underlayingSpot, putAtmVola, years, intrest, dividend, strikeDistance, beta, rhoCall, volVolCall, rhoPut, volVolPut);
+                double currentIndexVola = getIndexVola(underlayingSpot, putAtmVola, years, intrest, dividend, strikeDistance, beta, rhoCall, volVolCall,
+                        rhoPut, volVolPut);
                 return currentIndexVola - indexVola;
             }
         };
