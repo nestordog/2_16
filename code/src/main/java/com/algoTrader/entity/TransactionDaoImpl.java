@@ -8,6 +8,7 @@ public class TransactionDaoImpl extends TransactionDaoBase {
 
     private static final int portfolioDigits = ConfigurationUtil.getBaseConfig().getInt("portfolioDigits");
 
+    @Override
     public void toTransactionVO(Transaction transaction, TransactionVO transactionVO) {
 
         super.toTransactionVO(transaction, transactionVO);
@@ -15,6 +16,7 @@ public class TransactionDaoImpl extends TransactionDaoBase {
         completeTransactionVO(transaction, transactionVO);
     }
 
+    @Override
     public TransactionVO toTransactionVO(final Transaction transaction) {
 
         TransactionVO transactionVO = super.toTransactionVO(transaction);
@@ -25,7 +27,6 @@ public class TransactionDaoImpl extends TransactionDaoBase {
     }
 
     private void completeTransactionVO(Transaction transaction, TransactionVO transactionVO) {
-
 
         Security security = transaction.getSecurity();
         if (security != null) {
@@ -40,6 +41,7 @@ public class TransactionDaoImpl extends TransactionDaoBase {
         transactionVO.setCommission(transaction.getCommission().setScale(portfolioDigits));
     }
 
+    @Override
     public Transaction transactionVOToEntity(TransactionVO transactionVO) {
 
         throw new UnsupportedOperationException("transactionVOToEntity not yet implemented.");

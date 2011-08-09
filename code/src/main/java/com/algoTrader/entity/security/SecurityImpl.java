@@ -24,6 +24,7 @@ public class SecurityImpl extends Security {
     private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
     private static double initialMarginMarkup = ConfigurationUtil.getBaseConfig().getDouble("initialMarginMarkup");
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Tick getLastTick() {
 
@@ -47,11 +48,13 @@ public class SecurityImpl extends Security {
         return tick;
     }
 
+    @Override
     public boolean isOnWatchlist() {
 
         return Hibernate.isInitialized(getWatchListItems()) && (getWatchListItems().size() != 0);
     }
 
+    @Override
     public void validateTick(Tick tick) {
 
         SecurityFamily family = tick.getSecurity().getSecurityFamily();
@@ -79,16 +82,19 @@ public class SecurityImpl extends Security {
         }
     }
 
+    @Override
     public double getFXRate(Currency transactionCurrency) {
 
         return ServiceLocator.commonInstance().getLookupService().getForexRateDouble(getSecurityFamily().getCurrency(), transactionCurrency);
     }
 
+    @Override
     public double getFXRateBase() {
 
         return getFXRate(portfolioBaseCurrency);
     }
 
+    @Override
     public double getLeverage() {
         return 0;
     }
@@ -96,6 +102,7 @@ public class SecurityImpl extends Security {
     /**
      * generic default margin
      */
+    @Override
     public double getMargin() {
 
         Tick lastTick = getLastTick();
@@ -111,6 +118,7 @@ public class SecurityImpl extends Security {
         return marginPerContract;
     }
 
+    @Override
     public String toString() {
 
         return getSymbol();

@@ -28,6 +28,8 @@ import com.ib.client.TickType;
 
 public class IbMarketDataServiceImpl extends IbMarketDataServiceBase implements DisposableBean {
 
+    private static final long serialVersionUID = 5779016556295893308L;
+
     private static Logger logger = MyLogger.getLogger(IbMarketDataServiceImpl.class.getName());
 
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
@@ -45,19 +47,23 @@ public class IbMarketDataServiceImpl extends IbMarketDataServiceBase implements 
 
     private static int clientId = 1;
 
+    @Override
     protected void handleInit() throws InterruptedException {
 
-        if (!ibEnabled || simulation || !marketDataServiceEnabled)
+        if (!ibEnabled || simulation || !marketDataServiceEnabled) {
             return;
+        }
 
         this.wrapper = new DefaultWrapper(clientId) {
 
+            @Override
             public void tickPrice(int requestId, int field, double price, int canAutoExecute) {
 
                 Tick tick = IbMarketDataServiceImpl.this.requestIdToTickMap.get(requestId);
 
-                if (tick == null)
+                if (tick == null) {
                     return;
+                }
 
                 // for indexes we get -1 if there is no data available
                 if (price == -1) {
@@ -78,12 +84,14 @@ public class IbMarketDataServiceImpl extends IbMarketDataServiceBase implements 
                 checkValidity(tick);
             }
 
+            @Override
             public void tickSize(int requestId, int field, int size) {
 
                 Tick tick = IbMarketDataServiceImpl.this.requestIdToTickMap.get(requestId);
 
-                if (tick == null)
+                if (tick == null) {
                     return;
+                }
 
                 if (field == TickType.ASK_SIZE) {
                     tick.setVolAsk(size);
@@ -104,12 +112,14 @@ public class IbMarketDataServiceImpl extends IbMarketDataServiceBase implements 
                 checkValidity(tick);
             }
 
+            @Override
             public void tickString(int requestId, int field, String value) {
 
                 Tick tick = IbMarketDataServiceImpl.this.requestIdToTickMap.get(requestId);
 
-                if (tick == null)
+                if (tick == null) {
                     return;
+                }
 
                 if (field == TickType.LAST_TIMESTAMP) {
                     tick.setLastDateTime(new Date(Long.parseLong(value + "000")));
@@ -117,6 +127,7 @@ public class IbMarketDataServiceImpl extends IbMarketDataServiceBase implements 
                 checkValidity(tick);
             }
 
+            @Override
             public void connectionClosed() {
 
                 super.connectionClosed();
@@ -161,58 +172,75 @@ public class IbMarketDataServiceImpl extends IbMarketDataServiceBase implements 
 
                     // stockOptions need to have a bis/ask volume / openIntrest
                     // but might not have a last/lastDateTime yet on the current day
-                    if (tick.getVolBid() == 0)
+                    if (tick.getVolBid() == 0) {
                         return false;
-                    if (tick.getVolAsk() == 0)
+                    }
+                    if (tick.getVolAsk() == 0) {
                         return false;
-                    if (tick.getOpenIntrest() == 0)
+                    }
+                    if (tick.getOpenIntrest() == 0) {
                         return false;
-                    if (tick.getBid() != null && tick.getBid().doubleValue() <= 0)
+                    }
+                    if (tick.getBid() != null && tick.getBid().doubleValue() <= 0) {
                         return false;
-                    if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0)
+                    }
+                    if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0) {
                         return false;
-                    if (tick.getSettlement() == null)
+                    }
+                    if (tick.getSettlement() == null) {
                         return false;
+                    }
 
                 } else if (tick.getSecurity() instanceof Future) {
 
                     // futures need to have a bis/ask volume
                     // but might not have a last/lastDateTime yet on the current day
-                    if (tick.getVolBid() == 0)
+                    if (tick.getVolBid() == 0) {
                         return false;
-                    if (tick.getVolAsk() == 0)
+                    }
+                    if (tick.getVolAsk() == 0) {
                         return false;
-                    if (tick.getBid() != null && tick.getBid().doubleValue() <= 0)
+                    }
+                    if (tick.getBid() != null && tick.getBid().doubleValue() <= 0) {
                         return false;
-                    if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0)
+                    }
+                    if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0) {
                         return false;
-                    if (tick.getSettlement() == null)
+                    }
+                    if (tick.getSettlement() == null) {
                         return false;
+                    }
 
                 } else if (tick.getSecurity() instanceof Forex) {
 
                     // no special checks
-                    if (tick.getVolBid() == 0)
+                    if (tick.getVolBid() == 0) {
                         return false;
-                    if (tick.getVolAsk() == 0)
+                    }
+                    if (tick.getVolAsk() == 0) {
                         return false;
+                    }
 
                 } else {
 
-
-                    if (tick.getLast() == null)
+                    if (tick.getLast() == null) {
                         return false;
-                    if (tick.getLastDateTime() == null)
+                    }
+                    if (tick.getLastDateTime() == null) {
                         return false;
-                    if (tick.getSettlement() == null)
+                    }
+                    if (tick.getSettlement() == null) {
                         return false;
+                    }
                 }
 
                 // check these fields for all security-types
-                if (tick.getBid() == null)
+                if (tick.getBid() == null) {
                     return false;
-                if (tick.getAsk() == null)
+                }
+                if (tick.getAsk() == null) {
                     return false;
+                }
 
                 return true;
             }
@@ -223,10 +251,12 @@ public class IbMarketDataServiceImpl extends IbMarketDataServiceBase implements 
         connect();
     }
 
+    @Override
     protected void handleConnect() {
 
-        if (!ibEnabled || simulation || !marketDataServiceEnabled)
+        if (!ibEnabled || simulation || !marketDataServiceEnabled) {
             return;
+        }
 
         this.requestIdToTickMap = new ConcurrentHashMap<Integer, Tick>();
         this.securityToRequestIdMap = new ConcurrentHashMap<Security, Integer>();
@@ -240,6 +270,7 @@ public class IbMarketDataServiceImpl extends IbMarketDataServiceBase implements 
         }
     }
 
+    @Override
     protected ConnectionState handleGetConnectionState() {
 
         if (this.wrapper == null) {
@@ -281,6 +312,7 @@ public class IbMarketDataServiceImpl extends IbMarketDataServiceBase implements 
         }
     }
 
+    @Override
     protected RawTickVO handleRetrieveTick(Security security) throws Exception {
 
         // security might have been removed from the watchlist
@@ -304,6 +336,7 @@ public class IbMarketDataServiceImpl extends IbMarketDataServiceBase implements 
         }
     }
 
+    @Override
     protected void handlePutOnExternalWatchlist(Security security) throws Exception {
 
         if (!simulation) {
@@ -326,6 +359,7 @@ public class IbMarketDataServiceImpl extends IbMarketDataServiceBase implements 
         }
     }
 
+    @Override
     protected void handleRemoveFromExternalWatchlist(Security security) throws Exception {
 
         if (!simulation) {
@@ -346,6 +380,7 @@ public class IbMarketDataServiceImpl extends IbMarketDataServiceBase implements 
         }
     }
 
+    @Override
     public void destroy() throws Exception {
 
         if (this.client != null) {

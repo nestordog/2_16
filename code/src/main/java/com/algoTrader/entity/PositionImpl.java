@@ -13,16 +13,17 @@ import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.DateUtil;
 
-
 public class PositionImpl extends Position {
 
     private static final long serialVersionUID = -2679980079043322328L;
 
+    @Override
     public boolean isOpen() {
 
         return getQuantity() != 0;
     }
 
+    @Override
     public Direction getDirection() {
 
         if (getQuantity() < 0) {
@@ -37,10 +38,12 @@ public class PositionImpl extends Position {
     /**
      * empty positions and sideways positons return null
      */
+    @Override
     public Boolean isBullish() {
 
-        if (!isOpen())
+        if (!isOpen()) {
             return null;
+        }
 
         if (getSecurity() instanceof StockOption) {
             if (((StockOption) getSecurity()).getType().equals(OptionType.PUT)) {
@@ -57,6 +60,7 @@ public class PositionImpl extends Position {
         }
     }
 
+    @Override
     public boolean isBearish() {
 
         return !isBullish();
@@ -65,6 +69,7 @@ public class PositionImpl extends Position {
     /**
      * always positive
      */
+    @Override
     public double getMarketPriceDouble() {
 
         if (isOpen()) {
@@ -88,6 +93,7 @@ public class PositionImpl extends Position {
         }
     }
 
+    @Override
     public double getMarketPriceBaseDouble() {
 
         return getMarketPriceDouble() * getSecurity().getFXRateBase();
@@ -96,6 +102,7 @@ public class PositionImpl extends Position {
     /**
      * short positions: negative long positions: positive
      */
+    @Override
     public double getMarketValueDouble() {
 
         if (isOpen()) {
@@ -106,6 +113,7 @@ public class PositionImpl extends Position {
         }
     }
 
+    @Override
     public double getMarketValueBaseDouble() {
 
         return getMarketValueDouble() * getSecurity().getFXRateBase();
@@ -114,6 +122,7 @@ public class PositionImpl extends Position {
     /**
      * always positive
      */
+    @Override
     public double getAveragePriceDouble() {
 
         long totalQuantity = 0;
@@ -129,11 +138,11 @@ public class PositionImpl extends Position {
             totalQuantity += quantity;
             totalPrice += quantity * pricePerContract;
 
-
         }
         return totalPrice / totalQuantity / getSecurity().getSecurityFamily().getContractSize();
     }
 
+    @Override
     public double getAveragePriceBaseDouble() {
 
         return getAveragePriceDouble() * getSecurity().getFXRateBase();
@@ -142,6 +151,7 @@ public class PositionImpl extends Position {
     /**
      * in days
      */
+    @Override
     public double getAverageAge() {
 
         long totalQuantity = 0;
@@ -164,6 +174,7 @@ public class PositionImpl extends Position {
     /**
      * short positions: negative long positions: positive
      */
+    @Override
     public double getCostDouble() {
 
         if (isOpen()) {
@@ -174,11 +185,13 @@ public class PositionImpl extends Position {
         }
     }
 
+    @Override
     public double getCostBaseDouble() {
 
         return getCostDouble() * getSecurity().getFXRateBase();
     }
 
+    @Override
     public double getUnrealizedPLDouble() {
         if (isOpen()) {
 
@@ -188,11 +201,13 @@ public class PositionImpl extends Position {
         }
     }
 
+    @Override
     public double getUnrealizedPLBaseDouble() {
 
         return getUnrealizedPLDouble() * getSecurity().getFXRateBase();
     }
 
+    @Override
     public double getExitValueDouble() {
 
         if (getExitValue() != null) {
@@ -202,25 +217,29 @@ public class PositionImpl extends Position {
         }
     }
 
+    @Override
     public double getExitValueDoubleBase() {
 
         return getExitValueDouble() * getSecurity().getFXRateBase();
     }
 
+    @Override
     public double getMaintenanceMarginDouble() {
 
         if (isOpen() && getMaintenanceMargin() != null) {
-                return getMaintenanceMargin().doubleValue();
+            return getMaintenanceMargin().doubleValue();
         } else {
             return 0.0;
         }
     }
 
+    @Override
     public double getMaintenanceMarginBaseDouble() {
 
         return getMaintenanceMarginDouble() * getSecurity().getFXRateBase();
     }
 
+    @Override
     public double getRedemptionValueDouble() {
 
         if (isOpen() && getExitValue() != null) {
@@ -231,11 +250,13 @@ public class PositionImpl extends Position {
         }
     }
 
+    @Override
     public double getRedemptionValueBaseDouble() {
 
         return getRedemptionValueDouble() * getSecurity().getFXRateBase();
     }
 
+    @Override
     public double getMaxLossDouble() {
 
         if (isOpen() && getExitValue() != null) {
@@ -252,15 +273,19 @@ public class PositionImpl extends Position {
         }
     }
 
+    @Override
     public double getMaxLossBaseDouble() {
 
         return getMaxLossDouble() * getSecurity().getFXRateBase();
     }
+
+    @Override
     public double getExposure() {
 
         return getMarketValueDouble() * getSecurity().getLeverage();
     }
 
+    @Override
     public String toString() {
 
         return getQuantity() + " " + getSecurity();
@@ -272,6 +297,7 @@ public class PositionImpl extends Position {
 
         // sort by date ascending
         Collections.sort(transactions, new Comparator<Transaction>() {
+            @Override
             public int compare(Transaction t1, Transaction t2) {
                 return (t1.getDateTime().compareTo(t2.getDateTime()));
             }
@@ -297,7 +323,7 @@ public class PositionImpl extends Position {
                         runningQuantity += queueTransaction.getQuantity();
                         it.remove();
 
-                    // transaction will be partly removed
+                        // transaction will be partly removed
                     } else {
                         queueTransaction.setQuantity(queueTransaction.getQuantity() + runningQuantity);
                         runningQuantity = 0;

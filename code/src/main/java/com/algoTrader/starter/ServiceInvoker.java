@@ -24,11 +24,13 @@ public class ServiceInvoker {
 
     public static ServiceInvoker getInstance() {
 
-        if (invoker == null) invoker = new ServiceInvoker();
+        if (invoker == null) {
+            invoker = new ServiceInvoker();
+        }
         return invoker;
     }
 
-    public Object invoke(String call)  {
+    public Object invoke(String call) {
 
         if (call == null) {
             logger.warn("you must specifiy service and method");
@@ -49,7 +51,7 @@ public class ServiceInvoker {
         ServerServiceLocator serviceLocator = ServiceLocator.serverInstance();
 
         try {
-            Method getServiceMethod = serviceLocator.getClass().getMethod("get" + serviceName, (Class[])null);
+            Method getServiceMethod = serviceLocator.getClass().getMethod("get" + serviceName, (Class[]) null);
             Object service = getServiceMethod.invoke(serviceLocator, new Object[] {});
 
             Class<?>[] signature = new Class<?>[len - 2];

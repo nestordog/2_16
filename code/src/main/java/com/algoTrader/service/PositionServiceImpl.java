@@ -28,6 +28,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(PositionServiceImpl.class.getName());
 
+    @Override
     protected void handleCloseAllPositions() throws Exception {
 
         for (Position position : getPositionDao().loadAll()) {
@@ -37,6 +38,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
     }
 
+    @Override
     protected void handleCloseAllPositionsByStrategy(String strategyName) throws Exception {
 
         for (Position position : getPositionDao().findOpenPositionsByStrategy(strategyName)) {
@@ -46,6 +48,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
     }
 
+    @Override
     protected void handleClosePosition(int positionId) throws Exception {
 
         Position position = getPositionDao().load(positionId);
@@ -80,6 +83,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
     }
 
+    @Override
     protected void handleClosePositionOnExitValue(int positionId) throws Exception {
 
         Position position = getPositionDao().load(positionId);
@@ -95,6 +99,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
     }
 
+    @Override
     protected void handleReducePosition(int positionId, long quantity) throws Exception {
 
         Position position = getPositionDao().load(positionId);
@@ -109,6 +114,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
     }
 
+    @Override
     protected void handleSetExitValue(int positionId, double exitValue, boolean force) throws MathException {
 
         Position position = getPositionDao().load(positionId);
@@ -180,12 +186,14 @@ public class PositionServiceImpl extends PositionServiceBase {
         logger.info("set profit value " + position.getSecurity().getSymbol() + " to " + profitValue + " and profit lock in to " + profitLockIn);
     }
 
+    @Override
     protected void handleSetMargin(int positionId) throws Exception {
 
         Position position = getPositionDao().load(positionId);
         setMargin(position);
     }
 
+    @Override
     protected void handleSetMargin(Position position) throws Exception {
 
         Security security = position.getSecurity();
@@ -201,12 +209,12 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             double maintenanceMargin = position.getStrategy().getMaintenanceMarginDouble();
 
-            logger.debug("set margin for " + security.getSymbol()
-                    + " to " + RoundUtil.getBigDecimal(marginPerContract)
-                    + " total margin: " + RoundUtil.getBigDecimal(maintenanceMargin));
+            logger.debug("set margin for " + security.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: "
+                    + RoundUtil.getBigDecimal(maintenanceMargin));
         }
     }
 
+    @Override
     protected void handleSetMargins() throws Exception {
 
         List<Position> positions = getPositionDao().findOpenPositions();
@@ -216,6 +224,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
     }
 
+    @Override
     protected void handleExpirePositions() throws Exception {
 
         Date date = DateUtil.getCurrentEPTime();
@@ -226,6 +235,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
     }
 
+    @Override
     protected void handleExpirePosition(Position position) throws Exception {
 
         Security security = position.getSecurity();
@@ -322,6 +332,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
     public static class SetMarginsListener implements UpdateListener {
 
+        @Override
         public void update(EventBean[] newEvents, EventBean[] oldEvents) {
 
             long startTime = System.currentTimeMillis();
@@ -335,6 +346,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
     public static class ExpirePositionListener implements UpdateListener {
 
+        @Override
         public void update(EventBean[] newEvents, EventBean[] oldEvents) {
 
             long startTime = System.currentTimeMillis();

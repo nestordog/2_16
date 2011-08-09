@@ -27,6 +27,7 @@ public class ForexServiceImpl extends ForexServiceBase {
 
     private static Logger logger = MyLogger.getLogger(ForexServiceImpl.class.getName());
 
+    @Override
     @SuppressWarnings("unchecked")
     protected void handleEqualizeForex() throws Exception {
 
@@ -35,8 +36,9 @@ public class ForexServiceImpl extends ForexServiceBase {
         List<BalanceVO> balances = getStrategyDao().getPortfolioBalances();
         for (BalanceVO balance : balances) {
 
-            if (balance.getCurrency().equals(portfolioBaseCurrency))
+            if (balance.getCurrency().equals(portfolioBaseCurrency)) {
                 continue;
+            }
 
             // netLiqValueBase
             double netLiqValue = balance.getNetLiqValue().doubleValue();
@@ -73,6 +75,7 @@ public class ForexServiceImpl extends ForexServiceBase {
 
     public static class EqualizeForexListener implements UpdateListener {
 
+        @Override
         public void update(EventBean[] newEvents, EventBean[] oldEvents) {
 
             long startTime = System.currentTimeMillis();

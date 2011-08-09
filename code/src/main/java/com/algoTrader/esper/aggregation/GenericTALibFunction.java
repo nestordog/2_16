@@ -96,7 +96,6 @@ public class GenericTALibFunction extends AggregationSupport {
     List<Object> optInputParams;
     Map<String, Object> outputParams;
 
-
     public GenericTALibFunction() {
         super();
         this.inputParamCount = 0;
@@ -105,6 +104,7 @@ public class GenericTALibFunction extends AggregationSupport {
         this.outputParams = new HashMap<String, Object>();
     }
 
+    @Override
     public void validate(AggregationValidationContext validationContext) {
 
         Class<?>[] paramTypes = validationContext.getParameterTypes();
@@ -232,6 +232,7 @@ public class GenericTALibFunction extends AggregationSupport {
         }
     }
 
+    @Override
     public void enter(Object obj) {
 
         Object[] params = (Object[]) obj;
@@ -245,6 +246,7 @@ public class GenericTALibFunction extends AggregationSupport {
         }
     }
 
+    @Override
     public void leave(Object obj) {
 
         // Remove the last element of each buffer
@@ -255,6 +257,7 @@ public class GenericTALibFunction extends AggregationSupport {
         }
     }
 
+    @Override
     public Class<?> getValueType() {
 
         // if we only have one outPutParam return that value
@@ -271,6 +274,7 @@ public class GenericTALibFunction extends AggregationSupport {
         }
     }
 
+    @Override
     public Object getValue() {
 
         try {
@@ -325,8 +329,9 @@ public class GenericTALibFunction extends AggregationSupport {
             RetCode retCode = (RetCode) this.function.invoke(core, args);
 
             if (retCode == RetCode.Success) {
-                if (length.value == 0)
+                if (length.value == 0) {
                     return null;
+                }
 
                 // if we only have one outPutParam return that value
                 // otherwise return a Map
@@ -352,6 +357,7 @@ public class GenericTALibFunction extends AggregationSupport {
         }
     }
 
+    @Override
     public void clear() {
 
         // clear all elements from the buffers
@@ -360,9 +366,11 @@ public class GenericTALibFunction extends AggregationSupport {
         }
     }
 
+    @Override
     public AggregationMethod newAggregator(MethodResolutionService methodResolutionService) {
 
-        return new GenericTALibAggregatorFunction(this.function, this.inputParamCount, this.lookbackPeriod, this.optInputParams, this.outputParams, this.outputClass);
+        return new GenericTALibAggregatorFunction(this.function, this.inputParamCount, this.lookbackPeriod, this.optInputParams, this.outputParams,
+                this.outputClass);
     }
 
     private Number getNumberFromNumberArray(Object value) {
@@ -417,7 +425,8 @@ public class GenericTALibFunction extends AggregationSupport {
     private Object getConstant(AggregationValidationContext validationContext, int index, Class<?> clazz) {
 
         if (index >= validationContext.getIsConstantValue().length) {
-            throw new IllegalArgumentException("only " + validationContext.getIsConstantValue().length + " params have been specified, should be " + (index + 1));
+            throw new IllegalArgumentException("only " + validationContext.getIsConstantValue().length + " params have been specified, should be "
+                    + (index + 1));
         }
 
         if (validationContext.getIsConstantValue()[index]) {

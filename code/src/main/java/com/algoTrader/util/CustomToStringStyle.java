@@ -27,15 +27,17 @@ public class CustomToStringStyle extends StandardToStringStyle {
         return style;
     }
 
+    @Override
     @SuppressWarnings("rawtypes")
     protected void appendDetail(StringBuffer buffer, String fieldName, Collection col) {
 
         buffer.append(col.size());
     }
 
+    @Override
     protected void appendDetail(StringBuffer buffer, String fieldName, Object value) {
 
-        if ( value instanceof BaseEntity ) {
+        if (value instanceof BaseEntity) {
             return;
         } else if (value instanceof Date) {
             buffer.append(format.format(value));
@@ -44,9 +46,10 @@ public class CustomToStringStyle extends StandardToStringStyle {
         }
     }
 
+    @Override
     public void append(StringBuffer buffer, String fieldName, Object value, Boolean fullDetail) {
 
-        if ( value instanceof BaseEntity ) {
+        if (value instanceof BaseEntity) {
             return;
         } else if (Hibernate.isInitialized(value)) {
             super.append(buffer, fieldName, value, fullDetail);

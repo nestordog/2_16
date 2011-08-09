@@ -1,6 +1,5 @@
 package com.algoTrader.util;
 
-
 public class DrawDownUtil {
 
     private static long drawDownPeriod;

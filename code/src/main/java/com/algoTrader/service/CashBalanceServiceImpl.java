@@ -13,6 +13,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
     private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
 
+    @Override
     protected void handleAddAmount(Transaction transaction) throws Exception {
 
         if (transaction.getSecurity() instanceof Forex) {

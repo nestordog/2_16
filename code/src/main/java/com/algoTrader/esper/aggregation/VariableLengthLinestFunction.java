@@ -12,10 +12,12 @@ public class VariableLengthLinestFunction extends AggregationSupport {
     private List<Double> ys = new ArrayList<Double>();
     private int requestedLength = 0;
 
+    @Override
     public void validate(AggregationValidationContext validationContext) {
         // not implemented yet
     }
 
+    @Override
     public void enter(Object obj) {
         Object[] params = (Object[]) obj;
         this.xs.add((Double) params[0]);
@@ -23,20 +25,24 @@ public class VariableLengthLinestFunction extends AggregationSupport {
         this.requestedLength = (Integer) params[2];
     }
 
+    @Override
     public void leave(Object obj) {
         // not implemented yet
     }
 
+    @Override
     public Class<Double> getValueType() {
         return Double.class;
     }
 
+    @Override
     public Object getValue() {
 
         int size = this.xs.size();
 
-        if (size < 2)
+        if (size < 2) {
             return null;
+        }
 
         List<Double> subX = this.xs.subList(Math.max(0, size - this.requestedLength), size);
         List<Double> subY = this.ys.subList(Math.max(0, size - this.requestedLength), size);
@@ -69,6 +75,7 @@ public class VariableLengthLinestFunction extends AggregationSupport {
         return result;
     }
 
+    @Override
     public void clear() {
         // not implemented yet
     }

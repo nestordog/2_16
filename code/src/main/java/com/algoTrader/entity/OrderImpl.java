@@ -13,6 +13,7 @@ public class OrderImpl extends Order {
         setStatus(OrderStatus.OPEN);
     }
 
+    @Override
     public long getPartialOrderExecutedQuantity() {
 
         long executedQuantity = 0;
@@ -23,6 +24,7 @@ public class OrderImpl extends Order {
         return executedQuantity;
     }
 
+    @Override
     public PartialOrder createPartialOrder() {
 
         PartialOrder partialOrder = new PartialOrderImpl();
@@ -40,6 +42,7 @@ public class OrderImpl extends Order {
         return partialOrder;
     }
 
+    @Override
     public String toString() {
         return String.valueOf(getNumber());
     }

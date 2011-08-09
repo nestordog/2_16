@@ -40,6 +40,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
     //private static long eventsPerDay = ConfigurationUtil.getBaseConfig().getLong("simulation.eventsPerDay");
 
+    @Override
     protected Order handleExecuteTransaction(OrderVO orderVO) throws Exception {
 
         // construct a order-entity from the orderVO
@@ -48,6 +49,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         return executeTransaction(order);
     }
 
+    @Override
     protected Order handleExecuteTransaction(Order order) throws Exception {
 
         Strategy strategy = order.getStrategy();
@@ -60,8 +62,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         }
 
         if (!OrderStatus.PREARRANGED.equals(order.getStatus())) {
-            if (!simulation && externalTransactionsEnabled &&
-                    (TransactionType.BUY.equals(transactionType) || TransactionType.SELL.equals(transactionType))) {
+            if (!simulation && externalTransactionsEnabled && (TransactionType.BUY.equals(transactionType) || TransactionType.SELL.equals(transactionType))) {
                 executeExternalTransaction(order);
             } else {
                 executeInternalTransaction(order);
@@ -263,7 +264,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         if (TransactionType.SELL.equals(order.getTransactionType()) || TransactionType.BUY.equals(order.getTransactionType())) {
 
-            if(security.getSecurityFamily().getCommission() == null) {
+            if (security.getSecurityFamily().getCommission() == null) {
                 throw new RuntimeException("commission is undefined for " + security.getSymbol());
             }
 

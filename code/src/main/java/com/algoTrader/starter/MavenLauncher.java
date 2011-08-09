@@ -38,7 +38,6 @@ public class MavenLauncher {
         props.put("exec.mainClass", this.clazz.getName());
         props.put("exec.args", StringUtils.join(this.args, " "));
 
-
         for (String vmArg : this.vmArgs) {
             String[] vmArgSplit = vmArg.split("=");
             props.put(vmArgSplit[0], vmArgSplit[1]);

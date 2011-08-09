@@ -18,8 +18,8 @@ public class CsvLinerarInterpolator {
     private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
 
     private static double recordsPerInput = 17.0;
-     private static double recordsPerHour = 2.0;
-     private static double offsetHour = 9.0;
+    private static double recordsPerHour = 2.0;
+    private static double offsetHour = 9.0;
 
     public static void main(String[] args) throws SuperCSVException, IOException, ParseException {
 
@@ -33,13 +33,13 @@ public class CsvLinerarInterpolator {
         Tick newTick;
         while ((newTick = csvReader.readTick()) != null) {
 
-            for (int currentHour=0; currentHour < recordsPerInput; currentHour++) {
+            for (int currentHour = 0; currentHour < recordsPerInput; currentHour++) {
 
                 double lastOffset = (newTick.getLast().doubleValue() - oldTick.getLast().doubleValue()) / (recordsPerInput - 1.0);
 
                 Tick tick = new TickImpl();
 
-                tick.setDateTime(new Date(newTick.getDateTime().getTime() + (int)((currentHour / recordsPerHour + offsetHour) * 60 * 60 * 1000)));
+                tick.setDateTime(new Date(newTick.getDateTime().getTime() + (int) ((currentHour / recordsPerHour + offsetHour) * 60 * 60 * 1000)));
                 tick.setLast(RoundUtil.getBigDecimal(oldTick.getLast().doubleValue() + currentHour * lastOffset));
                 tick.setLastDateTime(null);
                 tick.setVol(0);

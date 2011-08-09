@@ -25,6 +25,7 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
 
     private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
 
+    @Override
     protected void handleRebalancePortfolio() throws Exception {
 
         double portfolioNetLiqValue = getStrategyDao().getPortfolioNetLiqValueDouble();
@@ -64,6 +65,7 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
 
     public static class ProcessCashTransactionsListener implements UpdateListener {
 
+        @Override
         public void update(EventBean[] newEvents, EventBean[] oldEvents) {
 
             long startTime = System.currentTimeMillis();
@@ -78,6 +80,7 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
 
     public static class RebalancePortfolioListener implements UpdateListener {
 
+        @Override
         public void update(EventBean[] newEvents, EventBean[] oldEvents) {
 
             long startTime = System.currentTimeMillis();

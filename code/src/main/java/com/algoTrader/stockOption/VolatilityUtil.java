@@ -11,8 +11,8 @@ import com.algoTrader.sabr.SABRVol;
 
 public class VolatilityUtil {
 
-    public static double getIndexVola(double underlayingSpot, double putAtmVola, double years, double intrest, double dividend, double strikeDistance, double beta, double rhoCall, double volVolCall,
-            double rhoPut, double volVolPut) {
+    public static double getIndexVola(double underlayingSpot, double putAtmVola, double years, double intrest, double dividend, double strikeDistance,
+            double beta, double rhoCall, double volVolCall, double rhoPut, double volVolPut) {
 
         double accumulation = Math.exp(years * intrest);
         double forward = StockOptionUtil.getForward(underlayingSpot, years, intrest, dividend);
@@ -38,11 +38,13 @@ public class VolatilityUtil {
         while (true) {
             double volaPut = SABRVol.volByAtmVol(forward, strike, putAtmVola, years, beta, rhoPut, volVolPut);
             double put = StockOptionUtil.getOptionPriceBS(underlayingSpot, strike, volaPut, years, intrest, dividend, OptionType.PUT);
-            if (put < 0.5)
+            if (put < 0.5) {
                 break;
+            }
             double factor = put * accumulation * (strikeDistance / (strike * strike));
-            if ((factor / factorSum) < 0.0001)
+            if ((factor / factorSum) < 0.0001) {
                 break;
+            }
             factorSum += factor;
             strike -= strikeDistance;
         }
@@ -52,11 +54,13 @@ public class VolatilityUtil {
         while (true) {
             double volaCall = SABRVol.volByAtmVol(forward, strike, callAtmVola, years, beta, rhoCall, volVolCall);
             double call = StockOptionUtil.getOptionPriceBS(underlayingSpot, strike, volaCall, years, intrest, dividend, OptionType.CALL);
-            if (call < 0.5)
+            if (call < 0.5) {
                 break;
+            }
             double factor = call * accumulation * (strikeDistance / (strike * strike));
-            if ((factor / factorSum) < 0.0001)
+            if ((factor / factorSum) < 0.0001) {
                 break;
+            }
             factorSum += factor;
             strike += strikeDistance;
         }
@@ -64,14 +68,17 @@ public class VolatilityUtil {
         return Math.sqrt((factorSum * 2 - Math.pow(forward / atmStrike - 1, 2)) / years);
     }
 
-    public static double getPutAtmVola(final double underlayingSpot, final double indexVola, final double years, final double intrest, final double dividend, final double strikeDistance,
-            final double beta, final double rhoCall, final double volVolCall, final double rhoPut, final double volVolPut) throws ConvergenceException, FunctionEvaluationException, IllegalArgumentException {
+    public static double getPutAtmVola(final double underlayingSpot, final double indexVola, final double years, final double intrest, final double dividend,
+            final double strikeDistance, final double beta, final double rhoCall, final double volVolCall, final double rhoPut, final double volVolPut)
+            throws ConvergenceException, FunctionEvaluationException, IllegalArgumentException {
 
-        UnivariateRealFunction function = new UnivariateRealFunction () {
+        UnivariateRealFunction function = new UnivariateRealFunction() {
+            @Override
             public double value(double putAtmVola) throws FunctionEvaluationException {
                 double currentIndexVola = getIndexVola(underlayingSpot, putAtmVola, years, intrest, dividend, strikeDistance, beta, rhoCall, volVolCall, rhoPut, volVolPut);
                 return currentIndexVola - indexVola;
-            }};
+            }
+        };
 
         UnivariateRealSolverFactory factory = UnivariateRealSolverFactory.newInstance();
         UnivariateRealSolver solver = factory.newDefaultSolver();
@@ -86,9 +93,9 @@ public class VolatilityUtil {
         }
     }
 
-    public static double getCallAtmVola(final double underlayingSpot, final double indexVola, final double years, final double intrest, final double dividend, final double strikeDistance,
-            final double beta, final double rhoCall, final double volVolCall, final double rhoPut, final double volVolPut) throws ConvergenceException, FunctionEvaluationException,
-            IllegalArgumentException {
+    public static double getCallAtmVola(final double underlayingSpot, final double indexVola, final double years, final double intrest, final double dividend,
+            final double strikeDistance, final double beta, final double rhoCall, final double volVolCall, final double rhoPut, final double volVolPut)
+            throws ConvergenceException, FunctionEvaluationException, IllegalArgumentException {
 
         double putAtmVola = getPutAtmVola(underlayingSpot, indexVola, years, intrest, dividend, strikeDistance, beta, rhoCall, volVolCall, rhoPut, volVolPut);
         return getCallAtmVolaFromPutAtmVola(putAtmVola, years);

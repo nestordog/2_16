@@ -43,11 +43,12 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
     private static final String optionUrl = "http://www.swissquote.ch/sq_mi/market/derivatives/optionfuture/OptionFuture.action?&type=option";
     private static Logger logger = MyLogger.getLogger(StockOptionRetrieverServiceImpl.class.getName());
-    private static String [] markets = new String[] {"eu", "eu", "eu", "eu", "eu", "eu", "eu", "ud"};
-    private static String [] groups = new String[] {"sw", "id", "de", "fr", "it", "sk", "xx", null };
+    private static String[] markets = new String[] { "eu", "eu", "eu", "eu", "eu", "eu", "eu", "ud" };
+    private static String[] groups = new String[] { "sw", "id", "de", "fr", "it", "sk", "xx", null };
 
-    protected StockOption handleRetrieveStockOption(int underlayingId, Date expiration, BigDecimal strike,
-            OptionType type) throws ParseException, TransformerException, IOException {
+    @Override
+    protected StockOption handleRetrieveStockOption(int underlayingId, Date expiration, BigDecimal strike, OptionType type) throws ParseException,
+            TransformerException, IOException {
 
         Security underlaying = getSecurityDao().load(underlayingId);
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlaying(underlaying.getId());
@@ -109,6 +110,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
         return stockOption;
     }
 
+    @Override
     protected void handleRetrieveAllStockOptionsForUnderlaying(int underlayingId) throws ParseException, TransformerException, IOException {
 
         Security underlaying = getSecurityDao().load(underlayingId);
@@ -148,7 +150,9 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
             String isin = param.split("_")[0];
 
-            if (getSecurityDao().findByIsin(isin) != null) continue;
+            if (getSecurityDao().findByIsin(isin) != null) {
+                continue;
+            }
 
             stockOption.setIsin(isin);
 
@@ -179,15 +183,15 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
         }
     }
 
+    @Override
     protected void handleRetrieveAllStockOptions() throws Exception {
-
 
         for (int i = 0; i < markets.length; i++) {
 
             String market = markets[i];
             String group = groups[i];
 
-            String url = optionUrl + "&market=" + market + ((group != null)? "&group=" + group : "");
+            String url = optionUrl + "&market=" + market + ((group != null) ? "&group=" + group : "");
 
             GetMethod get = new GetMethod(url);
 
@@ -200,10 +204,10 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
                 listDocument = TidyUtil.parse(get.getResponseBodyAsStream());
 
-                XmlUtil.saveDocumentToFile(listDocument, market + ((group != null)? "_" + group : "") + "_all.xml", "results/options/");
+                XmlUtil.saveDocumentToFile(listDocument, market + ((group != null) ? "_" + group : "") + "_all.xml", "results/options/");
 
                 if (status != HttpStatus.SC_OK) {
-                    throw new HttpException("invalid option request, market=" + market + ((group != null)? ", group=" + group : ""));
+                    throw new HttpException("invalid option request, market=" + market + ((group != null) ? ", group=" + group : ""));
                 }
 
             } finally {
@@ -240,7 +244,9 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
                 Node underlayingTable = XPathAPI.selectSingleNode(listDocument, "//table[tr/td/strong='Symbol']/tr[2]");
 
-                if (underlayingTable == null) continue;
+                if (underlayingTable == null) {
+                    continue;
+                }
 
                 String underlayingUrl = SqUtil.getValue(underlayingTable, "td[1]/a/@href");
 
@@ -254,14 +260,14 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
                     underlayingMarketId = queryString.split("_")[1];
                     underlayingCurreny = queryString.split("_")[2];
 
-                } else if (underlayingIsin.startsWith("CH")){
+                } else if (underlayingIsin.startsWith("CH")) {
                     underlayingMarketId = "M9";
                     underlayingCurreny = "CHF";
 
-                } else if (underlayingIsin.startsWith("DE")){
+                } else if (underlayingIsin.startsWith("DE")) {
                     underlayingMarketId = "13";
                     underlayingCurreny = "EUR";
-                } else if (underlayingIsin.startsWith("US")){
+                } else if (underlayingIsin.startsWith("US")) {
                     continue;
                 } else {
                     throw new RuntimeException("unrecognized isin");

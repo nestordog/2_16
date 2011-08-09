@@ -9,6 +9,7 @@ import com.algoTrader.vo.TickVO;
 
 public class TickDaoImpl extends TickDaoBase {
 
+    @Override
     public void toTickVO(Tick tick, TickVO tickVO) {
 
         super.toTickVO(tick, tickVO);
@@ -16,6 +17,7 @@ public class TickDaoImpl extends TickDaoBase {
         completeTickVO(tick, tickVO);
     }
 
+    @Override
     public TickVO toTickVO(final Tick tick) {
 
         TickVO tickVO = super.toTickVO(tick);
@@ -25,6 +27,7 @@ public class TickDaoImpl extends TickDaoBase {
         return tickVO;
     }
 
+    @Override
     public void toRawTickVO(Tick tick, RawTickVO rawTickVO) {
 
         super.toRawTickVO(tick, rawTickVO);
@@ -32,6 +35,7 @@ public class TickDaoImpl extends TickDaoBase {
         completeRawTickVO(tick, rawTickVO);
     }
 
+    @Override
     public RawTickVO toRawTickVO(final Tick tick) {
 
         RawTickVO rawTickVO = super.toRawTickVO(tick);
@@ -53,11 +57,13 @@ public class TickDaoImpl extends TickDaoBase {
         rawTickVO.setIsin(tick.getSecurity().getIsin());
     }
 
+    @Override
     public Tick tickVOToEntity(TickVO tickVO) {
 
         throw new UnsupportedOperationException("tickVOToEntity not yet implemented.");
     }
 
+    @Override
     public Tick rawTickVOToEntity(RawTickVO rawTickVO) {
 
         Tick tick = new TickImpl();

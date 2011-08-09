@@ -33,6 +33,7 @@ public class VerificationServiceImpl extends VerificationServiceBase {
 
     private Map<String, List<Tick>> optionMap = new HashMap<String, List<Tick>>();
 
+    @Override
     protected void handleVerifyTransactions() throws Exception {
 
         getRuleService().initServiceProvider(StrategyImpl.BASE);
@@ -44,10 +45,11 @@ public class VerificationServiceImpl extends VerificationServiceBase {
             Date date = transaction.getDateTime();
             getRuleService().sendEvent(StrategyImpl.BASE, new CurrentTimeEvent(date.getTime()));
 
-            if (!(transaction.getType().equals(TransactionType.BUY) || transaction.getType().equals(TransactionType.SELL)))
+            if (!(transaction.getType().equals(TransactionType.BUY) || transaction.getType().equals(TransactionType.SELL))) {
                 continue;
+            }
 
-            StockOption stockOption = (StockOption)transaction.getSecurity();
+            StockOption stockOption = (StockOption) transaction.getSecurity();
 
             Tick optionTick = getTickDao().findByDateAndSecurity(date, stockOption.getId());
             Tick underlayingTick = getTickDao().findByDateAndSecurity(date, stockOption.getUnderlaying().getId());
@@ -77,6 +79,7 @@ public class VerificationServiceImpl extends VerificationServiceBase {
         }
     }
 
+    @Override
     protected void handleVerifyTicks() throws Exception {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy.MM.dd kk:mm");
@@ -104,7 +107,9 @@ public class VerificationServiceImpl extends VerificationServiceBase {
         List<Tick> optionTicks = new ArrayList<Tick>();
         for (File file : files) {
 
-            if (file.getName().startsWith("CH")) continue;
+            if (file.getName().startsWith("CH")) {
+                continue;
+            }
 
             String isin = file.getName().split("\\.")[0];
             CsvTickReader optionReader = new CsvTickReader(isin);
@@ -117,32 +122,37 @@ public class VerificationServiceImpl extends VerificationServiceBase {
 
         final Date startDate = format.parse("2010.03.30 15:00");
         CollectionUtils.filter(optionTicks, new Predicate<Tick>() {
+            @Override
             public boolean evaluate(Tick tick) {
                 return tick.getDateTime().compareTo(startDate) > 0;
-            }});
+            }
+        });
 
         Collections.sort(optionTicks, new Comparator<Tick>() {
+            @Override
             public int compare(Tick tick1, Tick tick2) {
                 return (tick1).getDateTime().compareTo((tick2).getDateTime());
-            }});
+            }
+        });
 
         for (Tick optionTick : optionTicks) {
 
             getRuleService().sendEvent(StrategyImpl.BASE, new CurrentTimeEvent(optionTick.getDateTime().getTime()));
 
-            StockOption stockOption = (StockOption)optionTick.getSecurity();
+            StockOption stockOption = (StockOption) optionTick.getSecurity();
 
             Date testDate = optionTick.getDateTime();
 
             Tick underlayingTick = selectTickByDate(underlayingTicks, testDate);
             Tick volaTick = selectTickByDate(volaTicks, testDate);
 
-            if (volaTick == null) continue;
+            if (volaTick == null) {
+                continue;
+            }
 
             double sabrEst = StockOptionUtil.getOptionPriceSabr(stockOption, underlayingTick.getLast().doubleValue(), volaTick.getLast().doubleValue() / 100.0);
             double bsEst = StockOptionUtil.getOptionPriceBS(stockOption, underlayingTick.getLast().doubleValue(), volaTick.getLast().doubleValue() / 100.0);
             double currentValue = (optionTick.getAsk().doubleValue() + optionTick.getBid().doubleValue()) / 2.0;
-
 
             System.out.print(format.format(optionTick.getDateTime()) + ",");
             System.out.print(stockOption.getIsin() + ",");
@@ -157,7 +167,6 @@ public class VerificationServiceImpl extends VerificationServiceBase {
             System.out.print(",abs=" + RoundUtil.getBigDecimal(currentValue - sabrEst));
             System.out.println(",rel=" + RoundUtil.getBigDecimal((currentValue / sabrEst - 1) * 100) + "%");
 
-
         }
     }
 
@@ -165,12 +174,16 @@ public class VerificationServiceImpl extends VerificationServiceBase {
 
         List<Tick> truncatedList = new ArrayList<Tick>();
         CollectionUtils.select(list, new Predicate<Tick>() {
+            @Override
             public boolean evaluate(Tick tick) {
 
-                return tick.getDateTime().compareTo(date) < 0 ;
-            }}, truncatedList);
+                return tick.getDateTime().compareTo(date) < 0;
+            }
+        }, truncatedList);
 
-        if (truncatedList.size() == 0) return null;
+        if (truncatedList.size() == 0) {
+            return null;
+        }
 
         return truncatedList.get(truncatedList.size() - 1);
     }

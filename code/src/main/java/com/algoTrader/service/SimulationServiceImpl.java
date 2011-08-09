@@ -72,6 +72,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         format.setMinimumFractionDigits(roundDigits);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected void handleResetDB() throws Exception {
 
@@ -134,6 +135,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         getSecurityDao().remove((Collection<Security>) getFutureDao().loadAll(FutureDao.TRANSFORM_NONE));
     }
 
+    @Override
     protected void handleInputCSV() {
 
         getRuleService().initCoordination(StrategyImpl.BASE);
@@ -174,6 +176,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         getRuleService().startCoordination(StrategyImpl.BASE);
     }
 
+    @Override
     protected SimulationResultVO handleRunByUnderlayings() {
 
         long startTime = System.currentTimeMillis();
@@ -208,6 +211,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         return resultVO;
     }
 
+    @Override
     protected void handleRunByActualTransactions() {
 
         long startTime = System.currentTimeMillis();
@@ -258,12 +262,14 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         getRuleService().destroyServiceProvider(StrategyImpl.BASE);
     }
 
+    @Override
     protected void handleSimulateWithCurrentParams() throws Exception {
 
         SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
         logMultiLineString(convertStatisticsToLongString(resultVO));
     }
 
+    @Override
     protected void handleSimulateBySingleParam(String strategyName, String parameter, String value) throws Exception {
 
         ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, value);
@@ -272,6 +278,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         resultLogger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
     }
 
+    @Override
     protected void handleSimulateByMultiParam(String strategyName, String[] parameters, String[] values) throws Exception {
 
         StringBuffer buffer = new StringBuffer();
@@ -287,11 +294,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         resultLogger.info(buffer.toString());
     }
 
+    @Override
     protected void handleOptimizeSingleParamLinear(String strategyName, String parameter, double min, double max, double increment) throws Exception {
 
         double result = min;
         double functionValue = 0;
-        for (double i = min; i <= max; i += increment ) {
+        for (double i = min; i <= max; i += increment) {
 
             ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, format.format(i));
 
@@ -307,8 +315,10 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         resultLogger.info("optimal value of " + parameter + " is " + format.format(result) + " (functionValue: " + format.format(functionValue) + ")");
     }
 
+    @Override
     @SuppressWarnings("deprecation")
-    protected OptimizationResultVO handleOptimizeSingleParam(String strategyName, String parameter, double min, double max, double accuracy) throws ConvergenceException, FunctionEvaluationException {
+    protected OptimizationResultVO handleOptimizeSingleParam(String strategyName, String parameter, double min, double max, double accuracy)
+            throws ConvergenceException, FunctionEvaluationException {
 
         UnivariateRealFunction function = new UnivariateFunction(strategyName, parameter);
         UnivariateRealOptimizer optimizer = new BrentOptimizer();
@@ -324,6 +334,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         return optimizationResult;
     }
 
+    @Override
     protected void handleOptimizeMultiParamLinear(String strategyName, String parameters[], double[] mins, double[] maxs, double[] increments) throws Exception {
 
         Configuration configuration = ConfigurationUtil.getStrategyConfig(strategyName);
@@ -356,6 +367,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         }
     }
 
+    @Override
     protected void handleOptimizeMultiParam(String strategyName, String[] parameters, double[] starts) throws ConvergenceException, FunctionEvaluationException {
 
         MultivariateRealFunction function = new MultivariateFunction(strategyName, parameters);
@@ -369,6 +381,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         resultLogger.info("functionValue: " + format.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected SimulationResultVO handleGetSimulationResultVO(long startTime) {
 
@@ -478,7 +491,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         int positiveMonths = 0;
         int negativeMonths = 0;
         if ((monthlyPerformances != null)) {
-            StringBuffer dateBuffer= new StringBuffer("month-year:         ");
+            StringBuffer dateBuffer = new StringBuffer("month-year:         ");
             StringBuffer performanceBuffer = new StringBuffer("monthlyPerformance: ");
             for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
                 maxDrawDownM = Math.min(maxDrawDownM, monthlyPerformance.getValue());
@@ -587,6 +600,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             this.strategyName = strategyName;
         }
 
+        @Override
         public double value(double input) throws FunctionEvaluationException {
 
             ConfigurationUtil.getStrategyConfig(this.strategyName).setProperty(this.param, String.valueOf(input));
@@ -605,16 +619,17 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         private String[] params;
         private String strategyName;
 
-        public MultivariateFunction(String strategyName,String[] parameters) {
+        public MultivariateFunction(String strategyName, String[] parameters) {
             super();
             this.params = parameters;
             this.strategyName = strategyName;
         }
 
+        @Override
         public double value(double[] input) throws FunctionEvaluationException {
 
             StringBuffer buffer = new StringBuffer("optimize on ");
-            for (int i =0; i < input.length; i++) {
+            for (int i = 0; i < input.length; i++) {
 
                 String param = this.params[i];
                 double value = input[i];

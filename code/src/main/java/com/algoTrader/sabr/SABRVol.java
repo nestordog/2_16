@@ -11,7 +11,8 @@ public class SABRVol {
         if (Math.abs(forward - strike) <= 0.001) { // ATM vol
 
             double term1 = a / Math.pow(forward, (1 - b));
-            double term2 = ((1 - b) * (1 - b) / 24 * a * a / Math.pow(forward, (2 - 2 * b)) + r * b * a * v / 4 / Math.pow(forward, (1 - b)) + (2 - 3 * r * r) * v * v / 24);
+            double term2 = ((1 - b) * (1 - b) / 24 * a * a / Math.pow(forward, (2 - 2 * b)) + r * b * a * v / 4 / Math.pow(forward, (1 - b)) + (2 - 3 * r * r)
+                    * v * v / 24);
             return term1 * (1 + term2 * years);
 
         } else { // Non-ATM vol

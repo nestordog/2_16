@@ -23,14 +23,17 @@ public class StrategyImpl extends Strategy {
 
     public final static String BASE = "BASE";
 
+    @Override
     public boolean isBase() {
         return (BASE.equals(getName()));
     }
 
+    @Override
     public BigDecimal getCashBalance() {
         return RoundUtil.getBigDecimal(getCashBalanceDouble());
     }
 
+    @Override
     public double getCashBalanceDouble() {
 
         double amount = 0.0;
@@ -56,11 +59,13 @@ public class StrategyImpl extends Strategy {
         return amount;
     }
 
+    @Override
     public BigDecimal getSecuritiesCurrentValue() {
 
         return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble());
     }
 
+    @Override
     public double getSecuritiesCurrentValueDouble() {
 
         double amount = 0.0;
@@ -77,10 +82,12 @@ public class StrategyImpl extends Strategy {
         return amount;
     }
 
+    @Override
     public BigDecimal getMaintenanceMargin() {
         return RoundUtil.getBigDecimal(getMaintenanceMarginDouble());
     }
 
+    @Override
     public double getMaintenanceMarginDouble() {
 
         double margin = 0.0;
@@ -103,26 +110,31 @@ public class StrategyImpl extends Strategy {
         return initialMarginMarkup * getMaintenanceMarginDouble();
     }
 
+    @Override
     public BigDecimal getNetLiqValue() {
 
         return RoundUtil.getBigDecimal(getNetLiqValueDouble());
     }
 
+    @Override
     public double getNetLiqValueDouble() {
 
         return getCashBalanceDouble() + getSecuritiesCurrentValueDouble();
     }
 
+    @Override
     public BigDecimal getAvailableFunds() {
 
         return RoundUtil.getBigDecimal(getAvailableFundsDouble());
     }
 
+    @Override
     public double getAvailableFundsDouble() {
 
         return getNetLiqValueDouble() - getInitialMarginDouble();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public List<BalanceVO> getBalances() {
 
@@ -194,6 +206,7 @@ public class StrategyImpl extends Strategy {
         return balances;
     }
 
+    @Override
     public double getRedemptionValueDouble() {
 
         double redemptionValue = 0.0;
@@ -204,6 +217,7 @@ public class StrategyImpl extends Strategy {
         return redemptionValue;
     }
 
+    @Override
     public double getMaxLossDouble() {
 
         double maxLoss = 0.0;
@@ -214,6 +228,7 @@ public class StrategyImpl extends Strategy {
         return maxLoss;
     }
 
+    @Override
     public double getLeverage() {
 
         double exposure = 0.0;
@@ -225,6 +240,7 @@ public class StrategyImpl extends Strategy {
         return exposure / getNetLiqValueDouble();
     }
 
+    @Override
     public String toString() {
 
         return getName();

@@ -4,6 +4,7 @@ import com.algoTrader.enumeration.MarketChannel;
 
 public class DispatcherServiceImpl extends DispatcherServiceBase {
 
+    @Override
     protected StockOptionRetrieverService handleGetStockOptionRetrieverService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
@@ -15,6 +16,7 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
         }
     }
 
+    @Override
     protected TransactionService handleGetTransactionService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
@@ -26,6 +28,7 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
         }
     }
 
+    @Override
     protected MarketDataService handleGetMarketDataService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
@@ -37,6 +40,7 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
         }
     }
 
+    @Override
     protected AccountService handleGetAccountService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
@@ -48,6 +52,7 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
         }
     }
 
+    @Override
     protected HistoricalDataService handleGetHistoricalDataService(MarketChannel marketChannel) throws Exception {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {

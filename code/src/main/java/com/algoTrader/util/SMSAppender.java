@@ -70,6 +70,7 @@ public class SMSAppender extends SMTPAppender {
         return this.exceptionDates.size() < this.maxEMails;
     }
 
+    @Override
     protected void sendBuffer() {
 
         cleanTimedoutExceptions();
@@ -100,7 +101,9 @@ public class SMSAppender extends SMTPAppender {
                 }
 
                 String content = sbuf.toString();
-                if (content.length() > 160) content = content.substring(0, 160);
+                if (content.length() > 160) {
+                    content = content.substring(0, 160);
+                }
 
                 part.setContent(content, this.layout.getContentType());
                 Multipart mp = new MimeMultipart();

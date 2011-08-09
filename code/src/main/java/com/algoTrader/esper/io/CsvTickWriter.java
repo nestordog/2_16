@@ -25,7 +25,7 @@ public class CsvTickWriter {
 
     private CsvBeanWriter writer;
 
-    public CsvTickWriter(String symbol ) throws SuperCSVException, IOException  {
+    public CsvTickWriter(String symbol) throws SuperCSVException, IOException {
 
         File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
         boolean exists = file.exists();
@@ -37,19 +37,22 @@ public class CsvTickWriter {
         }
     }
 
-     private static class DateConverter extends CellProcessorAdaptor {
+    private static class DateConverter extends CellProcessorAdaptor {
 
-             public DateConverter() {
-                super();
-            }
-
-            public Object execute(final Object value, final CSVContext context) throws NumberFormatException {
-                if (value == null) return "";
-                final Date date = (Date) value;
-                Long result = Long.valueOf(date.getTime());
-                return this.next.execute(result, context);
-            }
+        public DateConverter() {
+            super();
         }
+
+        @Override
+        public Object execute(final Object value, final CSVContext context) throws NumberFormatException {
+            if (value == null) {
+                return "";
+            }
+            final Date date = (Date) value;
+            Long result = Long.valueOf(date.getTime());
+            return this.next.execute(result, context);
+        }
+    }
 
     public void write(Tick tick) throws SuperCSVReflectionException, IOException {
 

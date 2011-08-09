@@ -21,6 +21,7 @@ public class StrategyServiceImpl extends StrategyServiceBase implements Disposab
     private Map<String, Socket> socketMap = new HashMap<String, Socket>();
     private Map<String, ObjectOutputStream> streamMap = new HashMap<String, ObjectOutputStream>();
 
+    @Override
     protected void handleRegisterStrategy(String strategyName) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -34,6 +35,7 @@ public class StrategyServiceImpl extends StrategyServiceBase implements Disposab
         logger.debug("registered strategy: " + strategyName);
     }
 
+    @Override
     protected void handleUnregisterStrategy(String strategyName) throws Exception {
 
         try {
@@ -55,11 +57,13 @@ public class StrategyServiceImpl extends StrategyServiceBase implements Disposab
         logger.debug("unregistered strategy: " + strategyName);
     }
 
+    @Override
     protected boolean handleIsStrategyRegistered(String strategyName) throws Exception {
 
         return this.socketMap.containsKey(strategyName);
     }
 
+    @Override
     protected void handleSendEvent(String strategyName, Object obj) {
 
         if (this.socketMap.containsKey(strategyName)) {
@@ -79,6 +83,7 @@ public class StrategyServiceImpl extends StrategyServiceBase implements Disposab
         }
     }
 
+    @Override
     public void destroy() throws Exception {
 
         for (Map.Entry<String, Socket> entry : this.socketMap.entrySet()) {

@@ -21,7 +21,6 @@ public class ConfigurationUtil {
 
     private static Logger logger = MyLogger.getLogger(ConfigurationUtil.class.getName());
 
-
     public static Configuration getBaseConfig() {
 
         if (baseConfig == null) {
@@ -39,8 +38,9 @@ public class ConfigurationUtil {
 
     public static Configuration getStrategyConfig(String strategyName) {
 
-        if (StrategyImpl.BASE.equals(strategyName.toUpperCase()))
+        if (StrategyImpl.BASE.equals(strategyName.toUpperCase())) {
             return getBaseConfig();
+        }
 
         CompositeConfiguration strategyConfig = strategyConfigMap.get(strategyName.toUpperCase());
         if (strategyConfig == null) {

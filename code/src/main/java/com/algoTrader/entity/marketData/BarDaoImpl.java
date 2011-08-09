@@ -10,14 +10,15 @@ import com.algoTrader.vo.BarVO;
  */
 public class BarDaoImpl extends BarDaoBase {
 
-    public void toBarVO(Bar bar,  BarVO barVO) {
+    @Override
+    public void toBarVO(Bar bar, BarVO barVO) {
 
         super.toBarVO(bar, barVO);
 
         completeBarVO(bar, barVO);
     }
 
-
+    @Override
     public BarVO toBarVO(final Bar bar) {
 
         BarVO rawBarVO = super.toBarVO(bar);
@@ -32,6 +33,7 @@ public class BarDaoImpl extends BarDaoBase {
         barVO.setIsin(bar.getSecurity().getIsin());
     }
 
+    @Override
     public Bar barVOToEntity(BarVO barVO) {
 
         Bar bar = new BarImpl();

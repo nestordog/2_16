@@ -6,6 +6,7 @@ public class PartialOrderImpl extends PartialOrder {
 
     private static final long serialVersionUID = -7341726577868580753L;
 
+    @Override
     public void setStatus(OrderStatus status) {
 
         if (OrderStatus.PARTIALLY_EXECUTED.equals(status) || OrderStatus.EXECUTED.equals(status)) {
@@ -17,12 +18,14 @@ public class PartialOrderImpl extends PartialOrder {
         super.setStatus(status);
     }
 
+    @Override
     public void addTransaction(Transaction transaction) {
 
         getTransactions().add(transaction);
         getParentOrder().getTransactions().add(transaction);
     }
 
+    @Override
     public String toString() {
 
         return String.valueOf(getId());

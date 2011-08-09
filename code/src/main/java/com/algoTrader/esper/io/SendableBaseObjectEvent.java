@@ -15,10 +15,12 @@ public class SendableBaseObjectEvent extends AbstractSendableEvent {
         this.eventToSend = object;
     }
 
+    @Override
     public void send(AbstractSender sender) {
         sender.sendEvent(this, this.eventToSend);
     }
 
+    @Override
     public String toString() {
         return this.eventToSend.toString();
     }

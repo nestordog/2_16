@@ -17,6 +17,7 @@ public class FutureServiceImpl extends FutureServiceBase {
 
     private static Logger logger = MyLogger.getLogger(FutureServiceImpl.class.getName());
 
+    @Override
     protected void handleCreateFutures(int futureFamilyId) {
 
         FutureFamily family = getFutureFamilyDao().load(futureFamilyId);

@@ -24,6 +24,7 @@ public class ExponentialMovingAverageFunction extends AggregationSupport {
         }
     }
 
+    @Override
     public void enter(Object obj) {
 
         Object[] params = (Object[]) obj;
@@ -39,18 +40,22 @@ public class ExponentialMovingAverageFunction extends AggregationSupport {
         }
     }
 
+    @Override
     public void leave(Object value) {
         throw new IllegalArgumentException("leave not allowed");
     }
 
+    @Override
     public Class<Double> getValueType() {
         return Double.class;
     }
 
+    @Override
     public Object getValue() {
         return this.emaValue;
     }
 
+    @Override
     public void clear() {
         throw new IllegalArgumentException("clear not allowed");
     }

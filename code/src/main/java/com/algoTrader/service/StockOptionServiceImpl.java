@@ -43,6 +43,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     private static int advanceMinutes = 10;
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
 
+    @Override
     protected StockOption handleCreateDummyStockOption(int stockOptionFamilyId, Date expirationDate, BigDecimal targetStrike, OptionType type) throws Exception {
 
         StockOptionFamily family = getStockOptionFamilyDao().load(stockOptionFamilyId);
@@ -73,6 +74,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         return stockOption;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected void handleCalculateSabr(String isin) throws Exception {
 
@@ -91,7 +93,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
             for (Date expirationDate : expirationDates) {
 
-                for (OptionType type :  new OptionType[]{OptionType.PUT, OptionType.CALL} ) {
+                for (OptionType type : new OptionType[] { OptionType.PUT, OptionType.CALL }) {
 
                     SabrVO SABRparams = null;
                     try {
@@ -111,6 +113,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         SABRCalibration.getInstance().dispose();
     }
 
+    @Override
     protected void handleCalculateSabr(String isin, String startDateString, String expirationDateString, String optionType) throws Exception {
 
         Security underlaying = getSecurityDao().findByIsin(isin);
@@ -137,7 +140,8 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
                 SabrVO SABRparams = calculateSabrForDate(underlaying, type, cal.getTime(), expirationDate);
 
                 if (SABRparams != null && SABRparams.getAlpha() < 100) {
-                    System.out.print(outputFormat.format(cal.getTime()) + " " + SABRparams.getAlpha() + " " + SABRparams.getRho() + " " + SABRparams.getVolVol());
+                    System.out.print(outputFormat.format(cal.getTime()) + " " + SABRparams.getAlpha() + " " + SABRparams.getRho() + " "
+                            + SABRparams.getVolVol());
                 }
 
                 AtmVolaVO atmVola = calculateAtmVola(underlaying, cal.getTime());
@@ -159,6 +163,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
     }
 
+    @Override
     protected SabrVO handleCalculateSabrForDate(Security underlaying, OptionType type, Date date, Date expirationDate) throws MWException {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlaying(underlaying.getId());
@@ -193,7 +198,8 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
             double currentValue = tick.getCurrentValueDouble();
 
             try {
-                double volatility = StockOptionUtil.getVolatility(underlayingSpot.doubleValue(), stockOption.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), type);
+                double volatility = StockOptionUtil.getVolatility(underlayingSpot.doubleValue(), stockOption.getStrike().doubleValue(), currentValue, years,
+                        family.getIntrest(), family.getDividend(), type);
                 strikes.add(strike);
                 currentValues.add(currentValue);
                 volatilities.add(volatility);
@@ -218,6 +224,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
     }
 
+    @Override
     protected AtmVolaVO handleCalculateAtmVola(Security underlaying, Date date) throws MathException {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlaying(underlaying.getId());
@@ -242,12 +249,15 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
         double years = (callOption.getExpiration().getTime() - date.getTime()) / MILLISECONDS_PER_YEAR;
 
-        double callVola = StockOptionUtil.getVolatility(underlayingTick.getCurrentValueDouble(), callOption.getStrike().doubleValue(), callTick.getCurrentValueDouble(), years, family.getIntrest(),family.getDividend(), OptionType.CALL);
-        double putVola = StockOptionUtil.getVolatility(underlayingTick.getCurrentValueDouble(), putOption.getStrike().doubleValue(), putTick.getCurrentValueDouble(), years, family.getIntrest(),family.getDividend(), OptionType.PUT);
+        double callVola = StockOptionUtil.getVolatility(underlayingTick.getCurrentValueDouble(), callOption.getStrike().doubleValue(),
+                callTick.getCurrentValueDouble(), years, family.getIntrest(), family.getDividend(), OptionType.CALL);
+        double putVola = StockOptionUtil.getVolatility(underlayingTick.getCurrentValueDouble(), putOption.getStrike().doubleValue(),
+                putTick.getCurrentValueDouble(), years, family.getIntrest(), family.getDividend(), OptionType.PUT);
 
         return new AtmVolaVO(years, callVola, putVola);
     }
 
+    @Override
     protected void handleCalculateSabrByIVol(String isin, String startDateString, String endDateString, String durationString) throws Exception {
 
         Security underlaying = getSecurityDao().findByIsin(isin);
@@ -281,6 +291,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
     }
 
+    @Override
     protected SabrVO handleCalculateSabrForDateByIVol(Security underlaying, Date date, int duration) throws MWException {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlaying(underlaying.getId());

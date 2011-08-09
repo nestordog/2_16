@@ -27,10 +27,12 @@ public class BatchDBTickInputAdapter extends AbstractCoordinatedAdapter {
         this.startDate = startDate;
     }
 
+    @Override
     protected void close() {
         //do nothing
     }
 
+    @Override
     protected void replaceFirstEventToSend() {
         this.eventsToSend.remove(this.eventsToSend.first());
         SendableEvent event = read();
@@ -39,10 +41,12 @@ public class BatchDBTickInputAdapter extends AbstractCoordinatedAdapter {
         }
     }
 
+    @Override
     protected void reset() {
         // do nothing
     }
 
+    @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public SendableEvent read() throws EPException {
         if (this.stateManager.getState() == AdapterState.DESTROYED) {

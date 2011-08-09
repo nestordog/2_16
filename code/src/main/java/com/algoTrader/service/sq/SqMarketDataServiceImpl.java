@@ -18,6 +18,7 @@ public class SqMarketDataServiceImpl extends SqMarketDataServiceBase {
     private static String exactMatch = "//tr/td[.='%1$s']/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[.='%1$s']/preceding-sibling::td)+1]/strong";
     private static String partialMatch = "//tr/td[contains(.,'%1$s')]/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[contains(.,'%1$s')]/preceding-sibling::td)+1]/strong";
 
+    @Override
     protected RawTickVO handleRetrieveTick(Security security) throws Exception {
 
         Document document = SqUtil.getSecurityDocument(security);
@@ -30,7 +31,7 @@ public class SqMarketDataServiceImpl extends SqMarketDataServiceBase {
 
         Tick tick = new TickImpl();
 
-        if (security instanceof StockOption ) {
+        if (security instanceof StockOption) {
 
             // lastDateTime
             String dateValue = SqUtil.getValue(document, String.format(exactMatch, "Datum"));
@@ -54,7 +55,9 @@ public class SqMarketDataServiceImpl extends SqMarketDataServiceBase {
             int volAsk = SqUtil.getInt(volAskValue);
 
             // check if market is closed
-            if (volBid == 0 || volAsk == 0) return null;
+            if (volBid == 0 || volAsk == 0) {
+                return null;
+            }
 
             // bid
             String bidValue = SqUtil.getValue(document, String.format(partialMatch, "Geldkurs"));
@@ -63,7 +66,6 @@ public class SqMarketDataServiceImpl extends SqMarketDataServiceBase {
             // ask
             String askValue = SqUtil.getValue(document, String.format(partialMatch, "Briefkurs"));
             BigDecimal ask = RoundUtil.getBigDecimal(SqUtil.getDouble(askValue));
-
 
             // openIntrest
             String openIntrestValue = SqUtil.getValue(document, String.format(exactMatch, "Open Interest"));
@@ -84,14 +86,16 @@ public class SqMarketDataServiceImpl extends SqMarketDataServiceBase {
             tick.setOpenIntrest(openIntrest);
             tick.setSettlement(settlement);
 
-        } else if (security instanceof Security ) {
+        } else if (security instanceof Security) {
 
             // lastDateTime
             String dateValue = SqUtil.getValue(document, String.format(exactMatch, "Datum"));
             String timeValue = SqUtil.getValue(document, String.format(exactMatch, "Zeit"));
 
             // check if market is closed
-            if (timeValue != null && Integer.parseInt(timeValue.replace(":", "")) >= 173000) return null;
+            if (timeValue != null && Integer.parseInt(timeValue.replace(":", "")) >= 173000) {
+                return null;
+            }
 
             Date lastDateTime = SqUtil.getDate(dateValue + " " + (timeValue != null ? timeValue : "00:00:00"));
 
@@ -118,10 +122,12 @@ public class SqMarketDataServiceImpl extends SqMarketDataServiceBase {
         return getTickDao().toRawTickVO(tick);
     }
 
+    @Override
     protected void handlePutOnExternalWatchlist(Security security) throws Exception {
         // do nothing
     }
 
+    @Override
     protected void handleRemoveFromExternalWatchlist(Security security) throws Exception {
         // do nothing
     }

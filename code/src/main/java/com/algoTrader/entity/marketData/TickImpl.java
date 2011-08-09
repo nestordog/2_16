@@ -15,6 +15,7 @@ public class TickImpl extends Tick {
     /**
      * Note: ticks that are not valid (i.e. low volume) are not fed into esper, so we don't need to check
      */
+    @Override
     public BigDecimal getCurrentValue() {
 
         int scale = getSecurity().getSecurityFamily().getScale();
@@ -33,11 +34,13 @@ public class TickImpl extends Tick {
         }
     }
 
+    @Override
     public double getCurrentValueDouble() {
 
         return getCurrentValue().doubleValue();
     }
 
+    @Override
     public BigDecimal getBid() {
 
         if (simulation && super.getBid().equals(new BigDecimal(0))) {
@@ -64,6 +67,7 @@ public class TickImpl extends Tick {
         }
     }
 
+    @Override
     public BigDecimal getAsk() {
 
         if (simulation && super.getAsk().equals(new BigDecimal(0))) {
@@ -90,6 +94,7 @@ public class TickImpl extends Tick {
         }
     }
 
+    @Override
     public BigDecimal getSettlement() {
 
         if (simulation && (super.getSettlement() == null || super.getSettlement().compareTo(new BigDecimal(0)) == 0)) {
@@ -99,6 +104,7 @@ public class TickImpl extends Tick {
         }
     }
 
+    @Override
     public void validate() {
 
         getSecurity().validateTick(this);

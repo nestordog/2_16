@@ -61,13 +61,14 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
 
+    @Override
     protected void handleProcessTick(int securityId) throws SuperCSVException, IOException {
 
         Security security = getSecurityDao().load(securityId);
 
         // retrieve ticks only between marketOpen & close
-        if (DateUtil.compareToTime(security.getSecurityFamily().getMarketOpen()) >= 0 &&
-            DateUtil.compareToTime(security.getSecurityFamily().getMarketClose()) <= 0) {
+        if (DateUtil.compareToTime(security.getSecurityFamily().getMarketOpen()) >= 0
+                && DateUtil.compareToTime(security.getSecurityFamily().getMarketClose()) <= 0) {
 
             RawTickVO rawTick = retrieveTick(security);
 
@@ -102,16 +103,19 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         }
     }
 
+    @Override
     protected Tick handleCompleteRawTick(RawTickVO rawTick) {
 
         return getTickDao().rawTickVOToEntity(rawTick);
     }
 
+    @Override
     protected Bar handleCompleteBar(BarVO barVO) {
 
         return getBarDao().barVOToEntity(barVO);
     }
 
+    @Override
     protected void handlePropagateMarketDataEvent(MarketDataEvent marketDataEvent) {
 
         // marketDataEvent.toString is expensive, so only log if debug is anabled
@@ -125,6 +129,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         }
     }
 
+    @Override
     protected void handlePutOnWatchlist(String strategyName, int securityId) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -132,6 +137,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         putOnWatchlist(strategy, security);
     }
 
+    @Override
     protected void handlePutOnWatchlist(Strategy strategy, Security security) throws Exception {
 
         if (getWatchListItemDao().findByStrategyAndSecurity(strategy.getName(), security.getId()) == null) {
@@ -148,7 +154,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             watchListItem.setPersistent(false);
             getWatchListItemDao().create(watchListItem);
 
-             security.getWatchListItems().add(watchListItem);
+            security.getWatchListItems().add(watchListItem);
             getSecurityDao().update(security);
 
             strategy.getWatchListItems().add(watchListItem);
@@ -158,6 +164,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         }
     }
 
+    @Override
     protected void handleRemoveFromWatchlist(String strategyName, int securityId) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -166,6 +173,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         removeFromWatchlist(strategy, security);
     }
 
+    @Override
     protected void handleRemoveFromWatchlist(Strategy strategy, Security security) throws Exception {
 
         WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategy.getName(), security.getId());
@@ -186,11 +194,11 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
                 removeFromExternalWatchlist(security);
             }
 
-
             logger.info("removed security from watchlist " + security.getSymbol());
         }
     }
 
+    @Override
     protected void handleSetAlertValue(String strategyName, int securityId, Double value, boolean upper) throws Exception {
 
         WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
@@ -207,6 +215,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     }
 
+    @Override
     protected void handleRemoveAlertValues(String strategyName, int securityId) throws Exception {
 
         WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
@@ -225,6 +234,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
      * must be run with simulation=false (to get correct values for bid, ask and settlement)
      * also recommended to turn of ehache on commandline (to avoid out of memory error)
      */
+    @Override
     protected void handleImportTicks(String isin) throws Exception {
 
         File file = new File("results/tickdata/" + dataSet + "/" + isin + ".csv");
@@ -240,6 +250,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             // create a set that will eliminate ticks of the same date (not considering milliseconds)
             Comparator<Tick> comp = new Comparator<Tick>() {
+                @Override
                 public int compare(Tick t1, Tick t2) {
                     return (int) ((t1.getDateTime().getTime() - t2.getDateTime().getTime()) / 1000);
                 }
@@ -250,8 +261,9 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             Tick tick;
             while ((tick = reader.readTick()) != null) {
 
-                if (tick.getLast().equals(new BigDecimal(0)))
+                if (tick.getLast().equals(new BigDecimal(0))) {
                     tick.setLast(null);
+                }
 
                 tick.setSecurity(security);
                 newTicks.add(tick);
@@ -262,7 +274,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             List<Tick> existingTicks = getTickDao().findBySecurity(security.getId());
 
             for (Tick tick2 : existingTicks) {
-                 newTicks.remove(tick2);
+                newTicks.remove(tick2);
             }
 
             // insert the newTicks into the DB
@@ -286,6 +298,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         }
     }
 
+    @Override
     protected void handleImportIVolTicks(String stockOptionFamilyId, String symbol) throws Exception {
 
         StockOptionFamily family = getStockOptionFamilyDao().load(Integer.parseInt(stockOptionFamilyId));
@@ -310,14 +323,14 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             List<Tick> ticks = new ArrayList<Tick>();
             while ((iVol = csvReader.readHloc()) != null) {
 
-
                 // prevent overlap
                 if (DateUtils.toCalendar(fileDate).get(Calendar.MONTH) != DateUtils.toCalendar(iVol.getDate()).get(Calendar.MONTH)) {
                     continue;
                 }
 
-                if (iVol.getBid() == null || iVol.getAsk() == null)
+                if (iVol.getBid() == null || iVol.getAsk() == null) {
                     continue;
+                }
 
                 // only consider 3rd Friday
                 Calendar expCal = new GregorianCalendar();
@@ -352,6 +365,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
                 // check if we have the stockOption already
                 StockOption stockOption = CollectionUtils.find(stockOptions, new Predicate<StockOption>() {
+                    @Override
                     public boolean evaluate(StockOption stockOption) {
                         return stockOption.getStrike().intValue() == newStockOption.getStrike().intValue()
                                 && stockOption.getExpiration().getTime() == newStockOption.getExpiration().getTime()

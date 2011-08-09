@@ -19,51 +19,61 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
     private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
 
+    @Override
     protected String handleGetCurrentTime() throws Exception {
 
         return format.format(new Date(getRuleService().getCurrentTime(StrategyUtil.getStartedStrategyName())));
     }
 
+    @Override
     protected String handleGetStrategyName() throws Exception {
 
         return StrategyUtil.getStartedStrategyName();
     }
 
+    @Override
     protected BigDecimal handleGetStrategyCashBalance() throws Exception {
 
         return getReportingService().getStrategyCashBalance(StrategyUtil.getStartedStrategyName());
     }
 
+    @Override
     protected BigDecimal handleGetStrategySecuritiesCurrentValue() throws Exception {
 
         return getReportingService().getStrategySecuritiesCurrentValue(StrategyUtil.getStartedStrategyName());
     }
 
+    @Override
     protected BigDecimal handleGetStrategyMaintenanceMargin() throws Exception {
 
         return getReportingService().getStrategyMaintenanceMargin(StrategyUtil.getStartedStrategyName());
     }
 
+    @Override
     protected BigDecimal handleGetStrategyNetLiqValue() throws Exception {
 
         return getReportingService().getStrategyNetLiqValue(StrategyUtil.getStartedStrategyName());
     }
 
+    @Override
     protected BigDecimal handleGetStrategyAvailableFunds() throws Exception {
 
         return getReportingService().getStrategyAvailableFunds(StrategyUtil.getStartedStrategyName());
     }
 
+    @Override
     protected double handleGetStrategyAllocation() throws Exception {
 
         return getReportingService().getStrategyAllocation(StrategyUtil.getStartedStrategyName());
     }
 
+    @Override
     protected double handleGetStrategyLeverage() throws Exception {
 
         return getReportingService().getStrategyLeverage(StrategyUtil.getStartedStrategyName());
     }
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected List<TickVO> handleGetDataLastTicks() {
 
@@ -75,18 +85,21 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         return ticks;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected List<PositionVO> handleGetDataOpenPositions() throws Exception {
 
         return getReportingService().getDataOpenPositions(StrategyUtil.getStartedStrategyName());
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected List<BalanceVO> handleGetDataBalances() throws Exception {
 
         return getReportingService().getDataBalances(StrategyUtil.getStartedStrategyName());
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected List<TransactionVO> handleGetDataTransactions() throws Exception {
 
@@ -108,16 +121,19 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         return getRuleService().getAllEvents(strategyName, ruleName);
     }
 
+    @Override
     protected void handleActivate(String moduleName, String ruleName) throws Exception {
 
         getRuleService().deployRule(StrategyUtil.getStartedStrategyName(), moduleName, ruleName);
     }
 
+    @Override
     protected void handleDeactivate(String ruleName) throws Exception {
 
         getRuleService().undeployRule(StrategyUtil.getStartedStrategyName(), ruleName);
     }
 
+    @Override
     protected void handleRegisterStrategy() throws Exception {
 
         String strategyName = StrategyUtil.getStartedStrategyName();
@@ -127,6 +143,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         }
     }
 
+    @Override
     protected void handleShutdown() throws Exception {
 
         ServiceLocator.commonInstance().shutdown();

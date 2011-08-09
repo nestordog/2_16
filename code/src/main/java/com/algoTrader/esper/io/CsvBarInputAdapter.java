@@ -17,9 +17,10 @@ public class CsvBarInputAdapter extends CSVInputAdapter {
         this.spec = spec;
     }
 
+    @Override
     public SendableEvent read() throws EPException {
 
-        SendableBeanEvent event = (SendableBeanEvent)super.read();
+        SendableBeanEvent event = (SendableBeanEvent) super.read();
 
         if (event != null && event.getBeanToSend() instanceof BarVO) {
 

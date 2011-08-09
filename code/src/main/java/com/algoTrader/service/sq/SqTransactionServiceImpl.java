@@ -50,7 +50,8 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
 
     private static String dispatchUrl = "https://trade.swissquote.ch/sqb_core/DispatchCtrl";
     private static String tradeUrl = "https://trade.swissquote.ch/sqb_core/TradeCtrl";
-    private static String ordersUrl = "https://trade.swissquote.ch/sqb_core/AccountCtrl?commandName=myOrders&client=" + ConfigurationUtil.getBaseConfig().getString("swissquote.trade.clientNumber");
+    private static String ordersUrl = "https://trade.swissquote.ch/sqb_core/AccountCtrl?commandName=myOrders&client="
+            + ConfigurationUtil.getBaseConfig().getString("swissquote.trade.clientNumber");
     private static String transactionsUrl = "https://trade.swissquote.ch/sqb_core/TransactionsCtrl?commandName=viewTransactions";
 
     private static String columnMatch = "td[//table[@class='trading']/thead/tr/td[.='%1$s']][count(//table[@class='trading']/thead/tr/td[.='%1$s']/preceding-sibling::td)+1]";
@@ -58,6 +59,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
+    @Override
     protected void handleExecuteExternalTransaction(Order order) throws Exception {
 
         HttpClient client = HttpClientUtil.getSwissquoteTradeClient();
@@ -115,15 +117,13 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         }
     }
 
-    private Document getOrderScreen(Order order, HttpClient client) throws IOException, HttpException, UnsupportedEncodingException,
-            TransformerException, ParseException {
+    private Document getOrderScreen(Order order, HttpClient client) throws IOException, HttpException, UnsupportedEncodingException, TransformerException,
+            ParseException {
 
         Security security = order.getSecurity();
 
         // get the order screen
-        NameValuePair[] params = new NameValuePair[] {
-                new NameValuePair("commandName", "trade"),
-                new NameValuePair("isin", security.getIsin()),
+        NameValuePair[] params = new NameValuePair[] { new NameValuePair("commandName", "trade"), new NameValuePair("isin", security.getIsin()),
                 new NameValuePair("currency", security.getSecurityFamily().getCurrency().toString()),
                 new NameValuePair("stockExchange", SqMarketConverter.marketToString(security.getSecurityFamily().getMarket())) };
 
@@ -164,8 +164,9 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
             String name = SqUtil.getValue(node, "@name");
             String value = SqUtil.getValue(node, "@value");
 
-            if (name.equals("phase"))
+            if (name.equals("phase")) {
                 value = "confirm";
+            }
 
             paramSet.add(new NameValuePair(name, value));
         }
@@ -236,8 +237,9 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
             String name = SqUtil.getValue(node, "@name");
             String value = SqUtil.getValue(node, "@value");
 
-            if (name.equals("phase"))
+            if (name.equals("phase")) {
                 value = "ack";
+            }
 
             paramSet.add(new NameValuePair(name, value));
         }
@@ -266,8 +268,8 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         Thread.sleep(confirmationTimeout);
     }
 
-    private Document getOpenAndDailyOrdersScreen(Order order, HttpClient client) throws IOException, HttpException,
-            UnsupportedEncodingException, TransformerException, InterruptedException {
+    private Document getOpenAndDailyOrdersScreen(Order order, HttpClient client) throws IOException, HttpException, UnsupportedEncodingException,
+            TransformerException, InterruptedException {
 
         Security security = order.getSecurity();
 
@@ -281,7 +283,8 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
 
                 openAndDailyOrdersScreen = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
 
-                XmlUtil.saveDocumentToFile(openAndDailyOrdersScreen, format.format(new Date()) + "_" + security.getIsin() + "_open_daily_orders.xml", "results/trade/");
+                XmlUtil.saveDocumentToFile(openAndDailyOrdersScreen, format.format(new Date()) + "_" + security.getIsin() + "_open_daily_orders.xml",
+                        "results/trade/");
 
                 if (status != HttpStatus.SC_OK) {
                     throw new TransactionServiceException("could not get open / daily orders screen, status: " + get.getStatusLine());
@@ -291,11 +294,16 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
                 get.releaseConnection();
             }
 
-            Node openNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[td='Offen' and contains(td/a/@href, '" + security.getIsin() + "')]");
-            Node unreleasedNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[td='Unreleased' and contains(td/a/@href, '" + security.getIsin() + "')]");
-            Node partiallyExecutedNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[td='Teilweise Ausgeführt' and contains(td/a/@href, '" + security.getIsin() + "')]");
-            Node executedNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[td='Ausgeführt' and contains(td/a/@href, '" + security.getIsin() + "')]");
-            Node unknownStateNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[contains(td/a/@href, '" + security.getIsin() + "')]/td[10]");
+            Node openNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen,
+                    "//table[@class='trading maskMe']/tbody/tr[td='Offen' and contains(td/a/@href, '" + security.getIsin() + "')]");
+            Node unreleasedNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen,
+                    "//table[@class='trading maskMe']/tbody/tr[td='Unreleased' and contains(td/a/@href, '" + security.getIsin() + "')]");
+            Node partiallyExecutedNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen,
+                    "//table[@class='trading maskMe']/tbody/tr[td='Teilweise Ausgeführt' and contains(td/a/@href, '" + security.getIsin() + "')]");
+            Node executedNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen,
+                    "//table[@class='trading maskMe']/tbody/tr[td='Ausgeführt' and contains(td/a/@href, '" + security.getIsin() + "')]");
+            Node unknownStateNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[contains(td/a/@href, '"
+                    + security.getIsin() + "')]/td[10]");
 
             if (openNode != null || unreleasedNode != null) {
                 order.setStatus(OrderStatus.OPEN);
@@ -306,7 +314,8 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
                 // keep going, the transaction ist executed but has not showed
                 // up under executed transactions yet
             } else if (unknownStateNode != null) {
-                throw new TransactionServiceException("unknown order status " + unknownStateNode.getFirstChild().getNodeValue() + " for order on: " + security.getSymbol());
+                throw new TransactionServiceException("unknown order status " + unknownStateNode.getFirstChild().getNodeValue() + " for order on: "
+                        + security.getSymbol());
             } else {
                 // the transaction has executed
                 order.setStatus(OrderStatus.EXECUTED);
@@ -323,10 +332,12 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
 
         Security security = order.getSecurity();
 
-        String orderNumber = SqUtil.getValue(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[contains(td/a/@href, '" + security.getIsin() + "')]/td[11]");
+        String orderNumber = SqUtil.getValue(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[contains(td/a/@href, '" + security.getIsin()
+                + "')]/td[11]");
 
-        if (orderNumber == null)
+        if (orderNumber == null) {
             throw new TransactionServiceException("could not retrieve orderNumber to delete order: " + security.getSymbol());
+        }
 
         order.setNumber(Integer.parseInt(orderNumber));
 
@@ -348,7 +359,8 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
             Node node = XPathAPI.selectSingleNode(deleteScreen, "//strong[.='Löschauftrag']");
 
             if (status != HttpStatus.SC_INTERNAL_SERVER_ERROR || node == null) {
-                throw new TransactionServiceException("could not delete order after reaching timelimit: " + security.getSymbol() + ", status: " + get.getStatusLine());
+                throw new TransactionServiceException("could not delete order after reaching timelimit: " + security.getSymbol() + ", status: "
+                        + get.getStatusLine());
             }
 
         } finally {
@@ -363,9 +375,11 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         TransactionType transactionType = order.getTransactionType();
 
         // check if transaction shows up under daily-orders
-        Node dailyOrderNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen, "//table[@class='trading']/tbody/tr[contains(td/a/@href, '" + security.getIsin() + "') and td='Ausgeführt'][1]");
+        Node dailyOrderNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen,
+                "//table[@class='trading']/tbody/tr[contains(td/a/@href, '" + security.getIsin() + "') and td='Ausgeführt'][1]");
         if (dailyOrderNode == null) {
-            throw new TransactionServiceException("transaction on " + security.getSymbol() + " did execute but did not show up under daily-orders within timelimit");
+            throw new TransactionServiceException("transaction on " + security.getSymbol()
+                    + " did execute but did not show up under daily-orders within timelimit");
         }
 
         // parse the rest of the open/daily order screen
@@ -374,7 +388,8 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         Date dateTime = SqUtil.getDate(dateValue + " " + timeValue);
 
         if (DateUtil.getCurrentEPTime().getTime() - dateTime.getTime() > maxTransactionAge) {
-            throw new TransactionServiceException("transaction on " + security.getSymbol() + " did execute, but the selected transaction under daily orders is too old");
+            throw new TransactionServiceException("transaction on " + security.getSymbol()
+                    + " did execute, but the selected transaction under daily orders is too old");
         }
 
         String orderNumber = SqUtil.getValue(dailyOrderNode, String.format(columnMatch, "Auftrag"));
@@ -389,7 +404,8 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
 
             executedTransactionsScreen = TidyUtil.parseAndFilter(get.getResponseBodyAsStream());
 
-            XmlUtil.saveDocumentToFile(executedTransactionsScreen, format.format(new Date()) + "_" + security.getIsin() + "_executed_transactions.xml", "results/trade/");
+            XmlUtil.saveDocumentToFile(executedTransactionsScreen, format.format(new Date()) + "_" + security.getIsin() + "_executed_transactions.xml",
+                    "results/trade/");
 
             if (status != HttpStatus.SC_OK) {
                 throw new TransactionServiceException("could not get executed transaction screen, status: " + get.getStatusLine());

@@ -65,6 +65,7 @@ public class RuleServiceImpl extends RuleServiceBase {
     private Map<String, Boolean> internalClock = new HashMap<String, Boolean>();
     private Map<String, EPServiceProvider> serviceProviders = new HashMap<String, EPServiceProvider>();
 
+    @Override
     protected void handleInitServiceProvider(String strategyName) {
 
         String providerURI = getProviderURI(strategyName);
@@ -88,11 +89,13 @@ public class RuleServiceImpl extends RuleServiceBase {
         logger.debug("initialized service provider: " + strategyName);
     }
 
+    @Override
     protected boolean handleIsInitialized(String strategyName) throws Exception {
 
         return this.serviceProviders.containsKey(getProviderURI(strategyName));
     }
 
+    @Override
     protected void handleDestroyServiceProvider(String strategyName) {
 
         getServiceProvider(strategyName).destroy();
@@ -101,11 +104,13 @@ public class RuleServiceImpl extends RuleServiceBase {
         logger.debug("destroyed service provider: " + strategyName);
     }
 
+    @Override
     protected void handleDeployRule(String strategyName, String moduleName, String ruleName) throws Exception {
 
         deployRule(strategyName, moduleName, ruleName, null, new Object[] {});
     }
 
+    @Override
     protected void handleDeployRule(String strategyName, String moduleName, String ruleName, String alias, Object[] params) throws Exception {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
@@ -173,6 +178,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
+    @Override
     protected void handleDeployModule(String strategyName, String moduleName) throws java.lang.Exception {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
@@ -190,6 +196,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         logger.debug("deployed module " + moduleName + " on service provider: " + strategyName);
     }
 
+    @Override
     protected void handleDeployAllModules(String strategyName) throws Exception {
 
         Strategy strategy = getLookupService().getStrategyByName(strategyName);
@@ -199,6 +206,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
+    @Override
     protected boolean handleIsDeployed(String strategyName, String ruleName) throws Exception {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
@@ -210,6 +218,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
+    @Override
     protected void handleUndeployRule(String strategyName, String ruleName) throws Exception {
 
         // destroy the statement
@@ -221,6 +230,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
+    @Override
     protected void handleUndeployModule(String strategyName, String moduleName) throws java.lang.Exception {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
@@ -234,6 +244,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         logger.debug("undeployed module " + moduleName);
     }
 
+    @Override
     protected void handleSendEvent(String strategyName, Object obj) {
 
         if (simulation) {
@@ -252,12 +263,14 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
+    @Override
     protected void handleRouteEvent(String strategyName, Object obj) {
 
         // routing always goes to the local engine
         getServiceProvider(strategyName).getEPRuntime().route(obj);
     }
 
+    @Override
     protected Object handleGetLastEvent(String strategyName, String ruleName) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
@@ -274,6 +287,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         return null;
     }
 
+    @Override
     protected Object handleGetLastEventProperty(String strategyName, String ruleName, String property) throws Exception {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
@@ -288,6 +302,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         return null;
     }
 
+    @Override
     protected List<Object> handleGetAllEvents(String strategyName, String ruleName) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
@@ -307,6 +322,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         return list;
     }
 
+    @Override
     protected List<Object> handleGetAllEventsProperty(String strategyName, String ruleName, String property) throws Exception {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
@@ -326,6 +342,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         return list;
     }
 
+    @Override
     protected void handleSetInternalClock(String strategyName, boolean internal) {
 
         this.internalClock.put(strategyName, internal);
@@ -343,11 +360,13 @@ public class RuleServiceImpl extends RuleServiceBase {
         logger.debug("set internal clock to: " + internal + " for strategy: " + strategyName);
     }
 
+    @Override
     protected boolean handleIsInternalClock(String strategyName) {
 
         return this.internalClock.get(strategyName);
     }
 
+    @Override
     protected void handleSetCurrentTime(CurrentTimeEvent currentTimeEvent) {
 
         // sent currentTime to all local engines
@@ -356,16 +375,19 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
+    @Override
     protected long handleGetCurrentTime(String strategyName) {
 
         return getServiceProvider(strategyName).getEPRuntime().getCurrentTime();
     }
 
+    @Override
     protected void handleInitCoordination(String strategyName) throws Exception {
 
         this.coordinators.put(strategyName, new AdapterCoordinatorImpl(getServiceProvider(strategyName), true, true));
     }
 
+    @Override
     protected void handleCoordinate(String strategyName, CSVInputAdapterSpec csvInputAdapterSpec) throws Exception {
 
         InputAdapter inputAdapter;
@@ -379,6 +401,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         this.coordinators.get(strategyName).coordinate(inputAdapter);
     }
 
+    @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected void handleCoordinate(String strategyName, Collection baseObjects, String timeStampColumn) throws Exception {
 
@@ -386,17 +409,20 @@ public class RuleServiceImpl extends RuleServiceBase {
         this.coordinators.get(strategyName).coordinate(inputAdapter);
     }
 
+    @Override
     protected void handleCoordinateTicks(String strategyName, Date startDate) throws Exception {
 
         InputAdapter inputAdapter = new BatchDBTickInputAdapter(getServiceProvider(strategyName), startDate);
         this.coordinators.get(strategyName).coordinate(inputAdapter);
     }
 
+    @Override
     protected void handleStartCoordination(String strategyName) throws Exception {
 
         this.coordinators.get(strategyName).start();
     }
 
+    @Override
     protected void handleSetProperty(String strategyName, String key, String value) {
 
         key = key.replace(".", "_");
@@ -408,6 +434,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
+    @Override
     protected Object handleGetProperty(String strategyName, String key) {
 
         key = key.replace(".", "_");

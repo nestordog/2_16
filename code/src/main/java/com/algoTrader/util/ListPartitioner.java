@@ -28,10 +28,12 @@ public class ListPartitioner {
       */
     public static <T> List<List<T>> partition(List<T> list, int size) {
 
-        if (list == null)
+        if (list == null) {
             throw new NullPointerException("'list' must not be null");
-        if (!(size > 0))
+        }
+        if (!(size > 0)) {
             throw new IllegalArgumentException("'size' must be greater than 0");
+        }
 
         return new Partition<T>(list, size);
     }
@@ -49,12 +51,15 @@ public class ListPartitioner {
         @Override
         public List<T> get(int index) {
             int listSize = size();
-            if (listSize < 0)
+            if (listSize < 0) {
                 throw new IllegalArgumentException("negative size: " + listSize);
-            if (index < 0)
+            }
+            if (index < 0) {
                 throw new IndexOutOfBoundsException("index " + index + " must not be negative");
-            if (index >= listSize)
+            }
+            if (index >= listSize) {
                 throw new IndexOutOfBoundsException("index " + index + " must be less than size " + listSize);
+            }
             int start = index * this.size;
             int end = Math.min(start + this.size, this.list.size());
             return this.list.subList(start, end);
@@ -72,4 +77,3 @@ public class ListPartitioner {
     }
 
 }
-

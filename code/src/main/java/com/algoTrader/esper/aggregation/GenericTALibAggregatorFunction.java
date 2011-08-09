@@ -14,7 +14,8 @@ import org.apache.commons.collections15.buffer.CircularFifoBuffer;
  */
 public class GenericTALibAggregatorFunction extends GenericTALibFunction {
 
-    public GenericTALibAggregatorFunction(Method function, int inputParamCount, int lookbackPeriod, List<Object> optInputParams, Map<String, Object> outputParams, Class<?> outputClass) {
+    public GenericTALibAggregatorFunction(Method function, int inputParamCount, int lookbackPeriod, List<Object> optInputParams,
+            Map<String, Object> outputParams, Class<?> outputClass) {
 
         super();
 

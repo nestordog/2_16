@@ -32,7 +32,7 @@ public class CsvHlocReader {
     private String[] header;
     private CsvBeanReader reader;
 
-    public CsvHlocReader(String symbol ) throws SuperCSVException, IOException  {
+    public CsvHlocReader(String symbol) throws SuperCSVException, IOException {
 
         File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
         Reader inFile = new FileReader(file);
@@ -40,19 +40,20 @@ public class CsvHlocReader {
         this.header = this.reader.getCSVHeader(true);
     }
 
-     private static class ParseDate extends CellProcessorAdaptor {
+    private static class ParseDate extends CellProcessorAdaptor {
 
-             public ParseDate() {
-                super();
-            }
-
-            public Object execute(final Object value, final CSVContext context) {
-
-                Date date = new Date(Long.parseLong((String)value));
-
-                return this.next.execute(date, context);
-            }
+        public ParseDate() {
+            super();
         }
+
+        @Override
+        public Object execute(final Object value, final CSVContext context) {
+
+            Date date = new Date(Long.parseLong((String) value));
+
+            return this.next.execute(date, context);
+        }
+    }
 
     public static void main(String[] args) throws SuperCSVException, IOException {
 
@@ -60,18 +61,18 @@ public class CsvHlocReader {
 
         HlocVO hloc;
         while ((hloc = csvReader.readHloc()) != null) {
-                System.out.println(hloc);
+            System.out.println(hloc);
         }
     }
 
     public HlocVO readHloc() throws SuperCSVReflectionException, IOException {
 
         HlocVO hloc;
-          if ( (hloc = this.reader.read(HlocVO.class, this.header, processor)) != null) {
-              return hloc;
-          } else {
-              this.reader.close();
-              return null;
-          }
+        if ((hloc = this.reader.read(HlocVO.class, this.header, processor)) != null) {
+            return hloc;
+        } else {
+            this.reader.close();
+            return null;
+        }
     }
 }

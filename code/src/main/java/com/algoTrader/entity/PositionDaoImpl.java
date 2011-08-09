@@ -7,6 +7,7 @@ import com.algoTrader.vo.PositionVO;
 
 public class PositionDaoImpl extends PositionDaoBase {
 
+    @Override
     public void toPositionVO(Position position, PositionVO positionVO) {
 
         super.toPositionVO(position, positionVO);
@@ -14,6 +15,7 @@ public class PositionDaoImpl extends PositionDaoBase {
         completePositionVO(position, positionVO);
     }
 
+    @Override
     public PositionVO toPositionVO(final Position position) {
 
         PositionVO positionVO = super.toPositionVO(position);
@@ -39,6 +41,7 @@ public class PositionDaoImpl extends PositionDaoBase {
 
     }
 
+    @Override
     public void toClosePositionVO(Position position, ClosePositionVO closePositionVO) {
 
         super.toClosePositionVO(position, closePositionVO);
@@ -46,6 +49,7 @@ public class PositionDaoImpl extends PositionDaoBase {
         completeClosePositionVO(position, closePositionVO);
     }
 
+    @Override
     public ClosePositionVO toClosePositionVO(final Position position) {
 
         ClosePositionVO closePositionVO = super.toClosePositionVO(position);
@@ -64,6 +68,7 @@ public class PositionDaoImpl extends PositionDaoBase {
         closePositionVO.setDirection(position.getDirection());
     }
 
+    @Override
     public void toExpirePositionVO(Position position, ExpirePositionVO expirePositionVO) {
 
         super.toExpirePositionVO(position, expirePositionVO);
@@ -71,6 +76,7 @@ public class PositionDaoImpl extends PositionDaoBase {
         completeExpirePositionVO(position, expirePositionVO);
     }
 
+    @Override
     public ExpirePositionVO toExpirePositionVO(final Position position) {
 
         ExpirePositionVO expirePositionVO = super.toExpirePositionVO(position);

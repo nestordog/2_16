@@ -13,6 +13,7 @@ public class TransactionImpl extends Transaction {
 
     private Double value = null; // cache getValueDouble because getValue get's called very often
 
+    @Override
     public BigDecimal getGrossValue() {
 
         if (getSecurity() != null) {
@@ -29,6 +30,7 @@ public class TransactionImpl extends Transaction {
      * BUY / EXPIRATION / DEBIT / FEES: negative cashflow
      * REBALANCE: positive or negative cashflow (depending on quantity equals 1 or -1)
      */
+    @Override
     public double getGrossValueDouble() {
 
         if (this.value == null) {
@@ -52,6 +54,7 @@ public class TransactionImpl extends Transaction {
         return this.value;
     }
 
+    @Override
     public BigDecimal getNetValue() {
 
         if (getSecurity() != null) {
@@ -62,13 +65,16 @@ public class TransactionImpl extends Transaction {
         }
     }
 
+    @Override
     public double getNetValueDouble() {
 
         return getGrossValueDouble() - getCommission().doubleValue();
     }
 
+    @Override
     public String toString() {
 
-        return format.format(getDateTime()) + " " + getType() + " " + getQuantity() + (getSecurity() != null ? (" " + getSecurity()) : "") + " " + getPrice() + " " + getCurrency();
+        return format.format(getDateTime()) + " " + getType() + " " + getQuantity()
+        + (getSecurity() != null ? (" " + getSecurity()) : "") + " " + getPrice() + " " + getCurrency();
     }
 }

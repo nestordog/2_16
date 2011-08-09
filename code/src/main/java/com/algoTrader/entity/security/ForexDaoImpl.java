@@ -5,10 +5,12 @@ import com.algoTrader.enumeration.Currency;
 
 public class ForexDaoImpl extends ForexDaoBase {
 
+    @Override
     protected double handleGetRateDouble(Currency baseCurrency, Currency transactionCurrency) {
 
-        if (baseCurrency.equals(transactionCurrency))
+        if (baseCurrency.equals(transactionCurrency)) {
             return 1.0;
+        }
 
         Forex forex = getForex(baseCurrency, transactionCurrency);
 
@@ -27,6 +29,7 @@ public class ForexDaoImpl extends ForexDaoBase {
         }
     }
 
+    @Override
     protected Forex handleGetForex(Currency baseCurrency, Currency transactionCurrency) {
 
         Forex forex = find(baseCurrency, transactionCurrency);

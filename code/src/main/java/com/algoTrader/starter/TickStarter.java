@@ -4,7 +4,6 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.service.RuleService;
 
-
 public class TickStarter {
 
     public static void main(String[] args) {

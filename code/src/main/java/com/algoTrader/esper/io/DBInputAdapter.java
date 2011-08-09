@@ -13,7 +13,6 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esperio.AbstractCoordinatedAdapter;
 import com.espertech.esperio.SendableEvent;
 
-
 public class DBInputAdapter extends AbstractCoordinatedAdapter {
 
     private Iterator<? extends BaseEntity> iterator;
@@ -27,28 +26,32 @@ public class DBInputAdapter extends AbstractCoordinatedAdapter {
         this.timeStampColumn = timeStampColumn;
     }
 
+    @Override
     protected void close() {
         //do nothing
     }
 
+    @Override
     protected void replaceFirstEventToSend() {
         this.eventsToSend.remove(this.eventsToSend.first());
         SendableEvent event = read();
-        if(event != null) {
+        if (event != null) {
             this.eventsToSend.add(event);
         }
     }
 
+    @Override
     protected void reset() {
         // do nothing
     }
 
+    @Override
     public SendableEvent read() throws EPException {
-        if(this.stateManager.getState() == AdapterState.DESTROYED) {
+        if (this.stateManager.getState() == AdapterState.DESTROYED) {
             return null;
         }
 
-        if(this.eventsToSend.isEmpty()) {
+        if (this.eventsToSend.isEmpty()) {
 
             if (this.iterator.hasNext()) {
 

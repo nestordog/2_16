@@ -32,6 +32,8 @@ import com.ib.client.Contract;
 
 public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase implements DisposableBean {
 
+    private static final long serialVersionUID = 8656307573474662794L;
+
     private static Logger logger = MyLogger.getLogger(IbHistoricalDataServiceImpl.class.getName());
 
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
@@ -56,10 +58,12 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
     private CsvTickWriter writer;
     private static int clientId = 4;
 
+    @Override
     protected void handleInit() throws Exception {
 
-        if (!ibEnabled || simulation || !historicalDataServiceEnabled)
+        if (!ibEnabled || simulation || !historicalDataServiceEnabled) {
             return;
+        }
 
         this.wrapper = new DefaultWrapper(clientId) {
 
@@ -168,6 +172,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
                 }
             }
 
+            @Override
             public void connectionClosed() {
 
                 super.connectionClosed();
@@ -175,6 +180,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
                 connect();
             }
 
+            @Override
             public void error(int requestId, int code, String errorMsg) {
 
                 // 165 Historical data farm is connected
@@ -214,10 +220,12 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
         connect();
     }
 
+    @Override
     protected void handleConnect() {
 
-        if (!ibEnabled || simulation || !historicalDataServiceEnabled)
+        if (!ibEnabled || simulation || !historicalDataServiceEnabled) {
             return;
+        }
 
         this.requestIdBooleanMap = new HashMap<Integer, Boolean>();
         this.requestIdDateMap = new HashMap<Integer, Date>();
@@ -226,8 +234,8 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
         this.client.connect(clientId);
     }
 
+    @Override
     protected void handleRequestHistoricalData(int[] securityIds, String[] whatToShow, String startDateString, String endDateString) throws Exception {
-
 
         Date startDate = format.parse(startDateString + "  24:00:00");
         Date endDate = format.parse(endDateString + "  24:00:00");
@@ -246,6 +254,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
         }
     }
 
+    @Override
     protected void handleRequestHistoricalData(int[] securityIds, String[] whatToShow, String[] startDateString, String[] endDateString) throws Exception {
 
         for (int i = 0; i < securityIds.length; i++) {
@@ -264,6 +273,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
         }
     }
 
+    @Override
     protected ConnectionState handleGetConnectionState() {
 
         if (this.wrapper == null) {
@@ -273,6 +283,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
         }
     }
 
+    @Override
     public void destroy() throws Exception {
 
         if (this.client != null) {
@@ -344,8 +355,9 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
                 // to make sure we don't get a pacing error
                 Thread.sleep(10000);
 
-                if (success)
+                if (success) {
                     break;
+                }
 
             } finally {
                 this.lock.unlock();

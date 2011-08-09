@@ -13,6 +13,7 @@ public class LazyLoaderServiceImpl extends LazyLoaderServiceBase {
 
     private static Logger logger = MyLogger.getLogger(LazyLoaderServiceImpl.class.getName());
 
+    @Override
     public AbstractPersistentCollection handleLazyLoadCollection(Object target, String context, AbstractPersistentCollection col) {
 
         Session session = this.getSessionFactory().openSession();
@@ -28,6 +29,7 @@ public class LazyLoaderServiceImpl extends LazyLoaderServiceBase {
         return col;
     }
 
+    @Override
     public Object handleLazyLoadProxy(Object target, String context, HibernateProxy proxy) {
 
         Session session = this.getSessionFactory().openSession();

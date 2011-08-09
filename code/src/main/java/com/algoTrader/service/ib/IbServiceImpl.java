@@ -13,6 +13,7 @@ public class IbServiceImpl extends IbServiceBase {
 
     private Set<IbServiceInterface> services;
 
+    @Override
     protected void handleInit() {
 
         for (IbServiceInterface service : this.getAllIbServices()) {
@@ -20,6 +21,7 @@ public class IbServiceImpl extends IbServiceBase {
         }
     }
 
+    @Override
     protected void handleConnect() {
 
         for (IbServiceInterface service : this.getAllIbServices()) {
@@ -27,6 +29,7 @@ public class IbServiceImpl extends IbServiceBase {
         }
     }
 
+    @Override
     protected Map<String, ConnectionState> handleGetAllConnectionStates() {
 
         Map<String, ConnectionState> connectionStates = new HashMap<String, ConnectionState>();

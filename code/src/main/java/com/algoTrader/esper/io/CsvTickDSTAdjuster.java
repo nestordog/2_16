@@ -10,7 +10,7 @@ import com.algoTrader.entity.marketData.Tick;
 
 public class CsvTickDSTAdjuster {
 
-    public static void main(String[] args) throws SuperCSVException, IOException  {
+    public static void main(String[] args) throws SuperCSVException, IOException {
 
         CsvTickReader csvReader = new CsvTickReader(args[0]);
         CsvTickWriter csvWriter = new CsvTickWriter(args[1]);

@@ -16,6 +16,7 @@ import com.espertech.esperio.AbstractSender;
 
 public class CustomSender extends AbstractSender {
 
+    @Override
     public void sendEvent(AbstractSendableEvent event, Object beanToSend) {
 
         // raw Ticks are always sent using MarketDataService
@@ -48,11 +49,13 @@ public class CustomSender extends AbstractSender {
         }
     }
 
+    @Override
     @SuppressWarnings("rawtypes")
     public void sendEvent(AbstractSendableEvent event, Map mapToSend, String eventTypeName) {
         this.runtime.sendEvent(mapToSend, eventTypeName);
     }
 
+    @Override
     public void onFinish() {
         // do nothing
     }

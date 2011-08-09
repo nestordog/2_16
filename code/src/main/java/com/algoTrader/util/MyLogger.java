@@ -36,6 +36,7 @@ public class MyLogger extends Logger {
     /**
      * Initialises the timestamp to Esper-Time
      */
+    @Override
     protected void forcedLog(String fqcn, Priority level, Object message, Throwable t) {
 
         long time = System.currentTimeMillis();

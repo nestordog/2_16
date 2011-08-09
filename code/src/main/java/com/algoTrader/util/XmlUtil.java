@@ -20,7 +20,9 @@ public class XmlUtil {
 
     public static void saveDocumentToFile(Document node, String fileName, String directory) {
 
-        if (!saveToFile) return;
+        if (!saveToFile) {
+            return;
+        }
 
         try {
             TransformerFactory factory = TransformerFactory.newInstance();

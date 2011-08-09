@@ -27,11 +27,12 @@ public class SqUtil {
     private static String stockOptionUrl = "http://premium.swissquote.ch/sq_mi/market/Detail.action?s=";
     private static String indexUrl = "http://premium.swissquote.ch/fcgi-bin/stockfquote?symbols=";
 
-    public static Document getSecurityDocument(Security security) throws HttpException, IOException  {
+    public static Document getSecurityDocument(Security security) throws HttpException, IOException {
 
         GetMethod get;
         if (security instanceof StockOption) {
-            get = new GetMethod(stockOptionUrl + security.getIsin() + "_" + SqMarketConverter.marketToString(security.getSecurityFamily().getMarket()) + "_" + security.getSecurityFamily().getCurrency());
+            get = new GetMethod(stockOptionUrl + security.getIsin() + "_" + SqMarketConverter.marketToString(security.getSecurityFamily().getMarket()) + "_"
+                    + security.getSecurityFamily().getCurrency());
         } else {
             get = new GetMethod(indexUrl + security.getSymbol() + "&language=d");
         }
@@ -61,34 +62,48 @@ public class SqUtil {
 
         Node node = XPathAPI.selectSingleNode(document, expression);
 
-        if (node == null ) return null;
+        if (node == null) {
+            return null;
+        }
 
-        if (node.getFirstChild() != null) return node.getFirstChild().getNodeValue();
+        if (node.getFirstChild() != null) {
+            return node.getFirstChild().getNodeValue();
+        }
 
         return node.getNodeValue();
     }
 
     public static int getInt(String inputString) throws ParseException {
 
-        if (inputString == null) return 0;
+        if (inputString == null) {
+            return 0;
+        }
 
-        if ("-".equals(inputString)) return 0;
+        if ("-".equals(inputString)) {
+            return 0;
+        }
 
         return NumberFormat.getNumberInstance().parse(inputString).intValue();
     }
 
     public static double getDouble(String inputString) throws ParseException {
 
-        if (inputString == null) return 0;
+        if (inputString == null) {
+            return 0;
+        }
 
-        if (inputString.contains("-")) return 0;
+        if (inputString.contains("-")) {
+            return 0;
+        }
 
         return NumberFormat.getNumberInstance(new Locale("de", "CH")).parse(inputString.split("\\xA0")[0]).doubleValue();
     }
 
-    public  static Date getDate(String date) throws ParseException {
+    public static Date getDate(String date) throws ParseException {
 
-        if (date.startsWith("null")) return null;
+        if (date.startsWith("null")) {
+            return null;
+        }
         return new SimpleDateFormat("dd-MM-yyyy kk:mm:ss").parse(date);
     }
 }

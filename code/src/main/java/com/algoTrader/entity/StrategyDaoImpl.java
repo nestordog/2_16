@@ -19,10 +19,12 @@ public class StrategyDaoImpl extends StrategyDaoBase {
     private static double initialMarginMarkup = ConfigurationUtil.getBaseConfig().getDouble("initialMarginMarkup");
     private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
 
+    @Override
     protected BigDecimal handleGetPortfolioCashBalance() throws Exception {
         return RoundUtil.getBigDecimal(getPortfolioCashBalanceDouble());
     }
 
+    @Override
     protected double handleGetPortfolioCashBalanceDouble() throws Exception {
 
         double amount = 0.0;
@@ -42,10 +44,12 @@ public class StrategyDaoImpl extends StrategyDaoBase {
         return amount;
     }
 
+    @Override
     protected BigDecimal handleGetPortfolioSecuritiesCurrentValue() throws Exception {
         return RoundUtil.getBigDecimal(getPortfolioSecuritiesCurrentValueDouble());
     }
 
+    @Override
     protected double handleGetPortfolioSecuritiesCurrentValueDouble() throws Exception {
 
         double amount = 0.0;
@@ -62,10 +66,12 @@ public class StrategyDaoImpl extends StrategyDaoBase {
         return amount;
     }
 
+    @Override
     protected BigDecimal handleGetPortfolioMaintenanceMargin() throws Exception {
         return RoundUtil.getBigDecimal(getPortfolioMaintenanceMarginDouble());
     }
 
+    @Override
     protected double handleGetPortfolioMaintenanceMarginDouble() throws Exception {
 
         double margin = 0.0;
@@ -76,34 +82,41 @@ public class StrategyDaoImpl extends StrategyDaoBase {
         return margin;
     }
 
+    @Override
     protected BigDecimal handleGetPortfolioInitialMargin() {
 
         return RoundUtil.getBigDecimal(getPortfolioInitialMarginDouble());
     }
 
+    @Override
     protected double handleGetPortfolioInitialMarginDouble() {
 
         return initialMarginMarkup * getPortfolioMaintenanceMarginDouble();
     }
 
+    @Override
     protected BigDecimal handleGetPortfolioNetLiqValue() throws Exception {
         return RoundUtil.getBigDecimal(getPortfolioNetLiqValueDouble());
     }
 
+    @Override
     protected double handleGetPortfolioNetLiqValueDouble() throws Exception {
 
         return getPortfolioCashBalanceDouble() + getPortfolioSecuritiesCurrentValueDouble();
     }
 
+    @Override
     protected BigDecimal handleGetPortfolioAvailableFunds() throws Exception {
         return RoundUtil.getBigDecimal(getPortfolioAvailableFundsDouble());
     }
 
+    @Override
     protected double handleGetPortfolioAvailableFundsDouble() throws Exception {
 
         return getPortfolioNetLiqValueDouble() - getPortfolioInitialMarginDouble();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected List<BalanceVO> handleGetPortfolioBalances() throws Exception {
 
@@ -167,6 +180,7 @@ public class StrategyDaoImpl extends StrategyDaoBase {
         return balances;
     }
 
+    @Override
     protected double handleGetPortfolioLeverageDouble() throws Exception {
 
         double exposure = 0.0;

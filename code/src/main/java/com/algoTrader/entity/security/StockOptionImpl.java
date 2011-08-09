@@ -15,6 +15,7 @@ public class StockOptionImpl extends StockOption {
     private static final long serialVersionUID = -3168298592370987085L;
     private static Logger logger = MyLogger.getLogger(StockOptionImpl.class.getName());
 
+    @Override
     public double getLeverage() {
 
         try {
@@ -30,6 +31,7 @@ public class StockOptionImpl extends StockOption {
         }
     }
 
+    @Override
     public double getMargin() {
 
         Tick stockOptionTick = getLastTick();
@@ -52,11 +54,13 @@ public class StockOptionImpl extends StockOption {
         return marginPerContract;
     }
 
+    @Override
     public long getTimeToExpiration() {
 
         return getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime();
     }
 
+    @Override
     public int getDuration() {
 
         StockOptionFamily family = (StockOptionFamily) this.getSecurityFamily();

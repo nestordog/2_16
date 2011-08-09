@@ -48,6 +48,8 @@ import com.algoTrader.util.XmlUtil;
 
 public class IbAccountServiceImpl extends IbAccountServiceBase implements DisposableBean {
 
+    private static final long serialVersionUID = -9010045320078819079L;
+
     private static Logger logger = MyLogger.getLogger(IbAccountServiceImpl.class.getName());
 
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
@@ -77,13 +79,16 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
     private static SimpleDateFormat fileFormat = new SimpleDateFormat("yyyyMMdd_kkmmss");
     private static SimpleDateFormat transactionFormat = new SimpleDateFormat("yyyy-MM-dd, kk:mm:ss");
 
+    @Override
     protected void handleInit() throws java.lang.Exception {
 
-        if (!ibEnabled || simulation || !accountServiceEnabled)
+        if (!ibEnabled || simulation || !accountServiceEnabled) {
             return;
+        }
 
         this.wrapper = new DefaultWrapper(clientId) {
 
+            @Override
             public void updateAccountValue(String key, String value, String currency, String accountName) {
 
                 IbAccountServiceImpl.this.lock.lock();
@@ -100,6 +105,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
                 }
             }
 
+            @Override
             public void receiveFA(int faDataType, String xml) {
 
                 IbAccountServiceImpl.this.lock.lock();
@@ -115,6 +121,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
                 }
             }
 
+            @Override
             public void connectionClosed() {
 
                 super.connectionClosed();
@@ -128,16 +135,19 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
         connect();
     }
 
+    @Override
     protected void handleConnect() {
 
-        if (!ibEnabled || simulation || !accountServiceEnabled)
+        if (!ibEnabled || simulation || !accountServiceEnabled) {
             return;
+        }
 
         this.allAccountValues = new HashMap<String, Map<String, String>>();
 
         this.client.connect(clientId);
     }
 
+    @Override
     protected ConnectionState handleGetConnectionState() {
 
         if (this.wrapper == null) {
@@ -205,6 +215,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
         return accounts;
     }
 
+    @Override
     protected long handleGetNumberOfContractsByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception {
 
         if (faEnabled) {
@@ -228,10 +239,12 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
         }
     }
 
+    @Override
     protected void handleProcessCashTransactions() throws Exception {
 
-        if (!ibEnabled || simulation)
+        if (!ibEnabled || simulation) {
             return;
+        }
 
         if (("").equals(flexQueryId) || ("").equals(flexToken)) {
             throw new IbAccountServiceException("flexQueryId and flexToken have to be defined");
@@ -305,7 +318,9 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
 
             String accountId = XPathAPI.selectSingleNode(node, "@accountId").getNodeValue();
 
-            if (accountId.equals(masterAccount)) continue;
+            if (accountId.equals(masterAccount)) {
+                continue;
+            }
 
             String desc = XPathAPI.selectSingleNode(node, "@description").getNodeValue();
             String dateTimeString = XPathAPI.selectSingleNode(node, "@dateTime").getNodeValue();
@@ -352,11 +367,11 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
 
         // sort the transactions according to their dateTime
         Collections.sort(transactions, new Comparator<Transaction>() {
+            @Override
             public int compare(Transaction t1, Transaction t2) {
                 return t1.getDateTime().compareTo(t2.getDateTime());
             }
         });
-
 
         for (Transaction transaction : transactions) {
 
@@ -375,6 +390,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
         }
     }
 
+    @Override
     public void destroy() throws Exception {
 
         if (this.client != null) {

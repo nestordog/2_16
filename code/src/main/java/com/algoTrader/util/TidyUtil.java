@@ -12,18 +12,24 @@ import java.util.regex.Pattern;
 import org.w3c.dom.Document;
 import org.w3c.tidy.Tidy;
 
-
 public class TidyUtil {
 
-    private static String[] regexs = new String[] {"<script(.*?)</script>", "<noscript(.*?)</noscript>", "<style(.*?)</style>", "<!--(.*?)-->", "<!(.*?)>", "<\\?(.*?)\\?>"};
+    private static String[] regexs = new String[] { "<script(.*?)</script>", "<noscript(.*?)</noscript>", "<style(.*?)</style>", "<!--(.*?)-->", "<!(.*?)>",
+            "<\\?(.*?)\\?>" };
 
     private static class NullOutputStream extends OutputStream {
 
-        public synchronized void write(byte[] b, int off, int len) {}
+        @Override
+        public synchronized void write(byte[] b, int off, int len) {
+        }
 
-        public synchronized void write(int b) {}
+        @Override
+        public synchronized void write(int b) {
+        }
 
-        public void write(byte[] b) throws IOException {}
+        @Override
+        public void write(byte[] b) throws IOException {
+        }
     }
 
     private static Tidy _tidy;
@@ -73,4 +79,4 @@ public class TidyUtil {
         // get the document
         return getInstance().parseDOM(new ByteArrayInputStream(content.getBytes()), null);
     }
- }
+}

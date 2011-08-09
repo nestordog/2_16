@@ -13,16 +13,19 @@ public class CashBalanceImpl extends CashBalance {
 
     private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
 
+    @Override
     public double getAmountDouble() {
 
         return getAmount().doubleValue();
     }
 
+    @Override
     public BigDecimal getAmountBase() {
 
         return RoundUtil.getBigDecimal(getAmountBaseDouble());
     }
 
+    @Override
     public double getAmountBaseDouble() {
 
         double exchangeRate = ServiceLocator.commonInstance().getLookupService().getForexRateDouble(getCurrency(), portfolioBaseCurrency);
@@ -30,6 +33,7 @@ public class CashBalanceImpl extends CashBalance {
         return getAmountDouble() * exchangeRate;
     }
 
+    @Override
     public String toString() {
 
         return getCurrency() + " " + getAmount();

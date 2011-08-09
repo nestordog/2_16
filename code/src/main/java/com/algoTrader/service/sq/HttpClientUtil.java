@@ -52,7 +52,9 @@ public class HttpClientUtil {
 
     public static HttpClient getStandardClient() {
 
-        if (standardClient != null) return standardClient;
+        if (standardClient != null) {
+            return standardClient;
+        }
 
         // allow the same number of connections as we have workers
         MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
@@ -65,10 +67,7 @@ public class HttpClientUtil {
 
         if (useProxy) {
             standardClient.getHostConfiguration().setProxy("localhost", 8082); // proxomitron
-            standardClient.getState().setProxyCredentials(
-                    new AuthScope("localhost", 8082),
-                    new UsernamePasswordCredentials("","")
-            );
+            standardClient.getState().setProxyCredentials(new AuthScope("localhost", 8082), new UsernamePasswordCredentials("", ""));
         }
 
         // set the retry Handler
@@ -88,17 +87,16 @@ public class HttpClientUtil {
 
     public static HttpClient getSwissquotePremiumClient() {
 
-        if (premiumClient != null) return premiumClient;
+        if (premiumClient != null) {
+            return premiumClient;
+        }
 
         premiumClient = getStandardClient();
 
         premiumClient.getParams().setParameter(HttpMethodParams.USER_AGENT, loggedInUserAgent);
 
         premiumClient.getParams().setAuthenticationPreemptive(true);
-        premiumClient.getState().setCredentials(
-                new AuthScope(premiumHost, 80),
-                new UsernamePasswordCredentials(premiumUserId, premiumPassword)
-        );
+        premiumClient.getState().setCredentials(new AuthScope(premiumHost, 80), new UsernamePasswordCredentials(premiumUserId, premiumPassword));
 
         return premiumClient;
     }
@@ -110,10 +108,7 @@ public class HttpClientUtil {
 
         // set the Basic-Auth credentials
         tradeClient.getParams().setAuthenticationPreemptive(true);
-        tradeClient.getState().setCredentials(
-                new AuthScope(tradeHost, 443, "Online Trading"),
-                new UsernamePasswordCredentials(tradeUserId, tradePassword)
-        );
+        tradeClient.getState().setCredentials(new AuthScope(tradeHost, 443, "Online Trading"), new UsernamePasswordCredentials(tradeUserId, tradePassword));
 
         // login screen
         String loginPath = null;
@@ -147,12 +142,8 @@ public class HttpClientUtil {
             {
                 PostMethod method = new PostMethod(tradePasswordUrl);
                 method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-                NameValuePair[] loginData = {
-                        new NameValuePair("language", "1"),
-                        new NameValuePair("pr", "1"),
-                        new NameValuePair("st", "1"),
-                        new NameValuePair("passwd", tradePassword)
-                    };
+                NameValuePair[] loginData = { new NameValuePair("language", "1"), new NameValuePair("pr", "1"), new NameValuePair("st", "1"),
+                        new NameValuePair("passwd", tradePassword) };
 
                 method.setRequestBody(loginData);
 
@@ -189,8 +180,7 @@ public class HttpClientUtil {
         }
 
         // level3 screen
-        if (((loginPath != null) && tradeLevel3Url.contains(loginPath)) ||
-                ((passwordPath != null) &&tradeLevel3Url.contains(passwordPath))) {
+        if (((loginPath != null) && tradeLevel3Url.contains(loginPath)) || ((passwordPath != null) && tradeLevel3Url.contains(passwordPath))) {
 
             Document document = tradeLevel3Url.contains(loginPath) ? loginDocument : passwordDocument;
 
@@ -202,12 +192,8 @@ public class HttpClientUtil {
             PostMethod method = new PostMethod(tradeLevel3Url);
 
             method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-            NameValuePair[] loginData = {
-                    new NameValuePair("rec", rec),
-                    new NameValuePair("rqu", rqu),
-                    new NameValuePair("rse", rse),
-                    new NameValuePair("tpw", getLevel3Code(level3Key))
-                };
+            NameValuePair[] loginData = { new NameValuePair("rec", rec), new NameValuePair("rqu", rqu), new NameValuePair("rse", rse),
+                    new NameValuePair("tpw", getLevel3Code(level3Key)) };
             method.setRequestBody(loginData);
 
             try {
@@ -227,7 +213,7 @@ public class HttpClientUtil {
 
     private static String getLevel3Code(String level3Key) throws IOException {
 
-        int h = level3Key.charAt(0)-97;
+        int h = level3Key.charAt(0) - 97;
         int v = Integer.parseInt(level3Key.substring(1)) - 1;
 
         InputStream in = HttpClientUtil.class.getResourceAsStream("com/algoTrader/service/sq/level3.txt");
@@ -235,7 +221,7 @@ public class HttpClientUtil {
 
         String[][] level3Card = new String[10][10];
 
-        for (int i = 0; i < level3Card.length; i++){
+        for (int i = 0; i < level3Card.length; i++) {
             level3Card[i] = br.readLine().split("\\s");
         }
         in.close();

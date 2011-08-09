@@ -8,6 +8,7 @@ public abstract class MarketDataEventImpl extends MarketDataEvent {
 
     private static final long serialVersionUID = 8758212212560594623L;
 
+    @Override
     public String toString() {
 
         return ToStringBuilder.reflectionToString(this, CustomToStringStyle.getInstance());

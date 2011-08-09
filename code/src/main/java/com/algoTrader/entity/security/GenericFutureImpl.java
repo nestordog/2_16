@@ -8,6 +8,7 @@ public class GenericFutureImpl extends GenericFuture {
 
     private static final long serialVersionUID = -5567218864363234118L;
 
+    @Override
     public Date getExpiration() {
 
         GenericFutureFamily family = (GenericFutureFamily) getSecurityFamily();

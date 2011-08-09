@@ -12,6 +12,7 @@ import com.algoTrader.vo.TransactionVO;
 
 public class ReportingServiceImpl extends ReportingServiceBase {
 
+    @Override
     protected BigDecimal handleGetStrategyCashBalance(String strategyName) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -22,6 +23,7 @@ public class ReportingServiceImpl extends ReportingServiceBase {
         }
     }
 
+    @Override
     protected BigDecimal handleGetStrategySecuritiesCurrentValue(String strategyName) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -33,6 +35,7 @@ public class ReportingServiceImpl extends ReportingServiceBase {
 
     }
 
+    @Override
     protected BigDecimal handleGetStrategyMaintenanceMargin(String strategyName) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -43,6 +46,7 @@ public class ReportingServiceImpl extends ReportingServiceBase {
         }
     }
 
+    @Override
     protected BigDecimal handleGetStrategyNetLiqValue(String strategyName) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -53,6 +57,7 @@ public class ReportingServiceImpl extends ReportingServiceBase {
         }
     }
 
+    @Override
     protected BigDecimal handleGetStrategyAvailableFunds(String strategyName) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -63,12 +68,14 @@ public class ReportingServiceImpl extends ReportingServiceBase {
         }
     }
 
+    @Override
     protected double handleGetStrategyAllocation(String strategyName) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
         return strategy.getAllocation();
     }
 
+    @Override
     protected double handleGetStrategyLeverage(String strategyName) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -79,6 +86,7 @@ public class ReportingServiceImpl extends ReportingServiceBase {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected List<PositionVO> handleGetDataOpenPositions(String strategyName) throws Exception {
 
@@ -90,6 +98,7 @@ public class ReportingServiceImpl extends ReportingServiceBase {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected List<BalanceVO> handleGetDataBalances(String strategyName) throws Exception {
 
@@ -101,6 +110,7 @@ public class ReportingServiceImpl extends ReportingServiceBase {
         }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     protected List<TransactionVO> handleGetDataTransactions(String strategyName) throws Exception {
 

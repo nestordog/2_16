@@ -9,6 +9,7 @@ import org.springframework.beans.propertyeditors.CustomDateEditor;
 
 public final class DatePropertyEditorRegistrar implements PropertyEditorRegistrar {
 
+    @Override
     public void registerCustomEditors(PropertyEditorRegistry registry) {
 
         registry.registerCustomEditor(Date.class, new CustomDateEditor(new SimpleDateFormat("kk:mm"), false));
