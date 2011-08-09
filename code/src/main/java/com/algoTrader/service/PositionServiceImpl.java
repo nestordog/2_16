@@ -18,6 +18,8 @@ import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
+import com.algoTrader.vo.ClosePositionVO;
+import com.algoTrader.vo.ExpirePositionVO;
 import com.algoTrader.vo.OrderVO;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
@@ -48,29 +50,58 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         Position position = getPositionDao().load(positionId);
 
-        reducePosition(positionId, Math.abs(position.getQuantity()));
+        if (position.isOpen()) {
 
-        // close children if any
-        if (position.getChildren().size() != 0) {
-            for (Position childPosition : position.getChildren()) {
+            // reduce total quantity of the position
+            reducePosition(positionId, Math.abs(position.getQuantity()));
 
-                // childPosition
-                closePosition(childPosition.getId());
+            // remove the parent position
+            removeParentPosition(position.getId());
+        }
+    }
 
-                // remove the parent position
-                removeParentPosition(childPosition.getId());
+    @Override
+    protected void handleClosePositionAndChildren(int positionId) throws Exception {
+
+        Position position = getPositionDao().load(positionId);
+
+        if (position.isOpen()) {
+
+            closePosition(position.getId());
+
+            // close children if any
+            if (position.getChildren().size() != 0) {
+                for (Position childPosition : position.getChildren()) {
+
+                    // childPosition
+                    closePositionAndChildren(childPosition.getId());
+                }
             }
+        }
+    }
+
+    protected void handleClosePositionOnExitValue(int positionId) throws Exception {
+
+        Position position = getPositionDao().load(positionId);
+
+        if (position.isOpen()) {
+
+            ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
+
+            closePositionAndChildren(positionId);
+
+            // propagate the ClosePosition event
+            getRuleService().sendEvent(position.getStrategy().getName(), closePositionVO);
         }
     }
 
     protected void handleReducePosition(int positionId, long quantity) throws Exception {
 
         Position position = getPositionDao().load(positionId);
-        Security security = position.getSecurity();
 
         OrderVO order = new OrderVO();
         order.setStrategyName(position.getStrategy().getName());
-        order.setSecurityId(security.getId());
+        order.setSecurityId(position.getSecurity().getId());
         order.setRequestedQuantity(Math.abs(quantity));
         order.setTransactionType((position.getQuantity() > 0) ? TransactionType.SELL : TransactionType.BUY);
 
@@ -118,11 +149,13 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         Position position = getPositionDao().load(positionId);
 
-        position.setExitValue(null);
-        getPositionDao().update(position);
+        if (position.getExitValue() != null) {
 
-        logger.info("removed exit value of " + position.getSecurity().getSymbol());
+            position.setExitValue(null);
+            getPositionDao().update(position);
 
+            logger.info("removed exit value of " + position.getSecurity().getSymbol());
+        }
     }
 
     @Override
@@ -201,6 +234,8 @@ public class PositionServiceImpl extends PositionServiceBase {
             return;
         }
 
+        ExpirePositionVO expirePositionVO = getPositionDao().toExpirePositionVO(position);
+
         // reverse the quantity
         long numberOfContracts = Math.abs(position.getQuantity());
 
@@ -218,21 +253,27 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             getMarketDataService().removeFromWatchlist(position.getStrategy(), security);
         }
+
+        // propagate the ExpirePosition event
+        getRuleService().sendEvent(position.getStrategy().getName(), expirePositionVO);
     }
 
     @Override
-    protected void handleAddChildPosition(int parentPositionId, int childPositionId) throws Exception {
+    protected void handleAddParentPosition(int parentPositionId, int childPositionId) throws Exception {
 
         Position parentPosition = getPositionDao().load(parentPositionId);
         Position childPosition = getPositionDao().load(childPositionId);
 
-        childPosition.setParent(parentPosition);
-        parentPosition.getChildren().add(childPosition);
+        if (childPosition.getParent() == null || !childPosition.getParent().equals(parentPosition)) {
 
-        getPositionDao().update(parentPosition);
-        getPositionDao().update(childPosition);
+            childPosition.setParent(parentPosition);
+            parentPosition.getChildren().add(childPosition);
 
-        logger.info("added child position " + childPositionId + " to parent position " + parentPositionId);
+            getPositionDao().update(parentPosition);
+            getPositionDao().update(childPosition);
+
+            logger.info("added parent position " + parentPosition.getSecurity().getSymbol() + " to child position " + childPosition.getSecurity().getSymbol());
+        }
     }
 
     @Override
@@ -249,7 +290,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             getPositionDao().update(parentPosition);
             getPositionDao().update(position);
 
-            logger.info("removed parent position of position " + positionId);
+            logger.info("removed parent position of position " + position.getSecurity().getSymbol());
         }
     }
 
@@ -260,7 +301,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             long startTime = System.currentTimeMillis();
             logger.debug("closePosition start");
 
-            ServiceLocator.serverInstance().getPositionService().closePosition(positionId);
+            ServiceLocator.serverInstance().getPositionService().closePositionOnExitValue(positionId);
 
             logger.debug("closePosition end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }

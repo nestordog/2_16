@@ -1,6 +1,8 @@
 package com.algoTrader.entity;
 
 import com.algoTrader.util.RoundUtil;
+import com.algoTrader.vo.ClosePositionVO;
+import com.algoTrader.vo.ExpirePositionVO;
 import com.algoTrader.vo.PositionVO;
 
 public class PositionDaoImpl extends PositionDaoBase {
@@ -37,8 +39,68 @@ public class PositionDaoImpl extends PositionDaoBase {
 
     }
 
+    public void toClosePositionVO(Position position, ClosePositionVO closePositionVO) {
+
+        super.toClosePositionVO(position, closePositionVO);
+
+        completeClosePositionVO(position, closePositionVO);
+    }
+
+    public ClosePositionVO toClosePositionVO(final Position position) {
+
+        ClosePositionVO closePositionVO = super.toClosePositionVO(position);
+
+        completeClosePositionVO(position, closePositionVO);
+
+        return closePositionVO;
+    }
+
+    private void completeClosePositionVO(Position position, ClosePositionVO closePositionVO) {
+
+        int scale = position.getSecurity().getSecurityFamily().getScale();
+
+        closePositionVO.setSecurityId(position.getSecurity().getId());
+        closePositionVO.setExitValue(position.getExitValue() != null ? RoundUtil.getBigDecimal(position.getExitValue(), scale) : null);
+        closePositionVO.setDirection(position.getDirection());
+    }
+
+    public void toExpirePositionVO(Position position, ExpirePositionVO expirePositionVO) {
+
+        super.toExpirePositionVO(position, expirePositionVO);
+
+        completeExpirePositionVO(position, expirePositionVO);
+    }
+
+    public ExpirePositionVO toExpirePositionVO(final Position position) {
+
+        ExpirePositionVO expirePositionVO = super.toExpirePositionVO(position);
+
+        completeExpirePositionVO(position, expirePositionVO);
+
+        return expirePositionVO;
+    }
+
+    private void completeExpirePositionVO(Position position, ExpirePositionVO expirePositionVO) {
+
+        expirePositionVO.setSecurityId(position.getSecurity().getId());
+        expirePositionVO.setDirection(position.getDirection());
+    }
+
+    @Override
     public Position positionVOToEntity(PositionVO positionVO) {
 
-        throw new UnsupportedOperationException("positionVOToEntity not yet implemented.");
+        throw new UnsupportedOperationException("positionVOToEntity ist not implemented.");
+    }
+
+    @Override
+    public Position closePositionVOToEntity(ClosePositionVO closePositionVO) {
+
+        throw new UnsupportedOperationException("closePositionVOToEntity is not implemented.");
+    }
+
+    @Override
+    public Position expirePositionVOToEntity(ExpirePositionVO expirePositionVO) {
+
+        throw new UnsupportedOperationException("expirePositionVOToEntity is not implemented.");
     }
 }

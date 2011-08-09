@@ -265,8 +265,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected Tick handleGetLastTick(int securityId) throws Exception {
 
         Tick tick = getTickDao().findLastTickForSecurityAndMaxDate(securityId, DateUtil.getCurrentEPTime());
-        Hibernate.initialize(tick.getSecurity());
-        Hibernate.initialize(tick.getSecurity().getSecurityFamily());
+
+        if (tick != null) {
+            Hibernate.initialize(tick.getSecurity());
+            Hibernate.initialize(tick.getSecurity().getSecurityFamily());
+        }
+
         return tick;
     }
 

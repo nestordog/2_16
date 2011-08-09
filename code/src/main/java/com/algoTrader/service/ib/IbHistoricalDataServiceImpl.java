@@ -246,6 +246,24 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
         }
     }
 
+    protected void handleRequestHistoricalData(int[] securityIds, String[] whatToShow, String[] startDateString, String[] endDateString) throws Exception {
+
+        for (int i = 0; i < securityIds.length; i++) {
+
+            Date startDate = format.parse(startDateString[i] + "  24:00:00");
+            Date endDate = format.parse(endDateString[i] + "  24:00:00");
+
+            Security security = getSecurityDao().load(securityIds[i]);
+            this.security = security;
+
+            this.writer = new CsvTickWriter(security.getIsin());
+
+            Contract contract = IbUtil.getContract(security);
+
+            requestHistoricalDataForSecurity(contract, security, startDate, endDate, whatToShow);
+        }
+    }
+
     protected ConnectionState handleGetConnectionState() {
 
         if (this.wrapper == null) {
@@ -310,6 +328,8 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
                 int requestId = RequestIdManager.getInstance().getNextRequestId();
                 this.requestIdDateMap.put(requestId, date);
                 this.requestIdWhatToShowMap.put(requestId, whatToShow);
+
+                contract.m_includeExpired = true;
 
                 this.client.reqHistoricalData(requestId, contract, format.format(date), "1 D", "1 min", whatToShow, 1, 1);
 

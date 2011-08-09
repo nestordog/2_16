@@ -191,22 +191,34 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         }
     }
 
-    protected void handleSetAlertValue(int watchListItemId, Double upper, Double lower) throws Exception {
+    protected void handleSetAlertValue(String strategyName, int securityId, Double value, boolean upper) throws Exception {
 
-        WatchListItem watchListItem = getWatchListItemDao().load(watchListItemId);
+        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
 
-        watchListItem.setUpperAlertValue(upper);
-        watchListItem.setLowerAlertValue(lower);
-
-        StringBuffer buffer = new StringBuffer("watchListItem " + watchListItem);
-        if (upper != null) {
-            buffer.append(" set upper alert value to " + upper);
-        }
-        if (lower != null) {
-            buffer.append(" set lower alert value to " + lower);
+        if (upper) {
+            watchListItem.setUpperAlertValue(value);
+            logger.info("set upper alert value to " + value + " for watchListItem " + watchListItem);
+        } else {
+            watchListItem.setLowerAlertValue(value);
+            logger.info("set lower alert value to " + value + " for watchListItem " + watchListItem);
         }
 
-        logger.info(buffer.toString());
+        getWatchListItemDao().update(watchListItem);
+
+    }
+
+    protected void handleRemoveAlertValues(String strategyName, int securityId) throws Exception {
+
+        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
+        if (watchListItem.getUpperAlertValue() != null || watchListItem.getLowerAlertValue() != null) {
+
+            watchListItem.setUpperAlertValue(null);
+            watchListItem.setLowerAlertValue(null);
+
+            getWatchListItemDao().update(watchListItem);
+
+            logger.info("removed alert values for watchListItem " + watchListItem);
+        }
     }
 
     /**
@@ -405,12 +417,12 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     public static class SetAlertValueSubscriber {
 
-        public void update(int watchListItemId, Double upper, Double lower) {
+        public void update(String strategyName, int securityId, Double value, boolean upper) {
 
             long startTime = System.currentTimeMillis();
             logger.debug("setAlertValue start");
 
-            ServiceLocator.commonInstance().getMarketDataService().setAlertValue(watchListItemId, upper, lower);
+            ServiceLocator.commonInstance().getMarketDataService().setAlertValue(strategyName, securityId, value, upper);
 
             logger.debug("setAlertValue end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
