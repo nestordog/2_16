@@ -28,6 +28,7 @@
     <auto-import import-name="com.algoTrader.util.LookupUtil"/>
     <auto-import import-name="com.algoTrader.util.RoundUtil"/>
     <auto-import import-name="com.algoTrader.util.DrawDownUtil"/>
+    <auto-import import-name="com.algoTrader.esper.annotation.*"/>
 
     <auto-import import-name="java.lang.*"/>
     <auto-import import-name="java.math.*"/>

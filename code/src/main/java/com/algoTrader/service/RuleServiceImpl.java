@@ -12,6 +12,11 @@ import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.esper.annotation.Condition;
+import com.algoTrader.esper.annotation.Listeners;
+import com.algoTrader.esper.annotation.RunTimeOnly;
+import com.algoTrader.esper.annotation.SimulationOnly;
+import com.algoTrader.esper.annotation.Subscriber;
 import com.algoTrader.esper.io.BatchDBTickInputAdapter;
 import com.algoTrader.esper.io.CsvBarInputAdapter;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
@@ -35,7 +40,6 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.SafeIterator;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
-import com.espertech.esper.client.annotation.Tag;
 import com.espertech.esper.client.deploy.DeploymentInformation;
 import com.espertech.esper.client.deploy.DeploymentOptions;
 import com.espertech.esper.client.deploy.DeploymentResult;
@@ -161,7 +165,7 @@ public class RuleServiceImpl extends RuleServiceBase {
                             newStatement = administrator.createEPL(model.toEPL());
 
                             // check if the statement is elgible, other destory it righ away
-                            processAnnotations(newStatement);
+                            processAnnotations(strategyName, newStatement);
 
                             // break iterating over the statements
                             break items;
@@ -190,7 +194,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         for (EPStatement statement : statements) {
 
             // check if the statement is elgible, other destory it righ away
-            processAnnotations(statement);
+            processAnnotations(strategyName, statement);
         }
 
         logger.debug("deployed module " + moduleName + " on service provider: " + strategyName);
@@ -459,15 +463,6 @@ public class RuleServiceImpl extends RuleServiceBase {
         return serviceProvider;
     }
 
-    private boolean hasServiceProvider(String strategyName) {
-
-        String providerURI = getProviderURI(strategyName);
-
-        EPServiceProvider serviceProvider = this.serviceProviders.get(providerURI);
-
-        return (serviceProvider != null);
-    }
-
     /**
      * initialize all the variables from the Configuration
      */
@@ -489,30 +484,43 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
-    private void processAnnotations(EPStatement statement) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    private void processAnnotations(String strategyName, EPStatement statement) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 
         Annotation[] annotations = statement.getAnnotations();
         for (Annotation annotation : annotations) {
-            if (annotation instanceof Tag) {
-                Tag tag = (Tag) annotation;
-                if (tag.name().equals("subscriber")) {
-                    Object obj = getSubscriber(tag.value());
-                    statement.setSubscriber(obj);
-                } else if (tag.name().equals("listeners")) {
-                    String[] listeners = tag.value().split("\\s");
-                    for (String listener : listeners) {
-                        Class<?> cl = Class.forName(listener);
-                        Object obj = cl.newInstance();
-                        if (obj instanceof StatementAwareUpdateListener) {
-                            statement.addListener((StatementAwareUpdateListener) obj);
-                        } else {
-                            statement.addListener((UpdateListener) obj);
-                        }
+            if (annotation instanceof Subscriber) {
+
+                Subscriber subscriber = (Subscriber) annotation;
+                Object obj = getSubscriber(subscriber.className());
+                statement.setSubscriber(obj);
+
+            } else if (annotation instanceof Listeners) {
+
+                Listeners listeners = (Listeners)annotation;
+                for (String className : listeners.classNames()) {
+                    Class<?> cl = Class.forName(className);
+                    Object obj = cl.newInstance();
+                    if (obj instanceof StatementAwareUpdateListener) {
+                        statement.addListener((StatementAwareUpdateListener) obj);
+                    } else {
+                        statement.addListener((UpdateListener) obj);
                     }
-                } else if (tag.name().equals("runTimeOnly") && simulation) {
-                    statement.destroy();
-                    return;
-                } else if (tag.name().equals("simulationOnly") && !simulation) {
+                }
+            } else if (annotation instanceof RunTimeOnly && simulation) {
+
+                statement.destroy();
+                return;
+
+            } else if (annotation instanceof SimulationOnly && !simulation) {
+
+                statement.destroy();
+                return;
+
+            } else if (annotation instanceof Condition) {
+
+                Condition condition = (Condition) annotation;
+                String key = condition.key();
+                if (!ConfigurationUtil.getStrategyConfig(strategyName).getBoolean(key)) {
                     statement.destroy();
                     return;
                 }
