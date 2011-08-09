@@ -116,8 +116,16 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         }
 
         // delete all non-presistent watchListItems
-        List<WatchListItem> watchListItems = getWatchListItemDao().findNonPersistent();
-        getWatchListItemDao().remove(watchListItems);
+        List<WatchListItem> nonPersistentWatchListItems = getWatchListItemDao().findNonPersistent();
+        getWatchListItemDao().remove(nonPersistentWatchListItems);
+
+        // delete all alert values
+        List<WatchListItem> persistentWatchListItems = getWatchListItemDao().findPersistent();
+        for (WatchListItem watchListItem : persistentWatchListItems) {
+            watchListItem.setUpperAlertValue(null);
+            watchListItem.setLowerAlertValue(null);
+            getWatchListItemDao().update(watchListItem);
+        }
 
         // delete all StockOptions
         //getSecurityDao().remove((Collection<Security>) getStockOptionDao().loadAll(StockOptionDao.TRANSFORM_NONE));
