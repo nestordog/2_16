@@ -69,9 +69,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
     private static final int roundDigits = ConfigurationUtil.getBaseConfig().getInt("simulation.roundDigits");
     private static final Date startDate = new Date(ConfigurationUtil.getBaseConfig().getLong("simulation.start"));
-    private static boolean simulateStockOptions = ConfigurationUtil.getBaseConfig().getBoolean("");
-    private static boolean simulateFuturesByUnderlaying = ConfigurationUtil.getBaseConfig().getBoolean("simulateFuturesByUnderlaying");
-    private static boolean simulateFuturesByGenericFutures = ConfigurationUtil.getBaseConfig().getBoolean("simulateFuturesByGenericFutures");
+    private static boolean simulateStockOptions = ConfigurationUtil.getBaseConfig().getBoolean("statement.simulateStockOptions");
+    private static boolean simulateFuturesByUnderlaying = ConfigurationUtil.getBaseConfig().getBoolean("statement.simulateFuturesByUnderlaying");
+    private static boolean simulateFuturesByGenericFutures = ConfigurationUtil.getBaseConfig().getBoolean("statement.simulateFuturesByGenericFutures");
 
     static {
         format.setMinimumFractionDigits(roundDigits);
