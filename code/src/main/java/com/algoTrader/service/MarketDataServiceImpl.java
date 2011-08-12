@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,6 +56,7 @@ import com.algoTrader.vo.RawTickVO;
 public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     private static final DateFormat fileFormat = new SimpleDateFormat("dd-MM-yyyy");
+    private static DecimalFormat decimalFormat = new DecimalFormat("#,##0.0000");
 
     private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
     private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
@@ -205,10 +207,10 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
         if (upper) {
             watchListItem.setUpperAlertValue(value);
-            logger.info("set upper alert value to " + value + " for watchListItem " + watchListItem);
+            logger.info("set upper alert value to " + decimalFormat.format(value) + " for watchListItem " + watchListItem);
         } else {
             watchListItem.setLowerAlertValue(value);
-            logger.info("set lower alert value to " + value + " for watchListItem " + watchListItem);
+            logger.info("set lower alert value to " + decimalFormat.format(value) + " for watchListItem " + watchListItem);
         }
 
         getWatchListItemDao().update(watchListItem);

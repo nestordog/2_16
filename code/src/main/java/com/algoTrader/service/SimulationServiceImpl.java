@@ -49,6 +49,7 @@ import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
 import com.algoTrader.esper.io.CsvTickInputAdapterSpec;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
+import com.algoTrader.vo.EndOfSimulationVO;
 import com.algoTrader.vo.MaxDrawDownVO;
 import com.algoTrader.vo.OptimizationResultVO;
 import com.algoTrader.vo.PerformanceKeysVO;
@@ -205,6 +206,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         // close all open positions that might still exist
         getPositionService().closeAllPositions();
+
+        // send the EndOfSimulation event
+        getRuleService().sendEvent(StrategyImpl.BASE, new EndOfSimulationVO());
 
         // get the results
         SimulationResultVO resultVO = getSimulationResultVO(startTime);

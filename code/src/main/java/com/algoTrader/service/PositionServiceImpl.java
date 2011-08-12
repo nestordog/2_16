@@ -1,6 +1,7 @@
 package com.algoTrader.service;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import com.espertech.esper.client.UpdateListener;
 public class PositionServiceImpl extends PositionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(PositionServiceImpl.class.getName());
+    private static DecimalFormat format = new DecimalFormat("#,##0.0000");
 
     @Override
     protected void handleCloseAllPositions() throws Exception {
@@ -149,7 +151,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         position.setExitValue(exitValue);
         getPositionDao().update(position);
 
-        logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + exitValue);
+        logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + format.format(exitValue));
     }
 
     @Override

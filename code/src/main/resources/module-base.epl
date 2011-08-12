@@ -124,6 +124,27 @@ and
 
 // --------------------------------------- PORTFOLIO MANAGEMENT -------------------------------------
 
+@Name('CREATE_PORTFOLIO_VALUE')
+@Subscriber(className='com.algoTrader.esper.subscriber.PrintPortfolioValueSubscriber')
+insert into
+    Portfolio
+select
+    current_timestamp() as timestamp,
+    LookupUtil.getPortfolioValue() as value,
+    cashTransaction
+from
+    pattern[
+        every(timer:at (0, 10:18, *, *, 1:5)
+        or cashTransaction=Transaction(
+            type=TransactionType.CREDIT
+            or type=TransactionType.DEBIT
+            or type=TransactionType.INTREST_PAID
+            or type=TransactionType.INTREST_RECEIVED
+            or type=TransactionType.FEES)
+        or EndOfSimulation)]
+where
+    LookupUtil.hasLastTicks();
+
 @Name('SET_MARGINS')
 @Listeners(classNames={'com.algoTrader.service.PositionServiceImpl$SetMarginsListener'})
 @Condition(key='statement.setMargins')
@@ -184,35 +205,16 @@ from
 
 // --------------------------------------- PERFORMANCE MEASUREMENT  -------------------------------------
 
-@Name('CREATE_PORTFOLIO_VALUE')
-@Subscriber(className='com.algoTrader.esper.subscriber.PrintPortfolioValueSubscriber')
-insert into
-    Portfolio
-select
-    current_timestamp() as timestamp,
-    LookupUtil.getPortfolioValue() as value,
-    cashTransaction
-from
-    pattern[
-        every(timer:at (0, 10:18, *, *, 1:5)
-        or cashTransaction=Transaction(
-            type=TransactionType.CREDIT
-            or type=TransactionType.DEBIT
-            or type=TransactionType.INTREST_PAID
-            or type=TransactionType.INTREST_RECEIVED
-            or type=TransactionType.FEES))]
-where
-    LookupUtil.hasLastTicks();
-
 @Name('CREATE_MONTHLY_PERFORMANCE')
 @SimulationOnly
+@Priority(2)
 insert into
     MonthlyPerformance
 select
     current_timestamp().toDate().minus(1 month) as date,
     portfolio.value.netLiqValue / prior(1, portfolio.value.netLiqValue) - 1 as value
 from
-    pattern[every timer:at (0, 0, 1, *, *) -> portfolio=Portfolio]
+    pattern[(every timer:at (0, 0, 1, *, *) or EndOfSimulation) -> portfolio=Portfolio]
 having
     prior(1, portfolio.value.netLiqValue) != null and
     portfolio.value.netLiqValue != prior(1, portfolio.value.netLiqValue);
