@@ -343,8 +343,6 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
                 this.requestIdDateMap.put(requestId, date);
                 this.requestIdWhatToShowMap.put(requestId, whatToShow);
 
-                contract.m_includeExpired = true;
-
                 this.client.reqHistoricalData(requestId, contract, format.format(date), "1 D", "1 min", whatToShow, 1, 1);
 
                 Boolean success;
