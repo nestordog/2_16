@@ -46,7 +46,7 @@ from
 @Priority(2)
 @SimulationOnly
 insert into
-    com.algoTrader.entity.marketData.TickImpl
+    Tick
 select
     current_timestamp.toDate() as dateTime,
     RoundUtil.getBigDecimal(StockOptionUtil.getOptionPrice(option, indexTick.currentValueDouble, volaTick.currentValueDouble / 100)) as last,
@@ -64,7 +64,7 @@ where
 @Priority(2)
 @SimulationOnly
 insert into
-    com.algoTrader.entity.marketData.TickImpl
+    Tick
 select
     tick.dateTime as dateTime,
     tick.last as last,
@@ -89,7 +89,7 @@ where
 @Priority(2)
 @SimulationOnly
 insert into
-    com.algoTrader.entity.marketData.TickImpl
+    Tick
 select
     current_timestamp.toDate() as dateTime,
     RoundUtil.getBigDecimal(FutureUtil.getFuturePrice(future, indexTick.currentValueDouble)) as last,
@@ -107,7 +107,7 @@ where
 @Priority(2)
 @SimulationOnly
 insert into
-    com.algoTrader.entity.marketData.TickImpl
+    Tick
 select
     current_timestamp.toDate() as dateTime,
     genericFutureTick.last as last,
