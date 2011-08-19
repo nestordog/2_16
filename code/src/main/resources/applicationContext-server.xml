@@ -5,11 +5,15 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
 
     <!-- Local DataSource that works in any environment -->
-    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName"><value>${dataSource.driver}</value></property>
-        <property name="username"><value>${dataSource.user}</value></property>
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass"><value>${dataSource.driver}</value></property>
+        <property name="user"><value>${dataSource.user}</value></property>
         <property name="password"><value>${dataSource.password}</value></property>
-        <property name="url"><value>${dataSource.url}</value></property>
+        <property name="jdbcUrl"><value>${dataSource.url}</value></property>
+<!--         <property name="minPoolSize"><value>5</value></property> -->
+<!--         <property name="maxPoolSize"><value>10</value></property> -->
+          <property name="idleConnectionTestPeriod"><value>300</value></property>
+          <property name="maxIdleTime"><value>1800</value></property>
     </bean>
 
     <!-- (local) Transaction Manager -->
