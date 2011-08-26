@@ -9,6 +9,7 @@ nohup java \
 -Dcom.algoTrarder.rmi.serverPort=1098 \
 -Djava.rmi.server.hostname=127.0.0.1 \
 -Dlog4j.configuration=log4j-prod.xml \
+-Denvironment=$ENVIRONMENT \
 -javaagent:lib/agent.jar \
 -agentlib:jdwp=transport=dt_socket,suspend=n,server=y,address=localhost:8000 \
 -Xmx200m \

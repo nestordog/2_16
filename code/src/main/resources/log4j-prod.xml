@@ -39,8 +39,8 @@
         <param name="SMTPUsername" value="andy_flury" />
         <param name="SMTPPassword" value="franklin91" />
         <param name="From" value="andy_flury@yahoo.com" />
-        <param name="To" value="andy_flury@yahoo.com" />
-        <param name="Subject" value="AlgoTrader Error message" />
+        <param name="To" value="algo-trader-server@googlegroups.com" />
+        <param name="Subject" value="AlgoTrader Error ${environment}" />
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d%n%n%-5p%n%n%c%n%n%m%n%n" />
         </layout>
@@ -66,8 +66,8 @@
         <param name="SMTPUsername" value="andy_flury" />
         <param name="SMTPPassword" value="franklin91" />
         <param name="From" value="andy_flury@yahoo.com" />
-        <param name="To" value="andy_flury@yahoo.com" />
-        <param name="Subject" value="AlgoTrader Transaction message" />
+        <param name="To" value="algo-trader-server@googlegroups.com" />
+        <param name="Subject" value="AlgoTrader Transaction ${environment}" />
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d%n%n%-5p%n%n%c%n%n%m%n%n" />
         </layout>
