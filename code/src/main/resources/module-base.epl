@@ -54,7 +54,7 @@ select
     0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
     option as security
 from
-    pattern [every (indexTick=Tick(instanceof(security, com.algoTrader.entity.security.EquityIndex)) -> volaTick=Tick(security.id=indexTick.security.volatility.id))],
+    pattern [every indexTick=Tick(instanceof(security, com.algoTrader.entity.security.EquityIndex)) -> (volaTick=Tick(security.id=indexTick.security.volatility.id) and not Tick(security.id=indexTick.security.id))],
     method:LookupUtil.getStockOptionsOnWatchlist() as option
 where
     option.underlaying.id = indexTick.security.id;
