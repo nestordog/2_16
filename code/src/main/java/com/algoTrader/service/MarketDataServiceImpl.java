@@ -443,4 +443,12 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             logger.debug("setAlertValue end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
     }
+
+    public static class RemoveFromWatchlistSubscriber {
+
+        public void update(String strategyName, int securityId) {
+
+            ServiceLocator.serverInstance().getMarketDataService().removeFromWatchlist(strategyName, securityId);
+        }
+    }
 }
