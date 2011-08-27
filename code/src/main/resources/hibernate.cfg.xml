@@ -30,8 +30,6 @@
     <mapping resource="com/algoTrader/entity/Transaction.hbm.xml" />
     <mapping resource="com/algoTrader/entity/WatchListItem.hbm.xml" />
     <mapping resource="com/algoTrader/entity/marketData/MarketDataEvent.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/security/Dividend.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/security/SabrParams.hbm.xml" />
     <mapping resource="com/algoTrader/entity/security/Security.hbm.xml" />
     <mapping resource="com/algoTrader/entity/security/SecurityFamily.hbm.xml" />
 </session-factory>
