@@ -8,8 +8,8 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.algoTrader.starter.HistoricalDataStarter"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="20110718 20110802 TRADES 29"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="20110815 20110816 TRADES 2:3:4:5"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="algotrader-code"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.sourcepathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DstrategyName=BASE&#13;&#10;-DdataSource.dataSet=vix&#13;&#10;-DdataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTraderTest&#13;&#10;-Dib.historicalDataServiceEnabled=true&#13;&#10;-Dib.accountServiceEnabled=false&#13;&#10;-Dib.stockOptionRetrieverServiceEnabled=false&#13;&#10;-Dib.tickServiceEnabled=false&#13;&#10;-Dib.transactionServiceEnabled=false"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DstrategyName=BASE&#13;&#10;-DdataSource.dataSet=current&#13;&#10;-DdataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTraderTest&#13;&#10;-Dib.historicalDataServiceEnabled=true&#13;&#10;-Dib.accountServiceEnabled=false&#13;&#10;-Dib.stockOptionRetrieverServiceEnabled=false&#13;&#10;-Dib.tickServiceEnabled=false&#13;&#10;-Dib.transactionServiceEnabled=false"/>
 </launchConfiguration>
