@@ -38,10 +38,12 @@ public class StrategyImpl extends Strategy {
 
         double amount = 0.0;
 
-        // sum of all cashBalances of this strategy
-        Collection<CashBalance> cashBalances = getCashBalances();
-        for (CashBalance cashBalance : cashBalances) {
-            amount += cashBalance.getAmountBaseDouble();
+        // sum of all cashBalances of this strategy (not considering BASE itself)
+        if (!BASE.equals(this.getName())) {
+            Collection<CashBalance> cashBalances = getCashBalances();
+            for (CashBalance cashBalance : cashBalances) {
+                amount += cashBalance.getAmountBaseDouble();
+            }
         }
 
         // sum of all cashBalances of base (i.e. cashFlows)
