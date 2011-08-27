@@ -1,6 +1,7 @@
 package com.algoTrader.service;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -90,9 +91,11 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             Collection<Transaction> transactions = strategy.getTransactions();
             Set<Transaction> toRemoveTransactions = new HashSet<Transaction>();
             Set<Transaction> toKeepTransactions = new HashSet<Transaction>();
+            BigDecimal initialAmount = new BigDecimal(0);
             for (Transaction transaction : transactions) {
                 if (transaction.getId() == 1) {
                     toKeepTransactions.add(transaction);
+                    initialAmount = transaction.getPrice();
                 } else {
                     toRemoveTransactions.add(transaction);
                 }
@@ -107,6 +110,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             for (CashBalance cashBalance : cashBalances) {
                 if (cashBalance.getId() == 1) {
                     toKeepCashBalances.add(cashBalance);
+                    cashBalance.setAmount(initialAmount);
                 } else {
                     toRemoveCashBalance.add(cashBalance);
                 }
