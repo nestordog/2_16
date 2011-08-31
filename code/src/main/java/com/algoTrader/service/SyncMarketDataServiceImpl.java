@@ -53,12 +53,12 @@ import com.algoTrader.vo.BarVO;
 import com.algoTrader.vo.IVolVO;
 import com.algoTrader.vo.RawTickVO;
 
-public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
+public abstract class SyncMarketDataServiceImpl extends SyncMarketDataServiceBase {
 
     private static final DateFormat fileFormat = new SimpleDateFormat("dd-MM-yyyy");
     private static DecimalFormat decimalFormat = new DecimalFormat("#,##0.0000");
 
-    private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(SyncMarketDataServiceImpl.class.getName());
     private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
@@ -245,7 +245,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             Security security = getSecurityDao().findByIsin(isin);
             if (security == null) {
-                throw new MarketDataServiceException("security was not found: " + isin);
+                throw new SyncMarketDataServiceException("security was not found: " + isin);
             }
 
             CsvTickReader reader = new CsvTickReader(isin);
@@ -419,7 +419,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
         public void update(int securityId) {
 
-            ServiceLocator.serverInstance().getMarketDataService().processTick(securityId);
+            ServiceLocator.serverInstance().getSyncMarketDataService().processTick(securityId);
         }
     }
 
@@ -427,7 +427,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
         public void update(MarketDataEvent marketDataEvent) {
 
-            ServiceLocator.serverInstance().getMarketDataService().propagateMarketDataEvent(marketDataEvent);
+            ServiceLocator.serverInstance().getSyncMarketDataService().propagateMarketDataEvent(marketDataEvent);
         }
     }
 
@@ -438,7 +438,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             long startTime = System.currentTimeMillis();
             logger.debug("setAlertValue start");
 
-            ServiceLocator.commonInstance().getMarketDataService().setAlertValue(strategyName, securityId, value, upper);
+            ServiceLocator.commonInstance().getSyncMarketDataService().setAlertValue(strategyName, securityId, value, upper);
 
             logger.debug("setAlertValue end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
@@ -448,7 +448,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
         public void update(String strategyName, int securityId) {
 
-            ServiceLocator.serverInstance().getMarketDataService().removeFromWatchlist(strategyName, securityId);
+            ServiceLocator.serverInstance().getSyncMarketDataService().removeFromWatchlist(strategyName, securityId);
         }
     }
 }

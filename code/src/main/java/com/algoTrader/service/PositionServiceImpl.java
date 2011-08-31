@@ -14,7 +14,7 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.security.Expirable;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.Direction;
-import com.algoTrader.enumeration.OrderStatus;
+import com.algoTrader.enumeration.Status;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
@@ -112,7 +112,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         order.setRequestedQuantity(Math.abs(quantity));
         order.setTransactionType((position.getQuantity() > 0) ? TransactionType.SELL : TransactionType.BUY);
 
-        getTransactionService().executeTransaction(order);
+        getSyncOrderService().sendOrder(order);
 
     }
 
@@ -259,13 +259,13 @@ public class PositionServiceImpl extends PositionServiceBase {
         order.setRequestedQuantity(numberOfContracts);
         order.setTransactionType(TransactionType.EXPIRATION);
 
-        Order executedOrder = getTransactionService().executeTransaction(order);
+        Order executedOrder = getSyncOrderService().sendOrder(order);
 
         // only remove the security from the watchlist, if the transaction did execute fully.
         // otherwise the next tick will execute the reminder of the order
-        if (OrderStatus.EXECUTED.equals(executedOrder.getStatus()) || OrderStatus.AUTOMATIC.equals(executedOrder.getStatus())) {
+        if (Status.EXECUTED.equals(executedOrder.getStatus()) || Status.AUTOMATIC.equals(executedOrder.getStatus())) {
 
-            getMarketDataService().removeFromWatchlist(position.getStrategy(), security);
+            getSyncMarketDataService().removeFromWatchlist(position.getStrategy(), security);
         }
 
         // propagate the ExpirePosition event

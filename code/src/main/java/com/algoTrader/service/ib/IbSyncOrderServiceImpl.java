@@ -25,9 +25,9 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Forex;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.ConnectionState;
-import com.algoTrader.enumeration.OrderStatus;
+import com.algoTrader.enumeration.Status;
 import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.service.MarketDataServiceException;
+import com.algoTrader.service.SyncMarketDataServiceException;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -36,11 +36,11 @@ import com.ib.client.Contract;
 import com.ib.client.Execution;
 import com.ib.client.OrderState;
 
-public class IbTransactionServiceImpl extends IbTransactionServiceBase implements DisposableBean {
+public class IbSyncOrderServiceImpl extends IbTransactionServiceBase implements DisposableBean {
 
     private static final long serialVersionUID = 53702942258607379L;
 
-    private static Logger logger = MyLogger.getLogger(IbTransactionServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(IbSyncOrderServiceImpl.class.getName());
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
 
@@ -59,8 +59,8 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
     private static int transactionTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.transactionTimeout");
     private static int retrievalTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.retrievalTimeout");
 
-    private DefaultClientSocket client;
-    private DefaultWrapper wrapper;
+    private IbClientSocket client;
+    private IbWrapper wrapper;
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
 
@@ -77,7 +77,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
             return;
         }
 
-        this.wrapper = new DefaultWrapper(clientId) {
+        this.wrapper = new IbWrapper(clientId) {
 
             @Override
             public void openOrder(int orderId, Contract contract, com.ib.client.Order order, OrderState orderState) {
@@ -97,7 +97,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                         " permId=" + order.m_permId);
                 // @formatter:on
 
-                IbTransactionServiceImpl.this.lock.lock();
+                IbSyncOrderServiceImpl.this.lock.lock();
                 try {
 
                     // adjust the requestedQuantity if necessary
@@ -105,7 +105,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                     //         Acct1: has 2 / Acct2: has 2
                     //         requestedQuantity: 1 -> 25%
                     //         PctChange will result int qty = 2
-                    PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(orderId);
+                    PartialOrder partialOrder = IbSyncOrderServiceImpl.this.partialOrdersMap.get(orderId);
                     if (faEnabled && partialOrder.getRequestedQuantity() != order.m_totalQuantity) {
 
                         long oldRequestedQuantity = partialOrder.getRequestedQuantity();
@@ -115,7 +115,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                     }
 
                 } finally {
-                    IbTransactionServiceImpl.this.lock.unlock();
+                    IbSyncOrderServiceImpl.this.lock.unlock();
                 }
             }
 
@@ -133,10 +133,10 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                         " lastFillPrice: " + lastFillPrice);
                 //@formatter:on
 
-                IbTransactionServiceImpl.this.lock.lock();
+                IbSyncOrderServiceImpl.this.lock.lock();
                 try {
 
-                    PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(orderId);
+                    PartialOrder partialOrder = IbSyncOrderServiceImpl.this.partialOrdersMap.get(orderId);
 
                     if (partialOrder == null) {
                         logger.error("orderId " + orderId + " was not found");
@@ -148,28 +148,28 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                     if ("Submitted".equals(status) || "PendingSubmit".equals(status)) {
 
                         if (filled == 0) {
-                            partialOrder.setStatus(OrderStatus.SUBMITTED);
+                            partialOrder.setStatus(Status.SUBMITTED);
                         } else {
-                            partialOrder.setStatus(OrderStatus.PARTIALLY_EXECUTED);
+                            partialOrder.setStatus(Status.PARTIALLY_EXECUTED);
                         }
 
                     } else if ("Filled".equals(status)) {
 
-                        partialOrder.setStatus(OrderStatus.EXECUTED);
+                        partialOrder.setStatus(Status.EXECUTED);
 
-                        IbTransactionServiceImpl.this.executedMap.put(orderId, true);
-                        IbTransactionServiceImpl.this.condition.signalAll();
+                        IbSyncOrderServiceImpl.this.executedMap.put(orderId, true);
+                        IbSyncOrderServiceImpl.this.condition.signalAll();
 
                     } else if ("Cancelled".equals(status)) {
 
-                        partialOrder.setStatus(OrderStatus.CANCELED);
+                        partialOrder.setStatus(Status.CANCELED);
 
-                        IbTransactionServiceImpl.this.deletedMap.put(orderId, true);
-                        IbTransactionServiceImpl.this.condition.signalAll();
+                        IbSyncOrderServiceImpl.this.deletedMap.put(orderId, true);
+                        IbSyncOrderServiceImpl.this.condition.signalAll();
                     }
 
                 } finally {
-                    IbTransactionServiceImpl.this.lock.unlock();
+                    IbSyncOrderServiceImpl.this.lock.unlock();
                 }
             }
 
@@ -196,13 +196,13 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                         " avgPrice: " + execution.m_avgPrice);
                 //@formatter:on
 
-                IbTransactionServiceImpl.this.lock.lock();
+                IbSyncOrderServiceImpl.this.lock.lock();
                 try {
 
                     // if the execution does not represent a internal transfer create a transaction
                     if (!execution.m_execId.startsWith("F") && !execution.m_execId.startsWith("U")) {
 
-                        PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(execution.m_orderId);
+                        PartialOrder partialOrder = IbSyncOrderServiceImpl.this.partialOrdersMap.get(execution.m_orderId);
                         Order order = partialOrder.getParentOrder();
                         int scale = order.getSecurity().getSecurityFamily().getScale();
 
@@ -234,7 +234,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 } catch (ParseException e) {
                     logger.error("illegal time format ", e);
                 } finally {
-                    IbTransactionServiceImpl.this.lock.unlock();
+                    IbSyncOrderServiceImpl.this.lock.unlock();
                 }
             }
 
@@ -249,7 +249,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
             @Override
             public void error(int id, int code, String errorMsg) {
 
-                String message = "client: " + IbTransactionServiceImpl.clientId + " id: " + id + " code: " + code + " " + errorMsg.replaceAll("\n", " ");
+                String message = "client: " + IbSyncOrderServiceImpl.clientId + " id: " + id + " code: " + code + " " + errorMsg.replaceAll("\n", " ");
 
                 if (code == 202) {
 
@@ -285,31 +285,31 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                     super.error(id, code, errorMsg);
                 }
 
-                IbTransactionServiceImpl.this.lock.lock();
+                IbSyncOrderServiceImpl.this.lock.lock();
                 try {
 
-                    PartialOrder partialOrder = IbTransactionServiceImpl.this.partialOrdersMap.get(id);
+                    PartialOrder partialOrder = IbSyncOrderServiceImpl.this.partialOrdersMap.get(id);
 
                     if (partialOrder != null) {
 
-                        IbTransactionServiceImpl.this.client.cancelOrder(partialOrder.getOrderId());
+                        IbSyncOrderServiceImpl.this.client.cancelOrder(partialOrder.getOrderId());
 
-                        partialOrder.setStatus(OrderStatus.CANCELED);
+                        partialOrder.setStatus(Status.CANCELED);
 
-                        IbTransactionServiceImpl.this.deletedMap.put(id, true);
-                        IbTransactionServiceImpl.this.condition.signalAll();
+                        IbSyncOrderServiceImpl.this.deletedMap.put(id, true);
+                        IbSyncOrderServiceImpl.this.condition.signalAll();
 
-                        logger.info("client: " + IbTransactionServiceImpl.clientId + " order: " + id + " has been cancelled ");
+                        logger.info("client: " + IbSyncOrderServiceImpl.clientId + " order: " + id + " has been cancelled ");
                     }
 
                 } finally {
-                    IbTransactionServiceImpl.this.lock.unlock();
+                    IbSyncOrderServiceImpl.this.lock.unlock();
                 }
 
             }
         };
 
-        this.client = new DefaultClientSocket(this.wrapper);
+        this.client = new IbClientSocket(this.wrapper);
 
         connect();
     }
@@ -339,7 +339,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
     }
 
     @Override
-    protected void handleExecuteExternalTransaction(Order order) throws Exception {
+    protected void handleSendExternalOrder(Order order) throws Exception {
 
         if (!this.wrapper.getState().equals(ConnectionState.READY)) {
             logger.error("transaction cannot be executed, because IB is not connected");
@@ -361,12 +361,12 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
 
             placeOrModifyPartialOrder(partialOrder, tick);
 
-            if (OrderStatus.OPEN.equals(partialOrder.getStatus())) {
+            if (Status.OPEN.equals(partialOrder.getStatus())) {
 
                 // nothing went through, so try next higher spreadPosition
                 continue;
 
-            } else if (OrderStatus.PARTIALLY_EXECUTED.equals(partialOrder.getStatus())) {
+            } else if (Status.PARTIALLY_EXECUTED.equals(partialOrder.getStatus())) {
 
                 // try to cancel, if successfull reset the partialOrder
                 // otherwise the order must have been executed in the meantime
@@ -382,12 +382,12 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                     break;
                 }
 
-            } else if (OrderStatus.EXECUTED.equals(partialOrder.getStatus())) {
+            } else if (Status.EXECUTED.equals(partialOrder.getStatus())) {
 
                 // we are done!
                 break;
 
-            } else if (OrderStatus.CANCELED.equals(partialOrder.getStatus())) {
+            } else if (Status.CANCELED.equals(partialOrder.getStatus())) {
 
                 // there must have been a problem submitting the error so abort
                 // the loop
@@ -409,15 +409,15 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
         Tick tick;
         while (true) {
 
-            RawTickVO rawTick = getIbMarketDataService().retrieveTick(order.getSecurity());
-            tick = getIbMarketDataService().completeRawTick(rawTick);
+            RawTickVO rawTick = getIbSyncMarketDataService().retrieveTick(order.getSecurity());
+            tick = getIbSyncMarketDataService().completeRawTick(rawTick);
 
             // validity check (volume and bid/ask spread)
             try {
                 tick.validate();
                 break;
 
-            } catch (MarketDataServiceException e) {
+            } catch (SyncMarketDataServiceException e) {
 
                 logger.warn(e.getMessage());
 
@@ -497,7 +497,7 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 // reduce by percentage
                 ibOrder.m_faMethod = closeMethod;
 
-                if (OrderStatus.OPEN.equals(partialOrder.getStatus())) {
+                if (Status.OPEN.equals(partialOrder.getStatus())) {
                     double percentage = Math.abs(partialOrder.getRequestedQuantity() * 100 / (existingQuantity - partialOrder.getExecutedQuantity()));
                     ibOrder.m_faPercentage = "-" + percentage;
                 } else {
@@ -550,20 +550,20 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
                 this.condition.await();
             }
 
-            if (OrderStatus.CANCELED.equals(partialOrder.getStatus())) {
+            if (Status.CANCELED.equals(partialOrder.getStatus())) {
                 logger.debug("orderId: " + partialOrder.getOrderId() + " has been canceled");
                 return true;
 
-            } else if (OrderStatus.EXECUTED.equals(partialOrder.getStatus())) {
+            } else if (Status.EXECUTED.equals(partialOrder.getStatus())) {
                 logger.debug("orderId: " + partialOrder.getOrderId() + " has been executed after trying to cancel");
                 return false;
 
             } else {
-                throw new IbMarketDataServiceException("orderId: " + partialOrder.getOrderId() + " unappropriate order status: " + partialOrder.getStatus());
+                throw new IbSyncMarketDataServiceException("orderId: " + partialOrder.getOrderId() + " unappropriate order status: " + partialOrder.getStatus());
             }
 
         } catch (InterruptedException e) {
-            throw new IbMarketDataServiceException("problem canceling order", e);
+            throw new IbSyncMarketDataServiceException("problem canceling order", e);
         } finally {
             this.lock.unlock();
         }
@@ -572,11 +572,11 @@ public class IbTransactionServiceImpl extends IbTransactionServiceBase implement
     private void cancelRemainingOrder(Order order) {
 
         // if order did not execute fully, cancel the rest
-        OrderStatus status = order.getCurrentPartialOrder().getStatus();
-        if (OrderStatus.SUBMITTED.equals(status) || OrderStatus.PARTIALLY_EXECUTED.equals(status)) {
+        Status status = order.getCurrentPartialOrder().getStatus();
+        if (Status.SUBMITTED.equals(status) || Status.PARTIALLY_EXECUTED.equals(status)) {
 
             cancelPartialOrder(order.getCurrentPartialOrder());
-            order.setStatus(OrderStatus.CANCELED);
+            order.setStatus(Status.CANCELED);
 
             logger.warn("order on: " + order.getSecurity().getSymbol() + " did not execute fully, requestedQuantity: " + order.getRequestedQuantity()
                     + " executedQuantity: " + order.getPartialOrderExecutedQuantity());

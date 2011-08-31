@@ -2,7 +2,7 @@ package com.algoTrader.entity;
 
 import java.util.Collection;
 
-import com.algoTrader.enumeration.OrderStatus;
+import com.algoTrader.enumeration.Status;
 
 public class OrderImpl extends Order {
 
@@ -10,7 +10,7 @@ public class OrderImpl extends Order {
 
     public OrderImpl() {
         super();
-        setStatus(OrderStatus.OPEN);
+        setStatus(Status.OPEN);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class OrderImpl extends Order {
 
         PartialOrder partialOrder = new PartialOrderImpl();
 
-        partialOrder.setStatus(OrderStatus.OPEN);
+        partialOrder.setStatus(Status.OPEN);
 
         // part of the order might already have gone through, so reduce the
         // requested numberOfContracts by this number

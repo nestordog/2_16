@@ -62,8 +62,8 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
     private static String flexToken = ConfigurationUtil.getBaseConfig().getString("ib.flexToken");
     private static String flexQueryId = ConfigurationUtil.getBaseConfig().getString("ib.flexQueryId");
 
-    private DefaultClientSocket client;
-    private DefaultWrapper wrapper;
+    private IbClientSocket client;
+    private IbWrapper wrapper;
 
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
@@ -86,7 +86,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
             return;
         }
 
-        this.wrapper = new DefaultWrapper(clientId) {
+        this.wrapper = new IbWrapper(clientId) {
 
             @Override
             public void updateAccountValue(String key, String value, String currency, String accountName) {
@@ -130,7 +130,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
             }
         };
 
-        this.client = new DefaultClientSocket(this.wrapper);
+        this.client = new IbClientSocket(this.wrapper);
 
         connect();
     }

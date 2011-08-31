@@ -1,18 +1,18 @@
 package com.algoTrader.entity;
 
-import com.algoTrader.enumeration.OrderStatus;
+import com.algoTrader.enumeration.Status;
 
 public class PartialOrderImpl extends PartialOrder {
 
     private static final long serialVersionUID = -7341726577868580753L;
 
     @Override
-    public void setStatus(OrderStatus status) {
+    public void setStatus(Status status) {
 
-        if (OrderStatus.PARTIALLY_EXECUTED.equals(status) || OrderStatus.EXECUTED.equals(status)) {
+        if (Status.PARTIALLY_EXECUTED.equals(status) || Status.EXECUTED.equals(status)) {
             getParentOrder().setStatus(status);
         }
-        if (OrderStatus.SUBMITTED.equals(status) && OrderStatus.OPEN.equals(getParentOrder().getStatus())) {
+        if (Status.SUBMITTED.equals(status) && Status.OPEN.equals(getParentOrder().getStatus())) {
             getParentOrder().setStatus(status);
         }
         super.setStatus(status);

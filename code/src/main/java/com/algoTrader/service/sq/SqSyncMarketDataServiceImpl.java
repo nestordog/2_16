@@ -13,7 +13,7 @@ import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.RawTickVO;
 
-public class SqMarketDataServiceImpl extends SqMarketDataServiceBase {
+public class SqSyncMarketDataServiceImpl extends SqSyncMarketDataServiceBase {
 
     private static String exactMatch = "//tr/td[.='%1$s']/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[.='%1$s']/preceding-sibling::td)+1]/strong";
     private static String partialMatch = "//tr/td[contains(.,'%1$s')]/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[contains(.,'%1$s')]/preceding-sibling::td)+1]/strong";

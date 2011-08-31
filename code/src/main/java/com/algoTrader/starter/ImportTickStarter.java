@@ -1,13 +1,13 @@
 package com.algoTrader.starter;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.service.ib.IbMarketDataService;
+import com.algoTrader.service.ib.IbSyncMarketDataService;
 
 public class ImportTickStarter {
 
     public static void main(String[] args) {
 
-        IbMarketDataService service = ServiceLocator.serverInstance().getIbMarketDataService();
+        IbSyncMarketDataService service = ServiceLocator.serverInstance().getIbSyncMarketDataService();
 
         String[] isins = args[0].split(":");
         for (String isin : isins) {

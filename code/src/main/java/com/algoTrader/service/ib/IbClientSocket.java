@@ -11,16 +11,16 @@ import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.ib.client.EClientSocket;
 
-public class DefaultClientSocket extends EClientSocket {
+public class IbClientSocket extends EClientSocket {
 
     private static final long connectionTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.connectionTimeout");
     private static int port = ConfigurationUtil.getBaseConfig().getInt("ib.port");
 
-    private static Logger logger = MyLogger.getLogger(DefaultClientSocket.class.getName());
+    private static Logger logger = MyLogger.getLogger(IbClientSocket.class.getName());
 
-    private DefaultWrapper wrapper;
+    private IbWrapper wrapper;
 
-    public DefaultClientSocket(DefaultWrapper wrapper) {
+    public IbClientSocket(IbWrapper wrapper) {
 
         super(wrapper);
         this.wrapper = wrapper;

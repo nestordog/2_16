@@ -68,7 +68,7 @@ public class ForexServiceImpl extends ForexServiceBase {
                 order.setStrategy(base);
                 order.setSecurity(forex);
 
-                getTransactionService().executeTransaction(order);
+                getSyncOrderService().sendOrder(order);
             }
         }
     }

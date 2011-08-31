@@ -44,8 +44,8 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
 
-    private DefaultClientSocket client;
-    private DefaultWrapper wrapper;
+    private IbClientSocket client;
+    private IbWrapper wrapper;
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
 
@@ -65,7 +65,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
             return;
         }
 
-        this.wrapper = new DefaultWrapper(clientId) {
+        this.wrapper = new IbWrapper(clientId) {
 
             @Override
             public void historicalData(int requestId, String dateString, double open, double high, double low, double close, int volume, int count, double WAP,
@@ -218,7 +218,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
             }
         };
 
-        this.client = new DefaultClientSocket(this.wrapper);
+        this.client = new IbClientSocket(this.wrapper);
 
         connect();
     }

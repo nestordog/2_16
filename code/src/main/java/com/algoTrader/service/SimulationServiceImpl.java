@@ -45,7 +45,7 @@ import com.algoTrader.entity.security.FutureDao;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOptionDao;
 import com.algoTrader.enumeration.MarketDataType;
-import com.algoTrader.enumeration.OrderStatus;
+import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
 import com.algoTrader.esper.io.CsvTickInputAdapterSpec;
 import com.algoTrader.util.ConfigurationUtil;
@@ -243,7 +243,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             order.setStrategy(transaction.getStrategy());
             order.setRequestedQuantity(Math.abs(transaction.getQuantity()));
             order.setTransactionType(transaction.getType());
-            order.setStatus(OrderStatus.PREARRANGED);
+            order.setStatus(Status.PREARRANGED);
             order.getTransactions().add(transaction);
             order.setSecurity(transaction.getSecurity());
 

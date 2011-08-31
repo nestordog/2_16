@@ -17,24 +17,24 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
     }
 
     @Override
-    protected TransactionService handleGetTransactionService(MarketChannel marketChannel) {
+    protected SyncOrderService handleGetTransactionService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
-            return getSqTransactionService();
+            return getSqSyncOrderService();
         } else if (MarketChannel.IB.getValue().equals(marketChannel)) {
-            return getIbTransactionService();
+            return getIbSyncOrderService();
         } else {
             throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
         }
     }
 
     @Override
-    protected MarketDataService handleGetMarketDataService(MarketChannel marketChannel) {
+    protected SyncMarketDataService handleGetMarketDataService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
-            return getSqMarketDataService();
+            return getSqSyncMarketDataService();
         } else if (MarketChannel.IB.getValue().equals(marketChannel)) {
-            return getIbMarketDataService();
+            return getIbSyncMarketDataService();
         } else {
             throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
         }

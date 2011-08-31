@@ -29,9 +29,9 @@ import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
 import com.algoTrader.entity.security.Security;
-import com.algoTrader.enumeration.OrderStatus;
+import com.algoTrader.enumeration.Status;
 import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.service.TransactionServiceException;
+import com.algoTrader.service.SyncOrderServiceException;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
@@ -39,9 +39,9 @@ import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.TidyUtil;
 import com.algoTrader.util.XmlUtil;
 
-public class SqTransactionServiceImpl extends SqTransactionServiceBase {
+public class SqSyncOrderServiceImpl extends SqTransactionServiceBase {
 
-    private static Logger logger = MyLogger.getLogger(SqTransactionServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(SqSyncOrderServiceImpl.class.getName());
 
     private static int confirmationTimeout = ConfigurationUtil.getBaseConfig().getInt("swissquote.confirmationTimeout");
     private static int confirmationRetries = ConfigurationUtil.getBaseConfig().getInt("swissquote.confirmationRetries");
@@ -60,7 +60,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
     @Override
-    protected void handleExecuteExternalTransaction(Order order) throws Exception {
+    protected void handleSendExternalOrder(Order order) throws Exception {
 
         HttpClient client = HttpClientUtil.getSwissquoteTradeClient();
 
@@ -87,11 +87,11 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
             Document openAndDailyOrdersScreen = getOpenAndDailyOrdersScreen(order, client);
 
             // if the order did not execute fully, delete it
-            if (!OrderStatus.EXECUTED.equals(order.getStatus())) {
+            if (!Status.EXECUTED.equals(order.getStatus())) {
 
                 getDeleteScreen(order, client, openAndDailyOrdersScreen);
 
-                if (OrderStatus.OPEN.equals(order.getStatus())) {
+                if (Status.OPEN.equals(order.getStatus())) {
 
                     // nothing went through, so continue with the next higher
                     // spreadPosition
@@ -101,12 +101,12 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
 
             getExecutedTransactionsScreen(order, client, openAndDailyOrdersScreen, spreadPosition);
 
-            if (OrderStatus.EXECUTED.equals(order.getStatus())) {
+            if (Status.EXECUTED.equals(order.getStatus())) {
 
                 // we are done!
                 break;
 
-            } else if (OrderStatus.PARTIALLY_EXECUTED.equals(order.getStatus())) {
+            } else if (Status.PARTIALLY_EXECUTED.equals(order.getStatus())) {
 
                 // only part of the order has gone through, so reduce the
                 // requested
@@ -139,7 +139,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
             XmlUtil.saveDocumentToFile(orderScreen, format.format(new Date()) + "_" + security.getIsin() + "_order.xml", "results/trade/");
 
             if (status != HttpStatus.SC_OK) {
-                throw new TransactionServiceException("could not get order screen: " + security.getIsin() + ", status: " + get.getStatusLine());
+                throw new SyncOrderServiceException("could not get order screen: " + security.getIsin() + ", status: " + get.getStatusLine());
             }
 
         } finally {
@@ -212,7 +212,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
             XmlUtil.saveDocumentToFile(confirmationScreen, format.format(new Date()) + "_" + security.getIsin() + "_confirmation.xml", "results/trade/");
 
             if (status != HttpStatus.SC_OK) {
-                throw new TransactionServiceException("could not get confirmation screen: " + security.getIsin() + ", status: " + get.getStatusLine());
+                throw new SyncOrderServiceException("could not get confirmation screen: " + security.getIsin() + ", status: " + get.getStatusLine());
             }
 
         } finally {
@@ -258,7 +258,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
             XmlUtil.saveDocumentToFile(ackScreen, format.format(new Date()) + "_" + security.getIsin() + "_ack.xml", "results/trade/");
 
             if (status != HttpStatus.SC_OK) {
-                throw new TransactionServiceException("could not get ack screen: " + security.getIsin() + ", status: " + get.getStatusLine());
+                throw new SyncOrderServiceException("could not get ack screen: " + security.getIsin() + ", status: " + get.getStatusLine());
             }
 
         } finally {
@@ -287,7 +287,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
                         "results/trade/");
 
                 if (status != HttpStatus.SC_OK) {
-                    throw new TransactionServiceException("could not get open / daily orders screen, status: " + get.getStatusLine());
+                    throw new SyncOrderServiceException("could not get open / daily orders screen, status: " + get.getStatusLine());
                 }
 
             } finally {
@@ -306,19 +306,19 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
                     + security.getIsin() + "')]/td[10]");
 
             if (openNode != null || unreleasedNode != null) {
-                order.setStatus(OrderStatus.OPEN);
+                order.setStatus(Status.OPEN);
             } else if (partiallyExecutedNode != null) {
-                order.setStatus(OrderStatus.PARTIALLY_EXECUTED);
+                order.setStatus(Status.PARTIALLY_EXECUTED);
             } else if (executedNode != null) {
-                order.setStatus(OrderStatus.EXECUTED);
+                order.setStatus(Status.EXECUTED);
                 // keep going, the transaction ist executed but has not showed
                 // up under executed transactions yet
             } else if (unknownStateNode != null) {
-                throw new TransactionServiceException("unknown order status " + unknownStateNode.getFirstChild().getNodeValue() + " for order on: "
+                throw new SyncOrderServiceException("unknown order status " + unknownStateNode.getFirstChild().getNodeValue() + " for order on: "
                         + security.getSymbol());
             } else {
                 // the transaction has executed
-                order.setStatus(OrderStatus.EXECUTED);
+                order.setStatus(Status.EXECUTED);
                 break;
             }
 
@@ -336,7 +336,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
                 + "')]/td[11]");
 
         if (orderNumber == null) {
-            throw new TransactionServiceException("could not retrieve orderNumber to delete order: " + security.getSymbol());
+            throw new SyncOrderServiceException("could not retrieve orderNumber to delete order: " + security.getSymbol());
         }
 
         order.setNumber(Integer.parseInt(orderNumber));
@@ -359,7 +359,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
             Node node = XPathAPI.selectSingleNode(deleteScreen, "//strong[.='Löschauftrag']");
 
             if (status != HttpStatus.SC_INTERNAL_SERVER_ERROR || node == null) {
-                throw new TransactionServiceException("could not delete order after reaching timelimit: " + security.getSymbol() + ", status: "
+                throw new SyncOrderServiceException("could not delete order after reaching timelimit: " + security.getSymbol() + ", status: "
                         + get.getStatusLine());
             }
 
@@ -378,7 +378,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         Node dailyOrderNode = XPathAPI.selectSingleNode(openAndDailyOrdersScreen,
                 "//table[@class='trading']/tbody/tr[contains(td/a/@href, '" + security.getIsin() + "') and td='Ausgeführt'][1]");
         if (dailyOrderNode == null) {
-            throw new TransactionServiceException("transaction on " + security.getSymbol()
+            throw new SyncOrderServiceException("transaction on " + security.getSymbol()
                     + " did execute but did not show up under daily-orders within timelimit");
         }
 
@@ -388,7 +388,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
         Date dateTime = SqUtil.getDate(dateValue + " " + timeValue);
 
         if (DateUtil.getCurrentEPTime().getTime() - dateTime.getTime() > maxTransactionAge) {
-            throw new TransactionServiceException("transaction on " + security.getSymbol()
+            throw new SyncOrderServiceException("transaction on " + security.getSymbol()
                     + " did execute, but the selected transaction under daily orders is too old");
         }
 
@@ -408,7 +408,7 @@ public class SqTransactionServiceImpl extends SqTransactionServiceBase {
                     "results/trade/");
 
             if (status != HttpStatus.SC_OK) {
-                throw new TransactionServiceException("could not get executed transaction screen, status: " + get.getStatusLine());
+                throw new SyncOrderServiceException("could not get executed transaction screen, status: " + get.getStatusLine());
             }
 
         } catch (Exception e) {
