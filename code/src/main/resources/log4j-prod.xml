@@ -34,6 +34,13 @@
         </layout>
     </appender>
 
+    <appender name="INDICATOR" class="org.apache.log4j.FileAppender">
+        <param name="file" value="log/indicator.csv" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m %n" />
+        </layout>
+    </appender>
+
     <appender name="EMAIL" class="org.apache.log4j.net.SMTPAppender">
         <param name="SMTPHost" value="smtp.mail.yahoo.com" />
         <param name="SMTPUsername" value="andy_flury" />
@@ -145,8 +152,19 @@
         <appender-ref ref="TRANSACTION_SMS" />
     </logger>
 
-    <logger name="com.algoTrader.subscriber.PrintPortfolioValueSubscriber">
+    <logger name="com.algoTrader.esper.subscriber.PrintPortfolioValueSubscriber" additivity="false">
+        <level value="info" />
         <appender-ref ref="PORTFOLIO" />
+    </logger>
+
+    <logger name="com.algoTrader.esper.subscriber.IndicatorSubscriber" additivity="false">
+        <level value="info" />
+        <appender-ref ref="INDICATOR" />
+    </logger>
+
+    <logger name="com.algoTrader.esper.listener.IndicatorListener" additivity="false">
+        <level value="info" />
+        <appender-ref ref="INDICATOR" />
     </logger>
 
     <root>
