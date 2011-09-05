@@ -1,0 +1,78 @@
+@Name('CREATE_PORTFOLIO_VALUE')
+@Subscriber(className='com.algoTrader.esper.subscriber.PrintPortfolioValueSubscriber')
+insert into
+    Portfolio
+select
+    current_timestamp() as timestamp,
+    LookupUtil.getPortfolioValue() as value,
+    cashTransaction
+from
+    pattern[
+        every(timer:at (0, 10:18, *, *, 1:5)
+        or cashTransaction=Transaction(
+            type=TransactionType.CREDIT
+            or type=TransactionType.DEBIT
+            or type=TransactionType.INTREST_PAID
+            or type=TransactionType.INTREST_RECEIVED
+            or type=TransactionType.FEES)
+        or EndOfSimulation)]
+where
+    LookupUtil.hasLastTicks();
+
+@Name('SET_MARGINS')
+@Listeners(classNames={'com.algoTrader.service.PositionServiceImpl$SetMarginsListener'})
+@Condition(key='statement.setMargins')
+select
+    *
+from
+    pattern[every timer:at (0, 7, *, *, 1:5)];
+
+@Name('EXPIRE_POSITION')
+@Listeners(classNames={'com.algoTrader.service.PositionServiceImpl$ExpirePositionListener'})
+@Condition(key='statement.expirePosition')
+select
+    *
+from
+    pattern[every timer:at (0, 13, *, *, 5)];
+
+@Name('CLOSE_POSITION')
+@Subscriber(className='com.algoTrader.service.PositionServiceImpl$ClosePositionSubscriber')
+@Condition(key='statement.closePosition')
+select
+    position.id
+from
+    Tick as tick,
+    method:LookupUtil.getPositions(tick.security) as position
+where
+    position.quantity != 0
+and
+    position.exitValue != null
+and
+    ((position.direction = Direction.SHORT and (tick.currentValue >= position.exitValue))
+    or
+    (position.direction = Direction.LONG and (tick.currentValue <= position.exitValue)));
+
+@Name('PROCESS_CASH_TRANSACTIONS')
+@Listeners(classNames={'com.algoTrader.service.AccountServiceImpl$ProcessCashTransactionsListener'})
+@RunTimeOnly
+select *
+from
+    pattern[every timer:at (0, 8, *, *, 1:5)]
+where
+    simulation = false;
+
+@Name('REBALANCE_PORTFOLIO')
+@Listeners(classNames={'com.algoTrader.service.AccountServiceImpl$RebalancePortfolioListener'})
+@Condition(key='statement.rebalancePortfolio')
+select
+    *
+from
+    pattern[every timer:at (0, 18, 1, *, *) -> Portfolio];
+
+@Name('EQUALIZE_FOREX_PORTFOLIO')
+@Listeners(classNames={'com.algoTrader.service.ForexServiceImpl$EqualizeForexListener'})
+@Condition(key='statement.equalizeForex')
+select
+    *
+from
+    pattern[every timer:at (0, 10, *, *, 3) -> Portfolio];

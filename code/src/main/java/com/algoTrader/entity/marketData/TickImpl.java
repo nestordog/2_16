@@ -40,6 +40,16 @@ public class TickImpl extends Tick {
         return getCurrentValue().doubleValue();
     }
 
+    public BigDecimal getBidAskSpread() {
+
+        return RoundUtil.getBigDecimal(getBidAskSpreadDouble());
+    }
+
+    public double getBidAskSpreadDouble() {
+
+        return getBid().doubleValue() - getAsk().doubleValue();
+    }
+
     @Override
     public BigDecimal getBid() {
 

@@ -289,9 +289,9 @@ public class IbSyncMarketDataServiceImpl extends IbSyncMarketDataServiceBase imp
             List<Security> securities = getSecurityDao().findSecuritiesOnWatchlist();
             for (Security security : securities) {
 
-                int requestId = RequestIdManager.getInstance().getNextRequestId();
+                int requestId = RequestIDGenerator.singleton().getNextRequestId();
 
-                Contract contract = IbUtil.getContract(security);
+                Contract contract = IBUtil.getContract(security);
                 this.client.reqMktData(requestId, contract, genericTickList, false);
 
                 Tick tick = new TickImpl();
@@ -345,9 +345,9 @@ public class IbSyncMarketDataServiceImpl extends IbSyncMarketDataServiceBase imp
                 throw new IbSyncMarketDataServiceException("TWS ist not subscribed, security cannot be put on watchlist " + security.getSymbol());
             }
 
-            int requestId = RequestIdManager.getInstance().getNextRequestId();
+            int requestId = RequestIDGenerator.singleton().getNextRequestId();
 
-            Contract contract = IbUtil.getContract(security);
+            Contract contract = IBUtil.getContract(security);
             this.client.reqMktData(requestId, contract, genericTickList, false);
 
             Tick tick = new TickImpl();

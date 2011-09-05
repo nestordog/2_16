@@ -250,7 +250,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
 
             this.writer = new CsvTickWriter(security.getIsin());
 
-            Contract contract = IbUtil.getContract(security);
+            Contract contract = IBUtil.getContract(security);
 
             requestHistoricalDataForSecurity(contract, security, startDate, endDate, whatToShow);
 
@@ -270,7 +270,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
 
             this.writer = new CsvTickWriter(security.getIsin());
 
-            Contract contract = IbUtil.getContract(security);
+            Contract contract = IBUtil.getContract(security);
 
             requestHistoricalDataForSecurity(contract, security, startDate, endDate, whatToShow);
         }
@@ -339,7 +339,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
 
             try {
 
-                int requestId = RequestIdManager.getInstance().getNextRequestId();
+                int requestId = RequestIDGenerator.singleton().getNextRequestId();
                 this.requestIdDateMap.put(requestId, date);
                 this.requestIdWhatToShowMap.put(requestId, whatToShow);
 

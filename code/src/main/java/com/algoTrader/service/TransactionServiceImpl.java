@@ -5,6 +5,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.PositionImpl;
 import com.algoTrader.entity.Strategy;
@@ -31,8 +32,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
     protected void handleCreateTransaction(Fill fill) throws Exception {
 
-        Strategy strategy = null; // TODO fill.getParentOrder().getStrategy();
-        Security security = null; // TODO fill.getParentOrder().getSecurity();
+        Strategy strategy = fill.getParentOrder().getStrategy();
+        Security security = fill.getParentOrder().getSecurity();
 
         // lock and initialize the security & strategy
         Session session = this.getSessionFactory().getCurrentSession();
@@ -55,6 +56,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setCommission(fill.getCommission());
 
         persistTransaction(transaction);
+        propagateTransaction(transaction);
     }
 
     protected void handlePersistTransaction(Transaction transaction) throws Exception {
@@ -157,4 +159,41 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         }
 
     }
+
+    @Override
+    protected void handlePropagateTransaction(Transaction transaction) {
+
+        // also send the transaction to the corresponding strategy
+        getRuleService().sendEvent(transaction.getStrategy().getName(), transaction);
+    }
+
+    @Override
+    protected void handlePropagateFill(Fill fill) throws Exception {
+
+        // send the fill to the strategy that placed the corresponding order
+        getRuleService().sendEvent(fill.getParentOrder().getStrategy().getName(), fill);
+    }
+
+    public static class CreateTransactionSubscriber {
+
+        public void update(Fill fill) {
+
+            long startTime = System.currentTimeMillis();
+            logger.info("createTransaction start");
+
+            ServiceLocator.commonInstance().getTransactionService().createTransaction(fill);
+
+            logger.info("createTransaction end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+        }
+
+    }
+
+    public static class PropagateFillSubscriber {
+
+        public void update(Fill fill) {
+
+            ServiceLocator.serverInstance().getTransactionService().propagateFill(fill);
+        }
+    }
+
 }

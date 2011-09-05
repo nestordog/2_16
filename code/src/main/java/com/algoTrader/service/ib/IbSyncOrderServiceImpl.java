@@ -178,7 +178,7 @@ public class IbSyncOrderServiceImpl extends IbTransactionServiceBase implements 
 
                 logger.debug("nextValidId: " + orderId);
 
-                RequestIdManager.getInstance().initializeOrderId(orderId);
+                RequestIDGenerator.singleton().initializeOrderId(orderId);
             }
 
             @Override
@@ -442,7 +442,7 @@ public class IbSyncOrderServiceImpl extends IbTransactionServiceBase implements 
 
         PartialOrder partialOrder = order.createPartialOrder();
 
-        partialOrder.setOrderId(RequestIdManager.getInstance().getNextOrderId());
+        partialOrder.setOrderId(RequestIDGenerator.singleton().getNextOrderId());
 
         this.partialOrdersMap.put(partialOrder.getOrderId(), partialOrder);
     }
@@ -451,7 +451,7 @@ public class IbSyncOrderServiceImpl extends IbTransactionServiceBase implements 
 
         this.executedMap.put(partialOrder.getOrderId(), false);
 
-        Contract contract = IbUtil.getContract(partialOrder.getParentOrder().getSecurity());
+        Contract contract = IBUtil.getContract(partialOrder.getParentOrder().getSecurity());
 
         com.ib.client.Order ibOrder = new com.ib.client.Order();
         ibOrder.m_action = partialOrder.getParentOrder().getTransactionType().toString();

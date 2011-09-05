@@ -1,0 +1,21 @@
+@Name('PROPAGATE_ORDER_STATUS')
+@Subscriber(className='com.algoTrader.service.OrderServiceImpl$PropagateOrderStatusSubscriber')
+select
+    *
+from
+    OrderStatus;
+
+@Name('PROPAGATE_FILL')
+@Priority(1)
+@Subscriber(className='com.algoTrader.service.TransactionServiceImpl$PropagateFillSubscriber')
+select
+    *
+from
+    Fill;
+
+@Name('CREATE_TRANSACTION')
+@Subscriber(className='com.algoTrader.service.TransactionServiceImpl$CreateTransactionSubscriber')
+select
+    *
+from
+    Fill;

@@ -1,0 +1,29 @@
+@Name('RETRIEVE_MINUTE_TICKS')
+@Subscriber(className='com.algoTrader.service.SyncMarketDataServiceImpl$RetrieveTickSubscriber')
+@RunTimeOnly
+select
+    security.id
+from
+    pattern[every timer:at (*, 7:22, *, *, 1:5)],
+    method:LookupUtil.getSecuritiesOnWatchlistByPeriodicity('MINUTE') as security
+where
+    simulation = false;
+
+@Name('RETRIEVE_HOUR_TICKS')
+@Subscriber(className='com.algoTrader.service.SyncMarketDataServiceImpl$RetrieveTickSubscriber')
+@RunTimeOnly
+select
+    security.id
+from
+    pattern[every timer:at (0, 7:22, *, *, 1:5)],
+    method:LookupUtil.getSecuritiesOnWatchlistByPeriodicity('HOUR') as security
+where
+    simulation = false;
+
+@Name('PROPAGATE_MARKET_DATA_EVENTS')
+@Priority(1)
+@Subscriber(className='com.algoTrader.service.SyncMarketDataServiceImpl$PropagateTickSubscriber')
+select
+    *
+from
+    com.algoTrader.entity.marketData.MarketDataEvent;

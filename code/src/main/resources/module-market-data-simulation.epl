@@ -1,0 +1,81 @@
+@Name('SIMULATE_STOCK_OPTIONS')
+@Condition(key='statement.simulateStockOptions')
+@Priority(2)
+@SimulationOnly
+insert into
+    Tick
+select
+    current_timestamp.toDate() as dateTime,
+    RoundUtil.getBigDecimal(StockOptionUtil.getOptionPrice(option, indexTick.currentValueDouble, volaTick.currentValueDouble / 100)) as last,
+    current_timestamp.toDate() as lastDateTime,
+    0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
+    option as security
+from
+    pattern [every indexTick=Tick(instanceof(security, com.algoTrader.entity.security.EquityIndex)) -> (volaTick=Tick(security.id=indexTick.security.volatility.id) and not Tick(security.id=indexTick.security.id))],
+    method:LookupUtil.getStockOptionsOnWatchlist() as option
+where
+    option.underlaying.id = indexTick.security.id;
+
+@Name('LOAD_STOCK_OPTIONS_TICKS_FROM_DB')
+@Condition(key='statement.loadStockOptionsFromDB')
+@Priority(2)
+@SimulationOnly
+insert into
+    Tick
+select
+    tick.dateTime as dateTime,
+    tick.last as last,
+    tick.lastDateTime as lastDateTime,
+    tick.vol as vol,
+    tick.volBid as volBid,
+    tick.volAsk as volAsk,
+    case when tick.bid > 0 then tick.bid else 0.01 end as bid,
+    tick.ask as ask,
+    tick.openIntrest as openIntrest,
+    tick.settlement as settlement,
+    tick.security as security
+from
+    pattern [every (indexTick=Tick(instanceof(security, com.algoTrader.entity.security.EquityIndex)) -> volaTick=Tick(security.id=indexTick.security.volatility.id))],
+    method:LookupUtil.getStockOptionsOnWatchlist() as option,
+    method:LookupUtil.getTickByDateAndSecurity(indexTick.dateTime, option.id) as tick
+where
+    option.underlaying.id = indexTick.security.id;
+
+@Name('SIMULATE_FUTURES_BY_UNDERLYING')
+@Condition(key='statement.simulateFuturesByUnderlaying')
+@Priority(2)
+@SimulationOnly
+insert into
+    Tick
+select
+    current_timestamp.toDate() as dateTime,
+    RoundUtil.getBigDecimal(FutureUtil.getFuturePrice(future, indexTick.currentValueDouble)) as last,
+    current_timestamp.toDate() as lastDateTime,
+    0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
+    future as security
+from
+    Tick(instanceof(security, com.algoTrader.entity.security.EquityIndex)) as indexTick,
+    method:LookupUtil.getFuturesOnWatchlist() as future
+where
+    future.underlaying.id = indexTick.security.id;
+
+@Name('SIMULATE_FUTURES_BY_GENERIC_FUTURES')
+@Condition(key='statement.simulateFuturesByGenericFutures')
+@Priority(2)
+@SimulationOnly
+insert into
+    Tick
+select
+    current_timestamp.toDate() as dateTime,
+    genericFutureTick.last as last,
+    current_timestamp.toDate() as lastDateTime,
+    0 as vol, 0 as volBid, 0 as volAsk,    cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask,    0 as openIntrest, cast(0.0, BigDecimal) as settlement,
+    future as security
+from
+    Tick(instanceof(security, com.algoTrader.entity.security.GenericFuture)) as genericFutureTick,
+    method:LookupUtil.getFuturesOnWatchlist() as future
+where
+    future.underlaying.id = genericFutureTick.security.underlaying.id
+and
+    future.expiration = cast(genericFutureTick.security.expiration?, java.util.Date);
+
