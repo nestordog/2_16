@@ -2,6 +2,7 @@ package com.algoTrader.service.ib;
 
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,7 +78,8 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
     private static final String statementUrl = "https://www.interactivebrokers.com/Universal/servlet/FlexStatementService.GetStatement";
 
     private static SimpleDateFormat fileFormat = new SimpleDateFormat("yyyyMMdd_kkmmss");
-    private static SimpleDateFormat transactionFormat = new SimpleDateFormat("yyyy-MM-dd, kk:mm:ss");
+    private static SimpleDateFormat transactionDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd, kk:mm:ss");
+    private static SimpleDateFormat transactionDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
     protected void handleInit() throws java.lang.Exception {
@@ -328,7 +330,13 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
             String currencyString = XPathAPI.selectSingleNode(node, "@currency").getNodeValue();
             String typeString = XPathAPI.selectSingleNode(node, "@type").getNodeValue();
 
-            Date dateTime = transactionFormat.parse(dateTimeString);
+            Date dateTime = null;
+            try {
+                dateTime = transactionDateTimeFormat.parse(dateTimeString);
+            } catch (ParseException e) {
+                dateTime = transactionDateFormat.parse(dateTimeString);
+            }
+
             double amountDouble = Double.parseDouble(amountString);
             Currency currency = Currency.fromString(currencyString);
             String description = accountId + " " + desc;
@@ -382,7 +390,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
 
             // @formatter:off
             logger.info("executed cash transaction" +
-                    " dateTime: " + transactionFormat.format(transaction.getDateTime()) +
+                    " dateTime: " + transactionDateTimeFormat.format(transaction.getDateTime()) +
                     " price: " + transaction.getPrice() +
                     " type: " + transaction.getType() +
                     " description: " + transaction.getDescription());
