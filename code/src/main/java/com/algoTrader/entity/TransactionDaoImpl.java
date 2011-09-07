@@ -1,5 +1,7 @@
 package com.algoTrader.entity;
 
+import java.math.BigDecimal;
+
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.vo.TransactionVO;
@@ -30,15 +32,16 @@ public class TransactionDaoImpl extends TransactionDaoBase {
 
         Security security = transaction.getSecurity();
         if (security != null) {
-
             transactionVO.setSymbol(security.getSymbol());
-            transactionVO.setPrice(transaction.getPrice().setScale(security.getSecurityFamily().getScale()));
+
+            int scale = security.getSecurityFamily().getScale();
+            transactionVO.setPrice(transaction.getPrice().setScale(scale, BigDecimal.ROUND_HALF_UP));
         } else {
-            transactionVO.setPrice(transaction.getPrice().setScale(portfolioDigits));
+            transactionVO.setPrice(transaction.getPrice().setScale(portfolioDigits, BigDecimal.ROUND_HALF_UP));
         }
 
-        transactionVO.setValue(transaction.getNetValue().setScale(portfolioDigits));
-        transactionVO.setCommission(transaction.getCommission().setScale(portfolioDigits));
+        transactionVO.setValue(transaction.getNetValue().setScale(portfolioDigits, BigDecimal.ROUND_HALF_UP));
+        transactionVO.setCommission(transaction.getCommission().setScale(portfolioDigits, BigDecimal.ROUND_HALF_UP));
     }
 
     @Override
