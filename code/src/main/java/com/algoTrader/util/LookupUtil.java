@@ -30,9 +30,9 @@ public class LookupUtil {
         return ServiceLocator.commonInstance().getLookupService().getFuturesOnWatchlist();
     }
 
-    public static Future getFutureByDuration(int underlayingId, Date targetDate, int duration) {
+    public static Future getFutureByDuration(int futureFamilyId, Date targetDate, int duration) {
 
-        return ServiceLocator.commonInstance().getLookupService().getFutureByDuration(underlayingId, targetDate, duration);
+        return ServiceLocator.commonInstance().getLookupService().getFutureByDuration(futureFamilyId, targetDate, duration);
     }
 
     public static Security[] getSecuritiesOnWatchlist() {
