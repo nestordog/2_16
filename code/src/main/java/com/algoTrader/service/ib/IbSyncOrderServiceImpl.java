@@ -36,7 +36,7 @@ import com.ib.client.Contract;
 import com.ib.client.Execution;
 import com.ib.client.OrderState;
 
-public class IbSyncOrderServiceImpl extends IbTransactionServiceBase implements DisposableBean {
+public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements DisposableBean {
 
     private static final long serialVersionUID = 53702942258607379L;
 

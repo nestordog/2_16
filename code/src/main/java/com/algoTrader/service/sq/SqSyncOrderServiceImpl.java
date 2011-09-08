@@ -39,7 +39,7 @@ import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.TidyUtil;
 import com.algoTrader.util.XmlUtil;
 
-public class SqSyncOrderServiceImpl extends SqTransactionServiceBase {
+public class SqSyncOrderServiceImpl extends SqSyncOrderServiceBase {
 
     private static Logger logger = MyLogger.getLogger(SqSyncOrderServiceImpl.class.getName());
 
