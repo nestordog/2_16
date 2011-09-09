@@ -11,7 +11,6 @@ algotrader
 --ignore-table=algotrader.history ^
 --ignore-table=algotrader.position ^
 --ignore-table=algotrader.sabr_params ^
---ignore-table=algotrader.tick ^
 --ignore-table=algotrader.trade ^
 -c -t -u @localhost ^
 -r D:\AlgoTrader\code\sql\db-data.sql ^
