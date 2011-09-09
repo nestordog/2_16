@@ -12,6 +12,7 @@ import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.FragmentEventType;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventAdapterServiceImpl;
+import com.espertech.esper.event.EventTypeIdGeneratorImpl;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.servicexml.Property;
 import com.espertech.esperdds.renderer.ByteSerializer;
@@ -96,6 +97,6 @@ public class EventAdapterUtil {
     }
 
     private static Log log = LogFactory.getLog(EventAdapterUtil.class);
-    private static final EventAdapterService eventAdapterServiceImpl = new EventAdapterServiceImpl();
+    private static final EventAdapterService eventAdapterServiceImpl = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl());
 
 }

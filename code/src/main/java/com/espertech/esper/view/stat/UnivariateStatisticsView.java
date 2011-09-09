@@ -180,7 +180,7 @@ public final class UnivariateStatisticsView extends ViewSupport implements Clone
      * @param statementContext is the event adapter service
      * @return event type of view
      */
-    public static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps)
+    public static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps, int streamNum)
     {
         Map<String, Object> eventTypeMap = new HashMap<String, Object>();
         eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__DATAPOINTS.getName(), Long.class);
@@ -198,6 +198,7 @@ public final class UnivariateStatisticsView extends ViewSupport implements Clone
                 ViewFieldEnum.UNIVARIATE_STATISTICS__VARIANCE,
                 ViewFieldEnum.UNIVARIATE_STATISTICS__AVERAGE
                 );
-        return statementContext.getEventAdapterService().createAnonymousMapType(eventTypeMap);
+        String outputEventTypeName = statementContext.getStatementId() + "_statview_" + streamNum;
+        return statementContext.getEventAdapterService().createAnonymousMapType(outputEventTypeName, eventTypeMap);
     }
 }

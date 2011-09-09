@@ -4,12 +4,12 @@
 insert into
     MonthlyPerformance
 select
-    current_timestamp().toDate().minus(1 month) as date,
+    current_timestamp().minus(1 month).toDate() as date,
     portfolio.value.netLiqValue / prior(1, portfolio.value.netLiqValue) - 1 as value
 from
     pattern[(every timer:at (0, 0, 1, *, *) or EndOfSimulation) -> portfolio=Portfolio]
 having
-    prior(1, portfolio.value.netLiqValue) != null and
+    prior(1, portfolio.value.netLiqValue) is not null and
     portfolio.value.netLiqValue != prior(1, portfolio.value.netLiqValue);
 
 @Name('CREATE_PERFORMANCE_KEYS')
