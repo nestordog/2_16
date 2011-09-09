@@ -15,16 +15,16 @@ import com.ib.client.Order;
 import com.ib.client.OrderState;
 import com.ib.client.UnderComp;
 
-public class IbWrapper implements EWrapper {
+public class IBWrapper implements EWrapper {
 
-    private static Logger logger = MyLogger.getLogger(IbWrapper.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBWrapper.class.getName());
 
     private ConnectionState state = ConnectionState.DISCONNECTED;
     private boolean requested;
 
     private int clientId;
 
-    public IbWrapper(int clientId) {
+    public IBWrapper(int clientId) {
         this.clientId = clientId;
     }
 

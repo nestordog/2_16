@@ -30,11 +30,11 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.ib.client.Contract;
 
-public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase implements DisposableBean {
+public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase implements DisposableBean {
 
     private static final long serialVersionUID = 8656307573474662794L;
 
-    private static Logger logger = MyLogger.getLogger(IbHistoricalDataServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBHistoricalDataServiceImpl.class.getName());
 
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
     private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
@@ -44,8 +44,8 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
 
-    private IbClientSocket client;
-    private IbWrapper wrapper;
+    private IBClientSocket client;
+    private IBWrapper wrapper;
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
 
@@ -65,29 +65,29 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
             return;
         }
 
-        this.wrapper = new IbWrapper(clientId) {
+        this.wrapper = new IBWrapper(clientId) {
 
             @Override
             public void historicalData(int requestId, String dateString, double open, double high, double low, double close, int volume, int count, double WAP,
                     boolean hasGaps) {
 
-                IbHistoricalDataServiceImpl.this.lock.lock();
+                IBHistoricalDataServiceImpl.this.lock.lock();
                 try {
 
                     if (dateString.startsWith("finished")) {
 
-                        IbHistoricalDataServiceImpl.this.requestIdBooleanMap.put(requestId, true);
-                        IbHistoricalDataServiceImpl.this.condition.signalAll();
+                        IBHistoricalDataServiceImpl.this.requestIdBooleanMap.put(requestId, true);
+                        IBHistoricalDataServiceImpl.this.condition.signalAll();
 
                         return;
                     }
 
                     Date date = format.parse(dateString);
-                    Date requestedDate = IbHistoricalDataServiceImpl.this.requestIdDateMap.get(requestId);
+                    Date requestedDate = IBHistoricalDataServiceImpl.this.requestIdDateMap.get(requestId);
 
                     // retrieve ticks only between marketOpen & close
-                    if (DateUtil.compareTime(date, IbHistoricalDataServiceImpl.this.security.getSecurityFamily().getMarketClose()) > 0
-                            || DateUtil.compareTime(date, IbHistoricalDataServiceImpl.this.security.getSecurityFamily().getMarketOpen()) < 0) {
+                    if (DateUtil.compareTime(date, IBHistoricalDataServiceImpl.this.security.getSecurityFamily().getMarketClose()) > 0
+                            || DateUtil.compareTime(date, IBHistoricalDataServiceImpl.this.security.getSecurityFamily().getMarketOpen()) < 0) {
 
                         return;
                     }
@@ -98,7 +98,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
                         return;
                     }
 
-                    Tick tick = IbHistoricalDataServiceImpl.this.dateTickMap.get(date);
+                    Tick tick = IBHistoricalDataServiceImpl.this.dateTickMap.get(date);
                     if (tick == null) {
 
                         tick = new TickImpl();
@@ -112,13 +112,13 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
                         tick.setOpenIntrest(0);
                         tick.setSettlement(new BigDecimal(0));
 
-                        IbHistoricalDataServiceImpl.this.dateTickMap.put(date, tick);
+                        IBHistoricalDataServiceImpl.this.dateTickMap.put(date, tick);
                     }
 
-                    String whatToShow = IbHistoricalDataServiceImpl.this.requestIdWhatToShowMap.get(requestId);
+                    String whatToShow = IBHistoricalDataServiceImpl.this.requestIdWhatToShowMap.get(requestId);
 
                     if ("TRADES".equals(whatToShow)) {
-                        Entry<Date, Tick> entry = IbHistoricalDataServiceImpl.this.dateTickMap.lowerEntry(date);
+                        Entry<Date, Tick> entry = IBHistoricalDataServiceImpl.this.dateTickMap.lowerEntry(date);
                         if (entry != null) {
                             Tick lastTick = entry.getValue();
                             if (volume > 0) {
@@ -171,7 +171,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
-                    IbHistoricalDataServiceImpl.this.lock.unlock();
+                    IBHistoricalDataServiceImpl.this.lock.unlock();
                 }
             }
 
@@ -193,24 +193,24 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
                 // but should be available upon demand.
                 if (code == 162 || code == 165 || code == 2105 || code == 2106 || code == 2107) {
 
-                    IbHistoricalDataServiceImpl.this.lock.lock();
+                    IBHistoricalDataServiceImpl.this.lock.lock();
                     try {
 
                         if (code == 2105 || code == 2107) {
 
                             super.error(requestId, code, errorMsg);
-                            IbHistoricalDataServiceImpl.this.requestIdBooleanMap.put(requestId, false);
+                            IBHistoricalDataServiceImpl.this.requestIdBooleanMap.put(requestId, false);
                         }
 
                         if (code == 162) {
 
-                            logger.warn("HMDS query returned no data for " + IbHistoricalDataServiceImpl.this.requestIdDateMap.get(requestId));
-                            IbHistoricalDataServiceImpl.this.requestIdBooleanMap.put(requestId, true);
+                            logger.warn("HMDS query returned no data for " + IBHistoricalDataServiceImpl.this.requestIdDateMap.get(requestId));
+                            IBHistoricalDataServiceImpl.this.requestIdBooleanMap.put(requestId, true);
                         }
 
-                        IbHistoricalDataServiceImpl.this.condition.signalAll();
+                        IBHistoricalDataServiceImpl.this.condition.signalAll();
                     } finally {
-                        IbHistoricalDataServiceImpl.this.lock.unlock();
+                        IBHistoricalDataServiceImpl.this.lock.unlock();
                     }
                 } else {
                     super.error(requestId, code, errorMsg);
@@ -218,7 +218,7 @@ public class IbHistoricalDataServiceImpl extends IbHistoricalDataServiceBase imp
             }
         };
 
-        this.client = new IbClientSocket(this.wrapper);
+        this.client = new IBClientSocket(this.wrapper);
 
         connect();
     }

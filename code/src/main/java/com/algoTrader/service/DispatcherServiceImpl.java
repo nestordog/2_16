@@ -8,9 +8,9 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
     protected StockOptionRetrieverService handleGetStockOptionRetrieverService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
-            return getSqStockOptionRetrieverService();
+            return getSQStockOptionRetrieverService();
         } else if (MarketChannel.IB.getValue().equals(marketChannel)) {
-            return getIbStockOptionRetrieverService();
+            return getIBStockOptionRetrieverService();
         } else {
             throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
         }
@@ -20,9 +20,9 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
     protected SyncOrderService handleGetTransactionService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
-            return getSqSyncOrderService();
+            return getSQSyncOrderService();
         } else if (MarketChannel.IB.getValue().equals(marketChannel)) {
-            return getIbSyncOrderService();
+            return getIBSyncOrderService();
         } else {
             throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
         }
@@ -32,9 +32,9 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
     protected SyncMarketDataService handleGetMarketDataService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
-            return getSqSyncMarketDataService();
+            return getSQSyncMarketDataService();
         } else if (MarketChannel.IB.getValue().equals(marketChannel)) {
-            return getIbSyncMarketDataService();
+            return getIBSyncMarketDataService();
         } else {
             throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
         }
@@ -44,9 +44,9 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
     protected AccountService handleGetAccountService(MarketChannel marketChannel) {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
-            return getSqAccountService();
+            return getSQAccountService();
         } else if (MarketChannel.IB.getValue().equals(marketChannel)) {
-            return getIbAccountService();
+            return getIBAccountService();
         } else {
             throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
         }
@@ -56,9 +56,9 @@ public class DispatcherServiceImpl extends DispatcherServiceBase {
     protected HistoricalDataService handleGetHistoricalDataService(MarketChannel marketChannel) throws Exception {
 
         if (MarketChannel.SQ.getValue().equals(marketChannel)) {
-            return getSqHistoricalDataService();
+            return getSQHistoricalDataService();
         } else if (MarketChannel.IB.getValue().equals(marketChannel)) {
-            return getIbHistoricalDataService();
+            return getIBHistoricalDataService();
         } else {
             throw new UnsupportedOperationException("market Channel " + marketChannel + " does not exist");
         }

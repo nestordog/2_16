@@ -39,9 +39,9 @@ import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.TidyUtil;
 import com.algoTrader.util.XmlUtil;
 
-public class SqSyncOrderServiceImpl extends SqSyncOrderServiceBase {
+public class SQSyncOrderServiceImpl extends SQSyncOrderServiceBase {
 
-    private static Logger logger = MyLogger.getLogger(SqSyncOrderServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(SQSyncOrderServiceImpl.class.getName());
 
     private static int confirmationTimeout = ConfigurationUtil.getBaseConfig().getInt("swissquote.confirmationTimeout");
     private static int confirmationRetries = ConfigurationUtil.getBaseConfig().getInt("swissquote.confirmationRetries");
@@ -76,8 +76,8 @@ public class SqSyncOrderServiceImpl extends SqSyncOrderServiceBase {
                 validateTick(order, orderScreen);
 
                 // also only get the bid and ask the first time
-                bid = SqUtil.getDouble(SqUtil.getValue(orderScreen, String.format(tickMatch, "Geldkurs")));
-                ask = SqUtil.getDouble(SqUtil.getValue(orderScreen, String.format(tickMatch, "Briefkurs")));
+                bid = SQUtil.getDouble(SQUtil.getValue(orderScreen, String.format(tickMatch, "Geldkurs")));
+                ask = SQUtil.getDouble(SQUtil.getValue(orderScreen, String.format(tickMatch, "Briefkurs")));
             }
 
             Document confirmationScreen = getConfirmationScreen(order, client, orderScreen, Double.parseDouble(spreadPosition), bid, ask);
@@ -125,7 +125,7 @@ public class SqSyncOrderServiceImpl extends SqSyncOrderServiceBase {
         // get the order screen
         NameValuePair[] params = new NameValuePair[] { new NameValuePair("commandName", "trade"), new NameValuePair("isin", security.getIsin()),
                 new NameValuePair("currency", security.getSecurityFamily().getCurrency().toString()),
-                new NameValuePair("stockExchange", SqMarketConverter.marketToString(security.getSecurityFamily().getMarket())) };
+                new NameValuePair("stockExchange", SQMarketConverter.marketToString(security.getSecurityFamily().getMarket())) };
 
         GetMethod get = new GetMethod(dispatchUrl);
         get.setQueryString(params);
@@ -161,8 +161,8 @@ public class SqSyncOrderServiceImpl extends SqSyncOrderServiceBase {
         Node node;
         Set<NameValuePair> paramSet = new HashSet<NameValuePair>();
         while ((node = nodeIterator.nextNode()) != null) {
-            String name = SqUtil.getValue(node, "@name");
-            String value = SqUtil.getValue(node, "@value");
+            String name = SQUtil.getValue(node, "@name");
+            String value = SQUtil.getValue(node, "@value");
 
             if (name.equals("phase")) {
                 value = "confirm";
@@ -175,7 +175,7 @@ public class SqSyncOrderServiceImpl extends SqSyncOrderServiceBase {
         Position position = getPositionDao().findBySecurityAndStrategy(security.getId(), order.getStrategy().getName());
         String openClose = (position != null && position.isOpen()) ? "CLOSE" : "OPEN";
         String transactionTypeString = TransactionType.SELL.equals(transactionType) ? "SELL to " + openClose : "BUY to " + openClose;
-        String orderTransactionValue = SqUtil.getValue(orderScreen, "//tr[td/font/strong='" + transactionTypeString + "']/td/input/@value");
+        String orderTransactionValue = SQUtil.getValue(orderScreen, "//tr[td/font/strong='" + transactionTypeString + "']/td/input/@value");
         paramSet.add(new NameValuePair("order.transaction", orderTransactionValue));
 
         // quantity
@@ -186,15 +186,15 @@ public class SqSyncOrderServiceImpl extends SqSyncOrderServiceBase {
         paramSet.add(new NameValuePair("order.price", price.toString()));
 
         // stockExchange
-        String stockExchangeValue = SqUtil.getValue(orderScreen, "//select[@name='stockExchange']/option[@selected='selected']/@value");
+        String stockExchangeValue = SQUtil.getValue(orderScreen, "//select[@name='stockExchange']/option[@selected='selected']/@value");
         paramSet.add(new NameValuePair("stockExchange", stockExchangeValue));
 
         // orderType
-        String orderTypeValue = SqUtil.getValue(orderScreen, "//select[@name='order.orderType']/option[.='Limit']/@value");
+        String orderTypeValue = SQUtil.getValue(orderScreen, "//select[@name='order.orderType']/option[.='Limit']/@value");
         paramSet.add(new NameValuePair("order.orderType", orderTypeValue));
 
         // expiration
-        String expirationValue = SqUtil.getValue(orderScreen, "//select[@name='order.str_expiration']/option[1]/@value");
+        String expirationValue = SQUtil.getValue(orderScreen, "//select[@name='order.str_expiration']/option[1]/@value");
         paramSet.add(new NameValuePair("order.str_expiration", expirationValue));
 
         NameValuePair[] params = paramSet.toArray(new NameValuePair[0]);
@@ -234,8 +234,8 @@ public class SqSyncOrderServiceImpl extends SqSyncOrderServiceBase {
         Set<NameValuePair> paramSet = new HashSet<NameValuePair>();
         Node node;
         while ((node = nodeIterator.nextNode()) != null) {
-            String name = SqUtil.getValue(node, "@name");
-            String value = SqUtil.getValue(node, "@value");
+            String name = SQUtil.getValue(node, "@name");
+            String value = SQUtil.getValue(node, "@value");
 
             if (name.equals("phase")) {
                 value = "ack";
@@ -332,7 +332,7 @@ public class SqSyncOrderServiceImpl extends SqSyncOrderServiceBase {
 
         Security security = order.getSecurity();
 
-        String orderNumber = SqUtil.getValue(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[contains(td/a/@href, '" + security.getIsin()
+        String orderNumber = SQUtil.getValue(openAndDailyOrdersScreen, "//table[@class='trading maskMe']/tbody/tr[contains(td/a/@href, '" + security.getIsin()
                 + "')]/td[11]");
 
         if (orderNumber == null) {
@@ -383,16 +383,16 @@ public class SqSyncOrderServiceImpl extends SqSyncOrderServiceBase {
         }
 
         // parse the rest of the open/daily order screen
-        String dateValue = SqUtil.getValue(dailyOrderNode, String.format(columnMatch, "Datum"));
-        String timeValue = SqUtil.getValue(dailyOrderNode, String.format(columnMatch, "Zeit"));
-        Date dateTime = SqUtil.getDate(dateValue + " " + timeValue);
+        String dateValue = SQUtil.getValue(dailyOrderNode, String.format(columnMatch, "Datum"));
+        String timeValue = SQUtil.getValue(dailyOrderNode, String.format(columnMatch, "Zeit"));
+        Date dateTime = SQUtil.getDate(dateValue + " " + timeValue);
 
         if (DateUtil.getCurrentEPTime().getTime() - dateTime.getTime() > maxTransactionAge) {
             throw new SyncOrderServiceException("transaction on " + security.getSymbol()
                     + " did execute, but the selected transaction under daily orders is too old");
         }
 
-        String orderNumber = SqUtil.getValue(dailyOrderNode, String.format(columnMatch, "Auftrag"));
+        String orderNumber = SQUtil.getValue(dailyOrderNode, String.format(columnMatch, "Auftrag"));
         order.setNumber(Integer.parseInt(orderNumber));
 
         // get the executed transactions screen
@@ -420,20 +420,20 @@ public class SqSyncOrderServiceImpl extends SqSyncOrderServiceBase {
         int totalExecutedQuantity = 0;
         while ((node = nodeIterator.nextNode()) != null) {
 
-            String transactionNumber = SqUtil.getValue(node, String.format(columnMatch + "/a/@href", "Auftrag #"));
+            String transactionNumber = SQUtil.getValue(node, String.format(columnMatch + "/a/@href", "Auftrag #"));
             transactionNumber = transactionNumber.split("contractNumber=")[1];
 
-            String executedQuantityValue = SqUtil.getValue(node, String.format(columnMatch, "Anzahl"));
-            int executedQuantity = Math.abs(SqUtil.getInt(executedQuantityValue));
+            String executedQuantityValue = SQUtil.getValue(node, String.format(columnMatch, "Anzahl"));
+            int executedQuantity = Math.abs(SQUtil.getInt(executedQuantityValue));
             executedQuantity = TransactionType.SELL.equals(transactionType) ? -executedQuantity : executedQuantity;
             totalExecutedQuantity += executedQuantity;
 
-            String pricePerItemValue = SqUtil.getValue(node, String.format(columnMatch, "Stückpreis"));
-            double pricePerItem = SqUtil.getDouble(pricePerItemValue);
+            String pricePerItemValue = SQUtil.getValue(node, String.format(columnMatch, "Stückpreis"));
+            double pricePerItem = SQUtil.getDouble(pricePerItemValue);
             BigDecimal price = RoundUtil.getBigDecimal(pricePerItem);
 
-            String commissionValue = SqUtil.getValue(node, String.format(columnMatch + "/a", "Kommission"));
-            BigDecimal commission = RoundUtil.getBigDecimal(SqUtil.getDouble(commissionValue));
+            String commissionValue = SQUtil.getValue(node, String.format(columnMatch + "/a", "Kommission"));
+            BigDecimal commission = RoundUtil.getBigDecimal(SQUtil.getDouble(commissionValue));
 
             Transaction transaction = new TransactionImpl();
             transaction.setDateTime(dateTime);
@@ -456,17 +456,17 @@ public class SqSyncOrderServiceImpl extends SqSyncOrderServiceBase {
         long requestedQuantity = order.getRequestedQuantity();
 
         // create a temporary tick
-        String volBidValue = SqUtil.getValue(document, String.format(tickMatch, "Geldkurs-Volumen"));
-        int volBid = SqUtil.getInt(volBidValue);
+        String volBidValue = SQUtil.getValue(document, String.format(tickMatch, "Geldkurs-Volumen"));
+        int volBid = SQUtil.getInt(volBidValue);
 
-        String volAskValue = SqUtil.getValue(document, String.format(tickMatch, "Briefkurs-Volumen"));
-        int volAsk = SqUtil.getInt(volAskValue);
+        String volAskValue = SQUtil.getValue(document, String.format(tickMatch, "Briefkurs-Volumen"));
+        int volAsk = SQUtil.getInt(volAskValue);
 
-        String bidValue = SqUtil.getValue(document, String.format(tickMatch, "Geldkurs"));
-        BigDecimal bid = RoundUtil.getBigDecimal(SqUtil.getDouble(bidValue));
+        String bidValue = SQUtil.getValue(document, String.format(tickMatch, "Geldkurs"));
+        BigDecimal bid = RoundUtil.getBigDecimal(SQUtil.getDouble(bidValue));
 
-        String askValue = SqUtil.getValue(document, String.format(tickMatch, "Briefkurs"));
-        BigDecimal ask = RoundUtil.getBigDecimal(SqUtil.getDouble(askValue));
+        String askValue = SQUtil.getValue(document, String.format(tickMatch, "Briefkurs"));
+        BigDecimal ask = RoundUtil.getBigDecimal(SQUtil.getDouble(askValue));
 
         Tick tick = new TickImpl();
         tick.setSecurity(security);

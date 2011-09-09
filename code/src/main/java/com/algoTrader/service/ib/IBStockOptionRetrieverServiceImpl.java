@@ -7,7 +7,7 @@ import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.OptionType;
 
-public class IbStockOptionRetrieverServiceImpl extends IbStockOptionRetrieverServiceBase {
+public class IBStockOptionRetrieverServiceImpl extends IBStockOptionRetrieverServiceBase {
 
     private static final long serialVersionUID = 6446509772400405052L;
 

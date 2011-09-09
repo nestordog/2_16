@@ -1,7 +1,7 @@
 package com.algoTrader.starter;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.service.ib.IbHistoricalDataService;
+import com.algoTrader.service.ib.IBHistoricalDataService;
 
 public class HistoricalDataStarter {
 
@@ -19,7 +19,7 @@ public class HistoricalDataStarter {
             securityIds[i] = Integer.valueOf(securityIdStrings[i]);
         }
 
-        IbHistoricalDataService service = ServiceLocator.serverInstance().getIbHistoricalDataService();
+        IBHistoricalDataService service = ServiceLocator.serverInstance().getIBHistoricalDataService();
 
         service.init();
 
@@ -42,7 +42,7 @@ public class HistoricalDataStarter {
             securityIds[i] = Integer.valueOf(batch[2]);
         }
 
-        IbHistoricalDataService service = ServiceLocator.serverInstance().getIbHistoricalDataService();
+        IBHistoricalDataService service = ServiceLocator.serverInstance().getIBHistoricalDataService();
 
         service.init();
 

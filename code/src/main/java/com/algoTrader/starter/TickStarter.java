@@ -14,7 +14,7 @@ public class TickStarter {
     public static void start() {
 
         // initialitze IB services
-        ServiceLocator.serverInstance().getIbService().init();
+        ServiceLocator.serverInstance().getIBService().init();
 
         // start all BASE rules
         RuleService ruleService = ServiceLocator.serverInstance().getRuleService();

@@ -39,7 +39,7 @@ import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.TidyUtil;
 import com.algoTrader.util.XmlUtil;
 
-public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverServiceBase {
+public class SQStockOptionRetrieverServiceImpl extends SQStockOptionRetrieverServiceBase {
 
     private static final String optionUrl = "http://www.swissquote.ch/sq_mi/market/derivatives/optionfuture/OptionFuture.action?&type=option";
     private static Logger logger = MyLogger.getLogger(StockOptionRetrieverServiceImpl.class.getName());
@@ -83,7 +83,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
         StockOption stockOption = new StockOptionImpl();
 
-        String optionUrl = SqUtil.getValue(listDocument, "//td[contains(a/@class,'list')][" + (OptionType.CALL.equals(type) ? 1 : 2) + "]/a/@href");
+        String optionUrl = SQUtil.getValue(listDocument, "//td[contains(a/@class,'list')][" + (OptionType.CALL.equals(type) ? 1 : 2) + "]/a/@href");
         String param = optionUrl.split("=")[1];
         String isin = param.split("_")[0];
 
@@ -92,12 +92,12 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
         stockOption.setType(type);
         stockOption.setStrike(strike);
 
-        Document optionDocument = SqUtil.getSecurityDocument(stockOption);
+        Document optionDocument = SQUtil.getSecurityDocument(stockOption);
 
-        String dateValue = SqUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[4]/strong");
+        String dateValue = SQUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[4]/strong");
         Date expirationDate = new SimpleDateFormat("dd-MM-yyyy kk:mm:ss").parse(dateValue + " 13:00:00");
 
-        String symbolValue = SqUtil.getValue(optionDocument, "//body/div[1]//h1/text()[2]");
+        String symbolValue = SQUtil.getValue(optionDocument, "//body/div[1]//h1/text()[2]");
         String symbol = symbolValue.split("\\(")[0].trim().substring(1);
 
         stockOption.setExpiration(expirationDate);
@@ -156,18 +156,18 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
             stockOption.setIsin(isin);
 
-            Document optionDocument = SqUtil.getSecurityDocument(stockOption);
+            Document optionDocument = SQUtil.getSecurityDocument(stockOption);
 
-            String typeValue = SqUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[1]/strong");
+            String typeValue = SQUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[1]/strong");
             OptionType type = OptionType.fromString(typeValue.split("\\s")[0].toUpperCase());
 
-            String strikeValue = SqUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[2]/strong");
-            BigDecimal strike = RoundUtil.getBigDecimal(SqUtil.getDouble(strikeValue));
+            String strikeValue = SQUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[2]/strong");
+            BigDecimal strike = RoundUtil.getBigDecimal(SQUtil.getDouble(strikeValue));
 
-            String dateValue = SqUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[4]/strong");
+            String dateValue = SQUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[4]/strong");
             Date expirationDate = new SimpleDateFormat("dd-MM-yyyy kk:mm:ss").parse(dateValue + " 13:00:00");
 
-            String symbolValue = SqUtil.getValue(optionDocument, "//body/div[1]//h1/text()[2]");
+            String symbolValue = SQUtil.getValue(optionDocument, "//body/div[1]//h1/text()[2]");
             String symbol = symbolValue.split("\\(")[0].trim().substring(1);
 
             stockOption.setType(type);
@@ -221,7 +221,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
 
                 String title = underlyingNode.getFirstChild().getNodeValue();
 
-                String underlayingIsin = SqUtil.getValue(underlyingNode, "@value");
+                String underlayingIsin = SQUtil.getValue(underlyingNode, "@value");
 
                 String detailUrl = url + "&underlying=" + underlayingIsin;
 
@@ -248,7 +248,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
                     continue;
                 }
 
-                String underlayingUrl = SqUtil.getValue(underlayingTable, "td[1]/a/@href");
+                String underlayingUrl = SQUtil.getValue(underlayingTable, "td[1]/a/@href");
 
                 String underlayingMarketId = null;
                 String underlayingCurreny = null;
@@ -280,21 +280,21 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
                 Security underlaying = getSecurityDao().findByIsin(underlayingIsin);
                 if (underlaying == null) {
 
-                    String underlayingSymbol = SqUtil.getValue(underlayingTable, "td[1]/a");
-                    String underlayingLast = SqUtil.getValue(underlayingTable, "td[3]/strong/a");
+                    String underlayingSymbol = SQUtil.getValue(underlayingTable, "td[1]/a");
+                    String underlayingLast = SQUtil.getValue(underlayingTable, "td[3]/strong/a");
 
                     underlaying = new SecurityImpl();
                     underlaying.setSymbol(underlayingSymbol);
                     underlaying.setIsin(underlayingIsin);
 
                     SecurityFamily family = new SecurityFamilyImpl();
-                    family.setMarket(SqMarketConverter.marketFromString(underlayingMarketId));
+                    family.setMarket(SQMarketConverter.marketFromString(underlayingMarketId));
                     family.setCurrency(Currency.fromString(underlayingCurreny));
                     underlaying.setSecurityFamily(family);
 
                     Tick underlayingTick = new TickImpl();
                     underlayingTick.setDateTime(new Date());
-                    underlayingTick.setLast(RoundUtil.getBigDecimal(SqUtil.getDouble(underlayingLast)));
+                    underlayingTick.setLast(RoundUtil.getBigDecimal(SQUtil.getDouble(underlayingLast)));
                     underlayingTick.setLastDateTime(new Date());
                     underlayingTick.setSecurity(underlaying);
                     underlayingTick.setSettlement(new BigDecimal(0.0));
@@ -305,7 +305,7 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
                 }
 
                 // get the contract size
-                String optionCode = SqUtil.getValue(listDocument, "//table[tr/@align='CENTER']/tr[@align='LEFT']/td[8]/a/@href").split("=")[1];
+                String optionCode = SQUtil.getValue(listDocument, "//table[tr/@align='CENTER']/tr[@align='LEFT']/td[8]/a/@href").split("=")[1];
                 String optionIsin = optionCode.split("_")[0];
                 String optionMarketId = optionCode.split("_")[1];
                 String optionCurreny = optionCode.split("_")[2];
@@ -314,12 +314,12 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
                 stockOption.setIsin(optionIsin);
 
                 SecurityFamily family = new SecurityFamilyImpl();
-                family.setMarket(SqMarketConverter.marketFromString(optionMarketId));
+                family.setMarket(SQMarketConverter.marketFromString(optionMarketId));
                 family.setCurrency(Currency.fromString(optionCurreny));
                 stockOption.setSecurityFamily(family);
 
-                Document optionDocument = SqUtil.getSecurityDocument(stockOption);
-                String contractSize = SqUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[3]/strong");
+                Document optionDocument = SQUtil.getSecurityDocument(stockOption);
+                String contractSize = SQUtil.getValue(optionDocument, "//table[tr/td='Datum']/tr[10]/td[3]/strong");
 
                 NodeIterator optionIterator = XPathAPI.selectNodeIterator(listDocument, "//table[tr/@align='CENTER']/tr[count(td)>10]");
 
@@ -327,37 +327,37 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
                 Date optionExpiration = null;
                 while ((optionNode = optionIterator.nextNode()) != null) {
 
-                    String align = SqUtil.getValue(optionNode, "@align");
+                    String align = SQUtil.getValue(optionNode, "@align");
                     if (align.equals("CENTER")) {
-                        String monthUrl = SqUtil.getValue(optionNode, "td/strong/a/@href");
+                        String monthUrl = SQUtil.getValue(optionNode, "td/strong/a/@href");
                         String month = monthUrl.split("\\?")[1].split("&")[1].split("=")[1] + "01";
                         optionExpiration = new SimpleDateFormat("yyMMdd").parse(month);
 
                     } else {
-                        String optionStrike = SqUtil.getValue(optionNode, "td[6]/strong/a");
+                        String optionStrike = SQUtil.getValue(optionNode, "td[6]/strong/a");
 
-                        String callOptionIsin = SqUtil.getValue(optionNode, "td[5]/a/@href").split("=")[1].split("_")[0];
-                        String putOptionIsin = SqUtil.getValue(optionNode, "td[8]/a/@href").split("=")[1].split("_")[0];
+                        String callOptionIsin = SQUtil.getValue(optionNode, "td[5]/a/@href").split("=")[1].split("_")[0];
+                        String putOptionIsin = SQUtil.getValue(optionNode, "td[8]/a/@href").split("=")[1].split("_")[0];
 
-                        String callOptionOpenIntrest = SqUtil.getValue(optionNode, "td[1]");
-                        String callOptionVol = SqUtil.getValue(optionNode, "td[2]");
-                        String callOptionlLast = SqUtil.getValue(optionNode, "td[5]/a/strong");
-                        String putOptionLast = SqUtil.getValue(optionNode, "td[8]/a/strong");
-                        String putOptionVol = SqUtil.getValue(optionNode, "td[11]");
-                        String putOptionOpenIntrest = SqUtil.getValue(optionNode, "td[12]");
+                        String callOptionOpenIntrest = SQUtil.getValue(optionNode, "td[1]");
+                        String callOptionVol = SQUtil.getValue(optionNode, "td[2]");
+                        String callOptionlLast = SQUtil.getValue(optionNode, "td[5]/a/strong");
+                        String putOptionLast = SQUtil.getValue(optionNode, "td[8]/a/strong");
+                        String putOptionVol = SQUtil.getValue(optionNode, "td[11]");
+                        String putOptionOpenIntrest = SQUtil.getValue(optionNode, "td[12]");
 
                         StockOption callOption = new StockOptionImpl();
                         callOption.setIsin(callOptionIsin);
-                        callOption.setStrike(RoundUtil.getBigDecimal(SqUtil.getDouble(optionStrike)));
+                        callOption.setStrike(RoundUtil.getBigDecimal(SQUtil.getDouble(optionStrike)));
                         callOption.setType(OptionType.CALL);
                         callOption.setExpiration(optionExpiration);
                         callOption.setUnderlaying(underlaying);
                         securities.add(callOption);
 
                         SecurityFamily callOptionFamily = new SecurityFamilyImpl();
-                        callOptionFamily.setMarket(SqMarketConverter.marketFromString(optionMarketId));
+                        callOptionFamily.setMarket(SQMarketConverter.marketFromString(optionMarketId));
                         callOptionFamily.setCurrency(Currency.fromString(optionCurreny));
-                        callOptionFamily.setContractSize(SqUtil.getInt(contractSize));
+                        callOptionFamily.setContractSize(SQUtil.getInt(contractSize));
                         callOption.setSecurityFamily(family);
                         families.add(callOptionFamily);
 
@@ -365,26 +365,26 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
                         callOptionTick.setDateTime(new Date());
                         callOptionTick.setBid(new BigDecimal(0));
                         callOptionTick.setAsk(new BigDecimal(0));
-                        callOptionTick.setLast(RoundUtil.getBigDecimal(SqUtil.getDouble(callOptionlLast)));
+                        callOptionTick.setLast(RoundUtil.getBigDecimal(SQUtil.getDouble(callOptionlLast)));
                         callOptionTick.setLastDateTime(new Date());
-                        callOptionTick.setVol(SqUtil.getInt(callOptionVol));
-                        callOptionTick.setOpenIntrest(SqUtil.getInt(callOptionOpenIntrest));
+                        callOptionTick.setVol(SQUtil.getInt(callOptionVol));
+                        callOptionTick.setOpenIntrest(SQUtil.getInt(callOptionOpenIntrest));
                         callOptionTick.setSecurity(callOption);
                         callOptionTick.setSettlement(new BigDecimal(0.0));
                         ticks.add(callOptionTick);
 
                         StockOption putOption = new StockOptionImpl();
                         putOption.setIsin(putOptionIsin);
-                        putOption.setStrike(RoundUtil.getBigDecimal(SqUtil.getDouble(optionStrike)));
+                        putOption.setStrike(RoundUtil.getBigDecimal(SQUtil.getDouble(optionStrike)));
                         putOption.setType(OptionType.PUT);
                         putOption.setExpiration(optionExpiration);
                         putOption.setUnderlaying(underlaying);
                         securities.add(putOption);
 
                         SecurityFamily putOptionFamily = new SecurityFamilyImpl();
-                        putOptionFamily.setMarket(SqMarketConverter.marketFromString(optionMarketId));
+                        putOptionFamily.setMarket(SQMarketConverter.marketFromString(optionMarketId));
                         putOptionFamily.setCurrency(Currency.fromString(optionCurreny));
-                        putOptionFamily.setContractSize(SqUtil.getInt(contractSize));
+                        putOptionFamily.setContractSize(SQUtil.getInt(contractSize));
                         putOption.setSecurityFamily(family);
                         families.add(putOptionFamily);
 
@@ -392,10 +392,10 @@ public class SqStockOptionRetrieverServiceImpl extends SqStockOptionRetrieverSer
                         putOptionTick.setDateTime(new Date());
                         putOptionTick.setBid(new BigDecimal(0));
                         putOptionTick.setAsk(new BigDecimal(0));
-                        putOptionTick.setLast(RoundUtil.getBigDecimal(SqUtil.getDouble(putOptionLast)));
+                        putOptionTick.setLast(RoundUtil.getBigDecimal(SQUtil.getDouble(putOptionLast)));
                         putOptionTick.setLastDateTime(new Date());
-                        putOptionTick.setVol(SqUtil.getInt(putOptionVol));
-                        putOptionTick.setOpenIntrest(SqUtil.getInt(putOptionOpenIntrest));
+                        putOptionTick.setVol(SQUtil.getInt(putOptionVol));
+                        putOptionTick.setOpenIntrest(SQUtil.getInt(putOptionOpenIntrest));
                         putOptionTick.setSecurity(putOption);
                         putOptionTick.setSettlement(new BigDecimal(0.0));
                         ticks.add(putOptionTick);

@@ -36,11 +36,11 @@ import com.ib.client.Contract;
 import com.ib.client.Execution;
 import com.ib.client.OrderState;
 
-public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements DisposableBean {
+public class IBSyncOrderServiceImpl extends IBSyncOrderServiceBase implements DisposableBean {
 
     private static final long serialVersionUID = 53702942258607379L;
 
-    private static Logger logger = MyLogger.getLogger(IbSyncOrderServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBSyncOrderServiceImpl.class.getName());
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
 
@@ -59,8 +59,8 @@ public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements Di
     private static int transactionTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.transactionTimeout");
     private static int retrievalTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.retrievalTimeout");
 
-    private IbClientSocket client;
-    private IbWrapper wrapper;
+    private IBClientSocket client;
+    private IBWrapper wrapper;
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
 
@@ -77,7 +77,7 @@ public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements Di
             return;
         }
 
-        this.wrapper = new IbWrapper(clientId) {
+        this.wrapper = new IBWrapper(clientId) {
 
             @Override
             public void openOrder(int orderId, Contract contract, com.ib.client.Order order, OrderState orderState) {
@@ -97,7 +97,7 @@ public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements Di
                         " permId=" + order.m_permId);
                 // @formatter:on
 
-                IbSyncOrderServiceImpl.this.lock.lock();
+                IBSyncOrderServiceImpl.this.lock.lock();
                 try {
 
                     // adjust the requestedQuantity if necessary
@@ -105,7 +105,7 @@ public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements Di
                     //         Acct1: has 2 / Acct2: has 2
                     //         requestedQuantity: 1 -> 25%
                     //         PctChange will result int qty = 2
-                    PartialOrder partialOrder = IbSyncOrderServiceImpl.this.partialOrdersMap.get(orderId);
+                    PartialOrder partialOrder = IBSyncOrderServiceImpl.this.partialOrdersMap.get(orderId);
                     if (faEnabled && partialOrder.getRequestedQuantity() != order.m_totalQuantity) {
 
                         long oldRequestedQuantity = partialOrder.getRequestedQuantity();
@@ -115,7 +115,7 @@ public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements Di
                     }
 
                 } finally {
-                    IbSyncOrderServiceImpl.this.lock.unlock();
+                    IBSyncOrderServiceImpl.this.lock.unlock();
                 }
             }
 
@@ -133,10 +133,10 @@ public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements Di
                         " lastFillPrice: " + lastFillPrice);
                 //@formatter:on
 
-                IbSyncOrderServiceImpl.this.lock.lock();
+                IBSyncOrderServiceImpl.this.lock.lock();
                 try {
 
-                    PartialOrder partialOrder = IbSyncOrderServiceImpl.this.partialOrdersMap.get(orderId);
+                    PartialOrder partialOrder = IBSyncOrderServiceImpl.this.partialOrdersMap.get(orderId);
 
                     if (partialOrder == null) {
                         logger.error("orderId " + orderId + " was not found");
@@ -157,19 +157,19 @@ public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements Di
 
                         partialOrder.setStatus(Status.EXECUTED);
 
-                        IbSyncOrderServiceImpl.this.executedMap.put(orderId, true);
-                        IbSyncOrderServiceImpl.this.condition.signalAll();
+                        IBSyncOrderServiceImpl.this.executedMap.put(orderId, true);
+                        IBSyncOrderServiceImpl.this.condition.signalAll();
 
                     } else if ("Cancelled".equals(status)) {
 
                         partialOrder.setStatus(Status.CANCELED);
 
-                        IbSyncOrderServiceImpl.this.deletedMap.put(orderId, true);
-                        IbSyncOrderServiceImpl.this.condition.signalAll();
+                        IBSyncOrderServiceImpl.this.deletedMap.put(orderId, true);
+                        IBSyncOrderServiceImpl.this.condition.signalAll();
                     }
 
                 } finally {
-                    IbSyncOrderServiceImpl.this.lock.unlock();
+                    IBSyncOrderServiceImpl.this.lock.unlock();
                 }
             }
 
@@ -196,13 +196,13 @@ public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements Di
                         " avgPrice: " + execution.m_avgPrice);
                 //@formatter:on
 
-                IbSyncOrderServiceImpl.this.lock.lock();
+                IBSyncOrderServiceImpl.this.lock.lock();
                 try {
 
                     // if the execution does not represent a internal transfer create a transaction
                     if (!execution.m_execId.startsWith("F") && !execution.m_execId.startsWith("U")) {
 
-                        PartialOrder partialOrder = IbSyncOrderServiceImpl.this.partialOrdersMap.get(execution.m_orderId);
+                        PartialOrder partialOrder = IBSyncOrderServiceImpl.this.partialOrdersMap.get(execution.m_orderId);
                         Order order = partialOrder.getParentOrder();
                         int scale = order.getSecurity().getSecurityFamily().getScale();
 
@@ -234,7 +234,7 @@ public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements Di
                 } catch (ParseException e) {
                     logger.error("illegal time format ", e);
                 } finally {
-                    IbSyncOrderServiceImpl.this.lock.unlock();
+                    IBSyncOrderServiceImpl.this.lock.unlock();
                 }
             }
 
@@ -249,7 +249,7 @@ public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements Di
             @Override
             public void error(int id, int code, String errorMsg) {
 
-                String message = "client: " + IbSyncOrderServiceImpl.clientId + " id: " + id + " code: " + code + " " + errorMsg.replaceAll("\n", " ");
+                String message = "client: " + IBSyncOrderServiceImpl.clientId + " id: " + id + " code: " + code + " " + errorMsg.replaceAll("\n", " ");
 
                 if (code == 202) {
 
@@ -285,31 +285,31 @@ public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements Di
                     super.error(id, code, errorMsg);
                 }
 
-                IbSyncOrderServiceImpl.this.lock.lock();
+                IBSyncOrderServiceImpl.this.lock.lock();
                 try {
 
-                    PartialOrder partialOrder = IbSyncOrderServiceImpl.this.partialOrdersMap.get(id);
+                    PartialOrder partialOrder = IBSyncOrderServiceImpl.this.partialOrdersMap.get(id);
 
                     if (partialOrder != null) {
 
-                        IbSyncOrderServiceImpl.this.client.cancelOrder(partialOrder.getOrderId());
+                        IBSyncOrderServiceImpl.this.client.cancelOrder(partialOrder.getOrderId());
 
                         partialOrder.setStatus(Status.CANCELED);
 
-                        IbSyncOrderServiceImpl.this.deletedMap.put(id, true);
-                        IbSyncOrderServiceImpl.this.condition.signalAll();
+                        IBSyncOrderServiceImpl.this.deletedMap.put(id, true);
+                        IBSyncOrderServiceImpl.this.condition.signalAll();
 
-                        logger.info("client: " + IbSyncOrderServiceImpl.clientId + " order: " + id + " has been cancelled ");
+                        logger.info("client: " + IBSyncOrderServiceImpl.clientId + " order: " + id + " has been cancelled ");
                     }
 
                 } finally {
-                    IbSyncOrderServiceImpl.this.lock.unlock();
+                    IBSyncOrderServiceImpl.this.lock.unlock();
                 }
 
             }
         };
 
-        this.client = new IbClientSocket(this.wrapper);
+        this.client = new IBClientSocket(this.wrapper);
 
         connect();
     }
@@ -409,8 +409,8 @@ public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements Di
         Tick tick;
         while (true) {
 
-            RawTickVO rawTick = getIbSyncMarketDataService().retrieveTick(order.getSecurity());
-            tick = getIbSyncMarketDataService().completeRawTick(rawTick);
+            RawTickVO rawTick = getIBSyncMarketDataService().retrieveTick(order.getSecurity());
+            tick = getIBSyncMarketDataService().completeRawTick(rawTick);
 
             // validity check (volume and bid/ask spread)
             try {
@@ -559,11 +559,11 @@ public class IbSyncOrderServiceImpl extends IbSyncOrderServiceBase implements Di
                 return false;
 
             } else {
-                throw new IbSyncMarketDataServiceException("orderId: " + partialOrder.getOrderId() + " unappropriate order status: " + partialOrder.getStatus());
+                throw new IBSyncMarketDataServiceException("orderId: " + partialOrder.getOrderId() + " unappropriate order status: " + partialOrder.getStatus());
             }
 
         } catch (InterruptedException e) {
-            throw new IbSyncMarketDataServiceException("problem canceling order", e);
+            throw new IBSyncMarketDataServiceException("problem canceling order", e);
         } finally {
             this.lock.unlock();
         }

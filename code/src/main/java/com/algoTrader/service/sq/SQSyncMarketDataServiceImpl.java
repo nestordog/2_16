@@ -13,7 +13,7 @@ import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.RawTickVO;
 
-public class SqSyncMarketDataServiceImpl extends SqSyncMarketDataServiceBase {
+public class SQSyncMarketDataServiceImpl extends SQSyncMarketDataServiceBase {
 
     private static String exactMatch = "//tr/td[.='%1$s']/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[.='%1$s']/preceding-sibling::td)+1]/strong";
     private static String partialMatch = "//tr/td[contains(.,'%1$s')]/parent::tr/following-sibling::tr[1]/td[position()=count(//tr/td[contains(.,'%1$s')]/preceding-sibling::td)+1]/strong";
@@ -21,7 +21,7 @@ public class SqSyncMarketDataServiceImpl extends SqSyncMarketDataServiceBase {
     @Override
     protected RawTickVO handleRetrieveTick(Security security) throws Exception {
 
-        Document document = SqUtil.getSecurityDocument(security);
+        Document document = SQUtil.getSecurityDocument(security);
 
         if (XPathAPI.selectSingleNode(document, "//td[contains(.,'Error - Wrong instrument')]") != null) {
             throw new Exception("Wrong Instrument returned for " + security);
@@ -34,25 +34,25 @@ public class SqSyncMarketDataServiceImpl extends SqSyncMarketDataServiceBase {
         if (security instanceof StockOption) {
 
             // lastDateTime
-            String dateValue = SqUtil.getValue(document, String.format(exactMatch, "Datum"));
-            String timeValue = SqUtil.getValue(document, String.format(exactMatch, "Zeit"));
-            Date lastDateTime = SqUtil.getDate(dateValue + " " + (timeValue != null ? timeValue : "00:00:00"));
+            String dateValue = SQUtil.getValue(document, String.format(exactMatch, "Datum"));
+            String timeValue = SQUtil.getValue(document, String.format(exactMatch, "Zeit"));
+            Date lastDateTime = SQUtil.getDate(dateValue + " " + (timeValue != null ? timeValue : "00:00:00"));
 
             // volume
-            String volumeValue = SqUtil.getValue(document, String.format(exactMatch, "Volumen"));
-            int volume = SqUtil.getInt(volumeValue);
+            String volumeValue = SQUtil.getValue(document, String.format(exactMatch, "Volumen"));
+            int volume = SQUtil.getInt(volumeValue);
 
             // last
-            String lastValue = SqUtil.getValue(document, String.format(partialMatch, "Letzter"));
-            BigDecimal last = RoundUtil.getBigDecimal(SqUtil.getDouble(lastValue));
+            String lastValue = SQUtil.getValue(document, String.format(partialMatch, "Letzter"));
+            BigDecimal last = RoundUtil.getBigDecimal(SQUtil.getDouble(lastValue));
 
             // volBid
-            String volBidValue = SqUtil.getValue(document, String.format(exactMatch, "Vol. Geld"));
-            int volBid = SqUtil.getInt(volBidValue);
+            String volBidValue = SQUtil.getValue(document, String.format(exactMatch, "Vol. Geld"));
+            int volBid = SQUtil.getInt(volBidValue);
 
             // volAsk
-            String volAskValue = SqUtil.getValue(document, String.format(exactMatch, "Vol. Brief"));
-            int volAsk = SqUtil.getInt(volAskValue);
+            String volAskValue = SQUtil.getValue(document, String.format(exactMatch, "Vol. Brief"));
+            int volAsk = SQUtil.getInt(volAskValue);
 
             // check if market is closed
             if (volBid == 0 || volAsk == 0) {
@@ -60,20 +60,20 @@ public class SqSyncMarketDataServiceImpl extends SqSyncMarketDataServiceBase {
             }
 
             // bid
-            String bidValue = SqUtil.getValue(document, String.format(partialMatch, "Geldkurs"));
-            BigDecimal bid = RoundUtil.getBigDecimal(SqUtil.getDouble(bidValue));
+            String bidValue = SQUtil.getValue(document, String.format(partialMatch, "Geldkurs"));
+            BigDecimal bid = RoundUtil.getBigDecimal(SQUtil.getDouble(bidValue));
 
             // ask
-            String askValue = SqUtil.getValue(document, String.format(partialMatch, "Briefkurs"));
-            BigDecimal ask = RoundUtil.getBigDecimal(SqUtil.getDouble(askValue));
+            String askValue = SQUtil.getValue(document, String.format(partialMatch, "Briefkurs"));
+            BigDecimal ask = RoundUtil.getBigDecimal(SQUtil.getDouble(askValue));
 
             // openIntrest
-            String openIntrestValue = SqUtil.getValue(document, String.format(exactMatch, "Open Interest"));
-            int openIntrest = SqUtil.getInt(openIntrestValue);
+            String openIntrestValue = SQUtil.getValue(document, String.format(exactMatch, "Open Interest"));
+            int openIntrest = SQUtil.getInt(openIntrestValue);
 
             // settlement
-            String settlementValue = SqUtil.getValue(document, String.format(exactMatch, "Abrechnungspreis"));
-            BigDecimal settlement = RoundUtil.getBigDecimal(SqUtil.getDouble(settlementValue));
+            String settlementValue = SQUtil.getValue(document, String.format(exactMatch, "Abrechnungspreis"));
+            BigDecimal settlement = RoundUtil.getBigDecimal(SQUtil.getDouble(settlementValue));
 
             tick.setDateTime(new Date());
             tick.setLast(last);
@@ -89,23 +89,23 @@ public class SqSyncMarketDataServiceImpl extends SqSyncMarketDataServiceBase {
         } else if (security instanceof Security) {
 
             // lastDateTime
-            String dateValue = SqUtil.getValue(document, String.format(exactMatch, "Datum"));
-            String timeValue = SqUtil.getValue(document, String.format(exactMatch, "Zeit"));
+            String dateValue = SQUtil.getValue(document, String.format(exactMatch, "Datum"));
+            String timeValue = SQUtil.getValue(document, String.format(exactMatch, "Zeit"));
 
             // check if market is closed
             if (timeValue != null && Integer.parseInt(timeValue.replace(":", "")) >= 173000) {
                 return null;
             }
 
-            Date lastDateTime = SqUtil.getDate(dateValue + " " + (timeValue != null ? timeValue : "00:00:00"));
+            Date lastDateTime = SQUtil.getDate(dateValue + " " + (timeValue != null ? timeValue : "00:00:00"));
 
             // volume
-            String volumeValue = SqUtil.getValue(document, String.format(exactMatch, "Volumen"));
-            int volume = SqUtil.getInt(volumeValue);
+            String volumeValue = SQUtil.getValue(document, String.format(exactMatch, "Volumen"));
+            int volume = SQUtil.getInt(volumeValue);
 
             // last
-            String lastValue = SqUtil.getValue(document, String.format(exactMatch, "Letzter"));
-            BigDecimal last = RoundUtil.getBigDecimal(SqUtil.getDouble(lastValue));
+            String lastValue = SQUtil.getValue(document, String.format(exactMatch, "Letzter"));
+            BigDecimal last = RoundUtil.getBigDecimal(SQUtil.getDouble(lastValue));
 
             tick.setDateTime(new Date());
             tick.setLast(last);

@@ -22,7 +22,7 @@ import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.util.TidyUtil;
 import com.algoTrader.util.XmlUtil;
 
-public class SqUtil {
+public class SQUtil {
 
     private static String stockOptionUrl = "http://premium.swissquote.ch/sq_mi/market/Detail.action?s=";
     private static String indexUrl = "http://premium.swissquote.ch/fcgi-bin/stockfquote?symbols=";
@@ -31,7 +31,7 @@ public class SqUtil {
 
         GetMethod get;
         if (security instanceof StockOption) {
-            get = new GetMethod(stockOptionUrl + security.getIsin() + "_" + SqMarketConverter.marketToString(security.getSecurityFamily().getMarket()) + "_"
+            get = new GetMethod(stockOptionUrl + security.getIsin() + "_" + SQMarketConverter.marketToString(security.getSecurityFamily().getMarket()) + "_"
                     + security.getSecurityFamily().getCurrency());
         } else {
             get = new GetMethod(indexUrl + security.getSymbol() + "&language=d");

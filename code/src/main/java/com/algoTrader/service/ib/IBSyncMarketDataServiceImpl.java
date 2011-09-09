@@ -26,11 +26,11 @@ import com.algoTrader.vo.RawTickVO;
 import com.ib.client.Contract;
 import com.ib.client.TickType;
 
-public class IbSyncMarketDataServiceImpl extends IbSyncMarketDataServiceBase implements DisposableBean {
+public class IBSyncMarketDataServiceImpl extends IBSyncMarketDataServiceBase implements DisposableBean {
 
     private static final long serialVersionUID = 5779016556295893308L;
 
-    private static Logger logger = MyLogger.getLogger(IbSyncMarketDataServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBSyncMarketDataServiceImpl.class.getName());
 
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
     private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
@@ -38,8 +38,8 @@ public class IbSyncMarketDataServiceImpl extends IbSyncMarketDataServiceBase imp
 
     private static String genericTickList = ConfigurationUtil.getBaseConfig().getString("ib.genericTickList");
 
-    private IbClientSocket client;
-    private IbWrapper wrapper;
+    private IBClientSocket client;
+    private IBWrapper wrapper;
 
     private Map<Integer, Tick> requestIdToTickMap;
     private Map<Security, Integer> securityToRequestIdMap;
@@ -54,12 +54,12 @@ public class IbSyncMarketDataServiceImpl extends IbSyncMarketDataServiceBase imp
             return;
         }
 
-        this.wrapper = new IbWrapper(clientId) {
+        this.wrapper = new IBWrapper(clientId) {
 
             @Override
             public void tickPrice(int requestId, int field, double price, int canAutoExecute) {
 
-                Tick tick = IbSyncMarketDataServiceImpl.this.requestIdToTickMap.get(requestId);
+                Tick tick = IBSyncMarketDataServiceImpl.this.requestIdToTickMap.get(requestId);
 
                 if (tick == null) {
                     return;
@@ -87,7 +87,7 @@ public class IbSyncMarketDataServiceImpl extends IbSyncMarketDataServiceBase imp
             @Override
             public void tickSize(int requestId, int field, int size) {
 
-                Tick tick = IbSyncMarketDataServiceImpl.this.requestIdToTickMap.get(requestId);
+                Tick tick = IBSyncMarketDataServiceImpl.this.requestIdToTickMap.get(requestId);
 
                 if (tick == null) {
                     return;
@@ -115,7 +115,7 @@ public class IbSyncMarketDataServiceImpl extends IbSyncMarketDataServiceBase imp
             @Override
             public void tickString(int requestId, int field, String value) {
 
-                Tick tick = IbSyncMarketDataServiceImpl.this.requestIdToTickMap.get(requestId);
+                Tick tick = IBSyncMarketDataServiceImpl.this.requestIdToTickMap.get(requestId);
 
                 if (tick == null) {
                     return;
@@ -140,7 +140,7 @@ public class IbSyncMarketDataServiceImpl extends IbSyncMarketDataServiceBase imp
 
                 if (code == 200) {
 
-                    Tick tick = IbSyncMarketDataServiceImpl.this.requestIdToTickMap.get(id);
+                    Tick tick = IBSyncMarketDataServiceImpl.this.requestIdToTickMap.get(id);
                     logger.debug("No security definition has been found for: " + tick.getSecurity().getSymbol());
 
                 } else {
@@ -159,9 +159,9 @@ public class IbSyncMarketDataServiceImpl extends IbSyncMarketDataServiceBase imp
 
                 Security security = tick.getSecurity();
                 if (isValid(tick)) {
-                    IbSyncMarketDataServiceImpl.this.validSecurities.add(security);
+                    IBSyncMarketDataServiceImpl.this.validSecurities.add(security);
                 } else {
-                    IbSyncMarketDataServiceImpl.this.validSecurities.remove(tick.getSecurity());
+                    IBSyncMarketDataServiceImpl.this.validSecurities.remove(tick.getSecurity());
 
                 }
             }
@@ -246,7 +246,7 @@ public class IbSyncMarketDataServiceImpl extends IbSyncMarketDataServiceBase imp
             }
         };
 
-        this.client = new IbClientSocket(this.wrapper);
+        this.client = new IBClientSocket(this.wrapper);
 
         connect();
     }
@@ -342,7 +342,7 @@ public class IbSyncMarketDataServiceImpl extends IbSyncMarketDataServiceBase imp
         if (!simulation) {
 
             if (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED)) {
-                throw new IbSyncMarketDataServiceException("TWS ist not subscribed, security cannot be put on watchlist " + security.getSymbol());
+                throw new IBSyncMarketDataServiceException("TWS ist not subscribed, security cannot be put on watchlist " + security.getSymbol());
             }
 
             int requestId = RequestIDGenerator.singleton().getNextRequestId();
@@ -365,7 +365,7 @@ public class IbSyncMarketDataServiceImpl extends IbSyncMarketDataServiceBase imp
         if (!simulation) {
 
             if (!this.wrapper.getState().equals(ConnectionState.SUBSCRIBED)) {
-                throw new IbSyncMarketDataServiceException("TWS ist not subscribed, security cannot be removed from watchlist " + security.getSymbol());
+                throw new IBSyncMarketDataServiceException("TWS ist not subscribed, security cannot be removed from watchlist " + security.getSymbol());
             }
 
             Integer requestId = this.securityToRequestIdMap.get(security);

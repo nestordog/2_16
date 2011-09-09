@@ -47,11 +47,11 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.XmlUtil;
 
-public class IbAccountServiceImpl extends IbAccountServiceBase implements DisposableBean {
+public class IBAccountServiceImpl extends IBAccountServiceBase implements DisposableBean {
 
     private static final long serialVersionUID = -9010045320078819079L;
 
-    private static Logger logger = MyLogger.getLogger(IbAccountServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBAccountServiceImpl.class.getName());
 
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
     private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
@@ -63,8 +63,8 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
     private static String flexToken = ConfigurationUtil.getBaseConfig().getString("ib.flexToken");
     private static String flexQueryId = ConfigurationUtil.getBaseConfig().getString("ib.flexQueryId");
 
-    private IbClientSocket client;
-    private IbWrapper wrapper;
+    private IBClientSocket client;
+    private IBWrapper wrapper;
 
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
@@ -88,38 +88,38 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
             return;
         }
 
-        this.wrapper = new IbWrapper(clientId) {
+        this.wrapper = new IBWrapper(clientId) {
 
             @Override
             public void updateAccountValue(String key, String value, String currency, String accountName) {
 
-                IbAccountServiceImpl.this.lock.lock();
+                IBAccountServiceImpl.this.lock.lock();
 
                 try {
 
-                    Map<String, String> values = IbAccountServiceImpl.this.allAccountValues.get(accountName);
+                    Map<String, String> values = IBAccountServiceImpl.this.allAccountValues.get(accountName);
                     values.put(key, value);
 
-                    IbAccountServiceImpl.this.condition.signalAll();
+                    IBAccountServiceImpl.this.condition.signalAll();
 
                 } finally {
-                    IbAccountServiceImpl.this.lock.unlock();
+                    IBAccountServiceImpl.this.lock.unlock();
                 }
             }
 
             @Override
             public void receiveFA(int faDataType, String xml) {
 
-                IbAccountServiceImpl.this.lock.lock();
+                IBAccountServiceImpl.this.lock.lock();
 
                 try {
 
-                    IbAccountServiceImpl.this.fa = xml;
+                    IBAccountServiceImpl.this.fa = xml;
 
-                    IbAccountServiceImpl.this.condition.signalAll();
+                    IBAccountServiceImpl.this.condition.signalAll();
 
                 } finally {
-                    IbAccountServiceImpl.this.lock.unlock();
+                    IBAccountServiceImpl.this.lock.unlock();
                 }
             }
 
@@ -132,7 +132,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
             }
         };
 
-        this.client = new IbClientSocket(this.wrapper);
+        this.client = new IBClientSocket(this.wrapper);
 
         connect();
     }
@@ -161,44 +161,44 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
 
     private String retrieveAccountValue(String accountName, String currency, String key) throws InterruptedException {
 
-        IbAccountServiceImpl.this.lock.lock();
+        IBAccountServiceImpl.this.lock.lock();
 
         try {
 
-            IbAccountServiceImpl.this.allAccountValues.put(accountName, new HashMap<String, String>());
+            IBAccountServiceImpl.this.allAccountValues.put(accountName, new HashMap<String, String>());
 
             this.client.reqAccountUpdates(true, accountName);
 
             while (this.allAccountValues.get(accountName) == null || this.allAccountValues.get(accountName).get(key) == null) {
 
                 if (!this.condition.await(retrievalTimeout, TimeUnit.SECONDS)) {
-                    throw new IbAccountServiceException("could not get EquityWithLoanValue for account: " + accountName);
+                    throw new IBAccountServiceException("could not get EquityWithLoanValue for account: " + accountName);
                 }
             }
         } finally {
-            IbAccountServiceImpl.this.lock.unlock();
+            IBAccountServiceImpl.this.lock.unlock();
         }
         return this.allAccountValues.get(accountName).get(key);
     }
 
     private Set<String> getAccounts() throws Exception {
 
-        IbAccountServiceImpl.this.lock.lock();
+        IBAccountServiceImpl.this.lock.lock();
 
         try {
 
-            IbAccountServiceImpl.this.fa = null;
+            IBAccountServiceImpl.this.fa = null;
 
             this.client.requestFA(1);
 
             while (this.fa == null) {
 
                 if (!this.condition.await(retrievalTimeout, TimeUnit.SECONDS)) {
-                    throw new IbAccountServiceException("could not get FA ");
+                    throw new IBAccountServiceException("could not get FA ");
                 }
             }
         } finally {
-            IbAccountServiceImpl.this.lock.unlock();
+            IBAccountServiceImpl.this.lock.unlock();
         }
 
         // get the xml-document
@@ -249,7 +249,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
         }
 
         if (("").equals(flexQueryId) || ("").equals(flexToken)) {
-            throw new IbAccountServiceException("flexQueryId and flexToken have to be defined");
+            throw new IBAccountServiceException("flexQueryId and flexToken have to be defined");
         }
 
         String url = requestUrl + "?t=" + flexToken + "&q=" + flexQueryId;
@@ -281,7 +281,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
         String code = XPathAPI.selectSingleNode(document, "//code/text()").getNodeValue();
 
         if (!NumberUtils.isDigits(code)) {
-            throw new IbAccountServiceException(code);
+            throw new IBAccountServiceException(code);
         }
 
         // get the statement
@@ -308,7 +308,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
 
         Node errorNode = XPathAPI.selectSingleNode(document, "/FlexStatementResponse/code/text()");
         if (errorNode != null) {
-            throw new IbAccountServiceException(errorNode.getNodeValue());
+            throw new IBAccountServiceException(errorNode.getNodeValue());
         }
 
         NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//CashTransaction");
@@ -355,7 +355,7 @@ public class IbAccountServiceImpl extends IbAccountServiceBase implements Dispos
                     transactionType = TransactionType.DEBIT;
                 }
             } else {
-                throw new IbAccountServiceException("unknown cast transaction type " + typeString);
+                throw new IBAccountServiceException("unknown cast transaction type " + typeString);
             }
 
             BigDecimal amount = RoundUtil.getBigDecimal(Math.abs(amountDouble));

@@ -21,7 +21,7 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     @Override
     protected void handleReconnectIB() throws Exception {
 
-        getIbService().connect();
+        getIBService().connect();
     }
 
     @Override
@@ -46,7 +46,7 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     @SuppressWarnings("unchecked")
     protected Map<String, ConnectionState> handleGetAllConnectionStates() {
 
-        return getIbService().getAllConnectionStates();
+        return getIBService().getAllConnectionStates();
     }
 
     @Override

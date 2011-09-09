@@ -2,7 +2,7 @@ package com.algoTrader.service.sq;
 
 import com.algoTrader.entity.Strategy;
 
-public class SqAccountServiceImpl extends SqAccountServiceBase {
+public class SQAccountServiceImpl extends SQAccountServiceBase {
 
     @Override
     protected long handleGetNumberOfContractsByMargin(String strategyName, double initialMarginPerContractInBase) {

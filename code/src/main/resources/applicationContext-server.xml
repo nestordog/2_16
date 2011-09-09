@@ -28,22 +28,22 @@
     </bean>
 
     <!-- Interactive Broker Aliases -->
-    <alias name="ibStockOptionRetrieverService" alias="stockOptionRetrieverService"/>
-    <alias name="ibAccountService" alias="accountService"/>
-    <alias name="ibHistoricalDataService" alias="historicalDataService"/>
+    <alias name="iBStockOptionRetrieverService" alias="stockOptionRetrieverService"/>
+    <alias name="iBAccountService" alias="accountService"/>
+    <alias name="iBHistoricalDataService" alias="historicalDataService"/>
 
     <alias name="iBOrderService" alias="orderService"/>
     <alias name="iBMarketDataService" alias="marketDataService"/>
 
-    <alias name="ibSyncOrderService" alias="syncOrderService"/>
-    <alias name="ibSyncMarketDataService" alias="syncMarketDataService"/>
+    <alias name="iBSyncOrderService" alias="syncOrderService"/>
+    <alias name="iBSyncMarketDataService" alias="syncMarketDataService"/>
 
     <!-- Swissquote Aliases -->
-<!--     <alias name="sqStockOptionRetrieverService" alias="stockOptionRetrieverService"/> -->
-<!--     <alias name="sqTransactionService" alias="transactionService"/> -->
-<!--     <alias name="sqMarketDataService" alias="marketDataService"/> -->
-<!--     <alias name="sqAccountService" alias="accountService"/> -->
-<!--     <alias name="sqHistoricalDataService" alias="historicalDataService"/>     -->
+<!--     <alias name="sQStockOptionRetrieverService" alias="stockOptionRetrieverService"/> -->
+<!--     <alias name="sQTransactionService" alias="transactionService"/> -->
+<!--     <alias name="sQMarketDataService" alias="marketDataService"/> -->
+<!--     <alias name="sQAccountService" alias="accountService"/> -->
+<!--     <alias name="sQHistoricalDataService" alias="historicalDataService"/>     -->
 
     <!--  MBean Server -->
     <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">

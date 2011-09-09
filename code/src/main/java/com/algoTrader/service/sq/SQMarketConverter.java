@@ -2,7 +2,7 @@ package com.algoTrader.service.sq;
 
 import com.algoTrader.enumeration.Market;
 
-public class SqMarketConverter {
+public class SQMarketConverter {
 
     public static String marketToString(Market market) {
 
