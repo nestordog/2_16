@@ -19,7 +19,7 @@ import com.ib.client.UnderComp;
 
 public class IBDefaultAdapter implements EWrapper {
 
-    private static final Logger logger = MyLogger.getLogger(IBDefaultAdapter.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBDefaultAdapter.class.getName());
 
     private ConnectionState state = ConnectionState.DISCONNECTED;
     private boolean requested;
@@ -223,7 +223,7 @@ public class IBDefaultAdapter implements EWrapper {
     }
 
     @Override
-    public void historicalData(int reqId, String date, double open, double high, double low, double close, int volume, int count, double WAP, boolean hasGaps) {
+    public void historicalData(int reqId, String date, double open, double high, double low, double close, int volume, int count, double wap, boolean hasGaps) {
     }
 
     @Override

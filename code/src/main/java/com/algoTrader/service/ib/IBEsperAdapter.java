@@ -45,7 +45,7 @@ import com.ib.client.UnderComp;
 
 public final class IBEsperAdapter extends IBDefaultAdapter {
 
-    private static final Logger logger = MyLogger.getLogger(IBEsperAdapter.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBEsperAdapter.class.getName());
 
     public IBEsperAdapter(int clientId) {
         super(clientId);

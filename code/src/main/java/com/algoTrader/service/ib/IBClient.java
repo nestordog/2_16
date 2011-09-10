@@ -13,12 +13,12 @@ import com.ib.client.EClientSocket;
 
 public final class IBClient extends EClientSocket {
 
-    private static final Logger logger = MyLogger.getLogger(IBClient.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBClient.class.getName());
 
-    private static final int defaultClientId = ConfigurationUtil.getBaseConfig().getInt("ib.defaultClientId"); //0
-    private static final int port = ConfigurationUtil.getBaseConfig().getInt("ib.port"); //7496;//
-    private static final String host = ConfigurationUtil.getBaseConfig().getString("ib.host"); // "127.0.0.1";
-    private static final long connectionTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.connectionTimeout"); //10000;//
+    private static int defaultClientId = ConfigurationUtil.getBaseConfig().getInt("ib.defaultClientId"); //0
+    private static int port = ConfigurationUtil.getBaseConfig().getInt("ib.port"); //7496;//
+    private static String host = ConfigurationUtil.getBaseConfig().getString("ib.host"); // "127.0.0.1";
+    private static long connectionTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.connectionTimeout"); //10000;//
 
     private static IBClient instance;
 
