@@ -5,13 +5,13 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Order;
-import com.algoTrader.entity.OrderImpl;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Forex;
+import com.algoTrader.entity.trade.MarketOrder;
+import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
-import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.enumeration.Side;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -49,26 +49,26 @@ public class ForexServiceImpl extends ForexServiceBase {
 
                 Forex forex = getForexDao().getForex(portfolioBaseCurrency, balance.getCurrency());
 
-                Order order = new OrderImpl();
+                Order order = MarketOrder.Factory.newInstance();
                 if (forex.getBaseCurrency().equals(portfolioBaseCurrency)) {
 
                     // expected case
                     int qty = (int) RoundUtil.roundToNextN(netLiqValueBase, fxEqualizationBatchSize);
-                    order.setRequestedQuantity(Math.abs(qty));
-                    order.setTransactionType(qty > 0 ? TransactionType.BUY : TransactionType.SELL);
+                    order.setQuantity(Math.abs(qty));
+                    order.setSide(qty > 0 ? Side.BUY : Side.SELL);
 
                 } else {
 
                     // reverse case
                     int qty = (int) RoundUtil.roundToNextN(netLiqValue, fxEqualizationBatchSize);
-                    order.setRequestedQuantity(Math.abs(qty));
-                    order.setTransactionType(qty > 0 ? TransactionType.SELL : TransactionType.BUY);
+                    order.setQuantity(Math.abs(qty));
+                    order.setSide(qty > 0 ? Side.SELL : Side.BUY);
                 }
 
                 order.setStrategy(base);
                 order.setSecurity(forex);
 
-                getSyncOrderService().sendOrder(order);
+                getOrderService().sendOrder(order);
             }
         }
     }
