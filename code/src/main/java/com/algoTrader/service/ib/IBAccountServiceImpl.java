@@ -63,8 +63,8 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     private static String flexToken = ConfigurationUtil.getBaseConfig().getString("ib.flexToken");
     private static String flexQueryId = ConfigurationUtil.getBaseConfig().getString("ib.flexQueryId");
 
-    private IBClientSocket client;
-    private IBWrapper wrapper;
+    private IBClient client;
+    private IBDefaultAdapter wrapper;
 
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
@@ -88,7 +88,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
             return;
         }
 
-        this.wrapper = new IBWrapper(clientId) {
+        this.wrapper = new IBDefaultAdapter(clientId) {
 
             @Override
             public void updateAccountValue(String key, String value, String currency, String accountName) {
@@ -132,7 +132,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
             }
         };
 
-        this.client = new IBClientSocket(this.wrapper);
+        this.client = new IBClient(clientId, this.wrapper);
 
         connect();
     }
@@ -146,7 +146,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
         this.allAccountValues = new HashMap<String, Map<String, String>>();
 
-        this.client.connect(clientId);
+        this.client.connect();
     }
 
     @Override

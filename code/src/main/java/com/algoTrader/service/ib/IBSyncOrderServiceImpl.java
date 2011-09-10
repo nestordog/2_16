@@ -59,8 +59,8 @@ public class IBSyncOrderServiceImpl extends IBSyncOrderServiceBase implements Di
     private static int transactionTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.transactionTimeout");
     private static int retrievalTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.retrievalTimeout");
 
-    private IBClientSocket client;
-    private IBWrapper wrapper;
+    private IBClient client;
+    private IBDefaultAdapter wrapper;
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
 
@@ -77,7 +77,7 @@ public class IBSyncOrderServiceImpl extends IBSyncOrderServiceBase implements Di
             return;
         }
 
-        this.wrapper = new IBWrapper(clientId) {
+        this.wrapper = new IBDefaultAdapter(clientId) {
 
             @Override
             public void openOrder(int orderId, Contract contract, com.ib.client.Order order, OrderState orderState) {
@@ -309,7 +309,7 @@ public class IBSyncOrderServiceImpl extends IBSyncOrderServiceBase implements Di
             }
         };
 
-        this.client = new IBClientSocket(this.wrapper);
+        this.client = new IBClient(clientId, this.wrapper);
 
         connect();
     }
@@ -325,7 +325,7 @@ public class IBSyncOrderServiceImpl extends IBSyncOrderServiceBase implements Di
         this.executedMap = new HashMap<Integer, Boolean>();
         this.deletedMap = new HashMap<Integer, Boolean>();
 
-        this.client.connect(clientId);
+        this.client.connect();
     }
 
     @Override

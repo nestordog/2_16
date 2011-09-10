@@ -38,8 +38,8 @@ public class IBSyncMarketDataServiceImpl extends IBSyncMarketDataServiceBase imp
 
     private static String genericTickList = ConfigurationUtil.getBaseConfig().getString("ib.genericTickList");
 
-    private IBClientSocket client;
-    private IBWrapper wrapper;
+    private IBClient client;
+    private IBDefaultAdapter wrapper;
 
     private Map<Integer, Tick> requestIdToTickMap;
     private Map<Security, Integer> securityToRequestIdMap;
@@ -54,7 +54,7 @@ public class IBSyncMarketDataServiceImpl extends IBSyncMarketDataServiceBase imp
             return;
         }
 
-        this.wrapper = new IBWrapper(clientId) {
+        this.wrapper = new IBDefaultAdapter(clientId) {
 
             @Override
             public void tickPrice(int requestId, int field, double price, int canAutoExecute) {
@@ -246,7 +246,7 @@ public class IBSyncMarketDataServiceImpl extends IBSyncMarketDataServiceBase imp
             }
         };
 
-        this.client = new IBClientSocket(this.wrapper);
+        this.client = new IBClient(clientId, this.wrapper);
 
         connect();
     }
@@ -262,7 +262,7 @@ public class IBSyncMarketDataServiceImpl extends IBSyncMarketDataServiceBase imp
         this.securityToRequestIdMap = new ConcurrentHashMap<Security, Integer>();
         this.validSecurities = new CopyOnWriteArraySet<Security>();
 
-        this.client.connect(clientId);
+        this.client.connect();
 
         // if no market data farm is connected we have to force requestMarketData now
         if (this.wrapper.getState().equals(ConnectionState.CONNECTED)) {
