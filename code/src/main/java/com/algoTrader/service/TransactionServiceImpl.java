@@ -164,14 +164,18 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     protected void handlePropagateTransaction(Transaction transaction) {
 
         // also send the transaction to the corresponding strategy
-        getRuleService().sendEvent(transaction.getStrategy().getName(), transaction);
+        if (!StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
+            getRuleService().sendEvent(transaction.getStrategy().getName(), transaction);
+        }
     }
 
     @Override
     protected void handlePropagateFill(Fill fill) throws Exception {
 
         // send the fill to the strategy that placed the corresponding order
-        getRuleService().sendEvent(fill.getParentOrder().getStrategy().getName(), fill);
+        if (!StrategyImpl.BASE.equals(fill.getParentOrder().getStrategy().getName())) {
+            getRuleService().sendEvent(fill.getParentOrder().getStrategy().getName(), fill);
+        }
     }
 
     public static class CreateTransactionSubscriber {
