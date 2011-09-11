@@ -189,11 +189,10 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
             StockOption stockOption = (StockOption) tick.getSecurity();
 
-            try {
-                stockOption.validateTick(tick);
-            } catch (Exception ex) {
+            if (!tick.isSpreadValid()) {
                 continue;
             }
+
             double strike = stockOption.getStrike().doubleValue();
             double currentValue = tick.getCurrentValueDouble();
 

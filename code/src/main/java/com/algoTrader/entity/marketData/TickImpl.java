@@ -47,7 +47,7 @@ public class TickImpl extends Tick {
 
     public double getBidAskSpreadDouble() {
 
-        return getBid().doubleValue() - getAsk().doubleValue();
+        return getAsk().doubleValue() - getBid().doubleValue();
     }
 
     @Override
@@ -115,8 +115,32 @@ public class TickImpl extends Tick {
     }
 
     @Override
-    public void validate() {
+    public boolean isSpreadValid() {
 
-        getSecurity().validateTick(this);
+        SecurityFamily family = getSecurity().getSecurityFamily();
+
+        // only check spread on tradeable ticks
+        if (!family.isTradeable()) {
+            return true;
+        } else {
+
+            if (family.getMaxSpreadSlope() == null || family.getMaxSpreadConstant() == null) {
+                throw new RuntimeException("SpreadSlope and SpreadConstant have to be defined to validate a tradeable security");
+            }
+
+            int contractSize = family.getContractSize();
+            double maxSpreadSlope = family.getMaxSpreadSlope();
+            double maxSpreadConstant = family.getMaxSpreadConstant();
+
+            double mean = contractSize * getCurrentValueDouble();
+            double spread = contractSize * getBidAskSpreadDouble();
+            double maxSpread = mean * maxSpreadSlope + maxSpreadConstant;
+
+            if (spread <= maxSpread) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 }

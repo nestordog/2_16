@@ -27,7 +27,6 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.service.SyncMarketDataServiceException;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -413,14 +412,9 @@ public class IBSyncOrderServiceImpl extends IBSyncOrderServiceBase implements Di
             tick = getIBSyncMarketDataService().completeRawTick(rawTick);
 
             // validity check (volume and bid/ask spread)
-            try {
-                tick.validate();
+            if (tick.isSpreadValid()) {
                 break;
-
-            } catch (SyncMarketDataServiceException e) {
-
-                logger.warn(e.getMessage());
-
+            } else {
                 // wait a little then try again
                 Thread.sleep(retrievalTimeout);
             }

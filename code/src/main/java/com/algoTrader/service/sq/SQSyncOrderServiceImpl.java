@@ -476,7 +476,7 @@ public class SQSyncOrderServiceImpl extends SQSyncOrderServiceBase {
         tick.setAsk(ask);
 
         // validity check (volume and bid/ask spread)
-        tick.validate();
+        //tick.isSpreadValid();
 
         // validity check (available volume)
         if (TransactionType.BUY.equals(transactionType) && volAsk < requestedQuantity) {

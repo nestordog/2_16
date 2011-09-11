@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.TickValidationException;
 import com.algoTrader.entity.marketData.Ask;
 import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.Bid;
@@ -195,34 +194,6 @@ public class SecurityImpl extends Security {
     public boolean isOnWatchlist() {
 
         return Hibernate.isInitialized(getWatchListItems()) && (getWatchListItems().size() != 0);
-    }
-
-    @Override
-    public void validateTick(Tick tick) {
-
-        SecurityFamily family = tick.getSecurity().getSecurityFamily();
-
-        // only check spread on tradeable ticks
-        if (!family.isTradeable()) {
-            return;
-        } else {
-
-            if (family.getSpreadSlope() == null || family.getSpreadConstant() == null) {
-                throw new RuntimeException("SpreadSlope and SpreadConstant have to be defined to validate a tradeable security");
-            }
-
-            int contractSize = family.getContractSize();
-            double maxSpreadSlope = family.getMaxSpreadSlope();
-            double maxSpreadConstant = family.getMaxSpreadConstant();
-
-            double mean = contractSize * (tick.getAsk().doubleValue() + tick.getBid().doubleValue()) / 2.0;
-            double spread = contractSize * (tick.getAsk().doubleValue() - tick.getBid().doubleValue());
-            double maxSpread = mean * maxSpreadSlope + maxSpreadConstant;
-
-            if (spread > maxSpread) {
-                throw new TickValidationException("spread (" + spread + ") is higher than maxSpread (" + maxSpread + ") for security " + getSymbol());
-            }
-        }
     }
 
     @Override

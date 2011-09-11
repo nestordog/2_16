@@ -30,7 +30,6 @@ import org.supercsv.exception.SuperCSVException;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
-import com.algoTrader.entity.TickValidationException;
 import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.entity.WatchListItemImpl;
 import com.algoTrader.entity.marketData.Bar;
@@ -79,16 +78,10 @@ public abstract class SyncMarketDataServiceImpl extends SyncMarketDataServiceBas
 
                 Tick tick = completeRawTick(rawTick);
 
-                try {
-                    tick.validate();
+                if (tick.isSpreadValid()) {
 
                     // only valid ticks get send into esper
                     getRuleService().sendEvent(StrategyImpl.BASE, tick);
-
-                } catch (RuntimeException e) {
-                    if (!(e instanceof TickValidationException)) {
-                        throw e;
-                    }
                 }
 
                 // write the tick to file (even if not valid)
