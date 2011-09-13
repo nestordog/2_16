@@ -13,7 +13,7 @@ import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
 import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.security.SecurityImpl;
+import com.algoTrader.entity.security.StockImpl;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.stockOption.StockOptionUtil;
@@ -178,7 +178,7 @@ public class TestServiceImpl extends TestServiceBase {
                 getTickDao().load(370552);
                 break;
             case 37:
-                getTickDao().findBySecurityDateTypeAndExpiration(new SecurityImpl(), new Date(), OptionType.PUT, new Date());
+                getTickDao().findBySecurityDateTypeAndExpiration(new StockImpl(), new Date(), OptionType.PUT, new Date());
                 break;
             case 38:
                 getTickDao().findBySecurity(9);

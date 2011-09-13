@@ -24,10 +24,11 @@ import org.w3c.dom.traversal.NodeIterator;
 
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
+import com.algoTrader.entity.security.EquityIndex;
+import com.algoTrader.entity.security.EquityIndexImpl;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.entity.security.SecurityFamilyImpl;
-import com.algoTrader.entity.security.SecurityImpl;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.entity.security.StockOptionImpl;
@@ -177,7 +178,7 @@ public class SQStockOptionRetrieverServiceImpl extends SQStockOptionRetrieverSer
             stockOption.setUnderlaying(underlaying);
             stockOption.setSecurityFamily(family);
 
-            getSecurityDao().create(stockOption);
+            getStockOptionDao().create(stockOption);
 
             logger.debug("retrieved option " + stockOption.getSymbol());
         }
@@ -273,17 +274,17 @@ public class SQStockOptionRetrieverServiceImpl extends SQStockOptionRetrieverSer
                     throw new RuntimeException("unrecognized isin");
                 }
 
-                List<Security> securities = new ArrayList<Security>();
+                List<StockOption> securities = new ArrayList<StockOption>();
                 List<Tick> ticks = new ArrayList<Tick>();
                 List<SecurityFamily> families = new ArrayList<SecurityFamily>();
 
-                Security underlaying = getSecurityDao().findByIsin(underlayingIsin);
+                EquityIndex underlaying = (EquityIndex) getSecurityDao().findByIsin(underlayingIsin);
                 if (underlaying == null) {
 
                     String underlayingSymbol = SQUtil.getValue(underlayingTable, "td[1]/a");
                     String underlayingLast = SQUtil.getValue(underlayingTable, "td[3]/strong/a");
 
-                    underlaying = new SecurityImpl();
+                    underlaying = new EquityIndexImpl();
                     underlaying.setSymbol(underlayingSymbol);
                     underlaying.setIsin(underlayingIsin);
 
@@ -299,7 +300,6 @@ public class SQStockOptionRetrieverServiceImpl extends SQStockOptionRetrieverSer
                     underlayingTick.setSecurity(underlaying);
                     underlayingTick.setSettlement(new BigDecimal(0.0));
 
-                    securities.add(underlaying);
                     ticks.add(underlayingTick);
                     families.add(family);
                 }
@@ -401,7 +401,8 @@ public class SQStockOptionRetrieverServiceImpl extends SQStockOptionRetrieverSer
                         ticks.add(putOptionTick);
                     }
                 }
-                getSecurityDao().create(securities);
+                getEquityIndexDao().create(underlaying);
+                getStockOptionDao().create(securities);
                 getTickDao().create(ticks);
                 getSecurityFamilyDao().create(families);
 
