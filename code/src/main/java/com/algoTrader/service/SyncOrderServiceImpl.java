@@ -2,8 +2,6 @@ package com.algoTrader.service;
 
 import java.math.BigDecimal;
 
-import org.apache.log4j.Logger;
-
 import com.algoTrader.entity.Order;
 import com.algoTrader.entity.OrderImpl;
 import com.algoTrader.entity.Position;

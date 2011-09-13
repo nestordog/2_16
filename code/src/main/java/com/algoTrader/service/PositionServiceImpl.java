@@ -9,19 +9,23 @@ import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Order;
 import com.algoTrader.entity.Position;
-import com.algoTrader.entity.security.Expirable;
+import com.algoTrader.entity.Strategy;
+import com.algoTrader.entity.Transaction;
+import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.StockOption;
+import com.algoTrader.entity.trade.SteppingLimitOrder;
 import com.algoTrader.enumeration.Direction;
-import com.algoTrader.enumeration.Status;
+import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.ClosePositionVO;
 import com.algoTrader.vo.ExpirePositionVO;
-import com.algoTrader.vo.OrderVO;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
 
@@ -105,15 +109,24 @@ public class PositionServiceImpl extends PositionServiceBase {
     protected void handleReducePosition(int positionId, long quantity) throws Exception {
 
         Position position = getPositionDao().load(positionId);
+        Strategy strategy = position.getStrategy();
+        Security security = position.getSecurity();
 
-        OrderVO order = new OrderVO();
-        order.setStrategyName(position.getStrategy().getName());
-        order.setSecurityId(position.getSecurity().getId());
-        order.setRequestedQuantity(Math.abs(quantity));
-        order.setTransactionType((position.getQuantity() > 0) ? TransactionType.SELL : TransactionType.BUY);
+        Side side = (position.getQuantity() > 0) ? Side.SELL : Side.BUY;
 
-        getSyncOrderService().sendOrder(order);
+        Tick tick = security.getLastTick();
+        double bid = tick.getBid().doubleValue();
+        double ask = tick.getAsk().doubleValue();
+        int scale = security.getSecurityFamily().getScale();
 
+        SteppingLimitOrder order = SteppingLimitOrder.Factory.newInstance();
+        order.setStrategy(strategy);
+        order.setSecurity(security);
+        order.setQuantity(Math.abs(quantity));
+        order.setSide(side);
+        order.setDefaultLimits(bid, ask, scale);
+
+        getOrderService().sendOrder(order);
     }
 
     @Override
@@ -243,30 +256,42 @@ public class PositionServiceImpl extends PositionServiceBase {
     protected void handleExpirePosition(Position position) throws Exception {
 
         Security security = position.getSecurity();
-        if (!(security instanceof Expirable)) {
-            logger.warn("position is not expirable");
-            return;
-        }
 
         ExpirePositionVO expirePositionVO = getPositionDao().toExpirePositionVO(position);
 
-        // reverse the quantity
-        long numberOfContracts = Math.abs(position.getQuantity());
+        Transaction transaction = Transaction.Factory.newInstance();
+        transaction.setDateTime(DateUtil.getCurrentEPTime());
+        transaction.setType(TransactionType.EXPIRATION);
+        transaction.setQuantity(-position.getQuantity());
+        transaction.setSecurity(security);
+        transaction.setStrategy(position.getStrategy());
+        transaction.setCurrency(security.getSecurityFamily().getCurrency());
+        transaction.setCommission(new BigDecimal(0));
 
-        OrderVO order = new OrderVO();
-        order.setStrategyName(position.getStrategy().getName());
-        order.setSecurityId(security.getId());
-        order.setRequestedQuantity(numberOfContracts);
-        order.setTransactionType(TransactionType.EXPIRATION);
+        if (security instanceof StockOption) {
 
-        Order executedOrder = getSyncOrderService().sendOrder(order);
+            StockOption stockOption = (StockOption) security;
+            int contractSize = security.getSecurityFamily().getContractSize();
+            int scale = security.getSecurityFamily().getScale();
+            double underlayingSpot = security.getUnderlaying().getLastTick().getCurrentValueDouble();
+            double intrinsicValue = StockOptionUtil.getIntrinsicValue(stockOption, underlayingSpot);
+            BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue * contractSize, scale);
+            transaction.setPrice(price);
 
-        // only remove the security from the watchlist, if the transaction did execute fully.
-        // otherwise the next tick will execute the reminder of the order
-        if (Status.EXECUTED.equals(executedOrder.getStatus()) || Status.AUTOMATIC.equals(executedOrder.getStatus())) {
+        } else if (security instanceof Future) {
 
-            getSyncMarketDataService().removeFromWatchlist(position.getStrategy(), security);
+            BigDecimal price = security.getUnderlaying().getLastTick().getCurrentValue();
+            transaction.setPrice(price);
+
+        } else {
+            throw new IllegalArgumentException("EXPIRATION only allowed for " + security.getClass().getName());
         }
+
+        // perisite the transaction
+        getTransactionService().persistTransaction(transaction);
+
+        // remove the security from the watchlist
+        getMarketDataService().removeFromWatchlist(position.getStrategy(), security);
 
         // propagate the ExpirePosition event
         getRuleService().sendEvent(position.getStrategy().getName(), expirePositionVO);

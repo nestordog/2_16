@@ -140,7 +140,7 @@ public class StrategyImpl extends Strategy {
     @SuppressWarnings("unchecked")
     public List<BalanceVO> getBalances() {
 
-        List<Currency> currencies = ServiceLocator.commonInstance().getLookupService().getHeldCurrencies(getName());
+        List<Currency> currencies = ServiceLocator.commonInstance().getLookupService().getHeldCurrencies();
         Map<Currency, Double> cashMap = new HashMap<Currency, Double>();
         Map<Currency, Double> securitiesMap = new HashMap<Currency, Double>();
 

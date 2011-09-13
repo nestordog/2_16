@@ -58,13 +58,13 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     @Override
     protected void handlePutOnWatchlist(String strategyName, int securityid) throws Exception {
 
-        getSyncMarketDataService().putOnWatchlist(strategyName, securityid);
+        getMarketDataService().putOnWatchlist(strategyName, securityid);
     }
 
     @Override
     protected void handleRemoveFromWatchlist(String strategyName, int securityid) throws Exception {
 
-        getSyncMarketDataService().removeFromWatchlist(strategyName, securityid);
+        getMarketDataService().removeFromWatchlist(strategyName, securityid);
     }
 
 }

@@ -6,8 +6,8 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.service.MarketDataService;
 import com.algoTrader.service.RuleService;
-import com.algoTrader.service.SyncMarketDataService;
 import com.algoTrader.vo.BarVO;
 import com.algoTrader.vo.RawTickVO;
 import com.espertech.esper.client.time.CurrentTimeEvent;
@@ -23,7 +23,7 @@ public class CustomSender extends AbstractSender {
         RuleService ruleService = ServiceLocator.commonInstance().getRuleService();
         if (beanToSend instanceof RawTickVO) {
 
-            SyncMarketDataService marketDataService = ServiceLocator.commonInstance().getSyncMarketDataService();
+            MarketDataService marketDataService = ServiceLocator.commonInstance().getMarketDataService();
 
             Tick tick = marketDataService.completeRawTick((RawTickVO) beanToSend);
 
@@ -32,7 +32,7 @@ public class CustomSender extends AbstractSender {
             // Bars are always sent using MarketDataService
         } else if (beanToSend instanceof BarVO) {
 
-            SyncMarketDataService marketDataService = ServiceLocator.commonInstance().getSyncMarketDataService();
+            MarketDataService marketDataService = ServiceLocator.commonInstance().getMarketDataService();
 
             Bar bar = marketDataService.completeBar((BarVO) beanToSend);
 
