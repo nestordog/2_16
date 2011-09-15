@@ -4,7 +4,6 @@ import java.text.DecimalFormat;
 
 import org.apache.log4j.Logger;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.util.MyLogger;
 
@@ -42,19 +41,6 @@ public class WatchListServiceImpl extends WatchListServiceBase {
             getWatchListItemDao().update(watchListItem);
 
             logger.info("removed alert values for watchListItem " + watchListItem);
-        }
-    }
-
-    public static class SetAlertValueSubscriber {
-
-        public void update(String strategyName, int securityId, Double value, boolean upper) {
-
-            long startTime = System.currentTimeMillis();
-            logger.debug("setAlertValue start");
-
-            ServiceLocator.commonInstance().getWatchListService().setAlertValue(strategyName, securityId, value, upper);
-
-            logger.debug("setAlertValue end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
     }
 }

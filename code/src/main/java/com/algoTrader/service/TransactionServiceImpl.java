@@ -5,7 +5,6 @@ import org.hibernate.Hibernate;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.PositionImpl;
 import com.algoTrader.entity.Strategy;
@@ -175,28 +174,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         // send the fill to the strategy that placed the corresponding order
         if (!StrategyImpl.BASE.equals(fill.getParentOrder().getStrategy().getName())) {
             getRuleService().sendEvent(fill.getParentOrder().getStrategy().getName(), fill);
-        }
-    }
-
-    public static class CreateTransactionSubscriber {
-
-        public void update(Fill fill) {
-
-            long startTime = System.currentTimeMillis();
-            logger.info("createTransaction start");
-
-            ServiceLocator.commonInstance().getTransactionService().createTransaction(fill);
-
-            logger.info("createTransaction end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
-        }
-
-    }
-
-    public static class PropagateFillSubscriber {
-
-        public void update(Fill fill) {
-
-            ServiceLocator.serverInstance().getTransactionService().propagateFill(fill);
         }
     }
 

@@ -5,7 +5,6 @@ import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.proxy.HibernateProxy;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Security;
@@ -149,30 +148,6 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         // send the fill to the strategy that placed the corresponding order
         if (!StrategyImpl.BASE.equals(orderStatus.getParentOrder().getStrategy().getName())) {
             getRuleService().sendEvent(orderStatus.getParentOrder().getStrategy().getName(), orderStatus);
-        }
-    }
-
-    public static class PropagateOrderStatusSubscriber {
-
-        public void update(OrderStatus orderStatus) {
-
-            ServiceLocator.commonInstance().getOrderService().propagateOrderStatus(orderStatus);
-        }
-    }
-
-    public static class CancleOrderSubscriber {
-
-        public void update(int orderNumber) {
-
-            ServiceLocator.commonInstance().getOrderService().cancelOrder(orderNumber);
-        }
-    }
-
-    public static class ModifyOrderSubscriber {
-
-        public void update(Order order) {
-
-            ServiceLocator.commonInstance().getOrderService().modifyOrder(order);
         }
     }
 }

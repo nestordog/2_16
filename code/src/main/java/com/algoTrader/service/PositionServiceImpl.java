@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
@@ -80,7 +81,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             // close children if any
             if (position.getChildren().size() != 0) {
-                for (Position childPosition : position.getChildren()) {
+                for (Position childPosition : new CopyOnWriteArrayList<Position>(position.getChildren())) {
 
                     // childPosition
                     closePositionAndChildren(childPosition.getId());
@@ -291,7 +292,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         getTransactionService().persistTransaction(transaction);
 
         // remove the security from the watchlist
-        getMarketDataService().removeFromWatchlist(position.getStrategy(), security);
+        getMarketDataService().removeFromWatchlist(position.getStrategy().getName(), security.getId());
 
         // propagate the ExpirePosition event
         getRuleService().sendEvent(position.getStrategy().getName(), expirePositionVO);
@@ -330,32 +331,6 @@ public class PositionServiceImpl extends PositionServiceBase {
             getPositionDao().update(position);
 
             logger.info("removed parent position of position " + position.getSecurity().getSymbol());
-        }
-    }
-
-    public static class ClosePositionSubscriber {
-
-        public void update(int positionId) {
-
-            long startTime = System.currentTimeMillis();
-            logger.debug("closePosition start");
-
-            ServiceLocator.serverInstance().getPositionService().closePositionOnExitValue(positionId);
-
-            logger.debug("closePosition end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
-        }
-    }
-
-    public static class SetExitValueSubscriber {
-
-        public void update(int positionId, double exitValue) {
-
-            long startTime = System.currentTimeMillis();
-            logger.debug("setExitValue start");
-
-            ServiceLocator.commonInstance().getPositionService().setExitValue(positionId, exitValue, false);
-
-            logger.debug("setExitValue end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
     }
 

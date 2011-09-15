@@ -52,7 +52,7 @@ and
     MarketDataUtil.isTickValid(tickWindow);
 
 @Name('PROPAGATE_MARKET_DATA_EVENTS')
-@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PropagateTickSubscriber')
+@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PropagateMarketDataEventSubscriber')
 select
     *
 from

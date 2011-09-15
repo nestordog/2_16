@@ -4,9 +4,6 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
@@ -17,12 +14,9 @@ import com.algoTrader.entity.security.StockImpl;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.stockOption.StockOptionUtil;
-import com.algoTrader.util.MyLogger;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 
 public class TestServiceImpl extends TestServiceBase {
-
-    private static Logger logger = MyLogger.getLogger(TestServiceImpl.class.getName());
 
     @Override
     protected void handleTest() throws Exception {
@@ -244,17 +238,5 @@ public class TestServiceImpl extends TestServiceBase {
         double optionPrice = StockOptionUtil.getOptionPriceSabr(stockOption, underlayingValue, volaValue);
 
         System.out.println(optionPrice);
-    }
-
-    public static class TestSubscriber {
-
-        public void update(Map<?, ?> map) {
-
-            Tick indexTick = (Tick) (map.get("indexTick"));
-            Tick volaTick = (Tick) (map.get("volaTick"));
-            Tick optionTick = (Tick) (map.get("optionTick"));
-
-            logger.info(indexTick.getId() + " " + volaTick.getId() + " " + optionTick.getId());
-        }
     }
 }

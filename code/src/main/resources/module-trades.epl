@@ -1,5 +1,5 @@
 @Name('PROPAGATE_ORDER_STATUS')
-@Subscriber(className='com.algoTrader.service.OrderServiceImpl$PropagateOrderStatusSubscriber')
+@Subscriber(className='com.algoTrader.service.OrderService.propagateOrderStatus')
 select
     *
 from
@@ -7,14 +7,14 @@ from
 
 @Name('PROPAGATE_FILL')
 @Priority(1)
-@Subscriber(className='com.algoTrader.service.TransactionServiceImpl$PropagateFillSubscriber')
+@Subscriber(className='com.algoTrader.service.TransactionService.propagateFill')
 select
     *
 from
     Fill;
 
 @Name('CREATE_TRANSACTION')
-@Subscriber(className='com.algoTrader.service.TransactionServiceImpl$CreateTransactionSubscriber')
+@Subscriber(className='com.algoTrader.service.TransactionService.createTransaction')
 select
     *
 from

@@ -110,12 +110,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         Strategy strategy = getStrategyDao().findByName(strategyName);
         Security security = getSecurityDao().load(securityId);
 
-        putOnWatchlist(strategy, security);
-    }
-
-    protected void handlePutOnWatchlist(Strategy strategy, Security security) throws Exception {
-
-        if (getWatchListItemDao().findByStrategyAndSecurity(strategy.getName(), security.getId()) == null) {
+        if (getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId) == null) {
 
             // only put on external watchlist if nobody was watching this security so far
             if (security.getWatchListItems().size() == 0) {
@@ -161,12 +156,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         Strategy strategy = getStrategyDao().findByName(strategyName);
         Security security = getSecurityDao().load(securityId);
 
-        removeFromWatchlist(strategy, security);
-    }
-
-    protected void handleRemoveFromWatchlist(Strategy strategy, Security security) throws Exception {
-
-        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategy.getName(), security.getId());
+        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
 
         if (watchListItem != null && !watchListItem.isPersistent()) {
 
@@ -192,7 +182,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         }
     }
 
-    public static class PropagateTickSubscriber {
+    public static class PropagateMarketDataEventSubscriber {
 
         public void update(MarketDataEvent marketDataEvent) {
 
