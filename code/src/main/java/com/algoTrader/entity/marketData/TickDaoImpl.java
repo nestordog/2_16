@@ -49,7 +49,7 @@ public class TickDaoImpl extends TickDaoBase {
 
         tickVO.setSecurityId(tick.getSecurity().getId());
         tickVO.setSymbol(tick.getSecurity().getSymbol());
-        tickVO.setMidpoint(tick.getCurrentValue());
+        tickVO.setCurrentValue(tick.getCurrentValue());
     }
 
     private void completeRawTickVO(Tick tick, RawTickVO rawTickVO) {

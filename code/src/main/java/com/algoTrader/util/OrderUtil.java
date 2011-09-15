@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import org.apache.commons.beanutils.BeanUtils;
 
+import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.entity.trade.LimitOrder;
 import com.algoTrader.entity.trade.Order;
 
@@ -17,8 +18,12 @@ public class OrderUtil {
     public static LimitOrder modifyOrderLimit(LimitOrder order, BigDecimal limit) {
 
         try {
+
+            SecurityFamily securityFamily = order.getSecurity().getSecurityFamily();
+
             LimitOrder newOrder = (LimitOrder) BeanUtils.cloneBean(order);
-            newOrder.setLimit(limit);
+            newOrder.setLimit(RoundUtil.roundToNextN(limit, securityFamily.getTickSize()));
+
             return newOrder;
         } catch (Exception e) {
             throw new RuntimeException(e);

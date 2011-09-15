@@ -18,6 +18,7 @@ import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.StrategyUtil;
+import com.espertech.esper.event.WrapperEventBean;
 import com.espertech.esper.event.bean.BeanEventBean;
 
 public abstract class SecurityImpl extends Security {
@@ -54,7 +55,12 @@ public abstract class SecurityImpl extends Security {
         for (Map event : events) {
             Integer securityId = (Integer) event.get("securityId");
             if (securityId.equals(getId())) {
-                return (Tick) ((BeanEventBean) event.get("tick")).getUnderlying();
+                Object obj = event.get("tick");
+                if (obj instanceof WrapperEventBean) {
+                    return (Tick) ((WrapperEventBean) obj).getUnderlying();
+                } else {
+                    return (Tick) ((BeanEventBean) obj).getUnderlying();
+                }
             }
         }
 

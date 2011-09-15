@@ -118,14 +118,14 @@ public class PositionServiceImpl extends PositionServiceBase {
         Tick tick = security.getLastTick();
         double bid = tick.getBid().doubleValue();
         double ask = tick.getAsk().doubleValue();
-        int scale = security.getSecurityFamily().getScale();
+        double tickSize = security.getSecurityFamily().getTickSize();
 
         SteppingLimitOrder order = SteppingLimitOrder.Factory.newInstance();
         order.setStrategy(strategy);
         order.setSecurity(security);
         order.setQuantity(Math.abs(quantity));
         order.setSide(side);
-        order.setDefaultLimits(bid, ask, scale);
+        order.setDefaultLimits(bid, ask, tickSize);
 
         getOrderService().sendOrder(order);
     }
