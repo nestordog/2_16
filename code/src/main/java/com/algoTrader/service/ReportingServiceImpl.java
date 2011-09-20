@@ -1,6 +1,7 @@
 package com.algoTrader.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.algoTrader.entity.PositionDao;
@@ -106,7 +107,7 @@ public class ReportingServiceImpl extends ReportingServiceBase {
         if (strategy.isBase()) {
             return getStrategyDao().getPortfolioBalances();
         } else {
-            return strategy.getBalances();
+            return new ArrayList<BalanceVO>();
         }
     }
 

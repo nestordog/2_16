@@ -25,7 +25,6 @@ import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.BarVO;
 import com.algoTrader.vo.RawTickVO;
-import com.algoTrader.vo.SubscribeTickVO;
 import com.algoTrader.vo.UnsubscribeTickVO;
 
 public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
@@ -99,7 +98,9 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         List<Security> securities = getSecurityDao().findSecuritiesOnActiveWatchlist();
 
         for (Security security : securities) {
-            putOnWatchlist(security);
+            if (!simulation) {
+                putOnExternalWatchlist(security);
+            }
         }
 
         this.initialized = true;
@@ -114,7 +115,9 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             // only put on external watchlist if nobody was watching this security so far
             if (security.getWatchListItems().size() == 0) {
-                putOnWatchlist(security);
+                if (!simulation) {
+                    putOnExternalWatchlist(security);
+                }
             }
 
             // update links
@@ -131,23 +134,6 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             getStrategyDao().update(strategy);
 
             logger.info("put security on watchlist " + security.getSymbol());
-        }
-    }
-
-    private void putOnWatchlist(Security security) {
-
-        if (!simulation) {
-
-            int tickerId = putOnExternalWatchlist(security);
-
-            Tick tick = Tick.Factory.newInstance();
-            tick.setSecurity(security);
-
-            SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
-            subscribeTickEvent.setTick(tick);
-            subscribeTickEvent.setTickerId(tickerId);
-
-            getRuleService().sendEvent(StrategyImpl.BASE, subscribeTickEvent);
         }
     }
 

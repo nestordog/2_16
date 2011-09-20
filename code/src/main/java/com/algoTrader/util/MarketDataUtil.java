@@ -31,9 +31,6 @@ public class MarketDataUtil {
             if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0) {
                 return false;
             }
-            if (tick.getSettlement() == null) {
-                return false;
-            }
 
         } else if (tick.getSecurity() instanceof Future) {
 
@@ -49,9 +46,6 @@ public class MarketDataUtil {
                 return false;
             }
             if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0) {
-                return false;
-            }
-            if (tick.getSettlement() == null) {
                 return false;
             }
 
@@ -80,6 +74,9 @@ public class MarketDataUtil {
             return false;
         }
         if (tick.getAsk() == null) {
+            return false;
+        }
+        if (tick.getSettlement() == null) {
             return false;
         }
 
