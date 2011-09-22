@@ -89,9 +89,9 @@ public class RuleServiceImpl extends RuleServiceBase {
         serviceProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(initTime));
         this.internalClock.put(strategyName, false);
 
-        this.serviceProviders.put(providerURI, serviceProvider);
-
         logger.debug("initialized service provider: " + strategyName);
+
+        this.serviceProviders.put(providerURI, serviceProvider);
     }
 
     @Override
