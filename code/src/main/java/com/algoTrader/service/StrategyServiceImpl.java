@@ -39,7 +39,10 @@ public class StrategyServiceImpl extends StrategyServiceBase implements Disposab
     protected void handleUnregisterStrategy(String strategyName) throws Exception {
 
         try {
-            this.streamMap.get(strategyName).close();
+            ObjectOutputStream stream = this.streamMap.get(strategyName);
+            if (stream != null) {
+                stream.close();
+            }
         } catch (IOException e) {
             logger.warn("stream not available anymore: " + strategyName);
         } finally {
@@ -47,7 +50,10 @@ public class StrategyServiceImpl extends StrategyServiceBase implements Disposab
         }
 
         try {
-            this.socketMap.get(strategyName).close();
+            Socket socket = this.socketMap.get(strategyName);
+            if (socket != null) {
+                socket.close();
+            }
         } catch (IOException e) {
             logger.warn("socket not available anymore: " + strategyName);
         } finally {
