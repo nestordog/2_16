@@ -125,7 +125,12 @@ public class PositionServiceImpl extends PositionServiceBase {
         order.setSecurity(security);
         order.setQuantity(Math.abs(quantity));
         order.setSide(side);
-        order.setDefaultLimits(bid, ask, tickSize);
+
+        if (Side.BUY.equals(side)) {
+            order.setDefaultBuyLimits(bid, ask, tickSize);
+        } else {
+            order.setDefaultSellLimits(bid, ask, tickSize);
+        }
 
         getOrderService().sendOrder(order);
     }

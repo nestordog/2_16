@@ -20,12 +20,28 @@ public class SteppingLimitOrderImpl extends SteppingLimitOrder {
     }
 
     @Override
-    public void setDefaultLimits(double bid, double ask, double tickSize) {
+    public void setDefaultBuyLimits(double bid, double ask, double tickSize) {
 
         double spread = ask - bid;
         double limit = bid + minSpreadPosition * spread;
         double maxLimit = bid + maxSpreadPosition * spread;
         double increment = spreadPositionIncrement * spread;
+        int scale = RoundUtil.getDigits(tickSize);
+
+        double roundedLimit = RoundUtil.roundToNextN(limit, tickSize);
+
+        setLimit(RoundUtil.getBigDecimal(roundedLimit, scale));
+        setMaxLimit(RoundUtil.getBigDecimal(maxLimit, scale));
+        setIncrement(RoundUtil.getBigDecimal(increment, scale));
+    }
+
+    @Override
+    public void setDefaultSellLimits(double bid, double ask, double tickSize) {
+
+        double spread = ask - bid;
+        double limit = ask - minSpreadPosition * spread;
+        double maxLimit = ask - maxSpreadPosition * spread;
+        double increment = -spreadPositionIncrement * spread;
         int scale = RoundUtil.getDigits(tickSize);
 
         double roundedLimit = RoundUtil.roundToNextN(limit, tickSize);
