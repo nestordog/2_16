@@ -29,7 +29,7 @@ public class StockOptionSymbol {
             new SimpleDateFormat("MMM").format(cal.getTime()).toUpperCase() + "/" +
             (cal.get(Calendar.YEAR) + "-").substring(2) +
             type.toString().substring(0, 1) + " " +
-            strike.intValue() + " " +
+            strike + " " +
             family.getContractSize();
         //@formatter:on
 
@@ -52,8 +52,8 @@ public class StockOptionSymbol {
         int yearIndex = cal.get(Calendar.YEAR) % 10;
         String year = yearEnc[yearIndex];
 
-        String strike36 = BaseConverterUtil.toBase36(strike.intValue());
-        String strikeVal = StringUtils.leftPad(strike36, 5, "0");
+            String strike36 = BaseConverterUtil.toBase36(strike.multiply(new BigDecimal(10)).intValue());
+            String strikeVal = strike.scale() + StringUtils.leftPad(strike36, 4, "0");
 
         StringBuffer buffer = new StringBuffer();
         buffer.append(week);
