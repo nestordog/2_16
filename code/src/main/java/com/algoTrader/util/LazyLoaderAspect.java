@@ -24,8 +24,8 @@ public class LazyLoaderAspect {
     private LazyLoaderService lazyLoaderService;
     private HashSet<Serializable> classes = new HashSet<Serializable>();
 
-    public void setLazyLoaderService(LazyLoaderService sessionFactory) {
-        this.lazyLoaderService = sessionFactory;
+    public void setLazyLoaderService(LazyLoaderService lazyLoaderService) {
+        this.lazyLoaderService = lazyLoaderService;
     }
 
     @Around("getCollection()")
