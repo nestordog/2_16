@@ -62,7 +62,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
 
         client.reqMktData(tickerId, contract, genericTickList, false);
 
-        logger.debug("requested market data for : " + security.getSymbol());
+        logger.debug("request " + tickerId + " for : " + security.getSymbol());
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -76,7 +76,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
         // get the tickerId by querying the TickWindow
         List<Map> events = getRuleService().executeQuery(StrategyImpl.BASE, "select tickerId from TickWindow where security.id = " + security.getId());
 
-        if (events.size() == 0) {
+        if (events.size() == 1) {
             Integer tickerId = (Integer) events.get(0).get("tickerId");
             client.cancelMktData(tickerId);
             logger.debug("cancelled market data for : " + security.getSymbol());

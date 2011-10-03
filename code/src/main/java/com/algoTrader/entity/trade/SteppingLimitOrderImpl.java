@@ -41,7 +41,7 @@ public class SteppingLimitOrderImpl extends SteppingLimitOrder {
         double spread = ask - bid;
         double limit = ask - minSpreadPosition * spread;
         double maxLimit = ask - maxSpreadPosition * spread;
-        double increment = -spreadPositionIncrement * spread;
+        double increment = spreadPositionIncrement * spread;
         int scale = RoundUtil.getDigits(tickSize);
 
         double roundedLimit = RoundUtil.roundToNextN(limit, tickSize);

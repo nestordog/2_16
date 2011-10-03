@@ -64,8 +64,6 @@ public class RuleServiceImpl extends RuleServiceBase {
     private static Logger logger = MyLogger.getLogger(RuleServiceImpl.class.getName());
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
 
-    private static final long initTime = 631148400000l; // 01.01.1990
-
     private Map<String, AdapterCoordinator> coordinators = new HashMap<String, AdapterCoordinator>();
     private Map<String, Boolean> internalClock = new HashMap<String, Boolean>();
     private Map<String, EPServiceProvider> serviceProviders = new HashMap<String, EPServiceProvider>();
@@ -86,7 +84,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         EPServiceProvider serviceProvider = EPServiceProviderManager.getProvider(providerURI, configuration);
 
         // must send time event before first schedule pattern
-        serviceProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(initTime));
+        serviceProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         this.internalClock.put(strategyName, false);
 
         logger.debug("initialized service provider: " + strategyName);

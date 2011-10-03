@@ -1,9 +1,6 @@
 package com.algoTrader.service;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Hibernate;
-import org.hibernate.LockOptions;
-import org.hibernate.Session;
 
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.PositionImpl;
@@ -17,6 +14,7 @@ import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.ConfigurationUtil;
+import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.TradePerformanceVO;
@@ -34,12 +32,9 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         Strategy strategy = fill.getParentOrder().getStrategy();
         Security security = fill.getParentOrder().getSecurity();
 
-        // lock and initialize the security & strategy
-        Session session = this.getSessionFactory().getCurrentSession();
-        session.buildLockRequest(LockOptions.NONE).lock(security);
-        session.buildLockRequest(LockOptions.NONE).lock(strategy);
-        Hibernate.initialize(security);
-        Hibernate.initialize(strategy);
+        // initialize the security & strategy
+        HibernateUtil.lock(this.getSessionFactory(), security);
+        HibernateUtil.lock(this.getSessionFactory(), strategy);
 
         TransactionType transactionType = Side.BUY.equals(fill.getSide()) ? TransactionType.BUY : TransactionType.SELL;
         long quantity = Side.BUY.equals(fill.getSide()) ? fill.getQuantity() : -fill.getQuantity();

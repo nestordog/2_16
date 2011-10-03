@@ -7,8 +7,7 @@ import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.hibernate.LockOptions;
-import org.hibernate.Session;
+import org.hibernate.Hibernate;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Strategy;
@@ -22,6 +21,7 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.esper.io.CsvTickWriter;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
+import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.BarVO;
 import com.algoTrader.vo.RawTickVO;
@@ -54,10 +54,10 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
         Security security = marketDataEvent.getSecurity();
 
-        // lock and initialize the security
-        Session session = this.getSessionFactory().getCurrentSession();
-        session.buildLockRequest(LockOptions.NONE).lock(security);
-        //Hibernate.initialize(watchListItems);
+        // lock the security and initialize collections
+        HibernateUtil.lock(this.getSessionFactory(), security);
+        //Hibernate.initialize(security.getWatchListItems());
+        Hibernate.initialize(security.getPositions());
 
         for (WatchListItem watchListItem : security.getWatchListItems()) {
             getRuleService().sendEvent(watchListItem.getStrategy().getName(), marketDataEvent);

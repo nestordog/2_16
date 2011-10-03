@@ -13,11 +13,10 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Transaction;
-import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
-import com.algoTrader.entity.trade.SteppingLimitOrder;
+import com.algoTrader.entity.trade.MarketOrder;
 import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.TransactionType;
@@ -115,22 +114,11 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         Side side = (position.getQuantity() > 0) ? Side.SELL : Side.BUY;
 
-        Tick tick = security.getLastTick();
-        double bid = tick.getBid().doubleValue();
-        double ask = tick.getAsk().doubleValue();
-        double tickSize = security.getSecurityFamily().getTickSize();
-
-        SteppingLimitOrder order = SteppingLimitOrder.Factory.newInstance();
+        MarketOrder order = MarketOrder.Factory.newInstance();
         order.setStrategy(strategy);
         order.setSecurity(security);
         order.setQuantity(Math.abs(quantity));
         order.setSide(side);
-
-        if (Side.BUY.equals(side)) {
-            order.setDefaultBuyLimits(bid, ask, tickSize);
-        } else {
-            order.setDefaultSellLimits(bid, ask, tickSize);
-        }
 
         getOrderService().sendOrder(order);
     }

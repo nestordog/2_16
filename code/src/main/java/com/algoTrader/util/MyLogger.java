@@ -44,7 +44,10 @@ public class MyLogger extends Logger {
             String strategyName = StrategyUtil.getStartedStrategyName();
             RuleService ruleService = ServiceLocator.commonInstance().getRuleService();
             if (ruleService.isInitialized(strategyName) && !ruleService.isInternalClock(strategyName)) {
-                time = ruleService.getCurrentTime(strategyName);
+                long engineTime = ruleService.getCurrentTime(strategyName);
+                if (engineTime != 0) {
+                    time = engineTime;
+                }
             }
         } catch (Exception e) {
             // do nothing spring services are probably not initialized yet

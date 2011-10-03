@@ -33,4 +33,9 @@ public class StrategyUtil {
 
         return getStartedStrategy().getName();
     }
+
+    public static boolean isStartedStrategyBASE() {
+
+        return StrategyImpl.BASE.equals(getStartedStrategyName());
+    }
 }
