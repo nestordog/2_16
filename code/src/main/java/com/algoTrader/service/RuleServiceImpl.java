@@ -137,12 +137,8 @@ public class RuleServiceImpl extends RuleServiceBase {
 
             // get the ObjectModel for the statement
             EPStatementObjectModel model;
-            EPPreparedStatementImpl prepared = null;
             if (exp.contains("?")) {
-                prepared = ((EPPreparedStatementImpl) administrator.prepareEPL(exp));
-                for (int i = 0; i < params.length; i++) {
-                    prepared.setObject(i + 1, params[i]);
-                }
+                EPPreparedStatementImpl prepared = ((EPPreparedStatementImpl) administrator.prepareEPL(exp));
                 model = prepared.getModel();
             } else {
                 model = administrator.compileEPL(exp);
@@ -158,6 +154,15 @@ public class RuleServiceImpl extends RuleServiceBase {
                             // set the alias
                             if (alias != null) {
                                 attribute.setValue(alias);
+                            }
+
+                            // set the prepared statement params
+                            if (exp.contains("?")) {
+                                EPPreparedStatementImpl prepared = ((EPPreparedStatementImpl) administrator.prepareEPL(exp));
+                                for (int i = 0; i < params.length; i++) {
+                                    prepared.setObject(i + 1, params[i]);
+                                }
+                                model = prepared.getModel();
                             }
 
                             // create the statement

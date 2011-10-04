@@ -66,6 +66,11 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             // remove the parent position
             removeParentPosition(position.getId());
+
+            ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
+
+            // propagate the ClosePosition event
+            getRuleService().sendEvent(position.getStrategy().getName(), closePositionVO);
         }
     }
 
@@ -96,12 +101,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         if (position.isOpen()) {
 
-            ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
-
             closePositionAndChildren(positionId);
-
-            // propagate the ClosePosition event
-            getRuleService().sendEvent(position.getStrategy().getName(), closePositionVO);
         }
     }
 

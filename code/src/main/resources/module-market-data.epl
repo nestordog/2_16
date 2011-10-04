@@ -61,7 +61,11 @@ from
 @Name('PERSIST_TICKS')
 @Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
 @RunTimeOnly()
+on pattern
+    [every timer:at(*, *, *, *, 1:5, 0)]
 select
-      tick
-from pattern
-    [every-distinct(tick.security.id, 1 minute) tick=Tick];
+    *
+from
+    TickWindow as tickWindow
+where
+    MarketDataUtil.isTickValid(tickWindow);

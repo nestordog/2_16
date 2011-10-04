@@ -1,10 +1,13 @@
 package com.algoTrader.service;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
@@ -26,6 +29,7 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.BarVO;
 import com.algoTrader.vo.RawTickVO;
 import com.algoTrader.vo.UnsubscribeTickVO;
+import com.espertech.esper.collection.Pair;
 
 public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
@@ -178,7 +182,14 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     public static class PersistTickSubscriber {
 
-        public void update(Tick tick) {
+        @SuppressWarnings("rawtypes")
+        public void update(Pair<Tick, Object> insertStream, Map removeStream) {
+
+            // get the current Date rounded to MINUTES
+            Date date = DateUtils.round(DateUtil.getCurrentEPTime(), Calendar.MINUTE);
+
+            Tick tick = insertStream.getFirst();
+            tick.setDateTime(date);
 
             ServiceLocator.serverInstance().getMarketDataService().persistTick(tick);
         }
