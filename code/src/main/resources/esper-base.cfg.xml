@@ -12,8 +12,8 @@
     <event-type name="Bid" class="com.algoTrader.entity.marketData.Bid"/>
     <event-type name="Ask" class="com.algoTrader.entity.marketData.Ask"/>
     <event-type name="Trade" class="com.algoTrader.entity.marketData.Trade"/>
-    <event-type name="GenericOrder" class="com.algoTrader.entity.trade.Order"/>
 
+    <event-type name="GenericOrder" class="com.algoTrader.entity.trade.Order"/>
     <event-type name="OrderStatus" class="com.algoTrader.entity.trade.OrderStatus">
         <legacy-type accessor-style="javabean" code-generation="enabled" property-resolution-style="case_sensitive" factory-method="com.algoTrader.entity.trade.OrderStatus$Factory.newInstance"/>
     </event-type>
