@@ -14,7 +14,8 @@ from
             or type=TransactionType.DEBIT
             or type=TransactionType.INTREST_PAID
             or type=TransactionType.INTREST_RECEIVED
-            or type=TransactionType.FEES)
+            or type=TransactionType.FEES
+            or type=TransactionType.REFUND)
         or EndOfSimulation)]
 where
     LookupUtil.hasLastTicks();

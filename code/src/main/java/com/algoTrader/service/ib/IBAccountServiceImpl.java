@@ -343,7 +343,11 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
             TransactionType transactionType;
             if (typeString.equals("Other Fees")) {
-                transactionType = TransactionType.FEES;
+                if (amountDouble < 0) {
+                    transactionType = TransactionType.FEES;
+                } else {
+                    transactionType = TransactionType.REFUND;
+                }
             } else if (typeString.equals("Broker Interest Paid")) {
                 transactionType = TransactionType.INTREST_PAID;
             } else if (typeString.equals("Broker Interest Received")) {

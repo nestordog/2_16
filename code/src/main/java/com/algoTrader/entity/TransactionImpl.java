@@ -26,7 +26,7 @@ public class TransactionImpl extends Transaction {
     }
 
     /**
-     * SELL / CREDIT / INTREST: positive cashflow
+     * SELL / CREDIT / INTREST / REFUND: positive cashflow
      * BUY / EXPIRATION / DEBIT / FEES: negative cashflow
      * REBALANCE: positive or negative cashflow (depending on quantity equals 1 or -1)
      */
@@ -40,7 +40,8 @@ public class TransactionImpl extends Transaction {
                     getType().equals(TransactionType.EXPIRATION)) {
                 this.value = -getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getPrice().doubleValue();
             } else if (getType().equals(TransactionType.CREDIT) ||
-                    getType().equals(TransactionType.INTREST_RECEIVED)) {
+                    getType().equals(TransactionType.INTREST_RECEIVED) ||
+                    getType().equals(TransactionType.REFUND)) {
                 this.value = getPrice().doubleValue();
             } else if (getType().equals(TransactionType.DEBIT) ||
                     getType().equals(TransactionType.FEES) ||

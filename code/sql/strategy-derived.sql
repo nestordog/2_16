@@ -6,7 +6,7 @@ SELECT strategy.ID,
   WHERE st1.id = strategy.ID
 ) as MAINTENANCE_MARGIN,
 (SELECT IFNULL(SUM(-t2.QUANTITY * f2.CONTRACT_SIZE * t2.PRICE - t2.COMMISSION),0) +
-  (SELECT SUM(CASE WHEN (t3.type = 'CREDIT' OR t3.type = 'INTREST') THEN t3.PRICE WHEN (t3.type = 'DEBIT' OR t3.type = 'FEES') THEN -t3.PRICE END) FROM transaction as t3)
+  (SELECT SUM(CASE WHEN (t3.type = 'CREDIT' OR t3.type = 'INTREST' OR t3.type = 'REFUND') THEN t3.PRICE WHEN (t3.type = 'DEBIT' OR t3.type = 'FEES') THEN -t3.PRICE END) FROM transaction as t3)
   * st2.ALLOCATION
   FROM strategy  as st2
   LEFT JOIN transaction as t2 ON st2.ID = t2.STRATEGY_FK and (t2.type = 'BUY' OR t2.type = 'SELL' OR t2.type = 'EXPIRATION')
