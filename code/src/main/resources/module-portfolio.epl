@@ -37,7 +37,7 @@ from
     pattern[every timer:at (0, 13, *, *, 5)];
 
 @Name('CLOSE_POSITION')
-@Subscriber(className='com.algoTrader.service.PositionService.closePosition')
+@Subscriber(className='com.algoTrader.service.PositionService.closePositionOnExitValue')
 @Condition(key='statement.closePosition')
 select
     position.id

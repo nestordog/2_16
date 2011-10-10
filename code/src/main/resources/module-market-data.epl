@@ -56,16 +56,30 @@ and
 select
     *
 from
-    MarketDataEvent;
+    MarketDataEvent
+where
+    simulation
+or
+    (current_timestamp.getDayOfWeek() >= Calendar.MONDAY
+and
+    current_timestamp.getDayOfWeek() <= Calendar.FRIDAY
+and
+    DateUtil.compareTime(security.securityFamily.marketOpen, current_timestamp.toDate()) <= 0
+and
+    DateUtil.compareTime(security.securityFamily.marketClose, current_timestamp.toDate()) >= 0);
 
 @Name('PERSIST_TICKS')
 @Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
 @RunTimeOnly()
 on pattern
-    [every timer:at(*, *, *, *, 1:5, 0)]
+    [every timer:at(*, *, *, *, 1:5)]
 select
     *
 from
     TickWindow as tickWindow
 where
-    MarketDataUtil.isTickValid(tickWindow);
+    MarketDataUtil.isTickValid(tickWindow)
+and
+    DateUtil.compareTime(tickWindow.security.securityFamily.marketOpen, current_timestamp.toDate()) <= 0
+and
+    DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0;

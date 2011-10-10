@@ -28,7 +28,6 @@ import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.BarVO;
 import com.algoTrader.vo.RawTickVO;
-import com.algoTrader.vo.UnsubscribeTickVO;
 import com.espertech.esper.collection.Pair;
 
 public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
@@ -54,21 +53,18 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
         Security security = marketDataEvent.getSecurity();
 
-        // propagate MarketDataEvents only between marketOpen & close
-        if (DateUtil.compareToTime(security.getSecurityFamily().getMarketOpen()) >= 0
-                && DateUtil.compareToTime(security.getSecurityFamily().getMarketClose()) <= 0) {
+        // marketDataEvent.toString is expensive, so only log if debug is anabled
+        if (!logger.getParent().getLevel().isGreaterOrEqual(Level.DEBUG)) {
+            logger.trace(marketDataEvent.getSecurity().getSymbol() + " " + marketDataEvent);
+        }
 
-            // marketDataEvent.toString is expensive, so only log if debug is anabled
-            if (!logger.getParent().getLevel().isGreaterOrEqual(Level.DEBUG)) {
-                logger.trace(marketDataEvent.getSecurity().getSymbol() + " " + marketDataEvent);
-            }
+        // lock the security and initialize collections
+        HibernateUtil.lock(this.getSessionFactory(), security);
+        //Hibernate.initialize(security.getWatchListItems());
+        Hibernate.initialize(security.getPositions());
 
-            // lock the security and initialize collections
-            HibernateUtil.lock(this.getSessionFactory(), security);
-            //Hibernate.initialize(security.getWatchListItems());
-            Hibernate.initialize(security.getPositions());
-
-            for (WatchListItem watchListItem : security.getWatchListItems()) {
+        for (WatchListItem watchListItem : security.getWatchListItems()) {
+            if (!watchListItem.getStrategy().getName().equals(StrategyImpl.BASE)) {
                 getRuleService().sendEvent(watchListItem.getStrategy().getName(), marketDataEvent);
             }
         }
@@ -78,25 +74,20 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
         Security security = tick.getSecurity();
 
-        // persist ticks only between marketOpen & close
-        if (DateUtil.compareToTime(security.getSecurityFamily().getMarketOpen()) >= 0
-                && DateUtil.compareToTime(security.getSecurityFamily().getMarketClose()) <= 0) {
+        // get the current Date rounded to MINUTES
+        Date date = DateUtils.round(DateUtil.getCurrentEPTime(), Calendar.MINUTE);
+        tick.setDateTime(date);
 
-            // get the current Date rounded to MINUTES
-            Date date = DateUtils.round(DateUtil.getCurrentEPTime(), Calendar.MINUTE);
-            tick.setDateTime(date);
-
-            // write the tick to file
-            CsvTickWriter csvWriter = this.csvWriters.get(security);
-            if (csvWriter == null) {
-                csvWriter = new CsvTickWriter(security.getIsin());
-                this.csvWriters.put(security, csvWriter);
-            }
-            csvWriter.write(tick);
-
-            // write the tick to the DB (even if not valid)
-            getTickDao().create(tick);
+        // write the tick to file
+        CsvTickWriter csvWriter = this.csvWriters.get(security);
+        if (csvWriter == null) {
+            csvWriter = new CsvTickWriter(security.getIsin());
+            this.csvWriters.put(security, csvWriter);
         }
+        csvWriter.write(tick);
+
+        // write the tick to the DB (even if not valid)
+        getTickDao().create(tick);
     }
 
     protected void handleInitWatchlist() {
@@ -151,10 +142,6 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
         if (watchListItem != null && !watchListItem.isPersistent()) {
 
-            UnsubscribeTickVO unsubscribeTickEvent = new UnsubscribeTickVO();
-            unsubscribeTickEvent.setSecurityId(security.getId());
-            getRuleService().sendEvent(StrategyImpl.BASE, unsubscribeTickEvent);
-
             // update links
             security.getWatchListItems().remove(watchListItem);
             getSecurityDao().update(security);
@@ -166,7 +153,9 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             // only remove from external watchlist if nobody is watching this security anymore
             if (security.getWatchListItems().size() == 0) {
-                removeFromExternalWatchlist(security);
+                if (!simulation) {
+                    removeFromExternalWatchlist(security);
+                }
             }
 
             logger.info("removed security from watchlist " + security.getSymbol());

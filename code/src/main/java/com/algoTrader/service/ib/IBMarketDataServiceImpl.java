@@ -13,6 +13,7 @@ import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.SubscribeTickVO;
+import com.algoTrader.vo.UnsubscribeTickVO;
 import com.ib.client.Contract;
 
 public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements DisposableBean {
@@ -83,8 +84,14 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
         List<Map> events = getRuleService().executeQuery(StrategyImpl.BASE, "select tickerId from TickWindow where security.id = " + security.getId());
 
         if (events.size() == 1) {
+
             Integer tickerId = (Integer) events.get(0).get("tickerId");
             client.cancelMktData(tickerId);
+
+            UnsubscribeTickVO unsubscribeTickEvent = new UnsubscribeTickVO();
+            unsubscribeTickEvent.setSecurityId(security.getId());
+            getRuleService().sendEvent(StrategyImpl.BASE, unsubscribeTickEvent);
+
             logger.debug("cancelled market data for : " + security.getSymbol());
         } else {
             throw new IBMarketDataServiceException("tickerId for security " + security + " was not found");

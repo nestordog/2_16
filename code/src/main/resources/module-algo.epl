@@ -2,6 +2,7 @@
 
 @Name('MODIFY_STEPPING_LIMIT_ORDER')
 @Subscriber(className='com.algoTrader.service.OrderService.modifyOrder')
+@RunTimeOnly
 select
     case
         when currentOrder.side = Side.BUY then OrderUtil.modifyOrderLimit(currentOrder, currentOrder.`limit` + currentOrder.increment)
@@ -17,6 +18,7 @@ or
 
 @Name('CANCEL_STEPPING_LIMIT_ORDER')
 @Subscriber(className='com.algoTrader.service.OrderService.cancelOrder')
+@RunTimeOnly
 select
     currentOrder.number
 from pattern [
