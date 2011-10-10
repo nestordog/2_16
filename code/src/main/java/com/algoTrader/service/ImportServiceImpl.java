@@ -9,13 +9,12 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -110,34 +109,34 @@ public class ImportServiceImpl extends ImportServiceBase {
     }
 
     @Override
-    protected void handleImportIVolTicks(String stockOptionFamilyId, String symbol) throws Exception {
+    protected void handleImportIVolTicks(String stockOptionFamilyId, String subfolder) throws Exception {
 
         StockOptionFamily family = getStockOptionFamilyDao().load(Integer.parseInt(stockOptionFamilyId));
-        Set<StockOption> stockOptions = new HashSet<StockOption>();
+        Map<String, StockOption> stockOptions = new HashMap<String, StockOption>();
 
         for (Security security : family.getSecurities()) {
             StockOption stockOption = (StockOption) security;
-            stockOptions.add(stockOption);
+            stockOptions.put(stockOption.getSymbol(), stockOption);
         }
 
         Date date = null;
 
-        File dir = new File("results/iVol/" + symbol);
+        File dir = new File("results/iVol/" + subfolder);
 
         for (File file : dir.listFiles()) {
 
-            String dateString = file.getName().substring(5, 15);
-            Date fileDate = fileFormat.parse(dateString);
-            CsvIVolReader csvReader = new CsvIVolReader(symbol + "/" + file.getName());
+            //            String dateString = file.getName().substring(5, 15);
+            //            Date fileDate = fileFormat.parse(dateString);
+            CsvIVolReader csvReader = new CsvIVolReader(subfolder + "/" + file.getName());
 
             IVolVO iVol;
             List<Tick> ticks = new ArrayList<Tick>();
             while ((iVol = csvReader.readHloc()) != null) {
 
                 // prevent overlap
-                if (DateUtils.toCalendar(fileDate).get(Calendar.MONTH) != DateUtils.toCalendar(iVol.getDate()).get(Calendar.MONTH)) {
-                    continue;
-                }
+//                if (DateUtils.toCalendar(fileDate).get(Calendar.MONTH) != DateUtils.toCalendar(iVol.getDate()).get(Calendar.MONTH)) {
+//                    continue;
+//                }
 
                 if (iVol.getBid() == null || iVol.getAsk() == null) {
                     continue;
@@ -149,9 +148,9 @@ public class ImportServiceImpl extends ImportServiceBase {
                 expCal.setFirstDayOfWeek(Calendar.SUNDAY);
                 expCal.setTime(iVol.getExpiration());
 
-                if (!(expCal.get(Calendar.WEEK_OF_MONTH) == 3 && expCal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
-                    continue;
-                }
+                //                if (!(expCal.get(Calendar.WEEK_OF_MONTH) == 3 && expCal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
+                //                    continue;
+                //                }
 
                 // for every day create an underlaying-Tick
                 if (!iVol.getDate().equals(date)) {
@@ -169,32 +168,29 @@ public class ImportServiceImpl extends ImportServiceBase {
                     ticks.add(tick);
                 }
 
-                final StockOption newStockOption = new StockOptionImpl();
-                newStockOption.setStrike(iVol.getStrike());
-                newStockOption.setExpiration(DateUtils.setHours(DateUtils.addDays(iVol.getExpiration(), -1), 13)); // adjusted expiration date
-                newStockOption.setType("C".equals(iVol.getType()) ? OptionType.CALL : OptionType.PUT);
+                BigDecimal strike = iVol.getStrike();
+                Date expiration = DateUtils.setHours(DateUtils.addDays(iVol.getExpiration(), -1), 13); // adjusted expiration date
+                OptionType type = "C".equals(iVol.getType()) ? OptionType.CALL : OptionType.PUT;
+                String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike);
+                String isin = StockOptionSymbol.getIsin(family, expiration, type, strike);
 
                 // check if we have the stockOption already
-                StockOption stockOption = CollectionUtils.find(stockOptions, new Predicate<StockOption>() {
-                    @Override
-                    public boolean evaluate(StockOption stockOption) {
-                        return stockOption.getStrike().intValue() == newStockOption.getStrike().intValue()
-                                && stockOption.getExpiration().getTime() == newStockOption.getExpiration().getTime()
-                                && stockOption.getType().equals(newStockOption.getType());
-                    }
-                });
+                StockOption stockOption = stockOptions.get(symbol);
 
                 // otherwise create the stockOption
                 if (stockOption == null) {
 
-                    stockOption = newStockOption;
-                    stockOption.setIsin(StockOptionSymbol.getIsin(family, stockOption.getExpiration(), stockOption.getType(), stockOption.getStrike()));
-                    stockOption.setSymbol(StockOptionSymbol.getSymbol(family, stockOption.getExpiration(), stockOption.getType(), stockOption.getStrike()));
+                    stockOption = new StockOptionImpl();
+                    stockOption.setStrike(iVol.getStrike());
+                    stockOption.setExpiration(expiration); // adjusted expiration date
+                    stockOption.setType(type);
+                    stockOption.setSymbol(symbol);
+                    stockOption.setIsin(isin);
                     stockOption.setSecurityFamily(family);
                     stockOption.setUnderlaying(family.getUnderlaying());
 
                     getStockOptionDao().create(stockOption);
-                    stockOptions.add(stockOption);
+                    stockOptions.put(stockOption.getSymbol(), stockOption);
                 }
 
                 // create the tick
