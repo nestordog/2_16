@@ -7,15 +7,24 @@ import com.algoTrader.entity.StrategyImpl;
 public class StrategyUtil {
 
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
-    private static Strategy startedStrategy;
+    private static Strategy strategy;
+    private static String strategyName;
 
     /**
      * returns the "main" started startegy. in simulation this is always BASE in realtime this is whatever has been specified on the command-line
      */
     public static Strategy getStartedStrategy() {
 
-        if (startedStrategy == null) {
-            String strategyName;
+        if (strategy == null) {
+            String strategyName = getStartedStrategyName();
+            strategy = ServiceLocator.commonInstance().getLookupService().getStrategyByNameFetched(strategyName);
+        }
+        return strategy;
+    }
+
+    public static String getStartedStrategyName() {
+
+        if (strategyName == null) {
             if (simulation) {
                 strategyName = StrategyImpl.BASE;
             } else {
@@ -24,14 +33,8 @@ public class StrategyUtil {
                     throw new RuntimeException("no strategy defined on commandline");
                 }
             }
-            startedStrategy = ServiceLocator.commonInstance().getLookupService().getStrategyByNameFetched(strategyName);
         }
-        return startedStrategy;
-    }
-
-    public static String getStartedStrategyName() {
-
-        return getStartedStrategy().getName();
+        return strategyName;
     }
 
     public static boolean isStartedStrategyBASE() {
