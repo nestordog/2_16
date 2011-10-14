@@ -12,6 +12,8 @@ import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.entity.trade.Order;
+import com.algoTrader.entity.trade.OrderCallback;
 import com.algoTrader.esper.annotation.Condition;
 import com.algoTrader.esper.annotation.Listeners;
 import com.algoTrader.esper.annotation.RunTimeOnly;
@@ -110,11 +112,22 @@ public class RuleServiceImpl extends RuleServiceBase {
     @Override
     protected void handleDeployRule(String strategyName, String moduleName, String ruleName) throws Exception {
 
-        deployRule(strategyName, moduleName, ruleName, null, new Object[] {});
+        internalDeployRule(strategyName, moduleName, ruleName, null, new Object[] {}, null);
     }
 
     @Override
     protected void handleDeployRule(String strategyName, String moduleName, String ruleName, String alias, Object[] params) throws Exception {
+
+        internalDeployRule(strategyName, moduleName, ruleName, alias, params, null);
+    }
+
+    @Override
+    protected void handleDeployRule(String strategyName, String moduleName, String ruleName, String alias, Object[] params, Object callback) throws Exception {
+
+        internalDeployRule(strategyName, moduleName, ruleName, alias, params, callback);
+    }
+
+    private void internalDeployRule(String strategyName, String moduleName, String ruleName, String alias, Object[] params, Object callback) throws Exception {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
 
@@ -151,11 +164,6 @@ public class RuleServiceImpl extends RuleServiceBase {
                     for (AnnotationAttribute attribute : annotationPart.getAttributes()) {
                         if (attribute.getValue().equals(ruleName)) {
 
-                            // set the alias
-                            if (alias != null) {
-                                attribute.setValue(alias);
-                            }
-
                             // set the prepared statement params
                             if (exp.contains("?")) {
                                 EPPreparedStatementImpl prepared = ((EPPreparedStatementImpl) administrator.prepareEPL(exp));
@@ -166,10 +174,19 @@ public class RuleServiceImpl extends RuleServiceBase {
                             }
 
                             // create the statement
-                            newStatement = administrator.createEPL(model.toEPL());
+                            if (alias != null) {
+                                newStatement = administrator.createEPL(model.toEPL(), alias);
+                            } else {
+                                newStatement = administrator.createEPL(model.toEPL());
+                            }
 
-                            // check if the statement is elgible, other destory it righ away
+                            // process annotations
                             processAnnotations(strategyName, newStatement);
+
+                            // attach the callback if supplied (will override the Subscriber defined in Annotations)
+                            if (callback != null) {
+                                newStatement.setSubscriber(callback);
+                            }
 
                             // break iterating over the statements
                             break items;
@@ -459,6 +476,17 @@ public class RuleServiceImpl extends RuleServiceBase {
         key = key.replace(".", "_");
         EPRuntime runtime = getServiceProvider(strategyName).getEPRuntime();
         return runtime.getVariableValue(key);
+    }
+
+    @Override
+    protected void handleAddOrderCallback(Order order, OrderCallback callback) throws Exception {
+
+        String strategyName = order.getStrategy().getName();
+        int securityId = order.getSecurity().getId();
+        Object[] params = new Object[] { strategyName, securityId };
+        String alias = "AFTER_TRADE_" + securityId;
+
+        deployRule(strategyName, "prepared", "AFTER_TRADE", alias, params, callback);
     }
 
     private String getProviderURI(String strategyName) {

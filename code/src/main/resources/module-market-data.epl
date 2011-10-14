@@ -43,7 +43,7 @@ select
     tickWindow.ask as ask,
     tickWindow.openIntrest as openIntrest,
     tickWindow.settlement as settlement,
-    tickWindow.security as security
+    LookupUtil.getSecurityFetched(tickWindow.security.id) as security
 from
     TickWindow as tickWindow
 where

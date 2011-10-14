@@ -253,15 +253,21 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Position[] handleGetOpenFXPositions() throws Exception {
-
-        return getPositionDao().findOpenFXPositions().toArray(new Position[0]);
-    }
-
-    @Override
     protected Position[] handleGetOpenPositionsByStrategy(String strategyName) throws Exception {
 
         return getPositionDao().findOpenPositionsByStrategy(strategyName).toArray(new Position[0]);
+    }
+
+    @Override
+    protected Position[] handleGetOpenPositionsBySecurityId(int securityId) throws Exception {
+
+        return getPositionDao().findOpenPositionsBySecurityId(securityId).toArray(new Position[0]);
+    }
+
+    @Override
+    protected Position[] handleGetOpenFXPositions() throws Exception {
+
+        return getPositionDao().findOpenFXPositions().toArray(new Position[0]);
     }
 
     @Override

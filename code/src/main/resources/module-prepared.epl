@@ -1,0 +1,9 @@
+@Name('AFTER_TRADE')
+select
+    orderStatus
+from
+    pattern [orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED)]
+where
+    orderStatus.parentOrder.strategy.name = ?
+and
+    orderStatus.parentOrder.security.id = ?;

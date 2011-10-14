@@ -24,7 +24,6 @@ import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
-import com.algoTrader.vo.ClosePositionVO;
 import com.algoTrader.vo.ExpirePositionVO;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
@@ -63,14 +62,6 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             // reduce total quantity of the position
             reducePosition(positionId, Math.abs(position.getQuantity()));
-
-            // remove the parent position
-            removeParentPosition(position.getId());
-
-            ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
-
-            // propagate the ClosePosition event
-            getRuleService().sendEvent(position.getStrategy().getName(), closePositionVO);
         }
     }
 
@@ -81,27 +72,18 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         if (position.isOpen()) {
 
+            // close the position itself
             closePosition(position.getId());
 
             // close children if any
             if (position.getChildren().size() != 0) {
+
+                // use a Copy of the list in order to prevent ConcurrentModificationException
                 for (Position childPosition : new CopyOnWriteArrayList<Position>(position.getChildren())) {
 
-                    // childPosition
                     closePositionAndChildren(childPosition.getId());
                 }
             }
-        }
-    }
-
-    @Override
-    protected void handleClosePositionOnExitValue(int positionId) throws Exception {
-
-        Position position = getPositionDao().load(positionId);
-
-        if (position.isOpen()) {
-
-            closePositionAndChildren(positionId);
         }
     }
 

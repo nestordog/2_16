@@ -46,6 +46,16 @@ public class LookupUtil {
         return ServiceLocator.commonInstance().getLookupService().getSecuritiesOnWatchlistByPeriodicity(periodicity);
     }
 
+    public static Security getSecurity(int securityId) {
+
+        return ServiceLocator.commonInstance().getLookupService().getSecurity(securityId);
+    }
+
+    public static Security getSecurityFetched(int securityId) {
+
+        return ServiceLocator.commonInstance().getLookupService().getSecurityFetched(securityId);
+    }
+
     public static Security getSecurityByIsin(String isin) {
 
         return ServiceLocator.commonInstance().getLookupService().getSecurityByIsin(isin);
@@ -64,6 +74,12 @@ public class LookupUtil {
     public static Position[] getOpenPositionsByStrategy(String strategyName) {
 
         return ServiceLocator.commonInstance().getLookupService().getOpenPositionsByStrategy(strategyName);
+    }
+
+    public static Position[] getOpenPositionsBySecurityId(int securityId) {
+
+        Position[] positions = ServiceLocator.commonInstance().getLookupService().getOpenPositionsBySecurityId(securityId);
+        return positions;
     }
 
     public static Position[] getBullishPositionsByStrategy(String strategyName) {

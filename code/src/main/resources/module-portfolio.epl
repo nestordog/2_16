@@ -37,14 +37,20 @@ from
     pattern[every timer:at (0, 13, *, *, 5)];
 
 @Name('CLOSE_POSITION')
-@Subscriber(className='com.algoTrader.service.PositionService.closePositionOnExitValue')
+@Subscriber(className='com.algoTrader.service.PositionService.closePositionAndChildren')
 @Condition(key='statement.closePosition')
 select
     position.id
 from
     Tick as tick,
-    method:LookupUtil.getPositions(tick.security) as position
+    method:LookupUtil.getOpenPositionsBySecurityId(tick.security.id) as position
 where
+    tick.security.id not in
+    (select
+        openOrder.security.id
+    from
+        OpenOrder as openOrder)
+and
     position.quantity != 0
 and
     position.exitValue is not null

@@ -168,7 +168,11 @@ public class PositionImpl extends Position {
             totalAge += quantity * age;
 
         }
-        return totalAge / totalQuantity / 86400000.0;
+        if (totalQuantity != 0) {
+            return totalAge / totalQuantity / 86400000.0;
+        } else {
+            return Double.NaN;
+        }
     }
 
     /**

@@ -17,6 +17,7 @@ import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
+import com.algoTrader.vo.ClosePositionVO;
 import com.algoTrader.vo.TradePerformanceVO;
 
 public abstract class TransactionServiceImpl extends TransactionServiceBase {
@@ -58,13 +59,13 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         Strategy strategy = transaction.getStrategy();
         Security security = transaction.getSecurity();
 
-        // Strategy
         strategy.getTransactions().add(transaction);
+
         double profit = 0.0;
         double profitPct = 0.0;
         double avgAge = 0;
 
-        // Position
+        // create a new position if necessary
         Position position = getPositionDao().findBySecurityAndStrategy(security.getId(), strategy.getName());
         if (position == null) {
 
@@ -101,11 +102,21 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
             position.setQuantity(position.getQuantity() + transaction.getQuantity());
 
+            // in case a position was closed do the following
             if (!position.isOpen()) {
+
+                // set all values to null
                 position.setExitValue(null);
                 position.setMaintenanceMargin(null);
                 position.setProfitValue(null);
                 position.setProfitLockIn(null);
+
+                // remove potential parentPositions
+                getPositionService().removeParentPosition(position.getId());
+
+                // propagate the ClosePosition event
+                ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
+                getRuleService().sendEvent(position.getStrategy().getName(), closePositionVO);
             }
 
             position.getTransactions().add(transaction);
@@ -122,7 +133,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         getStrategyDao().update(strategy);
         getSecurityDao().update(security);
 
-        // create a TradePerformanceVO and send it back into Esper
+        // create a TradePerformanceVO and send it into Esper
         if (profit != 0.0) {
             TradePerformanceVO tradePerformance = new TradePerformanceVO();
             tradePerformance.setProfit(profit);
