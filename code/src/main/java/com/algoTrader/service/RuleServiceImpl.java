@@ -2,12 +2,17 @@ package com.algoTrader.service;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Transformer;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.Strategy;
@@ -34,6 +39,7 @@ import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationVariable;
 import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPOnDemandQueryResult;
+import com.espertech.esper.client.EPPreparedStatement;
 import com.espertech.esper.client.EPPreparedStatementImpl;
 import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPServiceProvider;
@@ -164,20 +170,23 @@ public class RuleServiceImpl extends RuleServiceBase {
                     for (AnnotationAttribute attribute : annotationPart.getAttributes()) {
                         if (attribute.getValue().equals(ruleName)) {
 
-                            // set the prepared statement params
+                            // create the statement and set the prepared statement params if a prepared statement
                             if (exp.contains("?")) {
-                                EPPreparedStatementImpl prepared = ((EPPreparedStatementImpl) administrator.prepareEPL(exp));
+                                EPPreparedStatement prepared = administrator.prepareEPL(exp);
                                 for (int i = 0; i < params.length; i++) {
                                     prepared.setObject(i + 1, params[i]);
                                 }
-                                model = prepared.getModel();
-                            }
-
-                            // create the statement
-                            if (alias != null) {
-                                newStatement = administrator.createEPL(model.toEPL(), alias);
+                                if (alias != null) {
+                                    newStatement = administrator.create(prepared, alias);
+                                } else {
+                                    newStatement = administrator.create(prepared);
+                                }
                             } else {
-                                newStatement = administrator.createEPL(model.toEPL());
+                                if (alias != null) {
+                                    newStatement = administrator.createEPL(exp, alias);
+                                } else {
+                                    newStatement = administrator.createEPL(exp);
+                                }
                             }
 
                             // process annotations
@@ -479,14 +488,33 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected void handleAddOrderCallback(Order order, OrderCallback callback) throws Exception {
+    protected void handleAddOrderCallback(Order[] orders, OrderCallback callback) throws Exception {
 
-        String strategyName = order.getStrategy().getName();
-        int securityId = order.getSecurity().getId();
-        Object[] params = new Object[] { strategyName, securityId };
-        String alias = "AFTER_TRADE_" + securityId;
+        if (orders.length == 0) {
+            throw new IllegalArgumentException("at least 1 order has to be specified");
+        }
 
-        deployRule(strategyName, "prepared", "AFTER_TRADE", alias, params, callback);
+        String strategyName = orders[0].getStrategy().getName();
+
+        // get the securityIds sorted asscending
+        TreeSet<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(Arrays.asList(orders), new Transformer<Order, Integer>() {
+            @Override
+            public Integer transform(Order order) {
+                return order.getSecurity().getId();
+            }
+        }));
+
+        if (sortedSecurityIds.size() < orders.length) {
+            throw new IllegalArgumentException("cannot place multiple orders for the same security at the same time");
+        }
+
+        // get the statement alias based on all security ids
+        String alias = "AFTER_TRADE_" + StringUtils.join(sortedSecurityIds, "_");
+
+        // set the number of orders as a variable (because "repeat" does not allow expressions)
+        setProperty(strategyName, "orderCount", String.valueOf(orders.length));
+
+        deployRule(strategyName, "prepared", "AFTER_TRADE", alias, new Object[] { sortedSecurityIds }, callback);
     }
 
     private String getProviderURI(String strategyName) {

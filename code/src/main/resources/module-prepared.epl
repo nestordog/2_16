@@ -2,8 +2,4 @@
 select
     orderStatus
 from
-    pattern [orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED)]
-where
-    orderStatus.parentOrder.strategy.name = ?
-and
-    orderStatus.parentOrder.security.id = ?;
+    pattern[[orderCount] (orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, parentOrder.security.id in (?)))]
