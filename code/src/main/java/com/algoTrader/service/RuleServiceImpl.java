@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.entity.marketData.FirstTickCallback;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderCallback;
 import com.algoTrader.esper.annotation.Condition;
@@ -511,10 +512,30 @@ public class RuleServiceImpl extends RuleServiceBase {
         // get the statement alias based on all security ids
         String alias = "AFTER_TRADE_" + StringUtils.join(sortedSecurityIds, "_");
 
-        // set the number of orders as a variable (because "repeat" does not allow expressions)
-        setProperty(strategyName, "orderCount", String.valueOf(orders.length));
+        if (isDeployed(strategyName, alias)) {
 
-        deployRule(strategyName, "prepared", "AFTER_TRADE", alias, new Object[] { sortedSecurityIds }, callback);
+            logger.warn(alias + " is already deployed");
+        } else {
+
+            // set the number of orders as a variable (because "repeat" does not allow expressions)
+            setProperty(strategyName, "orderCount", String.valueOf(orders.length));
+
+            deployRule(strategyName, "prepared", "AFTER_TRADE", alias, new Object[] { sortedSecurityIds }, callback);
+        }
+    }
+
+    @Override
+    protected void handleAddFirstTickCallback(String strategyName, int securityId, FirstTickCallback callback) throws Exception {
+
+        String alias = "FIRST_TICK_" + securityId;
+
+        if (isDeployed(strategyName, alias)) {
+
+            logger.warn(alias + " is already deployed");
+        } else {
+
+            deployRule(strategyName, "prepared", "FIRST_TICK", alias, new Object[] { strategyName, securityId }, callback);
+        }
     }
 
     private String getProviderURI(String strategyName) {

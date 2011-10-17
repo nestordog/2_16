@@ -1,3 +1,11 @@
+@Name('FIRST_TICK')
+@Priority(2)
+select
+    ? as strategyName,
+    tick
+from
+    ValidTick(security.id = ?).std:firstevent() as tick;
+
 @Name('AFTER_TRADE')
 select
     orderStatus

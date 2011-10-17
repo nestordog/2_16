@@ -10,4 +10,11 @@ public abstract class OrderImpl extends Order {
 
         return getSide() + " " + getQuantity() + " " + ClassUtils.getShortClassName(this.getClass()) + " " + getSecurity().getSymbol();
     }
+
+    @Override
+    public void setQuantity(long quantityIn) {
+
+        // always set a positive quantity
+        super.setQuantity(Math.abs(quantityIn));
+    }
 }

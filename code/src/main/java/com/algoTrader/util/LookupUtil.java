@@ -121,4 +121,9 @@ public class LookupUtil {
 
         return ServiceLocator.commonInstance().getLookupService().getWatchListItem(strategyName, securityId);
     }
+
+    public static boolean isOnWatchlist(String strategyName, int securityId) {
+
+        return ServiceLocator.commonInstance().getLookupService().getWatchListItem(strategyName, securityId) != null;
+    }
 }
