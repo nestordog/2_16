@@ -36,7 +36,8 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
     @Override
     protected void handleInitWatchlist() {
 
-        if ((client.getIbAdapter().getState().equals(ConnectionState.READY) || client.getIbAdapter().getState().equals(ConnectionState.SUBSCRIBED))
+        if (client != null
+                && (client.getIbAdapter().getState().equals(ConnectionState.READY) || client.getIbAdapter().getState().equals(ConnectionState.SUBSCRIBED))
                 && !client.getIbAdapter().isRequested() && !simulation) {
 
             client.getIbAdapter().setRequested(true);
