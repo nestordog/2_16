@@ -128,6 +128,10 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         // delete all non-presistent watchListItems
         List<WatchListItem> nonPersistentWatchListItems = getWatchListItemDao().findNonPersistent();
+        for (WatchListItem watchListItem : nonPersistentWatchListItems) {
+            watchListItem.getSecurity().getWatchListItems().remove(watchListItem);
+            watchListItem.getStrategy().getWatchListItems().remove(watchListItem);
+        }
         getWatchListItemDao().remove(nonPersistentWatchListItems);
 
         // delete all alert values
