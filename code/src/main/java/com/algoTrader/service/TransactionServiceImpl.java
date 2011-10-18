@@ -90,8 +90,12 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         } else {
 
+            // get the closePositionVO
+            // must be done before closing the position
+            ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
+
             // evaluate the profit in closing transactions
-            // must get this before attaching the new transaction
+            // must be done before attaching the new transaction
             if (Long.signum(position.getQuantity()) * Long.signum(transaction.getQuantity()) == -1) {
                 double cost = position.getCostDouble() * Math.abs((double) transaction.getQuantity() / (double) position.getQuantity());
                 double value = transaction.getNetValueDouble();
@@ -115,8 +119,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 getPositionService().removeParentPosition(position.getId());
 
                 // propagate the ClosePosition event
-                ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
-                getRuleService().sendEvent(position.getStrategy().getName(), closePositionVO);
+                getRuleService().routeEvent(position.getStrategy().getName(), closePositionVO);
             }
 
             position.getTransactions().add(transaction);
@@ -170,7 +173,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         // also send the transaction to the corresponding strategy
         if (!StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
-            getRuleService().sendEvent(transaction.getStrategy().getName(), transaction);
+            getRuleService().routeEvent(transaction.getStrategy().getName(), transaction);
         }
     }
 
@@ -179,7 +182,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         // send the fill to the strategy that placed the corresponding order
         if (!StrategyImpl.BASE.equals(fill.getParentOrder().getStrategy().getName())) {
-            getRuleService().sendEvent(fill.getParentOrder().getStrategy().getName(), fill);
+            getRuleService().routeEvent(fill.getParentOrder().getStrategy().getName(), fill);
         }
     }
 

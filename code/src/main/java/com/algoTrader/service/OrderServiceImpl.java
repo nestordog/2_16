@@ -128,11 +128,11 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     protected void handlePropagateOrder(Order order) throws Exception {
 
         // send the order into the base engine to be correlated with fills
-        getRuleService().sendEvent(StrategyImpl.BASE, order);
+        getRuleService().routeEvent(StrategyImpl.BASE, order);
 
         // also send the order to the strategy that placed the order
         if (!StrategyImpl.BASE.equals(order.getStrategy().getName())) {
-            getRuleService().sendEvent(order.getStrategy().getName(), order);
+            getRuleService().routeEvent(order.getStrategy().getName(), order);
         }
     }
 
@@ -141,7 +141,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
         // send the fill to the strategy that placed the corresponding order
         if (!StrategyImpl.BASE.equals(orderStatus.getParentOrder().getStrategy().getName())) {
-            getRuleService().sendEvent(orderStatus.getParentOrder().getStrategy().getName(), orderStatus);
+            getRuleService().routeEvent(orderStatus.getParentOrder().getStrategy().getName(), orderStatus);
         }
     }
 }
