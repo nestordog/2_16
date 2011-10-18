@@ -16,6 +16,6 @@ nohup java \
 -XX:MaxHeapFreeRatio=10 \
 -XX:MinHeapFreeRatio=5 \
 -XX:-UseParallelGC \
-com.algoTrader.starter.TickStarter \
+com.algoTrader.starter.MarketDataStarter \
 > log/nohup.log 2>&1 &
 
