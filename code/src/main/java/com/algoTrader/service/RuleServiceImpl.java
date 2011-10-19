@@ -301,8 +301,20 @@ public class RuleServiceImpl extends RuleServiceBase {
     @Override
     protected void handleRouteEvent(String strategyName, Object obj) {
 
-        // routing always goes to the local engine
-        getServiceProvider(strategyName).getEPRuntime().route(obj);
+        if (simulation) {
+            Strategy strategy = getLookupService().getStrategyByName(strategyName);
+            if (strategy.isAutoActivate()) {
+                getServiceProvider(strategyName).getEPRuntime().route(obj);
+            }
+        } else {
+
+            // check if it is the localStrategy
+            if (StrategyUtil.getStartedStrategyName().equals(strategyName)) {
+                getServiceProvider(strategyName).getEPRuntime().route(obj);
+            } else {
+                getStrategyService().sendEvent(strategyName, obj);
+            }
+        }
     }
 
     protected List<Object> handleExecuteQuery(String strategyName, String query) {

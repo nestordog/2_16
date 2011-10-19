@@ -11,6 +11,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Strategy;
@@ -178,7 +179,13 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         public void update(Pair<Tick, Object> insertStream, Map removeStream) {
 
             Tick tick = insertStream.getFirst();
-            ServiceLocator.serverInstance().getMarketDataService().persistTick(tick);
+            try {
+                ServiceLocator.serverInstance().getMarketDataService().persistTick(tick);
+
+                // catch duplicate entry errors and log them as warn
+            } catch (DataIntegrityViolationException e) {
+                logger.warn(e.getRootCause().getMessage());
+            }
         }
     }
 }

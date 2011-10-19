@@ -53,6 +53,16 @@
         <level value="warn" />
     </logger>
 
+    <!-- logs error messages that are also logged by HibernateInterceptor -->
+    <logger name="org.hibernate.event.def.AbstractFlushingEventListener">
+        <level value="FATAL"/>
+    </logger>
+
+    <!-- logs error messages that are also logged by HibernateInterceptor -->
+    <logger name="org.hibernate.util.JDBCExceptionReporter">
+        <level value="FATAL"/>
+    </logger>
+
     <logger name="org.apache.commons">
         <level value="warn" />
     </logger>
@@ -92,6 +102,8 @@
     <logger name="org.springframework.beans.factory.support.DisposableBeanAdapter">
         <level value="error" />
     </logger>
+
+
 
     <logger name="com.espertech.esper.util.MethodResolver">
         <level value="error" />
