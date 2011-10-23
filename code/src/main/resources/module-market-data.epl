@@ -68,7 +68,25 @@ and
 and
     DateUtil.compareTime(security.securityFamily.marketClose, current_timestamp.toDate()) >= 0);
 
-@Name('PERSIST_TICKS')
+@Name('PERSIST_HOUR_TICKS')
+@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
+@RunTimeOnly()
+on pattern
+    [every timer:at(0, *, *, *, 1:5)]
+select
+    *
+from
+    TickWindow as tickWindow
+where
+    MarketDataUtil.isTickValid(tickWindow)
+and
+    DateUtil.compareTime(tickWindow.security.securityFamily.marketOpen, current_timestamp.toDate()) <= 0
+and
+    DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0
+and
+    tickWindow.security.securityFamily.periodicity = Periodicity.`HOUR`;
+
+@Name('PERSIST_MINUTE_TICKS')
 @Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
 @RunTimeOnly()
 on pattern
@@ -82,4 +100,6 @@ where
 and
     DateUtil.compareTime(tickWindow.security.securityFamily.marketOpen, current_timestamp.toDate()) <= 0
 and
-    DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0;
+    DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0
+and
+    tickWindow.security.securityFamily.periodicity = Periodicity.`MINUTE`;
