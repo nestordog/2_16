@@ -113,9 +113,9 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     }
 
     @Override
-    protected void handleCancelOrder(int orderNumber) throws Exception {
+    protected void handleCancelOrder(Order order) throws Exception {
 
-        cancelExternalOrder(orderNumber);
+        cancelExternalOrder(order);
     }
 
     @Override
