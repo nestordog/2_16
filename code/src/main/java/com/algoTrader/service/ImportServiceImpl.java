@@ -53,7 +53,7 @@ public class ImportServiceImpl extends ImportServiceBase {
 
             Security security = getSecurityDao().findByIsin(isin);
             if (security == null) {
-                throw new SyncMarketDataServiceException("security was not found: " + isin);
+                throw new ImportServiceException("security was not found: " + isin);
             }
 
             CsvTickReader reader = new CsvTickReader(isin);

@@ -34,8 +34,6 @@ import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.CashBalance;
-import com.algoTrader.entity.Order;
-import com.algoTrader.entity.OrderImpl;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
@@ -44,8 +42,8 @@ import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.entity.security.FutureDao;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOptionDao;
+import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.MarketDataType;
-import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
 import com.algoTrader.esper.io.CsvTickInputAdapterSpec;
 import com.algoTrader.util.ConfigurationUtil;
@@ -243,15 +241,17 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         // create orders
         List<Order> orders = new ArrayList<Order>();
         for (Transaction transaction : transactions) {
-            Order order = new OrderImpl();
-            order.setStrategy(transaction.getStrategy());
-            order.setRequestedQuantity(Math.abs(transaction.getQuantity()));
-            order.setTransactionType(transaction.getType());
-            order.setStatus(Status.PREARRANGED);
-            order.getTransactions().add(transaction);
-            order.setSecurity(transaction.getSecurity());
 
-            orders.add(order);
+            // TODO needs to be redone with the new Async Order
+//            Order order = new OrderImpl();
+//            order.setStrategy(transaction.getStrategy());
+//            order.setRequestedQuantity(Math.abs(transaction.getQuantity()));
+//            order.setTransactionType(transaction.getType());
+//            order.setStatus(Status.PREARRANGED);
+//            order.getTransactions().add(transaction);
+//            order.setSecurity(transaction.getSecurity());
+            //
+            //            orders.add(order);
         }
 
         resetDB();

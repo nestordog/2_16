@@ -28,20 +28,14 @@
     </bean>
 
     <!-- Interactive Broker Aliases -->
+    <alias name="iBMarketDataService" alias="marketDataService"/>
+    <alias name="iBOrderService" alias="orderService"/>
     <alias name="iBStockOptionRetrieverService" alias="stockOptionRetrieverService"/>
     <alias name="iBAccountService" alias="accountService"/>
     <alias name="iBHistoricalDataService" alias="historicalDataService"/>
-    <alias name="iBSyncOrderService" alias="syncOrderService"/>
-    <alias name="iBSyncMarketDataService" alias="syncMarketDataService"/>
-    <alias name="iBOrderService" alias="orderService"/>
-    <alias name="iBMarketDataService" alias="marketDataService"/>
 
     <!-- Swissquote Aliases -->
 <!--     <alias name="sQStockOptionRetrieverService" alias="stockOptionRetrieverService"/> -->
-<!--     <alias name="sQAccountService" alias="accountService"/> -->
-<!--     <alias name="sQHistoricalDataService" alias="historicalDataService"/>     -->
-<!--     <alias name="sQSyncOrderService" alias="syncOrderService"/> -->
-<!--     <alias name="sQSyncMarketDataService" alias="syncMarketDataService"/> -->
 
     <!--  MBean Server -->
     <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">

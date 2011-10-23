@@ -44,11 +44,9 @@ public class IBServiceImpl extends IBServiceBase {
         if (this.services == null) {
 
             this.services = new HashSet<IBServiceInterface>();
-            this.services.add(getIBSyncMarketDataService());
-            this.services.add(getIBSyncOrderService());
             this.services.add(getIBAccountService());
             this.services.add(getIBHistoricalDataService());
-            // this.services.add(getIBStockOptionRetrieverService());
+            this.services.add(getIBStockOptionRetrieverService());
         }
 
         return this.services;
