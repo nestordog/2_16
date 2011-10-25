@@ -62,7 +62,8 @@ and
 @Name('PROCESS_CASH_TRANSACTIONS')
 @Listeners(classNames={'com.algoTrader.service.AccountServiceImpl$ProcessCashTransactionsListener'})
 @RunTimeOnly
-select *
+select
+    *
 from
     pattern[every timer:at (0, 8, *, *, 1:5)]
 where
