@@ -90,7 +90,7 @@ public class StrategyServiceImpl extends StrategyServiceBase implements Disposab
                     stream.reset();
 
                     this.objectsMap.put(strategyName, 0);
-                    logger.debug("stream " + strategyName + " has been reset");
+                    logger.trace("stream " + strategyName + " has been reset");
 
                 } else {
 
