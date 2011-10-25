@@ -127,6 +127,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected List<Future> handleGetFuturesByMinExpiration(int futureFamilyId, Date minExpirationDate) throws Exception {
+
+        return getFutureDao().findFutureByMinExpiration(futureFamilyId, minExpirationDate);
+    }
+
+    @Override
     protected Strategy handleGetStrategy(int id) throws java.lang.Exception {
 
         return getStrategyDao().load(id);

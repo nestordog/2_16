@@ -5,12 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Predicate;
-
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
-import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickDaoImpl;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
@@ -83,12 +79,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
         String strategyName = StrategyUtil.getStartedStrategyName();
         List ticks = getRuleService().getAllEventsProperty(strategyName, "GET_LAST_TICK", "tick");
-
-        CollectionUtils.filter(ticks, new Predicate<Tick>() {
-            public boolean evaluate(Tick tick) {
-                return tick.getSecurity().getWatchListItems().size() > 0;
-            }
-        });
 
         // we don't have access to the "real" TickDao in client services, but since we just use the conversion methods
         // we just instanciate a new Dao
