@@ -22,6 +22,15 @@ delete from
 where
     orderStatus.parentOrder.number = openOrder.number;
 
+@Name('LOG_TRANSACTION_SUMMARY')
+@Subscriber(className='com.algoTrader.service.TransactionServiceImpl$LogTransactionSummarySubscriber')
+@RunTimeOnly()
+select
+    fill,
+    orderStatus
+from
+    pattern [every fill=Fill -> orderStatus=OrderStatus(parentOrder.number = fill.parentOrder.number, status = Status.EXECUTED or status = Status.CANCELED)];
+
 @Name('PROPAGATE_ORDER_STATUS')
 @Subscriber(className='com.algoTrader.service.OrderService.propagateOrderStatus')
 select

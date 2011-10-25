@@ -1,7 +1,10 @@
 package com.algoTrader.service;
 
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.PositionImpl;
 import com.algoTrader.entity.Strategy;
@@ -23,6 +26,7 @@ import com.algoTrader.vo.TradePerformanceVO;
 public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
+    private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
     private static Logger simulationLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
 
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
@@ -49,6 +53,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setStrategy(strategy);
         transaction.setCurrency(security.getSecurityFamily().getCurrency());
         transaction.setCommission(fill.getCommission());
+
+        fill.setTransaction(transaction);
 
         persistTransaction(transaction);
         propagateTransaction(transaction);
@@ -186,4 +192,50 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         }
     }
 
+    protected void handleLogTransactionSummary(Transaction[] transactions) throws Exception {
+
+        if (transactions.length > 0 && !simulation) {
+
+            long totalQuantity = 0;
+            double totalPrice = 0.0;
+            double totalCommission = 0.0;
+
+            for (Transaction transaction : transactions) {
+
+                totalQuantity += transaction.getQuantity();
+                totalPrice += transaction.getPrice().doubleValue() * transaction.getQuantity();
+                totalCommission += transaction.getCommission().doubleValue();
+            }
+
+            Strategy strategy = transactions[0].getStrategy();
+            Security security = transactions[0].getSecurity();
+
+            // initialize the security & strategy
+            HibernateUtil.lock(this.getSessionFactory(), security);
+            HibernateUtil.lock(this.getSessionFactory(), strategy);
+
+            //@formatter:off
+            mailLogger.info("executed transaction type: " + transactions[0].getType() +
+                    " totalQuantity: " + totalQuantity +
+                    " of " + security.getSymbol() +
+                    " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) +
+                    " commission: " + totalCommission +
+                    " netLiqValue: " + strategy.getNetLiqValue());
+            //@formatter:on
+        }
+    }
+
+    public static class LogTransactionSummarySubscriber {
+
+        public void update(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream) {
+
+            Transaction[] transactions = new Transaction[insertStream.length];
+            for (int i = 0; i < insertStream.length; i++) {
+                Fill fill = (Fill) insertStream[i].get("fill");
+                transactions[i] = fill.getTransaction();
+            }
+
+            ServiceLocator.serverInstance().getTransactionService().logTransactionSummary(transactions);
+        }
+    }
 }
