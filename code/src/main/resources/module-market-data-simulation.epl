@@ -16,6 +16,15 @@ from
 where
     option.underlaying.id = indexTick.security.id;
 
+@Name('CREATE_EQUITY_INDEX_TICK')
+@Condition(key='statement.loadStockOptionsFromDB')
+insert into
+    EquityIndexTick
+select
+    *
+from
+    Tick(instanceof(security, com.algoTrader.entity.security.EquityIndex));
+
 @Name('LOAD_STOCK_OPTIONS_TICKS_FROM_DB')
 @Condition(key='statement.loadStockOptionsFromDB')
 @Priority(2)
@@ -35,11 +44,13 @@ select
     tick.settlement as settlement,
     tick.security as security
 from
-    pattern [every (indexTick=Tick(instanceof(security, com.algoTrader.entity.security.EquityIndex)) -> volaTick=Tick(security.id=indexTick.security.volatility.id))],
+    EquityIndexTick as indexTick,
     method:LookupUtil.getStockOptionsOnWatchlist() as option,
     method:LookupUtil.getTickByDateAndSecurity(indexTick.dateTime, option.id) as tick
 where
-    option.underlaying.id = indexTick.security.id;
+    option.underlaying.id = indexTick.security.id
+order by
+       tick.security.id;
 
 @Name('SIMULATE_FUTURES_BY_UNDERLYING')
 @Condition(key='statement.simulateFuturesByUnderlaying')
