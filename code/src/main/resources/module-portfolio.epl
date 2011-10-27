@@ -21,18 +21,18 @@ where
     LookupUtil.hasLastTicks();
 
 @Name('SET_MARGINS')
-@Listeners(classNames={'com.algoTrader.service.PositionServiceImpl$SetMarginsListener'})
+@Subscriber(className='com.algoTrader.service.PositionService.setMargins')
 @Condition(key='statement.setMargins')
 select
-    *
+    null
 from
     pattern[every timer:at (0, 7, *, *, 1:5)];
 
 @Name('EXPIRE_POSITION')
-@Listeners(classNames={'com.algoTrader.service.PositionServiceImpl$ExpirePositionListener'})
+@Subscriber(className='com.algoTrader.service.PositionService.expirePositions')
 @Condition(key='statement.expirePosition')
 select
-    *
+    null
 from
     pattern[every timer:at (0, 13, *, *, 5)];
 
@@ -60,27 +60,27 @@ and
     (position.direction = Direction.LONG and (tick.currentValue <= position.exitValue)));
 
 @Name('PROCESS_CASH_TRANSACTIONS')
-@Listeners(classNames={'com.algoTrader.service.AccountServiceImpl$ProcessCashTransactionsListener'})
+@Subscriber(className='com.algoTrader.service.AccountService.processCashTransactions')
 @RunTimeOnly
 select
-    *
+    null
 from
     pattern[every timer:at (0, 8, *, *, 1:5)]
 where
     simulation = false;
 
 @Name('REBALANCE_PORTFOLIO')
-@Listeners(classNames={'com.algoTrader.service.AccountServiceImpl$RebalancePortfolioListener'})
+@Subscriber(className='com.algoTrader.service.AccountService.rebalancePortfolio')
 @Condition(key='statement.rebalancePortfolio')
 select
-    *
+    null
 from
     pattern[every timer:at (0, 18, 1, *, *) -> Portfolio];
 
 @Name('EQUALIZE_FOREX_PORTFOLIO')
-@Listeners(classNames={'com.algoTrader.service.ForexServiceImpl$EqualizeForexListener'})
+@Subscriber(className='com.algoTrader.service.ForexService.equalizeForex')
 @Condition(key='statement.equalizeForex')
 select
-    *
+    null
 from
     pattern[every timer:at (0, 10, *, *, 3) -> Portfolio];

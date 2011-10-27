@@ -19,42 +19,26 @@ public class OHLCBarValue
 
     public long getMinuteValue()
     {
-        return this.minuteValue;
+        return minuteValue;
     }
 
     public Double getFirst()
     {
-        return this.first;
+        return first;
     }
 
     public Double getLast()
     {
-        return this.last;
+        return last;
     }
 
     public Double getMax()
     {
-        return this.max;
+        return max;
     }
 
     public Double getMin()
     {
-        return this.min;
-    }
-
-    public double getFirstP() {
-        return this.first;
-    }
-
-    public double getLastP() {
-        return this.last;
-    }
-
-    public double getMaxP() {
-        return this.max;
-    }
-
-    public double getMinP() {
-        return this.min;
+        return min;
     }
 }

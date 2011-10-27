@@ -1,3 +1,4 @@
+// add UNIVARIATE_STATISTICS__GEOMAVERAGE
 /**************************************************************************************
  * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
  * http://esper.codehaus.org                                                          *
@@ -11,7 +12,8 @@ package com.espertech.esper.view.stat;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.SingleEventIterator;
-import com.espertech.esper.core.StatementContext;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.ExprEvaluator;
 import com.espertech.esper.epl.expression.ExprNode;
 import com.espertech.esper.event.EventAdapterService;
@@ -30,7 +32,7 @@ import java.util.Map;
  */
 public final class UnivariateStatisticsView extends ViewSupport implements CloneableView
 {
-    private final StatementContext statementContext;
+    private final AgentInstanceContext agentInstanceContext;
     private final EventType eventType;
     private final ExprNode fieldExpression;
     private final ExprEvaluator fieldExpressionEvaluator;
@@ -45,20 +47,19 @@ public final class UnivariateStatisticsView extends ViewSupport implements Clone
      * Constructor requires the name of the field to use in the parent view to compute the statistics.
      * @param fieldExpression is the expression to use to get numeric data points for this view to
      * compute the statistics on.
-     * @param statementContext contains required view services
      */
-    public UnivariateStatisticsView(StatementContext statementContext, ExprNode fieldExpression, EventType eventType, StatViewAdditionalProps additionalProps)
+    public UnivariateStatisticsView(AgentInstanceContext agentInstanceContext, ExprNode fieldExpression, EventType eventType, StatViewAdditionalProps additionalProps)
     {
-        this.statementContext = statementContext;
+        this.agentInstanceContext = agentInstanceContext;
         this.fieldExpression = fieldExpression;
         this.fieldExpressionEvaluator = fieldExpression.getExprEvaluator();
         this.eventType = eventType;
         this.additionalProps = additionalProps;
     }
 
-    public View cloneView(StatementContext statementContext)
+    public View cloneView()
     {
-        return new UnivariateStatisticsView(statementContext, fieldExpression, eventType, additionalProps);
+        return new UnivariateStatisticsView(agentInstanceContext, fieldExpression, eventType, additionalProps);
     }
 
     /**
@@ -78,7 +79,7 @@ public final class UnivariateStatisticsView extends ViewSupport implements Clone
         {
             if (this.hasViews())
             {
-                oldDataMap = populateMap(baseStatisticsBean, statementContext.getEventAdapterService(), eventType, additionalProps, lastValuesEventNew);
+                oldDataMap = populateMap(baseStatisticsBean, agentInstanceContext.getStatementContext().getEventAdapterService(), eventType, additionalProps, lastValuesEventNew);
             }
         }
 
@@ -88,7 +89,7 @@ public final class UnivariateStatisticsView extends ViewSupport implements Clone
             for (int i = 0; i < newData.length; i++)
             {
                 eventsPerStream[0] = newData[i];
-                Number pointnum = (Number) fieldExpressionEvaluator.evaluate(eventsPerStream, true, statementContext);
+                Number pointnum = (Number) fieldExpressionEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
                 if (pointnum != null) {
                     double point = pointnum.doubleValue();
                     baseStatisticsBean.addPoint(point, 0);
@@ -100,7 +101,7 @@ public final class UnivariateStatisticsView extends ViewSupport implements Clone
                     lastValuesEventNew = new Object[additionalProps.getAdditionalExpr().length];
                 }
                 for (int val = 0; val < additionalProps.getAdditionalExpr().length; val++) {
-                    lastValuesEventNew[val] = additionalProps.getAdditionalExpr()[val].evaluate(eventsPerStream, true, statementContext);
+                    lastValuesEventNew[val] = additionalProps.getAdditionalExpr()[val].evaluate(eventsPerStream, true, agentInstanceContext);
                 }
             }
         }
@@ -111,7 +112,7 @@ public final class UnivariateStatisticsView extends ViewSupport implements Clone
             for (int i = 0; i < oldData.length; i++)
             {
                 eventsPerStream[0] = oldData[i];
-                Number pointnum = (Number) fieldExpressionEvaluator.evaluate(eventsPerStream, true, statementContext);
+                Number pointnum = (Number) fieldExpressionEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
                 if (pointnum != null) {
                     double point = pointnum.doubleValue();
                     baseStatisticsBean.removePoint(point, 0);
@@ -122,7 +123,7 @@ public final class UnivariateStatisticsView extends ViewSupport implements Clone
         // If there are child view, call update method
         if (this.hasViews())
         {
-            EventBean newDataMap = populateMap(baseStatisticsBean, statementContext.getEventAdapterService(), eventType, additionalProps, lastValuesEventNew);
+            EventBean newDataMap = populateMap(baseStatisticsBean, agentInstanceContext.getStatementContext().getEventAdapterService(), eventType, additionalProps, lastValuesEventNew);
 
             if (lastNewEvent == null)
             {
@@ -145,7 +146,7 @@ public final class UnivariateStatisticsView extends ViewSupport implements Clone
     public final Iterator<EventBean> iterator()
     {
         return new SingleEventIterator(populateMap(baseStatisticsBean,
-                statementContext.getEventAdapterService(),
+                agentInstanceContext.getStatementContext().getEventAdapterService(),
                 eventType,
                 additionalProps, lastValuesEventNew));
     }
@@ -172,7 +173,7 @@ public final class UnivariateStatisticsView extends ViewSupport implements Clone
         if (additionalProps != null) {
             additionalProps.addProperties(result, lastNewValues);
         }
-        return eventAdapterService.adaptorForTypedMap(result, eventType);
+        return eventAdapterService.adapterForTypedMap(result, eventType);
     }
 
     /**

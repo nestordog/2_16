@@ -6,7 +6,6 @@ import java.util.Collection;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
@@ -16,8 +15,6 @@ import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.UpdateListener;
 
 public abstract class AccountServiceImpl extends AccountServiceBase {
 
@@ -60,36 +57,6 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
 
         if (totalAllocation != 1.0) {
             logger.warn("the total of all allocations is: " + totalAllocation + " where it should be 1.0");
-        }
-    }
-
-    public static class ProcessCashTransactionsListener implements UpdateListener {
-
-        @Override
-        public void update(EventBean[] newEvents, EventBean[] oldEvents) {
-
-            long startTime = System.currentTimeMillis();
-            logger.debug("processCashTransactions start");
-
-            ServiceLocator.serverInstance().getAccountService().processCashTransactions();
-
-            logger.debug("processCashTransactions end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
-
-        }
-    }
-
-    public static class RebalancePortfolioListener implements UpdateListener {
-
-        @Override
-        public void update(EventBean[] newEvents, EventBean[] oldEvents) {
-
-            long startTime = System.currentTimeMillis();
-            logger.debug("rebalancePortfolio start");
-
-            ServiceLocator.serverInstance().getAccountService().rebalancePortfolio();
-
-            logger.debug("rebalancePortfolio end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
-
         }
     }
 }

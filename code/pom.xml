@@ -76,14 +76,10 @@
         <dependency>
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>
-            <version>1.6</version>
-            <type>jar</type>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
-            <version>3.0.1</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
@@ -98,28 +94,17 @@
         <dependency>
             <groupId>com.espertech</groupId>
             <artifactId>esper</artifactId>
-            <version>4.3.0</version>
-            <type>jar</type>
-            <scope>compile</scope>
+            <version>4.4.0</version>
         </dependency>
         <dependency>
             <groupId>com.espertech</groupId>
             <artifactId>esperio-csv</artifactId>
-            <version>4.3.0</version>
-            <type>jar</type>
-            <scope>compile</scope>
+            <version>4.4.0</version>
         </dependency>
         <dependency>
             <groupId>com.espertech</groupId>
             <artifactId>esperio-socket</artifactId>
-            <version>4.3.0</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.espertech</groupId>
-            <artifactId>esperee-jmx</artifactId>
-            <version>4.0.0</version>
+            <version>4.4.0</version>
         </dependency>
         <dependency>
             <groupId>javassist</groupId>

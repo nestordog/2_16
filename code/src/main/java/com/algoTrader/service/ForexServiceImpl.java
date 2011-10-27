@@ -2,9 +2,6 @@ package com.algoTrader.service;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Forex;
@@ -13,19 +10,14 @@ import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.util.ConfigurationUtil;
-import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.BalanceVO;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.UpdateListener;
 
 public class ForexServiceImpl extends ForexServiceBase {
 
     private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
     private static int fxEqualizationMinAmount = ConfigurationUtil.getBaseConfig().getInt("fxEqualizationMinAmount");
     private static int fxEqualizationBatchSize = ConfigurationUtil.getBaseConfig().getInt("fxEqualizationBatchSize");
-
-    private static Logger logger = MyLogger.getLogger(ForexServiceImpl.class.getName());
 
     @Override
     @SuppressWarnings("unchecked")
@@ -70,20 +62,6 @@ public class ForexServiceImpl extends ForexServiceBase {
 
                 getOrderService().sendOrder(order);
             }
-        }
-    }
-
-    public static class EqualizeForexListener implements UpdateListener {
-
-        @Override
-        public void update(EventBean[] newEvents, EventBean[] oldEvents) {
-
-            long startTime = System.currentTimeMillis();
-            logger.debug("equalizeForex start");
-
-            ServiceLocator.serverInstance().getForexService().equalizeForex();
-
-            logger.debug("equalizeForex end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
     }
 }

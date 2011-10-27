@@ -9,36 +9,27 @@
  **************************************************************************************/
 package com.espertech.esperio.csv;
 
-import java.beans.PropertyDescriptor;
-import java.io.EOFException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import com.espertech.esper.client.EPException;
+import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.core.service.EPServiceProviderSPI;
+import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.map.MapEventType;
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esperio.*;
+import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.ExecutionPathDebugLog;
+import com.espertech.esper.adapter.InputAdapter;
+import com.espertech.esper.adapter.AdapterState;
 
 import net.sf.cglib.core.ReflectUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.espertech.esper.adapter.AdapterState;
-import com.espertech.esper.adapter.InputAdapter;
-import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.core.EPServiceProviderSPI;
-import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.event.map.MapEventType;
-import com.espertech.esper.util.ExecutionPathDebugLog;
-import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esperio.AbstractCoordinatedAdapter;
-import com.espertech.esperio.AdapterInputSource;
-import com.espertech.esperio.SendableBeanEvent;
-import com.espertech.esperio.SendableEvent;
-import com.espertech.esperio.SendableMapEvent;
+import java.io.EOFException;
+import java.util.*;
+import java.beans.PropertyDescriptor;
 
 /**
  * An event Adapter that uses a CSV file for a source.
@@ -70,9 +61,9 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
     {
         super(epService, spec.isUsingEngineThread(), spec.isUsingExternalTimer());
 
-        this.adapterSpec = spec;
-        this.eventTypeName = this.adapterSpec.geteventTypeName();
-        this.eventsPerSec = spec.getEventsPerSec();
+        adapterSpec = spec;
+        eventTypeName = adapterSpec.geteventTypeName();
+        eventsPerSec = spec.getEventsPerSec();
 
         if(epService != null)
         {
@@ -116,28 +107,28 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
      */
     public SendableEvent read() throws EPException
     {
-        if(this.stateManager.getState() == AdapterState.DESTROYED || this.atEOF)
+        if(stateManager.getState() == AdapterState.DESTROYED || atEOF)
         {
             return null;
         }
 
         try
         {
-            if(this.eventsToSend.isEmpty())
+            if(eventsToSend.isEmpty())
             {
-                if (this.beanClass != null)
+                if (beanClass != null)
                 {
-                     return new SendableBeanEvent(newMapEvent(), this.beanClass, this.eventTypeName, this.totalDelay, this.scheduleSlot);
+                     return new SendableBeanEvent(newMapEvent(), beanClass, eventTypeName, totalDelay, scheduleSlot);
                 }
                 else
                 {
-                    return new SendableMapEvent(newMapEvent(), this.eventTypeName, this.totalDelay, this.scheduleSlot);
+                    return new SendableMapEvent(newMapEvent(), eventTypeName, totalDelay, scheduleSlot);
                 }
             }
             else
             {
-                SendableEvent event = this.eventsToSend.first();
-                this.eventsToSend.remove(event);
+                SendableEvent event = eventsToSend.first();
+                eventsToSend.remove(event);
                 return event;
             }
         }
@@ -147,8 +138,8 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
             {
                 log.debug(".read reached end of CSV file");
             }
-            this.atEOF = true;
-            if(this.stateManager.getState() == AdapterState.STARTED)
+            atEOF = true;
+            if(stateManager.getState() == AdapterState.STARTED)
             {
                 stop();
             }
@@ -169,7 +160,7 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
     public void setEPService(EPServiceProvider epService)
     {
         super.setEPService(epService);
-        finishInitialization(epService, this.adapterSpec);
+        finishInitialization(epService, adapterSpec);
     }
 
     /**
@@ -185,7 +176,7 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
      */
     protected void close()
     {
-        this.reader.close();
+        reader.close();
     }
 
     /**
@@ -195,11 +186,11 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
      */
     protected void replaceFirstEventToSend()
     {
-        this.eventsToSend.remove(this.eventsToSend.first());
+        eventsToSend.remove(eventsToSend.first());
         SendableEvent event = read();
         if(event != null)
         {
-            this.eventsToSend.add(event);
+            eventsToSend.add(event);
         }
     }
 
@@ -208,12 +199,12 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
      */
     protected void reset()
     {
-        this.lastTimestamp = 0;
-        this.totalDelay = 0;
-        this.atEOF = false;
-        if(this.reader.isResettable())
+        lastTimestamp = 0;
+        totalDelay = 0;
+        atEOF = false;
+        if(reader.isResettable())
         {
-            this.reader.reset();
+            reader.reset();
         }
     }
 
@@ -223,41 +214,41 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
 
         EPServiceProviderSPI spi = (EPServiceProviderSPI)epService;
 
-        this.scheduleSlot = spi.getSchedulingMgmtService().allocateBucket().allocateSlot();
+        scheduleSlot = spi.getSchedulingMgmtService().allocateBucket().allocateSlot();
 
-        this.reader = new CSVReader(spec.getAdapterInputSource());
-        this.reader.setLooping(spec.isLooping());
+        reader = new CSVReader(spec.getAdapterInputSource());
+        reader.setLooping(spec.isLooping());
 
         String[] firstRow = getFirstRow();
 
         Map<String, Object> givenPropertyTypes = constructPropertyTypes(spec.geteventTypeName(), spec.getPropertyTypes(), spi.getEventAdapterService());
 
-        this.propertyOrder = spec.getPropertyOrder() != null ?
+        propertyOrder = spec.getPropertyOrder() != null ?
                 spec.getPropertyOrder() :
                     CSVPropertyOrderHelper.resolvePropertyOrder(firstRow, givenPropertyTypes);
 
-        this.reader.setIsUsingTitleRow(isUsingTitleRow(firstRow, this.propertyOrder));
-        if(!isUsingTitleRow(firstRow, this.propertyOrder))
+        reader.setIsUsingTitleRow(isUsingTitleRow(firstRow, propertyOrder));
+        if(!isUsingTitleRow(firstRow, propertyOrder))
         {
             this.firstRow = firstRow;
         }
 
-        this.propertyTypes = resolvePropertyTypes(givenPropertyTypes);
+        propertyTypes = resolvePropertyTypes(givenPropertyTypes);
         if(givenPropertyTypes == null)
         {
-            spi.getEventAdapterService().addNestableMapType(this.eventTypeName, new HashMap<String, Object>(this.propertyTypes), null, true, true, true, false, false);
+            spi.getEventAdapterService().addNestableMapType(eventTypeName, new HashMap<String, Object>(propertyTypes), null, true, true, true, false, false);
         }
 
-        this.coercer.setPropertyTypes(this.propertyTypes);
+        coercer.setPropertyTypes(propertyTypes);
     }
 
     private Map<String, Object> newMapEvent() throws EOFException
     {
-        ++this.rowCount;
-        String[] row =  this.firstRow != null ? this.firstRow : this.reader.getNextRecord();
-        this.firstRow = null;
+        ++rowCount;
+        String[] row =  firstRow != null ? firstRow : reader.getNextRecord();
+        firstRow = null;
         Map<String, Object> map = createMapFromRow(row);
-        updateTotalDelay(map, this.reader.getAndClearIsReset());
+        updateTotalDelay(map, reader.getAndClearIsReset());
         return map;
     }
 
@@ -269,18 +260,18 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
 
         try
         {
-            for(String property : this.propertyOrder)
+            for(String property : propertyOrder)
             {
                 // Skip properties that are in the title row but not
                 // part of the map to send
-                if ((this.propertyTypes != null) &&
-                    (!this.propertyTypes.containsKey(property)) &&
-                    (!property.equals(this.adapterSpec.getTimestampColumn())))
+                if ((propertyTypes != null) &&
+                    (!propertyTypes.containsKey(property)) &&
+                    (!property.equals(adapterSpec.getTimestampColumn())))
                 {
                     count++;
                     continue;
                 }
-                Object value = this.coercer.coerce(property, row[count++]);
+                Object value = coercer.coerce(property, row[count++]);
                 map.put(property, value);
             }
         }
@@ -305,12 +296,12 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
         }
         if(!eventType.getUnderlyingType().equals(Map.class))
         {
-            this.beanClass = eventType.getUnderlyingType();
+            beanClass = eventType.getUnderlyingType();
         }
         if(propertyTypesGiven != null && eventType.getPropertyNames().length != propertyTypesGiven.size())
         {
             // allow this scenario for beans as we may want to bring in a subset of properties
-            if (this.beanClass != null) {
+            if (beanClass != null) {
                 return propertyTypesGiven;
             }
             else {
@@ -337,7 +328,7 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
             }
             // we can't set read-only properties for bean
             if(!eventType.getUnderlyingType().equals(Map.class)) {
-                PropertyDescriptor[] pds = ReflectUtils.getBeanProperties(this.beanClass);
+                PropertyDescriptor[] pds = ReflectUtils.getBeanProperties(beanClass);
                 PropertyDescriptor pd = null;
                 for (PropertyDescriptor p :pds) {
                     if (p.getName().equals(property))
@@ -389,12 +380,12 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
 
     private void updateTotalDelay(Map<String, Object> map, boolean isFirstRow)
     {
-        if(this.eventsPerSec != null)
+        if(eventsPerSec != null)
         {
-            int msecPerEvent = 1000/this.eventsPerSec;
-            this.totalDelay += msecPerEvent;
+            int msecPerEvent = 1000/eventsPerSec;
+            totalDelay += msecPerEvent;
         }
-        else if(this.adapterSpec.getTimestampColumn() != null)
+        else if(adapterSpec.getTimestampColumn() != null)
         {
             Long timestamp = resolveTimestamp(map);
             if(timestamp == null)
@@ -408,11 +399,11 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
             else
             {
                 long timestampDifference = 0;
-                if(timestamp < this.lastTimestamp)
+                if(timestamp < lastTimestamp)
                 {
                     if(!isFirstRow)
                     {
-                        throw new EPException("Subsequent timestamp " + timestamp + " is smaller than previous timestamp " + this.lastTimestamp);
+                        throw new EPException("Subsequent timestamp " + timestamp + " is smaller than previous timestamp " + lastTimestamp);
                     }
                     else
                     {
@@ -421,19 +412,19 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
                 }
                 else
                 {
-                    timestampDifference = timestamp - this.lastTimestamp;
+                    timestampDifference = timestamp - lastTimestamp;
                 }
-                this.lastTimestamp = timestamp;
-                this.totalDelay += timestampDifference;
+                lastTimestamp = timestamp;
+                totalDelay += timestampDifference;
             }
         }
     }
 
     private Long resolveTimestamp(Map<String, Object> map)
     {
-        if(this.adapterSpec.getTimestampColumn() != null)
+        if(adapterSpec.getTimestampColumn() != null)
         {
-            Object value = map.get(this.adapterSpec.getTimestampColumn());
+            Object value = map.get(adapterSpec.getTimestampColumn());
             if (value instanceof Date) {
                 return ((Date)value).getTime();
             } else {
@@ -454,18 +445,18 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
         }
 
         Map<String, Object> result = new HashMap<String, Object>();
-        for(int i = 0; i < this.propertyOrder.length; i++)
+        for(int i = 0; i < propertyOrder.length; i++)
         {
-            String name = this.propertyOrder[i];
+            String name = propertyOrder[i];
             Class type = String.class;
             if (name.contains(" ")) {
                 String[] typeAndName = name.split("\\s");
                 try {
                     name = typeAndName[1];
                     type = JavaClassHelper.getClassForName(JavaClassHelper.getBoxedClassName(typeAndName[0]));
-                    this.propertyOrder[i] = name;
+                    propertyOrder[i] = name;
                 } catch (Throwable e) {
-                    log.warn("Unable to use given type for property, will default to String: " + this.propertyOrder[i], e);
+                    log.warn("Unable to use given type for property, will default to String: " + propertyOrder[i], e);
                 }
             }
             result.put(name, type);
@@ -489,11 +480,11 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
         String[] firstRow;
         try
         {
-            firstRow = this.reader.getNextRecord();
+            firstRow = reader.getNextRecord();
         }
         catch (EOFException e)
         {
-            this.atEOF = true;
+            atEOF = true;
             firstRow = null;
         }
         return firstRow;
@@ -540,6 +531,6 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
      * @return row count
      */
     public int getRowCount() {
-        return this.rowCount;
+        return rowCount;
     }
 }

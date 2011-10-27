@@ -9,12 +9,13 @@
  **************************************************************************************/
 package com.espertech.esperio;
 
-import java.util.Map;
-
-import org.apache.commons.beanutils.BeanUtils;
-
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.schedule.ScheduleSlot;
+import net.sf.cglib.core.ReflectUtils;
+import org.apache.commons.beanutils.BeanUtils;
+
+import java.beans.PropertyDescriptor;
+import java.util.Map;
 
 /**
  * An implementation of SendableEvent that wraps a Map event for
@@ -37,21 +38,17 @@ public class SendableBeanEvent extends AbstractSendableEvent
         super(timestamp, scheduleSlot);
 
         try {
-            this.beanToSend = beanClass.newInstance();
+            beanToSend = beanClass.newInstance();
             // pre-create nested properties if any, as BeanUtils does not otherwise populate 'null' objects from their respective properties
-
-            /*
-             * PropertyDescriptor[] pds =
-             * ReflectUtils.getBeanSetters(beanClass); for (PropertyDescriptor
-             * pd : pds) { if (!pd.getPropertyType().isPrimitive() &&
-             * !pd.getPropertyType().getName().startsWith("java")) {
-             * BeanUtils.setProperty(beanToSend, pd.getName(),
-             * pd.getPropertyType().newInstance()); } }
-             */
-
+//            PropertyDescriptor[] pds = ReflectUtils.getBeanSetters(beanClass);
+//            for (PropertyDescriptor pd : pds) {
+//                if (!pd.getPropertyType().isPrimitive() && !pd.getPropertyType().getName().startsWith("java")) {
+//                    BeanUtils.setProperty(beanToSend, pd.getName(), pd.getPropertyType().newInstance());
+//                }
+//            }
             // this method silently ignores read only properties on the dest bean but we should
             // have caught them in CSVInputAdapter.constructPropertyTypes.
-            BeanUtils.copyProperties(this.beanToSend, mapToSend);
+            BeanUtils.copyProperties(beanToSend, mapToSend);
         } catch (Exception e) {
             throw new EPException("Cannot populate bean instance", e);
         }
@@ -62,15 +59,15 @@ public class SendableBeanEvent extends AbstractSendableEvent
      */
     public void send(AbstractSender sender)
     {
-        sender.sendEvent(this, this.beanToSend);
+        sender.sendEvent(this, beanToSend);
     }
 
     public String toString()
     {
-        return this.beanToSend.toString();
+        return beanToSend.toString();
     }
 
     public Object getBeanToSend() {
-        return this.beanToSend;
+        return beanToSend;
     }
 }

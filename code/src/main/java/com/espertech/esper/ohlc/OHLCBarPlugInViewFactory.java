@@ -1,7 +1,8 @@
 package com.espertech.esper.ohlc;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.core.StatementContext;
+import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.ExprNode;
 import com.espertech.esper.view.*;
 
@@ -38,9 +39,9 @@ public class OHLCBarPlugInViewFactory extends ViewFactorySupport
         }
     }
 
-    public View makeView(StatementContext statementContext)
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
-        return new OHLCBarPlugInView(statementContext, timestampExpression, valueExpression);
+        return new OHLCBarPlugInView(agentInstanceViewFactoryContext, timestampExpression, valueExpression);
     }
 
     public EventType getEventType()

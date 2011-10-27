@@ -61,7 +61,7 @@ import com.espertech.esper.client.soda.AnnotationPart;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.TimerControlEvent;
-import com.espertech.esper.core.EPServiceProviderImpl;
+import com.espertech.esper.core.service.EPServiceProviderImpl;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
@@ -529,10 +529,7 @@ public class RuleServiceImpl extends RuleServiceBase {
             logger.warn(alias + " is already deployed");
         } else {
 
-            // set the number of orders as a variable (because "repeat" does not allow expressions)
-            setProperty(strategyName, "orderCount", String.valueOf(orders.length));
-
-            deployRule(strategyName, "prepared", "AFTER_TRADE", alias, new Object[] { sortedSecurityIds }, callback);
+            deployRule(strategyName, "prepared", "AFTER_TRADE", alias, new Object[] { orders.length, sortedSecurityIds }, callback);
         }
     }
 
@@ -546,7 +543,7 @@ public class RuleServiceImpl extends RuleServiceBase {
             logger.warn(alias + " is already deployed");
         } else {
 
-            deployRule(strategyName, "prepared", "FIRST_TICK", alias, new Object[] { strategyName, securityId }, callback);
+            deployRule(strategyName, "prepared", "FIRST_TICK", alias, new Object[] { securityId }, callback);
         }
     }
 

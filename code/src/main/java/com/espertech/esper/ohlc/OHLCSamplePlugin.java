@@ -1,13 +1,10 @@
 package com.espertech.esper.ohlc;
 
 import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esper.core.EPServiceProviderSPI;
 import com.espertech.esper.plugin.PluginLoader;
 import com.espertech.esper.plugin.PluginLoaderInitContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.Properties;
 
 /**
  * PluginLoader for added this example as part of an Esper configuration file and therefore execute it during startup.

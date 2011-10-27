@@ -1,14 +1,13 @@
 package com.espertech.esper.ohlc;
 
-import java.util.Date;
-
+import com.espertech.esper.client.StatementAwareUpdateListener;
+import com.espertech.esper.client.EPStatement;
+import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.client.EventBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.StatementAwareUpdateListener;
+import java.util.Date;
 
 public class OHLCUpdateListener implements StatementAwareUpdateListener
 {
@@ -16,10 +15,11 @@ public class OHLCUpdateListener implements StatementAwareUpdateListener
 
     public void update(EventBean[] newData, EventBean[] oldData, EPStatement epStatement, EPServiceProvider epServiceProvider)
     {
-        for (EventBean element : newData) {
+        for (int i = 0; i < newData.length; i++)
+        {
             if (log.isInfoEnabled())
             {
-                log.info("Statement " + String.format("%s", epStatement.getName()) + " produced: " + getProperties(element));
+                log.info("Statement " + String.format("%s", epStatement.getName()) + " produced: " + getProperties(newData[i]));
             }
         }
     }
@@ -34,7 +34,7 @@ public class OHLCUpdateListener implements StatementAwareUpdateListener
             buf.append(name);
             buf.append("=");
 
-            if (name.contains("minuteValue"))
+            if (name.contains("timestamp"))
             {
                 buf.append(new Date((Long) value));
             }

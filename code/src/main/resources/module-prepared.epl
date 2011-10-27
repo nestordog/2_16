@@ -1,7 +1,7 @@
 @Name('FIRST_TICK')
 @Priority(2)
 select
-    ? as strategyName,
+    engineStrategy.name as strategyName,
     tick
 from
     ValidTick(security.id = ?).std:firstevent() as tick;
@@ -10,4 +10,4 @@ from
 select
     orderStatus
 from
-    pattern[[orderCount] (orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, parentOrder.security.id in (?)))]
+    pattern[[?] (orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, parentOrder.security.id in (?)))]

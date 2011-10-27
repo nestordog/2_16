@@ -9,7 +9,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Transaction;
@@ -25,8 +24,6 @@ import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.ExpirePositionVO;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.UpdateListener;
 
 public class PositionServiceImpl extends PositionServiceBase {
 
@@ -306,34 +303,6 @@ public class PositionServiceImpl extends PositionServiceBase {
             getPositionDao().update(position);
 
             logger.info("removed parent position of position " + position.getSecurity().getSymbol());
-        }
-    }
-
-    public static class SetMarginsListener implements UpdateListener {
-
-        @Override
-        public void update(EventBean[] newEvents, EventBean[] oldEvents) {
-
-            long startTime = System.currentTimeMillis();
-            logger.debug("setMargins start");
-
-            ServiceLocator.serverInstance().getPositionService().setMargins();
-
-            logger.debug("setMargins end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
-        }
-    }
-
-    public static class ExpirePositionListener implements UpdateListener {
-
-        @Override
-        public void update(EventBean[] newEvents, EventBean[] oldEvents) {
-
-            long startTime = System.currentTimeMillis();
-            logger.debug("expirePosition start");
-
-            ServiceLocator.serverInstance().getPositionService().expirePositions();
-
-            logger.debug("expirePosition end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
         }
     }
 }

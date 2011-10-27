@@ -1,3 +1,4 @@
+// line 54 add geomaverage
 /**************************************************************************************
  * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
  * http://esper.codehaus.org                                                          *

@@ -2,9 +2,9 @@ package com.espertech.esper.ohlc;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.core.EPStatementHandleCallback;
-import com.espertech.esper.core.ExtensionServicesContext;
-import com.espertech.esper.core.StatementContext;
+import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
+import com.espertech.esper.core.service.EPStatementHandleCallback;
+import com.espertech.esper.core.service.ExtensionServicesContext;
 import com.espertech.esper.epl.expression.ExprNode;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
@@ -12,13 +12,12 @@ import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.view.CloneableView;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewSupport;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Custom view to compute minute OHLC bars for double values and based on the event's timestamps.
@@ -35,7 +34,7 @@ public class OHLCBarPlugInView extends ViewSupport implements CloneableView
     private final static int LATE_EVENT_SLACK_SECONDS = 5;
     private static Log log = LogFactory.getLog(OHLCBarPlugInView.class);
 
-    private final StatementContext statementContext;
+    private final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final ScheduleSlot scheduleSlot;
     private final ExprNode timestampExpression;
     private final ExprNode valueExpression;
@@ -50,12 +49,12 @@ public class OHLCBarPlugInView extends ViewSupport implements CloneableView
     private Double min;
     private EventBean lastEvent;
 
-    public OHLCBarPlugInView(StatementContext statementContext, ExprNode timestampExpression, ExprNode valueExpression)
+    public OHLCBarPlugInView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, ExprNode timestampExpression, ExprNode valueExpression)
     {
-        this.statementContext = statementContext;
+        this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
         this.timestampExpression = timestampExpression;
         this.valueExpression = valueExpression;
-        this.scheduleSlot = statementContext.getScheduleBucket().allocateSlot();
+        this.scheduleSlot = agentInstanceViewFactoryContext.getStatementContext().getScheduleBucket().allocateSlot();
     }
 
     public void update(EventBean[] newData, EventBean[] oldData)
@@ -68,9 +67,9 @@ public class OHLCBarPlugInView extends ViewSupport implements CloneableView
         for (EventBean event : newData)
         {
             eventsPerStream[0] = event;
-            Long timestamp = (Long) timestampExpression.getExprEvaluator().evaluate(eventsPerStream, true, statementContext);
+            Long timestamp = (Long) timestampExpression.getExprEvaluator().evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
             Long timestampMinute = removeSeconds(timestamp);
-            double value = (Double) valueExpression.getExprEvaluator().evaluate(eventsPerStream, true, statementContext);
+            double value = (Double) valueExpression.getExprEvaluator().evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
 
             // test if this minute has already been published, the event is too late
             if ((cutoffTimestampMinute != null) && (timestampMinute <= cutoffTimestampMinute))
@@ -103,7 +102,7 @@ public class OHLCBarPlugInView extends ViewSupport implements CloneableView
 
     public EventType getEventType()
     {
-        return getEventType(statementContext.getEventAdapterService());
+        return getEventType(agentInstanceViewFactoryContext.getStatementContext().getEventAdapterService());
     }
 
     public Iterator<EventBean> iterator()
@@ -111,9 +110,9 @@ public class OHLCBarPlugInView extends ViewSupport implements CloneableView
         throw new UnsupportedOperationException("Not supported");
     }
 
-    public View cloneView(StatementContext statementContext)
+    public View cloneView()
     {
-        return new OHLCBarPlugInView(statementContext, timestampExpression, valueExpression);
+        return new OHLCBarPlugInView(agentInstanceViewFactoryContext, timestampExpression, valueExpression);
     }
 
     private void applyValue(double value)
@@ -160,11 +159,11 @@ public class OHLCBarPlugInView extends ViewSupport implements CloneableView
         if (handle != null)
         {
             // remove old schedule
-            statementContext.getSchedulingService().remove(handle, scheduleSlot);
+            agentInstanceViewFactoryContext.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
             handle = null;
         }
 
-        long currentTime = statementContext.getSchedulingService().getTime();
+        long currentTime = agentInstanceViewFactoryContext.getStatementContext().getSchedulingService().getTime();
         long currentRemoveSeconds = removeSeconds(currentTime);
         long targetTime = currentRemoveSeconds + (60 + LATE_EVENT_SLACK_SECONDS) * 1000; // leave some seconds for late comers
         long scheduleAfterMSec = targetTime - currentTime;
@@ -177,14 +176,14 @@ public class OHLCBarPlugInView extends ViewSupport implements CloneableView
             }
         };
 
-        handle = new EPStatementHandleCallback(statementContext.getEpStatementHandle(), callback);
-        statementContext.getSchedulingService().add(scheduleAfterMSec, handle, scheduleSlot);
+        handle = new EPStatementHandleCallback(agentInstanceViewFactoryContext.getEpStatementAgentInstanceHandle(), callback);
+        agentInstanceViewFactoryContext.getStatementContext().getSchedulingService().add(scheduleAfterMSec, handle, scheduleSlot);
     }
 
     private void postData()
     {
         OHLCBarValue barValue = new OHLCBarValue(currentTimestampMinute, first, last, max, min);
-        EventBean outgoing = statementContext.getEventAdapterService().adapterForBean(barValue);
+        EventBean outgoing = agentInstanceViewFactoryContext.getStatementContext().getEventAdapterService().adapterForBean(barValue);
         if (lastEvent == null)
         {
             this.updateChildren(new EventBean[] {outgoing}, null);
