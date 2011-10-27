@@ -7,8 +7,6 @@ import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.trade.Fill;
 import com.algoTrader.entity.trade.FillImpl;
-import com.algoTrader.entity.trade.LimitOrderInterface;
-import com.algoTrader.entity.trade.MarketOrder;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.enumeration.Side;
@@ -68,22 +66,15 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         fill.setSide(order.getSide());
         fill.setQuantity(order.getQuantity());
 
-        // for MarketOrders get the price from the last tick
-        if (order instanceof MarketOrder) {
-            double price = 0.0;
-            if (Side.SELL.equals(order.getSide())) {
-                price = security.getLastBid().getPrice().doubleValue();
+        // in simulation orders are executed at the market
+        double price = 0.0;
+        if (Side.SELL.equals(order.getSide())) {
+            price = security.getLastBid().getPrice().doubleValue();
 
-            } else if (Side.BUY.equals(order.getSide())) {
-                price = security.getLastAsk().getPrice().doubleValue();
-            }
-            fill.setPrice(RoundUtil.getBigDecimal(price));
-
-            // for limit orders get the price from the orderLimit
-        } else if (order instanceof LimitOrderInterface) {
-            LimitOrderInterface limitOrder = (LimitOrderInterface) order;
-            fill.setPrice(limitOrder.getLimit());
+        } else {
+            price = security.getLastAsk().getPrice().doubleValue();
         }
+        fill.setPrice(RoundUtil.getBigDecimal(price));
 
         // set the commission
         if (security.getSecurityFamily().getCommission() == null) {
