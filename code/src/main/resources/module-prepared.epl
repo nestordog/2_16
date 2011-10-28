@@ -4,7 +4,7 @@ select
     engineStrategy.name as strategyName,
     tick
 from
-    ValidTick(security.id = ?).std:firstevent() as tick;
+    pattern[[?] (every-distinct(security.id) (tick=ValidTick(security.id in (?))))]
 
 @Name('AFTER_TRADE')
 select

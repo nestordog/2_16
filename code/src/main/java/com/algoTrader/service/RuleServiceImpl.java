@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.collections15.CollectionUtils;
@@ -510,7 +511,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         String strategyName = orders[0].getStrategy().getName();
 
         // get the securityIds sorted asscending
-        TreeSet<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(Arrays.asList(orders), new Transformer<Order, Integer>() {
+        Set<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(Arrays.asList(orders), new Transformer<Order, Integer>() {
             @Override
             public Integer transform(Order order) {
                 return order.getSecurity().getId();
@@ -529,21 +530,33 @@ public class RuleServiceImpl extends RuleServiceBase {
             logger.warn(alias + " is already deployed");
         } else {
 
-            deployRule(strategyName, "prepared", "AFTER_TRADE", alias, new Object[] { orders.length, sortedSecurityIds }, callback);
+            deployRule(strategyName, "prepared", "AFTER_TRADE", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds }, callback);
         }
     }
 
     @Override
-    protected void handleAddFirstTickCallback(String strategyName, int securityId, FirstTickCallback callback) throws Exception {
+    protected void handleAddFirstTickCallback(String strategyName, int[] securityIds, FirstTickCallback callback) throws Exception {
 
-        String alias = "FIRST_TICK_" + securityId;
+        // sort the securityIds
+        Arrays.sort(securityIds);
+
+        // get unique values
+        Set<Integer> sortedSecurityIds = new TreeSet<Integer>();
+        for (int i : securityIds) {
+            sortedSecurityIds.add(i);
+        }
+
+        if (sortedSecurityIds.size() < securityIds.length) {
+            throw new IllegalArgumentException("cannot specify same securityId multiple times");
+        }
+        String alias = "FIRST_TICK_" + StringUtils.join(sortedSecurityIds, "_");
 
         if (isDeployed(strategyName, alias)) {
 
             logger.warn(alias + " is already deployed");
         } else {
 
-            deployRule(strategyName, "prepared", "FIRST_TICK", alias, new Object[] { securityId }, callback);
+            deployRule(strategyName, "prepared", "FIRST_TICK", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds }, callback);
         }
     }
 
