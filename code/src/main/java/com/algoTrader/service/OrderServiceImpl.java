@@ -1,7 +1,5 @@
 package com.algoTrader.service;
 
-import org.hibernate.proxy.HibernateProxy;
-
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Security;
@@ -31,21 +29,29 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
             Security security = order.getSecurity();
             Strategy strategy = order.getStrategy();
 
-            HibernateUtil.lock(this.getSessionFactory(), security);
-            HibernateUtil.lock(this.getSessionFactory(), strategy);
-
-            // in security and strategy are HibernateProxies convert them to objects
-            if (security instanceof HibernateProxy) {
-                HibernateProxy proxy = (HibernateProxy) security;
-                security = (Security) proxy.getHibernateLazyInitializer().getImplementation();
+            // lock or merge the security & strategy
+            if (!HibernateUtil.lock(this.getSessionFactory(), security)) {
+                security = (Security) HibernateUtil.merge(this.getSessionFactory(), security);
                 order.setSecurity(security);
             }
 
-            if (strategy instanceof HibernateProxy) {
-                HibernateProxy proxy = (HibernateProxy) strategy;
-                strategy = (Strategy) proxy.getHibernateLazyInitializer().getImplementation();
+            if (!HibernateUtil.lock(this.getSessionFactory(), strategy)) {
+                strategy = (Strategy) HibernateUtil.merge(this.getSessionFactory(), strategy);
                 order.setStrategy(strategy);
             }
+
+            //            // in security and strategy are HibernateProxies convert them to objects
+            //            if (security instanceof HibernateProxy) {
+            //                HibernateProxy proxy = (HibernateProxy) security;
+            //                security = (Security) proxy.getHibernateLazyInitializer().getImplementation();
+            //                order.setSecurity(security);
+            //            }
+            //
+            //            if (strategy instanceof HibernateProxy) {
+            //                HibernateProxy proxy = (HibernateProxy) strategy;
+            //                strategy = (Strategy) proxy.getHibernateLazyInitializer().getImplementation();
+            //                order.setStrategy(strategy);
+            //            }
 
             // use broker specific functionality to execute the order
             sendExternalOrder(order);
