@@ -11,8 +11,6 @@ nohup java \
 -Dlog4j.configuration=log4j-prod.xml \
 -Denvironment=$ENVIRONMENT \
 -javaagent:lib/agent.jar \
--agentlib:jdwp=transport=dt_socket,suspend=n,server=y,address=localhost:8000 \
--Xmx200m \
 -XX:MaxHeapFreeRatio=10 \
 -XX:MinHeapFreeRatio=5 \
 -XX:-UseParallelGC \
