@@ -4,10 +4,10 @@ select
     engineStrategy.name as strategyName,
     tick
 from
-    pattern[[?] (every-distinct(security.id) (tick=ValidTick(security.id in (?))))]
+    pattern[[?] (every-distinct(security.id) (tick=ValidTick(security.id in (?))))];
 
 @Name('AFTER_TRADE')
 select
     orderStatus
 from
-    pattern[[?] (orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, parentOrder.security.id in (?)))]
+    pattern[[?] (orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, parentOrder.security.id in (?)))];
