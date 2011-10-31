@@ -12,7 +12,7 @@ public class LongMap<K> extends ConcurrentHashMap<K, AtomicLong> {
 
     private static final long serialVersionUID = -847488464256946086L;
 
-    public void increment(K key, int value) {
+    public void increment(K key, long value) {
 
         super.putIfAbsent(key, new AtomicLong(0));
         super.get(key).addAndGet(value);
