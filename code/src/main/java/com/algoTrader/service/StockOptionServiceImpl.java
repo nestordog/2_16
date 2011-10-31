@@ -197,7 +197,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
             double currentValue = tick.getCurrentValueDouble();
 
             try {
-                double volatility = StockOptionUtil.getVolatility(underlayingSpot.doubleValue(), stockOption.getStrike().doubleValue(), currentValue, years,
+                double volatility = StockOptionUtil.getImpliedVolatility(underlayingSpot.doubleValue(), stockOption.getStrike().doubleValue(), currentValue, years,
                         family.getIntrest(), family.getDividend(), type);
                 strikes.add(strike);
                 currentValues.add(currentValue);
@@ -248,9 +248,9 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
         double years = (callOption.getExpiration().getTime() - date.getTime()) / MILLISECONDS_PER_YEAR;
 
-        double callVola = StockOptionUtil.getVolatility(underlayingTick.getCurrentValueDouble(), callOption.getStrike().doubleValue(),
+        double callVola = StockOptionUtil.getImpliedVolatility(underlayingTick.getCurrentValueDouble(), callOption.getStrike().doubleValue(),
                 callTick.getCurrentValueDouble(), years, family.getIntrest(), family.getDividend(), OptionType.CALL);
-        double putVola = StockOptionUtil.getVolatility(underlayingTick.getCurrentValueDouble(), putOption.getStrike().doubleValue(),
+        double putVola = StockOptionUtil.getImpliedVolatility(underlayingTick.getCurrentValueDouble(), putOption.getStrike().doubleValue(),
                 putTick.getCurrentValueDouble(), years, family.getIntrest(), family.getDividend(), OptionType.PUT);
 
         return new AtmVolaVO(years, callVola, putVola);

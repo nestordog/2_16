@@ -102,7 +102,7 @@ public class StockOptionUtil {
                 stockOption.getType());
     }
 
-    public static double getVolatility(final double underlayingSpot, final double strike, final double currentValue, final double years, final double intrest,
+    public static double getImpliedVolatility(final double underlayingSpot, final double strike, final double currentValue, final double years, final double intrest,
             final double dividend, final OptionType type) throws MathException {
 
         if (years < 0) {
@@ -128,11 +128,21 @@ public class StockOptionUtil {
         return solver.solve(function, 0.01, 0.90);
     }
 
+    public static double getImpliedVolatility(StockOption stockOption, double underlayingSpot, final double currentValue) throws MathException {
+
+        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
+
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+
+        return getImpliedVolatility(underlayingSpot, stockOption.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(),
+                stockOption.getType());
+    }
+
     /**
      * Newton Rapson Method
      * about as fast as getVolatility()
      */
-    public static double getVolatilityNR(final double underlayingSpot, final double strike, final double currentValue, final double years,
+    public static double getImpliedVolatilityNR(final double underlayingSpot, final double strike, final double currentValue, final double years,
             final double intrest, final double dividend, final OptionType type) throws MathException {
 
         double e = 0.1;
@@ -156,13 +166,13 @@ public class StockOptionUtil {
         }
     }
 
-    public static double getVolatility(StockOption stockOption, double underlayingSpot, final double currentValue) throws MathException {
+    public static double getImpliedVolatilityNR(StockOption stockOption, double underlayingSpot, final double currentValue) throws MathException {
 
         StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
 
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
 
-        return getVolatility(underlayingSpot, stockOption.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(),
+        return getImpliedVolatilityNR(underlayingSpot, stockOption.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(),
                 stockOption.getType());
     }
 
@@ -202,7 +212,7 @@ public class StockOptionUtil {
 
         double strike = stockOption.getStrike().doubleValue();
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
-        double volatility = getVolatility(underlayingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
+        double volatility = getImpliedVolatility(underlayingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
         return StockOptionUtil.getDelta(underlayingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), stockOption.getType());
 
     }
@@ -223,7 +233,7 @@ public class StockOptionUtil {
 
         double strike = stockOption.getStrike().doubleValue();
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
-        double volatility = getVolatility(underlayingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
+        double volatility = getImpliedVolatility(underlayingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
         return StockOptionUtil.getVega(underlayingSpot, strike, volatility, years, family.getIntrest(), family.getDividend());
     }
 
@@ -254,7 +264,7 @@ public class StockOptionUtil {
 
         double strike = stockOption.getStrike().doubleValue();
         double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
-        double volatility = getVolatility(underlayingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
+        double volatility = getImpliedVolatility(underlayingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
         return StockOptionUtil.getTheta(underlayingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), stockOption.getType());
 
     }
@@ -269,7 +279,7 @@ public class StockOptionUtil {
             marginLevel = underlayingSettlement * (1.0 - marginParameter);
         }
 
-        double volatility = StockOptionUtil.getVolatility(underlayingSettlement, strike, stockOptionSettlement, years, intrest, dividend, type);
+        double volatility = StockOptionUtil.getImpliedVolatility(underlayingSettlement, strike, stockOptionSettlement, years, intrest, dividend, type);
 
         return getOptionPriceBS(marginLevel, strike, volatility, years, intrest, 0, type);
     }
