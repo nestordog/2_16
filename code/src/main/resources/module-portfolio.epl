@@ -61,6 +61,7 @@ and
 
 @Name('PROCESS_CASH_TRANSACTIONS')
 @Subscriber(className='com.algoTrader.service.AccountService.processCashTransactions')
+@Condition(key='statement.processCashTransactions')
 @RunTimeOnly
 select
     null
