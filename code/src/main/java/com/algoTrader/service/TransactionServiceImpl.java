@@ -1,5 +1,6 @@
 package com.algoTrader.service;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -121,9 +122,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 position.setProfitValue(null);
                 position.setProfitLockIn(null);
 
-                // remove potential parentPositions
-                getPositionService().removeParentPosition(position.getId());
-
                 // propagate the ClosePosition event
                 getRuleService().routeEvent(position.getStrategy().getName(), closePositionVO);
             }
@@ -177,7 +175,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     @Override
     protected void handlePropagateTransaction(Transaction transaction) {
 
-        // also send the transaction to the corresponding strategy
+        // propagate the transaction to the corresponding strategy
         if (!StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
             getRuleService().routeEvent(transaction.getStrategy().getName(), transaction);
         }

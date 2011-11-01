@@ -13,6 +13,7 @@ import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyDao;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.WatchListItem;
+import com.algoTrader.entity.combination.Combination;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickDao;
 import com.algoTrader.entity.security.Future;
@@ -393,5 +394,23 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<CashBalance> handleGetCashBalancesBase() throws Exception {
 
         return getCashBalanceDao().findCashBalancesBase();
+    }
+
+    @Override
+    protected List<Combination> handleGetCombinationsByStrategy(String strategyName) throws Exception {
+
+        return getCombinationDao().findByStrategy(strategyName);
+    }
+
+    @Override
+    protected Combination handleGetCombinationByMasterSecurity(String strategyName, int masterSecurityId) throws Exception {
+
+        return getCombinationDao().findByMasterSecurity(strategyName, masterSecurityId);
+    }
+
+    @Override
+    protected List<Combination> handleGetCombinationsByAnySecurity(String strategyName, int securityId) throws Exception {
+
+        return getCombinationDao().findByAnySecurity(strategyName, securityId);
     }
 }

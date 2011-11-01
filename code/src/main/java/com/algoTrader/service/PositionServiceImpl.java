@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
@@ -59,28 +58,6 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             // reduce total quantity of the position
             reducePosition(positionId, Math.abs(position.getQuantity()));
-        }
-    }
-
-    @Override
-    protected void handleClosePositionAndChildren(int positionId) throws Exception {
-
-        Position position = getPositionDao().load(positionId);
-
-        if (position.isOpen()) {
-
-            // close the position itself
-            closePosition(position.getId());
-
-            // close children if any
-            if (position.getChildren().size() != 0) {
-
-                // use a Copy of the list in order to prevent ConcurrentModificationException
-                for (Position childPosition : new CopyOnWriteArrayList<Position>(position.getChildren())) {
-
-                    closePositionAndChildren(childPosition.getId());
-                }
-            }
         }
     }
 
@@ -270,39 +247,4 @@ public class PositionServiceImpl extends PositionServiceBase {
         getRuleService().sendEvent(position.getStrategy().getName(), expirePositionVO);
     }
 
-    @Override
-    protected void handleAddParentPosition(int parentPositionId, int childPositionId) throws Exception {
-
-        Position parentPosition = getPositionDao().load(parentPositionId);
-        Position childPosition = getPositionDao().load(childPositionId);
-
-        if (childPosition.getParent() == null || !childPosition.getParent().equals(parentPosition)) {
-
-            childPosition.setParent(parentPosition);
-            parentPosition.getChildren().add(childPosition);
-
-            getPositionDao().update(parentPosition);
-            getPositionDao().update(childPosition);
-
-            logger.info("added parent position " + parentPosition.getSecurity().getSymbol() + " to child position " + childPosition.getSecurity().getSymbol());
-        }
-    }
-
-    @Override
-    protected void handleRemoveParentPosition(int positionId) throws Exception {
-
-        Position position = getPositionDao().load(positionId);
-        Position parentPosition = position.getParent();
-
-        if (parentPosition != null) {
-
-            parentPosition.getChildren().remove(position);
-            position.setParent(null);
-
-            getPositionDao().update(parentPosition);
-            getPositionDao().update(position);
-
-            logger.info("removed parent position of position " + position.getSecurity().getSymbol());
-        }
-    }
 }
