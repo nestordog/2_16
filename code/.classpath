@@ -3,6 +3,7 @@
 	<classpathentry kind="src" output="target/classes" path="src/main/java"/>
 	<classpathentry kind="src" output="target/classes" path="src/main/resources"/>
 	<classpathentry kind="src" output="target/classes" path="target/src/main/java"/>
+	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/activemq-all-5.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-6.1.23.jar"/>
