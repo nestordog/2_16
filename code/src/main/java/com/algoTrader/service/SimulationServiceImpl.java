@@ -211,7 +211,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         inputCSV();
 
         // close all open positions that might still exist
-        getPositionService().closeAllPositions();
+        for (Position position : getPositionDao().loadAll()) {
+            getPositionService().closePosition(position.getId(), false);
+        }
 
         // send the EndOfSimulation event
         getRuleService().sendEvent(StrategyImpl.BASE, new EndOfSimulationVO());

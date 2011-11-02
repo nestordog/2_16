@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Transaction;
@@ -15,6 +16,9 @@ import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.trade.MarketOrder;
+import com.algoTrader.entity.trade.Order;
+import com.algoTrader.entity.trade.OrderCallback;
+import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.TransactionType;
@@ -30,34 +34,50 @@ public class PositionServiceImpl extends PositionServiceBase {
     private static DecimalFormat format = new DecimalFormat("#,##0.0000");
 
     @Override
-    protected void handleCloseAllPositions() throws Exception {
-
-        for (Position position : getPositionDao().loadAll()) {
-            if (position.isOpen()) {
-                closePosition(position.getId());
-            }
-        }
-    }
-
-    @Override
-    protected void handleCloseAllPositionsByStrategy(String strategyName) throws Exception {
+    protected void handleCloseAllPositionsByStrategy(String strategyName, boolean removeFromWatchlist) throws Exception {
 
         for (Position position : getPositionDao().findOpenPositionsByStrategy(strategyName)) {
             if (position.isOpen()) {
-                closePosition(position.getId());
+                closePosition(position.getId(), removeFromWatchlist);
             }
         }
     }
 
     @Override
-    protected void handleClosePosition(int positionId) throws Exception {
+    protected void handleClosePosition(int positionId, boolean removeFromWatchlist) throws Exception {
 
         Position position = getPositionDao().load(positionId);
 
         if (position.isOpen()) {
 
-            // reduce total quantity of the position
-            reducePosition(positionId, Math.abs(position.getQuantity()));
+            Strategy strategy = position.getStrategy();
+            Security security = position.getSecurity();
+
+            Side side = (position.getQuantity() > 0) ? Side.SELL : Side.BUY;
+
+            // prepare the order
+            MarketOrder order = MarketOrder.Factory.newInstance();
+            order.setStrategy(strategy);
+            order.setSecurity(security);
+            order.setQuantity(Math.abs(position.getQuantity()));
+            order.setSide(side);
+
+            // create an OrderCallback if removeFromWatchlist is requested
+            if (removeFromWatchlist) {
+
+                getRuleService().addOrderCallback(new Order[] { order }, new OrderCallback() {
+                    @Override
+                    public void orderCompleted(OrderStatus[] orderStati) throws Exception {
+                        MarketDataService marketDataService = ServiceLocator.commonInstance().getMarketDataService();
+                        for (OrderStatus orderStatus : orderStati) {
+                            Order order = orderStatus.getParentOrder();
+                            marketDataService.removeFromWatchlist(order.getStrategy().getName(), order.getSecurity().getId());
+                        }
+                    }
+                });
+            }
+
+            getOrderService().sendOrder(order);
         }
     }
 
