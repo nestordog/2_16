@@ -26,6 +26,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     private static Logger logger = MyLogger.getLogger(IBOrderServiceImpl.class.getName());
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
 
+    @Override
     public void handleInit() {
 
         if (!simulation) {
@@ -33,6 +34,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
         }
     }
 
+    @Override
     protected void handleSendExternalOrder(Order order) throws Exception {
 
         int orderNumber = RequestIDGenerator.singleton().getNextOrderId();

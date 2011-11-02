@@ -43,7 +43,7 @@ select
     position.id
 from
     Tick as tick,
-    method:LookupUtil.getOpenPositionsBySecurityId(tick.security.id) as position
+    method:LookupUtil.getOpenPositionsBySecurity(tick.security.id) as position
 where
     tick.security.id not in
     (select

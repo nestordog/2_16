@@ -78,8 +78,12 @@ public class LookupUtil {
 
     public static Position[] getOpenPositionsBySecurityId(int securityId) {
 
-        Position[] positions = ServiceLocator.commonInstance().getLookupService().getOpenPositionsBySecurityId(securityId);
-        return positions;
+        return ServiceLocator.commonInstance().getLookupService().getOpenPositionsBySecurityId(securityId);
+    }
+
+    public static Position getPositionBySecurityAndStrategy(int securityId, String strategyName) {
+
+        return ServiceLocator.commonInstance().getLookupService().getPositionBySecurityAndStrategy(securityId, strategyName);
     }
 
     public static Position[] getBullishPositionsByStrategy(String strategyName) {

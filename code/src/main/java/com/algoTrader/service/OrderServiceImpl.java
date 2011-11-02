@@ -1,5 +1,7 @@
 package com.algoTrader.service;
 
+import java.util.List;
+
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Security;
@@ -18,6 +20,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
 
+    @Override
     protected void handleSendOrder(Order order) throws Exception {
 
         if (simulation) {
@@ -55,6 +58,15 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
             // use broker specific functionality to execute the order
             sendExternalOrder(order);
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    protected void handleSendOrders(List orders) throws Exception {
+
+        for (Order order : (List<Order>) orders) {
+            sendOrder(order);
         }
     }
 
