@@ -81,6 +81,12 @@ public class LookupUtil {
         return ServiceLocator.commonInstance().getLookupService().getOpenPositionsBySecurityId(securityId);
     }
 
+    @SuppressWarnings("rawtypes")
+    public static Position[] handleGetOpenPositionsByStrategyAndType(String strategyName, final Class type) {
+
+        return ServiceLocator.commonInstance().getLookupService().getOpenPositionsByStrategyAndType(strategyName, type);
+    }
+
     public static Position getPositionBySecurityAndStrategy(int securityId, String strategyName) {
 
         return ServiceLocator.commonInstance().getLookupService().getPositionBySecurityAndStrategy(securityId, strategyName);

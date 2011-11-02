@@ -12,16 +12,22 @@ import com.algoTrader.enumeration.CombinationType;
 
 public class CombinationServiceImpl extends CombinationServiceBase {
 
-    protected Combination handleCreateCombination(String strategyName, CombinationType type, Security masterSecurity)
+    @Override
+    protected Combination handleCreateCombination(String strategyName, CombinationType type, int masterSecurityId)
             throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
+
 
         // create the combination
         Combination combination = Combination.Factory.newInstance();
         combination.setType(type);
         combination.setStrategy(strategy);
-        combination.setMaster(masterSecurity);
+
+        if (masterSecurityId != 0) {
+            Security masterSecurity = getSecurityDao().load(masterSecurityId);
+            combination.setMaster(masterSecurity);
+        }
 
         // save to DB
         getCombinationDao().create(combination);
@@ -29,13 +35,38 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         return combination;
     }
 
-    protected void handleAddAllocation(int combinationId, final Security security, long quantity) throws Exception {
+    @Override
+    protected void handleDeleteCombination(int combinationId) throws Exception {
 
         Combination combination = getCombinationDao().load(combinationId);
 
         if (combination == null) {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
         }
+
+        // remove the combination and all associated allocations
+        getAllocationDao().remove(combination.getAllocations());
+        getCombinationDao().remove(combination);
+    }
+
+    @Override
+    protected void handleDeleteCombination(String strategyName, int masterSecurityId) throws Exception {
+
+        Combination combination = getCombinationDao().findByMasterSecurity(strategyName, masterSecurityId);
+
+        deleteCombination(combination.getId());
+    }
+
+    @Override
+    protected void handleAddAllocation(int combinationId, final int securityId, long quantity) throws Exception {
+
+        Combination combination = getCombinationDao().load(combinationId);
+
+        if (combination == null) {
+            throw new IllegalArgumentException("combination does not exist: " + combinationId);
+        }
+
+        final Security security = getSecurityDao().load(securityId);
 
         // find the allocation to the specified security
         Allocation allocation = CollectionUtils.find(combination.getAllocations(), new Predicate<Allocation>() {
@@ -66,13 +97,16 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         }
     }
 
-    protected void handleRemoveAllocation(int combinationId, final Security security) {
+    @Override
+    protected void handleRemoveAllocation(int combinationId, final int securityId) {
 
         Combination combination = getCombinationDao().load(combinationId);
 
         if (combination == null) {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
         }
+
+        final Security security = getSecurityDao().load(securityId);
 
         // find the allocation to the specified security
         Allocation allocation = CollectionUtils.find(combination.getAllocations(), new Predicate<Allocation>() {
@@ -91,19 +125,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             // delete the allocation
             getAllocationDao().remove(allocation);
         }
-    }
-
-    protected void handleDeleteCombination(int combinationId) throws Exception {
-
-        Combination combination = getCombinationDao().load(combinationId);
-
-        if (combination == null) {
-            throw new IllegalArgumentException("combination does not exist: " + combinationId);
-        }
-
-        // remove the combination and all associated allocations
-        getAllocationDao().remove(combination.getAllocations());
-        getCombinationDao().remove(combination);
     }
 
     @Override

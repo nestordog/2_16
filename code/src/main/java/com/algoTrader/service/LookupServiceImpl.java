@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Predicate;
 import org.hibernate.Hibernate;
 
 import com.algoTrader.entity.CashBalance;
@@ -269,6 +271,20 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected Position[] handleGetOpenPositionsBySecurityId(int securityId) throws Exception {
 
         return getPositionDao().findOpenPositionsBySecurityId(securityId).toArray(new Position[0]);
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    protected Position[] handleGetOpenPositionsByStrategyAndType(String strategyName, final Class type) throws Exception {
+
+        List<Position> positions = getPositionDao().findOpenPositionsByStrategy(strategyName);
+
+        return CollectionUtils.select(positions, new Predicate<Position>() {
+            @Override
+            public boolean evaluate(Position position) {
+                return position.getSecurity().getClass().equals(type);
+            }
+        }).toArray(new Position[0]);
     }
 
     @Override
