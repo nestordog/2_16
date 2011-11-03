@@ -18,7 +18,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
 
-
         // create the combination
         Combination combination = Combination.Factory.newInstance();
         combination.setType(type);
@@ -26,6 +25,11 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         if (masterSecurityId != 0) {
             Security masterSecurity = getSecurityDao().load(masterSecurityId);
+
+            if (masterSecurity == null) {
+                throw new IllegalArgumentException("security does not exist: " + masterSecurityId);
+            }
+
             combination.setMaster(masterSecurity);
         }
 
@@ -54,6 +58,10 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         Combination combination = getCombinationDao().findByMasterSecurity(strategyName, masterSecurityId);
 
+        if (combination == null) {
+            throw new IllegalArgumentException("combination does not exist for strategy: " + strategyName + " and masterSecurityId: " + masterSecurityId);
+        }
+
         deleteCombination(combination.getId());
     }
 
@@ -67,6 +75,10 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         }
 
         final Security security = getSecurityDao().load(securityId);
+
+        if (security == null) {
+            throw new IllegalArgumentException("security does not exist: " + securityId);
+        }
 
         // find the allocation to the specified security
         Allocation allocation = CollectionUtils.find(combination.getAllocations(), new Predicate<Allocation>() {
@@ -107,6 +119,10 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         }
 
         final Security security = getSecurityDao().load(securityId);
+
+        if (security == null) {
+            throw new IllegalArgumentException("security does not exist: " + securityId);
+        }
 
         // find the allocation to the specified security
         Allocation allocation = CollectionUtils.find(combination.getAllocations(), new Predicate<Allocation>() {

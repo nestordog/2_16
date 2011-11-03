@@ -288,7 +288,7 @@ public class LookupServiceImpl extends LookupServiceBase {
         return CollectionUtils.select(positions, new Predicate<Position>() {
             @Override
             public boolean evaluate(Position position) {
-                return position.getSecurity().getClass().equals(type);
+                return type.isAssignableFrom(position.getSecurity().getClass());
             }
         }).toArray(new Position[0]);
     }
