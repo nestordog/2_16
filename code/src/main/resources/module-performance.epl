@@ -25,7 +25,11 @@ select
     (Math.pow(factor.geomaverage,12) - 1 - marketIntrest) / (perf.stddev * Math.sqrt(12)) as sharpRatio
 from
     MonthlyPerformance.win:keepall().stat:uni(value) as perf,
-    MonthlyPerformance.win:keepall().stat:uni(1 + value) as factor;
+    MonthlyPerformance.win:keepall().stat:uni(1 + value) as factor
+having
+    factor.stddev != Double.NaN
+and
+    perf.stddev != Double.NaN;
 
 @Name('ALL_TRADES')
 @SimulationOnly
