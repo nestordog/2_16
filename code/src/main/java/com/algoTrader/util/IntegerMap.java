@@ -17,4 +17,9 @@ public class IntegerMap<K> extends ConcurrentHashMap<K, AtomicInteger> {
         super.putIfAbsent(key, new AtomicInteger(0));
         super.get(key).addAndGet(value);
     }
+
+    public int getInt(K key) {
+
+        return super.get(key).intValue();
+    }
 }

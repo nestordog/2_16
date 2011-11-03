@@ -17,4 +17,9 @@ public class LongMap<K> extends ConcurrentHashMap<K, AtomicLong> {
         super.putIfAbsent(key, new AtomicLong(0));
         super.get(key).addAndGet(value);
     }
+
+    public long getLong(K key) {
+
+        return super.get(key).longValue();
+    }
 }
