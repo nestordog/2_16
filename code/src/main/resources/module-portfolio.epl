@@ -40,10 +40,11 @@ from
 @Subscriber(className='com.algoTrader.service.PositionService.closePosition')
 @Condition(key='statement.closePosition')
 select
-    position.id
+    position.id,
+    false as removeFromWatchlist
 from
     Tick as tick,
-    method:LookupUtil.getOpenPositionsBySecurity(tick.security.id) as position
+    method:LookupUtil.getOpenPositionsBySecurityId(tick.security.id) as position
 where
     tick.security.id not in
     (select
