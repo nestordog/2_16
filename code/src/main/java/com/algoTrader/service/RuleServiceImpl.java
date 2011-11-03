@@ -104,7 +104,7 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected boolean handleIsInitialized(String strategyName) throws Exception {
+    protected boolean handleIsInitialized(String strategyName) {
 
         return this.serviceProviders.containsKey(getProviderURI(strategyName));
     }
@@ -119,24 +119,24 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected void handleDeployRule(String strategyName, String moduleName, String ruleName) throws Exception {
+    protected void handleDeployRule(String strategyName, String moduleName, String ruleName) {
 
         internalDeployRule(strategyName, moduleName, ruleName, null, new Object[] {}, null);
     }
 
     @Override
-    protected void handleDeployRule(String strategyName, String moduleName, String ruleName, String alias, Object[] params) throws Exception {
+    protected void handleDeployRule(String strategyName, String moduleName, String ruleName, String alias, Object[] params) {
 
         internalDeployRule(strategyName, moduleName, ruleName, alias, params, null);
     }
 
     @Override
-    protected void handleDeployRule(String strategyName, String moduleName, String ruleName, String alias, Object[] params, Object callback) throws Exception {
+    protected void handleDeployRule(String strategyName, String moduleName, String ruleName, String alias, Object[] params, Object callback) {
 
         internalDeployRule(strategyName, moduleName, ruleName, alias, params, callback);
     }
 
-    private void internalDeployRule(String strategyName, String moduleName, String ruleName, String alias, Object[] params, Object callback) throws Exception {
+    private void internalDeployRule(String strategyName, String moduleName, String ruleName, String alias, Object[] params, Object callback) {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
 
@@ -149,12 +149,17 @@ public class RuleServiceImpl extends RuleServiceBase {
 
         // read the statement from the module
         EPDeploymentAdmin deployAdmin = administrator.getDeploymentAdmin();
-        Module module = deployAdmin.read("module-" + moduleName + ".epl");
-        List<ModuleItem> items = module.getItems();
+
+        Module module;
+        try {
+            module = deployAdmin.read("module-" + moduleName + ".epl");
+        } catch (Exception e) {
+            throw new RuleServiceException("module" + moduleName + " could not be read", e);
+        }
 
         // go through all statements in the module
         EPStatement newStatement = null;
-        items: for (ModuleItem item : items) {
+        items: for (ModuleItem item : module.getItems()) {
             String exp = item.getExpression();
 
             // get the ObjectModel for the statement
@@ -216,15 +221,20 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected void handleDeployModule(String strategyName, String moduleName) throws java.lang.Exception {
+    protected void handleDeployModule(String strategyName, String moduleName) {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
         EPDeploymentAdmin deployAdmin = administrator.getDeploymentAdmin();
-        Module module = deployAdmin.read("module-" + moduleName + ".epl");
-        DeploymentResult deployResult = deployAdmin.deploy(module, new DeploymentOptions());
-        List<EPStatement> statements = deployResult.getStatements();
 
-        for (EPStatement statement : statements) {
+        DeploymentResult deployResult;
+        try {
+            Module module = deployAdmin.read("module-" + moduleName + ".epl");
+            deployResult = deployAdmin.deploy(module, new DeploymentOptions());
+        } catch (Exception e) {
+            throw new RuleServiceException("module " + moduleName + " could not be deployed", e);
+        }
+
+        for (EPStatement statement : deployResult.getStatements()) {
 
             // check if the statement is elgible, other destory it righ away
             processAnnotations(strategyName, statement);
@@ -234,7 +244,7 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected void handleDeployAllModules(String strategyName) throws Exception {
+    protected void handleDeployAllModules(String strategyName) {
 
         Strategy strategy = getLookupService().getStrategyByName(strategyName);
         String[] modules = strategy.getModules().split(",");
@@ -244,7 +254,7 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected boolean handleIsDeployed(String strategyName, String ruleName) throws Exception {
+    protected boolean handleIsDeployed(String strategyName, String ruleName) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
 
@@ -256,7 +266,7 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected void handleUndeployRule(String strategyName, String ruleName) throws Exception {
+    protected void handleUndeployRule(String strategyName, String ruleName) {
 
         // destroy the statement
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
@@ -268,13 +278,17 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected void handleUndeployModule(String strategyName, String moduleName) throws java.lang.Exception {
+    protected void handleUndeployModule(String strategyName, String moduleName) {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
         EPDeploymentAdmin deployAdmin = administrator.getDeploymentAdmin();
         for (DeploymentInformation deploymentInformation : deployAdmin.getDeploymentInformation()) {
             if (deploymentInformation.getModule().getName().equals(moduleName)) {
-                deployAdmin.undeploy(deploymentInformation.getDeploymentId());
+                try {
+                    deployAdmin.undeploy(deploymentInformation.getDeploymentId());
+                } catch (Exception e) {
+                    throw new RuleServiceException("module " + moduleName + " could no be undeployed", e);
+                }
             }
         }
 
@@ -349,7 +363,7 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected Object handleGetLastEventProperty(String strategyName, String ruleName, String property) throws Exception {
+    protected Object handleGetLastEventProperty(String strategyName, String ruleName, String property) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
         if (statement != null && statement.isStarted()) {
@@ -384,7 +398,7 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected List<Object> handleGetAllEventsProperty(String strategyName, String ruleName, String property) throws Exception {
+    protected List<Object> handleGetAllEventsProperty(String strategyName, String ruleName, String property) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
         List<Object> list = new ArrayList<Object>();
@@ -443,13 +457,13 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected void handleInitCoordination(String strategyName) throws Exception {
+    protected void handleInitCoordination(String strategyName) {
 
         this.coordinators.put(strategyName, new AdapterCoordinatorImpl(getServiceProvider(strategyName), true, true));
     }
 
     @Override
-    protected void handleCoordinate(String strategyName, CSVInputAdapterSpec csvInputAdapterSpec) throws Exception {
+    protected void handleCoordinate(String strategyName, CSVInputAdapterSpec csvInputAdapterSpec) {
 
         InputAdapter inputAdapter;
         if (csvInputAdapterSpec instanceof CsvTickInputAdapterSpec) {
@@ -464,21 +478,21 @@ public class RuleServiceImpl extends RuleServiceBase {
 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected void handleCoordinate(String strategyName, Collection baseObjects, String timeStampColumn) throws Exception {
+    protected void handleCoordinate(String strategyName, Collection baseObjects, String timeStampColumn) {
 
         InputAdapter inputAdapter = new DBInputAdapter(getServiceProvider(strategyName), baseObjects, timeStampColumn);
         this.coordinators.get(strategyName).coordinate(inputAdapter);
     }
 
     @Override
-    protected void handleCoordinateTicks(String strategyName, Date startDate) throws Exception {
+    protected void handleCoordinateTicks(String strategyName, Date startDate) {
 
         InputAdapter inputAdapter = new BatchDBTickInputAdapter(getServiceProvider(strategyName), startDate);
         this.coordinators.get(strategyName).coordinate(inputAdapter);
     }
 
     @Override
-    protected void handleStartCoordination(String strategyName) throws Exception {
+    protected void handleStartCoordination(String strategyName) {
 
         this.coordinators.get(strategyName).start();
     }
@@ -504,7 +518,7 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected void handleAddOrderCallback(Order[] orders, OrderCallback callback) throws Exception {
+    protected void handleAddOrderCallback(Order[] orders, OrderCallback callback) {
 
         if (orders.length == 0) {
             throw new IllegalArgumentException("at least 1 order has to be specified");
@@ -537,7 +551,7 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected void handleAddFirstTickCallback(String strategyName, int[] securityIds, FirstTickCallback callback) throws Exception {
+    protected void handleAddFirstTickCallback(String strategyName, int[] securityIds, FirstTickCallback callback) {
 
         // sort the securityIds
         Arrays.sort(securityIds);
@@ -598,26 +612,34 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
-    private void processAnnotations(String strategyName, EPStatement statement) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    private void processAnnotations(String strategyName, EPStatement statement) {
 
         Annotation[] annotations = statement.getAnnotations();
         for (Annotation annotation : annotations) {
             if (annotation instanceof Subscriber) {
 
                 Subscriber subscriber = (Subscriber) annotation;
-                Object obj = getSubscriber(subscriber.className());
-                statement.setSubscriber(obj);
+                try {
+                    Object obj = getSubscriber(subscriber.className());
+                    statement.setSubscriber(obj);
+                } catch (Exception e) {
+                    throw new RuleServiceException("subscriber " + subscriber.className() + " could not be created for statement " + statement.getName(), e);
+                }
 
             } else if (annotation instanceof Listeners) {
 
                 Listeners listeners = (Listeners)annotation;
                 for (String className : listeners.classNames()) {
-                    Class<?> cl = Class.forName(className);
-                    Object obj = cl.newInstance();
-                    if (obj instanceof StatementAwareUpdateListener) {
-                        statement.addListener((StatementAwareUpdateListener) obj);
-                    } else {
-                        statement.addListener((UpdateListener) obj);
+                    try {
+                        Class<?> cl = Class.forName(className);
+                        Object obj = cl.newInstance();
+                        if (obj instanceof StatementAwareUpdateListener) {
+                            statement.addListener((StatementAwareUpdateListener) obj);
+                        } else {
+                            statement.addListener((UpdateListener) obj);
+                        }
+                    } catch (Exception e) {
+                        throw new RuleServiceException("listener " + className + " could not be created for statement " + statement.getName(), e);
                     }
                 }
             } else if (annotation instanceof RunTimeOnly && simulation) {

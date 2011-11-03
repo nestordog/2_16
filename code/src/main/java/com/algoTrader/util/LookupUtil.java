@@ -82,9 +82,10 @@ public class LookupUtil {
     }
 
     @SuppressWarnings("rawtypes")
-    public static Position[] handleGetOpenPositionsByStrategyAndType(String strategyName, final Class type) {
+    public static Position[] getOpenPositionsByStrategyAndType(String strategyName, String className) throws ClassNotFoundException {
 
-        return ServiceLocator.commonInstance().getLookupService().getOpenPositionsByStrategyAndType(strategyName, type);
+        Class cl = Class.forName(className);
+        return ServiceLocator.commonInstance().getLookupService().getOpenPositionsByStrategyAndType(strategyName, cl);
     }
 
     public static Position getPositionBySecurityAndStrategy(int securityId, String strategyName) {

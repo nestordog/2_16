@@ -39,6 +39,10 @@ import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.WatchListItem;
+import com.algoTrader.entity.combination.Allocation;
+import com.algoTrader.entity.combination.AllocationDao;
+import com.algoTrader.entity.combination.Combination;
+import com.algoTrader.entity.combination.CombinationDao;
 import com.algoTrader.entity.security.FutureDao;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOptionDao;
@@ -139,6 +143,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             watchListItem.setLowerAlertValue(null);
             getWatchListItemDao().update(watchListItem);
         }
+
+        // delete all allocations
+        getAllocationDao().remove((Collection<Allocation>) getAllocationDao().loadAll(AllocationDao.TRANSFORM_NONE));
+
+        // delete all combinations
+        getCombinationDao().remove((Collection<Combination>) getCombinationDao().loadAll(CombinationDao.TRANSFORM_NONE));
 
         // delete all StockOptions if they are beeing simulated
         if (simulateStockOptions) {
