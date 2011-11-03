@@ -1,6 +1,6 @@
 package com.algoTrader.util;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -8,13 +8,16 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @param <K> Type of the Key
  */
-public class LongMap<K> extends ConcurrentHashMap<K, AtomicLong> {
+public class LongMap<K> extends HashMap<K, AtomicLong> {
 
     private static final long serialVersionUID = -847488464256946086L;
 
     public void increment(K key, long value) {
 
-        super.putIfAbsent(key, new AtomicLong(0));
+        if (!super.containsKey(key)) {
+            super.put(key, new AtomicLong(0));
+        }
+
         super.get(key).addAndGet(value);
     }
 
