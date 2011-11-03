@@ -184,6 +184,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected Position[] handleGetPositionsByStrategy(String strategyName) throws Exception {
+
+        return getPositionDao().findByStrategy(strategyName).toArray(new Position[0]);
+    }
+
+    @Override
     protected Position handleGetPositionBySecurityAndStrategy(int securityId, String strategyName) throws Exception {
 
         return getPositionDao().findBySecurityAndStrategy(securityId, strategyName);

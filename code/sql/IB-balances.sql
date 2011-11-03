@@ -1,3 +1,5 @@
+SET @base_currency = 'EUR';
+
 select
     u.STRATEGY_FK,
     u.CURRENCY,
@@ -23,7 +25,7 @@ union
      select
      t2.id,
      t2.STRATEGY_FK as STRATEGY_FK,
-     case when f2.id is null then t2.CURRENCY else 'EUR' end as CURRENCY,
+     case when f2.id is null then t2.CURRENCY else @base_currency end as CURRENCY,
      -t2.COMMISSION as AMOUNT
      from transaction t2
      left join security s2 on t2.SECURITY_FK = s2.id

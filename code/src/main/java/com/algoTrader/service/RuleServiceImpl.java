@@ -13,6 +13,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Transformer;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -318,6 +319,7 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
     }
 
+    @Override
     protected List<Object> handleExecuteQuery(String strategyName, String query) {
 
         List<Object> objects = new ArrayList<Object>();
@@ -542,9 +544,7 @@ public class RuleServiceImpl extends RuleServiceBase {
 
         // get unique values
         Set<Integer> sortedSecurityIds = new TreeSet<Integer>();
-        for (int i : securityIds) {
-            sortedSecurityIds.add(i);
-        }
+        sortedSecurityIds.addAll(Arrays.asList(ArrayUtils.toObject(securityIds)));
 
         if (sortedSecurityIds.size() < securityIds.length) {
             throw new IllegalArgumentException("cannot specify same securityId multiple times");
