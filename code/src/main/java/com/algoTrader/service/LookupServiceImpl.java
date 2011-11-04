@@ -439,6 +439,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Combination[] handleGetCombinationsByAnySecurity(String strategyName, int securityId) throws Exception {
 
-        return getCombinationDao().findByMasterSecurity(strategyName, securityId).toArray(new Combination[0]);
+        List<Combination> list = getCombinationDao().findByAnySecurity(strategyName, securityId);
+        return list.toArray(new Combination[0]);
     }
 }
