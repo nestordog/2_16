@@ -419,20 +419,20 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Combination> handleGetCombinationsByStrategy(String strategyName) throws Exception {
+    protected Combination[] handleGetCombinationsByStrategy(String strategyName) throws Exception {
 
-        return getCombinationDao().findByStrategy(strategyName);
+        return getCombinationDao().findByStrategy(strategyName).toArray(new Combination[0]);
     }
 
     @Override
-    protected Combination handleGetCombinationByMasterSecurity(String strategyName, int masterSecurityId) throws Exception {
+    protected Combination[] handleGetCombinationsByMasterSecurity(int masterSecurityId) throws Exception {
 
-        return getCombinationDao().findByMasterSecurity(strategyName, masterSecurityId);
+        return getCombinationDao().findByMasterSecurity(masterSecurityId).toArray(new Combination[0]);
     }
 
     @Override
-    protected List<Combination> handleGetCombinationsByAnySecurity(String strategyName, int securityId) throws Exception {
+    protected Combination handleGetCombinationByStrategyAndMasterSecurity(String strategyName, int masterSecurityId) throws Exception {
 
-        return getCombinationDao().findByAnySecurity(strategyName, securityId);
+        return getCombinationDao().findByStrategyAndMasterSecurity(strategyName, masterSecurityId);
     }
 }

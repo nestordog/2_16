@@ -4,6 +4,7 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.enumeration.Direction;
 
 public class CombinationImpl extends Combination {
 
@@ -28,8 +29,20 @@ public class CombinationImpl extends Combination {
     }
 
     @Override
-    public long getMasterAllocationQuantity() {
+    public long getMasterQuantity() {
 
         return getAllocationQuantity(getMaster());
+    }
+
+    @Override
+    public Direction getMasterDirection() {
+
+        if (getMasterQuantity() < 0) {
+            return Direction.SHORT;
+        } else if (getMasterQuantity() > 0) {
+            return Direction.LONG;
+        } else {
+            return Direction.FLAT;
+        }
     }
 }

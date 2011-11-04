@@ -6,6 +6,7 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.WatchListItem;
+import com.algoTrader.entity.combination.Combination;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
@@ -137,4 +138,15 @@ public class LookupUtil {
 
         return ServiceLocator.commonInstance().getLookupService().getWatchListItem(strategyName, securityId) != null;
     }
+
+    public static Combination getCombination(String strategyName, int masterSecurityId) {
+
+        return ServiceLocator.commonInstance().getLookupService().getCombinationByStrategyAndMasterSecurity(strategyName, masterSecurityId);
+    }
+
+    public static Combination[] getCombinations(int masterSecurityId) {
+
+        return ServiceLocator.commonInstance().getLookupService().getCombinationsByMasterSecurity(masterSecurityId);
+    }
+
 }

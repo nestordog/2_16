@@ -56,7 +56,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected void handleDeleteCombination(String strategyName, int masterSecurityId) throws Exception {
 
-        Combination combination = getCombinationDao().findByMasterSecurity(strategyName, masterSecurityId);
+        Combination combination = getCombinationDao().findByStrategyAndMasterSecurity(strategyName, masterSecurityId);
 
         if (combination == null) {
             throw new IllegalArgumentException("combination does not exist for strategy: " + strategyName + " and masterSecurityId: " + masterSecurityId);
@@ -141,6 +141,20 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             // delete the allocation
             getAllocationDao().remove(allocation);
         }
+    }
+
+    @Override
+    protected void handleSetExitValue(int combinationId, double exitValue) throws Exception {
+
+        Combination combination = getCombinationDao().load(combinationId);
+
+        if (combination == null) {
+            throw new IllegalArgumentException("combination does not exist: " + combinationId);
+        }
+
+        combination.setExitValue(exitValue);
+
+        getCombinationDao().update(combination);
     }
 
     @Override
