@@ -8,16 +8,6 @@ select
 from
     pattern [every ((bid=Bid and ask=Ask) or trade=Trade or bar=Bar or tick=Tick)];
 
-@Name('CREATE_VALID_TICK')
-insert into
-    ValidTick
-select
-    *
-from
-    Tick as tick
-where
-    tick.spreadValid;
-
 @Name('GET_CURRENT_VALUE')
 @Priority(6)
 select
