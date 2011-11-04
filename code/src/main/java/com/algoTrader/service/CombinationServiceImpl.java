@@ -1,7 +1,10 @@
 package com.algoTrader.service;
 
+import java.text.DecimalFormat;
+
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
+import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
@@ -9,8 +12,12 @@ import com.algoTrader.entity.combination.Allocation;
 import com.algoTrader.entity.combination.Combination;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.CombinationType;
+import com.algoTrader.util.MyLogger;
 
 public class CombinationServiceImpl extends CombinationServiceBase {
+
+    private static Logger logger = MyLogger.getLogger(CombinationServiceImpl.class.getName());
+    private static DecimalFormat format = new DecimalFormat("#,##0.0000");
 
     @Override
     protected Combination handleCreateCombination(String strategyName, CombinationType type, int masterSecurityId)
@@ -23,18 +30,19 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         combination.setType(type);
         combination.setStrategy(strategy);
 
-        if (masterSecurityId != 0) {
-            Security masterSecurity = getSecurityDao().load(masterSecurityId);
+        Security masterSecurity = getSecurityDao().load(masterSecurityId);
 
-            if (masterSecurity == null) {
-                throw new IllegalArgumentException("security does not exist: " + masterSecurityId);
-            }
-
-            combination.setMaster(masterSecurity);
+        if (masterSecurity == null) {
+            throw new IllegalArgumentException("security does not exist: " + masterSecurityId);
         }
+
+        combination.setMaster(masterSecurity);
 
         // save to DB
         getCombinationDao().create(combination);
+
+        logger.info("created combination " + combination.getId() + " (" + combination.getStrategy().getName() + " "
+                + (combination.getMaster() != null ? combination.getMaster().getSymbol() : "") + ")");
 
         return combination;
     }
@@ -51,6 +59,9 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         // remove the combination and all associated allocations
         getAllocationDao().remove(combination.getAllocations());
         getCombinationDao().remove(combination);
+
+        logger.info("deleted combination " + combination.getId() + " (" + combination.getStrategy().getName() + " "
+                + (combination.getMaster() != null ? combination.getMaster().getSymbol() : "") + ")");
     }
 
     @Override
@@ -62,7 +73,12 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             throw new IllegalArgumentException("combination does not exist for strategy: " + strategyName + " and masterSecurityId: " + masterSecurityId);
         }
 
-        deleteCombination(combination.getId());
+        // remove the combination and all associated allocations
+        getAllocationDao().remove(combination.getAllocations());
+        getCombinationDao().remove(combination);
+
+        logger.info("deleted combination " + combination.getId() + " (" + combination.getStrategy().getName() + " "
+                + (combination.getMaster() != null ? combination.getMaster().getSymbol() : "") + ")");
     }
 
     @Override
@@ -107,6 +123,9 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             combination.getAllocations().add(allocation);
             getCombinationDao().create(combination);
         }
+
+        logger.info("added allocation " + allocation.getQuantity() + " " + allocation.getSecurity().getSymbol() + " on combination " + combination.getId()
+                + " (" + combination.getStrategy().getName() + " " + (combination.getMaster() != null ? combination.getMaster().getSymbol() : "") + ")");
     }
 
     @Override
@@ -140,7 +159,14 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
             // delete the allocation
             getAllocationDao().remove(allocation);
+
+        } else {
+
+            throw new IllegalArgumentException("allocation on securityId " + securityId + " does not exist");
         }
+
+        logger.info("removed allocation " + allocation.getSecurity().getSymbol() + " from combination " + combination.getId() + " ("
+                + combination.getStrategy().getName() + " " + (combination.getMaster() != null ? combination.getMaster().getSymbol() : "") + ")");
     }
 
     @Override
@@ -155,6 +181,9 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         combination.setExitValue(exitValue);
 
         getCombinationDao().update(combination);
+
+        logger.info("set exit value " + format.format(exitValue) + " for combination " + combination.getId() + " (" + combination.getStrategy().getName() + " "
+                + (combination.getMaster() != null ? combination.getMaster().getSymbol() : "") + ")");
     }
 
     @Override
@@ -166,12 +195,17 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
         }
 
-        // TODO create OrderCallbacks to adjust the quantities of the allocations
-
+        // reduce all associated positions by the specified amount
+        // Note: positions are not closed, because other combinations might relate to them as well
         for (Allocation allocation : combination.getAllocations()) {
 
             Position position = getPositionDao().findBySecurityAndStrategy(allocation.getSecurity().getId(), combination.getStrategy().getName());
             getPositionService().reducePosition(position.getId(), allocation.getQuantity());
         }
+
+        logger.info("closed all positions and deleted combination " + combination.getId() + " (" + combination.getStrategy().getName() + " "
+                + (combination.getMaster() != null ? combination.getMaster().getSymbol() : "") + ")");
+
+        deleteCombination(combination.getId());
     }
 }

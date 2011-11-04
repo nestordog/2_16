@@ -25,6 +25,9 @@ public class CombinationTest {
 
         combinationService.addAllocation(combination.getId(), 3, 5);
 
-        combinationService.deleteCombination(combination.getId());
+        combinationService.deleteCombination("EASTWEST", 3);
+
+        combination = combinationService.createCombination("EASTWEST", CombinationType.RATIO_SPREAD, 4);
+
     }
 }

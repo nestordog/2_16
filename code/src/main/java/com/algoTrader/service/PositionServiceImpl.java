@@ -78,6 +78,11 @@ public class PositionServiceImpl extends PositionServiceBase {
             }
 
             getOrderService().sendOrder(order);
+
+        } else {
+
+            // if there was no open position bat removeFromWatchlist was requested do that anyway
+            getMarketDataService().removeFromWatchlist(position.getStrategy().getName(), position.getSecurity().getId());
         }
     }
 
