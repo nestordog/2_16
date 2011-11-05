@@ -418,6 +418,20 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getCombinationDao().findByStrategy(strategyName).toArray(new Combination[0]);
     }
 
+    @SuppressWarnings("rawtypes")
+    @Override
+    protected Combination[] handleGetCombinationsByStrategyAndType(String strategyName, final Class type) throws Exception {
+
+        List<Combination> combinations = new ArrayList<Combination>();
+
+        return CollectionUtils.select(combinations, new Predicate<Combination>() {
+            @Override
+            public boolean evaluate(Combination combination) {
+                return type.isAssignableFrom(combination.getMaster().getClass());
+            }
+        }).toArray(new Combination[0]);
+    }
+
     @Override
     protected Combination[] handleGetCombinationsByMasterSecurity(int masterSecurityId) throws Exception {
 
