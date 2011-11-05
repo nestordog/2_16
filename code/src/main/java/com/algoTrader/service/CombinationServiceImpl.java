@@ -41,8 +41,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         // save to DB
         getCombinationDao().create(combination);
 
-        logger.info("created combination " + combination.getId() + " (" + combination.getStrategy().getName() + " "
-                + (combination.getMaster() != null ? combination.getMaster().getSymbol() : "") + ")");
+        logger.info("created combination " + combination);
 
         return combination;
     }
@@ -60,8 +59,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         getAllocationDao().remove(combination.getAllocations());
         getCombinationDao().remove(combination);
 
-        logger.info("deleted combination " + combination.getId() + " (" + combination.getStrategy().getName() + " "
-                + (combination.getMaster() != null ? combination.getMaster().getSymbol() : "") + ")");
+        logger.info("deleted combination " + combination);
     }
 
     @Override
@@ -69,16 +67,14 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         Combination combination = getCombinationDao().findByStrategyAndMasterSecurity(strategyName, masterSecurityId);
 
-        if (combination == null) {
-            throw new IllegalArgumentException("combination does not exist for strategy: " + strategyName + " and masterSecurityId: " + masterSecurityId);
+        if (combination != null) {
+
+            // remove the combination and all associated allocations
+            getAllocationDao().remove(combination.getAllocations());
+            getCombinationDao().remove(combination);
+
+            logger.info("deleted combination " + combination);
         }
-
-        // remove the combination and all associated allocations
-        getAllocationDao().remove(combination.getAllocations());
-        getCombinationDao().remove(combination);
-
-        logger.info("deleted combination " + combination.getId() + " (" + combination.getStrategy().getName() + " "
-                + (combination.getMaster() != null ? combination.getMaster().getSymbol() : "") + ")");
     }
 
     @Override
@@ -124,8 +120,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             getCombinationDao().create(combination);
         }
 
-        logger.info("added allocation " + allocation.getQuantity() + " " + allocation.getSecurity().getSymbol() + " on combination " + combination.getId()
-                + " (" + combination.getStrategy().getName() + " " + (combination.getMaster() != null ? combination.getMaster().getSymbol() : "") + ")");
+        logger.info("added allocation " + quantity + " of " + allocation + " to combination " + combination);
     }
 
     @Override
@@ -165,8 +160,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             throw new IllegalArgumentException("allocation on securityId " + securityId + " does not exist");
         }
 
-        logger.info("removed allocation " + allocation.getSecurity().getSymbol() + " from combination " + combination.getId() + " ("
-                + combination.getStrategy().getName() + " " + (combination.getMaster() != null ? combination.getMaster().getSymbol() : "") + ")");
+        logger.info("removed allocation " + allocation + " from combination " + combination);
     }
 
     @Override
@@ -182,8 +176,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         getCombinationDao().update(combination);
 
-        logger.info("set exit value " + format.format(exitValue) + " for combination " + combination.getId() + " (" + combination.getStrategy().getName() + " "
-                + (combination.getMaster() != null ? combination.getMaster().getSymbol() : "") + ")");
+        logger.info("set exit value " + format.format(exitValue) + " for combination " + combination);
     }
 
     @Override
@@ -203,8 +196,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             getPositionService().reducePosition(position.getId(), allocation.getQuantity());
         }
 
-        logger.info("closed all positions and deleted combination " + combination.getId() + " (" + combination.getStrategy().getName() + " "
-                + (combination.getMaster() != null ? combination.getMaster().getSymbol() : "") + ")");
+        logger.info("closed all positions and deleted combination " + combination);
 
         deleteCombination(combination.getId());
     }

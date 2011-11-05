@@ -45,4 +45,10 @@ public class CombinationImpl extends Combination {
             return Direction.FLAT;
         }
     }
+
+    @Override
+    public String toString() {
+
+        return getStrategy().getName() + " " + getMaster().getSymbol();
+    }
 }

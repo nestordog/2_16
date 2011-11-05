@@ -47,6 +47,11 @@ public class LookupUtil {
         return ServiceLocator.commonInstance().getLookupService().getSecuritiesOnWatchlistByPeriodicity(periodicity);
     }
 
+    public WatchListItem[] getNonPositionNonCombinationWatchListItem(String strategyName) throws Exception {
+
+        return ServiceLocator.commonInstance().getLookupService().getNonPositionNonCombinationWatchListItem(strategyName);
+    }
+
     public static Security getSecurity(int securityId) {
 
         return ServiceLocator.commonInstance().getLookupService().getSecurity(securityId);
@@ -92,16 +97,6 @@ public class LookupUtil {
     public static Position getPositionBySecurityAndStrategy(int securityId, String strategyName) {
 
         return ServiceLocator.commonInstance().getLookupService().getPositionBySecurityAndStrategy(securityId, strategyName);
-    }
-
-    public static Position[] getBullishPositionsByStrategy(String strategyName) {
-
-        return ServiceLocator.commonInstance().getLookupService().getBullishPositionsByStrategy(strategyName);
-    }
-
-    public static Position[] getBearishPositionsByStrategy(String strategyName) {
-
-        return ServiceLocator.commonInstance().getLookupService().getBearishPositionsByStrategy(strategyName);
     }
 
     public static Strategy[] getAllStrategies() {

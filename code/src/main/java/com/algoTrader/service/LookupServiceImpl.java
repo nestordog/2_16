@@ -64,6 +64,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected WatchListItem[] handleGetNonPositionNonCombinationWatchListItem(String strategyName) throws Exception {
+
+        return getWatchListItemDao().findNonPositionNonCombinationWatchListItem(strategyName).toArray(new WatchListItem[0]);
+    }
+
+    @Override
     protected StockOption handleGetNearestStockOption(int underlayingId, Date expirationDate, BigDecimal underlayingSpot, OptionType optionType)
             throws Exception {
 
@@ -303,18 +309,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected Position[] handleGetOpenFXPositionsByStrategy(String strategyName) throws Exception {
 
         return getPositionDao().findOpenFXPositionsByStrategy(strategyName).toArray(new Position[0]);
-    }
-
-    @Override
-    protected Position[] handleGetBullishPositionsByStrategy(String strategyName) throws Exception {
-
-        return getPositionDao().findBullishPositionsByStrategy(strategyName).toArray(new Position[0]);
-    }
-
-    @Override
-    protected Position[] handleGetBearishPositionsByStrategy(String strategyName) throws Exception {
-
-        return getPositionDao().findBearishPositionsByStrategy(strategyName).toArray(new Position[0]);
     }
 
     @Override
