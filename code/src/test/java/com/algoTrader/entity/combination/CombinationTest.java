@@ -1,33 +1,43 @@
 package com.algoTrader.entity.combination;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.CombinationType;
 import com.algoTrader.service.CombinationService;
+import com.algoTrader.service.LookupService;
 
 public class CombinationTest {
 
     @Test
     public void test() {
 
+        String strategyName = "EASTWEST";
+        int masterSecurityId = 3;
+        int secondarySecurityId = 4;
 
         CombinationService combinationService = ServiceLocator.serverInstance().getCombinationService();
+        LookupService lookupService = ServiceLocator.serverInstance().getLookupService();
 
-        Combination combination = combinationService.createCombination("EASTWEST", CombinationType.RATIO_SPREAD, 3);
+        Combination combination = combinationService.createCombination(strategyName, CombinationType.RATIO_SPREAD, masterSecurityId);
 
-        combinationService.addAllocation(combination.getId(), 3, 3);
-        combinationService.addAllocation(combination.getId(), 4, 2);
+        combinationService.addAllocation(combination.getId(), masterSecurityId, 1);
+        combinationService.addAllocation(combination.getId(), masterSecurityId, 1);
+        combinationService.addAllocation(combination.getId(), secondarySecurityId, 3);
 
-        combinationService.addAllocation(combination.getId(), 3, 4);
+        combinationService.removeAllocation(combination.getId(), masterSecurityId);
 
-        combinationService.removeAllocation(combination.getId(), 3);
+        combinationService.addAllocation(combination.getId(), masterSecurityId, 5);
 
-        combinationService.addAllocation(combination.getId(), 3, 5);
+        assertNotNull(lookupService.getCombinationByStrategyAndMasterSecurity(strategyName, 3));
+        assertNotNull(lookupService.getCombinationsByStrategy(strategyName));
 
-        combinationService.deleteCombination("EASTWEST", 3);
+        assertEquals(lookupService.getCombinationsByAnySecurity(strategyName, masterSecurityId).length, 1);
+        assertEquals(lookupService.getCombinationsByMasterSecurity(masterSecurityId).length, 1);
 
-        combination = combinationService.createCombination("EASTWEST", CombinationType.RATIO_SPREAD, 4);
-
+        combinationService.deleteCombination(strategyName, masterSecurityId);
     }
 }

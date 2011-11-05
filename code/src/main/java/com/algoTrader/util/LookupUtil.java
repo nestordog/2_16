@@ -47,7 +47,7 @@ public class LookupUtil {
         return ServiceLocator.commonInstance().getLookupService().getSecuritiesOnWatchlistByPeriodicity(periodicity);
     }
 
-    public WatchListItem[] getNonPositionNonCombinationWatchListItem(String strategyName) throws Exception {
+    public static WatchListItem[] getNonPositionNonCombinationWatchListItem(String strategyName) throws Exception {
 
         return ServiceLocator.commonInstance().getLookupService().getNonPositionNonCombinationWatchListItem(strategyName);
     }

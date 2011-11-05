@@ -41,7 +41,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         // save to DB
         getCombinationDao().create(combination);
 
-        logger.info("created combination " + combination);
+        logger.debug("created combination " + combination);
 
         return combination;
     }
@@ -59,7 +59,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         getAllocationDao().remove(combination.getAllocations());
         getCombinationDao().remove(combination);
 
-        logger.info("deleted combination " + combination);
+        logger.debug("deleted combination " + combination);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             getAllocationDao().remove(combination.getAllocations());
             getCombinationDao().remove(combination);
 
-            logger.info("deleted combination " + combination);
+            logger.debug("deleted combination " + combination);
         }
     }
 
@@ -120,7 +120,53 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             getCombinationDao().create(combination);
         }
 
-        logger.info("added allocation " + quantity + " of " + allocation + " to combination " + combination);
+        logger.debug("added allocation " + quantity + " of " + allocation + " to combination " + combination);
+    }
+
+    @Override
+    protected void handleSetAllocation(int combinationId, final int securityId, long quantity) throws Exception {
+
+        Combination combination = getCombinationDao().load(combinationId);
+
+        if (combination == null) {
+            throw new IllegalArgumentException("combination does not exist: " + combinationId);
+        }
+
+        final Security security = getSecurityDao().load(securityId);
+
+        if (security == null) {
+            throw new IllegalArgumentException("security does not exist: " + securityId);
+        }
+
+        // find the allocation to the specified security
+        Allocation allocation = CollectionUtils.find(combination.getAllocations(), new Predicate<Allocation>() {
+            @Override
+            public boolean evaluate(Allocation allocation) {
+                return security.equals(allocation.getSecurity());
+            }
+        });
+
+        if (allocation != null) {
+
+            // set the quantity
+            allocation.setQuantity(quantity);
+            getAllocationDao().update(allocation);
+
+        } else {
+
+            // create a new allocation
+            allocation = Allocation.Factory.newInstance();
+            allocation.setSecurity(security);
+            allocation.setQuantity(quantity);
+            allocation.setCombination(combination);
+            getAllocationDao().create(allocation);
+
+            // update the combination
+            combination.getAllocations().add(allocation);
+            getCombinationDao().create(combination);
+        }
+
+        logger.debug("set allocation " + allocation + " to combination " + combination);
     }
 
     @Override
@@ -160,7 +206,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             throw new IllegalArgumentException("allocation on securityId " + securityId + " does not exist");
         }
 
-        logger.info("removed allocation " + allocation + " from combination " + combination);
+        logger.debug("removed allocation " + allocation + " from combination " + combination);
     }
 
     @Override
@@ -188,6 +234,8 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
         }
 
+        logger.info("close all positions of combination " + combination + " and delete combination");
+
         // reduce all associated positions by the specified amount
         // Note: positions are not closed, because other combinations might relate to them as well
         for (Allocation allocation : combination.getAllocations()) {
@@ -196,7 +244,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             getPositionService().reducePosition(position.getId(), allocation.getQuantity());
         }
 
-        logger.info("closed all positions and deleted combination " + combination);
 
         deleteCombination(combination.getId());
     }
