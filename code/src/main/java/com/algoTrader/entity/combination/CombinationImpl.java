@@ -11,20 +11,40 @@ public class CombinationImpl extends Combination {
     private static final long serialVersionUID = -3967940153149799380L;
 
     @Override
-    public long getAllocationQuantity(final Security security) {
+    public Allocation getAllocation(final Security security) {
 
         // find the allocation to the specified security
-        Allocation allocation = CollectionUtils.find(getAllocations(), new Predicate<Allocation>() {
+        return CollectionUtils.find(getAllocations(), new Predicate<Allocation>() {
             @Override
             public boolean evaluate(Allocation allocation) {
                 return security.equals(allocation.getSecurity());
             }
         });
+    }
+
+    @Override
+    public long getAllocationQuantity(final Security security) {
+
+        Allocation allocation = getAllocation(security);
 
         if (allocation == null) {
             throw new IllegalArgumentException("no allocation exists for the defined master security");
         } else {
             return allocation.getQuantity();
+        }
+    }
+
+    @Override
+    public Direction getAllocationDirection(final Security security) {
+
+        long qty = getAllocationQuantity(security);
+
+        if (qty < 0) {
+            return Direction.SHORT;
+        } else if (qty > 0) {
+            return Direction.LONG;
+        } else {
+            return Direction.FLAT;
         }
     }
 
@@ -37,13 +57,7 @@ public class CombinationImpl extends Combination {
     @Override
     public Direction getMasterDirection() {
 
-        if (getMasterQuantity() < 0) {
-            return Direction.SHORT;
-        } else if (getMasterQuantity() > 0) {
-            return Direction.LONG;
-        } else {
-            return Direction.FLAT;
-        }
+        return getAllocationDirection(getMaster());
     }
 
     @Override

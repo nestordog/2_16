@@ -15,6 +15,7 @@ import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyDao;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.WatchListItem;
+import com.algoTrader.entity.combination.Allocation;
 import com.algoTrader.entity.combination.Combination;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickDao;
@@ -422,7 +423,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Combination[] handleGetCombinationsByStrategyAndType(String strategyName, final Class type) throws Exception {
 
-        List<Combination> combinations = new ArrayList<Combination>();
+        List<Combination> combinations = getCombinationDao().findByStrategy(strategyName);
 
         return CollectionUtils.select(combinations, new Predicate<Combination>() {
             @Override
@@ -447,7 +448,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Combination[] handleGetCombinationsByAnySecurity(String strategyName, int securityId) throws Exception {
 
-        List<Combination> list = getCombinationDao().findByAnySecurity(strategyName, securityId);
-        return list.toArray(new Combination[0]);
+        return getCombinationDao().findByAnySecurity(strategyName, securityId).toArray(new Combination[0]);
+    }
+
+    @Override
+    protected Allocation[] handleGetAllocationsByStrategyAndSecurity(String strategyName, int securityId) throws Exception {
+
+        return getAllocationDao().findByStrategyAndSecurity(strategyName, securityId).toArray(new Allocation[0]);
     }
 }
