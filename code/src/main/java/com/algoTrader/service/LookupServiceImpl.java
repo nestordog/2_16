@@ -65,6 +65,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected WatchListItem[] handleGetNonPositionWatchListItem(String strategyName) throws Exception {
+
+        return getWatchListItemDao().findNonPositionWatchListItem(strategyName).toArray(new WatchListItem[0]);
+    }
+
+    @Override
     protected WatchListItem[] handleGetNonPositionNonCombinationWatchListItem(String strategyName) throws Exception {
 
         return getWatchListItemDao().findNonPositionNonCombinationWatchListItem(strategyName).toArray(new WatchListItem[0]);

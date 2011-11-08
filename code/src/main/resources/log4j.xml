@@ -41,6 +41,14 @@
         </layout>
     </appender>
 
+<!--     <appender name="SUBSCRIBER" class="org.apache.log4j.FileAppender"> -->
+<!--         <param name="file" value="log/subscriber.log" /> -->
+<!--         <param name="append" value="false" /> -->
+<!--         <layout class="org.apache.log4j.PatternLayout"> -->
+<!--             <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss},%m %n" /> -->
+<!--         </layout> -->
+<!--     </appender>     -->
+
     <appender name="SOCKET" class="org.apache.log4j.net.SocketAppender">
         <param name="RemoteHost" value="localhost" />
     </appender>
@@ -103,8 +111,6 @@
         <level value="error" />
     </logger>
 
-
-
     <logger name="com.espertech.esper.util.MethodResolver">
         <level value="error" />
     </logger>
@@ -128,6 +134,11 @@
         <level value="info" />
         <appender-ref ref="INDICATOR" />
     </logger>
+
+<!--     <logger name="com.algoTrader.esper.subscriber.Subscriber"> -->
+<!--         <level value="debug" /> -->
+<!--         <appender-ref ref="SUBSCRIBER" /> -->
+<!--     </logger> -->
 
     <root>
         <level value="debug" />
