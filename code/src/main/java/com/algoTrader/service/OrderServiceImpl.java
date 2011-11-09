@@ -2,6 +2,8 @@ package com.algoTrader.service;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Security;
@@ -14,9 +16,12 @@ import com.algoTrader.enumeration.Status;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
+import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 
 public abstract class OrderServiceImpl extends OrderServiceBase {
+
+    private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
 
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
 
@@ -42,19 +47,6 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
                 strategy = (Strategy) HibernateUtil.merge(this.getSessionFactory(), strategy);
                 order.setStrategy(strategy);
             }
-
-            //            // in security and strategy are HibernateProxies convert them to objects
-            //            if (security instanceof HibernateProxy) {
-            //                HibernateProxy proxy = (HibernateProxy) security;
-            //                security = (Security) proxy.getHibernateLazyInitializer().getImplementation();
-            //                order.setSecurity(security);
-            //            }
-            //
-            //            if (strategy instanceof HibernateProxy) {
-            //                HibernateProxy proxy = (HibernateProxy) strategy;
-            //                strategy = (Strategy) proxy.getHibernateLazyInitializer().getImplementation();
-            //                order.setStrategy(strategy);
-            //            }
 
             // use broker specific functionality to execute the order
             sendExternalOrder(order);
@@ -151,6 +143,10 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         // send the fill to the strategy that placed the corresponding order
         if (!StrategyImpl.BASE.equals(orderStatus.getParentOrder().getStrategy().getName())) {
             getRuleService().routeEvent(orderStatus.getParentOrder().getStrategy().getName(), orderStatus);
+        }
+
+        if (!simulation) {
+            logger.debug("propagated orderStatus: " + orderStatus);
         }
     }
 }

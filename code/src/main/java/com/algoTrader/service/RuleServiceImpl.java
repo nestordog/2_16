@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -254,9 +255,23 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected boolean handleIsDeployed(String strategyName, String ruleName) {
+    /**
+     * @param ruleName name of the rule (can be a regex)
+     */
+    protected boolean handleIsDeployed(String strategyName, final String ruleName) {
 
-        EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
+        EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
+
+        // find the first statement that matches the given ruleName regex
+        String statementName = CollectionUtils.find(Arrays.asList(administrator.getStatementNames()), new Predicate<String>() {
+            @Override
+            public boolean evaluate(String statement) {
+                return statement.matches(ruleName);
+            }
+        });
+
+        // get the statement
+        EPStatement statement = administrator.getStatement(statementName);
 
         if (statement != null && statement.isStarted()) {
             return true;

@@ -139,14 +139,20 @@ public class LookupUtil {
         return ServiceLocator.commonInstance().getLookupService().getWatchListItem(strategyName, securityId) != null;
     }
 
-    public static Combination getCombination(String strategyName, int masterSecurityId) {
+    public static Combination getCombinationByStrategyAndMasterSecurity(String strategyName, int masterSecurityId) {
 
         return ServiceLocator.commonInstance().getLookupService().getCombinationByStrategyAndMasterSecurity(strategyName, masterSecurityId);
     }
 
-    public static Combination[] getCombinations(int masterSecurityId) {
+    public static Combination[] getCombinationsByMasterSecurity(int masterSecurityId) {
 
         return ServiceLocator.commonInstance().getLookupService().getCombinationsByMasterSecurity(masterSecurityId);
     }
 
+    @SuppressWarnings("rawtypes")
+    public static Combination[] getCombinationsByStrategyAndType(String strategyName, String className) throws ClassNotFoundException {
+
+        Class cl = Class.forName(className);
+        return ServiceLocator.commonInstance().getLookupService().getCombinationsByStrategyAndType(strategyName, cl);
+    }
 }

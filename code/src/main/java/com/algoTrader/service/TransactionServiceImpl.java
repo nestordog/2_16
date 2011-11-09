@@ -32,6 +32,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
     private static boolean logTransactions = ConfigurationUtil.getBaseConfig().getBoolean("simulation.logTransactions");
 
+    @Override
     protected void handleCreateTransaction(Fill fill) throws Exception {
 
         Strategy strategy = fill.getParentOrder().getStrategy();
@@ -60,6 +61,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         propagateTransaction(transaction);
     }
 
+    @Override
     protected void handlePersistTransaction(Transaction transaction) throws Exception {
 
         Strategy strategy = transaction.getStrategy();
@@ -187,8 +189,13 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         if (!StrategyImpl.BASE.equals(fill.getParentOrder().getStrategy().getName())) {
             getRuleService().routeEvent(fill.getParentOrder().getStrategy().getName(), fill);
         }
+
+        if (!simulation) {
+            logger.debug("propagated fill: " + fill);
+        }
     }
 
+    @Override
     protected void handleLogTransactionSummary(Transaction[] transactions) throws Exception {
 
         if (transactions.length > 0 && !simulation) {

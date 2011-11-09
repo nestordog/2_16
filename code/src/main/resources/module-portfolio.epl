@@ -67,7 +67,7 @@ select
     combination.id
 from
     Tick as tick,
-    method:LookupUtil.getCombinations(tick.security.id) as combination
+    method:LookupUtil.getCombinationsByMasterSecurity(tick.security.id) as combination
 where
     tick.security.id not in
     (select

@@ -420,6 +420,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected Combination handleGetCombination(int id) throws Exception {
+
+        return getCombinationDao().load(id);
+    }
+
+    @Override
     protected Combination[] handleGetCombinationsByStrategy(String strategyName) throws Exception {
 
         return getCombinationDao().findByStrategy(strategyName).toArray(new Combination[0]);
