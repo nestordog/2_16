@@ -52,7 +52,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         Combination combination = getCombinationDao().load(combinationId);
 
         if (combination == null) {
-            throw new IllegalArgumentException("combination does not exist: " + combinationId);
+            logger.warn("combination does not exist: " + combinationId);
         }
 
         // remove the combination and all associated allocations
