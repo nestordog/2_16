@@ -53,13 +53,15 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         if (combination == null) {
             logger.warn("combination does not exist: " + combinationId);
+
+        } else {
+
+            // remove the combination and all associated allocations
+            getAllocationDao().remove(combination.getAllocations());
+            getCombinationDao().remove(combination);
+
+            logger.debug("deleted combination " + combination);
         }
-
-        // remove the combination and all associated allocations
-        getAllocationDao().remove(combination.getAllocations());
-        getCombinationDao().remove(combination);
-
-        logger.debug("deleted combination " + combination);
     }
 
     @Override
@@ -67,7 +69,10 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         Combination combination = getCombinationDao().findByStrategyAndMasterSecurity(strategyName, masterSecurityId);
 
-        if (combination != null) {
+        if (combination == null) {
+            logger.warn("combination does not exist on: " + strategyName + " and master security id: " + masterSecurityId);
+
+        } else {
 
             // remove the combination and all associated allocations
             getAllocationDao().remove(combination.getAllocations());
@@ -210,22 +215,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     }
 
     @Override
-    protected void handleSetExitValue(int combinationId, double exitValue) throws Exception {
-
-        Combination combination = getCombinationDao().load(combinationId);
-
-        if (combination == null) {
-            throw new IllegalArgumentException("combination does not exist: " + combinationId);
-        }
-
-        combination.setExitValue(exitValue);
-
-        getCombinationDao().update(combination);
-
-        logger.info("set exit value " + format.format(exitValue) + " for combination " + combination);
-    }
-
-    @Override
     protected void handleCloseCombination(int combinationId) throws Exception {
 
         Combination combination = getCombinationDao().load(combinationId);
@@ -246,5 +235,53 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
 
         deleteCombination(combination.getId());
+    }
+
+    @Override
+    protected void handleSetExitValue(int combinationId, double exitValue) throws Exception {
+
+        Combination combination = getCombinationDao().load(combinationId);
+
+        if (combination == null) {
+            throw new IllegalArgumentException("combination does not exist: " + combinationId);
+        }
+
+        combination.setExitValue(exitValue);
+
+        getCombinationDao().update(combination);
+
+        logger.info("set exit value " + format.format(exitValue) + " for combination " + combination);
+    }
+
+    @Override
+    protected void handleSetProfitTarget(int combinationId, double profitTarget) throws Exception {
+
+        Combination combination = getCombinationDao().load(combinationId);
+
+        if (combination == null) {
+            throw new IllegalArgumentException("combination does not exist: " + combinationId);
+        }
+
+        combination.setProfitTarget(profitTarget);
+
+        getCombinationDao().update(combination);
+
+        logger.info("set profitTarget " + format.format(profitTarget) + " for combination " + combination);
+    }
+
+    @Override
+    protected void handleSetHedgeRatio(int combinationId, double hedgeRatio) throws Exception {
+
+        Combination combination = getCombinationDao().load(combinationId);
+
+        if (combination == null) {
+            throw new IllegalArgumentException("combination does not exist: " + combinationId);
+        }
+
+        combination.setHedgeRatio(hedgeRatio);
+
+        getCombinationDao().update(combination);
+
+        logger.info("set hedge ratio " + format.format(hedgeRatio) + " for combination " + combination);
     }
 }
