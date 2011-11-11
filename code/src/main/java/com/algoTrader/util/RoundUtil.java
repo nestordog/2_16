@@ -32,11 +32,20 @@ public class RoundUtil {
 
     public static BigDecimal getBigDecimal(double value) {
 
-        if (!Double.isNaN(value)) {
+        if (!Double.isNaN(value) && !Double.isInfinite(value)) {
             BigDecimal decimal = new BigDecimal(value);
             return decimal.setScale(portfolioDigits, BigDecimal.ROUND_HALF_UP);
         } else {
             return null;
+        }
+    }
+
+    public static BigDecimal getBigDecimal(Double value) {
+
+        if (value == null) {
+            return null;
+        } else {
+            return getBigDecimal(value.doubleValue());
         }
     }
 

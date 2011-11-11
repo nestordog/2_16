@@ -1,5 +1,6 @@
-set @to = '2011-05-30 00:00:00';
-set @from = '2011-05-27 00:00:00';
+set @from = '2010-09-14 00:00:00';
+set @to = '2010-09-15 00:00:00';
+set @expiration = '2010-09-15 13:00:00';
 
 insert into tick (
     date_time,
@@ -13,7 +14,8 @@ insert into tick (
     open_intrest,
     settlement,
     security_fk
-) select
+)
+select
   @to,
   last,
   last_date_time,
@@ -26,4 +28,6 @@ insert into tick (
   settlement,
   security_fk
   from tick
-where date_time = @from;
+  join stock_option as s on security_fk = s.id
+  where date_time = @from
+  and s.expiration = @expiration;

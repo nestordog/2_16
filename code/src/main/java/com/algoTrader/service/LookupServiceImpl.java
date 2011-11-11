@@ -468,4 +468,18 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         return getAllocationDao().findByStrategyAndSecurity(strategyName, securityId).toArray(new Allocation[0]);
     }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    protected Allocation[] handleGetAllocationsByStrategyAndType(String strategyName, final Class type) throws Exception {
+
+        List<Allocation> allocations = getAllocationDao().findByStrategy(strategyName);
+
+        return CollectionUtils.select(allocations, new Predicate<Allocation>() {
+            @Override
+            public boolean evaluate(Allocation allocation) {
+                return type.isAssignableFrom(allocation.getSecurity().getClass());
+            }
+        }).toArray(new Allocation[0]);
+    }
 }

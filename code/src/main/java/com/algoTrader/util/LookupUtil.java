@@ -6,6 +6,7 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.WatchListItem;
+import com.algoTrader.entity.combination.Allocation;
 import com.algoTrader.entity.combination.Combination;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Future;
@@ -139,6 +140,11 @@ public class LookupUtil {
         return ServiceLocator.commonInstance().getLookupService().getWatchListItem(strategyName, securityId) != null;
     }
 
+    public static Combination getCombination(int combinationId) {
+
+        return ServiceLocator.commonInstance().getLookupService().getCombination(combinationId);
+    }
+
     public static Combination getCombinationByStrategyAndMasterSecurity(String strategyName, int masterSecurityId) {
 
         return ServiceLocator.commonInstance().getLookupService().getCombinationByStrategyAndMasterSecurity(strategyName, masterSecurityId);
@@ -154,5 +160,17 @@ public class LookupUtil {
 
         Class cl = Class.forName(className);
         return ServiceLocator.commonInstance().getLookupService().getCombinationsByStrategyAndType(strategyName, cl);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static Allocation[] getAllocationsByStrategyAndType(String strategyName, String className) throws ClassNotFoundException {
+
+        Class cl = Class.forName(className);
+        return ServiceLocator.commonInstance().getLookupService().getAllocationsByStrategyAndType(strategyName, cl);
+    }
+
+    public static Allocation getAllocation() {
+
+        return Allocation.Factory.newInstance();
     }
 }
