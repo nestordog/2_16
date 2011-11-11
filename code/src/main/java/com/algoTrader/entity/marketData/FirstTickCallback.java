@@ -7,10 +7,15 @@ import java.util.TreeSet;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.esper.subscriber.Subscriber;
+import com.algoTrader.util.MyLogger;
 
 public abstract class FirstTickCallback {
+
+    private static Logger logger = MyLogger.getLogger(Subscriber.class.getName());
 
     public void update(String strategyName, Tick[] ticks) throws Exception {
 
@@ -28,8 +33,13 @@ public abstract class FirstTickCallback {
         // undeploy the statement
         ServiceLocator.commonInstance().getRuleService().undeployRule(strategyName, alias);
 
+        long startTime = System.currentTimeMillis();
+        logger.debug("firstTickCallback start");
+
         // call orderCompleted
         onFirstTick(strategyName, ticks);
+
+        logger.debug("firstTickCallback end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
     public abstract void onFirstTick(String strategyName, Tick[] ticks) throws Exception;

@@ -6,10 +6,15 @@ import java.util.TreeSet;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.esper.subscriber.Subscriber;
+import com.algoTrader.util.MyLogger;
 
 public abstract class OrderCallback {
+
+    private static Logger logger = MyLogger.getLogger(Subscriber.class.getName());
 
     public void update(OrderStatus[] orderStati) throws Exception {
 
@@ -29,8 +34,13 @@ public abstract class OrderCallback {
         // undeploy the statement
         ServiceLocator.commonInstance().getRuleService().undeployRule(strategyName, alias);
 
+        long startTime = System.currentTimeMillis();
+        logger.debug("orderCallback start");
+
         // call orderCompleted
         orderCompleted(orderStati);
+
+        logger.debug("orderCallback end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
     public abstract void orderCompleted(OrderStatus[] orderStatus) throws Exception;

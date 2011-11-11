@@ -1,6 +1,7 @@
 package com.algoTrader.service;
 
 import java.text.DecimalFormat;
+import java.util.List;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
@@ -12,6 +13,7 @@ import com.algoTrader.entity.combination.Allocation;
 import com.algoTrader.entity.combination.Combination;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.CombinationType;
+import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 
 public class CombinationServiceImpl extends CombinationServiceBase {
@@ -283,5 +285,21 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         getCombinationDao().update(combination);
 
         logger.info("set hedge ratio " + format.format(hedgeRatio) + " for combination " + combination);
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    protected void handleDeleteZeroQtyCombinations(String strategyName, Class type) throws Exception {
+
+        int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
+        List<Combination> combinations = getCombinationDao().findZeroQtyCombinations(strategyName, discriminator);
+
+        getCombinationDao().remove(combinations);
+
+        if (combinations.size() > 0) {
+            logger.debug("deleted zero quantity combinations: " + combinations);
+        }
+
+        // TODO remove combinations from COMBINATION_TICK_WINDOW
     }
 }

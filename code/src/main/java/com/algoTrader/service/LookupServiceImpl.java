@@ -29,6 +29,7 @@ import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.Periodicity;
 import com.algoTrader.util.DateUtil;
+import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.vo.PortfolioValueVO;
 
 @SuppressWarnings("unchecked")
@@ -68,12 +69,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected WatchListItem[] handleGetNonPositionWatchListItem(String strategyName) throws Exception {
 
         return getWatchListItemDao().findNonPositionWatchListItem(strategyName).toArray(new WatchListItem[0]);
-    }
-
-    @Override
-    protected WatchListItem[] handleGetNonPositionNonCombinationWatchListItem(String strategyName) throws Exception {
-
-        return getWatchListItemDao().findNonPositionNonCombinationWatchListItem(strategyName).toArray(new WatchListItem[0]);
     }
 
     @Override
@@ -435,14 +430,8 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Combination[] handleGetCombinationsByStrategyAndType(String strategyName, final Class type) throws Exception {
 
-        List<Combination> combinations = getCombinationDao().findByStrategy(strategyName);
-
-        return CollectionUtils.select(combinations, new Predicate<Combination>() {
-            @Override
-            public boolean evaluate(Combination combination) {
-                return type.isAssignableFrom(combination.getMaster().getClass());
-            }
-        }).toArray(new Combination[0]);
+        int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
+        return getCombinationDao().findByStrategyAndType(strategyName, discriminator).toArray(new Combination[0]);
     }
 
     @Override
@@ -471,15 +460,10 @@ public class LookupServiceImpl extends LookupServiceBase {
 
     @SuppressWarnings("rawtypes")
     @Override
-    protected Allocation[] handleGetAllocationsByStrategyAndType(String strategyName, final Class type) throws Exception {
+    protected Allocation[] handleGetAllocationsByStrategyAndType(String strategyName, Class type) throws Exception {
 
-        List<Allocation> allocations = getAllocationDao().findByStrategy(strategyName);
-
-        return CollectionUtils.select(allocations, new Predicate<Allocation>() {
-            @Override
-            public boolean evaluate(Allocation allocation) {
-                return type.isAssignableFrom(allocation.getSecurity().getClass());
-            }
-        }).toArray(new Allocation[0]);
+        int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
+        List<Allocation> list = getAllocationDao().findByStrategyAndType(strategyName, discriminator);
+        return list.toArray(new Allocation[0]);
     }
 }
