@@ -40,16 +40,19 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
 
+    @Override
     protected Tick handleCompleteRawTick(RawTickVO rawTick) {
 
         return getTickDao().rawTickVOToEntity(rawTick);
     }
 
+    @Override
     protected Bar handleCompleteBar(BarVO barVO) {
 
         return getBarDao().barVOToEntity(barVO);
     }
 
+    @Override
     protected void handlePropagateMarketDataEvent(MarketDataEvent marketDataEvent) {
 
         Security security = marketDataEvent.getSecurity();
@@ -73,6 +76,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         }
     }
 
+    @Override
     protected void handlePersistTick(Tick tick) throws IOException {
 
         Security security = tick.getSecurity();
@@ -93,6 +97,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         getTickDao().create(tick);
     }
 
+    @Override
     protected void handleInitWatchlist() {
 
         if (!simulation) {
@@ -105,6 +110,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         }
     }
 
+    @Override
     protected void handlePutOnWatchlist(String strategyName, int securityId) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -136,6 +142,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         }
     }
 
+    @Override
     protected void handleRemoveFromWatchlist(String strategyName, int securityId) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -162,6 +169,28 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             }
 
             logger.info("removed security from watchlist " + security.getSymbol());
+        }
+    }
+
+    @Override
+    protected void handleRemoveNonPositionWatchListItem(String strategyName) throws Exception {
+
+        List<WatchListItem> watchListItems = getWatchListItemDao().findNonPositionWatchListItem(strategyName);
+
+        for (WatchListItem watchListItem : watchListItems) {
+            removeFromWatchlist(watchListItem.getStrategy().getName(), watchListItem.getSecurity().getId());
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    protected void handleRemoveNonPositionWatchListItemByType(String strategyName, Class type) throws Exception {
+
+        int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
+        List<WatchListItem> watchListItems = getWatchListItemDao().findNonPositionWatchListItemByType(strategyName, discriminator);
+
+        for (WatchListItem watchListItem : watchListItems) {
+            removeFromWatchlist(watchListItem.getStrategy().getName(), watchListItem.getSecurity().getId());
         }
     }
 

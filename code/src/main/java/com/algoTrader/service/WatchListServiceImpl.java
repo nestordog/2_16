@@ -1,12 +1,10 @@
 package com.algoTrader.service;
 
 import java.text.DecimalFormat;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.WatchListItem;
-import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 
 public class WatchListServiceImpl extends WatchListServiceBase {
@@ -43,26 +41,6 @@ public class WatchListServiceImpl extends WatchListServiceBase {
             getWatchListItemDao().update(watchListItem);
 
             logger.info("removed alert values for watchListItem " + watchListItem);
-        }
-    }
-
-    @Override
-    protected void handleRemoveNonPositionWatchListItem(String strategyName) throws Exception {
-
-        List<WatchListItem> watchListItems = getWatchListItemDao().findNonPositionWatchListItem(strategyName);
-        getWatchListItemDao().remove(watchListItems);
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    protected void handleRemoveNonPositionWatchListItemByType(String strategyName, Class type) throws Exception {
-
-        int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        List<WatchListItem> watchListItems = getWatchListItemDao().findNonPositionWatchListItemByType(strategyName, discriminator);
-        getWatchListItemDao().remove(watchListItems);
-
-        if (watchListItems.size() > 0) {
-            logger.debug("deleted non-position watchListItems: " + watchListItems);
         }
     }
 }
