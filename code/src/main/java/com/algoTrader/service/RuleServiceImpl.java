@@ -256,21 +256,32 @@ public class RuleServiceImpl extends RuleServiceBase {
 
     @Override
     /**
-     * @param ruleName name of the rule (can be a regex)
+     * @param ruleNameRegex rule name regular expression
      */
-    protected boolean handleIsDeployed(String strategyName, final String ruleName) {
+    protected String handleFindRuleName(String strategyName, final String ruleNameRegex) {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
 
         // find the first statement that matches the given ruleName regex
-        String statementName = CollectionUtils.find(Arrays.asList(administrator.getStatementNames()), new Predicate<String>() {
+        return CollectionUtils.find(Arrays.asList(administrator.getStatementNames()), new Predicate<String>() {
             @Override
             public boolean evaluate(String statement) {
-                return statement.matches(ruleName);
+                return statement.matches(ruleNameRegex);
             }
         });
+    }
+
+    @Override
+    /**
+     * @param ruleNameRegex rule name regular expression
+     */
+    protected boolean handleIsDeployed(String strategyName, final String ruleNameRegex) {
+
+        // find the first statement that matches the given ruleName regex
+        String statementName = findRuleName(strategyName, ruleNameRegex);
 
         // get the statement
+        EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
         EPStatement statement = administrator.getStatement(statementName);
 
         if (statement != null && statement.isStarted()) {
