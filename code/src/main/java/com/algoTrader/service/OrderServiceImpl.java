@@ -79,10 +79,10 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         // in simulation orders are executed at the market
         double price = 0.0;
         if (Side.SELL.equals(order.getSide())) {
-            price = security.getLastBid().getPrice().doubleValue();
+            price = security.getLastTick().getBid().doubleValue();
 
         } else {
-            price = security.getLastAsk().getPrice().doubleValue();
+            price = security.getLastTick().getAsk().doubleValue();
         }
         fill.setPrice(RoundUtil.getBigDecimal(price));
 

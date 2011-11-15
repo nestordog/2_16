@@ -157,25 +157,24 @@ public class PositionServiceImpl extends PositionServiceBase {
     }
 
     @Override
-    protected void handleSetProfitTarget(int positionId, double profitValue, double profitLockIn) throws Exception {
+    protected void handleSetProfitTarget(int positionId, double profitTarget) throws Exception {
 
         Position position = getPositionDao().load(positionId);
 
         // profit value cannot be lower than currentValue
         double currentValue = position.getSecurity().getLastTick().getCurrentValueDouble();
-        if (Direction.SHORT.equals(position.getDirection()) && profitValue > currentValue) {
-            throw new PositionServiceException("ProfitValue (" + profitValue + ") for short-position " + position.getId() + " is higher than currentValue: "
+        if (Direction.SHORT.equals(position.getDirection()) && profitTarget > currentValue) {
+            throw new PositionServiceException("ProfitValue (" + profitTarget + ") for short-position " + position.getId() + " is higher than currentValue: "
                     + currentValue);
-        } else if (Direction.LONG.equals(position.getDirection()) && profitValue < currentValue) {
-            throw new PositionServiceException("ProfitValue (" + profitValue + ") for long-position " + position.getId() + " is lower than currentValue: "
+        } else if (Direction.LONG.equals(position.getDirection()) && profitTarget < currentValue) {
+            throw new PositionServiceException("ProfitValue (" + profitTarget + ") for long-position " + position.getId() + " is lower than currentValue: "
                     + currentValue);
         }
 
-        position.setProfitValue(profitValue);
-        position.setProfitLockIn(profitLockIn);
+        position.setProfitTarget(profitTarget);
         getPositionDao().update(position);
 
-        logger.info("set profit value " + position.getSecurity().getSymbol() + " to " + profitValue + " and profit lock in to " + profitLockIn);
+        logger.info("set profit target " + position.getSecurity().getSymbol() + " to " + profitTarget);
     }
 
     @Override

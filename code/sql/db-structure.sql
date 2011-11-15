@@ -31,10 +31,32 @@ CREATE TABLE `allocation` (
   UNIQUE KEY `SECURITY_FK_COMBINATION_FK` (`SECURITY_FK`,`COMBINATION_FK`),
   KEY `ALLOCATION_SECURITY_FKC` (`SECURITY_FK`),
   KEY `ALLOCATION_COMBINATION_FKC` (`COMBINATION_FK`),
-  CONSTRAINT `ALLOCATION_COMBINATION_FKC` FOREIGN KEY (`COMBINATION_FK`) REFERENCES `combination` (`ID`),
-  CONSTRAINT `ALLOCATION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+  CONSTRAINT `ALLOCATION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `ALLOCATION_COMBINATION_FKC` FOREIGN KEY (`COMBINATION_FK`) REFERENCES `combination` (`ID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=13243 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `allocation_after_update` AFTER UPDATE ON `allocation`
+  FOR EACH ROW
+BEGIN
+     IF NOT NEW.QUANTITY = OLD.QUANTITY OR (NEW.QUANTITY IS NULL XOR OLD.QUANTITY IS NULL) THEN
+        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
+        VALUES ('allocation', NEW.id, NOW(), 'QUANTITY', NEW.QUANTITY);
+     END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `ask`
@@ -49,6 +71,8 @@ CREATE TABLE `ask` (
   `SECURITY_FK` int(11) NOT NULL,
   `PRICE` decimal(12,5) NOT NULL,
   `SIZE` bigint(20) NOT NULL,
+  `VALID` datetime NOT NULL,
+  `EXT_ID` varchar(255) NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `MARKET_DATA_EVENT_SECURITY_FKC268f53e449d465cfe59` (`SECURITY_FK`),
   CONSTRAINT `MARKET_DATA_EVENT_SECURITY_FKC268f53e449d465cfe59` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`) ON UPDATE CASCADE
@@ -115,7 +139,7 @@ CREATE TABLE `cash_balance` (
   PRIMARY KEY (`ID`),
   KEY `CASH_BALANCE_STRATEGY_FKC` (`STRATEGY_FK`),
   CONSTRAINT `CASH_BALANCE_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=301 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -153,13 +177,46 @@ CREATE TABLE `combination` (
   `EXIT_VALUE` double DEFAULT NULL,
   `STRATEGY_FK` int(11) NOT NULL,
   `MASTER_FK` int(11) DEFAULT NULL,
+  `HEDGE_RATIO` double DEFAULT NULL,
+  `PROFIT_TARGET` double DEFAULT NULL,
   PRIMARY KEY (`ID`),
+  UNIQUE KEY `STRATEGY_FK_MASTER_FK` (`STRATEGY_FK`,`MASTER_FK`),
   KEY `COMBINATION_MASTER_FKC` (`MASTER_FK`),
   KEY `COMBINATION_STRATEGY_FKC` (`STRATEGY_FK`),
-  CONSTRAINT `COMBINATION_MASTER_FKC` FOREIGN KEY (`MASTER_FK`) REFERENCES `security` (`id`),
+  CONSTRAINT `COMBINATION_MASTER_FKC` FOREIGN KEY (`MASTER_FK`) REFERENCES `security` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `COMBINATION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6831 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `combination_after_update` AFTER UPDATE ON `combination`
+  FOR EACH ROW
+BEGIN
+     IF NOT NEW.EXIT_VALUE = OLD.EXIT_VALUE OR (NEW.EXIT_VALUE IS NULL XOR OLD.EXIT_VALUE IS NULL) THEN
+        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
+        VALUES ('combination', NEW.id, NOW(), 'EXIT_VALUE', NEW.EXIT_VALUE);
+     END IF;
+     IF NOT NEW.PROFIT_TARGET = OLD.PROFIT_TARGET OR (NEW.PROFIT_TARGET IS NULL XOR OLD.PROFIT_TARGET IS NULL) THEN
+        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
+        VALUES ('combination', NEW.id, NOW(), 'PROFIT_TARGET', NEW.PROFIT_TARGET);
+     END IF;
+     IF NOT NEW.HEDGE_RATIO = OLD.HEDGE_RATIO OR (NEW.HEDGE_RATIO IS NULL XOR OLD.HEDGE_RATIO IS NULL) THEN
+        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
+        VALUES ('combination', NEW.id, NOW(), 'HEDGE_RATIO', NEW.HEDGE_RATIO);
+     END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `equity_index`
@@ -188,7 +245,7 @@ CREATE TABLE `forex` (
   `BASE_CURRENCY` enum('CHF','EUR','USD','GBP') NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `FOREXIFKC` (`ID`),
-  CONSTRAINT `FOREXIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
+  CONSTRAINT `FOREXIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -204,7 +261,8 @@ CREATE TABLE `future` (
   `EXPIRATION` datetime NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `FUTUREIFKC` (`ID`),
-  CONSTRAINT `FUTUREIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
+  KEY `EXPIRATION` (`EXPIRATION`),
+  CONSTRAINT `FUTUREIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -225,7 +283,7 @@ CREATE TABLE `future_family` (
   `EXPIRATION_MONTHS` int(11) NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `FUTURE_FAMILYIFKC` (`ID`),
-  CONSTRAINT `FUTURE_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `security_family` (`id`)
+  CONSTRAINT `FUTURE_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `security_family` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -241,7 +299,8 @@ CREATE TABLE `generic_future` (
   `DURATION` int(11) NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `GENERIC_FUTUREIFKC` (`ID`),
-  CONSTRAINT `GENERIC_FUTUREIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
+  KEY `DURATION` (`DURATION`),
+  CONSTRAINT `GENERIC_FUTUREIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -257,7 +316,7 @@ CREATE TABLE `generic_future_family` (
   `EXPIRATION_TYPE` enum('NEXT_3_RD_FRIDAY','NEXT_3_RD_FRIDAY_3_MONTHS','THIRTY_DAYS_BEFORE_NEXT_3_RD_FRIDAY') NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `GENERIC_FUTURE_FAMILYIFKC` (`ID`),
-  CONSTRAINT `GENERIC_FUTURE_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `security_family` (`id`)
+  CONSTRAINT `GENERIC_FUTURE_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `security_family` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -270,13 +329,17 @@ DROP TABLE IF EXISTS `history`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `history` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `TIME` datetime NOT NULL,
   `TBL` varchar(255) NOT NULL,
   `REF_ID` int(11) NOT NULL,
-  `TIME` datetime NOT NULL,
   `COL` varchar(255) DEFAULT NULL,
   `VALUE` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1495179 DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`),
+  KEY `TBL` (`TBL`),
+  KEY `REF_ID` (`REF_ID`),
+  KEY `TIME` (`TIME`),
+  KEY `COL` (`COL`)
+) ENGINE=InnoDB AUTO_INCREMENT=3122 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -308,7 +371,7 @@ CREATE TABLE `intrest_rate` (
   `DURATION` bigint(20) NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `INTREST_RATEIFKC` (`ID`),
-  CONSTRAINT `INTREST_RATEIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
+  CONSTRAINT `INTREST_RATEIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -323,8 +386,7 @@ CREATE TABLE `position` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `QUANTITY` bigint(20) NOT NULL,
   `EXIT_VALUE` double(15,10) DEFAULT NULL,
-  `PROFIT_VALUE` double DEFAULT NULL,
-  `PROFIT_LOCK_IN` double DEFAULT NULL,
+  `PROFIT_TARGET` double DEFAULT NULL,
   `MAINTENANCE_MARGIN` decimal(15,2) DEFAULT NULL,
   `SECURITY_FK` int(11) NOT NULL,
   `STRATEGY_FK` int(11) NOT NULL,
@@ -335,7 +397,7 @@ CREATE TABLE `position` (
   KEY `POSITION_STRATEGY_FKC` (`STRATEGY_FK`),
   CONSTRAINT `POSITION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `POSITION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=508 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=9684 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -357,13 +419,9 @@ BEGIN
         INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
         VALUES ('position', NEW.id, NOW(), 'EXIT_VALUE', NEW.EXIT_VALUE);
      END IF;
-     IF NOT NEW.PROFIT_VALUE = OLD.PROFIT_VALUE OR (NEW.PROFIT_VALUE IS NULL XOR OLD.PROFIT_VALUE IS NULL) THEN
+     IF NOT NEW.PROFIT_TARGET = OLD.PROFIT_TARGET OR (NEW.PROFIT_TARGET IS NULL XOR OLD.PROFIT_TARGET IS NULL) THEN
         INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
-        VALUES ('position', NEW.id, NOW(), 'PROFIT_VALUE', NEW.PROFIT_VALUE);
-     END IF;
-     IF NOT NEW.PROFIT_VALUE = OLD.PROFIT_LOCK_IN OR (NEW.PROFIT_LOCK_IN IS NULL XOR OLD.PROFIT_LOCK_IN IS NULL) THEN
-        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
-        VALUES ('position', NEW.id, NOW(), 'PROFIT_LOCK_IN', NEW.PROFIT_LOCK_IN);
+        VALUES ('position', NEW.id, NOW(), 'PROFIT_TARGET', NEW.PROFIT_TARGET);
      END IF;
      IF NOT NEW.MAINTENANCE_MARGIN = OLD.MAINTENANCE_MARGIN OR (NEW.MAINTENANCE_MARGIN IS NULL XOR OLD.MAINTENANCE_MARGIN IS NULL) THEN
         INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
@@ -421,11 +479,11 @@ CREATE TABLE `security` (
   KEY `SECURITY_UNDERLAYING_FKC` (`UNDERLAYING_FK`),
   KEY `SECURITY_VOLATILITY_FKC` (`VOLATILITY_FK`),
   KEY `SECURITY_INTREST_RATE_FAMILY_C` (`INTREST_RATE_FAMILY_FK`),
-  CONSTRAINT `SECURITY_INTREST_RATE_FAMILY_C` FOREIGN KEY (`INTREST_RATE_FAMILY_FK`) REFERENCES `security_family` (`id`),
-  CONSTRAINT `SECURITY_SECURITY_FAMILY_FKC` FOREIGN KEY (`SECURITY_FAMILY_FK`) REFERENCES `security_family` (`id`),
-  CONSTRAINT `SECURITY_UNDERLAYING_FKC` FOREIGN KEY (`UNDERLAYING_FK`) REFERENCES `security` (`id`),
-  CONSTRAINT `SECURITY_VOLATILITY_FKC` FOREIGN KEY (`VOLATILITY_FK`) REFERENCES `security` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=40750 DEFAULT CHARSET=latin1;
+  CONSTRAINT `SECURITY_VOLATILITY_FKC` FOREIGN KEY (`VOLATILITY_FK`) REFERENCES `security` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `SECURITY_INTREST_RATE_FAMILY_C` FOREIGN KEY (`INTREST_RATE_FAMILY_FK`) REFERENCES `security_family` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `SECURITY_SECURITY_FAMILY_FKC` FOREIGN KEY (`SECURITY_FAMILY_FK`) REFERENCES `security_family` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `SECURITY_UNDERLAYING_FKC` FOREIGN KEY (`UNDERLAYING_FK`) REFERENCES `security` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=109245 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -438,7 +496,7 @@ DROP TABLE IF EXISTS `security_family`;
 CREATE TABLE `security_family` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `NAME` varchar(255) NOT NULL,
-  `MARKET` enum('SOFFEX','DTB','IDEALPRO','CBOE','SMART','CFE','GLOBEX','NYMEX','CME') NOT NULL,
+  `MARKET` enum('SOFFEX','DTB','IDEALPRO','CBOE','SMART','CFE','GLOBEX','NYMEX','CME','NYSE','NASDAQ') NOT NULL,
   `CURRENCY` enum('CHF','EUR','USD') NOT NULL,
   `CONTRACT_SIZE` int(11) NOT NULL,
   `TICK_SIZE` double NOT NULL,
@@ -456,7 +514,7 @@ CREATE TABLE `security_family` (
   PRIMARY KEY (`id`),
   KEY `SECURITY_FAMILY_UNDERLAYING_FC` (`UNDERLAYING_FK`),
   CONSTRAINT `SECURITY_FAMILY_UNDERLAYING_FC` FOREIGN KEY (`UNDERLAYING_FK`) REFERENCES `security` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -470,7 +528,7 @@ CREATE TABLE `stock` (
   `ID` int(11) NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `STOCKIFKC` (`ID`),
-  CONSTRAINT `STOCKIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
+  CONSTRAINT `STOCKIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -487,13 +545,11 @@ CREATE TABLE `stock_option` (
   `EXPIRATION` datetime NOT NULL,
   `TYPE` enum('CALL','PUT') NOT NULL,
   PRIMARY KEY (`ID`),
-  KEY `OPTIONIFKC` (`ID`),
   KEY `STRIKE` (`STRIKE`),
   KEY `EXPIRATION` (`EXPIRATION`),
   KEY `TYPE` (`TYPE`),
   KEY `STOCK_OPTIONIFKC` (`ID`),
-  CONSTRAINT `OPTIONIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`),
-  CONSTRAINT `STOCK_OPTIONIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
+  CONSTRAINT `STOCK_OPTIONIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -513,7 +569,7 @@ CREATE TABLE `stock_option_family` (
   `EXPIRATION_TYPE` enum('NEXT_3_RD_FRIDAY','NEXT_3_RD_FRIDAY_3_MONTHS','THIRTY_DAYS_BEFORE_NEXT_3_RD_FRIDAY') NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `STOCK_OPTION_FAMILYIFKC` (`ID`),
-  CONSTRAINT `STOCK_OPTION_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `security_family` (`id`)
+  CONSTRAINT `STOCK_OPTION_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `security_family` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -532,9 +588,31 @@ CREATE TABLE `strategy` (
   `ALLOCATION` double(15,3) NOT NULL,
   `MODULES` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `NAME` (`NAME`,`FAMILY`)
+  UNIQUE KEY `NAME` (`NAME`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `strategy_after_update` AFTER UPDATE ON `strategy`
+  FOR EACH ROW
+BEGIN
+     IF NOT NEW.ALLOCATION = OLD.ALLOCATION OR (NEW.ALLOCATION IS NULL XOR OLD.ALLOCATION IS NULL) THEN
+        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
+        VALUES ('strategy', NEW.id, NOW(), 'ALLOCATION', NEW.ALLOCATION);
+     END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `tick`
@@ -558,10 +636,9 @@ CREATE TABLE `tick` (
   `SECURITY_FK` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `DATE_TIME_SECURITY_FK` (`DATE_TIME`,`SECURITY_FK`),
-  KEY `TICK_SECURITY_FKC` (`SECURITY_FK`),
   KEY `DATE_TIME` (`DATE_TIME`),
-  KEY `MARKET_DATA_EVENT_SECURITY_FKC` (`SECURITY_FK`)
-) ENGINE=MyISAM AUTO_INCREMENT=340151 DEFAULT CHARSET=latin1;
+  KEY `MARKET_DATA_EVENT_SECURITY_FKC36519d` (`SECURITY_FK`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -607,10 +684,13 @@ CREATE TABLE `transaction` (
   KEY `TRANSACTION_POSITION_FKC` (`POSITION_FK`),
   KEY `TRANSACTION_SECURITY_FKC` (`SECURITY_FK`),
   KEY `TRANSACTION_STRATEGY_FKC` (`STRATEGY_FK`),
+  KEY `DATE_TIME` (`DATE_TIME`),
+  KEY `NUMBER` (`NUMBER`),
+  KEY `CURRENCY` (`CURRENCY`),
   CONSTRAINT `TRANSACTION_POSITION_FKC` FOREIGN KEY (`POSITION_FK`) REFERENCES `position` (`id`),
   CONSTRAINT `TRANSACTION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `TRANSACTION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2621 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=74135 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -631,10 +711,37 @@ CREATE TABLE `watch_list_item` (
   UNIQUE KEY `STRATEGY_SECURITY_UNIQUE` (`SECURITY_FK`,`STRATEGY_FK`),
   KEY `WATCH_LIST_ITEM_SECURITY_FKC` (`SECURITY_FK`),
   KEY `WATCH_LIST_ITEM_STRATEGY_FKC` (`STRATEGY_FK`),
+  KEY `PERSISTENT` (`PERSISTENT`),
   CONSTRAINT `WATCH_LIST_ITEM_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `WATCH_LIST_ITEM_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=665 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=169097 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `watch_list_item_after_update` AFTER UPDATE ON `watch_list_item`
+  FOR EACH ROW
+BEGIN
+     IF NOT NEW.UPPER_ALERT_VALUE = OLD.UPPER_ALERT_VALUE OR (NEW.UPPER_ALERT_VALUE IS NULL XOR OLD.UPPER_ALERT_VALUE IS NULL) THEN
+        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
+        VALUES ('watch_list_item', NEW.id, NOW(), 'UPPER_ALERT_VALUE', NEW.UPPER_ALERT_VALUE);
+     END IF;
+     IF NOT NEW.LOWER_ALERT_VALUE = OLD.LOWER_ALERT_VALUE OR (NEW.LOWER_ALERT_VALUE IS NULL XOR OLD.LOWER_ALERT_VALUE IS NULL) THEN
+        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
+        VALUES ('watch_list_item', NEW.id, NOW(), 'LOWER_ALERT_VALUE', NEW.LOWER_ALERT_VALUE);
+     END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Final view structure for view `saldo`
@@ -664,4 +771,4 @@ CREATE TABLE `watch_list_item` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-11-01 14:36:26
+-- Dump completed on 2011-11-15 15:39:07

@@ -49,16 +49,9 @@ from
 where
     trigger.security.id = tickWindow.security.id
 and
-    MarketDataUtil.isTickValid(tickWindow);
-
-@Name('PROPAGATE_MARKET_DATA_EVENTS')
-@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PropagateMarketDataEventSubscriber')
-select
-    *
-from
-    MarketDataEvent
-where
-    simulation
+    MarketDataUtil.isTickValid(tickWindow)
+and
+    (simulation
 or
     (current_timestamp.getDayOfWeek() >= Calendar.MONDAY
 and
@@ -66,7 +59,14 @@ and
 and
     DateUtil.compareTime(security.securityFamily.marketOpen, current_timestamp.toDate()) <= 0
 and
-    DateUtil.compareTime(security.securityFamily.marketClose, current_timestamp.toDate()) >= 0);
+    DateUtil.compareTime(security.securityFamily.marketClose, current_timestamp.toDate()) >= 0));
+
+@Name('PROPAGATE_MARKET_DATA_EVENTS')
+@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PropagateMarketDataEventSubscriber')
+select
+    *
+from
+    MarketDataEvent;
 
 @Name('PERSIST_HOUR_TICKS')
 @Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')

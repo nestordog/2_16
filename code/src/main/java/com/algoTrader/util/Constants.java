@@ -2,6 +2,8 @@ package com.algoTrader.util;
 
 public class Constants {
 
+    public static final long ONE_HOUR = 3600000l;
+
     public static final long ONE_DAY = 86400000l;
 
     public static final long ONE_WEEK = 604800000l;

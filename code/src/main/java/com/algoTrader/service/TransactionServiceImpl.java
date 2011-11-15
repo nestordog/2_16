@@ -82,8 +82,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
             position.setExitValue(null);
             position.setMaintenanceMargin(null);
-            position.setProfitValue(null);
-            position.setProfitLockIn(null);
+            position.setProfitTarget(null);
 
             position.setSecurity(security);
             security.getPositions().add(position);
@@ -120,8 +119,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 // set all values to null
                 position.setExitValue(null);
                 position.setMaintenanceMargin(null);
-                position.setProfitValue(null);
-                position.setProfitLockIn(null);
+                position.setProfitTarget(null);
 
                 // propagate the ClosePosition event
                 getRuleService().routeEvent(position.getStrategy().getName(), closePositionVO);
