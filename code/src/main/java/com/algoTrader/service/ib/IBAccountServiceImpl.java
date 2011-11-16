@@ -72,7 +72,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     private Map<String, Map<String, String>> allAccountValues;
     private String fa;
 
-    private static int clientId = 2;
+    private static int clientId = 1;
 
     private static final String requestUrl = "https://www.interactivebrokers.com/Universal/servlet/FlexStatementService.SendRequest";
     private static final String statementUrl = "https://www.interactivebrokers.com/Universal/servlet/FlexStatementService.GetStatement";

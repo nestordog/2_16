@@ -41,8 +41,8 @@ public class IBUtil {
             contract.m_right = stockOption.getType().toString();
             contract.m_multiplier = String.valueOf(stockOption.getSecurityFamily().getContractSize());
 
-            if (security.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {
-                // IB expiration is one day before effective expiration for SOFFEX options
+            if (security.getSecurityFamily().getMarket().equals(Market.CBOE) || security.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {
+                // IB expiration is one day before effective expiration for CBOE and SOFFEX options
                 contract.m_expiry = dayFormat.format(DateUtils.addDays(stockOption.getExpiration(), -1));
             } else {
                 contract.m_expiry = dayFormat.format(stockOption.getExpiration());

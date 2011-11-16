@@ -56,7 +56,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
     private Security security;
 
     private CsvTickWriter writer;
-    private static int clientId = 4;
+    private static int clientId = 2;
 
     @Override
     protected void handleInit() throws Exception {

@@ -3,14 +3,13 @@ package com.algoTrader.entity;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.security.Forex;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.util.ConfigurationUtil;
+import com.algoTrader.util.DoubleMap;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.BalanceVO;
 
@@ -121,20 +120,19 @@ public class StrategyDaoImpl extends StrategyDaoBase {
     protected List<BalanceVO> handleGetPortfolioBalances() throws Exception {
 
         List<Currency> currencies = ServiceLocator.commonInstance().getLookupService().getHeldCurrencies();
-        Map<Currency, Double> cashMap = new HashMap<Currency, Double>();
-        Map<Currency, Double> securitiesMap = new HashMap<Currency, Double>();
+        DoubleMap<Currency> cashMap = new DoubleMap<Currency>();
+        DoubleMap<Currency> securitiesMap = new DoubleMap<Currency>();
 
         for (Currency currency : currencies) {
-            cashMap.put(currency, 0.0);
-            securitiesMap.put(currency, 0.0);
+            cashMap.increment(currency, 0.0);
+            securitiesMap.increment(currency, 0.0);
         }
 
         // sum of all cashBalances
         Collection<CashBalance> cashBalances = getCashBalanceDao().loadAll();
         for (CashBalance cashBalance : cashBalances) {
             Currency currency = cashBalance.getCurrency();
-            double amount = cashMap.get(currency) + cashBalance.getAmountDouble();
-            cashMap.put(currency, amount);
+            cashMap.increment(currency, cashBalance.getAmountDouble());
         }
 
         // sum of all positions
@@ -144,12 +142,10 @@ public class StrategyDaoImpl extends StrategyDaoBase {
             // Forex positions are considered cash
             if (position.getSecurity() instanceof Forex) {
                 Currency currency = ((Forex) position.getSecurity()).getBaseCurrency();
-                double amount = cashMap.get(currency) + position.getQuantity();
-                cashMap.put(currency, amount);
+                cashMap.increment(currency, position.getQuantity());
             } else {
                 Currency currency = position.getSecurity().getSecurityFamily().getCurrency();
-                double amount = securitiesMap.get(currency) + position.getMarketValueDouble();
-                securitiesMap.put(currency, amount);
+                securitiesMap.increment(currency, position.getMarketValueDouble());
             }
         }
 

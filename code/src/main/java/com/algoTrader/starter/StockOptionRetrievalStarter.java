@@ -3,21 +3,22 @@ package com.algoTrader.starter;
 import java.text.ParseException;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.service.ib.IBStockOptionRetrieverService;
 
 public class StockOptionRetrievalStarter {
 
     public static void main(String[] args) throws ParseException {
 
+        IBStockOptionRetrieverService service = ServiceLocator.serverInstance().getIBStockOptionRetrieverService();
+
+        service.init();
+
         for (String arg : args) {
-            retrieve(Integer.parseInt(arg));
+
+            int underlayingId = Integer.parseInt(arg);
+            service.retrieveAllStockOptionsForUnderlaying(underlayingId);
         }
 
         ServiceLocator.serverInstance().shutdown();
-    }
-
-    public static void retrieve(int underlayingId) {
-
-        ServiceLocator.serverInstance().getStockOptionRetrieverService().retrieveAllStockOptionsForUnderlaying(underlayingId);
-
     }
 }
