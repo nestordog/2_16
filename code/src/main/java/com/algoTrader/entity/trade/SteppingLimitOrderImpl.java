@@ -1,7 +1,11 @@
 package com.algoTrader.entity.trade;
 
+import java.math.BigDecimal;
+
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.ClassUtils;
 
+import com.algoTrader.enumeration.Side;
 import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
 
@@ -9,10 +13,7 @@ public class SteppingLimitOrderImpl extends SteppingLimitOrder {
 
     private static final long serialVersionUID = 6631564632498034454L;
 
-    private static double minSpreadPosition = ConfigurationUtil.getBaseConfig().getDouble("minSpreadPosition");
-    private static double maxSpreadPosition = ConfigurationUtil.getBaseConfig().getDouble("maxSpreadPosition");
-    private static double spreadPositionIncrement = ConfigurationUtil.getBaseConfig().getDouble("spreadPositionIncrement");
-
+    @Override
     public String toString() {
 
         return getSide() + " " + getQuantity() + " " + ClassUtils.getShortClassName(this.getClass()) + " " + getSecurity().getSymbol() + " limit " + getLimit()
@@ -20,34 +21,36 @@ public class SteppingLimitOrderImpl extends SteppingLimitOrder {
     }
 
     @Override
-    public void setDefaultBuyLimits(double bid, double ask, double tickSize) {
+    public void setDefaultLimits(double bid, double ask) {
 
-        double spread = ask - bid;
-        double limit = bid + minSpreadPosition * spread;
-        double maxLimit = bid + maxSpreadPosition * spread;
-        double increment = spreadPositionIncrement * spread;
+        Configuration configuration = ConfigurationUtil.getStrategyConfig(getStrategy().getName());
+        double minSpreadPosition = configuration.getDouble("minSpreadPosition");
+        double maxSpreadPosition = configuration.getDouble("maxSpreadPosition");
+        double spreadPositionIncrement = configuration.getDouble("spreadPositionIncrement");
+
+        double tickSize = getSecurity().getSecurityFamily().getTickSize();
         int scale = RoundUtil.getDigits(tickSize);
 
-        double roundedLimit = RoundUtil.roundToNextN(limit, tickSize);
-
-        setLimit(RoundUtil.getBigDecimal(roundedLimit, scale));
-        setMaxLimit(RoundUtil.getBigDecimal(maxLimit, scale));
-        setIncrement(RoundUtil.getBigDecimal(increment, scale));
-    }
-
-    @Override
-    public void setDefaultSellLimits(double bid, double ask, double tickSize) {
-
         double spread = ask - bid;
-        double limit = ask - minSpreadPosition * spread;
-        double maxLimit = ask - maxSpreadPosition * spread;
         double increment = spreadPositionIncrement * spread;
-        int scale = RoundUtil.getDigits(tickSize);
+        double roundedIncrement = RoundUtil.roundToNextN(increment, tickSize, BigDecimal.ROUND_CEILING);
 
-        double roundedLimit = RoundUtil.roundToNextN(limit, tickSize);
+        double roundedLimit;
+        double roundedMaxLimit;
+        if (Side.BUY.equals(getSide())) {
+            double limit = bid + minSpreadPosition * spread;
+            double maxLimit = bid + maxSpreadPosition * spread;
+            roundedLimit = RoundUtil.roundToNextN(limit, tickSize, BigDecimal.ROUND_FLOOR);
+            roundedMaxLimit = RoundUtil.roundToNextN(maxLimit, tickSize, BigDecimal.ROUND_CEILING);
+        } else {
+            double limit = ask - minSpreadPosition * spread;
+            double maxLimit = ask - maxSpreadPosition * spread;
+            roundedLimit = RoundUtil.roundToNextN(limit, tickSize, BigDecimal.ROUND_CEILING);
+            roundedMaxLimit = RoundUtil.roundToNextN(maxLimit, tickSize, BigDecimal.ROUND_FLOOR);
+        }
 
         setLimit(RoundUtil.getBigDecimal(roundedLimit, scale));
-        setMaxLimit(RoundUtil.getBigDecimal(maxLimit, scale));
-        setIncrement(RoundUtil.getBigDecimal(increment, scale));
+        setMaxLimit(RoundUtil.getBigDecimal(roundedMaxLimit, scale));
+        setIncrement(RoundUtil.getBigDecimal(roundedIncrement, scale));
     }
 }

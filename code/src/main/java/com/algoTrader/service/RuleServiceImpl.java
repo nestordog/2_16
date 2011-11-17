@@ -544,13 +544,11 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected void handleAddOrderCallback(Order[] orders, OrderCallback callback) {
+    protected void handleAddOrderCallback(String strategyName, Order[] orders, OrderCallback callback) {
 
         if (orders.length == 0) {
             throw new IllegalArgumentException("at least 1 order has to be specified");
         }
-
-        String strategyName = orders[0].getStrategy().getName();
 
         // get the securityIds sorted asscending
         Set<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(Arrays.asList(orders), new Transformer<Order, Integer>() {

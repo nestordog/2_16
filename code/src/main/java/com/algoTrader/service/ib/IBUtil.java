@@ -37,7 +37,7 @@ public class IBUtil {
             contract.m_secType = "OPT";
             contract.m_exchange = IBMarketConverter.marketToString(stockOption.getSecurityFamily().getMarket());
             contract.m_currency = stockOption.getSecurityFamily().getCurrency().toString();
-            contract.m_strike = stockOption.getStrike().intValue();
+            contract.m_strike = stockOption.getStrike().doubleValue();
             contract.m_right = stockOption.getType().toString();
             contract.m_multiplier = String.valueOf(stockOption.getSecurityFamily().getContractSize());
 

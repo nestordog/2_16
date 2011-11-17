@@ -48,8 +48,8 @@ public class ConfigurationUtil {
             strategyConfig = new CompositeConfiguration();
             strategyConfig.addConfiguration(new SystemConfiguration());
             try {
-                strategyConfig.addConfiguration(new PropertiesConfiguration(baseFileName));
                 strategyConfig.addConfiguration(new PropertiesConfiguration("conf-" + strategyName.toLowerCase() + ".properties"));
+                strategyConfig.addConfiguration(new PropertiesConfiguration(baseFileName));
             } catch (ConfigurationException e) {
                 logger.error("error loading " + strategyName.toLowerCase() + ".properties", e);
             }

@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
+import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
@@ -65,7 +66,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             // create an OrderCallback if removeFromWatchlist is requested
             if (removeFromWatchlist) {
 
-                getRuleService().addOrderCallback(new Order[] { order }, new OrderCallback() {
+                getRuleService().addOrderCallback(StrategyImpl.BASE, new Order[] { order }, new OrderCallback() {
                     @Override
                     public void orderCompleted(OrderStatus[] orderStati) throws Exception {
                         MarketDataService marketDataService = ServiceLocator.commonInstance().getMarketDataService();
