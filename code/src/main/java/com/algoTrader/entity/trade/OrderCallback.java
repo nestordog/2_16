@@ -16,9 +16,7 @@ public abstract class OrderCallback {
 
     private static Logger logger = MyLogger.getLogger(Subscriber.class.getName());
 
-    public void update(OrderStatus[] orderStati) throws Exception {
-
-        String strategyName = orderStati[0].getParentOrder().getStrategy().getName();
+    public void update(String strategyName, OrderStatus[] orderStati) throws Exception {
 
         // get the securityIds sorted asscending
         TreeSet<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(Arrays.asList(orderStati), new Transformer<OrderStatus, Integer>() {

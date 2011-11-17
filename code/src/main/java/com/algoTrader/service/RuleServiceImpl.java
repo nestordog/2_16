@@ -335,7 +335,7 @@ public class RuleServiceImpl extends RuleServiceBase {
             if (StrategyUtil.getStartedStrategyName().equals(strategyName)) {
                 getServiceProvider(strategyName).getEPRuntime().sendEvent(obj);
             } else {
-                getStrategyService().sendEvent(strategyName, obj);
+                getStrategyService().sendExternalEvent(strategyName, obj);
             }
         }
     }
@@ -354,7 +354,7 @@ public class RuleServiceImpl extends RuleServiceBase {
             if (StrategyUtil.getStartedStrategyName().equals(strategyName)) {
                 getServiceProvider(strategyName).getEPRuntime().route(obj);
             } else {
-                getStrategyService().sendEvent(strategyName, obj);
+                getStrategyService().sendExternalEvent(strategyName, obj);
             }
         }
     }

@@ -22,6 +22,7 @@ import com.algoTrader.entity.trade.OrderCallback;
 import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.Side;
+import com.algoTrader.enumeration.Status;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
@@ -71,8 +72,10 @@ public class PositionServiceImpl extends PositionServiceBase {
                     public void orderCompleted(OrderStatus[] orderStati) throws Exception {
                         MarketDataService marketDataService = ServiceLocator.commonInstance().getMarketDataService();
                         for (OrderStatus orderStatus : orderStati) {
-                            Order order = orderStatus.getParentOrder();
-                            marketDataService.removeFromWatchlist(order.getStrategy().getName(), order.getSecurity().getId());
+                            if (Status.EXECUTED.equals(orderStatus.getStatus())) {
+                                Order order = orderStatus.getParentOrder();
+                                marketDataService.removeFromWatchlist(order.getStrategy().getName(), order.getSecurity().getId());
+                            }
                         }
                     }
                 });

@@ -74,7 +74,7 @@ public class StrategyServiceImpl extends StrategyServiceBase implements Disposab
     }
 
     @Override
-    protected void handleSendEvent(String strategyName, Object obj) {
+    protected void handleSendExternalEvent(String strategyName, Object obj) {
 
         if (this.socketMap.containsKey(strategyName)) {
             ObjectOutputStream stream = this.streamMap.get(strategyName);

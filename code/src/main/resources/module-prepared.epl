@@ -8,6 +8,7 @@ from
 
 @Name('AFTER_TRADE')
 select
+    engineStrategy.name as strategyName,
     orderStatus
 from
     pattern[[?] (orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, parentOrder.security.id in (?)))];
