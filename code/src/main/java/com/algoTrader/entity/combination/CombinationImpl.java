@@ -61,6 +61,16 @@ public class CombinationImpl extends Combination {
     }
 
     @Override
+    public long getTotalQuantity() {
+
+        long quantity = 0;
+        for (Allocation allocation : getAllocations()) {
+            quantity += allocation.getQuantity();
+        }
+        return quantity;
+    }
+
+    @Override
     public String toString() {
 
         return getStrategy().getName() + " " + getMaster().getSymbol();
