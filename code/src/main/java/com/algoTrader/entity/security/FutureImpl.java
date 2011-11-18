@@ -34,4 +34,12 @@ public class FutureImpl extends Future {
         Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), DateUtil.getCurrentEPTime());
         return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / 2592000000d));
     }
+
+    /**
+     * make sure expiration is a java.util.Date and not a java.sql.TimeStamp
+     */
+    @Override
+    public Date getExpiration() {
+        return new Date(super.getExpiration().getTime());
+    }
 }
