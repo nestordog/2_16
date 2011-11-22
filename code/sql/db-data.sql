@@ -520,7 +520,7 @@ INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `
 INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`) VALUES (2,'SMI','THETA','\0',0.000,'theta-init,theta-main');
 INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`) VALUES (3,'ESTX50','THETA','\0',0.000,'theta-init,theta-main');
 INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`) VALUES (4,'MULTIIND','MULTIIND','\0',0.000,'multiind-movavcross,multiind-main');
-INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`) VALUES (5,'EASTWEST','EASTWEST','',1.000,'eastwest-init,volcarry-main,tailhedge-main');
+INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`) VALUES (5,'EASTWEST','EASTWEST','',1.000,'eastwest-init,eastwest-main,volcarry-main,tailhedge-main');
 INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`) VALUES (6,'PERIODIC','PERIODIC','\0',0.000,'main');
 /*!40000 ALTER TABLE `strategy` ENABLE KEYS */;
 UNLOCK TABLES;

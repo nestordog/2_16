@@ -235,7 +235,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         Security security = position.getSecurity();
 
-        ExpirePositionVO expirePositionVO = getPositionDao().toExpirePositionVO(position);
+        ExpirePositionVO expirePositionEvent = getPositionDao().toExpirePositionVO(position);
 
         Transaction transaction = Transaction.Factory.newInstance();
         transaction.setDateTime(DateUtil.getCurrentEPTime());
@@ -272,7 +272,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         getMarketDataService().removeFromWatchlist(position.getStrategy().getName(), security.getId());
 
         // propagate the ExpirePosition event
-        getRuleService().sendEvent(position.getStrategy().getName(), expirePositionVO);
+        getRuleService().sendEvent(position.getStrategy().getName(), expirePositionEvent);
     }
 
 }

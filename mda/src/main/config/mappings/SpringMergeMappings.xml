@@ -2,8 +2,19 @@
 <mappings name="SpringMerge">
 
         <mapping>
-            <from><![CDATA[<!-- ManagementService service property merge-point -->]]></from>
+            <from><![CDATA[<!-- ManagementService service client property merge-point -->]]></from>
             <to><![CDATA[<property name="diagrams" ref="managementServiceDiagrams"/>]]></to>
+        </mapping>
+
+        <mapping>
+            <from><![CDATA[<!-- RuleService service property merge-point -->]]></from>
+            <to><![CDATA[<property name="marketDataTemplate" ref="marketDataTemplate"/>
+        <property name="strategyTemplate" ref="strategyTemplate"/>]]></to>
+        </mapping>
+
+        <mapping>
+            <from><![CDATA[<!-- WatchListService service client property merge-point -->]]></from>
+            <to><![CDATA[<property name="marketDataMessageListenerContainer" ref="marketDataMessageListenerContainer"/>]]></to>
         </mapping>
 
         <!-- add hibernate.generate_statistics to applicationContext.xml -->

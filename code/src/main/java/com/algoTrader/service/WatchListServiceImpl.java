@@ -1,46 +1,60 @@
 package com.algoTrader.service;
 
-import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
+import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.WatchListItem;
-import com.algoTrader.util.MyLogger;
+import com.algoTrader.util.StrategyUtil;
 
 public class WatchListServiceImpl extends WatchListServiceBase {
 
-    private static Logger logger = MyLogger.getLogger(WatchListServiceImpl.class.getName());
-    private static DecimalFormat decimalFormat = new DecimalFormat("#,##0.0000");
+    public DefaultMessageListenerContainer marketDataMessageListenerContainer;
+    public DefaultMessageListenerContainer strategyMessageListenerContainer;
 
-    @Override
-    protected void handleSetAlertValue(String strategyName, int securityId, Double value, boolean upper) throws Exception {
+    public void setMarketDataMessageListenerContainer(DefaultMessageListenerContainer marketDataMessageListenerContainer) {
+        this.marketDataMessageListenerContainer = marketDataMessageListenerContainer;
+    }
 
-        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
-
-        if (upper) {
-            watchListItem.setUpperAlertValue(value);
-            logger.info("set upper alert value to " + decimalFormat.format(value) + " for watchListItem " + watchListItem);
-        } else {
-            watchListItem.setLowerAlertValue(value);
-            logger.info("set lower alert value to " + decimalFormat.format(value) + " for watchListItem " + watchListItem);
-        }
-
-        getWatchListItemDao().update(watchListItem);
-
+    public void setStrategyMessageListenerContainer(DefaultMessageListenerContainer strategyMessageListenerContainer) {
+        this.strategyMessageListenerContainer = strategyMessageListenerContainer;
     }
 
     @Override
-    protected void handleRemoveAlertValues(String strategyName, int securityId) throws Exception {
+    protected void handleRemoveFromWatchlist(int securityId) throws Exception {
 
-        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
-        if (watchListItem.getUpperAlertValue() != null || watchListItem.getLowerAlertValue() != null) {
+        getMarketDataService().removeFromWatchlist(StrategyUtil.getStartedStrategyName(), securityId);
 
-            watchListItem.setUpperAlertValue(null);
-            watchListItem.setLowerAlertValue(null);
+        initWatchlist();
+    }
 
-            getWatchListItemDao().update(watchListItem);
+    @Override
+    protected void handlePutOnWatchlist(int securityId) throws Exception {
 
-            logger.info("removed alert values for watchListItem " + watchListItem);
+        getMarketDataService().putOnWatchlist(StrategyUtil.getStartedStrategyName(), securityId);
+
+        initWatchlist();
+    }
+
+    @Override
+    protected void handleInitWatchlist() throws Exception {
+
+        // assemble the message selector
+        List<String> selections = new ArrayList<String>();
+        Strategy strategy = getLookupService().getStrategyByName(StrategyUtil.getStartedStrategyName());
+        for (WatchListItem watchlistItem : strategy.getWatchListItems()) {
+            selections.add("securityId=" + watchlistItem.getSecurity().getId());
         }
+
+        String messageSelector = StringUtils.join(selections, " OR ");
+        if ("".equals(messageSelector)) {
+            messageSelector = "false";
+        }
+
+        // update the message selector
+        this.marketDataMessageListenerContainer.setMessageSelector(messageSelector);
     }
 }

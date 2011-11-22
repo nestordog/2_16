@@ -11,16 +11,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessagePostProcessor;
 
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.entity.marketData.FirstTickCallback;
+import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderCallback;
 import com.algoTrader.esper.annotation.Condition;
@@ -79,6 +86,17 @@ public class RuleServiceImpl extends RuleServiceBase {
     private Map<String, AdapterCoordinator> coordinators = new HashMap<String, AdapterCoordinator>();
     private Map<String, Boolean> internalClock = new HashMap<String, Boolean>();
     private Map<String, EPServiceProvider> serviceProviders = new HashMap<String, EPServiceProvider>();
+
+    private JmsTemplate marketDataTemplate;
+    private JmsTemplate strategyTemplate;
+
+    public void setMarketDataTemplate(JmsTemplate marketDataTemplate) {
+        this.marketDataTemplate = marketDataTemplate;
+    }
+
+    public void setStrategyTemplate(JmsTemplate strategyTemplate) {
+        this.strategyTemplate = strategyTemplate;
+    }
 
     @Override
     protected void handleInitServiceProvider(String strategyName) {
@@ -258,17 +276,17 @@ public class RuleServiceImpl extends RuleServiceBase {
     /**
      * @param ruleNameRegex rule name regular expression
      */
-    protected String handleFindRuleName(String strategyName, final String ruleNameRegex) {
+    protected String[] handleFindRuleNames(String strategyName, final String ruleNameRegex) {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
 
         // find the first statement that matches the given ruleName regex
-        return CollectionUtils.find(Arrays.asList(administrator.getStatementNames()), new Predicate<String>() {
+        return CollectionUtils.select(Arrays.asList(administrator.getStatementNames()), new Predicate<String>() {
             @Override
             public boolean evaluate(String statement) {
                 return statement.matches(ruleNameRegex);
             }
-        });
+        }).toArray(new String[] {});
     }
 
     @Override
@@ -278,11 +296,17 @@ public class RuleServiceImpl extends RuleServiceBase {
     protected boolean handleIsDeployed(String strategyName, final String ruleNameRegex) {
 
         // find the first statement that matches the given ruleName regex
-        String statementName = findRuleName(strategyName, ruleNameRegex);
+        String[] statementNames = findRuleNames(strategyName, ruleNameRegex);
+
+        if (statementNames.length == 0) {
+            return false;
+        } else if (statementNames.length > 1) {
+            logger.error("more than one rule matches: " + ruleNameRegex);
+        }
 
         // get the statement
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
-        EPStatement statement = administrator.getStatement(statementName);
+        EPStatement statement = administrator.getStatement(statementNames[0]);
 
         if (statement != null && statement.isStarted()) {
             return true;
@@ -335,7 +359,7 @@ public class RuleServiceImpl extends RuleServiceBase {
             if (StrategyUtil.getStartedStrategyName().equals(strategyName)) {
                 getServiceProvider(strategyName).getEPRuntime().sendEvent(obj);
             } else {
-                getStrategyService().sendExternalEvent(strategyName, obj);
+                sendExternalEvent(strategyName, obj);
             }
         }
     }
@@ -354,8 +378,39 @@ public class RuleServiceImpl extends RuleServiceBase {
             if (StrategyUtil.getStartedStrategyName().equals(strategyName)) {
                 getServiceProvider(strategyName).getEPRuntime().route(obj);
             } else {
-                getStrategyService().sendExternalEvent(strategyName, obj);
+                sendExternalEvent(strategyName, obj);
             }
+        }
+    }
+
+    private void sendExternalEvent(String strategyName, Object obj) {
+
+        // sent to the strateyg queue
+        this.strategyTemplate.convertAndSend(strategyName + ".QUEUE", obj);
+    }
+
+    @Override
+    protected void handleSendMarketDataEvent(final MarketDataEvent marketDataEvent) {
+
+        if (simulation) {
+            for (WatchListItem watchListItem : marketDataEvent.getSecurity().getWatchListItems()) {
+                if (!watchListItem.getStrategy().getName().equals(StrategyImpl.BASE)) {
+                    sendEvent(watchListItem.getStrategy().getName(), marketDataEvent);
+                }
+            }
+
+        } else {
+
+            // send using the jms template
+            this.marketDataTemplate.convertAndSend(marketDataEvent, new MessagePostProcessor() {
+                @Override
+                public Message postProcessMessage(Message message) throws JMSException {
+
+                    // ad securityId Property
+                    message.setIntProperty("securityId", marketDataEvent.getSecurity().getId());
+                    return message;
+                }
+            });
         }
     }
 

@@ -1,6 +1,7 @@
 package com.algoTrader.service;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -15,7 +16,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.entity.WatchListItemImpl;
 import com.algoTrader.entity.marketData.Bar;
@@ -37,6 +37,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
     private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+    private static DecimalFormat decimalFormat = new DecimalFormat("#,##0.0000");
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
 
@@ -69,11 +70,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         Hibernate.initialize(security.getWatchListItems());
         Hibernate.initialize(security.getPositions());
 
-        for (WatchListItem watchListItem : security.getWatchListItems()) {
-            if (!watchListItem.getStrategy().getName().equals(StrategyImpl.BASE)) {
-                getRuleService().sendEvent(watchListItem.getStrategy().getName(), marketDataEvent);
-            }
-        }
+        getRuleService().sendMarketDataEvent(marketDataEvent);
     }
 
     @Override
@@ -191,6 +188,38 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
         for (WatchListItem watchListItem : watchListItems) {
             removeFromWatchlist(watchListItem.getStrategy().getName(), watchListItem.getSecurity().getId());
+        }
+    }
+
+    @Override
+    protected void handleSetAlertValue(String strategyName, int securityId, Double value, boolean upper) throws Exception {
+
+        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
+
+        if (upper) {
+            watchListItem.setUpperAlertValue(value);
+            logger.info("set upper alert value to " + decimalFormat.format(value) + " for watchListItem " + watchListItem);
+        } else {
+            watchListItem.setLowerAlertValue(value);
+            logger.info("set lower alert value to " + decimalFormat.format(value) + " for watchListItem " + watchListItem);
+        }
+
+        getWatchListItemDao().update(watchListItem);
+
+    }
+
+    @Override
+    protected void handleRemoveAlertValues(String strategyName, int securityId) throws Exception {
+
+        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
+        if (watchListItem.getUpperAlertValue() != null || watchListItem.getLowerAlertValue() != null) {
+
+            watchListItem.setUpperAlertValue(null);
+            watchListItem.setLowerAlertValue(null);
+
+            getWatchListItemDao().update(watchListItem);
+
+            logger.info("removed alert values for watchListItem " + watchListItem);
         }
     }
 

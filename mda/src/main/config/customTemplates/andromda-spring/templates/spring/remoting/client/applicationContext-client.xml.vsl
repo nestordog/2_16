@@ -198,16 +198,16 @@
 ## we need to use the lookup-method as a work-a-round for dependencies
 ## which represent circular references
 #foreach($serviceRef in $service.allServiceReferences)
-#if (!$serviceRef.circularReference && ($serviceRef.targetElement.remotable || !$stringUtils.isBlank($serviceRef.targetElement.findTaggedValue('@algoTrader.service.client'))))
+#if (!$serviceRef.circularReference)
                 <property name="$serviceRef.name"><ref bean="$serviceRef.targetElement.beanName"/></property>
 #end
 #end
 #foreach($serviceRef in $service.allServiceReferences)
-#if ($serviceRef.circularReference && ($serviceRef.targetElement.remotable || !$stringUtils.isBlank($serviceRef.targetElement.findTaggedValue('@algoTrader.service.client'))))
+#if ($serviceRef.circularReference)
                 <lookup-method name="$serviceRef.getterName" bean="$serviceRef.targetElement.beanName"/>
 #end
 #end
-        		<!-- $service.name service property merge-point -->
+        		<!-- $service.name service client property merge-point -->
             </bean>
         </property>
         <property name="proxyInterfaces">

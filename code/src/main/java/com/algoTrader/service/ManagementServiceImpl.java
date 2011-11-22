@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.marketData.TickDaoImpl;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
@@ -18,6 +17,16 @@ import com.algoTrader.vo.TransactionVO;
 public class ManagementServiceImpl extends ManagementServiceBase {
 
     private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
+
+    private List<DiagramVO> diagrams;
+
+    public List<DiagramVO> getDiagrams() {
+        return this.diagrams;
+    }
+
+    public void setDiagrams(List<DiagramVO> diagrams) {
+        this.diagrams = diagrams;
+    }
 
     @Override
     protected String handleGetCurrentTime() throws Exception {
@@ -107,11 +116,10 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         return getReportingService().getDataTransactions(StrategyUtil.getStartedStrategyName());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected List<DiagramVO> handleGetIndicatorDiagrams(boolean param) throws Exception {
 
-        return super.getDiagrams();
+        return getDiagrams();
     }
 
     @SuppressWarnings("unchecked")
@@ -132,16 +140,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected void handleDeactivate(String ruleName) throws Exception {
 
         getRuleService().undeployRule(StrategyUtil.getStartedStrategyName(), ruleName);
-    }
-
-    @Override
-    protected void handleRegisterStrategy() throws Exception {
-
-        String strategyName = StrategyUtil.getStartedStrategyName();
-
-        if (!StrategyImpl.BASE.equals(strategyName) && !getStrategyService().isStrategyRegistered(strategyName)) {
-            getStrategyService().registerStrategy(strategyName);
-        }
     }
 
     @Override
