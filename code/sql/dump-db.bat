@@ -1,9 +1,9 @@
-"D:\MySQL Server 5.1\bin\mysqldump.exe" -d -u @localhost -r ^
+"D:\MySQL Server 5.1\bin\mysqldump.exe" --skip-triggers --no-data -u @localhost -r ^
 D:\AlgoTrader\code\sql\db-structure.sql ^
 algotrader
 
 "D:\MySQL Server 5.1\bin\mysqldump.exe" ^
---skip-extended-insert ^
+--skip-extended-insert  --skip-triggers ^
 --ignore-table=algotrader.ask ^
 --ignore-table=algotrader.bar ^
 --ignore-table=algotrader.bid ^
@@ -12,7 +12,7 @@ algotrader
 --ignore-table=algotrader.position ^
 --ignore-table=algotrader.sabr_params ^
 --ignore-table=algotrader.trade ^
--c -t -u @localhost ^
+--complete-insert --no-create-info -u @localhost ^
 -r D:\AlgoTrader\code\sql\db-data.sql ^
 algotrader
 

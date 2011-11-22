@@ -19,6 +19,11 @@
 -- Dumping data for table `allocation`
 --
 
+LOCK TABLES `allocation` WRITE;
+/*!40000 ALTER TABLE `allocation` DISABLE KEYS */;
+/*!40000 ALTER TABLE `allocation` ENABLE KEYS */;
+UNLOCK TABLES;
+
 --
 -- Dumping data for table `cash_balance`
 --
@@ -28,33 +33,15 @@ LOCK TABLES `cash_balance` WRITE;
 INSERT INTO `cash_balance` (`ID`, `CURRENCY`, `AMOUNT`, `STRATEGY_FK`) VALUES (1,'EUR','1000000.00',1);
 /*!40000 ALTER TABLE `cash_balance` ENABLE KEYS */;
 UNLOCK TABLES;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = latin1 */ ;
-/*!50003 SET character_set_results = latin1 */ ;
-/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `cash_balance_after_update` AFTER UPDATE ON `cash_balance`
-  FOR EACH ROW
-BEGIN
-     IF NOT NEW.AMOUNT = OLD.AMOUNT OR (NEW.AMOUNT IS NULL XOR OLD.AMOUNT IS NULL) THEN
-        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
-        VALUES ('cash_balance', NEW.id, NOW(), 'AMOUNT', NEW.AMOUNT);
-     END IF;
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Dumping data for table `combination`
 --
 
+LOCK TABLES `combination` WRITE;
+/*!40000 ALTER TABLE `combination` DISABLE KEYS */;
+/*!40000 ALTER TABLE `combination` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Dumping data for table `equity_index`
@@ -598,4 +585,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-11-15 15:39:07
+-- Dump completed on 2011-11-22 13:15:02
