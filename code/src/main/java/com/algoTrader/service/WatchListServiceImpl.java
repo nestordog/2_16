@@ -8,9 +8,12 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.WatchListItem;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.StrategyUtil;
 
 public class WatchListServiceImpl extends WatchListServiceBase {
+
+    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
 
     public DefaultMessageListenerContainer marketDataMessageListenerContainer;
     public DefaultMessageListenerContainer strategyMessageListenerContainer;
@@ -24,23 +27,26 @@ public class WatchListServiceImpl extends WatchListServiceBase {
     }
 
     @Override
-    protected void handleRemoveFromWatchlist(int securityId) throws Exception {
+    protected void handleRemoveFromWatchlist(String strategyName, int securityId) throws Exception {
 
-        getMarketDataService().removeFromWatchlist(StrategyUtil.getStartedStrategyName(), securityId);
+        getMarketDataService().removeFromWatchlist(strategyName, securityId);
 
-        initWatchlist();
+        initWatchlist(strategyName);
     }
 
     @Override
-    protected void handlePutOnWatchlist(int securityId) throws Exception {
+    protected void handlePutOnWatchlist(String strategyName, int securityId) throws Exception {
 
-        getMarketDataService().putOnWatchlist(StrategyUtil.getStartedStrategyName(), securityId);
+        getMarketDataService().putOnWatchlist(strategyName, securityId);
 
-        initWatchlist();
+        initWatchlist(strategyName);
     }
 
     @Override
-    protected void handleInitWatchlist() throws Exception {
+    protected void handleInitWatchlist(String strategyName) throws Exception {
+
+        if (simulation)
+            return;
 
         // assemble the message selector
         List<String> selections = new ArrayList<String>();

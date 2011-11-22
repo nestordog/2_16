@@ -150,4 +150,16 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         // need to force exit because grafefull shutdown of esper-service (and esper-jmx) does not work
         System.exit(0);
     }
+
+    @Override
+    protected void handlePutOnWatchlist(int securityid) throws Exception {
+
+        getWatchListService().putOnWatchlist(StrategyUtil.getStartedStrategyName(), securityid);
+    }
+
+    @Override
+    protected void handleRemoveFromWatchlist(int securityid) throws Exception {
+
+        getWatchListService().removeFromWatchlist(StrategyUtil.getStartedStrategyName(), securityid);
+    }
 }

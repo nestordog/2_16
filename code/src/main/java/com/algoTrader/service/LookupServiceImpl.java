@@ -53,6 +53,13 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getSecurityDao().findByIdFetched(securityId);
     }
 
+    @SuppressWarnings("rawtypes")
+    @Override
+    protected Security[] handleGetSecuritiesByIds(List ids) throws Exception {
+
+        return getSecurityDao().findByIds(ids).toArray(new Security[0]);
+    }
+
     @Override
     protected Security[] handleGetSecuritiesOnWatchlistByPeriodicity(Periodicity periodicity) throws Exception {
 
