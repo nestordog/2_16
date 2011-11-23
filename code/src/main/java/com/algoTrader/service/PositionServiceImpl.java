@@ -249,11 +249,10 @@ public class PositionServiceImpl extends PositionServiceBase {
         if (security instanceof StockOption) {
 
             StockOption stockOption = (StockOption) security;
-            int contractSize = security.getSecurityFamily().getContractSize();
             int scale = security.getSecurityFamily().getScale();
             double underlayingSpot = security.getUnderlaying().getLastTick().getCurrentValueDouble();
             double intrinsicValue = StockOptionUtil.getIntrinsicValue(stockOption, underlayingSpot);
-            BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue * contractSize, scale);
+            BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue, scale);
             transaction.setPrice(price);
 
         } else if (security instanceof Future) {
