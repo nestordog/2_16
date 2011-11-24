@@ -119,6 +119,16 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         cancelExternalOrder(order);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void handleCancelAllOrders() throws Exception {
+
+        List<Order> orders = getRuleService().getAllEvents(StrategyImpl.BASE, "INSERT_INTO_OPEN_ORDER");
+        for (Order order : orders) {
+            cancelExternalOrder(order);
+        }
+    }
+
     @Override
     protected void handleModifyOrder(Order order) throws Exception {
 

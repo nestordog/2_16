@@ -591,6 +591,16 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
+    protected void handleSetProperty(String strategyName, String key, Object value) {
+
+        key = key.replace(".", "_");
+        EPRuntime runtime = getServiceProvider(strategyName).getEPRuntime();
+        if (runtime.getVariableValueAll().containsKey(key)) {
+            runtime.setVariableValue(key, value);
+        }
+    }
+
+    @Override
     protected Object handleGetProperty(String strategyName, String key) {
 
         key = key.replace(".", "_");

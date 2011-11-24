@@ -11,11 +11,7 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.apache.log4j.Logger;
-
 public class JMXAgent {
-
-    private static Logger logger = MyLogger.getLogger(JMXAgent.class.getName());
 
     public static final String RMI_REGISTRY_PORT = "com.algoTrarder.rmi.registryPort";
     public static final String RMI_SERVER_CONNECTION_PORT = "com.algoTrarder.rmi.serverPort";
@@ -30,8 +26,8 @@ public class JMXAgent {
         final String hostname = InetAddress.getLocalHost().getHostName();
         final String publicHostName = System.getProperty("java.rmi.server.hostname", hostname);
 
-        logger.debug(RMI_REGISTRY_PORT + ":" + rmiRegistryPort);
-        logger.debug(RMI_SERVER_CONNECTION_PORT + ":" + rmiServerPort);
+        System.out.println(RMI_REGISTRY_PORT + ":" + rmiRegistryPort);
+        System.out.println(RMI_SERVER_CONNECTION_PORT + ":" + rmiServerPort);
 
         // Ensure cryptographically strong random number generator used
         // to choose the object number - see java.rmi.server.ObjID
@@ -50,8 +46,8 @@ public class JMXAgent {
         JMXServiceURL publicUrl = new JMXServiceURL("service:jmx:rmi://" + publicHostName + ":" + rmiServerPort + "/jndi/rmi://" + publicHostName + ":"
                 + rmiRegistryPort + "/jmxrmi");
 
-        logger.debug("Local Connection URL: " + url);
-        logger.debug("Public Connection URL: " + publicUrl);
+        System.out.println("Local Connection URL: " + url);
+        System.out.println("Public Connection URL: " + publicUrl);
 
         JMXConnectorServer cs = JMXConnectorServerFactory.newJMXConnectorServer(url, env, mbs);
         cs.start();

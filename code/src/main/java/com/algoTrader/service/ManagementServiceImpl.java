@@ -145,6 +145,11 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected void handleShutdown() throws Exception {
 
+        // cancel all orders if we called from base
+        if (StrategyUtil.isStartedStrategyBASE()) {
+            ServiceLocator.commonInstance().getOrderService().cancelAllOrders();
+        }
+
         ServiceLocator.commonInstance().shutdown();
 
         // need to force exit because grafefull shutdown of esper-service (and esper-jmx) does not work
