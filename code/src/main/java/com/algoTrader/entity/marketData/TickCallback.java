@@ -13,7 +13,7 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.esper.subscriber.Subscriber;
 import com.algoTrader.util.MyLogger;
 
-public abstract class FirstTickCallback {
+public abstract class TickCallback {
 
     private static Logger logger = MyLogger.getLogger(Subscriber.class.getName());
 
@@ -28,18 +28,18 @@ public abstract class FirstTickCallback {
         }));
 
         // get the statement alias based on all security ids
-        String alias = "FIRST_TICK_" + StringUtils.join(sortedSecurityIds, "_");
+        String alias = "ON_FIRST_TICK_" + StringUtils.join(sortedSecurityIds, "_");
 
         // undeploy the statement
         ServiceLocator.commonInstance().getRuleService().undeployRule(strategyName, alias);
 
         long startTime = System.currentTimeMillis();
-        logger.debug("firstTickCallback start");
+        logger.debug("onFirstTick start");
 
         // call orderCompleted
         onFirstTick(strategyName, ticks);
 
-        logger.debug("firstTickCallback end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+        logger.debug("onFirstTick end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
     public abstract void onFirstTick(String strategyName, Tick[] ticks) throws Exception;

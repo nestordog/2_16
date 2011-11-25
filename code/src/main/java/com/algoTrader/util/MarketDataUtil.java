@@ -23,7 +23,7 @@ public class MarketDataUtil {
                 return false;
             }
             if (tick.getOpenIntrest() == 0) {
-                return false;
+                //return false;
             }
             if (tick.getBid() != null && tick.getBid().doubleValue() <= 0) {
                 return false;

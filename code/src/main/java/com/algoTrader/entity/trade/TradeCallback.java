@@ -12,7 +12,7 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.esper.subscriber.Subscriber;
 import com.algoTrader.util.MyLogger;
 
-public abstract class OrderCallback {
+public abstract class TradeCallback {
 
     private static Logger logger = MyLogger.getLogger(Subscriber.class.getName());
 
@@ -27,19 +27,19 @@ public abstract class OrderCallback {
         }));
 
         // get the statement alias based on all security ids
-        String alias = "AFTER_TRADE_" + StringUtils.join(sortedSecurityIds, "_");
+        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_");
 
         // undeploy the statement
         ServiceLocator.commonInstance().getRuleService().undeployRule(strategyName, alias);
 
         long startTime = System.currentTimeMillis();
-        logger.debug("orderCallback start");
+        logger.debug("onTradeCompleted start");
 
         // call orderCompleted
-        orderCompleted(orderStati);
+        onTradeCompleted(orderStati);
 
-        logger.debug("orderCallback end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+        logger.debug("onTradeCompleted end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
-    public abstract void orderCompleted(OrderStatus[] orderStatus) throws Exception;
+    public abstract void onTradeCompleted(OrderStatus[] orderStatus) throws Exception;
 }

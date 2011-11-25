@@ -18,7 +18,7 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.trade.MarketOrder;
 import com.algoTrader.entity.trade.Order;
-import com.algoTrader.entity.trade.OrderCallback;
+import com.algoTrader.entity.trade.TradeCallback;
 import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.Side;
@@ -67,9 +67,9 @@ public class PositionServiceImpl extends PositionServiceBase {
             // create an OrderCallback if removeFromWatchlist is requested
             if (removeFromWatchlist) {
 
-                getRuleService().addOrderCallback(StrategyImpl.BASE, new Order[] { order }, new OrderCallback() {
+                getRuleService().addOrderCallback(StrategyImpl.BASE, new Order[] { order }, new TradeCallback() {
                     @Override
-                    public void orderCompleted(OrderStatus[] orderStati) throws Exception {
+                    public void onTradeCompleted(OrderStatus[] orderStati) throws Exception {
                         MarketDataService marketDataService = ServiceLocator.commonInstance().getMarketDataService();
                         for (OrderStatus orderStatus : orderStati) {
                             if (Status.EXECUTED.equals(orderStatus.getStatus())) {

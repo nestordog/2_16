@@ -26,10 +26,10 @@ import org.springframework.jms.core.MessagePostProcessor;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.WatchListItem;
-import com.algoTrader.entity.marketData.FirstTickCallback;
 import com.algoTrader.entity.marketData.MarketDataEvent;
+import com.algoTrader.entity.marketData.TickCallback;
 import com.algoTrader.entity.trade.Order;
-import com.algoTrader.entity.trade.OrderCallback;
+import com.algoTrader.entity.trade.TradeCallback;
 import com.algoTrader.esper.annotation.Condition;
 import com.algoTrader.esper.annotation.Listeners;
 import com.algoTrader.esper.annotation.RunTimeOnly;
@@ -609,7 +609,7 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected void handleAddOrderCallback(String strategyName, Order[] orders, OrderCallback callback) {
+    protected void handleAddOrderCallback(String strategyName, Order[] orders, TradeCallback callback) {
 
         if (orders.length == 0) {
             throw new IllegalArgumentException("at least 1 order has to be specified");
@@ -628,19 +628,19 @@ public class RuleServiceImpl extends RuleServiceBase {
         }
 
         // get the statement alias based on all security ids
-        String alias = "AFTER_TRADE_" + StringUtils.join(sortedSecurityIds, "_");
+        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_");
 
         if (isDeployed(strategyName, alias)) {
 
             logger.warn(alias + " is already deployed");
         } else {
 
-            deployRule(strategyName, "prepared", "AFTER_TRADE", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds }, callback);
+            deployRule(strategyName, "prepared", "ON_TRADE_COMPLETED", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds }, callback);
         }
     }
 
     @Override
-    protected void handleAddFirstTickCallback(String strategyName, int[] securityIds, FirstTickCallback callback) {
+    protected void handleAddFirstTickCallback(String strategyName, int[] securityIds, TickCallback callback) {
 
         // sort the securityIds
         Arrays.sort(securityIds);
@@ -652,14 +652,14 @@ public class RuleServiceImpl extends RuleServiceBase {
         if (sortedSecurityIds.size() < securityIds.length) {
             throw new IllegalArgumentException("cannot specify same securityId multiple times");
         }
-        String alias = "FIRST_TICK_" + StringUtils.join(sortedSecurityIds, "_");
+        String alias = "ON_FIRST_TICK_" + StringUtils.join(sortedSecurityIds, "_");
 
         if (isDeployed(strategyName, alias)) {
 
             logger.warn(alias + " is already deployed");
         } else {
 
-            deployRule(strategyName, "prepared", "FIRST_TICK", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds }, callback);
+            deployRule(strategyName, "prepared", "ON_FIRST_TICK", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds }, callback);
         }
     }
 
