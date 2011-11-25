@@ -47,6 +47,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(fill.getDateTime());
+        transaction.setNumber(fill.getNumber());
         transaction.setQuantity(quantity);
         transaction.setPrice(fill.getPrice());
         transaction.setType(transactionType);

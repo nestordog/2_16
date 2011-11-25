@@ -34,7 +34,7 @@ public abstract class TickCallback {
         ServiceLocator.commonInstance().getRuleService().undeployRule(strategyName, alias);
 
         long startTime = System.currentTimeMillis();
-        logger.debug("onFirstTick start");
+        logger.debug("onFirstTick start " + sortedSecurityIds);
 
         // call orderCompleted
         onFirstTick(strategyName, ticks);

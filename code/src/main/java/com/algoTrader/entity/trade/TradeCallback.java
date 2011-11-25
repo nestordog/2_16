@@ -33,7 +33,7 @@ public abstract class TradeCallback {
         ServiceLocator.commonInstance().getRuleService().undeployRule(strategyName, alias);
 
         long startTime = System.currentTimeMillis();
-        logger.debug("onTradeCompleted start");
+        logger.debug("onTradeCompleted start " + sortedSecurityIds);
 
         // call orderCompleted
         onTradeCompleted(orderStati);
