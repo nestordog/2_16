@@ -1,4 +1,4 @@
-@Name('FIRST_TICK')
+@Name('ON_FIRST_TICK')
 @Priority(2)
 select
     engineStrategy.name as strategyName,
@@ -6,7 +6,7 @@ select
 from
     pattern[[?] (every-distinct(security.id) (tick=ValidTick(security.id in (?))))];
 
-@Name('AFTER_TRADE')
+@Name('ON_TRADE_COMPLETED')
 select
     engineStrategy.name as strategyName,
     orderStatus
