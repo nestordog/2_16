@@ -256,4 +256,18 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             ServiceLocator.serverInstance().getTransactionService().logTransactionSummary(transactions);
         }
     }
+
+    public static class SetCommissionSubscriber {
+
+        public void update(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream) {
+
+            for (Map<?, ?> element : insertStream) {
+
+                String transactionNumber = (String) element.get("transactionNumber");
+                Double commission = (Double) element.get("commission");
+
+                ServiceLocator.serverInstance().getTransactionService().setCommission(transactionNumber, commission);
+            }
+        }
+    }
 };

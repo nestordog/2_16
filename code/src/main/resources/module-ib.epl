@@ -180,9 +180,9 @@ or
 
 @Name('SET_COMMISSION')
 @RunTimeOnly()
-@Subscriber(className='com.algoTrader.service.TransactionService.setCommission')
+@Subscriber(className='com.algoTrader.service.TransactionServiceImpl$SetCommissionSubscriber')
 select
-    execDetails.execution.m_execId as execId,
+    execDetails.execution.m_execId as transactionNumber,
     execDetails.execution.m_shares / max(execDetails.execution.m_cumQty) * openOrder.orderState.m_commission as commission
 from
     pattern[every openOrder=IBOpenOrder -> (timer:interval(10 sec) and not IBOpenOrder(orderId=openOrder.orderId))] unidirectional,
