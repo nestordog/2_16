@@ -45,7 +45,7 @@ public class WatchListServiceImpl extends WatchListServiceBase {
     @Override
     protected void handleInitWatchlist(String strategyName) throws Exception {
 
-        if (simulation)
+        if (simulation || StrategyUtil.isStartedStrategyBASE())
             return;
 
         // assemble the message selector

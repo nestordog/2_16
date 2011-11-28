@@ -1,5 +1,6 @@
 package com.algoTrader.service;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -44,6 +45,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         TransactionType transactionType = Side.BUY.equals(fill.getSide()) ? TransactionType.BUY : TransactionType.SELL;
         long quantity = Side.BUY.equals(fill.getSide()) ? fill.getQuantity() : -fill.getQuantity();
+        BigDecimal commission = RoundUtil.getBigDecimal(Math.abs(quantity * security.getSecurityFamily().getCommission().doubleValue()));
 
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(fill.getDateTime());
@@ -54,7 +56,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setSecurity(security);
         transaction.setStrategy(strategy);
         transaction.setCurrency(security.getSecurityFamily().getCurrency());
-        transaction.setCommission(fill.getCommission());
+        transaction.setCommission(commission);
 
         fill.setTransaction(transaction);
 
@@ -228,6 +230,19 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         }
     }
 
+    @Override
+    protected void handleSetCommission(String transactionNumber, double commissionDouble) throws Exception {
+
+        Transaction transaction = getTransactionDao().findByNumber(transactionNumber);
+
+        BigDecimal commission = RoundUtil.getBigDecimal(commissionDouble);
+        transaction.setCommission(commission);
+
+        getTransactionDao().update(transaction);
+
+        logger.debug("set commission of transaction " + transaction.getId() + " to " + commission);
+    }
+
     public static class LogTransactionSummarySubscriber {
 
         public void update(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream) {
@@ -241,4 +256,4 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             ServiceLocator.serverInstance().getTransactionService().logTransactionSummary(transactions);
         }
     }
-}
+};

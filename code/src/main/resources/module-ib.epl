@@ -140,16 +140,14 @@ insert into
     Fill
 select
     IBUtil.getExecutionDateTime(execDetails.execution.m_time) as dateTime,
-    Side.valueOf(openOrder.`order`.m_action) as side,
+    IBUtil.getSide(execDetails.execution.m_side) as side,
     execDetails.execution.m_shares as quantity,
     RoundUtil.getBigDecimal(execDetails.execution.m_price, genericOrder.security.securityFamily.scale) as price,
-    //RoundUtil.getBigDecimal(openOrder.orderState.m_commission) as commission,
     execDetails.execution.m_execId as number,
-    RoundUtil.getBigDecimal(1.0) as commission,
     genericOrder as parentOrder
 from
     pattern[every genericOrder=GenericOrder
-            -> (every (openOrder=IBOpenOrder(orderId = genericOrder.number) and execDetails=IBExecDetails(execution.m_orderId = genericOrder.number))
+            -> (every execDetails=IBExecDetails(execution.m_orderId = genericOrder.number)
                 and not IBOrderStatus(orderId = genericOrder.number, status = 'Filled' or status = 'Cancelled' or status = 'Inactive')
                 and not GenericOrder(number = genericOrder.number))];
 
@@ -159,8 +157,8 @@ insert into
     OrderStatus
 select
     case
-        when (orderStatus.status = 'Submitted' or orderStatus.status = 'PendingSubmit' or orderStatus.status = 'PendingCancel') and orderStatus.filled = 0 then Status.SUBMITTED
-        when (orderStatus.status = 'Submitted' or orderStatus.status = 'PendingSubmit' or orderStatus.status = 'PendingCancel') and orderStatus.filled > 0 then Status.PARTIALLY_EXECUTED
+        when (orderStatus.status = 'Submitted' or orderStatus.status = 'PreSubmitted' or orderStatus.status = 'PendingSubmit' or orderStatus.status = 'PendingCancel') and orderStatus.filled = 0 then Status.SUBMITTED
+        when (orderStatus.status = 'Submitted' or orderStatus.status = 'PreSubmitted' or orderStatus.status = 'PendingSubmit' or orderStatus.status = 'PendingCancel') and orderStatus.filled > 0 then Status.PARTIALLY_EXECUTED
         when orderStatus.status = 'Filled' then Status.EXECUTED
         when (orderStatus.status = 'Cancelled' or orderStatus.status = 'Inactive') then Status.CANCELED
     end as status,
@@ -179,3 +177,19 @@ or
     orderStatus.status != prior(1, orderStatus.status)
 or
     orderStatus.filled != prior(1, orderStatus.filled);
+
+@Name('SET_COMMISSION')
+@RunTimeOnly()
+@Subscriber(className='com.algoTrader.service.TransactionService.setCommission')
+select
+    execDetails.execution.m_execId as execId,
+    execDetails.execution.m_shares / max(execDetails.execution.m_cumQty) * openOrder.orderState.m_commission as commission
+from
+    pattern[every openOrder=IBOpenOrder -> (timer:interval(10 sec) and not IBOpenOrder(orderId=openOrder.orderId))] unidirectional,
+    IBOrderStatus(status = 'Filled' or status = 'Cancelled').std:unique(orderId).win:time(20 seconds) as orderStatus,
+    IBExecDetails.win:time(1 day) as execDetails
+where
+    execution.m_orderId = openOrder.orderId
+and
+    orderStatus.orderId = openOrder.orderId;
+

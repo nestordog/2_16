@@ -91,9 +91,6 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
             throw new RuntimeException("commission is undefined for " + security.getSymbol());
         }
 
-        double commission = Math.abs(order.getQuantity() * security.getSecurityFamily().getCommission().doubleValue());
-        fill.setCommission(RoundUtil.getBigDecimal(commission));
-
         fill.setParentOrder(order);
 
         // propagate the fill

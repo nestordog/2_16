@@ -3,7 +3,7 @@
 cd $ALGOTRADER_HOME
 
 nohup java \
--cp `cat bin/cp.txt` \
+-cp lib/*:`cat bin/cp.txt` \
 -DstrategyName=BASE \
 -Dcom.algoTrarder.rmi.registryPort=1099 \
 -Dcom.algoTrarder.rmi.serverPort=1098 \

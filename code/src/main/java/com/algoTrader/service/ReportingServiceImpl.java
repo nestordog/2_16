@@ -13,6 +13,8 @@ import com.algoTrader.vo.TransactionVO;
 
 public class ReportingServiceImpl extends ReportingServiceBase {
 
+    private static final int maxTransactionCount = 20;
+
     @Override
     protected BigDecimal handleGetStrategyCashBalance(String strategyName) throws Exception {
 
@@ -117,9 +119,10 @@ public class ReportingServiceImpl extends ReportingServiceBase {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
         if (strategy.isBase()) {
-            return (List<TransactionVO>) getTransactionDao().findLastNTransactions(TransactionDao.TRANSFORM_TRANSACTIONVO, 10);
+            return (List<TransactionVO>) getTransactionDao().findLastNTransactions(TransactionDao.TRANSFORM_TRANSACTIONVO, maxTransactionCount);
         } else {
-            return (List<TransactionVO>) getTransactionDao().findLastNTransactionsByStrategy(TransactionDao.TRANSFORM_TRANSACTIONVO, 10, strategyName);
+            return (List<TransactionVO>) getTransactionDao().findLastNTransactionsByStrategy(TransactionDao.TRANSFORM_TRANSACTIONVO, maxTransactionCount,
+                    strategyName);
         }
     }
 }

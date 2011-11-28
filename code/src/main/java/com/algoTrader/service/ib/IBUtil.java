@@ -17,6 +17,7 @@ import com.algoTrader.entity.trade.MarketOrder;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.StopOrder;
 import com.algoTrader.enumeration.Market;
+import com.algoTrader.enumeration.Side;
 import com.ib.client.Contract;
 
 public class IBUtil {
@@ -108,5 +109,16 @@ public class IBUtil {
     public static Date getLastDateTime(String input) {
 
         return new Date(Long.parseLong(input + "000"));
+    }
+
+    public static Side getSide(String sideString) {
+
+        if ("BOT".equals(sideString)) {
+            return Side.BUY;
+        } else if ("SLD".equals(sideString)) {
+            return Side.SELL;
+        } else {
+            throw new IllegalArgumentException("unknow side " + sideString);
+        }
     }
 }
