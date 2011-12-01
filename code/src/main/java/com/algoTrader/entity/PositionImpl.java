@@ -39,10 +39,10 @@ public class PositionImpl extends Position {
      * empty positions and sideways positons return null
      */
     @Override
-    public Boolean isBullish() {
+    public boolean isBullish() {
 
         if (!isOpen()) {
-            return null;
+            return false;
         }
 
         if (getSecurity() instanceof StockOption) {
@@ -56,7 +56,7 @@ public class PositionImpl extends Position {
             return getQuantity() > 0;
         } else {
             // we have nothing else yet
-            return null;
+            return false;
         }
     }
 

@@ -19,17 +19,17 @@ public class LookupUtil {
 
     public static Security[] getSecuritiesInPortfolio() {
 
-        return ServiceLocator.commonInstance().getLookupService().getAllSecuritiesInPortfolio();
+        return ServiceLocator.commonInstance().getLookupService().getAllSecuritiesInPortfolio().toArray(new Security[] {});
     }
 
     public static StockOption[] getStockOptionsOnWatchlist() {
 
-        return ServiceLocator.commonInstance().getLookupService().getStockOptionsOnWatchlist();
+        return ServiceLocator.commonInstance().getLookupService().getStockOptionsOnWatchlist().toArray(new StockOption[] {});
     }
 
     public static Future[] getFuturesOnWatchlist() {
 
-        return ServiceLocator.commonInstance().getLookupService().getFuturesOnWatchlist();
+        return ServiceLocator.commonInstance().getLookupService().getFuturesOnWatchlist().toArray(new Future[] {});
     }
 
     public static Future getFutureByDuration(int futureFamilyId, Date targetDate, int duration) {
@@ -39,18 +39,18 @@ public class LookupUtil {
 
     public static Security[] getSecuritiesOnWatchlist() {
 
-        return ServiceLocator.commonInstance().getLookupService().getSecuritiesOnWatchlist();
+        return ServiceLocator.commonInstance().getLookupService().getSecuritiesOnWatchlist().toArray(new Security[] {});
     }
 
     public static Security[] getSecuritiesOnWatchlistByPeriodicity(String periodicityString) {
 
         Periodicity periodicity = Periodicity.valueOf(periodicityString);
-        return ServiceLocator.commonInstance().getLookupService().getSecuritiesOnWatchlistByPeriodicity(periodicity);
+        return ServiceLocator.commonInstance().getLookupService().getSecuritiesOnWatchlistByPeriodicity(periodicity).toArray(new Security[] {});
     }
 
     public static WatchListItem[] getNonPositionWatchListItem(String strategyName) throws Exception {
 
-        return ServiceLocator.commonInstance().getLookupService().getNonPositionWatchListItem(strategyName);
+        return ServiceLocator.commonInstance().getLookupService().getNonPositionWatchListItem(strategyName).toArray(new WatchListItem[] {});
     }
 
     public static Security getSecurity(int securityId) {
@@ -75,24 +75,24 @@ public class LookupUtil {
 
     public static Position[] getOpenPositions() {
 
-        return ServiceLocator.commonInstance().getLookupService().getOpenPositions();
+        return ServiceLocator.commonInstance().getLookupService().getOpenPositions().toArray(new Position[] {});
     }
 
     public static Position[] getOpenPositionsByStrategy(String strategyName) {
 
-        return ServiceLocator.commonInstance().getLookupService().getOpenPositionsByStrategy(strategyName);
+        return ServiceLocator.commonInstance().getLookupService().getOpenPositionsByStrategy(strategyName).toArray(new Position[] {});
     }
 
     public static Position[] getOpenPositionsBySecurityId(int securityId) {
 
-        return ServiceLocator.commonInstance().getLookupService().getOpenPositionsBySecurityId(securityId);
+        return ServiceLocator.commonInstance().getLookupService().getOpenPositionsBySecurityId(securityId).toArray(new Position[] {});
     }
 
     @SuppressWarnings("rawtypes")
     public static Position[] getOpenPositionsByStrategyAndType(String strategyName, String className) throws ClassNotFoundException {
 
         Class cl = Class.forName(className);
-        return ServiceLocator.commonInstance().getLookupService().getOpenPositionsByStrategyAndType(strategyName, cl);
+        return ServiceLocator.commonInstance().getLookupService().getOpenPositionsByStrategyAndType(strategyName, cl).toArray(new Position[] {});
     }
 
     public static Position getPositionBySecurityAndStrategy(int securityId, String strategyName) {
@@ -102,12 +102,12 @@ public class LookupUtil {
 
     public static Strategy[] getAllStrategies() {
 
-        return ServiceLocator.commonInstance().getLookupService().getAllStrategies();
+        return ServiceLocator.commonInstance().getLookupService().getAllStrategies().toArray(new Strategy[] {});
     }
 
     public static boolean hasOpenPositions() {
 
-        return (ServiceLocator.commonInstance().getLookupService().getOpenPositions().length != 0);
+        return (ServiceLocator.commonInstance().getLookupService().getOpenPositions().size() != 0);
     }
 
     public static PortfolioValueVO getPortfolioValue() {
@@ -147,21 +147,21 @@ public class LookupUtil {
 
     public static Combination[] getCombinationsByMasterSecurity(int masterSecurityId) {
 
-        return ServiceLocator.commonInstance().getLookupService().getCombinationsByMasterSecurity(masterSecurityId);
+        return ServiceLocator.commonInstance().getLookupService().getCombinationsByMasterSecurity(masterSecurityId).toArray(new Combination[] {});
     }
 
     @SuppressWarnings("rawtypes")
     public static Combination[] getCombinationsByStrategyAndType(String strategyName, String className) throws ClassNotFoundException {
 
         Class cl = Class.forName(className);
-        return ServiceLocator.commonInstance().getLookupService().getCombinationsByStrategyAndType(strategyName, cl);
+        return ServiceLocator.commonInstance().getLookupService().getCombinationsByStrategyAndType(strategyName, cl).toArray(new Combination[] {});
     }
 
     @SuppressWarnings("rawtypes")
     public static Allocation[] getAllocationsByStrategyAndType(String strategyName, String className) throws ClassNotFoundException {
 
         Class cl = Class.forName(className);
-        return ServiceLocator.commonInstance().getLookupService().getAllocationsByStrategyAndType(strategyName, cl);
+        return ServiceLocator.commonInstance().getLookupService().getAllocationsByStrategyAndType(strategyName, cl).toArray(new Allocation[] {});
     }
 
     public static Allocation getAllocation() {

@@ -1,6 +1,6 @@
 ## AlgoTraderRevision: 15095
 ## line 756 - 763: handle algoTrader.entity.query.native
-## line 764 - 766: if taggedValue @andromda.hibernate.query.useCache is set add queryObject.setCacheable(true);
+## line 764 - 766: if taggedValue andromda_hibernate_query_useCache is set add queryObject.setCacheable(true);
 ## line 776: Enumerations do not use SpringUtils (it will output param.getValue() for Enumerations, which is wrong)
 #set ($generatedFile = "${entity.packagePath}/${entity.daoBaseName}.java")
 // license-header java merge-point
@@ -855,15 +855,15 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
     {
         try
         {
-#if ($finder.findTaggedValue("@algoTrader.entity.query.native"))
+#if ($finder.findTaggedValue("algoTrader_entity_query_native"))
             ${hibernateUtils.basePackage}.SQLQuery queryObject = super.getSession(false).createSQLQuery(queryString);
-#if ($finder.findTaggedValue("@algoTrader.entity.query.native.entity"))            
-			queryObject.addEntity($finder.findTaggedValue("@algoTrader.entity.query.native.entity"));
+#if ($finder.findTaggedValue("algoTrader_entity_query_native_entity"))            
+			queryObject.addEntity($finder.findTaggedValue("algoTrader_entity_query_native_entity"));
 #end
 #else
             ${hibernateUtils.basePackage}.Query queryObject = super.getSession(false).createQuery(queryString);	
 #end
-#if ($finder.findTaggedValue("@andromda.hibernate.query.useCache"))
+#if ($finder.findTaggedValue("andromda_hibernate_query_useCache"))
             queryObject.setCacheable(true);
 #end
 #foreach($argument in $finder.arguments)

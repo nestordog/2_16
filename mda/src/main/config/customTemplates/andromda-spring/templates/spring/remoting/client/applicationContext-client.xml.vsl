@@ -189,7 +189,7 @@
 	<!-- ========================= Start of CLIENT SERVICE DEFINITIONS ========================= -->
 	
 #foreach($service in $services)
-#if(!$stringUtils.isBlank($service.findTaggedValue('@algoTrader.service.client')))	
+#if(!$stringUtils.isBlank($service.findTaggedValue('algoTrader_service_client')))	
     <!-- $service.name Service Proxy with inner $service.name Service Implementation -->
     <bean id="$service.getBeanName(false)" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="target">
@@ -224,7 +224,7 @@
 		<property name="beans">
 			<map>
 #foreach($service in $services)
-#if($stringUtils.isNotBlank($service.findTaggedValue('@algoTrader.service.manageable')) && $stringUtils.isNotBlank($service.findTaggedValue('@algoTrader.service.client')))
+#if($stringUtils.isNotBlank($service.findTaggedValue('algoTrader_service_manageable')) && $stringUtils.isNotBlank($service.findTaggedValue('algoTrader_service_client')))
 				<entry key="$service.getPackageName(false):name=$service.getBeanName(false)" value-ref="$service.getBeanName(false)" />
 #end
 #end
@@ -235,7 +235,7 @@
 				<property name="methodMappings">
 					<props>
 #foreach($service in $services)
-#if($stringUtils.isNotBlank($service.findTaggedValue('@algoTrader.service.manageable')) && $stringUtils.isNotBlank($service.findTaggedValue('@algoTrader.service.client')))
+#if($stringUtils.isNotBlank($service.findTaggedValue('algoTrader_service_manageable')) && $stringUtils.isNotBlank($service.findTaggedValue('algoTrader_service_client')))
 						<prop key="$service.getPackageName(false):name=$service.getBeanName(false)">
 							#foreach($operation in $service.operations)$operation.name,#end
 

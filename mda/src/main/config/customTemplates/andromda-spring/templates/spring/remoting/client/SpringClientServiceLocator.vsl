@@ -128,7 +128,7 @@ public class $clientServiceLocatorName implements CommonServiceLocator
     }
 
 #foreach ($service in $services)
-#if($service.remotable || !$stringUtils.isBlank($service.findTaggedValue('@algoTrader.service.client')))
+#if($service.remotable || !$stringUtils.isBlank($service.findTaggedValue('algoTrader_service_client')))
 #if($stringUtils.isBlank($service.superClass))
 	
     /**

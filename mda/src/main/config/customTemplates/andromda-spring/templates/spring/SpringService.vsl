@@ -1,5 +1,5 @@
 // AlgoTrader: 15075
-// line 61: use $service.operations instead of $serviceOperations (because the later does not output abstract operations of superclass)
+// line 61: use service.operations instead of serviceOperations (because the later does not output abstract operations of superclass)
 // license-header java merge-point
 //
 // Attention: Generated code! Do not modify by hand!

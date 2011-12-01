@@ -2,6 +2,7 @@ package com.algoTrader.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -53,17 +54,16 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getSecurityDao().findByIdFetched(securityId);
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
-    protected Security[] handleGetSecuritiesByIds(List ids) throws Exception {
+    protected List<Security> handleGetSecuritiesByIds(Collection<Integer> ids) throws Exception {
 
-        return getSecurityDao().findByIds(ids).toArray(new Security[0]);
+        return getSecurityDao().findByIds(ids);
     }
 
     @Override
-    protected Security[] handleGetSecuritiesOnWatchlistByPeriodicity(Periodicity periodicity) throws Exception {
+    protected List<Security> handleGetSecuritiesOnWatchlistByPeriodicity(Periodicity periodicity) throws Exception {
 
-        return getSecurityDao().findSecuritiesOnWatchlistByPeriodicity(periodicity).toArray(new Security[0]);
+        return getSecurityDao().findSecuritiesOnWatchlistByPeriodicity(periodicity);
     }
 
     @Override
@@ -73,9 +73,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected WatchListItem[] handleGetNonPositionWatchListItem(String strategyName) throws Exception {
+    protected List<WatchListItem> handleGetNonPositionWatchListItem(String strategyName) throws Exception {
 
-        return getWatchListItemDao().findNonPositionWatchListItem(strategyName).toArray(new WatchListItem[0]);
+        return getWatchListItemDao().findNonPositionWatchListItem(strategyName);
     }
 
     @Override
@@ -199,9 +199,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Position[] handleGetPositionsByStrategy(String strategyName) throws Exception {
+    protected List<Position> handleGetPositionsByStrategy(String strategyName) throws Exception {
 
-        return getPositionDao().findByStrategy(strategyName).toArray(new Position[0]);
+        return getPositionDao().findByStrategy(strategyName);
     }
 
     @Override
@@ -217,107 +217,107 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Security[] handleGetAllSecurities() throws Exception {
+    protected Collection<Security> handleGetAllSecurities() throws Exception {
 
-        return getSecurityDao().loadAll().toArray(new Security[0]);
+        return getSecurityDao().loadAll();
     }
 
     @Override
-    protected Strategy[] handleGetAllStrategies() throws Exception {
+    protected Collection<Strategy> handleGetAllStrategies() throws Exception {
 
-        return getStrategyDao().loadAll().toArray(new Strategy[0]);
+        return getStrategyDao().loadAll();
     }
 
     @Override
-    protected Position[] handleGetAllPositions() throws Exception {
+    protected Collection<Position> handleGetAllPositions() throws Exception {
 
-        return getPositionDao().loadAll().toArray(new Position[0]);
+        return getPositionDao().loadAll();
     }
 
     @Override
-    protected Transaction[] handleGetAllTransactions() throws Exception {
+    protected Collection<Transaction> handleGetAllTransactions() throws Exception {
 
-        return getTransactionDao().loadAll().toArray(new Transaction[0]);
+        return getTransactionDao().loadAll();
     }
 
     @Override
-    protected Transaction[] handleGetAllTrades() throws Exception {
+    protected List<Transaction> handleGetAllTrades() throws Exception {
 
-        return getTransactionDao().findAllTrades().toArray(new Transaction[0]);
+        return getTransactionDao().findAllTrades();
     }
 
     @Override
-    protected Transaction[] handleGetAllCashFlows() throws Exception {
+    protected List<Transaction> handleGetAllCashFlows() throws Exception {
 
-        return getTransactionDao().findAllCashflows().toArray(new Transaction[0]);
+        return getTransactionDao().findAllCashflows();
     }
 
     @Override
-    protected Security[] handleGetAllSecuritiesInPortfolio() throws Exception {
+    protected List<Security> handleGetAllSecuritiesInPortfolio() throws Exception {
 
-        return getSecurityDao().findSecuritiesInPortfolio().toArray(new Security[0]);
+        return getSecurityDao().findSecuritiesInPortfolio();
     }
 
     @Override
-    protected StockOption[] handleGetStockOptionsOnWatchlist() throws Exception {
+    protected List<StockOption> handleGetStockOptionsOnWatchlist() throws Exception {
 
-        return getStockOptionDao().findStockOptionsOnWatchlist().toArray(new StockOption[0]);
+        return getStockOptionDao().findStockOptionsOnWatchlist();
     }
 
     @Override
-    protected Security[] handleGetSecuritiesOnWatchlist() throws Exception {
+    protected List<Security> handleGetSecuritiesOnWatchlist() throws Exception {
 
-        return getSecurityDao().findSecuritiesOnWatchlist().toArray(new Security[0]);
+        return getSecurityDao().findSecuritiesOnWatchlist();
     }
 
     @Override
-    protected Future[] handleGetFuturesOnWatchlist() throws Exception {
+    protected List<Future> handleGetFuturesOnWatchlist() throws Exception {
 
-        return getFutureDao().findFuturesOnWatchlist().toArray(new Future[0]);
+        return getFutureDao().findFuturesOnWatchlist();
     }
 
     @Override
-    protected Position[] handleGetOpenPositions() throws Exception {
+    protected List<Position> handleGetOpenPositions() throws Exception {
 
-        return getPositionDao().findOpenPositions().toArray(new Position[0]);
+        return getPositionDao().findOpenPositions();
     }
 
     @Override
-    protected Position[] handleGetOpenPositionsByStrategy(String strategyName) throws Exception {
+    protected List<Position> handleGetOpenPositionsByStrategy(String strategyName) throws Exception {
 
-        return getPositionDao().findOpenPositionsByStrategy(strategyName).toArray(new Position[0]);
+        return getPositionDao().findOpenPositionsByStrategy(strategyName);
     }
 
     @Override
-    protected Position[] handleGetOpenPositionsBySecurityId(int securityId) throws Exception {
+    protected List<Position> handleGetOpenPositionsBySecurityId(int securityId) throws Exception {
 
-        return getPositionDao().findOpenPositionsBySecurityId(securityId).toArray(new Position[0]);
+        return getPositionDao().findOpenPositionsBySecurityId(securityId);
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    protected Position[] handleGetOpenPositionsByStrategyAndType(String strategyName, final Class type) throws Exception {
+    protected List<Position> handleGetOpenPositionsByStrategyAndType(String strategyName, final Class type) throws Exception {
 
         List<Position> positions = getPositionDao().findOpenPositionsByStrategy(strategyName);
 
-        return CollectionUtils.select(positions, new Predicate<Position>() {
+        return new ArrayList(CollectionUtils.select(positions, new Predicate<Position>() {
             @Override
             public boolean evaluate(Position position) {
                 return type.isAssignableFrom(position.getSecurity().getClass());
             }
-        }).toArray(new Position[0]);
+        }));
     }
 
     @Override
-    protected Position[] handleGetOpenFXPositions() throws Exception {
+    protected List<Position> handleGetOpenFXPositions() throws Exception {
 
-        return getPositionDao().findOpenFXPositions().toArray(new Position[0]);
+        return getPositionDao().findOpenFXPositions();
     }
 
     @Override
-    protected Position[] handleGetOpenFXPositionsByStrategy(String strategyName) throws Exception {
+    protected List<Position> handleGetOpenFXPositionsByStrategy(String strategyName) throws Exception {
 
-        return getPositionDao().findOpenFXPositionsByStrategy(strategyName).toArray(new Position[0]);
+        return getPositionDao().findOpenFXPositionsByStrategy(strategyName);
     }
 
     @Override
@@ -428,23 +428,23 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Combination[] handleGetCombinationsByStrategy(String strategyName) throws Exception {
+    protected List<Combination> handleGetCombinationsByStrategy(String strategyName) throws Exception {
 
-        return getCombinationDao().findByStrategy(strategyName).toArray(new Combination[0]);
+        return getCombinationDao().findByStrategy(strategyName);
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    protected Combination[] handleGetCombinationsByStrategyAndType(String strategyName, final Class type) throws Exception {
+    protected List<Combination> handleGetCombinationsByStrategyAndType(String strategyName, final Class type) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        return getCombinationDao().findByStrategyAndType(strategyName, discriminator).toArray(new Combination[0]);
+        return getCombinationDao().findByStrategyAndType(strategyName, discriminator);
     }
 
     @Override
-    protected Combination[] handleGetCombinationsByMasterSecurity(int masterSecurityId) throws Exception {
+    protected List<Combination> handleGetCombinationsByMasterSecurity(int masterSecurityId) throws Exception {
 
-        return getCombinationDao().findByMasterSecurity(masterSecurityId).toArray(new Combination[0]);
+        return getCombinationDao().findByMasterSecurity(masterSecurityId);
     }
 
     @Override
@@ -454,23 +454,22 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Combination[] handleGetCombinationsByAnySecurity(String strategyName, int securityId) throws Exception {
+    protected List<Combination> handleGetCombinationsByAnySecurity(String strategyName, int securityId) throws Exception {
 
-        return getCombinationDao().findByAnySecurity(strategyName, securityId).toArray(new Combination[0]);
+        return getCombinationDao().findByAnySecurity(strategyName, securityId);
     }
 
     @Override
-    protected Allocation[] handleGetAllocationsByStrategyAndSecurity(String strategyName, int securityId) throws Exception {
+    protected List<Allocation> handleGetAllocationsByStrategyAndSecurity(String strategyName, int securityId) throws Exception {
 
-        return getAllocationDao().findByStrategyAndSecurity(strategyName, securityId).toArray(new Allocation[0]);
+        return getAllocationDao().findByStrategyAndSecurity(strategyName, securityId);
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    protected Allocation[] handleGetAllocationsByStrategyAndType(String strategyName, Class type) throws Exception {
+    protected List<Allocation> handleGetAllocationsByStrategyAndType(String strategyName, Class type) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        List<Allocation> list = getAllocationDao().findByStrategyAndType(strategyName, discriminator);
-        return list.toArray(new Allocation[0]);
+        return getAllocationDao().findByStrategyAndType(strategyName, discriminator);
     }
 }

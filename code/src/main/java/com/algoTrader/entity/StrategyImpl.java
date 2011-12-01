@@ -47,7 +47,7 @@ public class StrategyImpl extends Strategy {
         }
 
         // sum of all FX positions
-        Position[] positions = getOpenFXPositions();
+        List<Position> positions = getOpenFXPositions();
         for (Position position : positions) {
             amount += position.getMarketValueBaseDouble();
         }
@@ -67,7 +67,7 @@ public class StrategyImpl extends Strategy {
         double amount = 0.0;
 
         // sum of all non-FX positions
-        Position[] positions = getOpenPositions();
+        List<Position> positions = getOpenPositions();
         for (Position position : positions) {
 
             if (!(position.getSecurity() instanceof Forex)) {
@@ -87,7 +87,7 @@ public class StrategyImpl extends Strategy {
     public double getMaintenanceMarginDouble() {
 
         double margin = 0.0;
-        Position[] positions = getOpenPositions();
+        List<Position> positions = getOpenPositions();
         for (Position position : positions) {
             margin += position.getMaintenanceMarginBaseDouble();
         }
@@ -134,7 +134,7 @@ public class StrategyImpl extends Strategy {
     public double getRedemptionValueDouble() {
 
         double redemptionValue = 0.0;
-        Position[] positions = getOpenPositions();
+        List<Position> positions = getOpenPositions();
         for (Position position : positions) {
             redemptionValue += position.getRedemptionValueBaseDouble();
         }
@@ -145,7 +145,7 @@ public class StrategyImpl extends Strategy {
     public double getMaxLossDouble() {
 
         double maxLoss = 0.0;
-        Position[] positions = getOpenPositions();
+        List<Position> positions = getOpenPositions();
         for (Position position : positions) {
             maxLoss += position.getMaxLossBaseDouble();
         }
@@ -156,7 +156,7 @@ public class StrategyImpl extends Strategy {
     public double getLeverage() {
 
         double exposure = 0.0;
-        Position[] positions = getOpenPositions();
+        List<Position> positions = getOpenPositions();
         for (Position position : positions) {
             exposure += position.getExposure();
         }
@@ -170,11 +170,11 @@ public class StrategyImpl extends Strategy {
         return getName();
     }
 
-    private Position[] getOpenPositions() {
+    private List<Position> getOpenPositions() {
         return ServiceLocator.commonInstance().getLookupService().getOpenPositionsByStrategy(getName());
     }
 
-    private Position[] getOpenFXPositions() {
+    private List<Position> getOpenFXPositions() {
         return ServiceLocator.commonInstance().getLookupService().getOpenFXPositionsByStrategy(getName());
     }
 

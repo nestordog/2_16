@@ -17,30 +17,28 @@
         <port>4447</port>
     </server -->
     <repositories>
-        <repository name="netBeansMDR">
+        <repository name="emf-uml22">
             <models>
-                <model>
+                <model type="emf-uml22">
                     <uri>${model.uri}</uri>
                     <!-- List any additional referenced models needed for code generation here, even if already referenced internally within the model file -->
                     <!--uri>file:${project.basedir}/uml/AdditionalModel.emx</uri-->
                     <moduleSearchLocations>
-                        <location patterns="**/${andromda.version}/*.xml.zip">${settings.localRepository}/org/andromda/profiles/uml14</location>
-                        <location patterns="**/*.xml">jar:file:${settings.localRepository}/org/omg/profiles/uml14/UML_Standard_Profile/1.0/UML_Standard_Profile-1.0.jar!/</location>
-                        <!-- Change to UML_Standard_Profile in local MagicDraw installation directory:
-                        <location patterns="**/*.xml.zip,**/*.xml">${magicdraw.home}/profiles</location>
-                        -->
+                        <location patterns="**/*.uml,**/*.e*x">${project.basedir}/src/main/uml</location>
+                        <location patterns="**/${andromda.version}/*.e*x">${settings.localRepository}/org/andromda/profiles/emf/rsm75</location>
+                        <location patterns="**/${andromda.version}/*.uml">${settings.localRepository}/org/andromda/profiles/emf/uml22</location>
                     </moduleSearchLocations>
                     <!-- Can filter in/out specific andromda model validation constraints (default true=validate all) -->
-                    <!--constraints enforceAll="true">
-                        <constraint enforce="false">**::wrapped primitive attribute should not be required</constraint>
-                        <constraint enforce="false">**::wrapped primitive parameter should not be required</constraint>
-                        <constraint enforce="false">**::wrapped primitive operation return should not be required</constraint>
+                    <constraints enforceAll="true">
+                        <!-- <constraint enforce="false">**::wrapped primitive attribute should not be required</constraint> -->
+                        <!-- <constraint enforce="false">**::wrapped primitive parameter should not be required</constraint> -->
+                        <!-- <constraint enforce="false">**::wrapped primitive operation return should not be required</constraint> -->
                         <constraint enforce="false">**::primitive attribute must be required</constraint>
-                        <constraint enforce="false">**::primitive operation return must be required</constraint>
-                        <constraint enforce="false">**::primitive parameter must be required</constraint>
-                        <constraint enforce="false">org::andromda::metafacades::uml::Entity::entities can only generalize other entities</constraint>
-                        <constraint enforce="false">org::andromda::metafacades::uml::Entity::entity must have at least one primary key</constraint>
-                    </constraints-->
+                        <!-- <constraint enforce="false">**::primitive operation return must be required</constraint> -->
+                        <!-- <constraint enforce="false">**::primitive parameter must be required</constraint> -->
+                        <!-- <constraint enforce="false">org::andromda::metafacades::uml::Entity::entities can only generalize other entities</constraint> -->
+                        <!-- <constraint enforce="false">org::andromda::metafacades::uml::Entity::entity must have at least one primary key</constraint> -->
+                    </constraints>
                     <!-- Can filter in/out specific model packages (in UML notation) to generate code from (default true=process all) -->
                     <!--modelPackages>
                         <modelPackage process="false">org::andromda::sample::notprocessed</modelPackage>

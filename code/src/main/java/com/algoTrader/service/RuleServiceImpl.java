@@ -609,21 +609,21 @@ public class RuleServiceImpl extends RuleServiceBase {
     }
 
     @Override
-    protected void handleAddOrderCallback(String strategyName, Order[] orders, TradeCallback callback) {
+    protected void handleAddOrderCallback(String strategyName, Collection<Order> orders, TradeCallback callback) {
 
-        if (orders.length == 0) {
+        if (orders.size() == 0) {
             throw new IllegalArgumentException("at least 1 order has to be specified");
         }
 
         // get the securityIds sorted asscending
-        Set<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(Arrays.asList(orders), new Transformer<Order, Integer>() {
+        Set<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(orders, new Transformer<Order, Integer>() {
             @Override
             public Integer transform(Order order) {
                 return order.getSecurity().getId();
             }
         }));
 
-        if (sortedSecurityIds.size() < orders.length) {
+        if (sortedSecurityIds.size() < orders.size()) {
             throw new IllegalArgumentException("cannot place multiple orders for the same security at the same time");
         }
 

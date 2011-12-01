@@ -7,7 +7,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -248,7 +247,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         long startTime = System.currentTimeMillis();
 
         // get the existingTransactions before they are deleted
-        Collection<Transaction> transactions = Arrays.asList(ServiceLocator.serverInstance().getLookupService().getAllTrades());
+        Collection<Transaction> transactions = ServiceLocator.serverInstance().getLookupService().getAllTrades();
 
         // create orders
         List<Order> orders = new ArrayList<Order>();

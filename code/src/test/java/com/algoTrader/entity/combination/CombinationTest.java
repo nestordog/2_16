@@ -35,8 +35,8 @@ public class CombinationTest {
         assertNotNull(lookupService.getCombinationByStrategyAndMasterSecurity(strategyName, 3));
         assertNotNull(lookupService.getCombinationsByStrategy(strategyName));
 
-        assertEquals(lookupService.getCombinationsByAnySecurity(strategyName, masterSecurityId).length, 1);
-        assertEquals(lookupService.getCombinationsByMasterSecurity(masterSecurityId).length, 1);
+        assertEquals(lookupService.getCombinationsByAnySecurity(strategyName, masterSecurityId).size(), 1);
+        assertEquals(lookupService.getCombinationsByMasterSecurity(masterSecurityId).size(), 1);
 
         combinationService.deleteCombination(strategyName, masterSecurityId);
     }

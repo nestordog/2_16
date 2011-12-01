@@ -2,6 +2,7 @@ package com.algoTrader.service;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -18,8 +19,8 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.trade.MarketOrder;
 import com.algoTrader.entity.trade.Order;
-import com.algoTrader.entity.trade.TradeCallback;
 import com.algoTrader.entity.trade.OrderStatus;
+import com.algoTrader.entity.trade.TradeCallback;
 import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
@@ -67,7 +68,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             // create an OrderCallback if removeFromWatchlist is requested
             if (removeFromWatchlist) {
 
-                getRuleService().addOrderCallback(StrategyImpl.BASE, new Order[] { order }, new TradeCallback() {
+                getRuleService().addOrderCallback(StrategyImpl.BASE, Collections.singleton((Order) order), new TradeCallback() {
                     @Override
                     public void onTradeCompleted(OrderStatus[] orderStati) throws Exception {
                         MarketDataService marketDataService = ServiceLocator.commonInstance().getMarketDataService();

@@ -1,7 +1,9 @@
 package com.algoTrader.service;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -197,9 +199,9 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     }
 
     @Override
-    protected void handleLogTransactionSummary(Transaction[] transactions) throws Exception {
+    protected void handleLogTransactionSummary(Set<Transaction> transactions) throws Exception {
 
-        if (transactions.length > 0 && !simulation) {
+        if (transactions.size() > 0 && !simulation) {
 
             long totalQuantity = 0;
             double totalPrice = 0.0;
@@ -212,15 +214,16 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 totalCommission += transaction.getCommission().doubleValue();
             }
 
-            Strategy strategy = transactions[0].getStrategy();
-            Security security = transactions[0].getSecurity();
+            Transaction transaction = transactions.iterator().next();
+            Strategy strategy = transaction.getStrategy();
+            Security security = transaction.getSecurity();
 
             // initialize the security & strategy
             HibernateUtil.lock(this.getSessionFactory(), security);
             HibernateUtil.lock(this.getSessionFactory(), strategy);
 
             //@formatter:off
-            mailLogger.info("executed transaction type: " + transactions[0].getType() +
+            mailLogger.info("executed transaction type: " + transaction.getType() +
                     " totalQuantity: " + totalQuantity +
                     " of " + security.getSymbol() +
                     " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) +
@@ -247,10 +250,10 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         public void update(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream) {
 
-            Transaction[] transactions = new Transaction[insertStream.length];
-            for (int i = 0; i < insertStream.length; i++) {
-                Fill fill = (Fill) insertStream[i].get("fill");
-                transactions[i] = fill.getTransaction();
+            Set<Transaction> transactions = new HashSet<Transaction>();
+            for (Map<?, ?> element : insertStream) {
+                Fill fill = (Fill) element.get("fill");
+                transactions.add(fill.getTransaction());
             }
 
             ServiceLocator.serverInstance().getTransactionService().logTransactionSummary(transactions);
