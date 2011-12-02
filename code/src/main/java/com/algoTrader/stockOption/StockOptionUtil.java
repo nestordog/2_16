@@ -125,7 +125,7 @@ public class StockOptionUtil {
         UnivariateRealSolver solver = factory.newDefaultSolver();
         solver.setAbsoluteAccuracy(0.0001);
 
-        return solver.solve(function, 0.01, 0.90);
+        return solver.solve(function, 0.01, 2.0);
     }
 
     public static double getImpliedVolatility(StockOption stockOption, double underlayingSpot, final double currentValue) throws MathException {
