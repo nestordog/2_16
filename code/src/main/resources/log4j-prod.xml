@@ -167,11 +167,6 @@
         <appender-ref ref="PORTFOLIO" />
     </logger>
 
-    <logger name="com.algoTrader.esper.subscriber.IndicatorSubscriber" additivity="false">
-        <level value="info" />
-        <appender-ref ref="INDICATOR" />
-    </logger>
-
     <logger name="com.algoTrader.esper.listener.IndicatorListener" additivity="false">
         <level value="info" />
         <appender-ref ref="INDICATOR" />

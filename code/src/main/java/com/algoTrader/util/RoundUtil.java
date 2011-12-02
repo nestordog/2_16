@@ -32,30 +32,30 @@ public class RoundUtil {
 
     public static BigDecimal getBigDecimal(double value) {
 
-        if (!Double.isNaN(value) && !Double.isInfinite(value)) {
+        if (Double.isNaN(value) || Double.isInfinite(value)) {
+            return null;
+        } else {
             BigDecimal decimal = new BigDecimal(value);
             return decimal.setScale(portfolioDigits, BigDecimal.ROUND_HALF_UP);
-        } else {
-            return null;
-        }
-    }
-
-    public static BigDecimal getBigDecimal(Double value) {
-
-        if (value == null) {
-            return null;
-        } else {
-            return getBigDecimal(value.doubleValue());
         }
     }
 
     public static BigDecimal getBigDecimal(double value, int scale) {
 
-        if (!Double.isNaN(value)) {
+        if (Double.isNaN(value) || Double.isInfinite(value)) {
+            return null;
+        } else {
             BigDecimal decimal = new BigDecimal(value);
             return decimal.setScale(scale, BigDecimal.ROUND_HALF_UP);
-        } else {
+        }
+    }
+
+    public static BigDecimal getBigDecimalNullSafe(Double value) {
+
+        if (value == null) {
             return null;
+        } else {
+            return getBigDecimal(value.doubleValue());
         }
     }
 
