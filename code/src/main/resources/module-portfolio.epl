@@ -8,7 +8,7 @@ select
     cashTransaction
 from
     pattern[
-        every(timer:at (0, 10:18, *, *, 1:5)
+        every(timer:at (0, 10:23, *, *, 1:5)
         or cashTransaction=Transaction(
             type=TransactionType.CREDIT
             or type=TransactionType.DEBIT
