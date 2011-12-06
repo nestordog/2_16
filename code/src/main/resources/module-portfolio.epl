@@ -34,7 +34,7 @@ from
 select
     null
 from
-    pattern[every timer:at (0, 13, *, *, 5)];
+    pattern[every timer:at (0, 13, *, *, *)];
 
 @Name('CLOSE_POSITION')
 @Subscriber(className='com.algoTrader.service.PositionService.closePosition')

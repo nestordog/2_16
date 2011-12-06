@@ -33,7 +33,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.andromda.profiles.uml14</groupId>
+            <groupId>org.andromda.profiles.uml2</groupId>
             <artifactId>andromda-profile</artifactId>
             <version>${andromda.version}</version>
             <type>xml.zip</type>

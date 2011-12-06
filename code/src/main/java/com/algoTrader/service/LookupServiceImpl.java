@@ -61,6 +61,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected List<Security> handleGetSecuritiesOnWatchlist(String strategyName) throws Exception {
+
+        return getSecurityDao().findSecuritiesOnWatchlistByStrategy(strategyName);
+    }
+
+    @Override
     protected List<Security> handleGetSecuritiesOnWatchlistByPeriodicity(Periodicity periodicity) throws Exception {
 
         return getSecurityDao().findSecuritiesOnWatchlistByPeriodicity(periodicity);
@@ -422,6 +428,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected Collection<Combination> handleGetAllCombinations() throws Exception {
+
+        return getCombinationDao().loadAll();
+    }
+
+    @Override
     protected Combination handleGetCombination(int id) throws Exception {
 
         return getCombinationDao().load(id);
@@ -457,6 +469,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Combination> handleGetCombinationsByAnySecurity(String strategyName, int securityId) throws Exception {
 
         return getCombinationDao().findByAnySecurity(strategyName, securityId);
+    }
+
+    @Override
+    protected List<Allocation> handleGetAllocationsByStrategy(String strategyName) throws Exception {
+
+        return getAllocationDao().findByStrategy(strategyName);
     }
 
     @Override

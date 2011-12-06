@@ -27,7 +27,7 @@
     <bean id="jmsActiveMQFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
         <property name="targetConnectionFactory">
             <bean class="org.apache.activemq.ActiveMQConnectionFactory">
-                <property name="brokerURL" value="tcp://localhost:61616" />
+                <property name="brokerURL" value="failover:tcp://localhost:61616" />
             </bean>
         </property>
     </bean>

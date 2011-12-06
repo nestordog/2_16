@@ -157,6 +157,11 @@ public class LookupUtil {
         return ServiceLocator.commonInstance().getLookupService().getCombinationsByStrategyAndType(strategyName, cl).toArray(new Combination[] {});
     }
 
+    public static Allocation[] getAllocationsByStrategy(String strategyName) {
+
+        return ServiceLocator.commonInstance().getLookupService().getAllocationsByStrategy(strategyName).toArray(new Allocation[] {});
+    }
+
     @SuppressWarnings("rawtypes")
     public static Allocation[] getAllocationsByStrategyAndType(String strategyName, String className) throws ClassNotFoundException {
 

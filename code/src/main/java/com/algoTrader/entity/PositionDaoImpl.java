@@ -36,9 +36,9 @@ public class PositionDaoImpl extends PositionDaoBase {
         positionVO.setCost(RoundUtil.getBigDecimal(position.getCostDouble()));
         positionVO.setUnrealizedPL(RoundUtil.getBigDecimal(position.getUnrealizedPLDouble()));
         positionVO.setExitValue(position.getExitValue() != null ? RoundUtil.getBigDecimal(position.getExitValue(), scale) : null);
+        positionVO.setProfitTarget(position.getProfitTarget() != null ? RoundUtil.getBigDecimal(position.getProfitTarget(), scale) : null);
         positionVO.setRedemptionValue(RoundUtil.getBigDecimal(position.getRedemptionValueDouble()));
         positionVO.setMaxLoss(RoundUtil.getBigDecimal(position.getMaxLossDouble()));
-
     }
 
     @Override

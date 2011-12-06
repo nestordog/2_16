@@ -1,6 +1,7 @@
 package com.algoTrader.entity.trade;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.TreeSet;
 
 import org.apache.commons.collections15.CollectionUtils;
@@ -18,8 +19,10 @@ public abstract class TradeCallback {
 
     public void update(String strategyName, OrderStatus[] orderStati) throws Exception {
 
+        List<OrderStatus> orderStatusList = Arrays.asList(orderStati);
+
         // get the securityIds sorted asscending
-        TreeSet<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(Arrays.asList(orderStati), new Transformer<OrderStatus, Integer>() {
+        TreeSet<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(orderStatusList, new Transformer<OrderStatus, Integer>() {
             @Override
             public Integer transform(OrderStatus order) {
                 return order.getParentOrder().getSecurity().getId();
@@ -36,10 +39,10 @@ public abstract class TradeCallback {
         logger.debug("onTradeCompleted start " + sortedSecurityIds);
 
         // call orderCompleted
-        onTradeCompleted(orderStati);
+        onTradeCompleted(orderStatusList);
 
         logger.debug("onTradeCompleted end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
-    public abstract void onTradeCompleted(OrderStatus[] orderStatus) throws Exception;
+    public abstract void onTradeCompleted(List<OrderStatus> orderStatus) throws Exception;
 }

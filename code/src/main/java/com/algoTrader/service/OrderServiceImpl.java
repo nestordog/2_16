@@ -120,7 +120,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     @Override
     protected void handleCancelAllOrders() throws Exception {
 
-        List<Order> orders = getRuleService().getAllEvents(StrategyImpl.BASE, "INSERT_INTO_OPEN_ORDER");
+        List<Order> orders = getRuleService().getAllEvents(StrategyImpl.BASE, "CREATE_WINDOW_OPEN_ORDER");
         for (Order order : orders) {
             cancelExternalOrder(order);
         }

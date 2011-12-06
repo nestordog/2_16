@@ -59,7 +59,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         } else {
 
             // remove the combination and all associated allocations
-            getAllocationDao().remove(combination.getAllocations());
             getCombinationDao().remove(combination);
 
             logger.debug("deleted combination " + combination);
@@ -77,7 +76,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         } else {
 
             // remove the combination and all associated allocations
-            getAllocationDao().remove(combination.getAllocations());
             getCombinationDao().remove(combination);
 
             logger.debug("deleted combination " + combination);
@@ -270,22 +268,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         getCombinationDao().update(combination);
 
         logger.info("set profitTarget " + format.format(profitTarget) + " for combination " + combination);
-    }
-
-    @Override
-    protected void handleSetHedgeRatio(int combinationId, double hedgeRatio) throws Exception {
-
-        Combination combination = getCombinationDao().load(combinationId);
-
-        if (combination == null) {
-            throw new IllegalArgumentException("combination does not exist: " + combinationId);
-        }
-
-        combination.setHedgeRatio(hedgeRatio);
-
-        getCombinationDao().update(combination);
-
-        logger.info("set hedge ratio " + format.format(hedgeRatio) + " for combination " + combination);
     }
 
     @SuppressWarnings("rawtypes")

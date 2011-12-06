@@ -578,30 +578,37 @@ public class RuleServiceImpl extends RuleServiceBase {
         this.coordinators.get(strategyName).start();
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    protected void handleSetProperty(String strategyName, String key, String value) {
+    protected void handleSetVariableValue(String strategyName, String variableName, String value) {
 
-        key = key.replace(".", "_");
+        variableName = variableName.replace(".", "_");
         EPRuntime runtime = getServiceProvider(strategyName).getEPRuntime();
-        if (runtime.getVariableValueAll().containsKey(key)) {
-            Class<?> clazz = runtime.getVariableValue(key).getClass();
-            Object castedObj = JavaClassHelper.parse(clazz, value);
-            runtime.setVariableValue(key, castedObj);
+        if (runtime.getVariableValueAll().containsKey(variableName)) {
+            Class clazz = runtime.getVariableValue(variableName).getClass();
+
+            Object castedObj = null;
+            if (clazz.isEnum()) {
+                castedObj = Enum.valueOf(clazz, value);
+            } else {
+                castedObj = JavaClassHelper.parse(clazz, value);
+            }
+            runtime.setVariableValue(variableName, castedObj);
         }
     }
 
     @Override
-    protected void handleSetProperty(String strategyName, String key, Object value) {
+    protected void handleSetVariableValue(String strategyName, String variableName, Object value) {
 
-        key = key.replace(".", "_");
+        variableName = variableName.replace(".", "_");
         EPRuntime runtime = getServiceProvider(strategyName).getEPRuntime();
-        if (runtime.getVariableValueAll().containsKey(key)) {
-            runtime.setVariableValue(key, value);
+        if (runtime.getVariableValueAll().containsKey(variableName)) {
+            runtime.setVariableValue(variableName, value);
         }
     }
 
     @Override
-    protected Object handleGetProperty(String strategyName, String key) {
+    protected Object handleGetVariableValue(String strategyName, String key) {
 
         key = key.replace(".", "_");
         EPRuntime runtime = getServiceProvider(strategyName).getEPRuntime();
@@ -688,11 +695,11 @@ public class RuleServiceImpl extends RuleServiceBase {
         try {
             Map<String, ConfigurationVariable> variables = configuration.getVariables();
             for (Map.Entry<String, ConfigurationVariable> entry : variables.entrySet()) {
-                String key = entry.getKey().replace("_", ".");
-                String obj = ConfigurationUtil.getStrategyConfig(strategyName).getString(key);
-                if (obj != null) {
+                String variableName = entry.getKey().replace("_", ".");
+                String value = ConfigurationUtil.getStrategyConfig(strategyName).getString(variableName);
+                if (value != null) {
                     Class<?> clazz = Class.forName(entry.getValue().getType());
-                    Object castedObj = JavaClassHelper.parse(clazz, obj);
+                    Object castedObj = JavaClassHelper.parse(clazz, value);
                     entry.getValue().setInitializationValue(castedObj);
                 }
             }
