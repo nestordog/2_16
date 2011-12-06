@@ -9,7 +9,6 @@
         <artifactId>algotrader</artifactId>
         <version>1.5-SNAPSHOT</version>
     </parent>
-    <groupId>algotrader</groupId>
     <artifactId>algotrader-mda</artifactId>
     <packaging>pom</packaging>
     <name>AlgoTrader MDA</name>

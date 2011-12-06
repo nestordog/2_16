@@ -282,6 +282,8 @@
         -->
         <module>mda</module>
         <module>code</module>
+        <module>client</module>
+        <module>crud</module>
     </modules>
     <distributionManagement>
           <repository>

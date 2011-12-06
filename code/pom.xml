@@ -6,7 +6,6 @@
         <artifactId>algotrader</artifactId>
         <version>1.5-SNAPSHOT</version>
     </parent>
-    <groupId>algotrader</groupId>
     <artifactId>algotrader-code</artifactId>
     <packaging>jar</packaging>
     <name>AlgoTrader Program Code</name>
