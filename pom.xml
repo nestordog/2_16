@@ -14,19 +14,11 @@
         <developerConnection></developerConnection>
         <url></url>
     </scm>
-    <organization>
-        <name></name>
-        <url></url>
-    </organization>
-    <ciManagement>
-        <system></system>
-    </ciManagement>
     <developers>
         <developer>
             <id></id>
             <name>Andy Flury</name>
             <email>andy.flury@gmail.com</email>
-            <organization></organization>
             <roles>
                 <role>Developer</role>
             </roles>
@@ -231,7 +223,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -243,7 +234,6 @@
             <plugin>
                 <!-- Automatically attach sources to build artifact as artifact-version-sources.jar and deploy to local repository -->
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.2</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -256,7 +246,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>2.2</version>
             </plugin>
         </plugins>
     </build>
@@ -299,48 +288,14 @@
     </distributionManagement>
     <properties>
         <andromda.version>3.4-SNAPSHOT</andromda.version>
-        <java.version>1.6</java.version>
+        <java.version>1.7</java.version>
         <downloadSources>true</downloadSources>
         <createChecksum>true</createChecksum>
         <uniqueVersion>false</uniqueVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!--
-            Change this to generate to the correct MDA database mappings,
-            For MySql use: MySQL
-            For Hypersonic use: HypersonicSql
-            For Oracle9i use: Oracle9i
-            For DB2 use: DB2
-            For Informix use: InformixDB
-            For MSSQL use: MSSQL
-            For Pointbase use: PointBase
-            For Postgres use: PostgreSQL
-            For Sybase use: Sybase
-            For SapDB use: SapDB
-            For Derby use: Derby
-        -->
         <sql.mappings>
             MySQL
         </sql.mappings>
-        <!--
-        Change this for the appropriate database
-        For Derby use: org.hibernate.dialect.DerbyDialect
-        For MySql use: org.hibernate.dialect.MySQL5Dialect
-        For MySql InnoDB use: org.hibernate.dialect.MySQL5InnoDBDialect
-        For MySql MyISAM use: org.hibernate.dialect.MySQLMyISAMDialect
-        For Hypersonic use: org.hibernate.dialect.HSQLDialect
-        For Oracle any version use: org.hibernate.dialect.OracleDialect
-        For Oracle9i/10g use: org.hibernate.dialect.Oracle10gDialect
-        For DB2 use: org.hibernate.dialect.DB2Dialect or org.hibernate.dialect.DB2390Dialect org.hibernate.dialect.DB2400Dialect
-        For Informix use: org.hibernate.dialect.InformixDialect
-        For MSSQL use: org.hibernate.dialect.SQLServerDialect
-        For Pointbase use: org.hibernate.dialect.PointbaseDialect
-        For Postgres use: org.hibernate.dialect.PostgreSQLDialect
-        For Sybase use: org.hibernate.dialect.SybaseDialect or org.hibernate.dialect.Sybase11Dialect
-        For Sybase Anywhere use: org.hibernate.dialect.SybaseAnywhereDialect
-        For SapDB use: org.hibernate.dialect.SAPDBDialect
-        For Progress use: org.hibernate.dialect.ProgressDialect
-        For Derby use: org.hibernate.dialect.DerbyDialect
-        -->
         <hibernate.dialect>
             org.hibernate.dialect.MySQL5InnoDBDialect
         </hibernate.dialect>
@@ -370,38 +325,9 @@
                 <jdbc.driver.jar>
                     ${settings.localRepository}\mysql\mysql-connector-java\5.1.15\mysql-connector-java-5.1.15.jar
                 </jdbc.driver.jar>
-                <!--
-                    Change driver for appropriate database
-                    For MySQL use: com.mysql.jdbc.Driver
-                    For Hypersonic use: org.hsqldb.jdbcDriver
-                    For Oracle9i use: oracle.jdbc.driver.OracleDriver
-                    For DB2 use: COM.ibm.db2.jdbc.app.DB2Driver
-                    For Informix use: com.informix.jdbc.IfxDriver
-                    For MSSQL use: com.microsoft.jdbc.sqlserver.SQLServerDriver
-                    For Pointbase use: com.pointbase.jdbc.jdbcUniversalDriver
-                    For Postgres use: org.postgresql.Driver
-                    For Sybase use: com.sybase.jdbc2.jdbc.SybDataSource
-                    For SapDB use: com.sap.dbtech.jdbc.DriverSapDB
-                    For Progress use: com.progress.sql.jdbc.JdbcProgressDriver
-                    For Derby use: org.apache.derby.jdbc.EmbeddedDriver
-                -->
                 <jdbc.driver>
                     com.mysql.jdbc.Driver
                 </jdbc.driver>
-                <!--
-                    Change connection url for appropriate database
-                    For MySQL use: jdbc:mysql://localhost:3306/algotrader
-                    For Hypersonic use: jdbc:hsqldb:hsql://127.0.0.1:1701
-                    For Oracle9i use: jdbc:oracle:thin:@localhost:1521:yoursid
-                    For DB2 use: jdbc:db2:algotrader
-                    For Informix use: jdbc:informix-sqli://localhost:1557/algotrader:INFORMIXSERVER=myserver
-                    For MSSQL use: jdbc:microsoft:sqlserver://localhost:1433;DatabaseName=algotrader
-                    For Pointbase use: jdbc:pointbase:server://@pointbase.server@:@pointbase.port/pointbase.algotrader@,new
-                    For Postgres use: jdbc:postgresql://localhost/algotrader
-                    For Sybase use: jdbc:sybase:Tds:localhost:5000/algotrader?JCONNECT_VERSION=6
-                    For SapDB use: jdbc:sapdb://127.0.0.1/algotrader
-                    For Progress use: jdbc:JdbcProgress:T:localhost:3305:algotrader
-                -->
                 <jdbc.url>
                     jdbc:mysql://localhost:3306/algotrader
                 </jdbc.url>
@@ -412,20 +338,6 @@
                 <jdbc.password>
                     password
                 </jdbc.password>
-                <!--
-                    Change exception sorter class name for appropriate database
-                    For MySQL use: org.jboss.resource.adapter.jdbc.vendor.MySQLExceptionSorter
-                    For Hypersonic use: org.jboss.resource.adapter.jdbc.vendor.DummyExceptionSorter
-                    For Oracle9i use: org.jboss.resource.adapter.jdbc.vendor.OracleExceptionSorter
-                    For DB2 use: org.jboss.resource.adapter.jdbc.vendor.DummyExceptionSorter
-                    For Informix use: org.jboss.resource.adapter.jdbc.vendor.InformixExceptionSorter
-                    For MSSQL use: org.jboss.resource.adapter.jdbc.vendor.DummyExceptionSorter
-                    For Pointbase use: org.jboss.resource.adapter.jdbc.vendor.DummyExceptionSorter
-                    For Postgres use: org.jboss.resource.adapter.jdbc.vendor.DummyExceptionSorter
-                    For Sybase use: org.jboss.resource.adapter.jdbc.vendor.SybaseExceptionSorter
-                    For SapDB use: org.jboss.resource.adapter.jdbc.vendor.DummyExceptionSorter
-                    For Progress use: org.jboss.resource.adapter.jdbc.vendor.DummyExceptionSorter
-                -->
                 <jdbc.exception.sorter>
                     org.jboss.resource.adapter.jdbc.vendor.MySQLExceptionSorter
                 </jdbc.exception.sorter>
