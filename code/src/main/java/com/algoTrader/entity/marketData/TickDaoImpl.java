@@ -98,7 +98,6 @@ public class TickDaoImpl extends TickDaoBase {
 
         // initialize the proxys
         Hibernate.initialize(security.getUnderlaying());
-        Hibernate.initialize(security.getVolatility());
         Hibernate.initialize(security.getSecurityFamily());
         Hibernate.initialize(security.getPositions());
 

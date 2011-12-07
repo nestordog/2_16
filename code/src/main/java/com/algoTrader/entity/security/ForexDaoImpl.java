@@ -32,12 +32,12 @@ public class ForexDaoImpl extends ForexDaoBase {
     @Override
     protected Forex handleGetForex(Currency baseCurrency, Currency transactionCurrency) {
 
-        Forex forex = find(baseCurrency, transactionCurrency);
+        Forex forex = findByBaseAndTransactionCurrency(baseCurrency, transactionCurrency);
 
         if (forex == null) {
 
             // reverse lookup
-            forex = find(transactionCurrency, baseCurrency);
+            forex = findByBaseAndTransactionCurrency(transactionCurrency, baseCurrency);
 
             if (forex == null) {
                 throw new IllegalArgumentException("Forex does not exist: " + transactionCurrency + "." + baseCurrency);

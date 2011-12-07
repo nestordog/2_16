@@ -53,7 +53,8 @@ public class VerificationServiceImpl extends VerificationServiceBase {
 
             Tick optionTick = getTickDao().findByDateAndSecurity(date, stockOption.getId());
             Tick underlayingTick = getTickDao().findByDateAndSecurity(date, stockOption.getUnderlaying().getId());
-            Tick volaTick = getTickDao().findByDateAndSecurity(date, stockOption.getUnderlaying().getVolatility().getId());
+            //Tick volaTick = getTickDao().findByDateAndSecurity(date, stockOption.getUnderlaying().getVolatility().getId());
+            Tick volaTick = null; // TODO redo by specifiying the vola security
 
             if (optionTick == null || underlayingTick == null | volaTick == null || underlayingTick.getLast() == null) {
                 continue;
