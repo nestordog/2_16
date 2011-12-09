@@ -369,9 +369,20 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Tick> handleGetEndOfDayTicks(int securityId, Date maxDate, Date maxTime) {
+    protected List<Tick> handleGetDailyTicksBeforeTime(int securityId, Date maxDate, Date time) {
 
-        List<Integer> ids = (List<Integer>) getTickDao().findEndOfDayTickIds(TickDao.TRANSFORM_NONE, securityId, maxDate, maxTime);
+        List<Integer> ids = (List<Integer>) getTickDao().findDailyTickIdsBeforeTime(TickDao.TRANSFORM_NONE, securityId, maxDate, time);
+        if (ids.size() > 0) {
+            return getTickDao().findByIdsFetched(ids);
+        } else {
+            return new ArrayList<Tick>();
+        }
+    }
+
+    @Override
+    protected List<Tick> handleGetDailyTicksAfterTime(int securityId, Date maxDate, Date time) {
+
+        List<Integer> ids = (List<Integer>) getTickDao().findDailyTickIdsAfterTime(TickDao.TRANSFORM_NONE, securityId, maxDate, time);
         if (ids.size() > 0) {
             return getTickDao().findByIdsFetched(ids);
         } else {
