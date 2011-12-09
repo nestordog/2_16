@@ -4,22 +4,24 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
+import org.apache.commons.lang.StringUtils;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.WatchListItem;
+import com.algoTrader.entity.combination.Allocation;
 import com.algoTrader.entity.combination.Combination;
 import com.algoTrader.entity.combination.CombinationTick;
 import com.algoTrader.entity.combination.CombinationTickDaoImpl;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickDaoImpl;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
 import com.algoTrader.vo.CombinationTickVO;
@@ -103,51 +105,38 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         String strategyName = StrategyUtil.getStartedStrategyName();
         List<Tick> ticks = getRuleService().getAllEventsProperty(strategyName, "GET_LAST_TICK", "tick");
 
-        // get a list of all securities in ticks
-        Collection<Security> tickSecurities = CollectionUtils.collect(ticks, new Transformer<Tick, Security>() {
-            @Override
-            public Security transform(Tick tick) {
-                return tick.getSecurity();
-            }});
-
-        // get all securities on the watchlist
-        final List<Security> securitiesOnWatchList;
-        if (StrategyUtil.isStartedStrategyBASE()) {
-            securitiesOnWatchList = getLookupService().getSecuritiesOnWatchlist();
-        } else {
-            securitiesOnWatchList = getLookupService().getSecuritiesOnWatchlist(strategyName);
-        }
-
-        // filter out ticks from securities that are not on the watchList (anymore)
-        CollectionUtils.filter(ticks, new Predicate<Tick>() {
-            @Override
-            public boolean evaluate(Tick tick) {
-                return securitiesOnWatchList.contains(tick.getSecurity());
-            }
-        });
-
-        // we don't have access to the "real" TickDao in client services, but since we just use the conversion methods
-        // we just instanciate a new Dao
+        // instantiate TickDaoImpl since we have no access to Spring from the strategies
         List<TickVO> tickVOs = (List<TickVO>) (new TickDaoImpl()).toTickVOCollection(ticks);
 
-        // create "empty" TickVOs for all securites not contained in ticks
-        for (Security security : CollectionUtils.subtract(securitiesOnWatchList, tickSecurities)) {
-            TickVO tickVO = new TickVO();
-            tickVO.setSecurityId(security.getId());
-            tickVO.setSymbol(security.getSymbol());
+        // get all securities on the watchlist
+        List<TickVO> processedTickVOs = new ArrayList<TickVO>();
 
-            tickVOs.add(tickVO);
+        // for base iterate over all securities on watchlist(no alert values will be displayed)
+        // for strategies iterate over all watchListItems
+        if (StrategyUtil.isStartedStrategyBASE()) {
+            for (Security security : getLookupService().getSecuritiesOnWatchlist()) {
+
+                TickVO tickVO = getTickVO(tickVOs, security);
+
+                processedTickVOs.add(tickVO);
+            }
+        } else {
+            for (WatchListItem watchListItem : getLookupService().getWatchListItemsByStrategy(strategyName)) {
+
+                final Security security = watchListItem.getSecurity();
+
+                TickVO tickVO = getTickVO(tickVOs, watchListItem.getSecurity());
+
+                // add db data
+                int scale = security.getSecurityFamily().getScale();
+                tickVO.setLowerAlertValue(watchListItem.getLowerAlertValue() != null ? RoundUtil.getBigDecimal(watchListItem.getLowerAlertValue(), scale) : null);
+                tickVO.setUpperAlertValue(watchListItem.getUpperAlertValue() != null ? RoundUtil.getBigDecimal(watchListItem.getUpperAlertValue(), scale) : null);
+
+                processedTickVOs.add(tickVO);
+            }
         }
 
-        // sort by id
-        Collections.sort(tickVOs, new Comparator<TickVO>() {
-            @Override
-            public int compare(TickVO tick1, TickVO tick2) {
-                return tick1.getSecurityId() - tick2.getSecurityId();
-            }
-        });
-
-        return tickVOs;
+        return processedTickVOs;
     }
 
     @SuppressWarnings("unchecked")
@@ -157,13 +146,8 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         String strategyName = StrategyUtil.getStartedStrategyName();
         List<CombinationTick> combinationTicks = getRuleService().getAllEventsProperty(strategyName, "GET_LAST_COMBINATION_TICK", "tick");
 
-        // get a list of all combinations in combinationTicks
-        Collection<Combination> tickCombinations = CollectionUtils.collect(combinationTicks, new Transformer<CombinationTick, Combination>() {
-            @Override
-            public Combination transform(CombinationTick combinationTick) {
-                return combinationTick.getCombination();
-            }
-        });
+        // instantiate CombinationTickVO since we have no access to Spring from the strategies
+        List<CombinationTickVO> combinationTickVOs = (List<CombinationTickVO>) (new CombinationTickDaoImpl()).toCombinationTickVOCollection(combinationTicks);
 
         final Collection<Combination> actualCombinations;
         if (StrategyUtil.isStartedStrategyBASE()) {
@@ -172,39 +156,41 @@ public class ManagementServiceImpl extends ManagementServiceBase {
             actualCombinations = getLookupService().getCombinationsByStrategy(strategyName);
         }
 
-        // filter out combinationTicks from combinations that do not exist anymore
-        CollectionUtils.filter(combinationTicks, new Predicate<CombinationTick>() {
-            @Override
-            public boolean evaluate(CombinationTick copmbinationTick) {
-                return actualCombinations.contains(copmbinationTick.getCombination());
+        List<CombinationTickVO> processedCombinationTickVOs = new ArrayList<CombinationTickVO>();
+        for (final Combination combination : actualCombinations) {
+
+            CombinationTickVO combinationTickVO = CollectionUtils.find(combinationTickVOs, new Predicate<CombinationTickVO>() {
+                @Override
+                public boolean evaluate(CombinationTickVO combinationTickVO) {
+                    return combinationTickVO.getId() == combination.getId();
+                }
+            });
+
+            if (combinationTickVO == null) {
+                combinationTickVO = new CombinationTickVO();
             }
-        });
 
-        // we don't have access to the "real" CombinationTickDao in client services, but since we just use the conversion methods
-        // we just instanciate a new Dao
-        List<CombinationTickVO> combinationTickVOs = (List<CombinationTickVO>) (new CombinationTickDaoImpl()).toCombinationTickVOCollection(combinationTicks);
-
-        // create "empty" TickVOs for all securites not contained in ticks
-        for (Combination combination : CollectionUtils.subtract(actualCombinations, tickCombinations)) {
-            CombinationTickVO combinationTickVO = new CombinationTickVO();
+            // set db data
+            int scale = combination.getMaster().getSecurityFamily().getScale();
             combinationTickVO.setId(combination.getId());
             combinationTickVO.setType(combination.getType());
-            if (combination.getMaster() != null) {
-                combinationTickVO.setMaster(combination.getMaster().getSymbol());
-                combinationTickVO.setMasterQuantity(combination.getMasterQuantity());
+            combinationTickVO.setExitValue(combination.getExitValue() != null ? RoundUtil.getBigDecimal(combination.getExitValue(), scale) : null);
+            combinationTickVO.setProfitTarget(combination.getProfitTarget() != null ? RoundUtil.getBigDecimal(combination.getProfitTarget(), scale) : null);
+
+            if (combination.getAllocations().size() > 0) {
+                String description = StringUtils.join(CollectionUtils.collect(combination.getAllocations(), new Transformer<Allocation, String>() {
+                    @Override
+                    public String transform(Allocation allocation) {
+                        return allocation.getQuantity() + " " + allocation.getSecurity();
+                    }
+                }), " / ");
+                combinationTickVO.setDescription(description);
             }
-            combinationTickVOs.add(combinationTickVO);
+
+            processedCombinationTickVOs.add(combinationTickVO);
         }
 
-        // sort by id
-        Collections.sort(combinationTickVOs, new Comparator<CombinationTickVO>() {
-            @Override
-            public int compare(CombinationTickVO tick1, CombinationTickVO tick2) {
-                return tick1.getId() - tick2.getId();
-            }
-        });
-
-        return combinationTickVOs;
+        return processedCombinationTickVOs;
     }
 
     @Override
@@ -284,5 +270,26 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected void handleRemoveFromWatchlist(int securityid) throws Exception {
 
         getWatchListService().removeFromWatchlist(StrategyUtil.getStartedStrategyName(), securityid);
+    }
+
+    private TickVO getTickVO(List<TickVO> tickVOs, final Security security) {
+
+        // get the tickVO matching the securityId
+        TickVO tickVO = CollectionUtils.find(tickVOs, new Predicate<TickVO>() {
+            @Override
+            public boolean evaluate(TickVO TickVO) {
+                return TickVO.getSecurityId() == security.getId();
+            }
+        });
+
+        // create an empty TickVO if non exists
+        if (tickVO == null) {
+            tickVO = new TickVO();
+        }
+
+        // set db data
+        tickVO.setSecurityId(security.getId());
+        tickVO.setSymbol(security.getSymbol());
+        return tickVO;
     }
 }

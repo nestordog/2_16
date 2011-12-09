@@ -3,11 +3,7 @@ package com.algoTrader.entity.marketData;
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 
-import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.entity.security.Security;
-import com.algoTrader.util.RoundUtil;
-import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.RawTickVO;
 import com.algoTrader.vo.TickVO;
 
@@ -51,23 +47,8 @@ public class TickDaoImpl extends TickDaoBase {
 
     private void completeTickVO(Tick tick, TickVO tickVO) {
 
-        Security security = tick.getSecurity();
-        Strategy strategy = StrategyUtil.getStartedStrategy();
-
-        tickVO.setSecurityId(security.getId());
-        tickVO.setSymbol(security.getSymbol());
+        tickVO.setSecurityId(tick.getSecurity().getId());
         tickVO.setCurrentValue(tick.getCurrentValue());
-
-        // we have to iterate because this code might be executed inside the client
-        for (WatchListItem watchListItem : security.getWatchListItems()) {
-            if (watchListItem.getStrategy().getId() == strategy.getId()
-                    && (watchListItem.getUpperAlertValue() != null || watchListItem.getLowerAlertValue() != null)) {
-
-                int scale = security.getSecurityFamily().getScale();
-                tickVO.setUpperAlertValue(watchListItem.getUpperAlertValue() != null ? RoundUtil.getBigDecimal(watchListItem.getUpperAlertValue(), scale) : null);
-                tickVO.setLowerAlertValue(watchListItem.getLowerAlertValue() != null ? RoundUtil.getBigDecimal(watchListItem.getLowerAlertValue(), scale) : null);
-            }
-        }
     }
 
     private void completeRawTickVO(Tick tick, RawTickVO rawTickVO) {

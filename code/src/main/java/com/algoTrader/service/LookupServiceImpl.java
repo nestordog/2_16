@@ -271,6 +271,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected List<WatchListItem> handleGetWatchListItemsByStrategy(String strategyName) throws Exception {
+
+        return getWatchListItemDao().findByStrategy(strategyName);
+    }
+
+    @Override
     protected List<Security> handleGetSecuritiesOnWatchlist() throws Exception {
 
         return getSecurityDao().findSecuritiesOnWatchlist();
