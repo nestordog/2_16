@@ -387,6 +387,8 @@ public class RuleServiceImpl extends RuleServiceBase {
 
         // sent to the strateyg queue
         this.strategyTemplate.convertAndSend(strategyName + ".QUEUE", obj);
+
+        logger.debug("propagated event to " + strategyName + " " + obj);
     }
 
     @Override
