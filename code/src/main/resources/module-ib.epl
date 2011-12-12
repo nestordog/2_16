@@ -183,13 +183,14 @@ or
 @Subscriber(className='com.algoTrader.service.TransactionServiceImpl$SetCommissionSubscriber')
 select
     execDetails.execution.m_execId as transactionNumber,
-    execDetails.execution.m_shares / max(execDetails.execution.m_cumQty) * openOrder.orderState.m_commission as commission
+    execDetails.execution.m_shares as qty,
+    execDetails.execution.m_cumQty as cumQty,
+    openOrder.orderState.m_commission as commission
 from
     pattern[every openOrder=IBOpenOrder -> (timer:interval(10 sec) and not IBOpenOrder(orderId=openOrder.orderId))] unidirectional,
     IBOrderStatus(status = 'Filled' or status = 'Cancelled').std:unique(orderId).win:time(20 seconds) as orderStatus,
     IBExecDetails.win:time(1 day) as execDetails
 where
-    execution.m_orderId = openOrder.orderId
+    orderStatus.orderId = openOrder.orderId
 and
-    orderStatus.orderId = openOrder.orderId;
-
+    execDetails.execution.m_orderId = openOrder.orderId;

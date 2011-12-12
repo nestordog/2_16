@@ -264,13 +264,23 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         public void update(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream) {
 
+            int maxCumQty = 0;
+            for (Map<?, ?> element : insertStream) {
+                Integer cumQty = (Integer) element.get("cumQty");
+                maxCumQty = Math.max(maxCumQty, cumQty);
+            }
+
             for (Map<?, ?> element : insertStream) {
 
                 String transactionNumber = (String) element.get("transactionNumber");
+                Integer qty = (Integer) element.get("qty");
                 Double commission = (Double) element.get("commission");
 
-                ServiceLocator.serverInstance().getTransactionService().setCommission(transactionNumber, commission);
+                double transactionCommission = commission * qty / maxCumQty;
+
+                ServiceLocator.serverInstance().getTransactionService().setCommission(transactionNumber, transactionCommission);
             }
+
         }
     }
 };
