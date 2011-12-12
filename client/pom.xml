@@ -2,18 +2,24 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>algotrader-client</artifactId>
   <name>AlgoTrader Client</name>
-  <dependencies>
-      <dependency>
-          <groupId>algotrader</groupId>
-          <artifactId>algotrader-code</artifactId>
-          <version>1.5-SNAPSHOT</version>
-          <type>jar</type>
-          <scope>compile</scope>
-      </dependency>
-  </dependencies>
   <parent>
       <groupId>algotrader</groupId>
       <artifactId>algotrader</artifactId>
       <version>1.5-SNAPSHOT</version>
   </parent>
+  <dependencies>
+      <dependency>
+          <groupId>commons-lang</groupId>
+          <artifactId>commons-lang</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>commons-beanutils</groupId>
+          <artifactId>commons-beanutils</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>algotrader</groupId>
+          <artifactId>algotrader-code</artifactId>
+          <version>1.5-SNAPSHOT</version>
+      </dependency>
+  </dependencies>
 </project>
