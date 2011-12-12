@@ -1,6 +1,7 @@
+//line 64 set daemon to true
 /*
  * EReader.java
- * AlgoTrader: line 63 set daemon to true
+ *
  */
 
 package com.ib.client;
@@ -49,7 +50,7 @@ public class EReader extends Thread {
     private EClientSocket     m_parent;
     private DataInputStream m_dis;
 
-    protected EClientSocket parent()    { return this.m_parent; }
+    protected EClientSocket parent()    { return m_parent; }
     private EWrapper eWrapper()         { return (EWrapper)parent().wrapper(); }
 
     public EReader( EClientSocket parent, DataInputStream dis) {
@@ -58,9 +59,9 @@ public class EReader extends Thread {
 
     protected EReader( String name, EClientSocket parent, DataInputStream dis) {
         setName( name);
-        this.m_parent = parent;
-        this.m_dis = dis;
-        this.setDaemon(true);
+        m_parent = parent;
+        m_dis = dis;
+        setDaemon(true);
     }
 
     public void run() {
@@ -74,7 +75,7 @@ public class EReader extends Thread {
             }
         }
         if (parent().isConnected()) {
-            this.m_parent.close();
+            m_parent.close();
         }
     }
 
@@ -139,42 +140,42 @@ public class EReader extends Thread {
                 if (Math.abs(delta) > 1) { // -2 is the "not yet computed" indicator
                     delta = Double.MAX_VALUE;
                 }
-            double optPrice = Double.MAX_VALUE;
-            double pvDividend = Double.MAX_VALUE;
-            double gamma = Double.MAX_VALUE;
-            double vega = Double.MAX_VALUE;
-            double theta = Double.MAX_VALUE;
-            double undPrice = Double.MAX_VALUE;
-            if (version >= 6 || tickType == TickType.MODEL_OPTION) { // introduced in version == 5
-                optPrice = readDouble();
-                if (optPrice < 0) { // -1 is the "not yet computed" indicator
-                    optPrice = Double.MAX_VALUE;
-                }
+                double optPrice = Double.MAX_VALUE;
+                double pvDividend = Double.MAX_VALUE;
+                double gamma = Double.MAX_VALUE;
+                double vega = Double.MAX_VALUE;
+                double theta = Double.MAX_VALUE;
+                double undPrice = Double.MAX_VALUE;
+                if (version >= 6 || tickType == TickType.MODEL_OPTION) { // introduced in version == 5
+                    optPrice = readDouble();
+                    if (optPrice < 0) { // -1 is the "not yet computed" indicator
+                        optPrice = Double.MAX_VALUE;
+                    }
                     pvDividend = readDouble();
-                if (pvDividend < 0) { // -1 is the "not yet computed" indicator
-                    pvDividend = Double.MAX_VALUE;
+                    if (pvDividend < 0) { // -1 is the "not yet computed" indicator
+                        pvDividend = Double.MAX_VALUE;
+                    }
                 }
-            }
-            if (version >= 6) {
-                gamma = readDouble();
-                if (Math.abs(gamma) > 1) { // -2 is the "not yet computed" indicator
-                    gamma = Double.MAX_VALUE;
-                }
-                vega = readDouble();
-                if (Math.abs(vega) > 1) { // -2 is the "not yet computed" indicator
-                    vega = Double.MAX_VALUE;
-                }
-                theta = readDouble();
-                if (Math.abs(theta) > 1) { // -2 is the "not yet computed" indicator
-                    theta = Double.MAX_VALUE;
-                }
-                undPrice = readDouble();
-                if (undPrice < 0) { // -1 is the "not yet computed" indicator
-                    undPrice = Double.MAX_VALUE;
-                }
+                if (version >= 6) {
+                    gamma = readDouble();
+                    if (Math.abs(gamma) > 1) { // -2 is the "not yet computed" indicator
+                        gamma = Double.MAX_VALUE;
+                    }
+                    vega = readDouble();
+                    if (Math.abs(vega) > 1) { // -2 is the "not yet computed" indicator
+                        vega = Double.MAX_VALUE;
+                    }
+                    theta = readDouble();
+                    if (Math.abs(theta) > 1) { // -2 is the "not yet computed" indicator
+                        theta = Double.MAX_VALUE;
+                    }
+                    undPrice = readDouble();
+                    if (undPrice < 0) { // -1 is the "not yet computed" indicator
+                        undPrice = Double.MAX_VALUE;
+                    }
                 }
 
-            eWrapper().tickOptionComputation(tickerId, tickType, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice);
+                eWrapper().tickOptionComputation( tickerId, tickType, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice);
                 break;
             }
 
@@ -302,7 +303,7 @@ public class EReader extends Thread {
                     accountName = readStr();
                 }
 
-                if(version == 6 && this.m_parent.serverVersion() == 39) {
+                if(version == 6 && m_parent.serverVersion() == 39) {
                     contract.m_primaryExch = readStr();
                 }
 
@@ -323,12 +324,12 @@ public class EReader extends Thread {
                 int version = readInt();
                 if(version < 2) {
                     String msg = readStr();
-                    this.m_parent.error( msg);
+                    m_parent.error( msg);
                 } else {
                     int id = readInt();
                     int errorCode    = readInt();
                     String errorMsg = readStr();
-                    this.m_parent.error(id, errorCode, errorMsg);
+                    m_parent.error(id, errorCode, errorMsg);
                 }
                 break;
             }
@@ -413,6 +414,12 @@ public class EReader extends Thread {
                     order.m_settlingFirm = readStr();
                     order.m_shortSaleSlot = readInt();
                     order.m_designatedLocation = readStr();
+                    if ( m_parent.serverVersion() == 51){
+                        readInt(); // exemptCode
+                    }
+                    else if ( version >= 23){
+                        order.m_exemptCode = readInt();
+                    }
                     order.m_auctionStrategy = readInt();
                     order.m_startingPrice = readDouble();
                     order.m_stockRefPrice = readDouble();
@@ -450,7 +457,7 @@ public class EReader extends Thread {
                         order.m_deltaNeutralAuxPrice = readDouble();
                     }
                     order.m_continuousUpdate = readInt();
-                    if (this.m_parent.serverVersion() == 26) {
+                    if (m_parent.serverVersion() == 26) {
                         order.m_stockRangeLower = readDouble();
                         order.m_stockRangeUpper = readDouble();
                     }
@@ -879,7 +886,7 @@ public class EReader extends Thread {
             }
 
             default: {
-                this.m_parent.error( EClientErrors.NO_VALID_ID, EClientErrors.UNKNOWN_ID.code(), EClientErrors.UNKNOWN_ID.msg());
+                m_parent.error( EClientErrors.NO_VALID_ID, EClientErrors.UNKNOWN_ID.code(), EClientErrors.UNKNOWN_ID.msg());
                 return false;
             }
         }
@@ -890,7 +897,7 @@ public class EReader extends Thread {
     protected String readStr() throws IOException {
         StringBuffer buf = new StringBuffer();
         while( true) {
-            byte c = this.m_dis.readByte();
+            byte c = m_dis.readByte();
             if( c == 0) {
                 break;
             }

@@ -57,7 +57,7 @@
         </dependency><dependency>
             <groupId>com.interactivebrokers</groupId>
             <artifactId>ibclient</artifactId>
-            <version>9.6.3</version>
+            <version>9.6.5</version>
         </dependency>
         <dependency>
             <groupId>com.mathworks</groupId>
