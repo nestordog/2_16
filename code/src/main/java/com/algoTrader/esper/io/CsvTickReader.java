@@ -44,12 +44,16 @@ public class CsvTickReader {
     private String[] header;
     private CsvBeanReader reader;
 
-    public CsvTickReader(String symbol) throws SuperCSVException, IOException {
+    public CsvTickReader(File file) throws SuperCSVException, IOException {
 
-        File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
         Reader inFile = new FileReader(file);
         this.reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
         this.header = this.reader.getCSVHeader(true);
+    }
+
+    public CsvTickReader(String symbol) throws SuperCSVException, IOException {
+
+        this(new File("results/tickdata/" + dataSet + "/" + symbol + ".csv"));
     }
 
     private static class ParseDate extends CellProcessorAdaptor {

@@ -51,9 +51,8 @@ public class CsvTickWriter {
 
     private CsvBeanWriter writer;
 
-    public CsvTickWriter(String symbol) throws SuperCSVException, IOException {
+    public CsvTickWriter(File file) throws SuperCSVException, IOException {
 
-        File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
         boolean exists = file.exists();
 
         this.writer = new CsvBeanWriter(new FileWriter(file, true), CsvPreference.EXCEL_PREFERENCE);
@@ -61,6 +60,11 @@ public class CsvTickWriter {
         if (!exists) {
             this.writer.writeHeader(header);
         }
+    }
+
+    public CsvTickWriter(String symbol) throws SuperCSVException, IOException {
+
+        this(new File("results/tickdata/" + dataSet + "/" + symbol + ".csv"));
     }
 
     private static class DateConverter extends CellProcessorAdaptor {
