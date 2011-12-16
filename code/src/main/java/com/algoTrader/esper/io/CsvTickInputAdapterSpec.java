@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.algoTrader.util.CustomBigDecimal;
 import com.algoTrader.util.CustomDate;
 import com.espertech.esperio.AdapterInputSource;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
@@ -24,7 +25,7 @@ public class CsvTickInputAdapterSpec extends CSVInputAdapterSpec {
         Map<String, Object> tickPropertyTypes = new HashMap<String, Object>();
 
         tickPropertyTypes.put("dateTime", CustomDate.class);
-        tickPropertyTypes.put("last", BigDecimal.class);
+        tickPropertyTypes.put("last", CustomBigDecimal.class);
         tickPropertyTypes.put("lastDateTime", CustomDate.class);
         tickPropertyTypes.put("volBid", int.class);
         tickPropertyTypes.put("volAsk", int.class);
