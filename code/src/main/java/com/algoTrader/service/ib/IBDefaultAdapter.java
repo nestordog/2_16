@@ -55,6 +55,14 @@ public class IBDefaultAdapter implements EWrapper {
         // order related error messages will usually come along with a orderStatus=Inactive
         // which will lead to a cancellation of the GenericOrder. If there is no orderStatus=Inactive
         // coming along, the GenericOrder has to be cancelled by us (potenially creating a "fake" OrderStatus)
+
+            case 104:
+
+                // Can't modify a filled order.
+                // do nothing, we modified the order just a little bit too late
+                logger.warn(message);
+                break;
+
             case 201:
 
                 // Order rejected - reason:
