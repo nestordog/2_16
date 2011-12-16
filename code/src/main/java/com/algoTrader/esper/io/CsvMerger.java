@@ -2,6 +2,7 @@ package com.algoTrader.esper.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -67,6 +68,14 @@ public class CsvMerger {
                         newTick = aTick;
                         aTick = aReader.readTick();
                         bTick = bReader.readTick();
+                    }
+
+                    if (newTick.getLast().equals(null)) {
+                        newTick.setLast(new BigDecimal(0));
+                    }
+
+                    if (newTick.getLastDateTime().equals(null)) {
+                        newTick.setLastDateTime(newTick.getDateTime());
                     }
 
                     csvWriter.write(newTick);
