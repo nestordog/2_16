@@ -42,10 +42,12 @@
     </appender>
 
     <appender name="EMAIL" class="org.apache.log4j.net.SMTPAppender">
-        <param name="SMTPHost" value="smtp.mail.yahoo.com" />
-        <param name="SMTPUsername" value="andy_flury" />
-        <param name="SMTPPassword" value="franklin91" />
-        <param name="From" value="andy_flury@yahoo.com" />
+        <param name="SMTPHost" value="email-smtp.us-east-1.amazonaws.com" />
+        <param name="SMTPPort" value="465" />
+        <param name="SMTPProtocol" value="smtps" />
+        <param name="SMTPUsername" value="AKIAIYZ5D5DRYKLERLIA" />
+        <param name="SMTPPassword" value="Ahsspx/BqUnRy4ORAAcvWo68/3ZXbkhBfKG+i26wd6co" />
+        <param name="From" value="aws@linardcapital.com" />
         <param name="To" value="algo-trader-server@googlegroups.com" />
         <param name="Subject" value="AlgoTrader Error ${environment}" />
         <layout class="org.apache.log4j.PatternLayout">
@@ -69,10 +71,12 @@
 
     <appender name="TRANSACTION_EMAIL" class="org.apache.log4j.net.SMTPAppender">
         <param name="EvaluatorClass" value="com.algoTrader.util.CustomEvaluator" />
-        <param name="SMTPHost" value="smtp.mail.yahoo.com" />
-        <param name="SMTPUsername" value="andy_flury" />
-        <param name="SMTPPassword" value="franklin91" />
-        <param name="From" value="andy_flury@yahoo.com" />
+        <param name="SMTPHost" value="email-smtp.us-east-1.amazonaws.com" />
+        <param name="SMTPPort" value="465" />
+        <param name="SMTPProtocol" value="smtps" />
+        <param name="SMTPUsername" value="AKIAIYZ5D5DRYKLERLIA" />
+        <param name="SMTPPassword" value="Ahsspx/BqUnRy4ORAAcvWo68/3ZXbkhBfKG+i26wd6co" />
+        <param name="From" value="aws@linardcapital.com" />
         <param name="To" value="algo-trader-server@googlegroups.com" />
         <param name="Subject" value="AlgoTrader Transaction ${environment}" />
         <layout class="org.apache.log4j.PatternLayout">
