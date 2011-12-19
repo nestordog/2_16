@@ -3,6 +3,7 @@ package com.algoTrader.esper.io;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -10,11 +11,14 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.supercsv.exception.SuperCSVException;
 
 import com.algoTrader.entity.marketData.Tick;
 
 public class CsvMerger {
+
+    private static double maxGapDays = 4.0;
 
     public static void main(String[] args) throws SuperCSVException, IOException {
 
@@ -50,6 +54,7 @@ public class CsvMerger {
                 Tick lastTick = null;
                 do {
 
+                    // consider the earliest tick from both files
                     Tick newTick = null;
                     if (aTick != null & bTick == null) {
                         newTick = aTick;
@@ -69,14 +74,24 @@ public class CsvMerger {
                         bTick = bReader.readTick();
                     }
 
-                    csvWriter.write(newTick);
+                    // round to one minute
+                    newTick.setDateTime(DateUtils.round(newTick.getDateTime(), Calendar.MINUTE));
 
+                    // do not write twice for the same minute
+                    if (lastTick == null || !lastTick.getDateTime().equals(newTick.getDateTime())) {
+                        csvWriter.write(newTick);
+                    } else {
+                        System.currentTimeMillis();
+                    }
+
+                    // warn if gap is greater than x days
                     if (lastTick != null) {
                         double daysDiff = (double) (newTick.getDateTime().getTime() - lastTick.getDateTime().getTime()) / 86400000;
-                        if (daysDiff > 4.0) {
+                        if (daysDiff > maxGapDays) {
                             System.out.println(fileName + " at " + newTick.getDateTime() + " gap of " + daysDiff);
                         }
                     }
+
                     lastTick = newTick;
 
                 } while (aTick != null || bTick != null);
