@@ -14,7 +14,7 @@ import com.algoTrader.entity.marketData.Tick;
 public class CsvGapChecker {
 
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-    private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
     private static final DecimalFormat decimalFormat = new DecimalFormat("#0.00");
 
     private static double maxGapDays = 4.0;
@@ -39,8 +39,7 @@ public class CsvGapChecker {
                     // check day gap
                     double daysDiff = (double) (newTick.getDateTime().getTime() - lastTick.getDateTime().getTime()) / 86400000;
                     if (daysDiff > maxGapDays) {
-                        System.out.println(file.getName() + dateTimeFormat.format(newTick.getDateTime()) + " gap of " + decimalFormat.format(daysDiff)
-                                + " days");
+                        System.out.println(file.getName() + " " + dateFormat.format(newTick.getDateTime()) + " gap of " + decimalFormat.format(daysDiff) + " days");
                     }
 
                     if (DateUtils.isSameDay(newTick.getDateTime(), lastTick.getDateTime())) {
@@ -48,8 +47,7 @@ public class CsvGapChecker {
                         // check min gap on same day
                         double minsDiff = (double) (newTick.getDateTime().getTime() - lastTick.getDateTime().getTime()) / 60000;
                         if (minsDiff > maxGapMins) {
-                            System.out.println(file.getName() + dateTimeFormat.format(newTick.getDateTime()) + " gap of " + decimalFormat.format(minsDiff)
-                                    + " mins");
+                            System.out.println(file.getName() + " " + dateFormat.format(newTick.getDateTime()) + " gap of " + decimalFormat.format(minsDiff) + " mins");
                         }
 
                     } else {
@@ -59,7 +57,7 @@ public class CsvGapChecker {
 
                         // check market open on new day
                         if (millisSinceOpen > marketOpenMills) {
-                            System.out.println(file.getName() + dateTimeFormat.format(newTick.getDateTime()) + " late market open");
+                            System.out.println(file.getName() + " " + dateFormat.format(newTick.getDateTime()) + " late market open");
                         }
                     }
                 }

@@ -192,7 +192,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
     }
 
     @Override
-    protected void handleSetAlertValue(String strategyName, int securityId, Double value, boolean upper) throws Exception {
+    protected void handleSetAlertValue(String strategyName, int securityId, Double value, boolean upper, Double amount) throws Exception {
 
         WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
 
@@ -204,6 +204,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             logger.info("set lower alert value to " + decimalFormat.format(value) + " for watchListItem " + watchListItem);
         }
 
+        watchListItem.setAmount(amount);
         getWatchListItemDao().update(watchListItem);
 
     }

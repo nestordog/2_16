@@ -31,4 +31,10 @@ public class MarketDataStarter {
         // subscribe marketData for all securities on the watchlist (needs to be invoked after all Spring Services have been properly initialized)
         marketDataService.initWatchlist();
     }
+
+    public static void stop() {
+
+        ServiceLocator.serverInstance().shutdown();
+    }
+
 }
