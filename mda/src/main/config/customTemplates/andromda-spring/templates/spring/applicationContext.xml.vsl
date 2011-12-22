@@ -187,7 +187,7 @@
 #end
 #if ($service.superClass.abstract)
 #foreach ($operation in $service.superClass.operations)
-#if ($operation.findTaggedValue("_andromda_spring_transaction_type") && !$operation.abstract)
+#if ($operation.findTaggedValue("andromda_spring_transaction_type") && !$operation.abstract)
                 ${service.superClass.fullyQualifiedName}.${operation.name}=${operation.transactionType}
 #end	
 #end
