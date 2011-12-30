@@ -20,9 +20,14 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.WatchListItem;
@@ -42,7 +47,6 @@ import com.algoTrader.esper.io.CsvTickInputAdapter;
 import com.algoTrader.esper.io.CsvTickInputAdapterSpec;
 import com.algoTrader.esper.io.DBInputAdapter;
 import com.algoTrader.esper.subscriber.SubscriberCreator;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
 import com.espertech.esper.adapter.InputAdapter;
@@ -78,10 +82,11 @@ import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.csv.CSVInputAdapter;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
-public class RuleServiceImpl extends RuleServiceBase {
+public class RuleServiceImpl extends RuleServiceBase implements ApplicationContextAware {
 
     private static Logger logger = MyLogger.getLogger(RuleServiceImpl.class.getName());
-    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+
+    private @Value("${simulation}") boolean simulation;
 
     private Map<String, AdapterCoordinator> coordinators = new HashMap<String, AdapterCoordinator>();
     private Map<String, Boolean> internalClock = new HashMap<String, Boolean>();
@@ -89,14 +94,6 @@ public class RuleServiceImpl extends RuleServiceBase {
 
     private JmsTemplate marketDataTemplate;
     private JmsTemplate strategyTemplate;
-
-    public void setMarketDataTemplate(JmsTemplate marketDataTemplate) {
-        this.marketDataTemplate = marketDataTemplate;
-    }
-
-    public void setStrategyTemplate(JmsTemplate strategyTemplate) {
-        this.strategyTemplate = strategyTemplate;
-    }
 
     @Override
     protected void handleInitServiceProvider(String strategyName) {
@@ -348,7 +345,7 @@ public class RuleServiceImpl extends RuleServiceBase {
     @Override
     protected void handleSendEvent(String strategyName, Object obj) {
 
-        if (simulation) {
+        if (this.simulation) {
             Strategy strategy = getLookupService().getStrategyByName(strategyName);
             if (strategy.isAutoActivate()) {
                 getServiceProvider(strategyName).getEPRuntime().sendEvent(obj);
@@ -367,7 +364,7 @@ public class RuleServiceImpl extends RuleServiceBase {
     @Override
     protected void handleRouteEvent(String strategyName, Object obj) {
 
-        if (simulation) {
+        if (this.simulation) {
             Strategy strategy = getLookupService().getStrategyByName(strategyName);
             if (strategy.isAutoActivate()) {
                 getServiceProvider(strategyName).getEPRuntime().route(obj);
@@ -394,7 +391,7 @@ public class RuleServiceImpl extends RuleServiceBase {
     @Override
     protected void handleSendMarketDataEvent(final MarketDataEvent marketDataEvent) {
 
-        if (simulation) {
+        if (this.simulation) {
             for (WatchListItem watchListItem : marketDataEvent.getSecurity().getWatchListItems()) {
                 if (!watchListItem.getStrategy().getName().equals(StrategyImpl.BASE)) {
                     sendEvent(watchListItem.getStrategy().getName(), marketDataEvent);
@@ -698,7 +695,7 @@ public class RuleServiceImpl extends RuleServiceBase {
             Map<String, ConfigurationVariable> variables = configuration.getVariables();
             for (Map.Entry<String, ConfigurationVariable> entry : variables.entrySet()) {
                 String variableName = entry.getKey().replace("_", ".");
-                String value = ConfigurationUtil.getStrategyConfig(strategyName).getString(variableName);
+                String value = ServiceLocator.instance().getConfiguration().getString(strategyName, variableName);
                 if (value != null) {
                     Class<?> clazz = Class.forName(entry.getValue().getType());
                     Object castedObj = JavaClassHelper.parse(clazz, value);
@@ -740,12 +737,12 @@ public class RuleServiceImpl extends RuleServiceBase {
                         throw new RuleServiceException("listener " + className + " could not be created for statement " + statement.getName(), e);
                     }
                 }
-            } else if (annotation instanceof RunTimeOnly && simulation) {
+            } else if (annotation instanceof RunTimeOnly && this.simulation) {
 
                 statement.destroy();
                 return;
 
-            } else if (annotation instanceof SimulationOnly && !simulation) {
+            } else if (annotation instanceof SimulationOnly && !this.simulation) {
 
                 statement.destroy();
                 return;
@@ -754,7 +751,7 @@ public class RuleServiceImpl extends RuleServiceBase {
 
                 Condition condition = (Condition) annotation;
                 String key = condition.key();
-                if (!ConfigurationUtil.getStrategyConfig(strategyName).getBoolean(key)) {
+                if (!ServiceLocator.instance().getConfiguration().getBoolean(strategyName, key)) {
                     statement.destroy();
                     return;
                 }
@@ -774,5 +771,20 @@ public class RuleServiceImpl extends RuleServiceBase {
 
         // otherwise the fqdn represents a method, in this case treate a subscriber
         return SubscriberCreator.createSubscriber(fqdn);
+    }
+
+    /**
+     * manual lookup of templates since they are only available if applicationContext-jms.xml is active
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+
+        if (applicationContext.containsBean("marketDataTemplate")) {
+            this.marketDataTemplate = applicationContext.getBean("marketDataTemplate", JmsTemplate.class);
+        }
+
+        if (applicationContext.containsBean("strategyTemplate")) {
+            this.strategyTemplate = applicationContext.getBean("strategyTemplate", JmsTemplate.class);
+        }
     }
 }

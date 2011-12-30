@@ -59,7 +59,7 @@ public class BatchDBTickInputAdapter extends AbstractCoordinatedAdapter {
             if (!this.iterator.hasNext()) {
                 Date endDate = DateUtils.addDays(this.startDate, batchSize);
 
-                List ticks = ServiceLocator.serverInstance().getLookupService().getTicksByTimePeriodOnWatchlist(this.startDate, endDate);
+                List ticks = ServiceLocator.instance().getLookupService().getTicksByTimePeriodOnWatchlist(this.startDate, endDate);
                 // TODO: handle intraday put on watchlist by trades of that day
 
                 if (ticks.size() > 0) {

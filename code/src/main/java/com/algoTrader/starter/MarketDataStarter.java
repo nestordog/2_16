@@ -16,16 +16,17 @@ public class MarketDataStarter {
     public static void start() {
 
         // start all BASE rules
-        RuleService ruleService = ServiceLocator.serverInstance().getRuleService();
+        ServiceLocator.instance().init(ServiceLocator.SERVER_BEAN_REFERENCE_LOCATION);
+        RuleService ruleService = ServiceLocator.instance().getRuleService();
         ruleService.initServiceProvider(StrategyImpl.BASE);
         ruleService.setInternalClock(StrategyImpl.BASE, true);
         ruleService.deployAllModules(StrategyImpl.BASE);
 
         // initialize the IB services
-        MarketDataService marketDataService = ServiceLocator.serverInstance().getMarketDataService();
+        MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
         marketDataService.init();
 
-        OrderService orderService = ServiceLocator.serverInstance().getOrderService();
+        OrderService orderService = ServiceLocator.instance().getOrderService();
         orderService.init();
 
         // subscribe marketData for all securities on the watchlist (needs to be invoked after all Spring Services have been properly initialized)
@@ -34,7 +35,7 @@ public class MarketDataStarter {
 
     public static void stop() {
 
-        ServiceLocator.serverInstance().shutdown();
+        ServiceLocator.instance().shutdown();
     }
 
 }

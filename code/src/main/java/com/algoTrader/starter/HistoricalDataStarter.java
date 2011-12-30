@@ -19,13 +19,14 @@ public class HistoricalDataStarter {
             securityIds[i] = Integer.valueOf(securityIdStrings[i]);
         }
 
-        IBHistoricalDataService service = ServiceLocator.serverInstance().getIBHistoricalDataService();
+        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        IBHistoricalDataService service = ServiceLocator.instance().getIBHistoricalDataService();
 
         service.init();
 
         service.requestHistoricalData(securityIds, whatToShow, startDate, endDate);
 
-        ServiceLocator.serverInstance().shutdown();
+        ServiceLocator.instance().shutdown();
     }
 
     public static void main2(String[] args) {
@@ -42,12 +43,13 @@ public class HistoricalDataStarter {
             securityIds[i] = Integer.valueOf(batch[2]);
         }
 
-        IBHistoricalDataService service = ServiceLocator.serverInstance().getIBHistoricalDataService();
+        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        IBHistoricalDataService service = ServiceLocator.instance().getIBHistoricalDataService();
 
         service.init();
 
         service.requestHistoricalData(securityIds, whatToShow, startDate, endDate);
 
-        ServiceLocator.serverInstance().shutdown();
+        ServiceLocator.instance().shutdown();
     }
 }

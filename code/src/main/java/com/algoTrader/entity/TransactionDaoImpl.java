@@ -2,13 +2,14 @@ package com.algoTrader.entity;
 
 import java.math.BigDecimal;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import com.algoTrader.entity.security.Security;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.vo.TransactionVO;
 
 public class TransactionDaoImpl extends TransactionDaoBase {
 
-    private static final int portfolioDigits = ConfigurationUtil.getBaseConfig().getInt("portfolioDigits");
+    private @Value("${portfolioDigits}") int portfolioDigits;
 
     @Override
     public void toTransactionVO(Transaction transaction, TransactionVO transactionVO) {
@@ -37,11 +38,11 @@ public class TransactionDaoImpl extends TransactionDaoBase {
             int scale = security.getSecurityFamily().getScale();
             transactionVO.setPrice(transaction.getPrice().setScale(scale, BigDecimal.ROUND_HALF_UP));
         } else {
-            transactionVO.setPrice(transaction.getPrice().setScale(portfolioDigits, BigDecimal.ROUND_HALF_UP));
+            transactionVO.setPrice(transaction.getPrice().setScale(this.portfolioDigits, BigDecimal.ROUND_HALF_UP));
         }
 
-        transactionVO.setValue(transaction.getNetValue().setScale(portfolioDigits, BigDecimal.ROUND_HALF_UP));
-        transactionVO.setCommission(transaction.getCommission().setScale(portfolioDigits, BigDecimal.ROUND_HALF_UP));
+        transactionVO.setValue(transaction.getNetValue().setScale(this.portfolioDigits, BigDecimal.ROUND_HALF_UP));
+        transactionVO.setCommission(transaction.getCommission().setScale(this.portfolioDigits, BigDecimal.ROUND_HALF_UP));
     }
 
     @Override

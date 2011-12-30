@@ -6,7 +6,6 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 
-import com.algoTrader.ServerServiceLocator;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.util.MyLogger;
 
@@ -48,7 +47,7 @@ public class ServiceInvoker {
         String serviceName = tokenizer.nextToken();
         String methodName = tokenizer.nextToken();
 
-        ServerServiceLocator serviceLocator = ServiceLocator.serverInstance();
+        ServiceLocator serviceLocator = ServiceLocator.instance();
 
         try {
             Method getServiceMethod = serviceLocator.getClass().getMethod("get" + serviceName, (Class[]) null);

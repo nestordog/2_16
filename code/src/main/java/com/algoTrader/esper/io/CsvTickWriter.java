@@ -14,8 +14,8 @@ import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.util.ConfigurationUtil;
 
 public class CsvTickWriter {
 
@@ -47,7 +47,7 @@ public class CsvTickWriter {
     };
     //@formatter:on
 
-    private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
+    private static String dataSet = ServiceLocator.instance().getConfiguration().getDataSet();
 
     private CsvBeanWriter writer;
 

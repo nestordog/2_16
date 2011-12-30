@@ -2,6 +2,8 @@ package com.algoTrader.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Forex;
@@ -9,15 +11,14 @@ import com.algoTrader.entity.trade.MarketOrder;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Side;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.BalanceVO;
 
 public class ForexServiceImpl extends ForexServiceBase {
 
-    private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
-    private static int fxEqualizationMinAmount = ConfigurationUtil.getBaseConfig().getInt("fxEqualizationMinAmount");
-    private static int fxEqualizationBatchSize = ConfigurationUtil.getBaseConfig().getInt("fxEqualizationBatchSize");
+    private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private @Value("${fxEqualizationMinAmount}") int fxEqualizationMinAmount;
+    private @Value("${fxEqualizationBatchSize}") int fxEqualizationBatchSize;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -28,7 +29,7 @@ public class ForexServiceImpl extends ForexServiceBase {
         List<BalanceVO> balances = getStrategyDao().getPortfolioBalances();
         for (BalanceVO balance : balances) {
 
-            if (balance.getCurrency().equals(portfolioBaseCurrency)) {
+            if (balance.getCurrency().equals(this.portfolioBaseCurrency)) {
                 continue;
             }
 
@@ -37,22 +38,22 @@ public class ForexServiceImpl extends ForexServiceBase {
             double netLiqValueBase = balance.getExchangeRate() * netLiqValue;
 
             // check if amount is larger than minimum
-            if (Math.abs(netLiqValueBase) >= fxEqualizationMinAmount) {
+            if (Math.abs(netLiqValueBase) >= this.fxEqualizationMinAmount) {
 
-                Forex forex = getForexDao().getForex(portfolioBaseCurrency, balance.getCurrency());
+                Forex forex = getForexDao().getForex(this.portfolioBaseCurrency, balance.getCurrency());
 
                 Order order = MarketOrder.Factory.newInstance();
-                if (forex.getBaseCurrency().equals(portfolioBaseCurrency)) {
+                if (forex.getBaseCurrency().equals(this.portfolioBaseCurrency)) {
 
                     // expected case
-                    int qty = (int) RoundUtil.roundToNextN(netLiqValueBase, fxEqualizationBatchSize);
+                    int qty = (int) RoundUtil.roundToNextN(netLiqValueBase, this.fxEqualizationBatchSize);
                     order.setQuantity(Math.abs(qty));
                     order.setSide(qty > 0 ? Side.BUY : Side.SELL);
 
                 } else {
 
                     // reverse case
-                    int qty = (int) RoundUtil.roundToNextN(netLiqValue, fxEqualizationBatchSize);
+                    int qty = (int) RoundUtil.roundToNextN(netLiqValue, this.fxEqualizationBatchSize);
                     order.setQuantity(Math.abs(qty));
                     order.setSide(qty > 0 ? Side.SELL : Side.BUY);
                 }

@@ -9,7 +9,8 @@ public class StockOptionRetrievalStarter {
 
     public static void main(String[] args) throws ParseException {
 
-        IBStockOptionRetrieverService service = ServiceLocator.serverInstance().getIBStockOptionRetrieverService();
+        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        IBStockOptionRetrieverService service = ServiceLocator.instance().getIBStockOptionRetrieverService();
 
         service.init();
 
@@ -19,6 +20,6 @@ public class StockOptionRetrievalStarter {
             service.retrieveAllStockOptionsForUnderlaying(underlayingId);
         }
 
-        ServiceLocator.serverInstance().shutdown();
+        ServiceLocator.instance().shutdown();
     }
 }

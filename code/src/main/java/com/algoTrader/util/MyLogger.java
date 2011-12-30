@@ -41,12 +41,14 @@ public class MyLogger extends Logger {
 
         long time = System.currentTimeMillis();
         try {
-            String strategyName = StrategyUtil.getStartedStrategyName();
-            RuleService ruleService = ServiceLocator.commonInstance().getRuleService();
-            if (ruleService.isInitialized(strategyName) && !ruleService.isInternalClock(strategyName)) {
-                long engineTime = ruleService.getCurrentTime(strategyName);
-                if (engineTime != 0) {
-                    time = engineTime;
+            if (ServiceLocator.instance().isInitialized()) {
+                RuleService ruleService = ServiceLocator.instance().getRuleService();
+                String strategyName = StrategyUtil.getStartedStrategyName();
+                if (ruleService.isInitialized(strategyName) && !ruleService.isInternalClock(strategyName)) {
+                    long engineTime = ruleService.getCurrentTime(strategyName);
+                    if (engineTime != 0) {
+                        time = engineTime;
+                    }
                 }
             }
         } catch (Exception e) {

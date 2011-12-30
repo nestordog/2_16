@@ -1,6 +1,7 @@
 package com.algoTrader.service.ib;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.trade.LimitOrderInterface;
@@ -8,28 +9,26 @@ import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.StopOrderInterface;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Side;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.ib.client.Contract;
 
 public class IBOrderServiceImpl extends IBOrderServiceBase {
 
     private static final long serialVersionUID = -7426452967133280762L;
-
-    private static boolean faEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.faEnabled");
-    private static String faAccount = ConfigurationUtil.getBaseConfig().getString("ib.faAccount");
-    private static String group = ConfigurationUtil.getBaseConfig().getString("ib.group");
-    private static String openMethod = ConfigurationUtil.getBaseConfig().getString("ib.openMethod");
-    private static String closeMethod = ConfigurationUtil.getBaseConfig().getString("ib.closeMethod");
-
     private static IBClient client;
     private static Logger logger = MyLogger.getLogger(IBOrderServiceImpl.class.getName());
-    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+
+    private @Value("${simulation}") boolean simulation;
+    private @Value("${ib.faEnabled}") boolean faEnabled;
+    private @Value("${ib.faAccount}") String faAccount;
+    private @Value("${ib.group}") String group;
+    private @Value("${ib.openMethod}") String openMethod;
+    private @Value("${ib.closeMethod}") String closeMethod;
 
     @Override
     public void handleInit() {
 
-        if (!simulation) {
+        if (!this.simulation) {
             client = IBClient.getDefaultInstance();
         }
     }
@@ -80,7 +79,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
         ibOrder.m_transmit = true;
 
         // handling for financial advisor accounts
-        if (faEnabled) {
+        if (this.faEnabled) {
 
             long existingQuantity = 0;
             for (Position position : order.getSecurity().getPositions()) {
@@ -99,18 +98,18 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
                 opening = true;
             }
 
-            ibOrder.m_faGroup = group;
+            ibOrder.m_faGroup = this.group;
 
             if (opening) {
 
                 // open by specifying the actual quantity
-                ibOrder.m_faMethod = openMethod;
+                ibOrder.m_faMethod = this.openMethod;
                 ibOrder.m_totalQuantity = (int) order.getQuantity();
 
             } else {
 
                 // reduce by percentage
-                ibOrder.m_faMethod = closeMethod;
+                ibOrder.m_faMethod = this.closeMethod;
                 ibOrder.m_faPercentage = "-" + Math.abs(order.getQuantity() * 100 / (existingQuantity - order.getQuantity()));
             }
         } else {
@@ -118,8 +117,8 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
             ibOrder.m_totalQuantity = (int) order.getQuantity();
 
             // if fa is disabled, it is still possible to work with an IB FA setup if a single client account is specified
-            if (faAccount != null) {
-                ibOrder.m_account = faAccount;
+            if (this.faAccount != null) {
+                ibOrder.m_account = this.faAccount;
             }
         }
 

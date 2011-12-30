@@ -18,13 +18,13 @@ import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
-import com.algoTrader.util.ConfigurationUtil;
 
 public class CsvTickReader {
 
-    private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
+    private static String dataSet = ServiceLocator.instance().getConfiguration().getDataSet();
 
     //@formatter:off
     private static CellProcessor[] processor = new CellProcessor[] {

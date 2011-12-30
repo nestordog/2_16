@@ -29,6 +29,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
@@ -42,7 +43,6 @@ import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.service.sq.HttpClientUtil;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.XmlUtil;
@@ -53,15 +53,15 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
     private static Logger logger = MyLogger.getLogger(IBAccountServiceImpl.class.getName());
 
-    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
-    private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
-    private static boolean faEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.faEnabled");
-    private static boolean accountServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.accountServiceEnabled");
+    private @Value("${simulation}") boolean simulation;
+    private @Value("#{'${marketChannel}' == 'IB'}") boolean ibEnabled;
+    private @Value("${ib.faEnabled}") boolean faEnabled;
+    private @Value("${ib.accountServiceEnabled}") boolean accountServiceEnabled;
 
-    private static int retrievalTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.retrievalTimeout");
-    private static String masterAccount = ConfigurationUtil.getBaseConfig().getString("ib.masterAccount");
-    private static String flexToken = ConfigurationUtil.getBaseConfig().getString("ib.flexToken");
-    private static String flexQueryId = ConfigurationUtil.getBaseConfig().getString("ib.flexQueryId");
+    private @Value("${ib.retrievalTimeout}") int retrievalTimeout;
+    private @Value("${ib.masterAccount}") String masterAccount;
+    private @Value("${ib.flexToken}") String flexToken;
+    private @Value("${ib.flexQueryId}") String flexQueryId;
 
     private IBClient client;
     private IBDefaultAdapter wrapper;
@@ -84,7 +84,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     @Override
     protected void handleInit() throws java.lang.Exception {
 
-        if (!ibEnabled || simulation || !accountServiceEnabled) {
+        if (!this.ibEnabled || this.simulation || !this.accountServiceEnabled) {
             return;
         }
 
@@ -140,7 +140,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     @Override
     protected void handleConnect() {
 
-        if (!ibEnabled || simulation || !accountServiceEnabled) {
+        if (!this.ibEnabled || this.simulation || !this.accountServiceEnabled) {
             return;
         }
 
@@ -171,7 +171,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
             while (this.allAccountValues.get(accountName) == null || this.allAccountValues.get(accountName).get(key) == null) {
 
-                if (!this.condition.await(retrievalTimeout, TimeUnit.SECONDS)) {
+                if (!this.condition.await(this.retrievalTimeout, TimeUnit.SECONDS)) {
                     throw new IBAccountServiceException("could not get EquityWithLoanValue for account: " + accountName);
                 }
             }
@@ -193,7 +193,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
             while (this.fa == null) {
 
-                if (!this.condition.await(retrievalTimeout, TimeUnit.SECONDS)) {
+                if (!this.condition.await(this.retrievalTimeout, TimeUnit.SECONDS)) {
                     throw new IBAccountServiceException("could not get FA ");
                 }
             }
@@ -220,7 +220,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     @Override
     protected long handleGetNumberOfContractsByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception {
 
-        if (faEnabled) {
+        if (this.faEnabled) {
 
             // if financial advisor is enabled, we have to get the number of Contracts per account
             // in order to avoid fractions
@@ -244,15 +244,15 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     @Override
     protected void handleProcessCashTransactions() throws Exception {
 
-        if (!ibEnabled || simulation) {
+        if (!this.ibEnabled || this.simulation) {
             return;
         }
 
-        if (("").equals(flexQueryId) || ("").equals(flexToken)) {
+        if (("").equals(this.flexQueryId) || ("").equals(this.flexToken)) {
             throw new IBAccountServiceException("flexQueryId and flexToken have to be defined");
         }
 
-        String url = requestUrl + "?t=" + flexToken + "&q=" + flexQueryId;
+        String url = requestUrl + "?t=" + this.flexToken + "&q=" + this.flexQueryId;
 
         // get the flex reference code
         GetMethod get = new GetMethod(url);
@@ -285,7 +285,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
         }
 
         // get the statement
-        url = statementUrl + "?t=" + flexToken + "&q=" + code + "&v=2";
+        url = statementUrl + "?t=" + this.flexToken + "&q=" + code + "&v=2";
 
         get = new GetMethod(url);
         standardClient = HttpClientUtil.getStandardClient();
@@ -320,7 +320,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
             String accountId = XPathAPI.selectSingleNode(node, "@accountId").getNodeValue();
 
-            if (accountId.equals(masterAccount)) {
+            if (accountId.equals(this.masterAccount)) {
                 continue;
             }
 

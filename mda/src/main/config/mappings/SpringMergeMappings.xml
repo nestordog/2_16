@@ -1,17 +1,76 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <mappings name="SpringMerge">
 
+        <!--  do not generate applicationContext-client.properties.vsl -->
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/remoting/client/applicationContext-client.properties.vsl"
+        outputPattern="$generatedFile"
+        outlet="client-config"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+        <modelElements>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="remotable"/>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to></to>
+        </mapping>
+
+        <!--  do not generate applicationContext-dataSource.xml.vsl -->
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/applicationContext-dataSource.xml.vsl"
+        outputPattern="$applicationContextDataSource"
+        outlet="spring-configuration"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+        <modelElements>
+            <modelElement variable="entities">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
+            </modelElement>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to></to>
+        </mapping>
+
+        <!--  do not generate applicationContext-localDataSource.xml.vsl -->
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/applicationContext-localDataSource.xml.vsl"
+        outputPattern="$applicationContextLocalDataSource"
+        outlet="spring-configuration"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false"
+        outputCondition="dataSourceEnabled">
+        <modelElements>
+            <modelElement variable="entities">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
+            </modelElement>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to></to>
+        </mapping>
+
+        <!-- add  managementServiceDiagrams ref -->
         <mapping>
             <from><![CDATA[<!-- ManagementService service client property merge-point -->]]></from>
             <to><![CDATA[<property name="diagrams" ref="managementServiceDiagrams"/>]]></to>
         </mapping>
 
-        <mapping>
-            <from><![CDATA[<!-- RuleService service property merge-point -->]]></from>
-            <to><![CDATA[<property name="marketDataTemplate" ref="marketDataTemplate"/>
-        <property name="strategyTemplate" ref="strategyTemplate"/>]]></to>
-        </mapping>
-
+        <!-- add  marketDataMessageListenerContainer ref -->
         <mapping>
             <from><![CDATA[<!-- WatchListService service client property merge-point -->]]></from>
             <to><![CDATA[<property name="marketDataMessageListenerContainer" ref="marketDataMessageListenerContainer"/>]]></to>
@@ -48,42 +107,6 @@
         </modelElements>
     </template>]]></from>
             <to><![CDATA[]]></to>
-        </mapping>
-
-        <!--  property serviceLocatorInterfaceName in cartridge.xml-->
-        <mapping>
-            <from><![CDATA[<!-- cartridge-property merge-point -->]]></from>
-            <to><![CDATA[<property reference="serviceLocatorInterfaceName"/>]]></to>
-        </mapping>
-
-        <!-- property serviceLocatorInterfaceName in namespace.xml -->
-        <mapping>
-            <from><![CDATA[<!-- namespace-propertyGroup merge-point -->]]></from>
-            <to><![CDATA[<propertyGroup name="AlgoTrader">
-        <property name="serviceLocatorInterfaceName" required="false">
-            <default>CommonServiceLocator</default>
-        </property>
-    </propertyGroup>]]></to>
-        </mapping>
-
-        <!--  new template SpringServiceLocatorInterface.vsl -->
-        <mapping>
-            <from><![CDATA[<!-- cartridge-template merge-point -->]]></from>
-            <to><![CDATA[<template
-        path="templates/spring/SpringServiceLocatorInterface.vsl"
-        outputPattern="$generatedFile"
-        outlet="server"
-        overwrite="true"
-        outputToSingleFile="true"
-        outputOnEmptyElements="false">
-        <modelElements>
-            <modelElement variable="services">
-                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
-                    <property name="richClient">true</property>
-                </type>
-            </modelElement>
-        </modelElements>
-    </template>]]></to>
         </mapping>
 
         <!-- remove condition remotable for SpringClientServiceLocator.vsl -->

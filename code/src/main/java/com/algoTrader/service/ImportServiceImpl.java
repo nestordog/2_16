@@ -2,8 +2,6 @@ package com.algoTrader.service;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -18,6 +16,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
@@ -29,16 +28,14 @@ import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.esper.io.CsvIVolReader;
 import com.algoTrader.esper.io.CsvTickReader;
 import com.algoTrader.stockOption.StockOptionSymbol;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.IVolVO;
 
 public class ImportServiceImpl extends ImportServiceBase {
 
-    private static final DateFormat fileFormat = new SimpleDateFormat("dd-MM-yyyy");
-
     private static Logger logger = MyLogger.getLogger(ImportServiceImpl.class.getName());
-    private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
+
+    private @Value("${dataSource.dataSet}") String dataSet;
 
     /**
      * must be run with simulation=false (to get correct values for bid, ask and settlement)
@@ -47,7 +44,7 @@ public class ImportServiceImpl extends ImportServiceBase {
     @Override
     protected void handleImportTicks(String isin) throws Exception {
 
-        File file = new File("results/tickdata/" + dataSet + "/" + isin + ".csv");
+        File file = new File("results/tickdata/" + this.dataSet + "/" + isin + ".csv");
 
         if (file.exists()) {
 

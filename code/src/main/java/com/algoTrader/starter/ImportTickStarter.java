@@ -7,13 +7,14 @@ public class ImportTickStarter {
 
     public static void main(String[] args) {
 
-        ImportService service = ServiceLocator.serverInstance().getImportService();
+        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        ImportService service = ServiceLocator.instance().getImportService();
 
         String[] isins = args[0].split(":");
         for (String isin : isins) {
             service.importTicks(isin);
         }
 
-        ServiceLocator.serverInstance().shutdown();
+        ServiceLocator.instance().shutdown();
     }
 }

@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.ConnectionState;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.ib.client.EClientSocket;
 
@@ -16,10 +15,10 @@ public final class IBClient extends EClientSocket {
 
     private static Logger logger = MyLogger.getLogger(IBClient.class.getName());
 
-    private static int defaultClientId = ConfigurationUtil.getBaseConfig().getInt("ib.defaultClientId"); //0
-    private static int port = ConfigurationUtil.getBaseConfig().getInt("ib.port"); //7496;//
-    private static String host = ConfigurationUtil.getBaseConfig().getString("ib.host"); // "127.0.0.1";
-    private static long connectionTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.connectionTimeout"); //10000;//
+    private static int defaultClientId = ServiceLocator.instance().getConfiguration().getInt("ib.defaultClientId"); //0
+    private static int port = ServiceLocator.instance().getConfiguration().getInt("ib.port"); //7496;//
+    private static String host = ServiceLocator.instance().getConfiguration().getString("ib.host"); // "127.0.0.1";
+    private static long connectionTimeout = ServiceLocator.instance().getConfiguration().getInt("ib.connectionTimeout"); //10000;//
 
     private static IBClient instance;
 
@@ -74,7 +73,7 @@ public final class IBClient extends EClientSocket {
             // in case there is no 2104 message from the IB Gateway (Market data farm connection is OK)
             // manually invoke initWatchlist after some time
             sleep();
-            ServiceLocator.commonInstance().getMarketDataService().initWatchlist();
+            ServiceLocator.instance().getMarketDataService().initWatchlist();
         }
     }
 

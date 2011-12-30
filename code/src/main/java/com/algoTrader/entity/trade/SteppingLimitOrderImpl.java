@@ -2,11 +2,11 @@ package com.algoTrader.entity.trade;
 
 import java.math.BigDecimal;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.ClassUtils;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.Side;
-import com.algoTrader.util.ConfigurationUtil;
+import com.algoTrader.util.Configuration;
 import com.algoTrader.util.RoundUtil;
 
 public class SteppingLimitOrderImpl extends SteppingLimitOrder {
@@ -23,7 +23,7 @@ public class SteppingLimitOrderImpl extends SteppingLimitOrder {
     @Override
     public void setDefaultLimits(double bid, double ask) {
 
-        Configuration configuration = ConfigurationUtil.getStrategyConfig(getStrategy().getName());
+        Configuration configuration = ServiceLocator.instance().getConfiguration();
         double minSpreadPosition = configuration.getDouble("minSpreadPosition");
         double maxSpreadPosition = configuration.getDouble("maxSpreadPosition");
         double spreadPositionIncrement = configuration.getDouble("spreadPositionIncrement");

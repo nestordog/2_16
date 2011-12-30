@@ -6,7 +6,7 @@ import com.algoTrader.entity.StrategyImpl;
 
 public class StrategyUtil {
 
-    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+    private static boolean simulation;
     private static Strategy strategy;
     private static String strategyName;
 
@@ -17,7 +17,7 @@ public class StrategyUtil {
 
         if (strategy == null) {
             String strategyName = getStartedStrategyName();
-            strategy = ServiceLocator.commonInstance().getLookupService().getStrategyByNameFetched(strategyName);
+            strategy = ServiceLocator.instance().getLookupService().getStrategyByNameFetched(strategyName);
         }
         return strategy;
     }
@@ -25,10 +25,12 @@ public class StrategyUtil {
     public static String getStartedStrategyName() {
 
         if (strategyName == null) {
+
+            simulation = ServiceLocator.instance().getConfiguration().getSimulation();
             if (simulation) {
                 strategyName = StrategyImpl.BASE;
             } else {
-                strategyName = ConfigurationUtil.getBaseConfig().getString("strategyName");
+                strategyName = ServiceLocator.instance().getConfiguration().getStrategyName();
                 if (strategyName == null) {
                     throw new RuntimeException("no strategy defined on commandline");
                 }

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
@@ -19,7 +20,6 @@ import com.algoTrader.entity.trade.Fill;
 import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -32,8 +32,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
     private static Logger simulationLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
 
-    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
-    private static boolean logTransactions = ConfigurationUtil.getBaseConfig().getBoolean("simulation.logTransactions");
+    private @Value("${simulation}") boolean simulation;
+    private @Value("${simulation.logTransactions}") boolean logTransactions;
 
     @Override
     protected void handleCreateTransaction(Fill fill) throws Exception {
@@ -168,7 +168,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             : "");
         //@formatter:on
 
-        if (simulation && logTransactions) {
+        if (this.simulation && this.logTransactions) {
             simulationLogger.info(logMessage);
         } else {
             logger.info(logMessage);
@@ -193,7 +193,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             getRuleService().routeEvent(fill.getParentOrder().getStrategy().getName(), fill);
         }
 
-        if (!simulation) {
+        if (!this.simulation) {
             logger.debug("propagated fill: " + fill);
         }
     }
@@ -201,7 +201,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     @Override
     protected void handleLogTransactionSummary(Set<Transaction> transactions) throws Exception {
 
-        if (transactions.size() > 0 && !simulation) {
+        if (transactions.size() > 0 && !this.simulation) {
 
             long totalQuantity = 0;
             double totalPrice = 0.0;
@@ -256,7 +256,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 transactions.add(fill.getTransaction());
             }
 
-            ServiceLocator.serverInstance().getTransactionService().logTransactionSummary(transactions);
+            ServiceLocator.instance().getTransactionService().logTransactionSummary(transactions);
         }
     }
 
@@ -278,7 +278,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
                 double transactionCommission = commission * qty / maxCumQty;
 
-                ServiceLocator.serverInstance().getTransactionService().setCommission(transactionNumber, transactionCommission);
+                ServiceLocator.instance().getTransactionService().setCommission(transactionNumber, transactionCommission);
             }
 
         }

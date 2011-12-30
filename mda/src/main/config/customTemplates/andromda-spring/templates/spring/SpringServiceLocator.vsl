@@ -1,5 +1,9 @@
-## AlgoTrader: 15075
+## AlgoTrader: 15187
 ## line 16: implements CommonServiceLocator
+## line 96 - 99: define several BEAN_REFERENCE_LOCATIONs
+## line 130 - 136: add isInitialized
+## line 158: use getBean (by class)
+## line 174 - 203: add getService (by class) & getConfiguration
 // license-header java merge-point
 //
 // Attention: Generated code! Do not modify by hand!
@@ -14,7 +18,7 @@ package $springTypesPackage;
 /**
  * Locates and provides all available application services.
  */
-public class $serviceLocatorName implements CommonServiceLocator
+public class $serviceLocatorName
 {
     private ${serviceLocatorName}()
     {
@@ -93,10 +97,11 @@ public class $serviceLocatorName implements CommonServiceLocator
 #else
 #set ($factoryId = $beanRefFactoryId)
 #end
-    /**
-     * The default bean reference factory location.
-     */
-    private final String DEFAULT_BEAN_REFERENCE_LOCATION = "$beanRefFactory";
+
+    public static final String LOCAL_BEAN_REFERENCE_LOCATION = "beanRefFactoryLocal.xml";
+    public static final String SERVER_BEAN_REFERENCE_LOCATION = "beanRefFactoryServer.xml";
+    public static final String CLIENT_BEAN_REFERENCE_LOCATION = "beanRefFactoryClient.xml";
+    public static final String SIMULATION_BEAN_REFERENCE_LOCATION = "beanRefFactorySimulation.xml";    
 
     /**
      * The default bean reference factory ID, referencing $factoryId.
@@ -113,7 +118,7 @@ public class $serviceLocatorName implements CommonServiceLocator
         {
             if (this.beanFactoryReferenceLocation == null)
             {
-                this.beanFactoryReferenceLocation = this.DEFAULT_BEAN_REFERENCE_LOCATION;
+                this.beanFactoryReferenceLocation = SERVER_BEAN_REFERENCE_LOCATION;
             }
             if (this.beanRefFactoryReferenceId == null)
             {
@@ -127,6 +132,14 @@ public class $serviceLocatorName implements CommonServiceLocator
         return (org.springframework.context.ApplicationContext)this.beanFactoryReference.getFactory();
     }
 
+    /**
+     * checks weather the Spring application context has been initialized
+     */
+    public boolean isInitialized() 
+    {
+        return this.beanFactoryReference != null;
+    }
+    
     /**
      * Shuts down the ServiceLocator and releases any used resources.
      */
@@ -147,8 +160,7 @@ public class $serviceLocatorName implements CommonServiceLocator
      */
     public final $service.fullyQualifiedName get${service.name}()
     {
-        return ($service.fullyQualifiedName)
-            getContext().getBean("$service.beanName");
+        return getContext().getBean("$service.beanName",${service.fullyQualifiedName}.class);
     }
 #end
 #foreach ($manageable in $manageables)
@@ -167,10 +179,31 @@ public class $serviceLocatorName implements CommonServiceLocator
     /**
      * Gets an instance of the given service.
      * @param serviceName
-     * @return getContext().getBean(BEAN_PREFIX + serviceName)
+     * @param clazz 
+     * @return getContext().getBean(BEAN_PREFIX + serviceName, clazz)
      */
-    public final Object getService(String serviceName)
+    public final <T> T getService(String serviceName, Class<T> clazz) 
     {
-        return getContext().getBean(BEAN_PREFIX + serviceName);
+        // check and see if we are in OSGi environment
+        org.osgi.framework.Bundle bundle = org.osgi.framework.FrameworkUtil.getBundle(this.getClass());
+        if (bundle != null) 
+        {
+            org.osgi.framework.BundleContext bundleContext = bundle.getBundleContext();
+            org.osgi.framework.ServiceReference<T> serviceReference = bundleContext.getServiceReference(clazz);
+            return bundleContext.getService(serviceReference);
+        } else 
+        {
+            // otherwise use the local spring context
+            return getContext().getBean(BEAN_PREFIX + serviceName, clazz);
+        }
+    }
+
+    /**
+     * Gets the Configuration
+     * @return getContext().getBean("configuration")
+     */
+    public final com.algoTrader.util.Configuration getConfiguration() 
+    {
+        return getContext().getBean("configuration", com.algoTrader.util.Configuration.class);
     }
 }

@@ -1,7 +1,6 @@
 package com.algoTrader.esper.io.jms;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.util.ConfigurationUtil;
 import com.espertech.esper.adapter.Adapter;
 import com.espertech.esper.adapter.AdapterSPI;
 import com.espertech.esper.adapter.AdapterState;
@@ -14,7 +13,7 @@ import com.espertech.esper.plugin.PluginLoaderInitContext;
 public class SpringContextLoader implements PluginLoader {
 
     private static final String INPUT_ADAPTER_BEAN_NAME = "inputAdapterBeanName";
-    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+    private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
 
     private Adapter adapter;
 
@@ -45,7 +44,7 @@ public class SpringContextLoader implements PluginLoader {
             return;
 
         String beanName = context.getProperties().getProperty(INPUT_ADAPTER_BEAN_NAME);
-        this.adapter = (Adapter) ServiceLocator.commonInstance().getService(beanName);
+        this.adapter = ServiceLocator.instance().getService(beanName, Adapter.class);
         if (this.adapter instanceof AdapterSPI) {
             AdapterSPI spi = (AdapterSPI) this.adapter;
             spi.setEPServiceProvider(context.getEpServiceProvider());

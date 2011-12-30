@@ -12,6 +12,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import com.algoTrader.ServiceLocator;
@@ -23,7 +24,6 @@ import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.esper.io.CsvTickWriter;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
@@ -34,10 +34,10 @@ import com.espertech.esper.collection.Pair;
 public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     private static final long serialVersionUID = 2871084846072648536L;
-
     private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
-    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
     private static DecimalFormat decimalFormat = new DecimalFormat("#,##0.0000");
+
+    private @Value("${simulation}") boolean simulation;
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
 
@@ -97,7 +97,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
     @Override
     protected void handleInitWatchlist() {
 
-        if (!simulation) {
+        if (!this.simulation) {
 
             List<Security> securities = getSecurityDao().findSecuritiesOnActiveWatchlist();
 
@@ -117,7 +117,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             // only put on external watchlist if nobody was watching this security so far
             if (security.getWatchListItems().size() == 0) {
-                if (!simulation) {
+                if (!this.simulation) {
                     putOnExternalWatchlist(security);
                 }
             }
@@ -160,7 +160,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             // only remove from external watchlist if nobody is watching this security anymore
             if (security.getWatchListItems().size() == 0) {
-                if (!simulation) {
+                if (!this.simulation) {
                     removeFromExternalWatchlist(security);
                 }
             }
@@ -237,7 +237,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
         public void update(MarketDataEvent marketDataEvent) {
 
-            ServiceLocator.serverInstance().getMarketDataService().propagateMarketDataEvent(marketDataEvent);
+            ServiceLocator.instance().getMarketDataService().propagateMarketDataEvent(marketDataEvent);
         }
     }
 
@@ -248,7 +248,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             Tick tick = insertStream.getFirst();
             try {
-                ServiceLocator.serverInstance().getMarketDataService().persistTick(tick);
+                ServiceLocator.instance().getMarketDataService().persistTick(tick);
 
                 // catch duplicate entry errors and log them as warn
             } catch (DataIntegrityViolationException e) {

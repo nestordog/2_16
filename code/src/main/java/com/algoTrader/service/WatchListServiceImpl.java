@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.WatchListItem;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.StrategyUtil;
 
 public class WatchListServiceImpl extends WatchListServiceBase {
 
-    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+    private @Value("${simulation}") boolean simulation;
 
     public DefaultMessageListenerContainer marketDataMessageListenerContainer;
     public DefaultMessageListenerContainer strategyMessageListenerContainer;
@@ -45,7 +45,7 @@ public class WatchListServiceImpl extends WatchListServiceBase {
     @Override
     protected void handleInitWatchlist(String strategyName) throws Exception {
 
-        if (simulation || StrategyUtil.isStartedStrategyBASE())
+        if (this.simulation || StrategyUtil.isStartedStrategyBASE())
             return;
 
         // assemble the message selector

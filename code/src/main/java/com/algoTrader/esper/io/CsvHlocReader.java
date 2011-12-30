@@ -15,12 +15,12 @@ import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
-import com.algoTrader.util.ConfigurationUtil;
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.vo.HlocVO;
 
 public class CsvHlocReader {
 
-    private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
+    private static String dataSet = ServiceLocator.instance().getConfiguration().getDataSet();
 
     //@formatter:off
     private static CellProcessor[] processor = new CellProcessor[] {

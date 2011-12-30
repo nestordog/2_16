@@ -6,18 +6,18 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolver;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.sabr.SABRVol;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 
 public class StockOptionUtil {
 
     private static final double MILLISECONDS_PER_YEAR = 31536000000l;
-    private static boolean sabrEnabled = ConfigurationUtil.getBaseConfig().getBoolean("sabrEnabled");
-    private static double beta = ConfigurationUtil.getBaseConfig().getDouble("sabrBeta");
+    private static boolean sabrEnabled = ServiceLocator.instance().getConfiguration().getBoolean("sabrEnabled");
+    private static double beta = ServiceLocator.instance().getConfiguration().getDouble("sabrBeta");
 
     public static double getOptionPrice(StockOption stockOption, double underlayingSpot, double vola) throws MathException, IllegalArgumentException {
 

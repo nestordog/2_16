@@ -33,7 +33,7 @@ public abstract class TradeCallback {
         String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_");
 
         // undeploy the statement
-        ServiceLocator.commonInstance().getRuleService().undeployRule(strategyName, alias);
+        ServiceLocator.instance().getRuleService().undeployRule(strategyName, alias);
 
         long startTime = System.currentTimeMillis();
         logger.debug("onTradeCompleted start " + sortedSecurityIds);

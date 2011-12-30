@@ -9,7 +9,6 @@ import org.hibernate.Hibernate;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.enumeration.Currency;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
 import com.espertech.esper.event.WrapperEventBean;
@@ -21,14 +20,11 @@ public abstract class SecurityImpl extends Security {
 
     private static Logger logger = MyLogger.getLogger(SecurityImpl.class.getName());
 
-    private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
-    private static double initialMarginMarkup = ConfigurationUtil.getBaseConfig().getDouble("initialMarginMarkup");
-
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Tick getLastTick() {
 
-        List<Map> events = ServiceLocator.commonInstance().getRuleService().getAllEvents(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK");
+        List<Map> events = ServiceLocator.instance().getRuleService().getAllEvents(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK");
 
         // try to see if the rule GET_LAST_TICK has the tick
         for (Map event : events) {
@@ -44,7 +40,7 @@ public abstract class SecurityImpl extends Security {
         }
 
         // if we did not get the tick up to now go to the db an get the last tick
-        Tick tick = ServiceLocator.commonInstance().getLookupService().getLastTick(getId());
+        Tick tick = ServiceLocator.instance().getLookupService().getLastTick(getId());
 
         if (tick == null) {
             logger.warn("no last tick was found for " + this);
@@ -62,12 +58,13 @@ public abstract class SecurityImpl extends Security {
     @Override
     public double getFXRate(Currency transactionCurrency) {
 
-        return ServiceLocator.commonInstance().getLookupService().getForexRateDouble(getSecurityFamily().getCurrency(), transactionCurrency);
+        return ServiceLocator.instance().getLookupService().getForexRateDouble(getSecurityFamily().getCurrency(), transactionCurrency);
     }
 
     @Override
     public double getFXRateBase() {
 
+        Currency portfolioBaseCurrency = ServiceLocator.instance().getConfiguration().getPortfolioBaseCurrency();
         return getFXRate(portfolioBaseCurrency);
     }
 
@@ -88,6 +85,7 @@ public abstract class SecurityImpl extends Security {
         if (lastTick != null && lastTick.getCurrentValueDouble() > 0.0) {
 
             int contractSize = getSecurityFamily().getContractSize();
+            double initialMarginMarkup = ServiceLocator.instance().getConfiguration().getInitialMarginMarkup();
             marginPerContract = lastTick.getCurrentValueDouble() * contractSize / initialMarginMarkup;
         } else {
             logger.warn("no last tick available or currentValue to low to set margin on " + getSymbol());

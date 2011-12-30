@@ -4,11 +4,12 @@ import java.math.BigDecimal;
 
 import org.apache.commons.math.util.MathUtils;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.OptionType;
 
 public class RoundUtil {
 
-    private static final int portfolioDigits = ConfigurationUtil.getBaseConfig().getInt("portfolioDigits");
+    private static final int portfolioDigits = ServiceLocator.instance().getConfiguration().getInt("portfolioDigits");
 
     public static double roundToNextN(double value, double n) {
 

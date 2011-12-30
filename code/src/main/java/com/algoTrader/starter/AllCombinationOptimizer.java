@@ -14,9 +14,9 @@ import com.algoTrader.util.ListPartitioner;
 public class AllCombinationOptimizer {
 
     private static final String commandName = "simulateByMultiParam";
-    private static final String[] vmArgs = { "simulation=true", "roundDigits=" + ConfigurationUtil.getBaseConfig().getInt("simulation.roundDigits") };
+    private static final String[] vmArgs = { "simulation=true", "roundDigits=" + ConfigurationUtil.getInt("simulation.roundDigits") };
     private static final String dataSource = "dataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTrader";
-    private static final int roundDigits = ConfigurationUtil.getBaseConfig().getInt("simulation.roundDigits");
+    private static final int roundDigits = ConfigurationUtil.getInt("simulation.roundDigits");
     private static final NumberFormat format = NumberFormat.getInstance();
     private static final int partitionSize = 10;
 

@@ -6,16 +6,13 @@ import java.util.List;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.security.Forex;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
 
 public class StrategyImpl extends Strategy {
 
     private static final long serialVersionUID = -2271735085273721632L;
 
-    private static double initialMarginMarkup = ConfigurationUtil.getBaseConfig().getDouble("initialMarginMarkup");
-
-    public final static String BASE = "BASE";
+    public static final String BASE = "BASE";
 
     @Override
     public boolean isBase() {
@@ -103,6 +100,7 @@ public class StrategyImpl extends Strategy {
     @Override
     public double getInitialMarginDouble() {
 
+        double initialMarginMarkup = ServiceLocator.instance().getConfiguration().getInitialMarginMarkup();
         return initialMarginMarkup * getMaintenanceMarginDouble();
     }
 
@@ -171,15 +169,15 @@ public class StrategyImpl extends Strategy {
     }
 
     private List<Position> getOpenPositions() {
-        return ServiceLocator.commonInstance().getLookupService().getOpenPositionsByStrategy(getName());
+        return ServiceLocator.instance().getLookupService().getOpenPositionsByStrategy(getName());
     }
 
     private List<Position> getOpenFXPositions() {
-        return ServiceLocator.commonInstance().getLookupService().getOpenFXPositionsByStrategy(getName());
+        return ServiceLocator.instance().getLookupService().getOpenFXPositionsByStrategy(getName());
     }
 
     @SuppressWarnings("unchecked")
     private List<CashBalance> getCashBalancesBase() {
-        return ServiceLocator.commonInstance().getLookupService().getCashBalancesBase();
+        return ServiceLocator.instance().getLookupService().getCashBalancesBase();
     }
 }

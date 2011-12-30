@@ -71,7 +71,7 @@ public class PositionServiceImpl extends PositionServiceBase {
                 getRuleService().addOrderCallback(StrategyImpl.BASE, Collections.singleton((Order) order), new TradeCallback() {
                     @Override
                     public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
-                        MarketDataService marketDataService = ServiceLocator.commonInstance().getMarketDataService();
+                        MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
                         for (OrderStatus orderStatus : orderStati) {
                             if (Status.EXECUTED.equals(orderStatus.getStatus())) {
                                 Order order = orderStatus.getParentOrder();

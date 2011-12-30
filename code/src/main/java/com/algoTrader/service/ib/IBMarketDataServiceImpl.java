@@ -5,12 +5,12 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.ConnectionState;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.SubscribeTickVO;
 import com.algoTrader.vo.UnsubscribeTickVO;
@@ -19,16 +19,16 @@ import com.ib.client.Contract;
 public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements DisposableBean {
 
     private static final long serialVersionUID = -4704799803078842628L;
-
     private static Logger logger = MyLogger.getLogger(IBMarketDataServiceImpl.class.getName());
-
     private static IBClient client;
-    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
-    private static String genericTickList = ConfigurationUtil.getBaseConfig().getString("ib.genericTickList");
 
+    private @Value("${simulation}") boolean simulation;
+    private @Value("${ib.genericTickList}") String genericTickList;
+
+    @Override
     public void handleInit() {
 
-        if (!simulation) {
+        if (!this.simulation) {
             client = IBClient.getDefaultInstance();
         }
     }
@@ -38,7 +38,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
 
         if (client != null
                 && (client.getIbAdapter().getState().equals(ConnectionState.READY) || client.getIbAdapter().getState().equals(ConnectionState.SUBSCRIBED))
-                && !client.getIbAdapter().isRequested() && !simulation) {
+                && !client.getIbAdapter().isRequested() && !this.simulation) {
 
             client.getIbAdapter().setRequested(true);
             client.getIbAdapter().setState(ConnectionState.SUBSCRIBED);
@@ -68,7 +68,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
         // requestMarketData from IB
         Contract contract = IBUtil.getContract(security);
 
-        client.reqMktData(tickerId, contract, genericTickList, false);
+        client.reqMktData(tickerId, contract, this.genericTickList, false);
 
         logger.debug("request " + tickerId + " for : " + security.getSymbol());
     }

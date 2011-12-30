@@ -17,6 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
@@ -24,7 +25,6 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.esper.io.CsvTickWriter;
 import com.algoTrader.service.HistoricalDataServiceException;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -33,16 +33,13 @@ import com.ib.client.Contract;
 public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase implements DisposableBean {
 
     private static final long serialVersionUID = 8656307573474662794L;
-
     private static Logger logger = MyLogger.getLogger(IBHistoricalDataServiceImpl.class.getName());
-
-    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
-    private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
-    private static boolean historicalDataServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.historicalDataServiceEnabled");
-
-    private static int historicalDataTimeout = ConfigurationUtil.getBaseConfig().getInt("ib.historicalDataTimeout");
-
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
+
+    private @Value("${simulation}") boolean simulation;
+    private @Value("#{'${marketChannel}' == 'IB'}") boolean ibEnabled;
+    private @Value("${ib.historicalDataServiceEnabled}") boolean historicalDataServiceEnabled;
+    private @Value("${ib.historicalDataTimeout}") int historicalDataTimeout;
 
     private IBClient client;
     private IBDefaultAdapter wrapper;
@@ -61,7 +58,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
     @Override
     protected void handleInit() throws Exception {
 
-        if (!ibEnabled || simulation || !historicalDataServiceEnabled) {
+        if (!this.ibEnabled || this.simulation || !this.historicalDataServiceEnabled) {
             return;
         }
 
@@ -226,7 +223,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
     @Override
     protected void handleConnect() {
 
-        if (!ibEnabled || simulation || !historicalDataServiceEnabled) {
+        if (!this.ibEnabled || this.simulation || !this.historicalDataServiceEnabled) {
             return;
         }
 
@@ -347,7 +344,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
 
                 Boolean success;
                 while ((success = this.requestIdBooleanMap.get(requestId)) == null) {
-                    if (!this.condition.await(historicalDataTimeout, TimeUnit.SECONDS)) {
+                    if (!this.condition.await(this.historicalDataTimeout, TimeUnit.SECONDS)) {
                         this.client.cancelHistoricalData(requestId);
                         continue;
                     }

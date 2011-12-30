@@ -3,6 +3,7 @@ package com.algoTrader.service;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
@@ -13,7 +14,6 @@ import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
@@ -21,14 +21,16 @@ import com.algoTrader.util.RoundUtil;
 
 public abstract class OrderServiceImpl extends OrderServiceBase {
 
+    private static final long serialVersionUID = -197227736784463124L;
+
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
 
-    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
+    private @Value("${simulation}") boolean simulation;
 
     @Override
     protected void handleSendOrder(Order order) throws Exception {
 
-        if (simulation) {
+        if (this.simulation) {
 
             // process the order internally
             sendInternalOrder(order);
@@ -152,7 +154,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
             getRuleService().routeEvent(orderStatus.getParentOrder().getStrategy().getName(), orderStatus);
         }
 
-        if (!simulation) {
+        if (!this.simulation) {
             logger.debug("propagated orderStatus: " + orderStatus);
         }
     }

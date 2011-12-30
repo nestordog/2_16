@@ -2,8 +2,8 @@ package com.algoTrader.esper.subscriber;
 
 import org.apache.log4j.Logger;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Transaction;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.PortfolioValueVO;
@@ -12,7 +12,7 @@ public class PrintPortfolioValueSubscriber {
 
     private static Logger logger = MyLogger.getLogger(PrintPortfolioValueSubscriber.class.getName());
 
-    private static long initialBalance = ConfigurationUtil.getBaseConfig().getLong("simulation.initialBalance");
+    private static long initialBalance = ServiceLocator.instance().getConfiguration().getInitialBalance();
 
     private static boolean initialized = false;
 

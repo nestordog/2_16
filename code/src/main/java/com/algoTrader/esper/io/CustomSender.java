@@ -20,10 +20,10 @@ public class CustomSender extends AbstractSender {
     public void sendEvent(AbstractSendableEvent event, Object beanToSend) {
 
         // raw Ticks are always sent using MarketDataService
-        RuleService ruleService = ServiceLocator.commonInstance().getRuleService();
+        RuleService ruleService = ServiceLocator.instance().getRuleService();
         if (beanToSend instanceof RawTickVO) {
 
-            MarketDataService marketDataService = ServiceLocator.commonInstance().getMarketDataService();
+            MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
 
             Tick tick = marketDataService.completeRawTick((RawTickVO) beanToSend);
 
@@ -32,7 +32,7 @@ public class CustomSender extends AbstractSender {
             // Bars are always sent using MarketDataService
         } else if (beanToSend instanceof BarVO) {
 
-            MarketDataService marketDataService = ServiceLocator.commonInstance().getMarketDataService();
+            MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
 
             Bar bar = marketDataService.completeBar((BarVO) beanToSend);
 

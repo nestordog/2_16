@@ -5,18 +5,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.security.Forex;
 import com.algoTrader.enumeration.Currency;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DoubleMap;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.BalanceVO;
 
 public class StrategyDaoImpl extends StrategyDaoBase {
 
-    private static double initialMarginMarkup = ConfigurationUtil.getBaseConfig().getDouble("initialMarginMarkup");
-    private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
+    private @Value("${initialMarginMarkup}") double initialMarginMarkup;
+    private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
 
     @Override
     protected BigDecimal handleGetPortfolioCashBalance() throws Exception {
@@ -90,7 +91,7 @@ public class StrategyDaoImpl extends StrategyDaoBase {
     @Override
     protected double handleGetPortfolioInitialMarginDouble() {
 
-        return initialMarginMarkup * getPortfolioMaintenanceMarginDouble();
+        return this.initialMarginMarkup * getPortfolioMaintenanceMarginDouble();
     }
 
     @Override
@@ -119,7 +120,7 @@ public class StrategyDaoImpl extends StrategyDaoBase {
     @SuppressWarnings("unchecked")
     protected List<BalanceVO> handleGetPortfolioBalances() throws Exception {
 
-        List<Currency> currencies = ServiceLocator.commonInstance().getLookupService().getHeldCurrencies();
+        List<Currency> currencies = ServiceLocator.instance().getLookupService().getHeldCurrencies();
         DoubleMap<Currency> cashMap = new DoubleMap<Currency>();
         DoubleMap<Currency> securitiesMap = new DoubleMap<Currency>();
 
@@ -155,7 +156,7 @@ public class StrategyDaoImpl extends StrategyDaoBase {
             double cash = cashMap.get(currency);
             double securities = securitiesMap.get(currency);
             double netLiqValue = cash + securities;
-            double exchangeRate = ServiceLocator.commonInstance().getLookupService().getForexRateDouble(currency, portfolioBaseCurrency);
+            double exchangeRate = ServiceLocator.instance().getLookupService().getForexRateDouble(currency, this.portfolioBaseCurrency);
             double cashBase = cash * exchangeRate;
             double securitiesBase = securities * exchangeRate;
             double netLiqValueBase = netLiqValue * exchangeRate;

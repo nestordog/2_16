@@ -1,60 +1,36 @@
 package com.algoTrader.util;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.util.Properties;
 
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.SystemConfiguration;
-import org.apache.log4j.Logger;
-
-import com.algoTrader.entity.StrategyImpl;
-
+/**
+ * helper class to retrieve properties from conf.properties and system properties before SpringContext is initialized
+ */
 public class ConfigurationUtil {
 
-    private static String baseFileName = "conf-base.properties";
+    private static Properties props;
+    private static String fileName = "/conf.properties";
 
-    private static CompositeConfiguration baseConfig = null;
-    private static Map<String, CompositeConfiguration> strategyConfigMap = new HashMap<String, CompositeConfiguration>();
+    static {
+        try {
+            props = new Properties();
+            props.load(ConfigurationUtil.class.getResourceAsStream(fileName));
+            props.putAll(System.getProperties());
 
-    private static Logger logger = MyLogger.getLogger(ConfigurationUtil.class.getName());
-
-    public static Configuration getBaseConfig() {
-
-        if (baseConfig == null) {
-            baseConfig = new CompositeConfiguration();
-
-            baseConfig.addConfiguration(new SystemConfiguration());
-            try {
-                baseConfig.addConfiguration(new PropertiesConfiguration(baseFileName));
-            } catch (ConfigurationException e) {
-                logger.error("error loading base.properties", e);
-            }
+        } catch (IOException e) {
+            System.out.println("could not load properties");
         }
-        return baseConfig;
+    };
+
+    public static String getString(String key) {
+        return props.getProperty(key);
     }
 
-    public static Configuration getStrategyConfig(String strategyName) {
+    public static int getInt(String key) {
+        return Integer.valueOf(props.getProperty(key));
+    }
 
-        if (StrategyImpl.BASE.equals(strategyName.toUpperCase())) {
-            return getBaseConfig();
-        }
-
-        CompositeConfiguration strategyConfig = strategyConfigMap.get(strategyName.toUpperCase());
-        if (strategyConfig == null) {
-
-            strategyConfig = new CompositeConfiguration();
-            strategyConfig.addConfiguration(new SystemConfiguration());
-            try {
-                strategyConfig.addConfiguration(new PropertiesConfiguration("conf-" + strategyName.toLowerCase() + ".properties"));
-                strategyConfig.addConfiguration(new PropertiesConfiguration(baseFileName));
-            } catch (ConfigurationException e) {
-                logger.error("error loading " + strategyName.toLowerCase() + ".properties", e);
-            }
-            strategyConfigMap.put(strategyName.toUpperCase(), strategyConfig);
-        }
-        return strategyConfig;
+    public static boolean getBoolean(String key) {
+        return Boolean.parseBoolean(props.getProperty(key));
     }
 }

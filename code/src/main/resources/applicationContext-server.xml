@@ -1,12 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:lang="http://www.springframework.org/schema/lang"
-       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-       http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd
-       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <!-- ============================= Properties Management ============================================ -->
+
+    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+
+    <bean id="properties" class="org.springframework.beans.factory.config.SystemPropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <!--  defining conf.properties will allow overwrites by strategies -->
+                <value>classpath:conf.properties</value>
+                <value>classpath*:conf-**.properties</value>
+            </list>
+        </property>
+        <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_OVERRIDE</value></property>
+    </bean>
+
+    <!--  PropertyPlaceholderConfigurer to overwrite settings form commandline -->
+    <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="properties" ref="properties" />
+        <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_NEVER</value></property>
+    </bean>
+
+    <bean id="configuration" class="com.algoTrader.util.Configuration"/>
+
+    <!-- ============================= Data Source an Transaction Management ============================ -->
 
     <!-- Local DataSource that works in any environment -->
     <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
@@ -25,11 +46,7 @@
         <property name="sessionFactory"><ref bean="sessionFactory"/></property>
     </bean>
 
-    <!--  PropertyPlaceholderConfigurer to overwrite settings form commandline -->
-    <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="location"><value>/conf-base.properties</value></property>
-        <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_OVERRIDE</value></property>
-    </bean>
+    <!-- =================================== Broker Interfaces  ========================================= -->
 
     <!-- Interactive Broker Aliases -->
     <alias name="iBMarketDataService" alias="marketDataService"/>
@@ -40,6 +57,8 @@
 
     <!-- Swissquote Aliases -->
 <!--     <alias name="sQStockOptionRetrieverService" alias="stockOptionRetrieverService"/> -->
+
+    <!-- =========================================== JMX ================================================ -->
 
     <!--  MBean Server -->
     <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
@@ -99,44 +118,6 @@
             <list>
                <bean class="com.algoTrader.util.DatePropertyEditorRegistrar"/>
             </list>
-        </property>
-    </bean>
-
-    <!-- JMS ActiveMQ Connection Factory -->
-    <bean id="jmsActiveMQFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
-        <property name="targetConnectionFactory">
-            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
-                <property name="brokerURL" value="failover:tcp://localhost:61616" />
-            </bean>
-        </property>
-    </bean>
-
-    <!-- ActiveMQ topic used for marketData -->
-    <bean id="marketDataTopic" class="org.apache.activemq.command.ActiveMQTopic">
-        <constructor-arg value="MARKETDATA.TOPIC" />
-    </bean>
-
-    <!-- Spring JMS Template used for marketData -->
-    <bean id="marketDataTemplate" class="org.springframework.jms.core.JmsTemplate">
-        <property name="connectionFactory">
-            <ref bean="jmsActiveMQFactory" />
-        </property>
-        <property name="defaultDestination">
-            <ref bean="marketDataTopic" />
-        </property>
-        <property name="timeToLive" value="10000"/>
-          <property name="deliveryPersistent" value="false"/>
-          <property name="messageIdEnabled" value="false"/>
-          <property name="explicitQosEnabled" value="true" />
-        <property name="sessionAcknowledgeMode">
-            <util:constant static-field="javax.jms.Session.DUPS_OK_ACKNOWLEDGE"/>
-        </property>
-    </bean>
-
-    <!-- Spring JMS Template used for strategy specific messages -->
-    <bean id="strategyTemplate" class="org.springframework.jms.core.JmsTemplate">
-        <property name="connectionFactory">
-            <ref bean="jmsActiveMQFactory" />
         </property>
     </bean>
 

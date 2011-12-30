@@ -13,7 +13,7 @@ public class DateUtil {
     public static Date getCurrentEPTime() {
 
         String strategyName = StrategyUtil.getStartedStrategyName();
-        RuleService ruleService = ServiceLocator.commonInstance().getRuleService();
+        RuleService ruleService = ServiceLocator.instance().getRuleService();
         if (ruleService.isInitialized(strategyName) && !ruleService.isInternalClock(strategyName)) {
             return new Date(ruleService.getCurrentTime(strategyName));
         } else {

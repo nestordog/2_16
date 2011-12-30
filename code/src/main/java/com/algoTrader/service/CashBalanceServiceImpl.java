@@ -2,16 +2,17 @@ package com.algoTrader.service;
 
 import java.math.BigDecimal;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import com.algoTrader.entity.CashBalance;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.security.Forex;
 import com.algoTrader.enumeration.Currency;
-import com.algoTrader.util.ConfigurationUtil;
 
 public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
-    private static Currency portfolioBaseCurrency = Currency.fromString(ConfigurationUtil.getBaseConfig().getString("portfolioBaseCurrency"));
+    private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
 
     @Override
     protected void handleAddAmount(Transaction transaction) throws Exception {
@@ -22,7 +23,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
             addAmount(transaction.getStrategy(), transaction.getCurrency(), transaction.getGrossValue());
 
             // commission is booked in baseCurrency
-            addAmount(transaction.getStrategy(), portfolioBaseCurrency, transaction.getCommission());
+            addAmount(transaction.getStrategy(), this.portfolioBaseCurrency, transaction.getCommission());
         } else {
 
             // the entire transaction (price + commission) is booked in transaction currency

@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.ConvergenceException;
@@ -30,6 +29,7 @@ import org.apache.commons.math.optimization.direct.MultiDirectional;
 import org.apache.commons.math.optimization.univariate.BrentOptimizer;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.CashBalance;
@@ -49,7 +49,7 @@ import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.MarketDataType;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
 import com.algoTrader.esper.io.CsvTickInputAdapterSpec;
-import com.algoTrader.util.ConfigurationUtil;
+import com.algoTrader.util.Configuration;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.EndOfSimulationVO;
 import com.algoTrader.vo.MaxDrawDownVO;
@@ -64,20 +64,19 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
     private static Logger resultLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
-
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static DateFormat monthFormat = new SimpleDateFormat(" MMM-yy ");
     private static DateFormat yearFormat = new SimpleDateFormat("   yyyy ");
     private static final NumberFormat format = NumberFormat.getInstance();
 
-    private static final int roundDigits = ConfigurationUtil.getBaseConfig().getInt("simulation.roundDigits");
-    private static final Date startDate = new Date(ConfigurationUtil.getBaseConfig().getLong("simulation.start"));
-    private static boolean simulateStockOptions = ConfigurationUtil.getBaseConfig().getBoolean("statement.simulateStockOptions");
-    private static boolean simulateFuturesByUnderlaying = ConfigurationUtil.getBaseConfig().getBoolean("statement.simulateFuturesByUnderlaying");
-    private static boolean simulateFuturesByGenericFutures = ConfigurationUtil.getBaseConfig().getBoolean("statement.simulateFuturesByGenericFutures");
+    private @Value("${simulation.roundDigits}") int roundDigits;
+    private @Value("${simulation.start}") long start;
+    private @Value("${statement.simulateStockOptions}") boolean simulateStockOptions;
+    private @Value("${statement.simulateFuturesByUnderlaying}") boolean simulateFuturesByUnderlaying;
+    private @Value("${statement.simulateFuturesByGenericFutures}") boolean simulateFuturesByGenericFutures;
 
-    static {
-        format.setMinimumFractionDigits(roundDigits);
+    public SimulationServiceImpl() {
+        format.setMinimumFractionDigits(this.roundDigits);
     }
 
     @Override
@@ -150,12 +149,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         getCombinationDao().remove((Collection<Combination>) getCombinationDao().loadAll(CombinationDao.TRANSFORM_NONE));
 
         // delete all StockOptions if they are beeing simulated
-        if (simulateStockOptions) {
+        if (this.simulateStockOptions) {
             getSecurityDao().remove((Collection<Security>) getStockOptionDao().loadAll(StockOptionDao.TRANSFORM_NONE));
         }
 
         // delete all Futures if they are beeing simulated
-        if (simulateFuturesByUnderlaying || simulateFuturesByGenericFutures) {
+        if (this.simulateFuturesByUnderlaying || this.simulateFuturesByGenericFutures) {
             getSecurityDao().remove((Collection<Security>) getFutureDao().loadAll(FutureDao.TRANSFORM_NONE));
         }
     }
@@ -172,8 +171,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 logger.warn("no data available for " + security.getSymbol());
                 continue;
             }
-            MarketDataType marketDataType = MarketDataType.fromString(ConfigurationUtil.getBaseConfig().getString("dataSource.dataSetType").toUpperCase());
-            String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
+            MarketDataType marketDataType = ServiceLocator.instance().getConfiguration().getDataSetType();
+            String dataSet = ServiceLocator.instance().getConfiguration().getDataSet();
 
             File file = new File("results/" + marketDataType.toString().toLowerCase() + "data/" + dataSet + "/" + security.getIsin() + ".csv");
 
@@ -207,7 +206,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         long startTime = System.currentTimeMillis();
 
         // must call resetDB through ServiceLocator in order to get a transaction
-        ServiceLocator.serverInstance().getSimulationService().resetDB();
+        ServiceLocator.instance().getSimulationService().resetDB();
 
         // init all activatable strategies
         List<Strategy> strategies = getStrategyDao().findAutoActivateStrategies();
@@ -247,7 +246,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         long startTime = System.currentTimeMillis();
 
         // get the existingTransactions before they are deleted
-        Collection<Transaction> transactions = ServiceLocator.serverInstance().getLookupService().getAllTrades();
+        Collection<Transaction> transactions = ServiceLocator.instance().getLookupService().getAllTrades();
 
         // create orders
         List<Order> orders = new ArrayList<Order>();
@@ -282,7 +281,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         // initialize the coordination
         getRuleService().initCoordination(StrategyImpl.BASE);
 
-        getRuleService().coordinateTicks(StrategyImpl.BASE, startDate);
+        getRuleService().coordinateTicks(StrategyImpl.BASE, new Date(this.start));
 
         getRuleService().coordinate(StrategyImpl.BASE, orders, "transactions[0].dateTime");
 
@@ -297,16 +296,16 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @Override
     protected void handleSimulateWithCurrentParams() throws Exception {
 
-        SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+        SimulationResultVO resultVO = ServiceLocator.instance().getSimulationService().runByUnderlayings();
         logMultiLineString(convertStatisticsToLongString(resultVO));
     }
 
     @Override
     protected void handleSimulateBySingleParam(String strategyName, String parameter, String value) throws Exception {
 
-        ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, value);
+        ServiceLocator.instance().getConfiguration().setProperty(strategyName, parameter, value);
 
-        SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+        SimulationResultVO resultVO = ServiceLocator.instance().getSimulationService().runByUnderlayings();
         resultLogger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
     }
 
@@ -317,11 +316,11 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         buffer.append("optimize ");
         for (int i = 0; i < parameters.length; i++) {
             buffer.append(parameters[i] + "=" + values[i] + " ");
-            ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameters[i], values[i]);
-            ConfigurationUtil.getBaseConfig().setProperty(parameters[i], values[i]);
+            ServiceLocator.instance().getConfiguration().setProperty(strategyName, parameters[i], values[i]);
+            ServiceLocator.instance().getConfiguration().setProperty(parameters[i], values[i]);
         }
 
-        SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+        SimulationResultVO resultVO = ServiceLocator.instance().getSimulationService().runByUnderlayings();
         buffer.append(convertStatisticsToShortString(resultVO));
         resultLogger.info(buffer.toString());
     }
@@ -333,9 +332,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         double functionValue = 0;
         for (double i = min; i <= max; i += increment) {
 
-            ConfigurationUtil.getStrategyConfig(strategyName).setProperty(parameter, format.format(i));
+            ServiceLocator.instance().getConfiguration().setProperty(strategyName, parameter, format.format(i));
 
-            SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+            SimulationResultVO resultVO = ServiceLocator.instance().getSimulationService().runByUnderlayings();
             resultLogger.info(parameter + "=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
 
             double value = resultVO.getPerformanceKeysVO().getSharpRatio();
@@ -369,31 +368,31 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @Override
     protected void handleOptimizeMultiParamLinear(String strategyName, String parameters[], double[] mins, double[] maxs, double[] increments) throws Exception {
 
-        Configuration configuration = ConfigurationUtil.getStrategyConfig(strategyName);
+        Configuration configuration = ServiceLocator.instance().getConfiguration();
         for (double i0 = mins[0]; i0 <= maxs[0]; i0 += increments[0]) {
             configuration.setProperty(parameters[0], format.format(i0));
-            String message0 = parameters[0] + "=" + format.format(MathUtils.round(i0, roundDigits));
+            String message0 = parameters[0] + "=" + format.format(MathUtils.round(i0, this.roundDigits));
 
             if (parameters.length >= 2) {
                 for (double i1 = mins[1]; i1 <= maxs[1]; i1 += increments[1]) {
                     configuration.setProperty(parameters[1], format.format(i1));
-                    String message1 = parameters[1] + "=" + format.format(MathUtils.round(i1, roundDigits));
+                    String message1 = parameters[1] + "=" + format.format(MathUtils.round(i1, this.roundDigits));
 
                     if (parameters.length >= 3) {
                         for (double i2 = mins[2]; i2 <= maxs[2]; i2 += increments[2]) {
                             configuration.setProperty(parameters[2], format.format(i2));
-                            String message2 = parameters[2] + "=" + format.format(MathUtils.round(i2, roundDigits));
+                            String message2 = parameters[2] + "=" + format.format(MathUtils.round(i2, this.roundDigits));
 
-                            SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+                            SimulationResultVO resultVO = ServiceLocator.instance().getSimulationService().runByUnderlayings();
                             resultLogger.info(message0 + " " + message1 + " " + message2 + " " + convertStatisticsToShortString(resultVO));
                         }
                     } else {
-                        SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+                        SimulationResultVO resultVO = ServiceLocator.instance().getSimulationService().runByUnderlayings();
                         resultLogger.info(message0 + " " + message1 + " " + convertStatisticsToShortString(resultVO));
                     }
                 }
             } else {
-                SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+                SimulationResultVO resultVO = ServiceLocator.instance().getSimulationService().runByUnderlayings();
                 resultLogger.info(message0 + " " + convertStatisticsToShortString(resultVO));
             }
         }
@@ -454,7 +453,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         // assemble the result
         SimulationResultVO resultVO = new SimulationResultVO();
         resultVO.setMins(((double) (System.currentTimeMillis() - startTime)) / 60000);
-        resultVO.setDataSet(ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet"));
+        resultVO.setDataSet(ServiceLocator.instance().getConfiguration().getDataSet());
         resultVO.setNetLiqValue(getStrategyDao().getPortfolioNetLiqValueDouble());
         resultVO.setMonthlyPerformanceVOs(monthlyPerformances);
         resultVO.setYearlyPerformanceVOs(yearlyPerformances);
@@ -511,7 +510,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         StringBuffer buffer = new StringBuffer();
         buffer.append("execution time (min): " + (new DecimalFormat("0.00")).format(resultVO.getMins()) + "\r\n");
-        buffer.append("dataSet: " + ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet") + "\r\n");
+        buffer.append("dataSet: " + ServiceLocator.instance().getConfiguration().getDataSet() + "\r\n");
 
         double netLiqValue = resultVO.getNetLiqValue();
         buffer.append("netLiqValue=" + twoDigitFormat.format(netLiqValue) + "\r\n");
@@ -635,12 +634,13 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         @Override
         public double value(double input) throws FunctionEvaluationException {
 
-            ConfigurationUtil.getStrategyConfig(this.strategyName).setProperty(this.param, String.valueOf(input));
+            ServiceLocator.instance().getConfiguration().setProperty(this.strategyName, this.param, String.valueOf(input));
 
-            SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+            SimulationResultVO resultVO = ServiceLocator.instance().getSimulationService().runByUnderlayings();
             double result = resultVO.getPerformanceKeysVO().getSharpRatio();
 
-            resultLogger.info("optimize on " + this.param + "=" + format.format(input) + " " + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
+            resultLogger.info("optimize on " + this.param + "=" + SimulationServiceImpl.format.format(input) + " "
+                    + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
 
             return result;
         }
@@ -666,12 +666,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 String param = this.params[i];
                 double value = input[i];
 
-                ConfigurationUtil.getStrategyConfig(this.strategyName).setProperty(param, String.valueOf(value));
+                ServiceLocator.instance().getConfiguration().setProperty(this.strategyName, param, String.valueOf(value));
 
-                buffer.append(param + "=" + format.format(value) + " ");
+                buffer.append(param + "=" + SimulationServiceImpl.format.format(value) + " ");
             }
 
-            SimulationResultVO resultVO = ServiceLocator.serverInstance().getSimulationService().runByUnderlayings();
+            SimulationResultVO resultVO = ServiceLocator.instance().getSimulationService().runByUnderlayings();
             double result = resultVO.getPerformanceKeysVO().getSharpRatio();
 
             resultLogger.info(buffer.toString() + SimulationServiceImpl.convertStatisticsToShortString(resultVO));

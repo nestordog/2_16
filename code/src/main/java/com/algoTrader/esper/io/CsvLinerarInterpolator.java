@@ -8,14 +8,14 @@ import java.util.Date;
 
 import org.supercsv.exception.SuperCSVException;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
 
 public class CsvLinerarInterpolator {
 
-    private static String dataSet = ConfigurationUtil.getBaseConfig().getString("dataSource.dataSet");
+    private static String dataSet = ServiceLocator.instance().getConfiguration().getDataSet();
 
     private static double recordsPerInput = 17.0;
     private static double recordsPerHour = 2.0;

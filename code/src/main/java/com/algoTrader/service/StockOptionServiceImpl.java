@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickDao;
@@ -23,7 +24,6 @@ import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.sabr.SABRCalibration;
 import com.algoTrader.stockOption.StockOptionSymbol;
 import com.algoTrader.stockOption.StockOptionUtil;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -34,14 +34,13 @@ import com.mathworks.toolbox.javabuilder.MWException;
 public class StockOptionServiceImpl extends StockOptionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
-
-    private static double beta = ConfigurationUtil.getBaseConfig().getDouble("sabrBeta");
-
     private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMdd-kkmmss");
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
     private static double MILLISECONDS_PER_YEAR = 31536000000l;
     private static int advanceMinutes = 10;
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
+
+    private @Value("${sabrBeta}") double beta;
 
     @Override
     protected StockOption handleCreateDummyStockOption(int stockOptionFamilyId, Date expirationDate, BigDecimal targetStrike, OptionType type) throws Exception {
@@ -219,7 +218,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         Double[] volatilitiesArray = volatilities.toArray(new Double[0]);
 
         SABRCalibration sabr = SABRCalibration.getInstance();
-        return sabr.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years, beta);
+        return sabr.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years, this.beta);
 
     }
 
@@ -333,6 +332,6 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         Double[] volatilitiesArray = volatilities.toArray(new Double[0]);
 
         SABRCalibration sabr = SABRCalibration.getInstance();
-        return sabr.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years, beta);
+        return sabr.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years, this.beta);
     }
 }

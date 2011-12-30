@@ -19,8 +19,8 @@ public class CombinationTest {
         int masterSecurityId = 3;
         int secondarySecurityId = 4;
 
-        CombinationService combinationService = ServiceLocator.serverInstance().getCombinationService();
-        LookupService lookupService = ServiceLocator.serverInstance().getLookupService();
+        CombinationService combinationService = ServiceLocator.instance().getCombinationService();
+        LookupService lookupService = ServiceLocator.instance().getLookupService();
 
         Combination combination = combinationService.createCombination(strategyName, CombinationType.RATIO_SPREAD, masterSecurityId);
 

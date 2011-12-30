@@ -32,7 +32,8 @@ import com.algoTrader.util.XmlUtil;
 
 public class IVolatilityDownloader {
 
-    private static String userAgent = ConfigurationUtil.getBaseConfig().getString("swissquote.loggedInUserAgent");
+    private static final String userAgent = ConfigurationUtil.getString("swissquote.loggedInUserAgent");
+
     private static DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
     private static DateFormat fileFormat = new SimpleDateFormat("dd-MM-yyyy");
 

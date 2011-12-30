@@ -14,6 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
@@ -23,7 +24,6 @@ import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.stockOption.StockOptionSymbol;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.ib.client.Contract;
@@ -36,9 +36,9 @@ public class IBStockOptionRetrieverServiceImpl extends IBStockOptionRetrieverSer
     private static Logger logger = MyLogger.getLogger(IBStockOptionRetrieverServiceImpl.class.getName());
     private static SimpleDateFormat dayFormat = new SimpleDateFormat("yyyyMMdd");
 
-    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
-    private static boolean ibEnabled = "IB".equals(ConfigurationUtil.getBaseConfig().getString("marketChannel"));
-    private static boolean stockOptionRetrieverServiceEnabled = ConfigurationUtil.getBaseConfig().getBoolean("ib.stockOptionRetrieverServiceEnabled");
+    private @Value("${simulation}") boolean simulation;
+    private @Value("#{'${marketChannel}' == 'IB'}") boolean ibEnabled;
+    private @Value("${ib.stockOptionRetrieverServiceEnabled}") boolean stockOptionRetrieverServiceEnabled;
 
     private IBClient client;
     private IBDefaultAdapter wrapper;
@@ -137,7 +137,7 @@ public class IBStockOptionRetrieverServiceImpl extends IBStockOptionRetrieverSer
     @Override
     protected void handleInit() throws java.lang.Exception {
 
-        if (!ibEnabled || simulation || !stockOptionRetrieverServiceEnabled) {
+        if (!this.ibEnabled || this.simulation || !this.stockOptionRetrieverServiceEnabled) {
             return;
         }
 
@@ -178,7 +178,7 @@ public class IBStockOptionRetrieverServiceImpl extends IBStockOptionRetrieverSer
     @Override
     protected void handleConnect() {
 
-        if (!ibEnabled || simulation || !stockOptionRetrieverServiceEnabled) {
+        if (!this.ibEnabled || this.simulation || !this.stockOptionRetrieverServiceEnabled) {
             return;
         }
 

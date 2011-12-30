@@ -2,13 +2,11 @@ package com.algoTrader.entity.marketData;
 
 import java.math.BigDecimal;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.security.SecurityFamily;
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
 
 public class TickImpl extends Tick {
-
-    private static boolean simulation = ConfigurationUtil.getBaseConfig().getBoolean("simulation");
 
     private static final long serialVersionUID = 7518020445322413106L;
 
@@ -19,6 +17,7 @@ public class TickImpl extends Tick {
     public BigDecimal getCurrentValue() {
 
         int scale = getSecurity().getSecurityFamily().getScale();
+        boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
         if (simulation) {
             if ((super.getBid().doubleValue() != 0) && (super.getAsk().doubleValue() != 0)) {
                 return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0, scale);
@@ -40,11 +39,13 @@ public class TickImpl extends Tick {
         return getCurrentValue().doubleValue();
     }
 
+    @Override
     public BigDecimal getBidAskSpread() {
 
         return RoundUtil.getBigDecimal(getBidAskSpreadDouble());
     }
 
+    @Override
     public double getBidAskSpreadDouble() {
 
         return getAsk().doubleValue() - getBid().doubleValue();
@@ -53,6 +54,7 @@ public class TickImpl extends Tick {
     @Override
     public BigDecimal getBid() {
 
+        boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
         if (simulation && super.getBid().equals(new BigDecimal(0))) {
 
             // tradeable securities with bid = 0 should return a simulated value
@@ -80,6 +82,7 @@ public class TickImpl extends Tick {
     @Override
     public BigDecimal getAsk() {
 
+        boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
         if (simulation && super.getAsk().equals(new BigDecimal(0))) {
 
             // tradeable securities with ask = 0 should return a simulated value
@@ -107,6 +110,7 @@ public class TickImpl extends Tick {
     @Override
     public BigDecimal getSettlement() {
 
+        boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
         if (simulation && (super.getSettlement() == null || super.getSettlement().compareTo(new BigDecimal(0)) == 0)) {
             return getCurrentValue();
         } else {

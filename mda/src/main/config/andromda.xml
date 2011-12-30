@@ -134,14 +134,15 @@
                 <property name="value-objects">${common.generated.dir}</property>
                 <property name="server">${core.generated.dir}</property>
                 <property name="server-impl">${core.manual.java.dir}</property>
-                <property name="client">${common.generated.dir}</property>
                 <property name="client-config">${common.generated.dir}</property>
+                <property name="osgi">${common.generated.dir}</property>
                 <property name="richClient">true</property>
                 <property name="serviceRemoteContext">algoTrader</property>
                 <property name="serviceRemotingType">rmi</property>
                 <property name="serviceRemotePort">1199</property>
-                <property name="serviceLocatorName">ServerServiceLocator</property>
-                <property name="serviceLocatorInterfaceName">CommonServiceLocator</property>
+                <property name="serviceLocatorName">ServiceLocator</property>
+                <property name="applicationContextOsgiExport">applicationContext-export-osgiServices.xml</property>
+                <property name="applicationContextOsgiImport">applicationContext-import-osgiServices.xml</property>
 
             </properties>
         </namespace>

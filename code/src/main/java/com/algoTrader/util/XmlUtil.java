@@ -12,9 +12,11 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import com.algoTrader.ServiceLocator;
+
 public class XmlUtil {
 
-    private static boolean saveToFile = ConfigurationUtil.getBaseConfig().getBoolean("saveToFile");
+    private static boolean saveToFile = ServiceLocator.instance().getConfiguration().getBoolean("saveToFile");
 
     private static Logger logger = MyLogger.getLogger(XmlUtil.class.getName());
 
