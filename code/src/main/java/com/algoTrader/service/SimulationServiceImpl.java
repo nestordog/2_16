@@ -171,8 +171,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 logger.warn("no data available for " + security.getSymbol());
                 continue;
             }
-            MarketDataType marketDataType = ServiceLocator.instance().getConfiguration().getDataSetType();
-            String dataSet = ServiceLocator.instance().getConfiguration().getDataSet();
+            MarketDataType marketDataType = getConfiguration().getDataSetType();
+            String dataSet = getConfiguration().getDataSet();
 
             File file = new File("results/" + marketDataType.toString().toLowerCase() + "data/" + dataSet + "/" + security.getIsin() + ".csv");
 
@@ -303,7 +303,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @Override
     protected void handleSimulateBySingleParam(String strategyName, String parameter, String value) throws Exception {
 
-        ServiceLocator.instance().getConfiguration().setProperty(strategyName, parameter, value);
+        getConfiguration().setProperty(strategyName, parameter, value);
 
         SimulationResultVO resultVO = ServiceLocator.instance().getSimulationService().runByUnderlayings();
         resultLogger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
@@ -316,8 +316,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         buffer.append("optimize ");
         for (int i = 0; i < parameters.length; i++) {
             buffer.append(parameters[i] + "=" + values[i] + " ");
-            ServiceLocator.instance().getConfiguration().setProperty(strategyName, parameters[i], values[i]);
-            ServiceLocator.instance().getConfiguration().setProperty(parameters[i], values[i]);
+            getConfiguration().setProperty(strategyName, parameters[i], values[i]);
+            getConfiguration().setProperty(parameters[i], values[i]);
         }
 
         SimulationResultVO resultVO = ServiceLocator.instance().getSimulationService().runByUnderlayings();
@@ -332,7 +332,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         double functionValue = 0;
         for (double i = min; i <= max; i += increment) {
 
-            ServiceLocator.instance().getConfiguration().setProperty(strategyName, parameter, format.format(i));
+            getConfiguration().setProperty(strategyName, parameter, format.format(i));
 
             SimulationResultVO resultVO = ServiceLocator.instance().getSimulationService().runByUnderlayings();
             resultLogger.info(parameter + "=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
@@ -368,7 +368,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @Override
     protected void handleOptimizeMultiParamLinear(String strategyName, String parameters[], double[] mins, double[] maxs, double[] increments) throws Exception {
 
-        Configuration configuration = ServiceLocator.instance().getConfiguration();
+        Configuration configuration = getConfiguration();
         for (double i0 = mins[0]; i0 <= maxs[0]; i0 += increments[0]) {
             configuration.setProperty(parameters[0], format.format(i0));
             String message0 = parameters[0] + "=" + format.format(MathUtils.round(i0, this.roundDigits));
@@ -453,7 +453,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         // assemble the result
         SimulationResultVO resultVO = new SimulationResultVO();
         resultVO.setMins(((double) (System.currentTimeMillis() - startTime)) / 60000);
-        resultVO.setDataSet(ServiceLocator.instance().getConfiguration().getDataSet());
+        resultVO.setDataSet(getConfiguration().getDataSet());
         resultVO.setNetLiqValue(getStrategyDao().getPortfolioNetLiqValueDouble());
         resultVO.setMonthlyPerformanceVOs(monthlyPerformances);
         resultVO.setYearlyPerformanceVOs(yearlyPerformances);
@@ -502,7 +502,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     }
 
     @SuppressWarnings("unchecked")
-    private static String convertStatisticsToLongString(SimulationResultVO resultVO) {
+    private String convertStatisticsToLongString(SimulationResultVO resultVO) {
 
         if (resultVO.getAllTrades().getCount() == 0) {
             return ("no trades took place!");
@@ -510,7 +510,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         StringBuffer buffer = new StringBuffer();
         buffer.append("execution time (min): " + (new DecimalFormat("0.00")).format(resultVO.getMins()) + "\r\n");
-        buffer.append("dataSet: " + ServiceLocator.instance().getConfiguration().getDataSet() + "\r\n");
+        buffer.append("dataSet: " + getConfiguration().getDataSet() + "\r\n");
 
         double netLiqValue = resultVO.getNetLiqValue();
         buffer.append("netLiqValue=" + twoDigitFormat.format(netLiqValue) + "\r\n");

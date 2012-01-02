@@ -1,11 +1,14 @@
 package com.algoTrader.entity.security;
 
-import com.algoTrader.ServiceLocator;
+import org.springframework.beans.factory.annotation.Value;
+
 import com.algoTrader.util.RoundUtil;
 
 public class SecurityFamilyImpl extends SecurityFamily {
 
     private static final long serialVersionUID = -2318908709333325986L;
+
+    private @Value("${portfolioDigits}") int portfolioDigits;
 
     @Override
     public String toString() {
@@ -17,7 +20,6 @@ public class SecurityFamilyImpl extends SecurityFamily {
     public int getScale() {
 
         int digits = RoundUtil.getDigits(getTickSize());
-        int portfolioDigits = ServiceLocator.instance().getConfiguration().getPortfolioDigits();
-        return Math.max(digits, portfolioDigits);
+        return Math.max(digits, this.portfolioDigits);
     }
 }

@@ -676,7 +676,28 @@ $target.getDocumentation("     * ")
 #end
     public $target.getterSetterTypeName ${target.getterName}()
     {
-        return this.${target.name};
+#if ($target.many)	
+		if (this.${target.name} instanceof AbstractPersistentCollection && !com.algoTrader.util.StrategyUtil.isStartedStrategyBASE()) {
+
+			org.hibernate.collection.AbstractPersistentCollection col = (org.hibernate.collection.AbstractPersistentCollection) this.${target.name};
+			if (!col.wasInitialized() && col.getSession() == null) {
+
+				this.${target.name} = ($target.getterSetterTypeName) com.algoTrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadCollection(this, "call(${entity.entityName}.${target.getterName})", col);
+			}
+		}	
+#else
+		if (this.${target.name} instanceof HibernateProxy && !com.algoTrader.util.StrategyUtil.isStartedStrategyBASE()) {
+
+			org.hibernate.proxy.HibernateProxy proxy = (org.hibernate.proxy.HibernateProxy) this.${target.name};
+			org.hibernate.proxy.LazyInitializer initializer = proxy.getHibernateLazyInitializer();
+
+			if (initializer.isUninitialized() && initializer.getSession() == null) {
+
+				this.${target.name} = ($target.getterSetterTypeName) com.algoTrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadProxy(this, "call(${entity.entityName}.${target.getterName})", proxy);
+			}
+		}
+#end	
+		return this.${target.name};
     }
 
 #if(!$target.readOnly)

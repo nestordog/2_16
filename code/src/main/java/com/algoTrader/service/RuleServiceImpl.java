@@ -27,7 +27,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.WatchListItem;
@@ -695,7 +694,7 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
             Map<String, ConfigurationVariable> variables = configuration.getVariables();
             for (Map.Entry<String, ConfigurationVariable> entry : variables.entrySet()) {
                 String variableName = entry.getKey().replace("_", ".");
-                String value = ServiceLocator.instance().getConfiguration().getString(strategyName, variableName);
+                String value = getConfiguration().getString(strategyName, variableName);
                 if (value != null) {
                     Class<?> clazz = Class.forName(entry.getValue().getType());
                     Object castedObj = JavaClassHelper.parse(clazz, value);
@@ -751,7 +750,7 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
 
                 Condition condition = (Condition) annotation;
                 String key = condition.key();
-                if (!ServiceLocator.instance().getConfiguration().getBoolean(strategyName, key)) {
+                if (!getConfiguration().getBoolean(strategyName, key)) {
                     statement.destroy();
                     return;
                 }

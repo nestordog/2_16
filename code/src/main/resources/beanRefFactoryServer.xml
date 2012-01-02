@@ -7,10 +7,12 @@
     <bean id="beanRefFactory" class="org.springframework.context.support.ClassPathXmlApplicationContext">
         <constructor-arg>
            <list>
-                <value>applicationContext.xml</value>
-                <value>applicationContext-export-remoteServices.xml</value>
+                <value>applicationContext-common.xml</value>
                 <value>applicationContext-server.xml</value>
                 <value>applicationContext-jms.xml</value>
+
+                <value>applicationContext.xml</value>
+                <value>applicationContext-export-remoteServices.xml</value>
            </list>
         </constructor-arg>
     </bean>

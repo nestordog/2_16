@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.Tick;
@@ -19,6 +20,9 @@ public abstract class SecurityImpl extends Security {
     private static final long serialVersionUID = -6631052475125813394L;
 
     private static Logger logger = MyLogger.getLogger(SecurityImpl.class.getName());
+
+    private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private @Value("${initialMarginMarkup}") double initialMarginMarkup;
 
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -64,8 +68,7 @@ public abstract class SecurityImpl extends Security {
     @Override
     public double getFXRateBase() {
 
-        Currency portfolioBaseCurrency = ServiceLocator.instance().getConfiguration().getPortfolioBaseCurrency();
-        return getFXRate(portfolioBaseCurrency);
+        return getFXRate(this.portfolioBaseCurrency);
     }
 
     @Override
@@ -85,8 +88,7 @@ public abstract class SecurityImpl extends Security {
         if (lastTick != null && lastTick.getCurrentValueDouble() > 0.0) {
 
             int contractSize = getSecurityFamily().getContractSize();
-            double initialMarginMarkup = ServiceLocator.instance().getConfiguration().getInitialMarginMarkup();
-            marginPerContract = lastTick.getCurrentValueDouble() * contractSize / initialMarginMarkup;
+            marginPerContract = lastTick.getCurrentValueDouble() * contractSize / this.initialMarginMarkup;
         } else {
             logger.warn("no last tick available or currentValue to low to set margin on " + getSymbol());
         }

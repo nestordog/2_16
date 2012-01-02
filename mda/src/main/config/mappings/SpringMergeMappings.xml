@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <mappings name="SpringMerge">
 
+        <!-- add  hibernateEventListener to sessionFactory -->
+        <mapping>
+            <from><![CDATA[<!-- applicationContext sessionFactory merge-point -->]]></from>
+            <to><![CDATA[<property name="eventListeners">
+            <map>
+                <entry key="post-load" value-ref="hibernateEventListener"/>
+                <entry key="post-insert" value-ref="hibernateEventListener"/>
+            </map>
+        </property>]]></to>
+        </mapping>
+
         <!--  do not generate applicationContext-client.properties.vsl -->
         <mapping>
             <from><![CDATA[<template

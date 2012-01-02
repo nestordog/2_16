@@ -4,39 +4,7 @@
        xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-    <!-- ============================= Properties Management ============================================ -->
-
-    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
-
-    <bean id="properties" class="org.springframework.beans.factory.config.SystemPropertiesFactoryBean">
-        <property name="locations">
-            <list>
-                <!--  defining conf.properties will allow overwrites by strategies -->
-                <value>classpath:conf.properties</value>
-                <value>classpath*:conf-**.properties</value>
-            </list>
-        </property>
-        <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_OVERRIDE</value></property>
-    </bean>
-
-    <!--  PropertyPlaceholderConfigurer to overwrite settings form commandline -->
-    <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="properties" ref="properties" />
-        <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_NEVER</value></property>
-    </bean>
-
-    <bean id="configuration" class="com.algoTrader.util.Configuration"/>
-
     <!-- =========================================== JMX ================================================ -->
-
-   <!-- Diagrams for Management Service (and PropertyConfiguratet for java.util.Date)-->
-    <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
-        <property name="propertyEditorRegistrars">
-            <list>
-               <bean class="com.algoTrader.util.DatePropertyEditorRegistrar"/>
-            </list>
-        </property>
-    </bean>
 
    <bean id="managementServiceDiagrams" class="org.springframework.beans.factory.config.ListFactoryBean">
        <property name="sourceList">

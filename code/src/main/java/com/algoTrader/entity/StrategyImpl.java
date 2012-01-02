@@ -4,15 +4,20 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.security.Forex;
 import com.algoTrader.util.RoundUtil;
 
 public class StrategyImpl extends Strategy {
 
+    public static final String BASE = "BASE";
+
     private static final long serialVersionUID = -2271735085273721632L;
 
-    public static final String BASE = "BASE";
+    private @Value("${initialMarginMarkup}") double initialMarginMarkup;
+
 
     @Override
     public boolean isBase() {
@@ -100,8 +105,7 @@ public class StrategyImpl extends Strategy {
     @Override
     public double getInitialMarginDouble() {
 
-        double initialMarginMarkup = ServiceLocator.instance().getConfiguration().getInitialMarginMarkup();
-        return initialMarginMarkup * getMaintenanceMarginDouble();
+        return this.initialMarginMarkup * getMaintenanceMarginDouble();
     }
 
     @Override

@@ -15,6 +15,10 @@
 		<config>target/src/main/java/applicationContext-export-osgiServices.xml</config>
 		<config>target/src/main/java/applicationContext-import-osgiServices.xml</config>
 		<config>src/main/resources/beanRefFactoryLocal.xml</config>
+		<config>src/main/resources/beanRefFactoryClient.xml</config>
+		<config>src/main/resources/beanRefFactoryServer.xml</config>
+		<config>src/main/resources/beanRefFactorySimulation.xml</config>
+		<config>src/main/resources/applicationContext-common.xml</config>
 	</configs>
 	<configSets>
 	</configSets>
