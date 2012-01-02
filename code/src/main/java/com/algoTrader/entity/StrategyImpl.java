@@ -16,7 +16,7 @@ public class StrategyImpl extends Strategy {
 
     private static final long serialVersionUID = -2271735085273721632L;
 
-    private @Value("${initialMarginMarkup}") double initialMarginMarkup;
+    private static @Value("${initialMarginMarkup}") double initialMarginMarkup;
 
 
     @Override

@@ -2,13 +2,16 @@ package com.algoTrader.entity.marketData;
 
 import java.math.BigDecimal;
 
-import com.algoTrader.ServiceLocator;
+import org.springframework.beans.factory.annotation.Value;
+
 import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.util.RoundUtil;
 
 public class TickImpl extends Tick {
 
     private static final long serialVersionUID = 7518020445322413106L;
+
+    private static @Value("${simulation}") boolean simulation;
 
     /**
      * Note: ticks that are not valid (i.e. low volume) are not fed into esper, so we don't need to check
@@ -17,7 +20,6 @@ public class TickImpl extends Tick {
     public BigDecimal getCurrentValue() {
 
         int scale = getSecurity().getSecurityFamily().getScale();
-        boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
         if (simulation) {
             if ((super.getBid().doubleValue() != 0) && (super.getAsk().doubleValue() != 0)) {
                 return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0, scale);
@@ -54,7 +56,6 @@ public class TickImpl extends Tick {
     @Override
     public BigDecimal getBid() {
 
-        boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
         if (simulation && super.getBid().equals(new BigDecimal(0))) {
 
             // tradeable securities with bid = 0 should return a simulated value
@@ -82,7 +83,6 @@ public class TickImpl extends Tick {
     @Override
     public BigDecimal getAsk() {
 
-        boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
         if (simulation && super.getAsk().equals(new BigDecimal(0))) {
 
             // tradeable securities with ask = 0 should return a simulated value
@@ -110,7 +110,6 @@ public class TickImpl extends Tick {
     @Override
     public BigDecimal getSettlement() {
 
-        boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
         if (simulation && (super.getSettlement() == null || super.getSettlement().compareTo(new BigDecimal(0)) == 0)) {
             return getCurrentValue();
         } else {

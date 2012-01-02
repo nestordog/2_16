@@ -27,7 +27,7 @@
 
     <bean id="configuration" class="com.algoTrader.util.Configuration"/>
 
-    <bean id="hibernateEventListener" class="com.algoTrader.util.HibernateEventListener"/>
+    <bean class="com.algoTrader.util.EntityAnnotationSetter" init-method="init"/>
 
     <!-- =========================================== JMX ================================================ -->
 

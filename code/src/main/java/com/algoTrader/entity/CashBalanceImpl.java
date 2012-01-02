@@ -12,7 +12,7 @@ public class CashBalanceImpl extends CashBalance {
 
     private static final long serialVersionUID = 735304281192548146L;
 
-    private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private static @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
 
     @Override
     public double getAmountDouble() {

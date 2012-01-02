@@ -3,15 +3,18 @@ package com.algoTrader.entity.trade;
 import java.math.BigDecimal;
 
 import org.apache.commons.lang.ClassUtils;
+import org.springframework.beans.factory.annotation.Value;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.Side;
-import com.algoTrader.util.Configuration;
 import com.algoTrader.util.RoundUtil;
 
 public class SteppingLimitOrderImpl extends SteppingLimitOrder {
 
     private static final long serialVersionUID = 6631564632498034454L;
+
+    private static @Value("${minSpreadPosition}") double minSpreadPosition;
+    private static @Value("${maxSpreadPosition}") double maxSpreadPosition;
+    private static @Value("${spreadPositionIncrement}") double spreadPositionIncrement;
 
     @Override
     public String toString() {
@@ -22,11 +25,6 @@ public class SteppingLimitOrderImpl extends SteppingLimitOrder {
 
     @Override
     public void setDefaultLimits(double bid, double ask) {
-
-        Configuration configuration = ServiceLocator.instance().getConfiguration();
-        double minSpreadPosition = configuration.getDouble("minSpreadPosition");
-        double maxSpreadPosition = configuration.getDouble("maxSpreadPosition");
-        double spreadPositionIncrement = configuration.getDouble("spreadPositionIncrement");
 
         double tickSize = getSecurity().getSecurityFamily().getTickSize();
         int scale = RoundUtil.getDigits(tickSize);
