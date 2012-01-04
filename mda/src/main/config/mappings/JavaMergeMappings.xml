@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<mappings name="JavaMerge">
+
+        <!--  separate ValueObjects into outlets "value-objects" and "private-value-objects" -->
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/java/ValueObject.vsl"
+        outputPattern="{0}/${className}.java"
+        outlet="value-objects"
+        overwrite="true">
+        <modelElements variable="class">
+            <modelElement>
+                <type name="org.andromda.metafacades.uml.ValueObject"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to><![CDATA[<template
+        path="templates/java/ValueObject.vsl"
+        outputPattern="{0}/${className}.java"
+        outlet="value-objects"
+        overwrite="true"
+        outputCondition="$stringUtils.isBlank($class.findTaggedValue('algoTrader_value_object_private'))">
+        <modelElements variable="class">
+            <modelElement>
+                <type name="org.andromda.metafacades.uml.ValueObject"/>
+            </modelElement>
+        </modelElements>
+    </template>
+    <template
+        path="templates/java/ValueObject.vsl"
+        outputPattern="{0}/${className}.java"
+        outlet="private-value-objects"
+        overwrite="true"
+        outputCondition="$stringUtils.isNotBlank($class.findTaggedValue('algoTrader_value_object_private'))">
+        <modelElements variable="class">
+            <modelElement>
+                <type name="org.andromda.metafacades.uml.ValueObject"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></to>
+        </mapping>
+
+        <!-- create outlet "private-value-objects" -->
+        <mapping>
+            <from><![CDATA[<propertyGroup name="Outlets">
+            <documentation>
+                Defines the locations to which output is generated.
+            </documentation>]]></from>
+            <to><![CDATA[<propertyGroup name="Outlets">
+            <documentation>
+                Defines the locations to which output is generated.
+            </documentation>
+            <property name="private-value-objects" required="false"/>]]></to>
+        </mapping>
+
+</mappings>

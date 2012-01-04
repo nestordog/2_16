@@ -1,0 +1,196 @@
+@Name('UPDATE_TICK_WINDOW_BID')
+@RunTimeOnly()
+on
+    IBTickPrice as tickPrice
+update
+    TickWindow as tickWindow
+set
+    tickWindow.bid = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale)
+where
+    tickPrice.field = TickType.BID
+and
+    tickWindow.tickerId = tickPrice.tickerId;
+
+@Name('UPDATE_TICK_WINDOW_ASK')
+@RunTimeOnly()
+on
+    IBTickPrice as tickPrice
+update
+    TickWindow as tickWindow
+set
+    tickWindow.ask = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale)
+where
+    tickPrice.field = TickType.ASK
+and
+    tickWindow.tickerId = tickPrice.tickerId;
+
+@Name('UPDATE_TICK_WINDOW_LAST')
+@RunTimeOnly()
+on
+    IBTickPrice as tickPrice
+update
+    TickWindow as tickWindow
+set
+    tickWindow.last = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale)
+where
+    tickPrice.field = TickType.`LAST`
+and
+    tickWindow.tickerId = tickPrice.tickerId;
+
+@Name('UPDATE_TICK_WINDOW_CLOSE')
+@RunTimeOnly()
+on
+    IBTickPrice as tickPrice
+update
+    TickWindow as tickWindow
+set
+    tickWindow.settlement = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale)
+where
+    tickPrice.field = TickType.CLOSE
+and
+    tickWindow.tickerId = tickPrice.tickerId;
+
+@Name('UPDATE_TICK_WINDOW_VOL_ASK')
+@RunTimeOnly()
+on
+    IBTickSize as tickSize
+update
+    TickWindow as tickWindow
+set
+    tickWindow.volAsk = tickSize.size
+where
+    tickSize.field = TickType.ASK_SIZE
+and
+    tickWindow.tickerId = tickSize.tickerId;
+
+@Name('UPDATE_TICK_WINDOW_VOL_BID')
+@RunTimeOnly()
+on
+    IBTickSize as tickSize
+update
+    TickWindow as tickWindow
+set
+    tickWindow.volBid = tickSize.size
+where
+    tickSize.field = TickType.BID_SIZE
+and
+    tickWindow.tickerId = tickSize.tickerId;
+
+@Name('UPDATE_TICK_WINDOW_VOL')
+@RunTimeOnly()
+on
+    IBTickSize as tickSize
+update
+    TickWindow as tickWindow
+set
+    tickWindow.vol = tickSize.size
+where
+    tickSize.field = TickType.VOLUME
+and
+    tickWindow.tickerId = tickSize.tickerId;
+
+@Name('UPDATE_TICK_WINDOW_CALL_OPEN_INTEREST')
+@RunTimeOnly()
+on
+    IBTickSize as tickSize
+update
+    TickWindow as tickWindow
+set
+    tickWindow.openIntrest = tickSize.size
+where
+    tickSize.field = TickType.OPTION_CALL_OPEN_INTEREST
+and
+    cast(tickWindow.security.type?, com.algoTrader.enumeration.OptionType) = OptionType.CALL
+and
+    tickWindow.tickerId = tickSize.tickerId;
+
+@Name('UPDATE_TICK_WINDOW_PUT_OPEN_INTEREST')
+@RunTimeOnly()
+on
+    IBTickSize as tickSize
+update
+    TickWindow as tickWindow
+set
+    tickWindow.openIntrest = tickSize.size
+where
+    tickSize.field = TickType.OPTION_PUT_OPEN_INTEREST
+and
+    cast(tickWindow.security.type?, com.algoTrader.enumeration.OptionType) = OptionType.PUT
+and
+    tickWindow.tickerId = tickSize.tickerId;
+
+@Name('UPDATE_TICK_LAST_TIMESTAMP')
+@RunTimeOnly()
+on
+    IBTickString as tickString
+update
+    TickWindow as tickWindow
+set
+    tickWindow.lastDateTime = IBUtil.getLastDateTime(tickString.value)
+where
+    tickString.field = TickType.LAST_TIMESTAMP
+and
+    tickWindow.tickerId = tickString.tickerId;
+
+// ----------------------------- TRADES -----------------------------
+
+@Name('CREATE_FILL')
+@RunTimeOnly()
+insert into
+    Fill
+select
+    IBUtil.getExecutionDateTime(execDetails.execution.m_time) as dateTime,
+    IBUtil.getSide(execDetails.execution.m_side) as side,
+    execDetails.execution.m_shares as quantity,
+    RoundUtil.getBigDecimal(execDetails.execution.m_price, genericOrder.security.securityFamily.scale) as price,
+    execDetails.execution.m_execId as number,
+    genericOrder as parentOrder
+from
+    pattern[every genericOrder=GenericOrder
+            -> (every execDetails=IBExecDetails(execution.m_orderId = genericOrder.number)
+                and not IBOrderStatus(orderId = genericOrder.number, status = 'Filled' or status = 'Cancelled' or status = 'Inactive')
+                and not GenericOrder(number = genericOrder.number))];
+
+@Name('CREATE_ORDER_STATUS')
+@RunTimeOnly()
+insert into
+    OrderStatus
+select
+    case
+        when (orderStatus.status = 'Submitted' or orderStatus.status = 'PreSubmitted' or orderStatus.status = 'PendingSubmit' or orderStatus.status = 'PendingCancel') and orderStatus.filled = 0 then Status.SUBMITTED
+        when (orderStatus.status = 'Submitted' or orderStatus.status = 'PreSubmitted' or orderStatus.status = 'PendingSubmit' or orderStatus.status = 'PendingCancel') and orderStatus.filled > 0 then Status.PARTIALLY_EXECUTED
+        when orderStatus.status = 'Filled' then Status.EXECUTED
+        when (orderStatus.status = 'Cancelled' or orderStatus.status = 'Inactive') then Status.CANCELED
+    end as status,
+    orderStatus.filled as filledQuantity,
+    orderStatus.remaining as remainingQuantity,
+    genericOrder as parentOrder
+from
+    pattern[every genericOrder=GenericOrder
+            -> (every (orderStatus=IBOrderStatus(orderId = genericOrder.number))
+                and not GenericOrder(number = genericOrder.number))]
+where
+    prior(1, orderStatus) is null
+or
+    orderStatus.orderId != prior(1, orderStatus.orderId)
+or
+    orderStatus.status != prior(1, orderStatus.status)
+or
+    orderStatus.filled != prior(1, orderStatus.filled);
+
+@Name('SET_COMMISSION')
+@RunTimeOnly()
+@Subscriber(className='com.algoTrader.service.TransactionServiceImpl$SetCommissionSubscriber')
+select
+    execDetails.execution.m_execId as transactionNumber,
+    execDetails.execution.m_shares as qty,
+    execDetails.execution.m_cumQty as cumQty,
+    openOrder.orderState.m_commission as commission
+from
+    pattern[every openOrder=IBOpenOrder -> (timer:interval(10 sec) and not IBOpenOrder(orderId=openOrder.orderId))] unidirectional,
+    IBOrderStatus(status = 'Filled' or status = 'Cancelled').std:unique(orderId).win:time(20 seconds) as orderStatus,
+    IBExecDetails.win:time(1 day) as execDetails
+where
+    orderStatus.orderId = openOrder.orderId
+and
+    execDetails.execution.m_orderId = openOrder.orderId;

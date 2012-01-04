@@ -3,6 +3,7 @@
 ## line 858 - 864: handle algoTrader.entity.query.native
 ## line 866 - 868: if taggedValue andromda_hibernate_query_useCache is set add queryObject.setCacheable(true);
 ## line 777: Enumerations do not use SpringUtils (it will output param.getValue() for Enumerations, which is wrong)
+## line 1432 - 1452: remove getPrincipal
 #set ($generatedFile = "${entity.packagePath}/${entity.daoBaseName}.java")
 // license-header java merge-point
 //
@@ -1423,32 +1424,32 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
 #*          *##end
 #*        *##end
 #*    *##end
-#**##end
+#* *##end
 #end
     }
 
 #end
-    /**
+#*	/**
      * Gets the current <code>principal</code> if one has been set,
      * otherwise returns <code>null</code>.
      *
      * @return the current principal
      */
 #if ($externalPrincipalStoreClass)
-#* *##set ($principalStoreCall = "#if(!$enableTemplating)(${externalPrincipalStoreGetterType})#end${externalPrincipalStoreClass}.${externalPrincipalStoreGetter};")
-#* *##set ($principalStoreType = ${externalPrincipalStoreGetterType})
+     #set ($principalStoreCall = "#if(!$enableTemplating)(${externalPrincipalStoreGetterType})#end${externalPrincipalStoreClass}.${externalPrincipalStoreGetter};")
+     #set ($principalStoreType = ${externalPrincipalStoreGetterType})
 #else
-#* *##set ($principalStoreCall = "${principalStoreName}.get();")
-#* *##if($stringUtils.isNotBlank($springTypesPackage))
-#*     *##set ($principalStoreCall = "${springTypesPackage}.${principalStoreCall}")
-#* *##end
-#* *##set ($principalStoreType = "java.security.Principal")
+     #set ($principalStoreCall = "${principalStoreName}.get();")
+     #if($stringUtils.isNotBlank($springTypesPackage))
+          #set ($principalStoreCall = "${springTypesPackage}.${principalStoreCall}")
+     #end
+     #set ($principalStoreType = "java.security.Principal")
 #end
     protected $principalStoreType getPrincipal()
     {
         return $principalStoreCall
     }
-
+*#
 #set ($fullyQualifiedPagingResultName = $springUtils.getFullyQualifiedClassName($springCommonTypesPackage, "PaginationResult"))
 #set ($fullyQualifiedSearchClassName = $springUtils.getFullyQualifiedClassName($springTypesPackage, "Search"))
 #set ($fullyQualifiedPropertySearchClassName = $springUtils.getFullyQualifiedClassName($springTypesPackage, "PropertySearch"))

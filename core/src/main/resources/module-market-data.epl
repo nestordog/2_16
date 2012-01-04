@@ -1,0 +1,105 @@
+@Name('TICK_WINDOW')
+create window
+    TickWindow.std:groupwin(security.id).std:lastevent()
+as
+    select *,
+    0 as tickerId
+from
+    Tick;
+
+@Name('SUBSCRIBE_TICK')
+@RunTimeOnly()
+insert into
+    TickWindow
+select
+    tickerId,
+    tick.*
+from
+    SubscribeTickEvent;
+
+@Name('UNSUBSCRIBE_TICK')
+@RunTimeOnly()
+on
+    UnsubscribeTickEvent as unsubscribeEvent
+delete from
+    TickWindow as tickWindow
+where
+    tickWindow.security.id = unsubscribeEvent.securityId;
+
+@Name('RETRIEVE_TICK')
+@RunTimeOnly()
+on
+    TickWindow as trigger
+insert into
+    Tick
+select
+    current_timestamp.toDate() as dateTime,
+    tickWindow.last as last,
+    tickWindow.lastDateTime as lastDateTime,
+    tickWindow.vol as vol,
+    tickWindow.volBid as volBid,
+    tickWindow.volAsk as volAsk,
+    tickWindow.bid as bid,
+    tickWindow.ask as ask,
+    tickWindow.openIntrest as openIntrest,
+    tickWindow.settlement as settlement,
+    LookupUtil.getSecurityFetched(tickWindow.security.id) as security
+from
+    TickWindow as tickWindow
+where
+    trigger.security.id = tickWindow.security.id
+and
+    MarketDataUtil.isTickValid(tickWindow)
+and
+    (simulation
+or
+    (current_timestamp.getDayOfWeek() >= Calendar.MONDAY
+and
+    current_timestamp.getDayOfWeek() <= Calendar.FRIDAY
+and
+    DateUtil.compareTime(tickWindow.security.securityFamily.marketOpen, current_timestamp.toDate()) <= 0
+and
+    DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0));
+
+@Name('PROPAGATE_MARKET_DATA_EVENTS')
+@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PropagateMarketDataEventSubscriber')
+select
+    *
+from
+    MarketDataEvent;
+
+@Name('PERSIST_HOUR_TICKS')
+@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
+@RunTimeOnly()
+on pattern
+    [every timer:at(0, *, *, *, 1:5)]
+select
+    *
+from
+    TickWindow as tickWindow
+where
+    MarketDataUtil.isTickValid(tickWindow)
+and
+    DateUtil.compareTime(tickWindow.security.securityFamily.marketOpen, current_timestamp.toDate()) <= 0
+and
+    DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0
+and
+    tickWindow.security.securityFamily.periodicity = Periodicity.`HOUR`;
+
+@Name('PERSIST_MINUTE_TICKS')
+@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
+@RunTimeOnly()
+on pattern
+    [every timer:at(*, *, *, *, 1:5)]
+select
+    *
+from
+    TickWindow as tickWindow
+where
+    MarketDataUtil.isTickValid(tickWindow)
+and
+    DateUtil.compareTime(tickWindow.security.securityFamily.marketOpen, current_timestamp.toDate()) <= 0
+and
+    DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0
+and
+    tickWindow.security.securityFamily.periodicity = Periodicity.`MINUTE`;

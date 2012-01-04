@@ -125,15 +125,14 @@
                 <property name="springTypesPackage">${application.package}</property>
 
                 <property name="daos">${core.generated.dir}</property>
-                <property name="dao-impls">${core.manual.java.dir}</property>
+                <property name="dao-impls">${core.manual.dir}</property>
                 <property name="spring-configuration">${core.generated.dir}</property>
                 <property name="services">${core.generated.dir}</property>
-                <property name="service-impls">${core.manual.java.dir}</property>
+                <property name="service-impls">${core.manual.dir}</property>
                 <property name="service-interfaces">${common.generated.dir}</property>
                 <property name="criteria">${common.generated.dir}</property>
-                <property name="value-objects">${common.generated.dir}</property>
                 <property name="server">${core.generated.dir}</property>
-                <property name="server-impl">${core.manual.java.dir}</property>
+                <property name="server-impl">${core.manual.dir}</property>
                 <property name="client-config">${common.generated.dir}</property>
                 <property name="osgi">${common.generated.dir}</property>
                 <property name="richClient">true</property>
@@ -156,8 +155,8 @@
                 <property name="defaultHibernateGeneratorClass">${hibernate.generatorClass}</property>
                 <property name="hibernateAggregationCascade">delete</property>
                 <property name="hibernateDefaultCascade">none</property>
-                <property name="entities">${core.generated.dir}</property>
-                <property name="entity-impls">${core.manual.java.dir}</property>
+                <property name="entities">${common.generated.dir}</property>
+                <property name="entity-impls">${common.manual.dir}</property>
                 <property name="entity-mappings">${core.generated.dir}</property>
                 <property name="user-types">${core.generated.dir}</property>
                 <property name="customTypesPackage">${application.package}</property>
@@ -175,9 +174,11 @@
         <namespace name="java">
             <properties>
                 <property name="generateEqualPropertiesMethod">true</property>
+                <property name="mergeMappingsUri">file:${conf.dir}/mappings/JavaMergeMappings.xml</property>
                 <property name="enumerations">${common.generated.dir}</property>
                 <property name="exceptions">${common.generated.dir}</property>
                 <property name="value-objects">${common.generated.dir}</property>
+                <property name="private-value-objects">${core.generated.dir}</property>
                 <property name="interfaces">${common.generated.dir}</property>
             </properties>
         </namespace>

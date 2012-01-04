@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <!-- =========================================== JMX ================================================ -->
+
+   <bean id="managementServiceDiagrams" class="org.springframework.beans.factory.config.ListFactoryBean">
+       <property name="sourceList">
+            <list/>
+        </property>
+   </bean>
+
+    <!-- =========================================== JMS ================================================ -->
+
+    <!-- JMS ActiveMQ Connection Factory -->
+    <bean id="jmsActiveMQFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+        <property name="targetConnectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL" value="failover:tcp://localhost:61616" />
+            </bean>
+        </property>
+    </bean>
+
+    <!-- ActiveMQ topic for markete data -->
+    <bean id="marketDataTopic" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="MARKETDATA.TOPIC" />
+    </bean>
+
+    <!-- message listener for market data -->
+    <bean id="marketDataMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="jmsActiveMQFactory" />
+        <property name="destination" ref="marketDataTopic" />
+        <property name="messageListener" ref="jmsInputAdapter" />
+        <property name="messageSelector" value="false"/>
+        <property name="cacheLevel">
+            <bean id="org.springframework.jms.listener.DefaultMessageListenerContainer.CACHE_SESSION" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        </property>
+    </bean>
+
+    <!-- message listener for startegy specific messages -->
+    <bean id="strategyMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="jmsActiveMQFactory" />
+        <property name="destination" ref="strategyQueue" />
+        <property name="messageListener" ref="jmsInputAdapter" />
+    </bean>
+
+    <!-- Spring JMS Template for ActiveMQ -->
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="jmsActiveMQFactory"/>
+    </bean>
+
+    <!-- Default unmarshaller -->
+    <bean id="jmsMessageUnmarshaller" class="com.espertech.esperio.jms.JMSDefaultAnyMessageUnmarshaller" />
+
+    <!-- Input adapter -->
+    <bean id="jmsInputAdapter" class="com.espertech.esperio.jms.SpringJMSTemplateInputAdapter">
+        <property name="jmsMessageUnmarshaller" ref="jmsMessageUnmarshaller"/>
+        <property name="jmsTemplate" ref="jmsTemplate"/>
+    </bean>
+
+</beans>

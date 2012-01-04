@@ -1,67 +1,94 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <mappings name="SpringMerge">
 
-        <!--  do not generate applicationContext-client.properties.vsl -->
+        <!--  generate SpringServiceLocator into outlet service-interfaces -->
         <mapping>
             <from><![CDATA[<template
-        path="templates/spring/remoting/client/applicationContext-client.properties.vsl"
+        path="templates/spring/SpringServiceLocator.vsl"
         outputPattern="$generatedFile"
-        outlet="client-config"
+        outlet="server"
         overwrite="true"
         outputToSingleFile="true"
         outputOnEmptyElements="false">
         <modelElements>
             <modelElement variable="services">
                 <type name="org.andromda.cartridges.spring.metafacades.SpringService">
-                    <property name="remotable"/>
+                    <property name="richClient">true</property>
+                    <property name="private">false</property>
                 </type>
+            </modelElement>
+            <modelElement variable="manageables">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringManageableEntity"/>
             </modelElement>
         </modelElements>
     </template>]]></from>
-            <to></to>
-        </mapping>
-
-        <!--  do not generate applicationContext-dataSource.xml.vsl -->
-        <mapping>
-            <from><![CDATA[<template
-        path="templates/spring/applicationContext-dataSource.xml.vsl"
-        outputPattern="$applicationContextDataSource"
-        outlet="spring-configuration"
+            <to><![CDATA[<template
+        path="templates/spring/SpringServiceLocator.vsl"
+        outputPattern="$generatedFile"
+        outlet="service-interfaces"
         overwrite="true"
         outputToSingleFile="true"
         outputOnEmptyElements="false">
         <modelElements>
-            <modelElement variable="entities">
-                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
-            </modelElement>
             <modelElement variable="services">
-                <type name="org.andromda.cartridges.spring.metafacades.SpringService"/>
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="richClient">true</property>
+                    <property name="private">false</property>
+                </type>
+            </modelElement>
+            <modelElement variable="manageables">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringManageableEntity"/>
             </modelElement>
         </modelElements>
-    </template>]]></from>
-            <to></to>
+    </template>]]></to>
         </mapping>
 
-        <!--  do not generate applicationContext-localDataSource.xml.vsl -->
+        <!--  generate "client" SpringServiceBase into outlet service-interfaces -->
         <mapping>
             <from><![CDATA[<template
-        path="templates/spring/applicationContext-localDataSource.xml.vsl"
-        outputPattern="$applicationContextLocalDataSource"
-        outlet="spring-configuration"
-        overwrite="true"
-        outputToSingleFile="true"
-        outputOnEmptyElements="false"
-        outputCondition="dataSourceEnabled">
-        <modelElements>
-            <modelElement variable="entities">
-                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
-            </modelElement>
-            <modelElement variable="services">
-                <type name="org.andromda.cartridges.spring.metafacades.SpringService"/>
+        path="templates/spring/SpringServiceBase.vsl"
+        outputPattern="$generatedFile"
+        outlet="server"
+        overwrite="true">
+        <modelElements variable="service">
+            <modelElement>
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="configonly">false</property>
+                    <property name="richClient">true</property>
+                </type>
             </modelElement>
         </modelElements>
     </template>]]></from>
-            <to></to>
+            <to><![CDATA[<template
+        path="templates/spring/SpringServiceBase.vsl"
+        outputPattern="$generatedFile"
+        outlet="server"
+        overwrite="true"
+        outputCondition="$stringUtils.isBlank($service.findTaggedValue('algoTrader_service_client'))">
+        <modelElements variable="service">
+            <modelElement>
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="configonly">false</property>
+                    <property name="richClient">true</property>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>
+    <template
+        path="templates/spring/SpringServiceBase.vsl"
+        outputPattern="$generatedFile"
+        outlet="service-interfaces"
+        overwrite="true"
+        outputCondition="$stringUtils.isNotBlank($service.findTaggedValue('algoTrader_service_client'))">
+        <modelElements variable="service">
+            <modelElement>
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="configonly">false</property>
+                    <property name="richClient">true</property>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>]]></to>
         </mapping>
 
         <!-- add  managementServiceDiagrams ref -->
@@ -80,33 +107,6 @@
         <mapping>
             <from><![CDATA[<!-- applicationContext hibernateProperties merge-point -->]]></from>
             <to><![CDATA[<prop key="hibernate.generate_statistics">true</prop>]]></to>
-        </mapping>
-
-        <!-- do not generate beanRefFactory -->
-        <mapping>
-            <from><![CDATA[<template
-        path="templates/spring/beanRefFactory.xml.vsl"
-        outputPattern="$beanRefFactory"
-        outlet="spring-configuration"
-        overwrite="true"
-        outputToSingleFile="true"
-        outputOnEmptyElements="false">
-        <modelElements>
-            <modelElement variable="services">
-                <type name="org.andromda.cartridges.spring.metafacades.SpringService"/>
-            </modelElement>
-            <modelElement>
-                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
-            </modelElement>
-            <modelElement variable="manageables">
-                <type name="org.andromda.cartridges.spring.metafacades.SpringManageableEntity"/>
-            </modelElement>
-            <modelElement variable="destinations">
-                <type name="org.andromda.metafacades.uml.Destination"/>
-            </modelElement>
-        </modelElements>
-    </template>]]></from>
-            <to><![CDATA[]]></to>
         </mapping>
 
         <!-- remove condition remotable for SpringClientServiceLocator.vsl -->
@@ -187,6 +187,127 @@
     </template>]]></to>
         </mapping>
 
+        <!--  do not generate applicationContext-client.properties.vsl -->
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/remoting/client/applicationContext-client.properties.vsl"
+        outputPattern="$generatedFile"
+        outlet="client-config"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+        <modelElements>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="remotable"/>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to></to>
+        </mapping>
+
+        <!--  do not generate applicationContext-dataSource.xml.vsl -->
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/applicationContext-dataSource.xml.vsl"
+        outputPattern="$applicationContextDataSource"
+        outlet="spring-configuration"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+        <modelElements>
+            <modelElement variable="entities">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
+            </modelElement>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to></to>
+        </mapping>
+
+        <!--  do not generate applicationContext-localDataSource.xml.vsl -->
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/applicationContext-localDataSource.xml.vsl"
+        outputPattern="$applicationContextLocalDataSource"
+        outlet="spring-configuration"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false"
+        outputCondition="dataSourceEnabled">
+        <modelElements>
+            <modelElement variable="entities">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
+            </modelElement>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to></to>
+        </mapping>
+
+        <!--  do not generate SpringBeanLocator.java -->
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/SpringBeanLocator.java.vsl"
+        outputPattern="$generatedFile"
+        outlet="services"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="true"/>]]></from>
+            <to></to>
+        </mapping>
+
+        <!--  do not generate SpringPrincipalStore.java -->
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/SpringPrincipalStore.java.vsl"
+        outputPattern="$generatedFile"
+        outlet="server"
+        overwrite="true"
+        outputToSingleFile="true">
+        <modelElements>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="richClient">true</property>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to></to>
+        </mapping>
+
+        <!-- do not generate beanRefFactory -->
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/beanRefFactory.xml.vsl"
+        outputPattern="$beanRefFactory"
+        outlet="spring-configuration"
+        overwrite="true"
+        outputToSingleFile="true"
+        outputOnEmptyElements="false">
+        <modelElements>
+            <modelElement variable="services">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService"/>
+            </modelElement>
+            <modelElement>
+                <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
+            </modelElement>
+            <modelElement variable="manageables">
+                <type name="org.andromda.cartridges.spring.metafacades.SpringManageableEntity"/>
+            </modelElement>
+            <modelElement variable="destinations">
+                <type name="org.andromda.metafacades.uml.Destination"/>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to><![CDATA[]]></to>
+        </mapping>
+
         <!--  do not generate applicationContext-server.xml.vsl -->
         <mapping>
             <from><![CDATA[<template
@@ -213,7 +334,7 @@
             <to></to>
         </mapping>
 
-        <!--  no not generate nonPersistent SpringDao.vsl  -->
+        <!--  do not generate nonPersistent SpringDao.vsl  -->
         <mapping>
             <from><![CDATA[<template
         path="templates/spring/SpringDao.vsl"
@@ -231,7 +352,7 @@
         outputPattern="$generatedFile"
         outlet="daos"
         overwrite="true"
-        outputCondition="$stringUtils.isBlank($entity.findTaggedValue('@algoTrader.entity.nonPersistent'))">
+        outputCondition="$stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent'))">
         <modelElements variable="entity">
             <modelElement>
                 <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
@@ -240,7 +361,7 @@
     </template>]]></to>
         </mapping>
 
-        <!--  no not generate nonPersistent SpringHibernateDaoBase.vsl  -->
+        <!--  do not generate nonPersistent SpringHibernateDaoBase.vsl  -->
         <mapping>
             <from><![CDATA[<template
         path="templates/spring/hibernate/SpringHibernateDaoBase.vsl"
@@ -258,7 +379,7 @@
         outputPattern="$generatedFile"
         outlet="daos"
         overwrite="true"
-        outputCondition="$stringUtils.isBlank($entity.findTaggedValue('@algoTrader.entity.nonPersistent'))">
+        outputCondition="$stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent'))">
         <modelElements variable="entity">
             <modelElement>
                 <type name="org.andromda.cartridges.spring.metafacades.SpringEntity"/>
@@ -267,7 +388,7 @@
     </template>]]></to>
         </mapping>
 
-        <!--  no not generate nonPersistent SpringHibernateDaoImpl.vsl  -->
+        <!--  do not generate nonPersistent SpringHibernateDaoImpl.vsl  -->
         <mapping>
             <from><![CDATA[<template
         path="templates/spring/hibernate/SpringHibernateDaoImpl.vsl"
@@ -287,7 +408,7 @@
         outputPattern="$generatedFile"
         outlet="daos"
         overwrite="true"
-        outputCondition="$stringUtils.isBlank($entity.findTaggedValue('@algoTrader.entity.nonPersistent'))">
+        outputCondition="$stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent'))">
         <modelElements variable="entity">
             <modelElement>
                 <type name="org.andromda.cartridges.spring.metafacades.SpringEntity">
@@ -298,8 +419,7 @@
     </template>]]></to>
         </mapping>
 
-        <!-- make Servcies implementing interfaces work  -->
-        <!--  according to http://forum.andromda.org/viewtopic.php?f=16&t=6742&hilit=OperationFacadeLogicImpl -->
+        <!-- make Servcies implementing interfaces work (according to http://forum.andromda.org/viewtopic.php?f=16&t=6742&hilit=OperationFacadeLogicImpl) -->
         <mapping>
             <from><![CDATA[<metafacade class="org.andromda.cartridges.spring.metafacades.SpringServiceOperationLogicImpl">
         <mapping>
