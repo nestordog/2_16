@@ -25,7 +25,7 @@
         <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_NEVER</value></property>
     </bean>
 
-    <bean id="configuration" class="com.algoTrader.util.Configuration"/>
+    <bean id="configuration" class="com.algoTrader.util.spring.Configuration"/>
 
     <bean class="com.algoTrader.util.spring.EntityAnnotationSetter" init-method="init"/>
 

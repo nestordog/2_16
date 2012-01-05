@@ -1,4 +1,4 @@
-package com.algoTrader.util;
+package com.algoTrader.util.spring;
 
 import java.math.BigDecimal;
 import java.util.NoSuchElementException;
