@@ -29,7 +29,7 @@ union
      -t2.COMMISSION as AMOUNT
      from transaction t2
      left join security s2 on t2.SECURITY_FK = s2.id
-     left join forex f2 on s2.SECURITY_FAMILY_FK = f2.id
+     left join forex f2 on s2.id = f2.id
 ) as u
 group by u.STRATEGY_FK, u.CURRENCY
 

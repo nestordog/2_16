@@ -34,26 +34,27 @@ public class MyLogger extends Logger {
     }
 
     /**
-     * Initialises the timestamp to Esper-Time
+     * tries to get Esper-Time
      */
     @Override
     protected void forcedLog(String fqcn, Priority level, Object message, Throwable t) {
 
-        long time = System.currentTimeMillis();
-        try {
-            if (ServiceLocator.instance().isInitialized()) {
-                RuleService ruleService = ServiceLocator.instance().getRuleService();
-                String strategyName = StrategyUtil.getStartedStrategyName();
-                if (ruleService.isInitialized(strategyName) && !ruleService.isInternalClock(strategyName)) {
-                    long engineTime = ruleService.getCurrentTime(strategyName);
-                    if (engineTime != 0) {
-                        time = engineTime;
-                    }
+        if (ServiceLocator.instance().isInitialized()) {
+            RuleService ruleService = ServiceLocator.instance().getRuleService();
+
+            String strategyName = StrategyUtil.getStartedStrategyName();
+            if (ruleService.isInitialized(strategyName) && !ruleService.isInternalClock(strategyName)) {
+
+                long engineTime = ruleService.getCurrentTime(strategyName);
+                if (engineTime != 0) {
+
+                    callAppenders(new LoggingEvent(fqcn, this, engineTime, level, message, t));
+                    return;
                 }
             }
-        } catch (Exception e) {
-            // do nothing spring services are probably not initialized yet
         }
-        callAppenders(new LoggingEvent(fqcn, this, time, level, message, t));
+
+        // fall back to default behaviour
+        super.forcedLog(fqcn, level, message, t);
     }
 }

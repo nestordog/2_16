@@ -43,7 +43,7 @@
     </template>]]></to>
         </mapping>
 
-        <!--  generate "client" SpringServiceBase into outlet service-interfaces -->
+        <!--  split generation of SpringServiceBase into outlets server and service-interfaces -->
         <mapping>
             <from><![CDATA[<template
         path="templates/spring/SpringServiceBase.vsl"
@@ -80,6 +80,39 @@
         outlet="service-interfaces"
         overwrite="true"
         outputCondition="$stringUtils.isNotBlank($service.findTaggedValue('algoTrader_service_client'))">
+        <modelElements variable="service">
+            <modelElement>
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="configonly">false</property>
+                    <property name="richClient">true</property>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>]]></to>
+        </mapping>
+
+        <!--  only generate SpringServiceImpl for non client services -->
+        <mapping>
+            <from><![CDATA[<template
+        path="templates/spring/SpringServiceImpl.vsl"
+        outputPattern="$generatedFile"
+        outlet="server-impl"
+        overwrite="false">
+        <modelElements variable="service">
+            <modelElement>
+                <type name="org.andromda.cartridges.spring.metafacades.SpringService">
+                    <property name="configonly">false</property>
+                    <property name="richClient">true</property>
+                </type>
+            </modelElement>
+        </modelElements>
+    </template>]]></from>
+            <to><![CDATA[<template
+        path="templates/spring/SpringServiceImpl.vsl"
+        outputPattern="$generatedFile"
+        outlet="server-impl"
+        overwrite="false"
+        outputCondition="$stringUtils.isBlank($service.findTaggedValue('algoTrader_service_client'))">
         <modelElements variable="service">
             <modelElement>
                 <type name="org.andromda.cartridges.spring.metafacades.SpringService">

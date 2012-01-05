@@ -150,6 +150,12 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.espertech</groupId>
+            <artifactId>esperee</artifactId>
+            <version>4.4.1</version>
+            <type>pom</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -216,7 +222,7 @@
                 <version>2.2.1</version>
                 <configuration>
                       <tagBase>
-                        svn+ssh://bubba.gettheticket.ch/var/svn/repository/tags
+                        svn+ssh://repo.linardcapital.com/var/svn/repository/tags
                       </tagBase>
                 </configuration>
             </plugin>
@@ -252,6 +258,6 @@
         <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
     </properties>
     <scm>
-        <developerConnection>scm:svn:svn+ssh://bubba.gettheticket.ch/var/svn/repository/trunk/AlgoTrader/core</developerConnection>
+        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader/core</developerConnection>
     </scm>
 </project>

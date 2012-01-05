@@ -103,9 +103,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         String strategyName = StrategyUtil.getStartedStrategyName();
         List<Tick> ticks = getRuleService().getAllEventsProperty(strategyName, "GET_LAST_TICK", "tick");
 
-        // instantiate TickDaoImpl since we have no access to Spring from the strategies
-
-        List<TickVO> tickVOs = new ArrayList<TickVO>(); // TODO fix (List<TickVO>) (new TickDaoImpl()).toTickVOCollection(ticks);
+        List<TickVO> tickVOs = getTickVOs(ticks);
 
         // get all securities on the watchlist
         List<TickVO> processedTickVOs = new ArrayList<TickVO>();
@@ -146,7 +144,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         List<CombinationTick> combinationTicks = getRuleService().getAllEventsProperty(strategyName, "GET_LAST_COMBINATION_TICK", "tick");
 
         // instantiate CombinationTickVO since we have no access to Spring from the strategies
-        List<CombinationTickVO> combinationTickVOs = new ArrayList<CombinationTickVO>(); // TODO fix (List<CombinationTickVO>) (new CombinationTickDaoImpl()).toCombinationTickVOCollection(combinationTicks);
+        List<CombinationTickVO> combinationTickVOs = getCombinationTickVOs(combinationTicks);
 
         final Collection<Combination> actualCombinations;
         if (StrategyUtil.isStartedStrategyBASE()) {
@@ -269,6 +267,52 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected void handleRemoveFromWatchlist(int securityid) throws Exception {
 
         getWatchListService().removeFromWatchlist(StrategyUtil.getStartedStrategyName(), securityid);
+    }
+
+    private List<TickVO> getTickVOs(List<Tick> ticks) {
+
+        // create TickVOs based on the ticks (have to do this manually since we have no access to the Dao)
+        List<TickVO> tickVOs = new ArrayList<TickVO>();
+        for (Tick tick : ticks) {
+
+            TickVO tickVO = new TickVO();
+            tickVO.setDateTime(tick.getDateTime());
+            tickVO.setLast(tick.getLast());
+            tickVO.setLastDateTime(tick.getLastDateTime());
+            tickVO.setVol(tick.getVol());
+            tickVO.setVolBid(tick.getVolBid());
+            tickVO.setVolAsk(tick.getVolAsk());
+            tickVO.setBid(tick.getBid());
+            tickVO.setAsk(tick.getAsk());
+            tickVO.setOpenIntrest(tick.getOpenIntrest());
+            tickVO.setSettlement(tick.getSettlement());
+            tickVO.setSecurityId(tick.getSecurity().getId());
+            tickVO.setCurrentValue(tick.getCurrentValue());
+
+            tickVOs.add(tickVO);
+        }
+        return tickVOs;
+    }
+
+    private List<CombinationTickVO> getCombinationTickVOs(List<CombinationTick> ticks) {
+
+        // create CombinationTickVOs based on the ticks (have to do this manually since we have no access to the Dao)
+        List<CombinationTickVO> tickVOs = new ArrayList<CombinationTickVO>();
+        for (CombinationTick combinationTick : ticks) {
+
+            CombinationTickVO combinationTickVO = new CombinationTickVO();
+
+            combinationTickVO.setId(combinationTick.getCombination().getId());
+            combinationTickVO.setDateTime(combinationTick.getDateTime());
+            combinationTickVO.setVolBid(combinationTick.getVolBid());
+            combinationTickVO.setVolAsk(combinationTick.getVolAsk());
+            combinationTickVO.setBid(combinationTick.getBid());
+            combinationTickVO.setCurrentValue(combinationTick.getCurrentValue());
+            combinationTickVO.setAsk(combinationTick.getAsk());
+
+            tickVOs.add(combinationTickVO);
+        }
+        return tickVOs;
     }
 
     private TickVO getTickVO(List<TickVO> tickVOs, final Security security) {

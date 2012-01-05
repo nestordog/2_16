@@ -121,7 +121,7 @@
                 <version>2.2.1</version>
                 <configuration>
                       <tagBase>
-                        svn+ssh://bubba.gettheticket.ch/var/svn/repository/tags
+                        svn+ssh://repo.linardcapital.com/var/svn/repository/tags
                       </tagBase>
                 </configuration>
             </plugin>
@@ -131,6 +131,6 @@
         <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
     </properties>
     <scm>
-        <developerConnection>scm:svn:svn+ssh://bubba.gettheticket.ch/var/svn/repository/trunk/AlgoTrader/common</developerConnection>
+        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader/common</developerConnection>
     </scm>
 </project>

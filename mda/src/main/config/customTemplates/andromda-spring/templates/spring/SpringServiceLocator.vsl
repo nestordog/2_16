@@ -202,8 +202,8 @@ public class $serviceLocatorName
      * Gets the Configuration
      * @return getContext().getBean("configuration")
      */
-    public final com.algoTrader.util.Configuration getConfiguration() 
+    public final com.algoTrader.util.spring.Configuration getConfiguration() 
     {
-        return getContext().getBean("configuration", com.algoTrader.util.Configuration.class);
+        return getContext().getBean("configuration", com.algoTrader.util.spring.Configuration.class);
     }
 }

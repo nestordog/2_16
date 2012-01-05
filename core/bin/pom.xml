@@ -8,7 +8,7 @@
       <repository>
           <id>bubba</id>
           <name>Bubby Repository</name>
-          <url>http://bubba.gettheticket.ch/repo</url>
+          <url>http://repo.linardcapital.com/repo</url>
       </repository>
   </repositories>
   <dependencies>
