@@ -96,6 +96,18 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         return getReportingService().getStrategyLeverage(StrategyUtil.getStartedStrategyName());
     }
 
+    @Override
+    protected BigDecimal handleGetStrategyBenchmark() throws Exception {
+
+        return getReportingService().getStrategyBenchmark(StrategyUtil.getStartedStrategyName());
+    }
+
+    @Override
+    protected double handleGetStrategyPerformance() throws Exception {
+
+        return getReportingService().getStrategyPerformance(StrategyUtil.getStartedStrategyName());
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     protected List<TickVO> handleGetDataTicks() {
@@ -128,6 +140,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
                 int scale = security.getSecurityFamily().getScale();
                 tickVO.setLowerAlertValue(watchListItem.getLowerAlertValue() != null ? RoundUtil.getBigDecimal(watchListItem.getLowerAlertValue(), scale) : null);
                 tickVO.setUpperAlertValue(watchListItem.getUpperAlertValue() != null ? RoundUtil.getBigDecimal(watchListItem.getUpperAlertValue(), scale) : null);
+                tickVO.setAmount(watchListItem.getAmount() != null ? RoundUtil.getBigDecimal(watchListItem.getAmount(), scale) : null);
 
                 processedTickVOs.add(tickVO);
             }

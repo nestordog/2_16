@@ -402,6 +402,11 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
             getRuleService().sendEvent(StrategyImpl.BASE, transaction);
         }
+
+        // rebalance portfolio if necessary
+        if (transactions.size() > 0) {
+            rebalancePortfolio();
+        }
     }
 
     @Override

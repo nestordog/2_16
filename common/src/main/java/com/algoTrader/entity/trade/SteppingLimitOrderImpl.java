@@ -45,6 +45,7 @@ public class SteppingLimitOrderImpl extends SteppingLimitOrder {
             double maxLimit = ask - maxSpreadPosition * spread;
             roundedLimit = RoundUtil.roundToNextN(limit, tickSize, BigDecimal.ROUND_CEILING);
             roundedMaxLimit = RoundUtil.roundToNextN(maxLimit, tickSize, BigDecimal.ROUND_FLOOR);
+            roundedMaxLimit = Math.max(roundedMaxLimit, tickSize);
         }
 
         setLimit(RoundUtil.getBigDecimal(roundedLimit, scale));

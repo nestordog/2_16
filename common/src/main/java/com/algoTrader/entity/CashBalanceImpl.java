@@ -29,7 +29,7 @@ public class CashBalanceImpl extends CashBalance {
     @Override
     public double getAmountBaseDouble() {
 
-        double exchangeRate = ServiceLocator.instance().getLookupService().getForexRateDouble(getCurrency(), this.portfolioBaseCurrency);
+        double exchangeRate = ServiceLocator.instance().getLookupService().getForexRateDouble(getCurrency(), portfolioBaseCurrency);
 
         return getAmountDouble() * exchangeRate;
     }
@@ -37,6 +37,6 @@ public class CashBalanceImpl extends CashBalance {
     @Override
     public String toString() {
 
-        return getCurrency() + " " + getAmount();
+        return getStrategy() + " " + getCurrency() + " " + getAmount();
     }
 }

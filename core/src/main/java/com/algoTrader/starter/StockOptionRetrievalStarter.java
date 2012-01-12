@@ -10,7 +10,7 @@ public class StockOptionRetrievalStarter {
     public static void main(String[] args) throws ParseException {
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        IBStockOptionRetrieverService service = ServiceLocator.instance().getService("IBStockOptionRetrieverService", IBStockOptionRetrieverService.class);
+        IBStockOptionRetrieverService service = ServiceLocator.instance().getService("iBStockOptionRetrieverService", IBStockOptionRetrieverService.class);
 
         service.init();
 

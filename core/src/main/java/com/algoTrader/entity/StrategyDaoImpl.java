@@ -178,7 +178,7 @@ public class StrategyDaoImpl extends StrategyDaoBase {
     }
 
     @Override
-    protected double handleGetPortfolioLeverageDouble() throws Exception {
+    protected double handleGetPortfolioLeverage() throws Exception {
 
         double exposure = 0.0;
         Collection<Position> positions = getPositionDao().findOpenPositions();

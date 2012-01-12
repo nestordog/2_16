@@ -49,6 +49,11 @@
             <artifactId>esper</artifactId>
             <version>4.4.0</version>
         </dependency>
+          <dependency>
+              <groupId>com.espertech</groupId>
+              <artifactId>esperee-jmx</artifactId>
+              <version>4.4.1</version>
+          </dependency>
         <dependency>
             <groupId>com.espertech</groupId>
             <artifactId>esperio-csv</artifactId>

@@ -338,7 +338,7 @@ public class LookupServiceImpl extends LookupServiceBase {
         double cashBalance = getStrategyDao().getPortfolioCashBalanceDouble();
         double securitiesCurrentValue = getStrategyDao().getPortfolioSecuritiesCurrentValueDouble();
         double maintenanceMargin = getStrategyDao().getPortfolioMaintenanceMarginDouble();
-        double leverage = getStrategyDao().getPortfolioLeverageDouble();
+        double leverage = getStrategyDao().getPortfolioLeverage();
 
         PortfolioValueVO portfolioValueVO = new PortfolioValueVO();
         portfolioValueVO.setCashBalance(cashBalance);
@@ -436,12 +436,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<CashBalance> handleGetCashBalancesByStrategy(Strategy strategy) throws Exception {
 
         return getCashBalanceDao().findCashBalancesByStrategy(strategy);
-    }
-
-    @Override
-    protected List<CashBalance> handleGetCashBalancesBase() throws Exception {
-
-        return getCashBalanceDao().findCashBalancesBase();
     }
 
     @Override

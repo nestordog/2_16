@@ -1,9 +1,9 @@
 SET @base_currency = 'EUR';
 
 select
-    u.STRATEGY_FK,
     u.CURRENCY,
-    sum(u.AMOUNT)
+    sum(u.AMOUNT) as AMOUNT,
+    u.STRATEGY_FK
 from (
     select
     t1.id,
@@ -32,4 +32,5 @@ union
      left join forex f2 on s2.id = f2.id
 ) as u
 group by u.STRATEGY_FK, u.CURRENCY
+order by u.STRATEGY_FK
 

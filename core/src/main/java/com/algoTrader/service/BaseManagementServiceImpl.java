@@ -13,15 +13,15 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     }
 
     @Override
-    protected void handleSetExitValue(int positionId, double exitValue) throws Exception {
+    protected void handleReducePosition(int positionId, int quantity) throws Exception {
 
-        getPositionService().setExitValue(positionId, exitValue, true);
+        getPositionService().reducePosition(positionId, quantity);
     }
 
     @Override
-    protected void handleReconnectIB() throws Exception {
+    protected void handleSetExitValue(int positionId, double exitValue) throws Exception {
 
-        getIBService().connect();
+        getPositionService().setExitValue(positionId, exitValue, true);
     }
 
     @Override
@@ -37,9 +37,27 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     }
 
     @Override
-    protected void handleReducePosition(int positionId, int quantity) throws Exception {
+    protected void handleEqualizeForex() throws Exception {
 
-        getPositionService().reducePosition(positionId, quantity);
+        getForexService().equalizeForex();
+    }
+
+    @Override
+    protected void handleRebalancePortfolio() throws Exception {
+
+        getAccountService().rebalancePortfolio();
+    }
+
+    @Override
+    protected void handleResetCashBalances() throws Exception {
+
+        getCashBalanceService().resetCashBalances();
+    }
+
+    @Override
+    protected void handleReconnectIB() throws Exception {
+
+        getIBService().connect();
     }
 
     @Override
@@ -47,11 +65,5 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     protected Map<String, ConnectionState> handleGetAllConnectionStates() {
 
         return getIBService().getAllConnectionStates();
-    }
-
-    @Override
-    protected void handleEqualizeForex() throws Exception {
-
-        getForexService().equalizeForex();
     }
 }

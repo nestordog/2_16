@@ -90,17 +90,9 @@ and
 select
     null
 from
-    pattern[every timer:at (0, 8, *, *, 1:5)]
+    pattern[every timer:at (0, 9, *, *, 1:5)]
 where
     simulation = false;
-
-@Name('REBALANCE_PORTFOLIO')
-@Subscriber(className='com.algoTrader.service.AccountService.rebalancePortfolio')
-@Condition(key='statement.rebalancePortfolio')
-select
-    null
-from
-    pattern[every timer:at (0, 18, 1, *, *) -> Portfolio];
 
 @Name('EQUALIZE_FOREX_PORTFOLIO')
 @Subscriber(className='com.algoTrader.service.ForexService.equalizeForex')
@@ -109,3 +101,11 @@ select
     null
 from
     pattern[every timer:at (0, 10, *, *, 3) -> Portfolio];
+
+@Name('REBALANCE_PORTFOLIO')
+@Subscriber(className='com.algoTrader.service.AccountService.rebalancePortfolio')
+@Condition(key='statement.rebalancePortfolio')
+select
+    null
+from
+    pattern[every timer:at (0, 11, *, *, 3) -> Portfolio];

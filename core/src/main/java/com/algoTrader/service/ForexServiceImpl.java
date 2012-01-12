@@ -2,6 +2,7 @@ package com.algoTrader.service;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.Strategy;
@@ -11,10 +12,13 @@ import com.algoTrader.entity.trade.MarketOrder;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Side;
+import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.BalanceVO;
 
 public class ForexServiceImpl extends ForexServiceBase {
+
+    private static Logger logger = MyLogger.getLogger(ForexServiceImpl.class.getName());
 
     private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
     private @Value("${fxEqualizationMinAmount}") int fxEqualizationMinAmount;
@@ -62,6 +66,12 @@ public class ForexServiceImpl extends ForexServiceBase {
                 order.setSecurity(forex);
 
                 getOrderService().sendOrder(order);
+
+            } else {
+
+                logger.info("no forex equalization is performed because amount " + RoundUtil.getBigDecimal(Math.abs(netLiqValueBase)) + " is less than "
+                        + this.fxEqualizationMinAmount);
+                return;
             }
         }
     }

@@ -34,18 +34,10 @@ public class StrategyImpl extends Strategy {
 
         double amount = 0.0;
 
-        // sum of all cashBalances of this strategy (not considering BASE itself)
-        if (!BASE.equals(this.getName())) {
-            Collection<CashBalance> cashBalances = getCashBalances();
-            for (CashBalance cashBalance : cashBalances) {
-                amount += cashBalance.getAmountBaseDouble();
-            }
-        }
-
-        // sum of all cashBalances of base (i.e. cashFlows)
-        Collection<CashBalance> cashBalancesBase = getCashBalancesBase();
-        for (CashBalance cashBalance : cashBalancesBase) {
-            amount += cashBalance.getAmountBaseDouble() * getAllocation();
+        // sum of all cashBalances of this strategy
+        Collection<CashBalance> cashBalances = getCashBalances();
+        for (CashBalance cashBalance : cashBalances) {
+            amount += cashBalance.getAmountBaseDouble();
         }
 
         // sum of all FX positions
@@ -105,7 +97,7 @@ public class StrategyImpl extends Strategy {
     @Override
     public double getInitialMarginDouble() {
 
-        return this.initialMarginMarkup * getMaintenanceMarginDouble();
+        return initialMarginMarkup * getMaintenanceMarginDouble();
     }
 
     @Override
@@ -167,6 +159,12 @@ public class StrategyImpl extends Strategy {
     }
 
     @Override
+    public double getPerformance() {
+
+        return getNetLiqValueDouble() / getBenchmark().doubleValue() - 1.0;
+    }
+
+    @Override
     public String toString() {
 
         return getName();
@@ -178,10 +176,5 @@ public class StrategyImpl extends Strategy {
 
     private List<Position> getOpenFXPositions() {
         return ServiceLocator.instance().getLookupService().getOpenFXPositionsByStrategy(getName());
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<CashBalance> getCashBalancesBase() {
-        return ServiceLocator.instance().getLookupService().getCashBalancesBase();
     }
 }

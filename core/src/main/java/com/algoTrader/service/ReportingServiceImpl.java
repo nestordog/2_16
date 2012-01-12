@@ -35,7 +35,6 @@ public class ReportingServiceImpl extends ReportingServiceBase {
         } else {
             return strategy.getSecuritiesCurrentValue();
         }
-
     }
 
     @Override
@@ -83,9 +82,31 @@ public class ReportingServiceImpl extends ReportingServiceBase {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
         if (strategy.isBase()) {
-            return getStrategyDao().getPortfolioLeverageDouble();
+            return getStrategyDao().getPortfolioLeverage();
         } else {
             return strategy.getLeverage();
+        }
+    }
+
+    @Override
+    protected BigDecimal handleGetStrategyBenchmark(String strategyName) throws Exception {
+
+        Strategy strategy = getStrategyDao().findByName(strategyName);
+        if (strategy.isBase()) {
+            return null;
+        } else {
+            return strategy.getBenchmark();
+        }
+    }
+
+    @Override
+    protected double handleGetStrategyPerformance(String strategyName) throws Exception {
+
+        Strategy strategy = getStrategyDao().findByName(strategyName);
+        if (strategy.isBase()) {
+            return 0.0;
+        } else {
+            return strategy.getPerformance();
         }
     }
 
