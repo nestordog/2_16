@@ -9,7 +9,7 @@ import com.algoTrader.vo.TransactionVO;
 
 public class TransactionDaoImpl extends TransactionDaoBase {
 
-    private @Value("${portfolioDigits}") int portfolioDigits;
+    private @Value("${misc.portfolioDigits}") int portfolioDigits;
 
     @Override
     public void toTransactionVO(Transaction transaction, TransactionVO transactionVO) {

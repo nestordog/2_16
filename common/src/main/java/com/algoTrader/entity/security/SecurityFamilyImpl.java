@@ -8,7 +8,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
 
     private static final long serialVersionUID = -2318908709333325986L;
 
-    private static @Value("${portfolioDigits}") int portfolioDigits;
+    private static @Value("${misc.portfolioDigits}") int portfolioDigits;
 
     @Override
     public String toString() {

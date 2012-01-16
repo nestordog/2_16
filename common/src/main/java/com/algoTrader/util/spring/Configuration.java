@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.enumeration.Currency;
-import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.MarketDataType;
 
 public class Configuration {
@@ -72,73 +71,47 @@ public class Configuration {
         return this.roundDigits;
     }
 
-    private @Value("${portfolioBaseCurrency}") String portfolioBaseCurrency;
+    private @Value("${misc.portfolioBaseCurrency}") String portfolioBaseCurrency;
     public Currency getPortfolioBaseCurrency() {
         return Currency.fromString(this.portfolioBaseCurrency);
     }
 
-    private @Value("${portfolioDigits}") int portfolioDigits;
+    private @Value("${misc.portfolioDigits}") int portfolioDigits;
     public int getPortfolioDigits() {
         return this.portfolioDigits;
     }
 
-    private @Value("${sabrEnabled}") boolean sabrEnabled;
+    private @Value("${misc.sabrEnabled}") boolean sabrEnabled;
     public boolean getSabrEnabled() {
         return this.sabrEnabled;
     }
 
-    private @Value("${sabrBeta}") double sabrBeta;
+    private @Value("${misc.sabrBeta}") double sabrBeta;
     public double getSabrBeta() {
         return this.sabrBeta;
     }
 
-    private @Value("${saveToFile}") boolean saveToFile;
-    public boolean getSaveToFile() {
-        return this.saveToFile;
-    }
-
-    private @Value("${marketIntrest}") double marketIntrest;
+    private @Value("${misc.marketIntrest}") double marketIntrest;
     public double getMarketIntrest() {
         return this.marketIntrest;
     }
 
-    private @Value("${fxEqualizationMinAmount}") BigDecimal fxEqualizationMinAmount;
-    public BigDecimal getFxEqualizationMinAmount() {
-        return this.fxEqualizationMinAmount;
-    }
-
-    private @Value("${fxEqualizationBatchSize}") long fxEqualizationBatchSize;
-
-    public long getFxEqualizationBatchSize() {
-        return this.fxEqualizationBatchSize;
-    }
-
-    private @Value("${maxObjectInStream}") long maxObjectInStream;
-    public long getMaxObjectInStream() {
-        return this.maxObjectInStream;
-    }
-
-    private @Value("${marketChannel}") String marketChannel;
-    public MarketChannel getMarketChannel() {
-        return MarketChannel.fromString(this.marketChannel);
-    }
-
-    private @Value("${initialMarginMarkup}") double initialMarginMarkup;
+    private @Value("${order.initialMarginMarkup}") double initialMarginMarkup;
     public double getInitialMarginMarkup() {
         return this.initialMarginMarkup;
     }
 
-    private @Value("${minSpreadPosition}") double minSpreadPosition;
+    private @Value("${order.minSpreadPosition}") double minSpreadPosition;
     public double getMinSpreadPosition() {
         return this.minSpreadPosition;
     }
 
-    private @Value("${maxSpreadPosition}") double maxSpreadPosition;
+    private @Value("${order.maxSpreadPosition}") double maxSpreadPosition;
     public double getMaxSpreadPosition() {
         return this.maxSpreadPosition;
     }
 
-    private @Value("${spreadPositionIncrement}") double spreadPositionIncrement;
+    private @Value("${order.spreadPositionIncrement}") double spreadPositionIncrement;
     public double getSpreadPositionIncrement() {
         return this.spreadPositionIncrement;
     }

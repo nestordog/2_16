@@ -1,5 +1,5 @@
 "D:\MySQL Server 5.1\bin\mysqldump.exe" --skip-triggers --no-data -u @localhost -r ^
-D:\AlgoTrader\code\sql\db-structure.sql ^
+D:\AlgoTrader\core\sql\db-structure.sql ^
 algotrader
 
 "D:\MySQL Server 5.1\bin\mysqldump.exe" ^
@@ -13,8 +13,8 @@ algotrader
 --ignore-table=algotrader.sabr_params ^
 --ignore-table=algotrader.trade ^
 --complete-insert --no-create-info -u @localhost ^
--r D:\AlgoTrader\code\sql\db-data.sql ^
+-r D:\AlgoTrader\core\sql\db-data.sql ^
 algotrader
 
-"D:\AlgoTrader\code\sql\unix2dos.exe" D:\AlgoTrader\code\sql\db-structure.sql
-"D:\AlgoTrader\code\sql\unix2dos.exe" D:\AlgoTrader\code\sql\db-data.sql
+"D:\AlgoTrader\core\sql\unix2dos.exe" D:\AlgoTrader\code\sql\db-structure.sql
+"D:\AlgoTrader\core\sql\unix2dos.exe" D:\AlgoTrader\code\sql\db-data.sql

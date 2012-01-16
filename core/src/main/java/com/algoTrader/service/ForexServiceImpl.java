@@ -20,9 +20,9 @@ public class ForexServiceImpl extends ForexServiceBase {
 
     private static Logger logger = MyLogger.getLogger(ForexServiceImpl.class.getName());
 
-    private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
-    private @Value("${fxEqualizationMinAmount}") int fxEqualizationMinAmount;
-    private @Value("${fxEqualizationBatchSize}") int fxEqualizationBatchSize;
+    private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private @Value("${misc.fxEqualizationMinAmount}") int fxEqualizationMinAmount;
+    private @Value("${misc.fxEqualizationBatchSize}") int fxEqualizationBatchSize;
 
     @Override
     @SuppressWarnings("unchecked")

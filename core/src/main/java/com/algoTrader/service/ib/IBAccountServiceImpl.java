@@ -59,7 +59,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     private @Value("${ib.accountServiceEnabled}") boolean accountServiceEnabled;
 
     private @Value("${ib.retrievalTimeout}") int retrievalTimeout;
-    private @Value("${ib.masterAccount}") String masterAccount;
+    private @Value("${ib.faMasterAccount}") String faMasterAccount;
     private @Value("${ib.flexToken}") String flexToken;
     private @Value("${ib.flexQueryId}") String flexQueryId;
 
@@ -320,7 +320,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
             String accountId = XPathAPI.selectSingleNode(node, "@accountId").getNodeValue();
 
-            if (accountId.equals(this.masterAccount)) {
+            if (accountId.equals(this.faMasterAccount)) {
                 continue;
             }
 
@@ -390,7 +390,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
             getTransactionDao().create(transaction);
 
             // add the amount to the balance
-            getCashBalanceService().addAmount(transaction);
+            getCashBalanceService().processTransaction(transaction);
 
             // @formatter:off
             logger.info("executed cash transaction" +

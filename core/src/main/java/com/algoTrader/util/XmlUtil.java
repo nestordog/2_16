@@ -16,7 +16,7 @@ import com.algoTrader.ServiceLocator;
 
 public class XmlUtil {
 
-    private static boolean saveToFile = ServiceLocator.instance().getConfiguration().getBoolean("saveToFile");
+    private static boolean saveToFile = ServiceLocator.instance().getConfiguration().getBoolean("misc.saveToFile");
 
     private static Logger logger = MyLogger.getLogger(XmlUtil.class.getName());
 

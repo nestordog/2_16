@@ -93,7 +93,7 @@
 
     <variable name="simulation" type="boolean"/>
     <variable name="simulation_eventsPerDay" type="long"/>
-    <variable name="marketIntrest" type="double"/>
+    <variable name="misc_marketIntrest" type="double"/>
 
     <variable name="engineStrategy" type="com.algoTrader.entity.Strategy"/>
 

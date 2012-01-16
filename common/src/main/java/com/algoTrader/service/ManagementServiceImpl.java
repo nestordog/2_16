@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
@@ -205,7 +207,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected List<PositionVO> handleGetDataOpenPositions() throws Exception {
+    protected List<PositionVO> handleGetDataPositions() throws Exception {
 
         return getReportingService().getDataOpenPositions(StrategyUtil.getStartedStrategyName());
     }
@@ -222,6 +224,12 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected List<TransactionVO> handleGetDataTransactions() throws Exception {
 
         return getReportingService().getDataTransactions(StrategyUtil.getStartedStrategyName());
+    }
+
+    @Override
+    protected Map<Object, Object> handleGetProperties() throws Exception {
+
+        return new TreeMap<Object, Object>(getConfiguration().getProperties());
     }
 
     @Override

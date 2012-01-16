@@ -147,7 +147,7 @@ select
     genericOrder as parentOrder
 from
     pattern[every genericOrder=GenericOrder
-            -> (every execDetails=IBExecDetails(execution.m_orderId = genericOrder.number)
+            -> (every execDetails=IBExecDetails(execution.m_orderId = genericOrder.number, not execution.m_execId.startsWith('F-'), not execution.m_execId.startsWith('U+'))
                 and not IBOrderStatus(orderId = genericOrder.number, status = 'Filled' or status = 'Cancelled' or status = 'Inactive')
                 and not GenericOrder(number = genericOrder.number))];
 
@@ -181,16 +181,25 @@ or
 @Name('SET_COMMISSION')
 @RunTimeOnly()
 @Subscriber(className='com.algoTrader.service.TransactionServiceImpl$SetCommissionSubscriber')
+// use orderStatus as trigger and wait 10 seconds after the last fill or cancel
+// get the maximum commission value within the last day for this orderId
+// if commission are distribute to client accounts, m_commission is subsequentily reduced to 0
+// ignore openOrders with Double.MAX_VALUE commission
+// ignore executions starting with "F-" and "U+" as these are internal executions distributing transactions to client accounts
 select
     execDetails.execution.m_execId as transactionNumber,
     execDetails.execution.m_shares as qty,
     execDetails.execution.m_cumQty as cumQty,
-    openOrder.orderState.m_commission as commission
+    max(openOrder.orderState.m_commission) as commission
 from
-    pattern[every openOrder=IBOpenOrder -> (timer:interval(10 sec) and not IBOpenOrder(orderId=openOrder.orderId))] unidirectional,
-    IBOrderStatus(status = 'Filled' or status = 'Cancelled').std:unique(orderId).win:time(20 seconds) as orderStatus,
-    IBExecDetails.win:time(1 day) as execDetails
+    pattern[every orderStatus=IBOrderStatus(status = 'Filled' or status = 'Cancelled') -> (timer:interval(10 sec) and not IBOrderStatus(orderId = orderStatus.orderId))] unidirectional,
+    IBOpenOrder(orderState.m_commission != Double.MAX_VALUE).win:time(1 day) as openOrder,
+    IBExecDetails(not execution.m_execId.startsWith('F-'), not execution.m_execId.startsWith('U+')).win:time(1 day) as execDetails
 where
-    orderStatus.orderId = openOrder.orderId
+    openOrder.orderId = orderStatus.orderId
 and
-    execDetails.execution.m_orderId = openOrder.orderId;
+    execDetails.execution.m_orderId = orderStatus.orderId
+group by
+    execDetails.execution.m_execId,
+    execDetails.execution.m_shares,
+    execDetails.execution.m_cumQty;

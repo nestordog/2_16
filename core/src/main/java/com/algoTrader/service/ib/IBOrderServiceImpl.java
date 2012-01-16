@@ -21,9 +21,9 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     private @Value("${simulation}") boolean simulation;
     private @Value("${ib.faEnabled}") boolean faEnabled;
     private @Value("${ib.faAccount}") String faAccount;
-    private @Value("${ib.group}") String group;
-    private @Value("${ib.openMethod}") String openMethod;
-    private @Value("${ib.closeMethod}") String closeMethod;
+    private @Value("${ib.faGroup}") String faGroup;
+    private @Value("${ib.faOpenMethod}") String faOpenMethod;
+    private @Value("${ib.faCloseMethod}") String faCloseMethod;
 
     @Override
     public void handleInit() {
@@ -81,38 +81,48 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
         // handling for financial advisor accounts
         if (this.faEnabled) {
 
-            long existingQuantity = 0;
-            for (Position position : order.getSecurity().getPositions()) {
-                existingQuantity += position.getQuantity();
-            }
+            if (this.faGroup != null && !"".equals(this.faGroup)) {
 
-            // evaluate weather the transaction is opening or closing
-            boolean opening = false;
-            if (existingQuantity > 0 && Side.SELL.equals(order.getSide())) {
-                opening = false;
-            } else if (existingQuantity <= 0 && Side.SELL.equals(order.getSide())) {
-                opening = true;
-            } else if (existingQuantity < 0 && Side.BUY.equals(order.getSide())) {
-                opening = false;
-            } else if (existingQuantity >= 0 && Side.BUY.equals(order.getSide())) {
-                opening = true;
-            }
+                long existingQuantity = 0;
+                for (Position position : order.getSecurity().getPositions()) {
+                    existingQuantity += position.getQuantity();
+                }
 
-            ibOrder.m_faGroup = this.group;
+                // evaluate weather the transaction is opening or closing
+                boolean opening = false;
+                if (existingQuantity > 0 && Side.SELL.equals(order.getSide())) {
+                    opening = false;
+                } else if (existingQuantity <= 0 && Side.SELL.equals(order.getSide())) {
+                    opening = true;
+                } else if (existingQuantity < 0 && Side.BUY.equals(order.getSide())) {
+                    opening = false;
+                } else if (existingQuantity >= 0 && Side.BUY.equals(order.getSide())) {
+                    opening = true;
+                }
 
-            if (opening) {
+                ibOrder.m_faGroup = this.faGroup;
 
-                // open by specifying the actual quantity
-                ibOrder.m_faMethod = this.openMethod;
-                ibOrder.m_totalQuantity = (int) order.getQuantity();
+                if (opening) {
+
+                    // open by specifying the actual quantity
+                    ibOrder.m_faMethod = this.faOpenMethod;
+                    ibOrder.m_totalQuantity = (int) order.getQuantity();
+
+                } else {
+
+                    // reduce by percentage
+                    ibOrder.m_faMethod = this.faCloseMethod;
+                    ibOrder.m_faPercentage = "-" + Math.abs(order.getQuantity() * 100 / (existingQuantity - order.getQuantity()));
+                }
 
             } else {
 
-                // TODO: should also work with AvailableEquity now (test in Live-Trading!)
-                // reduce by percentage
-                ibOrder.m_faMethod = this.closeMethod;
-                ibOrder.m_faPercentage = "-" + Math.abs(order.getQuantity() * 100 / (existingQuantity - order.getQuantity()));
+                ibOrder.m_totalQuantity = (int) order.getQuantity();
+
+                ibOrder.m_faProfile = order.getStrategy().getName().toUpperCase();
+
             }
+
         } else {
 
             ibOrder.m_totalQuantity = (int) order.getQuantity();

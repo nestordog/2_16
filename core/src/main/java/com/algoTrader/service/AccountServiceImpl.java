@@ -21,8 +21,8 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
 
     private static Logger logger = MyLogger.getLogger(AccountServiceImpl.class.getName());
 
-    private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
-    private @Value("${rebalanceThreshold}") double rebalanceThreshold;
+    private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private @Value("${misc.rebalanceThreshold}") double rebalanceThreshold;
 
     @Override
     protected void handleRebalancePortfolio() throws Exception {
@@ -76,7 +76,7 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
         for (Transaction transaction : transactions) {
 
             // add the amount to the balance
-            getCashBalanceService().addAmount(transaction);
+            getCashBalanceService().processTransaction(transaction);
 
             // save the transaction to the db
             getTransactionDao().create(transaction);

@@ -12,9 +12,9 @@ public class SteppingLimitOrderImpl extends SteppingLimitOrder {
 
     private static final long serialVersionUID = 6631564632498034454L;
 
-    private static @Value("${minSpreadPosition}") double minSpreadPosition;
-    private static @Value("${maxSpreadPosition}") double maxSpreadPosition;
-    private static @Value("${spreadPositionIncrement}") double spreadPositionIncrement;
+    private static @Value("${order.minSpreadPosition}") double minSpreadPosition;
+    private static @Value("${order.maxSpreadPosition}") double maxSpreadPosition;
+    private static @Value("${order.spreadPositionIncrement}") double spreadPositionIncrement;
 
     @Override
     public String toString() {

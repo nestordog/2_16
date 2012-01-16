@@ -40,7 +40,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     private static int advanceMinutes = 10;
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
 
-    private @Value("${sabrBeta}") double beta;
+    private @Value("${misc.sabrBeta}") double beta;
 
     @Override
     protected StockOption handleCreateDummyStockOption(int stockOptionFamilyId, Date expirationDate, BigDecimal targetStrike, OptionType type) throws Exception {

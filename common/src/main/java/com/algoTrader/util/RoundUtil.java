@@ -9,7 +9,7 @@ import com.algoTrader.enumeration.OptionType;
 
 public class RoundUtil {
 
-    private static final int portfolioDigits = ServiceLocator.instance().getConfiguration().getInt("portfolioDigits");
+    private static final int portfolioDigits = ServiceLocator.instance().getConfiguration().getInt("misc.portfolioDigits");
 
     public static double roundToNextN(double value, double n) {
 

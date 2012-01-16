@@ -16,8 +16,8 @@ import com.algoTrader.vo.BalanceVO;
 
 public class StrategyDaoImpl extends StrategyDaoBase {
 
-    private @Value("${initialMarginMarkup}") double initialMarginMarkup;
-    private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private @Value("${order.initialMarginMarkup}") double initialMarginMarkup;
+    private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
 
     @Override
     protected BigDecimal handleGetPortfolioCashBalance() throws Exception {

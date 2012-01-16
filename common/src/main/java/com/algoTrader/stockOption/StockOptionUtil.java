@@ -16,8 +16,8 @@ import com.algoTrader.util.DateUtil;
 public class StockOptionUtil {
 
     private static final double MILLISECONDS_PER_YEAR = 31536000000l;
-    private static boolean sabrEnabled = ServiceLocator.instance().getConfiguration().getBoolean("sabrEnabled");
-    private static double beta = ServiceLocator.instance().getConfiguration().getDouble("sabrBeta");
+    private static boolean sabrEnabled = ServiceLocator.instance().getConfiguration().getBoolean("misc.sabrEnabled");
+    private static double beta = ServiceLocator.instance().getConfiguration().getDouble("misc.sabrBeta");
 
     public static double getOptionPrice(StockOption stockOption, double underlayingSpot, double vola) throws MathException, IllegalArgumentException {
 

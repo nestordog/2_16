@@ -137,7 +137,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         }
 
         // add the amount to the corresponding cashBalance
-        getCashBalanceService().addAmount(transaction);
+        getCashBalanceService().processTransaction(transaction);
 
         // update all entities
         getTransactionDao().create(transaction);

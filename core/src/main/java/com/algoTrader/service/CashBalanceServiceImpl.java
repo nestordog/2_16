@@ -20,10 +20,10 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
     private static Logger logger = MyLogger.getLogger(CashBalanceServiceImpl.class.getName());
 
-    private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
 
     @Override
-    protected void handleAddAmount(Transaction transaction) throws Exception {
+    protected void handleProcessTransaction(Transaction transaction) throws Exception {
 
         if (transaction.getSecurity() instanceof Forex) {
 
