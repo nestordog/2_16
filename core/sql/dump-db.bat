@@ -16,5 +16,5 @@ algotrader
 -r D:\AlgoTrader\core\sql\db-data.sql ^
 algotrader
 
-"D:\AlgoTrader\core\sql\unix2dos.exe" D:\AlgoTrader\code\sql\db-structure.sql
-"D:\AlgoTrader\core\sql\unix2dos.exe" D:\AlgoTrader\code\sql\db-data.sql
+"D:\AlgoTrader\core\sql\unix2dos.exe" D:\AlgoTrader\core\sql\db-structure.sql
+"D:\AlgoTrader\core\sql\unix2dos.exe" D:\AlgoTrader\core\sql\db-data.sql
