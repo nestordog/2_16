@@ -84,7 +84,7 @@ and
     (combination.masterDirection = Direction.LONG and (tick.currentValue <= combination.exitValue)));
 
 @Name('PROCESS_CASH_TRANSACTIONS')
-@Subscriber(className='com.algoTrader.service.AccountService.processCashTransactions')
+@Subscriber(className='com.algoTrader.service.AccountService.reconcile')
 @Condition(key='statement.processCashTransactions')
 @RunTimeOnly
 select

@@ -40,10 +40,6 @@ CREATE TRIGGER `combination_after_update`
         INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
         VALUES ('combination', NEW.id, NOW(), 'PROFIT_TARGET', NEW.PROFIT_TARGET);
      END IF;
-     IF NOT NEW.HEDGE_RATIO = OLD.HEDGE_RATIO OR (NEW.HEDGE_RATIO IS NULL XOR OLD.HEDGE_RATIO IS NULL) THEN
-        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
-        VALUES ('combination', NEW.id, NOW(), 'HEDGE_RATIO', NEW.HEDGE_RATIO);
-     END IF;
 END;
 
 /* Header line. Object: position_after_update. Script date: 22.11.2011 12:55:28. */

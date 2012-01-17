@@ -207,6 +207,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         // must call resetDB through ServiceLocator in order to get a transaction
         ServiceLocator.instance().getService("simulationService", SimulationService.class).resetDB();
+        ServiceLocator.instance().getService("accountService", AccountService.class).rebalancePortfolio();
 
         // init all activatable strategies
         List<Strategy> strategies = getStrategyDao().findAutoActivateStrategies();

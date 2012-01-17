@@ -161,7 +161,11 @@ public class StrategyImpl extends Strategy {
     @Override
     public double getPerformance() {
 
-        return getNetLiqValueDouble() / getBenchmark().doubleValue() - 1.0;
+        if (getBenchmark() != null) {
+            return getNetLiqValueDouble() / getBenchmark().doubleValue() - 1.0;
+        } else {
+            return Double.NaN;
+        }
     }
 
     @Override

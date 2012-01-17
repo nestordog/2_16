@@ -26,6 +26,11 @@ public class SubscriberCreator {
             Class<?> subscriberClazz = Class.forName(subscriberClassName);
             subscriber = (Subscriber) subscriberClazz.newInstance();
 
+            // get the service and hand it to the subscriber
+            Class<?> serviceClazz = Class.forName(serviceClassName);
+            Object service = ServiceLocator.instance().getService(serviceName, serviceClazz);
+            subscriber.setService(service);
+
         } catch (Exception e) {
 
             // otherwise create the class
