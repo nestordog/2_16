@@ -20,12 +20,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerException;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
 import org.springframework.beans.factory.DisposableBean;
@@ -35,10 +37,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
 
+import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
+import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
@@ -62,6 +66,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     private @Value("${ib.faMasterAccount}") String faMasterAccount;
     private @Value("${ib.flexToken}") String flexToken;
     private @Value("${ib.flexQueryId}") String flexQueryId;
+    private @Value("${ib.timeDifferenceHours}") int timeDifferenceHours;
 
     private IBClient client;
     private IBDefaultAdapter wrapper;
@@ -78,8 +83,9 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     private static final String statementUrl = "https://www.interactivebrokers.com/Universal/servlet/FlexStatementService.GetStatement";
 
     private static SimpleDateFormat fileFormat = new SimpleDateFormat("yyyyMMdd_kkmmss");
-    private static SimpleDateFormat transactionDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd, kk:mm:ss");
-    private static SimpleDateFormat transactionDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static SimpleDateFormat cashDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd, kk:mm:ss");
+    private static SimpleDateFormat cashDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static SimpleDateFormat tradeDateTimeFormat = new SimpleDateFormat("yyyyMMdd kkmmss");
 
     @Override
     protected void handleInit() throws java.lang.Exception {
@@ -242,7 +248,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     }
 
     @Override
-    protected void handleProcessCashTransactions() throws Exception {
+    protected void handleReconcile() throws Exception {
 
         if (!this.ibEnabled || this.simulation) {
             return;
@@ -311,6 +317,15 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
             throw new IBAccountServiceException(errorNode.getNodeValue());
         }
 
+        // do the actual reconciliation
+        processCashTransactions(document);
+        reconcilePositions(document);
+        reconcileTrades(document);
+    }
+
+    @Override
+    protected void handleProcessCashTransactions(Document document) throws TransformerException, ParseException {
+
         NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//CashTransaction");
 
         Node node;
@@ -319,11 +334,6 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
         while ((node = iterator.nextNode()) != null) {
 
             String accountId = XPathAPI.selectSingleNode(node, "@accountId").getNodeValue();
-
-            if (accountId.equals(this.faMasterAccount)) {
-                continue;
-            }
-
             String desc = XPathAPI.selectSingleNode(node, "@description").getNodeValue();
             String dateTimeString = XPathAPI.selectSingleNode(node, "@dateTime").getNodeValue();
             String amountString = XPathAPI.selectSingleNode(node, "@amount").getNodeValue();
@@ -332,9 +342,9 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
             Date dateTime = null;
             try {
-                dateTime = transactionDateTimeFormat.parse(dateTimeString);
+                dateTime = cashDateTimeFormat.parse(dateTimeString);
             } catch (ParseException e) {
-                dateTime = transactionDateFormat.parse(dateTimeString);
+                dateTime = cashDateFormat.parse(dateTimeString);
             }
 
             double amountDouble = Double.parseDouble(amountString);
@@ -362,19 +372,32 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
                 throw new IBAccountServiceException("unknown cast transaction type " + typeString);
             }
 
-            BigDecimal amount = RoundUtil.getBigDecimal(Math.abs(amountDouble));
+            BigDecimal price = RoundUtil.getBigDecimal(Math.abs(amountDouble));
 
-            Transaction transaction = new TransactionImpl();
-            transaction.setDateTime(dateTime);
-            transaction.setQuantity(1);
-            transaction.setPrice(amount);
-            transaction.setCommission(new BigDecimal(0));
-            transaction.setCurrency(currency);
-            transaction.setType(transactionType);
-            transaction.setDescription(description);
-            transaction.setStrategy(strategy);
+            if(getTransactionDao().findByDateTimePriceTypeAndDescription(dateTime, price, transactionType, description) != null) {
 
-            transactions.add(transaction);
+                // @formatter:off
+                logger.warn("cash transaction already exists" +
+                        " dateTime: " + cashDateTimeFormat.format(dateTime) +
+                        " price: " + price +
+                        " type: " + transactionType +
+                        " description: " + description);
+                // @formatter:on
+
+            } else {
+
+                Transaction transaction = new TransactionImpl();
+                transaction.setDateTime(dateTime);
+                transaction.setQuantity(1);
+                transaction.setPrice(price);
+                transaction.setCommission(new BigDecimal(0));
+                transaction.setCurrency(currency);
+                transaction.setType(transactionType);
+                transaction.setDescription(description);
+                transaction.setStrategy(strategy);
+
+                transactions.add(transaction);
+            }
         }
 
         // sort the transactions according to their dateTime
@@ -394,18 +417,137 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
             // @formatter:off
             logger.info("executed cash transaction" +
-                    " dateTime: " + transactionDateTimeFormat.format(transaction.getDateTime()) +
+                    " dateTime: " + cashDateTimeFormat.format(transaction.getDateTime()) +
                     " price: " + transaction.getPrice() +
                     " type: " + transaction.getType() +
                     " description: " + transaction.getDescription());
             // @formatter:on
 
-            getRuleService().sendEvent(StrategyImpl.BASE, transaction);
+            if (getRuleService().isInitialized(StrategyImpl.BASE)) {
+                getRuleService().sendEvent(StrategyImpl.BASE, transaction);
+            }
         }
 
         // rebalance portfolio if necessary
         if (transactions.size() > 0) {
             rebalancePortfolio();
+        }
+    }
+
+    @Override
+    protected void handleReconcilePositions(Document document) throws Exception {
+
+        NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//OpenPosition");
+
+        Node node;
+        while ((node = iterator.nextNode()) != null) {
+
+            String extId = XPathAPI.selectSingleNode(node, "@conid").getNodeValue();
+
+            Security security = getSecurityDao().findByExtId(extId);
+            if (security == null) {
+
+                logger.warn("security: " + extId + " does not exist");
+            } else {
+
+                long totalQuantity = 0;
+                for (Position position : security.getPositions()) {
+                    totalQuantity += position.getQuantity();
+                }
+
+                String quantityString = XPathAPI.selectSingleNode(node, "@position").getNodeValue();
+                long quantity = Long.parseLong(quantityString);
+
+                if (totalQuantity != quantity) {
+                    logger.warn("position(s) on security: " + extId + " totalQuantity does not match db: " + totalQuantity + " broker: " + quantity);
+                } else {
+                    logger.info("position(s) on security: " + extId + " ok");
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void handleReconcileTrades(Document document) throws Exception {
+
+        NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//Trade[@accountId='" + this.faMasterAccount + "' and @transactionType='ExchTrade']");
+
+        Node node;
+        while ((node = iterator.nextNode()) != null) {
+
+            String extId = XPathAPI.selectSingleNode(node, "@ibExecID").getNodeValue();
+
+            Transaction transaction = getTransactionDao().findByExtId(extId);
+            if (transaction == null) {
+
+                logger.warn("transaction: " + extId + " does not exist");
+            } else {
+
+                String dateString = XPathAPI.selectSingleNode(node, "@tradeDate").getNodeValue();
+                String timeString = XPathAPI.selectSingleNode(node, "@tradeTime").getNodeValue();
+                String quantityString = XPathAPI.selectSingleNode(node, "@quantity").getNodeValue();
+                String priceString = XPathAPI.selectSingleNode(node, "@tradePrice").getNodeValue();
+                String commissionString = XPathAPI.selectSingleNode(node, "@ibCommission").getNodeValue();
+                String currencyString = XPathAPI.selectSingleNode(node, "@currency").getNodeValue();
+                String typeString = XPathAPI.selectSingleNode(node, "@buySell").getNodeValue();
+
+                Date dateTime = DateUtils.addHours(tradeDateTimeFormat.parse(dateString + " " + timeString), this.timeDifferenceHours);
+                long quantity = Long.parseLong(quantityString);
+                double price = Double.parseDouble(priceString);
+                double commissionDouble = Math.abs(Double.parseDouble(commissionString));
+                Currency currency = Currency.fromString(currencyString);
+                TransactionType type = TransactionType.valueOf(typeString);
+
+                boolean success = true;
+                if (!(new Date(transaction.getDateTime().getTime())).equals(dateTime)) {
+                    logger.warn("transaction: " + extId + " dateTime does not match db: " + transaction.getDateTime() + " broker: " + dateTime);
+                    success = false;
+                }
+
+                if (transaction.getQuantity() != quantity) {
+                    logger.warn("transaction: " + extId + " quantity does not match db: " + transaction.getQuantity() + " broker: " + quantity);
+                    success = false;
+                }
+
+                if (transaction.getPrice().doubleValue() != price) {
+                    logger.warn("transaction: " + extId + " price does not match db: " + transaction.getPrice() + " broker: " + price);
+                    success = false;
+                }
+
+                if (!transaction.getCurrency().equals(currency)) {
+                    logger.warn("transaction: " + extId + " currency does not match db: " + transaction.getCurrency() + " broker: " + currency);
+                    success = false;
+                }
+
+                if (!transaction.getType().equals(type)) {
+                    logger.warn("transaction: " + extId + " type does not match db: " + transaction.getType() + " broker: " + type);
+                    success = false;
+                }
+
+                if (transaction.getCommission().doubleValue() != commissionDouble) {
+
+                    int scale = transaction.getSecurity().getSecurityFamily().getScale();
+                    BigDecimal commission = RoundUtil.getBigDecimal(Math.abs(commissionDouble), scale);
+                    BigDecimal existingCommission = transaction.getCommission();
+
+                    // update the transaction
+                    transaction.setCommission(commission);
+                    getTransactionDao().update(transaction);
+
+                    // process the difference in commission
+                    double CommissionDiffDouble = commissionDouble - existingCommission.doubleValue();
+                    BigDecimal commissionDiff = RoundUtil.getBigDecimal(Math.abs(CommissionDiffDouble), scale);
+
+                    getCashBalanceService().processAmount(transaction.getStrategy(), transaction.getCurrency(), commissionDiff);
+
+                    logger.info("transaction: " + extId + " adjusted commission from: " + existingCommission + " to: " + commission);
+                    success = false;
+                }
+
+                if (success) {
+                    logger.info("transaction: " + extId + " ok");
+                }
+            }
         }
     }
 

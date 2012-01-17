@@ -12,6 +12,7 @@ import com.algoTrader.entity.CashBalance;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.security.Forex;
+import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.Pair;
@@ -28,14 +29,55 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
         if (transaction.getSecurity() instanceof Forex) {
 
             // gross transaction value is booked in transaction currency
-            addAmount(transaction.getStrategy(), transaction.getCurrency(), transaction.getGrossValue());
+            processAmount(transaction.getStrategy(), transaction.getCurrency(), transaction.getGrossValue());
 
             // commission is booked in baseCurrency
-            addAmount(transaction.getStrategy(), this.portfolioBaseCurrency, transaction.getCommission());
+            processAmount(transaction.getStrategy(), this.portfolioBaseCurrency, transaction.getCommission());
         } else {
 
             // the entire transaction (price + commission) is booked in transaction currency
-            addAmount(transaction.getStrategy(), transaction.getCurrency(), transaction.getNetValue());
+            processAmount(transaction.getStrategy(), transaction.getCurrency(), transaction.getNetValue());
+        }
+    }
+
+    @Override
+    protected void handleProcessAmount(Strategy strategy, Currency currency, BigDecimal amount) throws Exception {
+
+        CashBalance cashBalance = getCashBalanceDao().findByStrategyAndCurrency(strategy, currency);
+
+        // create the cashBalance, if it does not exist yet
+        if (cashBalance == null) {
+
+            cashBalance = CashBalance.Factory.newInstance();
+
+            cashBalance.setStrategy(strategy);
+            cashBalance.setCurrency(currency);
+            cashBalance.setAmount(amount);
+
+            strategy.getCashBalances().add(cashBalance);
+
+            getCashBalanceDao().create(cashBalance);
+            getStrategyDao().update(strategy);
+
+        } else {
+
+            cashBalance.setAmount(cashBalance.getAmount().add(amount));
+
+            getCashBalanceDao().update(cashBalance);
+        }
+    }
+
+    @Override
+    protected void handleProcessAmount(Strategy strategy, Security security, BigDecimal amount) throws Exception {
+
+        if (security instanceof Forex) {
+
+            // commission is booked in baseCurrency
+            processAmount(strategy, this.portfolioBaseCurrency, amount);
+        } else {
+
+            // commission is booked in transaction currency
+            processAmount(strategy, security.getSecurityFamily().getCurrency(), amount);
         }
     }
 
@@ -116,31 +158,5 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
         }
 
         map.put(pair, balance.add(value));
-    }
-
-    private void addAmount(Strategy strategy, Currency currency, BigDecimal amount) {
-
-        CashBalance cashBalance = getCashBalanceDao().findByStrategyAndCurrency(strategy, currency);
-
-        // create the cashBalance, if it does not exist yet
-        if (cashBalance == null) {
-
-            cashBalance = CashBalance.Factory.newInstance();
-
-            cashBalance.setStrategy(strategy);
-            cashBalance.setCurrency(currency);
-            cashBalance.setAmount(amount);
-
-            strategy.getCashBalances().add(cashBalance);
-
-            getCashBalanceDao().create(cashBalance);
-            getStrategyDao().update(strategy);
-
-        } else {
-
-            cashBalance.setAmount(cashBalance.getAmount().add(amount));
-
-            getCashBalanceDao().update(cashBalance);
-        }
     }
 }

@@ -103,10 +103,12 @@ public class IBStockOptionRetrieverServiceImpl extends IBStockOptionRetrieverSer
 
             final String isin = StockOptionSymbol.getIsin(family, expiration, type, strike);
             String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike);
+            String extId = String.valueOf(contract.m_conId);
 
 
-            stockOption.setIsin(isin);
             stockOption.setSymbol(symbol);
+            stockOption.setIsin(isin);
+            stockOption.setExtId(extId);
             stockOption.setType(type);
             stockOption.setStrike(strike);
             stockOption.setExpiration(expiration);

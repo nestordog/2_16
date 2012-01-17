@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.enumeration.Currency;
+import com.algoTrader.service.RuleService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
 import com.espertech.esper.event.WrapperEventBean;
@@ -28,17 +29,20 @@ public abstract class SecurityImpl extends Security {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Tick getLastTick() {
 
-        List<Map> events = ServiceLocator.instance().getRuleService().getAllEvents(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK");
+        RuleService ruleService = ServiceLocator.instance().getRuleService();
+        if (ruleService.isInitialized(StrategyUtil.getStartedStrategyName())) {
+            List<Map> events = ruleService.getAllEvents(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK");
 
-        // try to see if the rule GET_LAST_TICK has the tick
-        for (Map event : events) {
-            Integer securityId = (Integer) event.get("securityId");
-            if (securityId.equals(getId())) {
-                Object obj = event.get("tick");
-                if (obj instanceof WrapperEventBean) {
-                    return (Tick) ((WrapperEventBean) obj).getUnderlying();
-                } else {
-                    return (Tick) ((BeanEventBean) obj).getUnderlying();
+            // try to see if the rule GET_LAST_TICK has the tick
+            for (Map event : events) {
+                Integer securityId = (Integer) event.get("securityId");
+                if (securityId.equals(getId())) {
+                    Object obj = event.get("tick");
+                    if (obj instanceof WrapperEventBean) {
+                        return (Tick) ((WrapperEventBean) obj).getUnderlying();
+                    } else {
+                        return (Tick) ((BeanEventBean) obj).getUnderlying();
+                    }
                 }
             }
         }

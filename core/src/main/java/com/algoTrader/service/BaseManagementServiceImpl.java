@@ -31,9 +31,9 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     }
 
     @Override
-    protected void handleProcessCashTransactions() throws Exception {
+    protected void handleReconcile() throws Exception {
 
-        getAccountService().processCashTransactions();
+        getAccountService().reconcile();
     }
 
     @Override

@@ -51,7 +51,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(fill.getDateTime());
-        transaction.setNumber(fill.getNumber());
+        transaction.setExtId(fill.getNumber());
         transaction.setQuantity(quantity);
         transaction.setPrice(fill.getPrice());
         transaction.setType(transactionType);
@@ -233,19 +233,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         }
     }
 
-    @Override
-    protected void handleSetCommission(String transactionNumber, double commissionDouble) throws Exception {
-
-        Transaction transaction = getTransactionDao().findByNumber(transactionNumber);
-
-        BigDecimal commission = RoundUtil.getBigDecimal(commissionDouble);
-        transaction.setCommission(commission);
-
-        getTransactionDao().update(transaction);
-
-        logger.debug("set commission of transaction " + transaction.getId() + " to " + commission);
-    }
-
     public static class LogTransactionSummarySubscriber {
 
         public void update(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream) {
@@ -259,28 +246,4 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             ServiceLocator.instance().getService("transactionService", TransactionService.class).logTransactionSummary(transactions);
         }
     }
-
-    public static class SetCommissionSubscriber {
-
-        public void update(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream) {
-
-            int maxCumQty = 0;
-            for (Map<?, ?> element : insertStream) {
-                Integer cumQty = (Integer) element.get("cumQty");
-                maxCumQty = Math.max(maxCumQty, cumQty);
-            }
-
-            for (Map<?, ?> element : insertStream) {
-
-                String transactionNumber = (String) element.get("transactionNumber");
-                Integer qty = (Integer) element.get("qty");
-                Double commission = (Double) element.get("commission");
-
-                double transactionCommission = commission * qty / maxCumQty;
-
-                ServiceLocator.instance().getService("transactionService", TransactionService.class).setCommission(transactionNumber, transactionCommission);
-            }
-
-        }
-    }
-};
+}
