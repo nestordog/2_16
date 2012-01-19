@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.CashBalance;
 import com.algoTrader.entity.Position;
@@ -35,6 +36,11 @@ import com.algoTrader.vo.PortfolioValueVO;
 
 @SuppressWarnings("unchecked")
 public class LookupServiceImpl extends LookupServiceBase {
+
+    private @Value("${simulation}") boolean simulation;
+    private @Value("${statement.simulateStockOptions}") boolean simulateStockOptions;
+    private @Value("${statement.simulateFuturesByUnderlaying}") boolean simulateFuturesByUnderlaying;
+    private @Value("${statement.simulateFuturesByGenericFutures}") boolean simulateFuturesByGenericFutures;
 
     @Override
     protected Security handleGetSecurity(int id) throws java.lang.Exception {
@@ -88,7 +94,23 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected StockOption handleGetNearestStockOption(int underlayingId, Date expirationDate, BigDecimal underlayingSpot, OptionType optionType)
             throws Exception {
 
-        return getStockOptionDao().findNearestStockOption(underlayingId, expirationDate, underlayingSpot, optionType.getValue());
+        StockOptionFamily family = getStockOptionFamilyDao().findByUnderlaying(underlayingId);
+
+        StockOption stockOption = getStockOptionDao().findNearestStockOption(underlayingId, expirationDate, underlayingSpot, optionType.getValue());
+
+        // if no future was found, create it if simulating options
+        if (this.simulation && this.simulateStockOptions) {
+            if ((stockOption == null) || Math.abs(stockOption.getStrike().doubleValue() - underlayingSpot.doubleValue()) > family.getStrikeDistance()) {
+
+                stockOption = getStockOptionService().createDummyStockOption(family.getId(), expirationDate, underlayingSpot, optionType);
+            }
+        }
+
+        if (stockOption == null) {
+            throw new LookupServiceException("no stockOption available for expiration " + expirationDate + " strike " + underlayingSpot + " type " + optionType);
+        } else {
+            return stockOption;
+        }
     }
 
     @Override
@@ -109,43 +131,41 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         Future future = getFutureDao().findNearestFuture(futureFamilyId, expirationDate);
 
-        // if no future was found, we need to create the missing part of the future-chain
-        if (future == null) {
+        // if no future was found, create the missing part of the future-chain
+        if (this.simulation && future == null && (this.simulateFuturesByUnderlaying || this.simulateFuturesByGenericFutures)) {
 
             FutureFamily futureFamily = getFutureFamilyDao().load(futureFamilyId);
-            getFutureService().createFutures(futureFamily.getId());
 
+            getFutureService().createDummyFutures(futureFamily.getId());
             future = getFutureDao().findNearestFuture(futureFamilyId, expirationDate);
-
-            if (future == null) {
-                throw new LookupServiceException("the requested targetExpirationDate " + expirationDate + " is too far our");
-            }
         }
 
-        return future;
+        if (future == null) {
+            throw new LookupServiceException("no future available for expiration " + expirationDate);
+        } else {
+            return future;
+        }
+
     }
 
     @Override
     protected Future handleGetFutureByDuration(int futureFamilyId, Date targetExpirationDate, int duration) throws Exception {
 
         FutureFamily futureFamily = getFutureFamilyDao().load(futureFamilyId);
-        if (futureFamily == null) {
-            throw new LookupServiceException("futureFamily for id: " + futureFamilyId + " does not exist");
+
+        Date expirationDate = DateUtil.getExpirationDateNMonths(futureFamily.getExpirationType(), targetExpirationDate, duration);
+        Future future = getFutureDao().findFutureByExpiration(futureFamilyId, expirationDate);
+
+        // if no future was found, create the missing part of the future-chain
+        if (this.simulation && future == null && (this.simulateFuturesByUnderlaying || this.simulateFuturesByGenericFutures)) {
+
+            getFutureService().createDummyFutures(futureFamily.getId());
+            future = getFutureDao().findFutureByExpiration(futureFamilyId, expirationDate);
+        }
+
+        if (future == null) {
+            throw new LookupServiceException("no future available targetExpiration " + targetExpirationDate + " and duration " + duration);
         } else {
-            Date expirationDate = DateUtil.getExpirationDateNMonths(futureFamily.getExpirationType(), targetExpirationDate, duration);
-            Future future = getFutureDao().findFutureByExpiration(futureFamilyId, expirationDate);
-
-            // if no future was found, we need to create the missing part of the future-chain
-            if (future == null) {
-
-                getFutureService().createFutures(futureFamily.getId());
-
-                future = getFutureDao().findNearestFuture(futureFamilyId, expirationDate);
-
-                if (future == null) {
-                    throw new LookupServiceException("the requested targetExpirationDate " + targetExpirationDate + " is too far our");
-                }
-            }
             return future;
         }
     }

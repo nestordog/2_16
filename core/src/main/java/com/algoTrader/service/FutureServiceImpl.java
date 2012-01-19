@@ -18,13 +18,14 @@ public class FutureServiceImpl extends FutureServiceBase {
     private static Logger logger = MyLogger.getLogger(FutureServiceImpl.class.getName());
 
     @Override
-    protected void handleCreateFutures(int futureFamilyId) {
+    protected void handleCreateDummyFutures(int futureFamilyId) {
 
         FutureFamily family = getFutureFamilyDao().load(futureFamilyId);
         Security underlaying = family.getUnderlaying();
 
         List<Future> futures = getFutureDao().findAllFutures(underlaying.getId(), DateUtil.getCurrentEPTime());
 
+        // create the missing part of the futures chain
         for (int i = futures.size() + 1; i <= family.getLength(); i++) {
 
             int duration = i * family.getExpirationMonths();

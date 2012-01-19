@@ -46,7 +46,7 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.service.sq.HttpClientUtil;
+import com.algoTrader.util.HttpClientUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.XmlUtil;

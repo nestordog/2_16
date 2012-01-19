@@ -46,7 +46,7 @@ public class IBServiceImpl extends IBServiceBase {
             this.services = new HashSet<IBServiceInterface>();
             this.services.add(getIBAccountService());
             this.services.add(getIBHistoricalDataService());
-            this.services.add(getIBStockOptionRetrieverService());
+            this.services.add(getIBSecurityRetrieverService());
         }
 
         return this.services;

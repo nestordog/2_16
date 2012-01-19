@@ -32,9 +32,6 @@
     <alias name="iBAccountService" alias="accountService"/>
     <alias name="iBHistoricalDataService" alias="historicalDataService"/>
 
-    <!-- Swissquote Aliases -->
-<!--     <alias name="sQStockOptionRetrieverService" alias="stockOptionRetrieverService"/> -->
-
     <!-- =========================================== JMX ================================================ -->
 
     <!--  MBean Server -->
