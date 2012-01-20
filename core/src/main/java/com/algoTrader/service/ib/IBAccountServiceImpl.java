@@ -59,6 +59,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
     private @Value("${simulation}") boolean simulation;
     private @Value("#{'${marketChannel}' == 'IB'}") boolean ibEnabled;
+    private @Value("${misc.portfolioDigits}") int portfolioDigits;
     private @Value("${ib.faEnabled}") boolean faEnabled;
     private @Value("${ib.accountServiceEnabled}") boolean accountServiceEnabled;
 
@@ -524,19 +525,18 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
                     success = false;
                 }
 
-                if (transaction.getCommission().doubleValue() != commissionDouble) {
+                BigDecimal commission = RoundUtil.getBigDecimal(Math.abs(commissionDouble), portfolioDigits);
+                BigDecimal existingCommission = transaction.getCommission();
 
-                    int scale = transaction.getSecurity().getSecurityFamily().getScale();
-                    BigDecimal commission = RoundUtil.getBigDecimal(Math.abs(commissionDouble), scale);
-                    BigDecimal existingCommission = transaction.getCommission();
+                if (!existingCommission.equals(commission)) {
 
                     // update the transaction
                     transaction.setCommission(commission);
                     getTransactionDao().update(transaction);
 
                     // process the difference in commission
-                    double CommissionDiffDouble = commissionDouble - existingCommission.doubleValue();
-                    BigDecimal commissionDiff = RoundUtil.getBigDecimal(Math.abs(CommissionDiffDouble), scale);
+                    double CommissionDiffDouble = commission.doubleValue() - existingCommission.doubleValue();
+                    BigDecimal commissionDiff = RoundUtil.getBigDecimal(Math.abs(CommissionDiffDouble), portfolioDigits);
 
                     getCashBalanceService().processAmount(transaction.getStrategy(), transaction.getCurrency(), commissionDiff);
 
