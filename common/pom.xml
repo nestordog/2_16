@@ -47,7 +47,7 @@
         <dependency>
             <groupId>com.espertech</groupId>
             <artifactId>esper</artifactId>
-            <version>4.4.0</version>
+            <version>4.5.0</version>
         </dependency>
           <dependency>
               <groupId>com.espertech</groupId>
@@ -57,12 +57,12 @@
         <dependency>
             <groupId>com.espertech</groupId>
             <artifactId>esperio-csv</artifactId>
-            <version>4.4.0</version>
+            <version>4.5.0</version>
         </dependency>
         <dependency>
             <groupId>com.espertech</groupId>
             <artifactId>esperio-springjms</artifactId>
-            <version>4.4.0</version>
+            <version>4.5.0</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
