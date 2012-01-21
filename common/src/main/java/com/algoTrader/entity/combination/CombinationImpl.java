@@ -75,4 +75,9 @@ public class CombinationImpl extends Combination {
 
         return getStrategy().getName() + " " + getMaster().getSymbol();
     }
+
+    @Override
+    public int getAllocationCount() {
+        return getAllocations().size();
+    }
 }
