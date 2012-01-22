@@ -18,7 +18,7 @@
       </dependency>
       <dependency>
           <groupId>algotrader</groupId>
-          <artifactId>algotrader-code</artifactId>
+          <artifactId>algotrader-core</artifactId>
           <version>1.5-SNAPSHOT</version>
       </dependency>
   </dependencies>
