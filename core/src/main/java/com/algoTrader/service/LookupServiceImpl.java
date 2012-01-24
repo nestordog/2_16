@@ -12,9 +12,9 @@ import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.CashBalance;
+import com.algoTrader.entity.CashBalanceDao;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.StrategyDao;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.WatchListItem;
 import com.algoTrader.entity.combination.Allocation;
@@ -443,13 +443,13 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<Currency> handleGetHeldCurrencies(String strategyName) throws Exception {
 
-        return (List<Currency>) getStrategyDao().findHeldCurrencies(StrategyDao.TRANSFORM_NONE, strategyName);
+        return (List<Currency>) getCashBalanceDao().findHeldCurrenciesByStrategy(CashBalanceDao.TRANSFORM_NONE, strategyName);
     }
 
     @Override
     protected List<Currency> handleGetHeldCurrencies() throws Exception {
 
-        return (List<Currency>) getStrategyDao().findPortfolioHeldCurrencies(StrategyDao.TRANSFORM_NONE);
+        return (List<Currency>) getCashBalanceDao().findHeldCurrencies(CashBalanceDao.TRANSFORM_NONE);
     }
 
     @Override

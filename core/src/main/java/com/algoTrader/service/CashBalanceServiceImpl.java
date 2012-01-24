@@ -12,7 +12,6 @@ import com.algoTrader.entity.CashBalance;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.security.Forex;
-import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.Pair;
@@ -31,7 +30,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
             // gross transaction value is booked in transaction currency
             processAmount(transaction.getStrategy(), transaction.getCurrency(), transaction.getGrossValue());
 
-            // commission is booked in baseCurrency
+            // commission is booked in baseCurrency (commission is also stored in base currency in db)
             processAmount(transaction.getStrategy(), this.portfolioBaseCurrency, transaction.getCommission());
         } else {
 
@@ -68,20 +67,6 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
     }
 
     @Override
-    protected void handleProcessAmount(Strategy strategy, Security security, BigDecimal amount) throws Exception {
-
-        if (security instanceof Forex) {
-
-            // commission is booked in baseCurrency
-            processAmount(strategy, this.portfolioBaseCurrency, amount);
-        } else {
-
-            // commission is booked in transaction currency
-            processAmount(strategy, security.getSecurityFamily().getCurrency(), amount);
-        }
-    }
-
-    @Override
     protected void handleResetCashBalances() throws Exception {
 
         // get all existing cashBalances
@@ -97,7 +82,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
                 // gross transaction value is booked in transaction currency
                 addAmount(map, transaction.getStrategy(), transaction.getCurrency(), transaction.getGrossValue());
 
-                // commission is booked in baseCurrency
+                // commission is booked in baseCurrency (commission is also stored in base currency in db)
                 addAmount(map, transaction.getStrategy(), this.portfolioBaseCurrency, transaction.getCommission());
             } else {
 

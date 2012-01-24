@@ -72,7 +72,7 @@ public abstract class SecurityImpl extends Security {
     @Override
     public double getFXRateBase() {
 
-        return getFXRate(this.portfolioBaseCurrency);
+        return getFXRate(portfolioBaseCurrency);
     }
 
     @Override
@@ -92,7 +92,7 @@ public abstract class SecurityImpl extends Security {
         if (lastTick != null && lastTick.getCurrentValueDouble() > 0.0) {
 
             int contractSize = getSecurityFamily().getContractSize();
-            marginPerContract = lastTick.getCurrentValueDouble() * contractSize / this.initialMarginMarkup;
+            marginPerContract = lastTick.getCurrentValueDouble() * contractSize / initialMarginMarkup;
         } else {
             logger.warn("no last tick available or currentValue to low to set margin on " + getSymbol());
         }
