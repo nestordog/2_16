@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>algotrader</groupId>
     <artifactId>algotrader</artifactId>
-    <version>1.5-SNAPSHOT</version>
+    <version>1.7</version>
     <packaging>pom</packaging>
     <name>AlgoTrader</name>
     <description>The AlgoTrader Project.</description>
     <scm>
-        <connection>scm:svn:https://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</connection>
-        <developerConnection>scm:svn:https://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</developerConnection>
-        <url></url>
+        <connection>scm:svn:https://repo.linardcapital.com/var/svn/repository/tags/AlgoTrader-1.7</connection>
+        <developerConnection>scm:svn:https://repo.linardcapital.com/var/svn/repository/tags/AlgoTrader-1.7</developerConnection>
+        <url>/tags/AlgoTrader-1.7</url>
     </scm>
     <developers>
         <developer>
-            <id></id>
+            <id />
             <name>Andy Flury</name>
             <email>andy.flury@gmail.com</email>
             <roles>
@@ -303,8 +301,8 @@
         <dataSource>java:comp/env/${dataSource.name}</dataSource>
         <spring.version>3.1.0.RELEASE</spring.version>
         <!-- SCM user ID and Password here, or in user specific settings.xml file -->
-        <username></username>
-        <password></password>
+        <username />
+        <password />
     </properties>
     <profiles>
         <profile>
@@ -506,7 +504,7 @@
                     <minmemory>128m</minmemory>
                     <maxmemory>1g</maxmemory>
                     <sourcepath>${project.basedir}/src/main/java;${project.basedir}/target/src/main/java</sourcepath>
-                    <detectLinks/>
+                    <detectLinks />
                     <links>
                         <link>http://java.sun.com/javase/6/docs/api/</link>
                         <link>http://java.sun.com/j2ee/1.4/docs/api/</link>
