@@ -10,8 +10,8 @@
     <name>AlgoTrader</name>
     <description>The AlgoTrader Project.</description>
     <scm>
-        <connection></connection>
-        <developerConnection></developerConnection>
+        <connection>scm:svn:https://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</connection>
+        <developerConnection>scm:svn:https://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</developerConnection>
         <url></url>
     </scm>
     <developers>
