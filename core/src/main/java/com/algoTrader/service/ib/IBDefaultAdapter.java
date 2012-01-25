@@ -189,8 +189,10 @@ public class IBDefaultAdapter implements EWrapper {
     @Override
     public synchronized void nextValidId(final int orderId) {
 
-        RequestIDGenerator.singleton().initializeOrderId(orderId);
-        logger.debug(EWrapperMsgGenerator.nextValidId(orderId));
+        if (this.clientId == 0) {
+            RequestIDGenerator.singleton().initializeOrderId(orderId);
+            logger.debug(EWrapperMsgGenerator.nextValidId(orderId));
+        }
     }
 
     // Override EWrapper methods with default implementation

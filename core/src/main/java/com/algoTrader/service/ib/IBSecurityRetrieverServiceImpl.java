@@ -39,7 +39,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
     private static final long serialVersionUID = 6446509772400405052L;
 
     private static Logger logger = MyLogger.getLogger(IBSecurityRetrieverServiceImpl.class.getName());
-    private static SimpleDateFormat dayFormat = new SimpleDateFormat("yyyyMMdd");
+    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMddkkmmss");
 
     private @Value("${simulation}") boolean simulation;
     private @Value("#{'${marketChannel}' == 'IB'}") boolean ibEnabled;
@@ -90,7 +90,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             Contract contract = contractDetails.m_summary;
             OptionType type = "C".equals(contract.m_right) ? OptionType.CALL : OptionType.PUT;
             BigDecimal strike = RoundUtil.getBigDecimal(contract.m_strike, family.getScale());
-            Date expiration = dayFormat.parse(contract.m_expiry);
+            Date expiration = format.parse(contract.m_expiry + "130000");
 
             if (underlaying.getSecurityFamily().getMarket().equals(Market.CBOE) || underlaying.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {
                 expiration = DateUtils.addDays(expiration, 1);
@@ -140,7 +140,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             future.setSecurityFamily(family);
 
             Contract contract = contractDetails.m_summary;
-            Date expiration = dayFormat.parse(contract.m_expiry);
+            Date expiration = format.parse(contract.m_expiry + "130000");
 
             if (underlaying.getSecurityFamily().getMarket().equals(Market.CBOE) || underlaying.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {
                 expiration = DateUtils.addDays(expiration, 1);

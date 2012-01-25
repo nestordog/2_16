@@ -20,7 +20,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.TransformerException;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -76,7 +75,8 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     private Condition condition = this.lock.newCondition();
 
     private Map<String, Map<String, String>> allAccountValues;
-    private String fa;
+    private Set<String> accounts;
+    private Map<String, Map<String, Double>> profiles;
 
     private static int clientId = 1;
 
@@ -121,10 +121,49 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
                 try {
 
-                    IBAccountServiceImpl.this.fa = xml;
+                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder builder = factory.newDocumentBuilder();
+                    Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+                    if (faDataType == 1) {
+
+                        // parse the document using XPath
+                        NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//Group[name='AllClients']/ListOfAccts/String");
+
+                        // get accounts
+                        Node node;
+                        IBAccountServiceImpl.this.accounts = new HashSet<String>();
+                        while ((node = iterator.nextNode()) != null) {
+                            IBAccountServiceImpl.this.accounts.add(node.getFirstChild().getNodeValue());
+                        }
+
+                    } else if (faDataType == 2) {
+
+                        // parse the document using XPath
+                        NodeIterator profileIterator = XPathAPI.selectNodeIterator(document, "//AllocationProfile");
+
+                        Node profileNode;
+                        IBAccountServiceImpl.this.profiles = new HashMap<String, Map<String, Double>>();
+                        while ((profileNode = profileIterator.nextNode()) != null) {
+                            String name = XPathAPI.selectSingleNode(profileNode, "name/text()").getNodeValue();
+
+                            // get allocations
+                            NodeIterator allocationIterator = XPathAPI.selectNodeIterator(profileNode, "ListOfAllocations/Allocation");
+                            Map<String, Double> allocations = new HashMap<String, Double>();
+                            Node allocationNode;
+                            while ((allocationNode = allocationIterator.nextNode()) != null) {
+                                String account = XPathAPI.selectSingleNode(allocationNode, "acct/text()").getNodeValue();
+                                String amount = XPathAPI.selectSingleNode(allocationNode, "amount/text()").getNodeValue();
+                                allocations.put(account, Double.valueOf(amount));
+                            }
+                            IBAccountServiceImpl.this.profiles.put(name, allocations);
+                        }
+                    }
 
                     IBAccountServiceImpl.this.condition.signalAll();
 
+                } catch (Exception e) {
+                    IBAccountServiceImpl.logger.error("error parsing fa document", e);
                 } finally {
                     IBAccountServiceImpl.this.lock.unlock();
                 }
@@ -152,6 +191,8 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
         }
 
         this.allAccountValues = new HashMap<String, Map<String, String>>();
+        this.accounts = new HashSet<String>();
+        this.profiles = new HashMap<String, Map<String, Double>>();
 
         this.client.connect();
     }
@@ -190,61 +231,100 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
     private Set<String> getAccounts() throws Exception {
 
-        IBAccountServiceImpl.this.lock.lock();
+        if (this.accounts.size() == 0) {
 
-        try {
+            IBAccountServiceImpl.this.lock.lock();
 
-            IBAccountServiceImpl.this.fa = null;
+            try {
 
-            this.client.requestFA(1);
+                this.client.requestFA(1);
 
-            while (this.fa == null) {
+                while (this.accounts.size() == 0) {
 
-                if (!this.condition.await(this.retrievalTimeout, TimeUnit.SECONDS)) {
-                    throw new IBAccountServiceException("could not get FA ");
+                    if (!this.condition.await(this.retrievalTimeout, TimeUnit.SECONDS)) {
+                        throw new IBAccountServiceException("could not get FA ");
+                    }
                 }
+            } finally {
+                IBAccountServiceImpl.this.lock.unlock();
             }
-        } finally {
-            IBAccountServiceImpl.this.lock.unlock();
+        }
+        return this.accounts;
+    }
+
+    private Map<String, Double> getAllocations(String strategyName) throws Exception {
+
+        if (this.profiles.size() == 0) {
+
+            IBAccountServiceImpl.this.lock.lock();
+
+            try {
+
+                this.client.requestFA(2);
+
+                while (this.profiles.size() == 0) {
+
+                    if (!this.condition.await(this.retrievalTimeout, TimeUnit.SECONDS)) {
+                        throw new IBAccountServiceException("could not get FA ");
+                    }
+                }
+            } finally {
+                IBAccountServiceImpl.this.lock.unlock();
+            }
         }
 
-        // get the xml-document
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document document = builder.parse(new InputSource(new StringReader(this.fa)));
-
-        // parse the document using XPath
-        NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//Group[name='AllClients']/ListOfAccts/String");
-        Node node;
-        Set<String> accounts = new HashSet<String>();
-        while ((node = iterator.nextNode()) != null) {
-            accounts.add(node.getFirstChild().getNodeValue());
-        }
-
-        return accounts;
+        return this.profiles.get(strategyName.toUpperCase());
     }
 
     @Override
-    protected long handleGetNumberOfContractsByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception {
+    protected long handleGetQuantityByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception {
 
         if (this.faEnabled) {
 
             // if financial advisor is enabled, we have to get the number of Contracts per account
             // in order to avoid fractions
-            long numberOfContractsByMargin = 0;
+            long quantityByMargin = 0;
+            StringBuffer buffer = new StringBuffer("quantityByMargin:");
             for (String account : getAccounts()) {
                 double availableAmount = Double.parseDouble(retrieveAccountValue(account, "CHF", "AvailableFunds"));
-                long numberOfContracts = (long) (availableAmount / initialMarginPerContractInBase);
-                numberOfContractsByMargin += numberOfContracts;
+                long quantity = (long) (availableAmount / initialMarginPerContractInBase);
+                quantityByMargin += quantity;
 
-                logger.debug("assign " + numberOfContracts + " to account " + account);
+                buffer.append(" " + account + "=" + quantity);
             }
-            return numberOfContractsByMargin;
+            logger.debug(buffer.toString());
+
+            return quantityByMargin;
 
         } else {
 
             Strategy strategy = getStrategyDao().findByName(strategyName);
             return (long) (strategy.getAvailableFundsDouble() / initialMarginPerContractInBase);
+        }
+    }
+
+    @Override
+    protected long handleGetQuantityByAllocation(String strategyName, long requestedQuantity) throws Exception {
+
+        if (this.faEnabled) {
+
+            // if financial advisor is enabled, we have to get the number of Contracts per account
+            // in order to avoid fractions
+            long quantityByAllocation = 0;
+            StringBuffer buffer = new StringBuffer("quantityByAllocation:");
+            for (Map.Entry<String, Double> entry : getAllocations(strategyName).entrySet()) {
+                long quantity = (long) (entry.getValue() / 100.0 * requestedQuantity);
+                quantityByAllocation += quantity;
+
+                buffer.append(" " + entry.getKey() + "=" + quantity);
+            }
+            logger.debug(buffer.toString());
+
+            return quantityByAllocation;
+
+        } else {
+
+            return requestedQuantity;
         }
     }
 
@@ -325,7 +405,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     }
 
     @Override
-    protected void handleProcessCashTransactions(Document document) throws TransformerException, ParseException {
+    protected void handleProcessCashTransactions(Document document) throws Exception {
 
         NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//CashTransaction");
 
@@ -525,7 +605,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
                     success = false;
                 }
 
-                BigDecimal commission = RoundUtil.getBigDecimal(Math.abs(commissionDouble), portfolioDigits);
+                BigDecimal commission = RoundUtil.getBigDecimal(Math.abs(commissionDouble), this.portfolioDigits);
                 BigDecimal existingCommission = transaction.getCommission();
 
                 if (!existingCommission.equals(commission)) {
@@ -536,7 +616,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
                     // process the difference in commission
                     double CommissionDiffDouble = commission.doubleValue() - existingCommission.doubleValue();
-                    BigDecimal commissionDiff = RoundUtil.getBigDecimal(Math.abs(CommissionDiffDouble), portfolioDigits);
+                    BigDecimal commissionDiff = RoundUtil.getBigDecimal(Math.abs(CommissionDiffDouble), this.portfolioDigits);
 
                     getCashBalanceService().processAmount(transaction.getStrategy(), transaction.getCurrency(), commissionDiff);
 

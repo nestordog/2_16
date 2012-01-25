@@ -5,6 +5,7 @@ import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.service.MarketDataService;
 import com.algoTrader.service.OrderService;
 import com.algoTrader.service.RuleService;
+import com.algoTrader.service.ib.IBService;
 
 public class MarketDataStarter {
 
@@ -28,6 +29,9 @@ public class MarketDataStarter {
 
         OrderService orderService = ServiceLocator.instance().getOrderService();
         orderService.init();
+
+        IBService ibService = ServiceLocator.instance().getService("iBService", IBService.class);
+        ibService.init();
 
         // subscribe marketData for all securities on the watchlist (needs to be invoked after all Spring Services have been properly initialized)
         marketDataService.initWatchlist();

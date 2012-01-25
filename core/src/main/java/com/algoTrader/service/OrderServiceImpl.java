@@ -28,7 +28,18 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     private @Value("${simulation}") boolean simulation;
 
     @Override
+    protected void handleValidateOrder(Order order) throws Exception {
+
+        validateExternalOrder(order);
+
+        // TODO add internal validations (i.e. limit, amount, etc.)
+    }
+
+    @Override
     protected void handleSendOrder(Order order) throws Exception {
+
+        // validate the order before sending it
+        validateOrder(order);
 
         if (this.simulation) {
 

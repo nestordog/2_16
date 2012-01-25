@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.trade.LimitOrderInterface;
 import com.algoTrader.entity.trade.Order;
+import com.algoTrader.entity.trade.OrderQuantityValidationException;
 import com.algoTrader.entity.trade.StopOrderInterface;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Side;
@@ -30,6 +31,20 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
 
         if (!this.simulation) {
             client = IBClient.getDefaultInstance();
+        }
+    }
+
+    @Override
+    protected void handleValidateExternalOrder(Order order) throws Exception {
+
+        // validate quantity by allocations (if fa is enabled and no account has been specified)
+        if (this.faEnabled && (order.getAccount() == null || "".equals(order.getAccount()))) {
+            long quantity = getAccountService().getQuantityByAllocation(order.getStrategy().getName(), order.getQuantity());
+            if (quantity != order.getQuantity()) {
+                OrderQuantityValidationException ex = new OrderQuantityValidationException();
+                ex.setMaxQuantity(quantity);
+                throw ex;
+            }
         }
     }
 
@@ -78,8 +93,15 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
         ibOrder.m_orderType = IBUtil.getIBOrderType(order);
         ibOrder.m_transmit = true;
 
+        // handle a potentially defined account
+        if (order.getAccount() != null && !"".equals(order.getAccount())) {
+
+            ibOrder.m_totalQuantity = (int) order.getQuantity();
+
+            ibOrder.m_account = order.getAccount();
+
         // handling for financial advisor accounts
-        if (this.faEnabled) {
+        } else if (this.faEnabled) {
 
             if (this.faGroup != null && !"".equals(this.faGroup)) {
 
