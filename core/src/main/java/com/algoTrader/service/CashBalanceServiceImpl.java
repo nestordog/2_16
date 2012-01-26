@@ -31,7 +31,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
             processAmount(transaction.getStrategy(), transaction.getCurrency(), transaction.getGrossValue());
 
             // commission is booked in baseCurrency (commission is also stored in base currency in db)
-            processAmount(transaction.getStrategy(), this.portfolioBaseCurrency, transaction.getCommission());
+            processAmount(transaction.getStrategy(), this.portfolioBaseCurrency, transaction.getCommission().negate());
         } else {
 
             // the entire transaction (price + commission) is booked in transaction currency
@@ -83,7 +83,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
                 addAmount(map, transaction.getStrategy(), transaction.getCurrency(), transaction.getGrossValue());
 
                 // commission is booked in baseCurrency (commission is also stored in base currency in db)
-                addAmount(map, transaction.getStrategy(), this.portfolioBaseCurrency, transaction.getCommission());
+                addAmount(map, transaction.getStrategy(), this.portfolioBaseCurrency, transaction.getCommission().negate());
             } else {
 
                 // the entire transaction (price + commission) is booked in transaction currency
