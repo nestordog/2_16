@@ -168,7 +168,7 @@ public class IBDefaultAdapter implements EWrapper {
     public void setState(ConnectionState state) {
 
         if (this.state != state) {
-            logger.debug("client: " + this.clientId + "state: " + state);
+            logger.debug("client: " + this.clientId + " state: " + state);
         }
         this.state = state;
     }
@@ -180,7 +180,7 @@ public class IBDefaultAdapter implements EWrapper {
     public void setRequested(boolean requested) {
 
         if (this.requested != requested) {
-            logger.debug("client: " + this.clientId + "requested: " + requested);
+            logger.debug("client: " + this.clientId + " requested: " + requested);
         }
 
         this.requested = requested;
@@ -191,7 +191,7 @@ public class IBDefaultAdapter implements EWrapper {
 
         if (this.clientId == 0) {
             RequestIDGenerator.singleton().initializeOrderId(orderId);
-            logger.debug("client: " + this.clientId + EWrapperMsgGenerator.nextValidId(orderId));
+            logger.debug("client: " + this.clientId + " " + EWrapperMsgGenerator.nextValidId(orderId));
         }
     }
 

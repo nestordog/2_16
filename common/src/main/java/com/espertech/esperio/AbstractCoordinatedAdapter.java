@@ -1,4 +1,5 @@
-// use CustomSender
+// line 77: use CustomSender
+// line 297 + 303: fix sendSoonestEvents
 /**************************************************************************************
  * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
  * http://esper.codehaus.org                                                          *
