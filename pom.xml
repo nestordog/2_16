@@ -281,7 +281,7 @@
     </distributionManagement>
     <properties>
         <andromda.version>3.4-SNAPSHOT</andromda.version>
-        <java.version>1.7</java.version>
+        <java.version>1.6</java.version>
         <downloadSources>true</downloadSources>
         <createChecksum>true</createChecksum>
         <uniqueVersion>false</uniqueVersion>
