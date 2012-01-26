@@ -551,7 +551,12 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     @Override
     protected void handleReconcileTrades(Document document) throws Exception {
 
-        NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//Trade[@accountId='" + this.faMasterAccount + "' and @transactionType='ExchTrade']");
+        NodeIterator iterator;
+        if (this.faEnabled) {
+            iterator = XPathAPI.selectNodeIterator(document, "//Trade[@accountId='" + this.faMasterAccount + "' and @transactionType='ExchTrade']");
+        } else {
+            iterator = XPathAPI.selectNodeIterator(document, "//Trade[@transactionType='ExchTrade']");
+        }
 
         Node node;
         while ((node = iterator.nextNode()) != null) {
