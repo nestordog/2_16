@@ -5,8 +5,8 @@
 	<classpathentry kind="lib" path="lib/jcommon-1.0.10.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.6.jar"/>
 	<classpathentry kind="lib" path="lib/orson-0.5.0.jar"/>
-	<classpathentry kind="lib" path="D:/jdk1.7.0/lib/jconsole.jar" sourcepath="D:/openjdk-7_b147/jdk/src/share/classes"/>
-	<classpathentry kind="lib" path="D:/jdk1.7.0/lib/tools.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="JConsole"/>
+	<classpathentry kind="var" path="Tools"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
