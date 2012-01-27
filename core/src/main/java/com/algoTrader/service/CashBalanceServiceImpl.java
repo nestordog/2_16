@@ -96,30 +96,40 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
             Strategy strategy = entry.getKey().getFirst();
             Currency currency = entry.getKey().getSecond();
+            BigDecimal amount = entry.getValue();
 
             CashBalance cashBalance = getCashBalanceDao().findByStrategyAndCurrency(strategy, currency);
 
             if (cashBalance != null) {
 
-                cashBalance.setAmount(entry.getValue());
-                getCashBalanceDao().update(cashBalance);
-
                 existingCashBalances.remove(cashBalance);
+
+                BigDecimal oldAmount = cashBalance.getAmount();
+                if (oldAmount.doubleValue() != amount.doubleValue()) {
+
+                    cashBalance.setAmount(amount);
+                    getCashBalanceDao().update(cashBalance);
+
+                    logger.info("adjusted cashBalance: " + cashBalance + " from: " + oldAmount);
+                } else {
+
+                    logger.info("no change on cashBalance: " + cashBalance);
+                }
 
             } else {
 
                 cashBalance = CashBalance.Factory.newInstance();
                 cashBalance.setStrategy(strategy);
                 cashBalance.setCurrency(currency);
-                cashBalance.setAmount(entry.getValue());
+                cashBalance.setAmount(amount);
 
                 strategy.getCashBalances().add(cashBalance);
 
                 getCashBalanceDao().create(cashBalance);
                 getStrategyDao().update(strategy);
-            }
 
-            logger.info("recalculated cashBalance: " + cashBalance);
+                logger.info("created cashBalance: " + cashBalance);
+            }
         }
 
         // remove all obsolete cashBalances
@@ -128,6 +138,8 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
             Strategy strategy = cashBalance.getStrategy();
             strategy.getCashBalances().remove(cashBalance);
             getStrategyDao().update(strategy);
+
+            logger.info("removed cashBalance: " + cashBalance);
         }
 
         getCashBalanceDao().remove(existingCashBalances);

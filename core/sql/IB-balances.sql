@@ -16,6 +16,7 @@ from (
          when 'INTREST_PAID' then -t1.PRICE
          when 'FEES' then -t1.PRICE
          when 'REFUND' then t1.PRICE
+         when 'REBALANCE' then t1.QUANTITY * t1.PRICE
          else -t1.QUANTITY * t1.PRICE * sf1.CONTRACT_SIZE
     end as AMOUNT
     from transaction t1
