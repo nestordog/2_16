@@ -1,4 +1,6 @@
-// AlgoTrader 184 - 200: format error message
+// line 84 - 99: sort operations alphabetically & get the number of non-getter operations
+// line 111 - 113: do not display getters as operations
+// line 185 - 201: format error message
 /*
  * %W% %E%
  *
@@ -15,7 +17,9 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Hashtable;
 
 import javax.management.MBeanInfo;
@@ -77,61 +81,84 @@ public abstract class XOperations extends JPanel implements ActionListener {
         removeAll();
         setLayout(new BorderLayout());
 
+        // sort operations alphabetically
+        Arrays.sort(operations, 0, operations.length, new Comparator<MBeanOperationInfo>() {
+            @Override
+            public int compare(MBeanOperationInfo arg0, MBeanOperationInfo arg1) {
+                return arg0.getName().compareTo(arg1.getName());
+            }
+        });
+
+        // get the number of non-getter operations
+        int operationsLength = 0;
+        for (MBeanOperationInfo operation : operations) {
+            Object role = operation.getDescriptor().getFieldValue("role");
+            if (role == null || !"getter".equals(role)) {
+                operationsLength++;
+            }
+        }
+
         JButton methodButton;
         JLabel methodLabel;
         JPanel innerPanelLeft,innerPanelRight;
         JPanel outerPanelLeft,outerPanelRight;
-        outerPanelLeft  = new JPanel(new GridLayout(operations.length,1));
-        outerPanelRight = new JPanel(new GridLayout(operations.length,1));
+        outerPanelLeft = new JPanel(new GridLayout(operationsLength, 1));
+        outerPanelRight = new JPanel(new GridLayout(operationsLength, 1));
 
         for (MBeanOperationInfo operation : operations) {
-            innerPanelLeft  = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            innerPanelRight = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            String returnType = operation.getReturnType();
-            if (returnType == null) {
-                methodLabel = new JLabel("null", JLabel.RIGHT);
-                if (JConsole.isDebug()) {
-                    System.err.println(
-                            "WARNING: The operation's return type " +
-                            "shouldn't be \"null\". Check how the " +
-                            "MBeanOperationInfo for the \"" +
-                            operation.getName() + "\" operation has " +
-                            "been defined in the MBean's implementation code.");
+
+            // only display non-getter operations
+            Object role = operation.getDescriptor().getFieldValue("role");
+            if (role == null || !"getter".equals(role)) {
+
+                innerPanelLeft  = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+                innerPanelRight = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                String returnType = operation.getReturnType();
+                if (returnType == null) {
+                    methodLabel = new JLabel("null", JLabel.RIGHT);
+                    if (JConsole.isDebug()) {
+                        System.err.println(
+                                "WARNING: The operation's return type " +
+                                "shouldn't be \"null\". Check how the " +
+                                "MBeanOperationInfo for the \"" +
+                                operation.getName() + "\" operation has " +
+                                "been defined in the MBean's implementation code.");
+                    }
+                } else {
+                    methodLabel = new JLabel(
+                            Utils.getReadableClassName(returnType), JLabel.RIGHT);
                 }
-            } else {
-                methodLabel = new JLabel(
-                        Utils.getReadableClassName(returnType), JLabel.RIGHT);
+                innerPanelLeft.add(methodLabel);
+                if (methodLabel.getText().length()>20) {
+                    methodLabel.setText(methodLabel.getText().
+                            substring(methodLabel.getText().
+                            lastIndexOf(".")+1,
+                            methodLabel.getText().length()));
+                }
+
+                methodButton = new JButton(operation.getName());
+                methodButton.setToolTipText(operation.getDescription());
+                boolean callable = isCallable(operation.getSignature());
+                if(callable)
+                    methodButton.addActionListener(this);
+                else
+                    methodButton.setEnabled(false);
+
+                MBeanParameterInfo[] signature = operation.getSignature();
+                OperationEntry paramEntry = new OperationEntry(operation,
+                        callable,
+                        methodButton,
+                        this);
+                this.operationEntryTable.put(methodButton, paramEntry);
+                innerPanelRight.add(methodButton);
+                if(signature.length==0)
+                    innerPanelRight.add(new JLabel("( )",JLabel.CENTER));
+                else
+                    innerPanelRight.add(paramEntry);
+
+                outerPanelLeft.add(innerPanelLeft,BorderLayout.WEST);
+                outerPanelRight.add(innerPanelRight,BorderLayout.CENTER);
             }
-            innerPanelLeft.add(methodLabel);
-            if (methodLabel.getText().length()>20) {
-                methodLabel.setText(methodLabel.getText().
-                        substring(methodLabel.getText().
-                        lastIndexOf(".")+1,
-                        methodLabel.getText().length()));
-            }
-
-            methodButton = new JButton(operation.getName());
-            methodButton.setToolTipText(operation.getDescription());
-            boolean callable = isCallable(operation.getSignature());
-            if(callable)
-                methodButton.addActionListener(this);
-            else
-                methodButton.setEnabled(false);
-
-            MBeanParameterInfo[] signature = operation.getSignature();
-            OperationEntry paramEntry = new OperationEntry(operation,
-                    callable,
-                    methodButton,
-                    this);
-            this.operationEntryTable.put(methodButton, paramEntry);
-            innerPanelRight.add(methodButton);
-            if(signature.length==0)
-                innerPanelRight.add(new JLabel("( )",JLabel.CENTER));
-            else
-                innerPanelRight.add(paramEntry);
-
-            outerPanelLeft.add(innerPanelLeft,BorderLayout.WEST);
-            outerPanelRight.add(innerPanelRight,BorderLayout.CENTER);
         }
         add(outerPanelLeft,BorderLayout.WEST);
         add(outerPanelRight,BorderLayout.CENTER);
@@ -147,6 +174,7 @@ public abstract class XOperations extends JPanel implements ActionListener {
     }
 
     // Call on EDT
+    @Override
     public void actionPerformed(final ActionEvent e) {
         performInvokeRequest((JButton)e.getSource());
     }

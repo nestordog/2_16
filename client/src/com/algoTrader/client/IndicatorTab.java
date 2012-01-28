@@ -92,7 +92,7 @@ public class IndicatorTab extends javax.swing.JPanel {
 
             JMXResult result = new JMXResult();
 
-            ObjectName mbeanName = new ObjectName("com.algoTrader.service:name=managementService");
+            ObjectName mbeanName = new ObjectName("com.algoTrader.service:name=ManagementService");
 
             // see if the service is available
             try {

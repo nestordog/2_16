@@ -172,64 +172,28 @@
 
 	
 	<!-- ========================= Start of CLIENT SERVICE DEFINITIONS ========================= -->
-	
+
 #foreach($service in $services)
 #if(!$stringUtils.isBlank($service.findTaggedValue('algoTrader_service_client')))	
-    <!-- $service.name Service Proxy with inner $service.name Service Implementation -->
-    <bean id="$service.getBeanName(false)" class="org.springframework.aop.framework.ProxyFactoryBean">
-        <property name="target">
-            <bean class="$service.fullyQualifiedImplementationName">
+#set($propertyPrefix="")
+    <bean id="$service.fullyQualifiedImplementationName" class="$service.fullyQualifiedImplementationName" #if ($stringUtils.isNotBlank($service.initMethodName))init-method="$service.initMethodName" #end#if ($stringUtils.isNotBlank($service.destroyMethodName))destroy-method="$service.destroyMethodName" #end>
 ## Because of a bug in Spring with circular references (and using AOP proxies),
 ## we need to use the lookup-method as a work-a-round for dependencies
-## which represent circular references
 #foreach($serviceRef in $service.allServiceReferences)
-#if (!$serviceRef.circularReference)
-                <property name="$serviceRef.name"><ref bean="$serviceRef.targetElement.beanName"/></property>
+        <${propertyPrefix}lookup-method name="$serviceRef.getterName" bean="$serviceRef.targetElement.beanName"/>
 #end
-#end
-#foreach($serviceRef in $service.allServiceReferences)
-#if ($serviceRef.circularReference)
-                <lookup-method name="$serviceRef.getterName" bean="$serviceRef.targetElement.beanName"/>
-#end
-#end
-        		<!-- $service.name service client property merge-point -->
-            </bean>
-        </property>
-        <property name="proxyInterfaces">
-            <value>$service.fullyQualifiedName</value>
-        </property>
+        <!-- $service.name service client property merge-point -->
     </bean>
-	
+
+    <!-- $service.name Service Proxy with inner $service.name Service Implementation -->
+    <bean id="$service.getBeanName(false)" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="target" ref="$service.fullyQualifiedImplementationName"/>
+        <property name="proxyInterfaces" value="$service.fullyQualifiedName"/>
+    </bean>
+
 #end
-#end	
+#end
 
 	<!-- ========================= End of CLIENT SERVICE DEFINITIONS ========================= -->
 	
-	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
-		<property name="beans">
-			<map>
-#foreach($service in $services)
-#if($stringUtils.isNotBlank($service.findTaggedValue('algoTrader_service_manageable')) && $stringUtils.isNotBlank($service.findTaggedValue('algoTrader_service_client')))
-				<entry key="$service.getPackageName(false):name=$service.getBeanName(false)" value-ref="$service.getBeanName(false)" />
-#end
-#end
-			</map>
-		</property>
-		<property name="assembler">
-			<bean class="org.springframework.jmx.export.assembler.MethodNameBasedMBeanInfoAssembler">
-				<property name="methodMappings">
-					<props>
-#foreach($service in $services)
-#if($stringUtils.isNotBlank($service.findTaggedValue('algoTrader_service_manageable')) && $stringUtils.isNotBlank($service.findTaggedValue('algoTrader_service_client')))
-						<prop key="$service.getPackageName(false):name=$service.getBeanName(false)">
-							#foreach($operation in $service.operations)$operation.name,#end
-
-						</prop>
-#end
-#end
-					</props>
-				</property>
-			</bean>
-		</property>
-	</bean>
 </beans>

@@ -30,6 +30,9 @@ package $service.implementationPackageName;
  *
  * @see $service.fullyQualifiedName
  */
+#if($stringUtils.isNotBlank($service.findTaggedValue('algoTrader_service_manageable')))
+@org.springframework.jmx.export.annotation.ManagedResource(objectName="$service.getPackageName(false):name=$stringUtils.capitalize($service.getBeanName(false))")	
+#end	
 public abstract class $service.baseName
 #if($service.generalization)
     extends $service.generalization.fullyQualifiedImplementationName
@@ -158,6 +161,18 @@ $attribute.getDocumentation("     * ")
      */
 #if ($enableAnnotations)
     @Override
+#end
+#if($stringUtils.isNotBlank($service.findTaggedValue('algoTrader_service_manageable')))
+#if($stringUtils.isNotBlank($operation.findTaggedValue('algoTrader_service_method_manageable_attribute')))
+	@org.springframework.jmx.export.annotation.ManagedAttribute#if($stringUtils.isNotBlank($operation.getDocumentation('')))(description="$stringUtils.toSingleLine($operation.getDocumentation(''))")#end
+#else	
+	@org.springframework.jmx.export.annotation.ManagedOperation#if($stringUtils.isNotBlank($operation.getDocumentation('')))(description="$stringUtils.toSingleLine($operation.getDocumentation(''))")#end
+	@org.springframework.jmx.export.annotation.ManagedOperationParameters({ 
+#foreach ($argument in $operation.arguments)	
+			@org.springframework.jmx.export.annotation.ManagedOperationParameter(name = "$argument.name", description = "#if($stringUtils.isNotBlank($argument.getDocumentation('')))$stringUtils.toSingleLine($argument.getDocumentation(''))#else$argument.name#end"), 
+#end			
+	})	
+#end	
 #end
     $operation.visibility $operation.getterSetterReturnTypeName $operation.getSignature("final")
 #if ($operation.exceptionsPresent)
