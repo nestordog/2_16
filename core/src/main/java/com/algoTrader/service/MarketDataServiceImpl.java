@@ -63,8 +63,11 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             logger.trace(marketDataEvent.getSecurity().getSymbol() + " " + marketDataEvent);
         }
 
-        // lock the security and initialize collections
-        HibernateUtil.lock(this.getSessionFactory(), security);
+        // lock or merge the security
+        if (!HibernateUtil.lock(this.getSessionFactory(), security)) {
+            security = (Security) HibernateUtil.merge(this.getSessionFactory(), security);
+        }
+
         Hibernate.initialize(security.getUnderlaying());
         Hibernate.initialize(security.getSecurityFamily());
         Hibernate.initialize(security.getWatchListItems());
