@@ -279,7 +279,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     @Override
     protected long handleGetQuantityByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception {
 
-        if (this.faEnabled) {
+        if (this.ibEnabled && this.faEnabled && !this.simulation) {
 
             // if financial advisor is enabled, we have to get the number of Contracts per account
             // in order to avoid fractions
@@ -306,7 +306,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     @Override
     protected long handleGetQuantityByAllocation(String strategyName, long requestedQuantity) throws Exception {
 
-        if (this.faEnabled) {
+        if (this.ibEnabled && this.faEnabled && !this.simulation) {
 
             // if financial advisor is enabled, we have to get the number of Contracts per account
             // in order to avoid fractions

@@ -12,6 +12,7 @@ algotrader
 --ignore-table=algotrader.position ^
 --ignore-table=algotrader.sabr_params ^
 --ignore-table=algotrader.trade ^
+--where="id<1000" ^
 --complete-insert --no-create-info -u @localhost ^
 -r D:\AlgoTrader\core\sql\db-data.sql ^
 algotrader

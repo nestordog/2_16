@@ -1,14 +1,10 @@
 package com.algoTrader.entity.security;
 
-import org.springframework.beans.factory.annotation.Value;
-
-import com.algoTrader.util.RoundUtil;
+import java.text.ChoiceFormat;
 
 public class SecurityFamilyImpl extends SecurityFamily {
 
     private static final long serialVersionUID = -2318908709333325986L;
-
-    private static @Value("${misc.portfolioDigits}") int portfolioDigits;
 
     @Override
     public String toString() {
@@ -17,9 +13,10 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public int getScale() {
+    public double getTickSize(double price, boolean upwards) {
 
-        int digits = RoundUtil.getDigits(getTickSize());
-        return Math.max(digits, this.portfolioDigits);
+        // add or subtract a very small amount to the price to get the tickSize just above or below the trigger
+        double adjustedPrice = upwards ? price * 1.00000000001 : price / 1.00000000001;
+        return Double.valueOf(new ChoiceFormat(getTickSizePattern()).format(adjustedPrice));
     }
 }
