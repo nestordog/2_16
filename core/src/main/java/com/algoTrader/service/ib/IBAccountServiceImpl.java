@@ -374,28 +374,37 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
         // get the statement
         url = statementUrl + "?t=" + this.flexToken + "&q=" + code + "&v=2";
 
-        get = new GetMethod(url);
-        standardClient = HttpClientUtil.getStandardClient();
+        // repeat until the statement is generated
+        while (true) {
 
-        try {
-            int status = standardClient.executeMethod(get);
+            get = new GetMethod(url);
 
-            if (status != HttpStatus.SC_OK) {
-                throw new HttpException("invalid flex statement request with url:" + url);
+            try {
+                int status = standardClient.executeMethod(get);
+
+                if (status != HttpStatus.SC_OK) {
+                    throw new HttpException("invalid flex statement request with url:" + url);
+                }
+
+                // get the xml-document
+                document = builder.parse(new InputSource(get.getResponseBodyAsStream()));
+
+                XmlUtil.saveDocumentToFile(document, fileFormat.format(new Date()) + "_flexStatement.xml", "results/flex/");
+
+            } finally {
+                get.releaseConnection();
             }
 
-            // get the xml-document
-            document = builder.parse(new InputSource(get.getResponseBodyAsStream()));
-
-            XmlUtil.saveDocumentToFile(document, fileFormat.format(new Date()) + "_flexStatement.xml", "results/flex/");
-
-        } finally {
-            get.releaseConnection();
-        }
-
-        Node errorNode = XPathAPI.selectSingleNode(document, "/FlexStatementResponse/code/text()");
-        if (errorNode != null) {
-            throw new IBAccountServiceException(errorNode.getNodeValue());
+            Node errorNode = XPathAPI.selectSingleNode(document, "/FlexStatementResponse/code/text()");
+            if (errorNode == null) {
+                break; // statement was generated sucessfully
+            } else {
+                if ("Statement generation in progress. Please try again shortly.".equals(errorNode.getNodeValue())) {
+                    Thread.sleep(10000); // wait 10 sec
+                } else {
+                    throw new IBAccountServiceException(errorNode.getNodeValue());
+                }
+            }
         }
 
         // do the actual reconciliation
