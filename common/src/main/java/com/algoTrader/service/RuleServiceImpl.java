@@ -511,6 +511,8 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
             provider.getTimerService().disableStats();
         }
 
+        setVariableValue(strategyName, "internal_clock", internal);
+
         logger.debug("set internal clock to: " + internal + " for strategy: " + strategyName);
     }
 
