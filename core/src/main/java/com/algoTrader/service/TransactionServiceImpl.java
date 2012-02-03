@@ -218,9 +218,14 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             Strategy strategy = transaction.getStrategy();
             Security security = transaction.getSecurity();
 
-            // initialize the security & strategy
-            HibernateUtil.lock(this.getSessionFactory(), security);
-            HibernateUtil.lock(this.getSessionFactory(), strategy);
+            // initialize/merge the security & strategy
+            if (!HibernateUtil.lock(this.getSessionFactory(), security)) {
+                security = (Security) HibernateUtil.merge(this.getSessionFactory(), security);
+            }
+
+            if (!HibernateUtil.lock(this.getSessionFactory(), strategy)) {
+                strategy = (Strategy) HibernateUtil.merge(this.getSessionFactory(), strategy);
+            }
 
             //@formatter:off
             mailLogger.info("executed transaction type: " + transaction.getType() +
