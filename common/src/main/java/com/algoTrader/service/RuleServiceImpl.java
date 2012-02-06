@@ -86,6 +86,7 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
     private static Logger logger = MyLogger.getLogger(RuleServiceImpl.class.getName());
 
     private @Value("${simulation}") boolean simulation;
+    private @Value("#{T(java.util.Arrays).asList(('${misc.moduleDeployExcludeStatements}').split(','))}") List<String> moduleDeployExcludeStatements;
 
     private Map<String, AdapterCoordinator> coordinators = new HashMap<String, AdapterCoordinator>();
     private Map<String, Boolean> internalClock = new HashMap<String, Boolean>();
@@ -250,6 +251,12 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
         }
 
         for (EPStatement statement : deployResult.getStatements()) {
+
+            // check if the statement should be excluded
+            if (this.moduleDeployExcludeStatements.contains(statement.getName())) {
+                statement.destroy();
+                continue;
+            }
 
             // check if the statement is elgible, other destory it righ away
             processAnnotations(strategyName, statement);
