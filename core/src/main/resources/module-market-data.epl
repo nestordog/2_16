@@ -3,7 +3,8 @@ create window
     TickWindow.std:groupwin(security.id).std:lastevent()
 as
     select *,
-    0 as tickerId
+    0 as tickerId,
+    true as refresh
 from
     Tick;
 
@@ -13,7 +14,8 @@ insert into
     TickWindow
 select
     tickerId,
-    tick.*
+    tick.*,
+    true as refresh
 from
     SubscribeTickEvent;
 
@@ -48,6 +50,8 @@ from
     TickWindow as tickWindow
 where
     trigger.security.id = tickWindow.security.id
+and
+    tickWindow.refresh
 and
     MarketDataUtil.isTickValid(tickWindow)
 and

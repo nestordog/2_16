@@ -5,7 +5,8 @@ on
 update
     TickWindow as tickWindow
 set
-    tickWindow.bid = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale)
+    tickWindow.bid = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
+    tickWindow.refresh = true
 where
     tickPrice.field = TickType.BID
 and
@@ -18,7 +19,8 @@ on
 update
     TickWindow as tickWindow
 set
-    tickWindow.ask = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale)
+    tickWindow.ask = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
+    tickWindow.refresh = true
 where
     tickPrice.field = TickType.ASK
 and
@@ -31,7 +33,8 @@ on
 update
     TickWindow as tickWindow
 set
-    tickWindow.last = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale)
+    tickWindow.last = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
+    tickWindow.refresh = true
 where
     tickPrice.field = TickType.`LAST`
 and
@@ -44,7 +47,8 @@ on
 update
     TickWindow as tickWindow
 set
-    tickWindow.settlement = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale)
+    tickWindow.settlement = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
+    tickWindow.refresh = true
 where
     tickPrice.field = TickType.CLOSE
 and
@@ -57,7 +61,8 @@ on
 update
     TickWindow as tickWindow
 set
-    tickWindow.volAsk = tickSize.size
+    tickWindow.volAsk = tickSize.size,
+    tickWindow.refresh = false
 where
     tickSize.field = TickType.ASK_SIZE
 and
@@ -70,7 +75,8 @@ on
 update
     TickWindow as tickWindow
 set
-    tickWindow.volBid = tickSize.size
+    tickWindow.volBid = tickSize.size,
+    tickWindow.refresh = false
 where
     tickSize.field = TickType.BID_SIZE
 and
@@ -83,7 +89,8 @@ on
 update
     TickWindow as tickWindow
 set
-    tickWindow.vol = tickSize.size
+    tickWindow.vol = tickSize.size,
+    tickWindow.refresh = false
 where
     tickSize.field = TickType.VOLUME
 and
@@ -96,7 +103,8 @@ on
 update
     TickWindow as tickWindow
 set
-    tickWindow.openIntrest = tickSize.size
+    tickWindow.openIntrest = tickSize.size,
+    tickWindow.refresh = false
 where
     tickSize.field = TickType.OPTION_CALL_OPEN_INTEREST
 and
@@ -111,7 +119,8 @@ on
 update
     TickWindow as tickWindow
 set
-    tickWindow.openIntrest = tickSize.size
+    tickWindow.openIntrest = tickSize.size,
+    tickWindow.refresh = false
 where
     tickSize.field = TickType.OPTION_PUT_OPEN_INTEREST
 and
@@ -126,7 +135,8 @@ on
 update
     TickWindow as tickWindow
 set
-    tickWindow.lastDateTime = IBUtil.getLastDateTime(tickString.value)
+    tickWindow.lastDateTime = IBUtil.getLastDateTime(tickString.value),
+    tickWindow.refresh = true
 where
     tickString.field = TickType.LAST_TIMESTAMP
 and
