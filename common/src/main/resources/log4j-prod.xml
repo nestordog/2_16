@@ -84,21 +84,6 @@
         </layout>
     </appender>
 
-    <appender name="TRANSACTION_SMS" class="com.algoTrader.util.SMSAppender">
-        <param name="EvaluatorClass" value="com.algoTrader.util.CustomEvaluator" />
-        <param name="SMTPHost" value="smtp.mail.yahoo.com" />
-        <param name="SMTPUsername" value="andy_flury" />
-        <param name="SMTPPassword" value="franklin91" />
-        <param name="From" value="andy_flury@yahoo.com" />
-        <param name="To" value="0794080420@sms.mail2sms.ch" />
-        <param name="Subject" value="" />
-        <param name="TimeFrame" value="60" />
-        <param name="MaxEMails" value="3" />
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%m" />
-        </layout>
-    </appender>
-
     <logger name="org.springframework">
         <level value="warn" />
     </logger>
@@ -163,7 +148,6 @@
 
     <logger name="com.algoTrader.service.TransactionServiceImpl.MAIL" additivity="false">
         <appender-ref ref="TRANSACTION_EMAIL" />
-        <appender-ref ref="TRANSACTION_SMS" />
     </logger>
 
     <logger name="com.algoTrader.util.spring">
