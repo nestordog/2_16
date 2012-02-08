@@ -62,5 +62,9 @@ public class WatchListServiceImpl extends WatchListServiceBase {
 
         // update the message selector
         this.marketDataMessageListenerContainer.setMessageSelector(messageSelector);
+        this.marketDataMessageListenerContainer.shutdown();
+        this.marketDataMessageListenerContainer.start();
+        this.marketDataMessageListenerContainer.initialize();
+
     }
 }
