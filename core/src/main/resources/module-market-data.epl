@@ -31,6 +31,15 @@ where
 @Name('RETRIEVE_TICK')
 @RunTimeOnly()
 on
+    pattern [every tick=Tick -> (timer:interval(30 seconds) and not Tick(security.id = tick.security.id))]
+update
+    TickWindow as tickWindow
+set
+    tickWindow.refresh = true;
+
+@Name('INSERT_INTO_TICK')
+@RunTimeOnly()
+on
     TickWindow as trigger
 insert into
     Tick
