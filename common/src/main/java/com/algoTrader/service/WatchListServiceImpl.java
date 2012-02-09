@@ -62,9 +62,16 @@ public class WatchListServiceImpl extends WatchListServiceBase {
 
         // update the message selector
         this.marketDataMessageListenerContainer.setMessageSelector(messageSelector);
-        this.marketDataMessageListenerContainer.shutdown();
-        this.marketDataMessageListenerContainer.start();
-        this.marketDataMessageListenerContainer.initialize();
 
+        // restart the container (must do this in a separate thread to prevent dead-locks)
+        (new Thread() {
+            @Override
+            public void run() {
+                WatchListServiceImpl.this.marketDataMessageListenerContainer.stop();
+                WatchListServiceImpl.this.marketDataMessageListenerContainer.shutdown();
+                WatchListServiceImpl.this.marketDataMessageListenerContainer.start();
+                WatchListServiceImpl.this.marketDataMessageListenerContainer.initialize();
+            }
+        }).start();
     }
 }
