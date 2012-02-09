@@ -35,7 +35,9 @@ on
 update
     TickWindow as tickWindow
 set
-    tickWindow.refresh = true;
+    tickWindow.refresh = true
+where
+    tickWindow.security.id = tick.security.id;
 
 @Name('INSERT_INTO_TICK')
 @RunTimeOnly()
