@@ -94,6 +94,7 @@
     <variable name="simulation" type="boolean"/>
     <variable name="simulation_eventsPerDay" type="long"/>
     <variable name="misc_marketIntrest" type="double"/>
+    <variable name="misc_defaultRetrievalSeconds" type="double"/>
 
     <variable name="engineStrategy" type="com.algoTrader.entity.Strategy"/>
     <variable name="internal_clock" type="boolean" initialization-value="false"/>
