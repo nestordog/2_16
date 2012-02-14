@@ -31,16 +31,17 @@ where
 @Name('RETRIEVE_TICK')
 @RunTimeOnly()
 on
-    pattern [(every tick=Tick -> (timer:interval(misc_defaultRetrievalSeconds seconds) and not Tick(security.id = tick.security.id)))
-          or (every subscribeTickEvent=SubscribeTickEvent -> timer:interval(misc_defaultRetrievalSeconds seconds))]
+    pattern [every timer:interval(misc_defaultRetrievalSeconds sec)]
 update
     TickWindow as tickWindow
 set
     tickWindow.refresh = true
 where
-    tickWindow.security.id = tick.security.id
-or
-    tickWindow.security.id = subscribeTickEvent.tick.security.id;
+    tickWindow.security.id not in (
+        select
+            security.id
+        from
+            Tick.win:time(misc_defaultRetrievalSeconds sec));
 
 @Name('INSERT_INTO_TICK')
 @RunTimeOnly()

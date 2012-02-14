@@ -13,6 +13,12 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     }
 
     @Override
+    protected void handleCloseCombination(int combinationId) throws Exception {
+
+        getCombinationService().closeCombination(combinationId);
+    }
+
+    @Override
     protected void handleReducePosition(int positionId, int quantity) throws Exception {
 
         getPositionService().reducePosition(positionId, quantity);

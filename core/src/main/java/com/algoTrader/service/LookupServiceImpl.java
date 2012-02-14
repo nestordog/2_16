@@ -149,6 +149,27 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected Future handleGetFutureByExpiration(int futureFamilyId, Date expirationDate) throws Exception {
+
+        FutureFamily futureFamily = getFutureFamilyDao().load(futureFamilyId);
+
+        Future future = getFutureDao().findFutureByExpiration(futureFamilyId, expirationDate);
+
+        // if no future was found, create the missing part of the future-chain
+        if (this.simulation && future == null && (this.simulateFuturesByUnderlaying || this.simulateFuturesByGenericFutures)) {
+
+            getFutureService().createDummyFutures(futureFamily.getId());
+            future = getFutureDao().findFutureByExpiration(futureFamilyId, expirationDate);
+        }
+
+        if (future == null) {
+            throw new LookupServiceException("no future available targetExpiration " + expirationDate);
+        } else {
+            return future;
+        }
+    }
+
+    @Override
     protected Future handleGetFutureByDuration(int futureFamilyId, Date targetExpirationDate, int duration) throws Exception {
 
         FutureFamily futureFamily = getFutureFamilyDao().load(futureFamilyId);
