@@ -12,14 +12,23 @@ public class IntegerMap<K> extends ConcurrentHashMap<K, AtomicInteger> {
 
     private static final long serialVersionUID = -847488464256946086L;
 
+    public void put(K key, int value) {
+
+        super.put(key, new AtomicInteger(value));
+    }
+
     public void increment(K key, int value) {
 
         super.putIfAbsent(key, new AtomicInteger(0));
         super.get(key).addAndGet(value);
     }
 
-    public int getInt(K key) {
+    public long getInt(K key) {
 
-        return super.get(key).intValue();
+        if (super.containsKey(key)) {
+            return super.get(key).intValue();
+        } else {
+            return 0;
+        }
     }
 }

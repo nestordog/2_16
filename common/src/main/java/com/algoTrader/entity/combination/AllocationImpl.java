@@ -7,6 +7,6 @@ public class AllocationImpl extends Allocation {
     @Override
     public String toString() {
 
-        return getQuantity() + " " + getSecurity().getSymbol();
+        return getSecurity().getSymbol();
     }
 }

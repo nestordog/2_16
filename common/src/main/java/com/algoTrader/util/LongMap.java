@@ -12,6 +12,11 @@ public class LongMap<K> extends ConcurrentHashMap<K, AtomicLong> {
 
     private static final long serialVersionUID = -847488464256946086L;
 
+    public void put(K key, long value) {
+
+        super.put(key, new AtomicLong(value));
+    }
+
     public void increment(K key, long value) {
 
         super.putIfAbsent(key, new AtomicLong(0));
@@ -20,6 +25,10 @@ public class LongMap<K> extends ConcurrentHashMap<K, AtomicLong> {
 
     public long getLong(K key) {
 
-        return super.get(key).longValue();
+        if (super.containsKey(key)) {
+            return super.get(key).longValue();
+        } else {
+            return 0;
+        }
     }
 }

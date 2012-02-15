@@ -23,9 +23,9 @@ public class DoubleMap<K> extends ConcurrentHashMap<K, Double> {
     public double getDouble(K key) {
 
         if (super.containsKey(key)) {
-            return super.get(key).longValue();
+            return super.get(key).doubleValue();
         } else {
-            return 0;
+            return 0.0;
         }
     }
 }

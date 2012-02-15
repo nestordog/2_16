@@ -171,7 +171,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             getCombinationDao().create(combination);
         }
 
-        logger.debug("set allocation " + allocation + " to combination " + combination);
+        logger.debug("set allocation " + quantity + " of " + allocation + " to combination " + combination);
     }
 
     @Override
