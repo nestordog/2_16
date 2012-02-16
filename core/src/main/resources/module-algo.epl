@@ -6,7 +6,7 @@
 select
     currentOrder.adjustLimit()
 from pattern [
-    every currentOrder=com.algoTrader.entity.trade.SteppingLimitOrder
+    every currentOrder=com.algoTrader.entity.trade.IncrementalLimitOrder
         -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, parentOrder.number = currentOrder.number))]
 where
     currentOrder.checkLimit();
@@ -17,7 +17,7 @@ where
 select
     currentOrder
 from pattern [
-    every currentOrder=com.algoTrader.entity.trade.SteppingLimitOrder
+    every currentOrder=com.algoTrader.entity.trade.IncrementalLimitOrder
         -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, parentOrder.number = currentOrder.number))]
 where
     not currentOrder.checkLimit();

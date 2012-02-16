@@ -101,21 +101,6 @@ public class Configuration {
         return this.initialMarginMarkup;
     }
 
-    private @Value("${order.minSpreadPosition}") double minSpreadPosition;
-    public double getMinSpreadPosition() {
-        return this.minSpreadPosition;
-    }
-
-    private @Value("${order.maxSpreadPosition}") double maxSpreadPosition;
-    public double getMaxSpreadPosition() {
-        return this.maxSpreadPosition;
-    }
-
-    private @Value("${order.spreadPositionIncrement}") double spreadPositionIncrement;
-    public double getSpreadPositionIncrement() {
-        return this.spreadPositionIncrement;
-    }
-
     // generic methods
 
     public String getString(String key) {

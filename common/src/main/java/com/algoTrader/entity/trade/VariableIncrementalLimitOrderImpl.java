@@ -10,13 +10,13 @@ import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.util.RoundUtil;
 
-public class SteppingLimitOrderImpl extends SteppingLimitOrder {
+public class VariableIncrementalLimitOrderImpl extends VariableIncrementalLimitOrder {
 
     private static final long serialVersionUID = 6631564632498034454L;
 
-    private static @Value("${order.minSpreadPosition}") double minSpreadPosition;
-    private static @Value("${order.maxSpreadPosition}") double maxSpreadPosition;
-    private static @Value("${order.spreadPositionIncrement}") double spreadPositionIncrement;
+    private static @Value("${order.variableIncrementalLimitOrder.minSpreadPosition}") double minSpreadPosition;
+    private static @Value("${order.variableIncrementalLimitOrder.maxSpreadPosition}") double maxSpreadPosition;
+    private static @Value("${order.variableIncrementalLimitOrder.spreadPositionIncrement}") double spreadPositionIncrement;
 
     @Override
     public String toString() {
@@ -25,18 +25,21 @@ public class SteppingLimitOrderImpl extends SteppingLimitOrder {
         return getSide() + " " + getQuantity() + " "
             + ClassUtils.getShortClassName(this.getClass()) + " "
             + getSecurity().getSymbol() +
-            " limit " + getLimit() +
-            " maxLimit " + getMaxLimit() +
+            " startLimit " + getStartLimit() +
+            " endLimit " + getEndLimit() +
+            " currentLimit " + getLimit() +
             " increment " + RoundUtil.getBigDecimal(getIncrement(), getSecurity().getSecurityFamily().getScale() + 1);
         //@formatter:on
     }
 
     @Override
-    public void setDefaultLimits(double bid, double ask) {
+    public void setDefaultLimits(BigDecimal bid, BigDecimal ask) {
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 
-        double spread = ask - bid;
+        double bidDouble = bid.doubleValue();
+        double askDouble = ask.doubleValue();
+        double spread = askDouble - bidDouble;
         double increment = spreadPositionIncrement * spread;
 
         // the increment is not rounded as it will depend on the currentLimit
@@ -45,24 +48,25 @@ public class SteppingLimitOrderImpl extends SteppingLimitOrder {
         double limit;
         double maxLimit;
         if (Side.BUY.equals(getSide())) {
-            double limitRaw = bid + minSpreadPosition * spread;
-            double maxLimitRaw = bid + maxSpreadPosition * spread;
+            double limitRaw = bidDouble + minSpreadPosition * spread;
+            double maxLimitRaw = bidDouble + maxSpreadPosition * spread;
             limit = RoundUtil.roundToNextN(limitRaw, family.getTickSize(limitRaw, true), BigDecimal.ROUND_FLOOR);
             maxLimit = RoundUtil.roundToNextN(maxLimitRaw, family.getTickSize(maxLimitRaw, true), BigDecimal.ROUND_CEILING);
         } else {
-            double limitRaw = ask - minSpreadPosition * spread;
-            double maxLimitRaw = ask - maxSpreadPosition * spread;
+            double limitRaw = askDouble - minSpreadPosition * spread;
+            double maxLimitRaw = askDouble - maxSpreadPosition * spread;
             limit = RoundUtil.roundToNextN(limitRaw, family.getTickSize(limitRaw, true), BigDecimal.ROUND_CEILING);
             maxLimit = RoundUtil.roundToNextN(maxLimitRaw, family.getTickSize(maxLimitRaw, true), BigDecimal.ROUND_FLOOR);
         }
 
         // limit and maxLimit are correctly rounded according to tickSizePattern
-        setLimit(RoundUtil.getBigDecimal(limit, family.getScale()));
-        setMaxLimit(RoundUtil.getBigDecimal(maxLimit, family.getScale()));
+        setStartLimit(RoundUtil.getBigDecimal(limit, family.getScale()));
+        setEndLimit(RoundUtil.getBigDecimal(maxLimit, family.getScale()));
+        setLimit(getStartLimit());
     }
 
     @Override
-    public SteppingLimitOrder adjustLimit() {
+    public IncrementalLimitOrder adjustLimit() {
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 
@@ -82,7 +86,7 @@ public class SteppingLimitOrderImpl extends SteppingLimitOrder {
         }
 
         try {
-            SteppingLimitOrder newOrder = (SteppingLimitOrder) BeanUtils.cloneBean(this);
+            VariableIncrementalLimitOrderImpl newOrder = (VariableIncrementalLimitOrderImpl) BeanUtils.cloneBean(this);
             newOrder.setLimit(newLimit);
             return newOrder;
         } catch (Exception e) {
@@ -101,13 +105,13 @@ public class SteppingLimitOrderImpl extends SteppingLimitOrder {
             double increment = RoundUtil.roundToNextN(getIncrement(), tickSize, BigDecimal.ROUND_CEILING);
             BigDecimal roundedIncrement = RoundUtil.getBigDecimal(increment, family.getScale());
 
-            return getLimit().add(roundedIncrement).compareTo(getMaxLimit()) <= 0;
+            return getLimit().add(roundedIncrement).compareTo(getEndLimit()) <= 0;
         } else {
             double tickSize = family.getTickSize(getLimit().doubleValue(), false);
             double increment = RoundUtil.roundToNextN(getIncrement(), tickSize, BigDecimal.ROUND_CEILING);
             BigDecimal roundedIncrement = RoundUtil.getBigDecimal(increment, family.getScale());
 
-            return getLimit().subtract(roundedIncrement).compareTo(getMaxLimit()) >= 0;
+            return getLimit().subtract(roundedIncrement).compareTo(getEndLimit()) >= 0;
         }
     }
 }
