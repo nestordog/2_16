@@ -53,6 +53,10 @@ public class TickwiseIncrementalLimitOrderImpl extends TickwiseIncrementalLimitO
             setStartLimit(family.adjustPrice(ask, -startOffsetTicks));
             setEndLimit(family.adjustPrice(bid, -endOffsetTicks));
 
+            if (getStartLimit().doubleValue() <= 0.0) {
+                setStartLimit(family.adjustPrice(new BigDecimal(0), 1));
+            }
+
             if (getEndLimit().doubleValue() <= 0.0) {
                 setEndLimit(family.adjustPrice(new BigDecimal(0), 1));
             }
