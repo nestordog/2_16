@@ -153,7 +153,7 @@ select
     IBUtil.getSide(execDetails.execution.m_side) as side,
     execDetails.execution.m_shares as quantity,
     RoundUtil.getBigDecimal(execDetails.execution.m_price, genericOrder.security.securityFamily.scale) as price,
-    execDetails.execution.m_execId as number,
+    execDetails.execution.m_execId as extId,
     genericOrder as parentOrder
 from
     pattern[every genericOrder=GenericOrder

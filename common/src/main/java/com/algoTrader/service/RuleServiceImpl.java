@@ -391,7 +391,7 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
         // sent to the strateyg queue
         this.strategyTemplate.convertAndSend(strategyName + ".QUEUE", obj);
 
-        logger.debug("propagated event to " + strategyName + " " + obj);
+        logger.trace("propagated event to " + strategyName + " " + obj);
     }
 
     @Override

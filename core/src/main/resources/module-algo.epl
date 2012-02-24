@@ -1,23 +1,70 @@
-// ------------------------------ stepping limit algo ---------------------------------------
+// ------------------------------ Incremental Limit Order ---------------------------------------
 
-@Name('MODIFY_STEPPING_LIMIT_ORDER')
+@Name('MODIFY_INCREMENTAL_LIMIT_ORDER')
 @Subscriber(className='com.algoTrader.service.OrderService.modifyOrder')
 @RunTimeOnly
 select
     currentOrder.adjustLimit()
-from pattern [
-    every currentOrder=com.algoTrader.entity.trade.IncrementalLimitOrder
+from
+    pattern [every currentOrder=com.algoTrader.entity.trade.IncrementalLimitOrder
         -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, parentOrder.number = currentOrder.number))]
 where
     currentOrder.checkLimit();
 
-@Name('CANCEL_STEPPING_LIMIT_ORDER')
+@Name('CANCEL_INCREMENTAL_LIMIT_ORDER')
 @Subscriber(className='com.algoTrader.service.OrderService.cancelOrder')
 @RunTimeOnly
 select
     currentOrder
-from pattern [
-    every currentOrder=com.algoTrader.entity.trade.IncrementalLimitOrder
-        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, parentOrder.number = currentOrder.number))]
+from
+    pattern [every currentOrder=com.algoTrader.entity.trade.IncrementalLimitOrder
+        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, parentOrder.number = currentOrder.number))];
+
+// ------------------------------ Slicing Limit Order ---------------------------------------
+
+@Subscriber(className='com.algoTrader.esper.subscriber.VoidSubscriber')
+@Name('UPDATE_FILLED_QUANTITY')
+@RunTimeOnly
+select
+    currentOrder.setFilledQuantity(currentOrder.filledQuantity + fill.quantity)
+from
+    pattern [every currentOrder=com.algoTrader.entity.trade.SlicingLimitOrder -> every fill=Fill(parentOrder.number = currentOrder.number)];
+
+@Subscriber(className='com.algoTrader.esper.subscriber.VoidSubscriber')
+@Name('INCREASE_OFFSET_TICKS')
+@RunTimeOnly
+select
+    currentOrder.setCurrentOffsetTicks(currentOrder.currentOffsetTicks + 1)
+from
+    pattern [every currentOrder=com.algoTrader.entity.trade.SlicingLimitOrder
+        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, parentOrder.number = currentOrder.number))];
+
+@Subscriber(className='com.algoTrader.esper.subscriber.VoidSubscriber')
+@Name('DECREASE_OFFSET_TICKS')
+@RunTimeOnly
+select
+    currentOrder.setCurrentOffsetTicks(currentOrder.currentOffsetTicks - 1)
+from
+    pattern [every currentOrder=com.algoTrader.entity.trade.SlicingLimitOrder
+        -> (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, parentOrder.number = currentOrder.number) and not timer:interval(5 sec))];
+
+@Name('SEND_NEXT_ORDER_SLICE')
+@Subscriber(className='com.algoTrader.service.OrderService.sendOrder')
+@RunTimeOnly
+select
+    currentOrder.nextSlice()
+from
+    pattern [every currentOrder=com.algoTrader.entity.trade.SlicingLimitOrder
+        -> timer:interval(Math.random() * 5 + 5)]
+    //Tick[security.id = currentOrder.security.id].std:lastevent() as tick
 where
-    not currentOrder.checkLimit();
+    currentOrder.totalQuantity > currentOrder.filledQuantity;
+
+@Name('CANCEL_ORDER_SLICE')
+@Subscriber(className='com.algoTrader.service.OrderService.cancelOrder')
+@RunTimeOnly
+select
+    currentOrder
+from
+    pattern [every currentOrder=com.algoTrader.entity.trade.SlicingLimitOrder
+        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, parentOrder.number = currentOrder.number))];

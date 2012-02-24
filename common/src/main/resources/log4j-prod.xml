@@ -9,7 +9,7 @@
             <param name="ConversionPattern" value="%d %-5p %c{1} %m %n" />
         </layout>
         <filter class="org.apache.log4j.varia.LevelRangeFilter">
-            <param name="LevelMin" value="DEBUG" />
+            <param name="LevelMin" value="TRACE" />
             <param name="LevelMax" value="FATAL" />
         </filter>
     </appender>

@@ -51,7 +51,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(fill.getDateTime());
-        transaction.setExtId(fill.getNumber());
+        transaction.setExtId(fill.getExtId());
         transaction.setQuantity(quantity);
         transaction.setPrice(fill.getPrice());
         transaction.setType(transactionType);
@@ -156,15 +156,11 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         }
 
         //@formatter:off
-        String logMessage = "executed transaction type: " + transaction.getType() +
-        " quantity: " + transaction.getQuantity() +
-        " of " + security.getSymbol() +
-        " price: " + transaction.getPrice() +
-        " commission: " + transaction.getCommission() +
+        String logMessage = "executed transaction: " + transaction +
         ((profit != 0.0) ? (
-            " profit: " + RoundUtil.getBigDecimal(profit) +
-            " profitPct: " + RoundUtil.getBigDecimal(profitPct) +
-            " avgAge: " + RoundUtil.getBigDecimal(avgAge))
+            " profit " + RoundUtil.getBigDecimal(profit) +
+            " profitPct " + RoundUtil.getBigDecimal(profitPct) +
+            " avgAge " + RoundUtil.getBigDecimal(avgAge))
             : "");
         //@formatter:on
 
@@ -194,7 +190,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         }
 
         if (!this.simulation) {
-            logger.debug("propagated fill: " + fill);
+            logger.info("received fill: " + fill + " for order: " + fill.getParentOrder());
         }
     }
 
@@ -228,12 +224,11 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             }
 
             //@formatter:off
-            mailLogger.info("executed transaction type: " + transaction.getType() +
-                    " totalQuantity: " + totalQuantity +
-                    " of " + security.getSymbol() +
-                    " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) +
-                    " commission: " + totalCommission +
-                    " netLiqValue: " + strategy.getNetLiqValue());
+            mailLogger.info("executed transaction: " + transaction.getType() + " " +
+                    totalQuantity + " " +
+                    security.getSymbol() +
+                    " avgPrice " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) + " " + security.getSecurityFamily().getCurrency() +
+                    " commission " + totalCommission);
             //@formatter:on
         }
     }

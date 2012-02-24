@@ -1,7 +1,6 @@
 package com.algoTrader.entity;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.RoundUtil;
@@ -9,7 +8,6 @@ import com.algoTrader.util.RoundUtil;
 public class TransactionImpl extends Transaction {
 
     private static final long serialVersionUID = -1528408715199422753L;
-    private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
 
     private Double value = null; // cache getValueDouble because getValue get's called very often
 
@@ -77,7 +75,12 @@ public class TransactionImpl extends Transaction {
     @Override
     public String toString() {
 
-        return format.format(getDateTime()) + " " + getType() + " " + getQuantity() + (getSecurity() != null ? (" " + getSecurity()) : "") + " " + getPrice()
-                + " " + getCurrency();
+        //@formatter:off
+        return getType() + " "
+            + getQuantity()
+            + (getSecurity() != null ? (" " + getSecurity()) : "") +
+            " price " + getPrice() + " " + getCurrency() +
+            " commission: " + getCommission();
+        //@formatter:on
     }
 }
