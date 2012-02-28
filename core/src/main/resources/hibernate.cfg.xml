@@ -34,5 +34,6 @@
     <mapping resource="com/algoTrader/entity/security/SecurityFamily.hbm.xml" />
     <mapping resource="com/algoTrader/entity/combination/Allocation.hbm.xml" />
     <mapping resource="com/algoTrader/entity/combination/Combination.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/measurement/Measurement.hbm.xml" />
 </session-factory>
 </hibernate-configuration>

@@ -21,6 +21,7 @@ import com.algoTrader.entity.combination.Allocation;
 import com.algoTrader.entity.combination.Combination;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickDao;
+import com.algoTrader.entity.measurement.Measurement;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.FutureFamily;
 import com.algoTrader.entity.security.Security;
@@ -541,5 +542,11 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
         return getAllocationDao().findByStrategyAndType(strategyName, discriminator);
+    }
+
+    @Override
+    protected Collection<Measurement> handleGetMeasurementsAfterDate(String strategyName, String type, Date date) throws Exception {
+
+        return getMeasurementDao().findMeasurementsAfterDate(strategyName, type, date);
     }
 }

@@ -3,6 +3,7 @@ package com.algoTrader.service.ib;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
 import com.algoTrader.entity.security.Security;
@@ -235,7 +237,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
     }
 
     @Override
-    protected void handleRequestHistoricalData(int[] securityIds, String[] whatToShow, String startDateString, String endDateString) throws Exception {
+    protected void handleDownloadHistoricalData(int[] securityIds, String[] whatToShow, String startDateString, String endDateString) throws Exception {
 
         Date startDate = format.parse(startDateString + "  24:00:00");
         Date endDate = format.parse(endDateString + "  24:00:00");
@@ -255,7 +257,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
     }
 
     @Override
-    protected void handleRequestHistoricalData(int[] securityIds, String[] whatToShow, String[] startDateString, String[] endDateString) throws Exception {
+    protected void handleDownloadHistoricalData(int[] securityIds, String[] whatToShow, String[] startDateString, String[] endDateString) throws Exception {
 
         for (int i = 0; i < securityIds.length; i++) {
 
@@ -271,6 +273,12 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
 
             requestHistoricalDataForSecurity(contract, security, startDate, endDate, whatToShow);
         }
+    }
+
+    @Override
+    protected Collection<Bar> handleGetHistoricalBars(int securityId) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override

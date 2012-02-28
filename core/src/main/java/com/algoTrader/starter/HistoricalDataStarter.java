@@ -24,7 +24,7 @@ public class HistoricalDataStarter {
 
         service.init();
 
-        service.requestHistoricalData(securityIds, whatToShow, startDate, endDate);
+        service.downloadHistoricalData(securityIds, whatToShow, startDate, endDate);
 
         ServiceLocator.instance().shutdown();
     }
@@ -48,7 +48,7 @@ public class HistoricalDataStarter {
 
         service.init();
 
-        service.requestHistoricalData(securityIds, whatToShow, startDate, endDate);
+        service.downloadHistoricalData(securityIds, whatToShow, startDate, endDate);
 
         ServiceLocator.instance().shutdown();
     }
