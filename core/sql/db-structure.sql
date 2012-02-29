@@ -302,6 +302,26 @@ CREATE TABLE `intrest_rate` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `measurement`
+--
+
+DROP TABLE IF EXISTS `measurement`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `measurement` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `DATE` datetime NOT NULL,
+  `TYPE` varchar(255) NOT NULL,
+  `VALUE` double NOT NULL,
+  `STRATEGY_FK` int(11) NOT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `DATE_TYPE_STRATEGY` (`DATE`,`TYPE`,`STRATEGY_FK`),
+  KEY `MEASUREMENT_STRATEGY_FKC` (`STRATEGY_FK`),
+  CONSTRAINT `MEASUREMENT_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `position`
 --
 
@@ -389,7 +409,7 @@ CREATE TABLE `security_family` (
   `MARKET` enum('SOFFEX','DTB','IDEALPRO','CBOE','SMART','CFE','GLOBEX','NYMEX','CME','NYSE','NASDAQ') NOT NULL,
   `CURRENCY` enum('CHF','EUR','USD') NOT NULL,
   `CONTRACT_SIZE` int(11) NOT NULL,
-  `SCALE` int(11) DEFAULT NULL,
+  `SCALE` int(11) NOT NULL,
   `TICK_SIZE_PATTERN` varchar(255) NOT NULL,
   `COMMISSION` decimal(12,5) DEFAULT NULL,
   `MARKET_OPEN` time NOT NULL,
@@ -542,7 +562,7 @@ CREATE TABLE `transaction` (
   `EXT_ID` varchar(30) DEFAULT NULL,
   `DATE_TIME` datetime NOT NULL,
   `QUANTITY` bigint(20) NOT NULL,
-  `PRICE` decimal(12,5) NOT NULL,
+  `PRICE` decimal(15,5) NOT NULL,
   `COMMISSION` decimal(15,2) DEFAULT NULL,
   `CURRENCY` enum('CHF','EUR','USD','GBP') NOT NULL,
   `TYPE` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST_PAID','INTREST_RECEIVED','FEES','REFUND','REBALANCE') NOT NULL,
@@ -617,4 +637,4 @@ CREATE TABLE `watch_list_item` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-01-31 17:02:09
+-- Dump completed on 2012-02-29 10:42:08
