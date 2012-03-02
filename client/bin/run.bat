@@ -1,5 +1,3 @@
-echo off
-
 cd %ALGOTRADER_CLIENT_HOME%
 
 for /f %%x in (bin\cp.txt) do (set cp=%%x)
