@@ -224,19 +224,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <!-- Automatically attach sources to build artifact as artifact-version-sources.jar and deploy to local repository -->
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-site-plugin</artifactId>
             </plugin>
         </plugins>
