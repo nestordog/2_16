@@ -1,17 +1,27 @@
 package com.algoTrader.starter;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.enumeration.BarType;
 import com.algoTrader.service.ib.IBHistoricalDataService;
 
 public class HistoricalDataStarter {
 
-    public static void main(String[] args) {
+    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
 
-        String startDate = args[0];
+    public static void main(String[] args) throws ParseException {
 
-        String endDate = args[1];
+        Date startDate = format.parse(args[0] + "  24:00:00");
+        Date endDate = format.parse(args[1] + "  24:00:00");
 
-        String[] whatToShow = args[2].split(":");
+        String[] barTypesString = args[2].split(":");
+        BarType[] barTypes = new BarType[barTypesString.length];
+        for (int i = 0; i < barTypesString.length; i++) {
+            barTypes[i] = BarType.fromString(barTypesString[i]);
+        }
 
         String[] securityIdStrings = args[3].split(":");
         int[] securityIds = new int[securityIdStrings.length];
@@ -24,32 +34,9 @@ public class HistoricalDataStarter {
 
         service.init();
 
-        service.downloadHistoricalData(securityIds, whatToShow, startDate, endDate);
+        service.download1MinTicks(securityIds, barTypes, startDate, endDate);
 
         ServiceLocator.instance().shutdown();
     }
 
-    public static void main2(String[] args) {
-
-        String[] whatToShow = args[0].split(":");
-
-        String[] startDate = new String[args.length - 1];
-        String[] endDate = new String[args.length - 1];
-        int[] securityIds = new int[args.length - 1];
-        for (int i = 0; i < args.length - 1; i++) {
-            String[] batch = args[i + 1].split(":");
-            startDate[i] = batch[0];
-            endDate[i] = batch[1];
-            securityIds[i] = Integer.valueOf(batch[2]);
-        }
-
-        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        IBHistoricalDataService service = ServiceLocator.instance().getService("iBHistoricalDataService", IBHistoricalDataService.class);
-
-        service.init();
-
-        service.downloadHistoricalData(securityIds, whatToShow, startDate, endDate);
-
-        ServiceLocator.instance().shutdown();
-    }
 }

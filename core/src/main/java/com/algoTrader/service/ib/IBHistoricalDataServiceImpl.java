@@ -2,16 +2,15 @@ package com.algoTrader.service.ib;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NavigableMap;
 import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -24,7 +23,9 @@ import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.enumeration.BarType;
 import com.algoTrader.enumeration.ConnectionState;
+import com.algoTrader.enumeration.Period;
 import com.algoTrader.service.HistoricalDataServiceException;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
@@ -36,25 +37,21 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
 
     private static final long serialVersionUID = 8656307573474662794L;
     private static Logger logger = MyLogger.getLogger(IBHistoricalDataServiceImpl.class.getName());
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
+    private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 
     private @Value("${simulation}") boolean simulation;
     private @Value("#{'${marketChannel}' == 'IB'}") boolean ibEnabled;
     private @Value("${ib.historicalDataServiceEnabled}") boolean historicalDataServiceEnabled;
-    private @Value("${ib.historicalDataTimeout}") int historicalDataTimeout;
 
     private IBClient client;
     private IBDefaultAdapter wrapper;
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
 
-    private Map<Integer, Boolean> requestIdBooleanMap;
-    private Map<Integer, Date> requestIdDateMap;
-    private Map<Integer, String> requestIdWhatToShowMap;
-    private NavigableMap<Date, Tick> dateTickMap;
-    private Security security;
+    private boolean success;
+    private List<Bar> barList;
 
-    private CsvTickWriter writer;
     private static int clientId = 2;
 
     @Override
@@ -75,100 +72,48 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
 
                     if (dateString.startsWith("finished")) {
 
-                        IBHistoricalDataServiceImpl.this.requestIdBooleanMap.put(requestId, true);
+                        IBHistoricalDataServiceImpl.this.success = true;
                         IBHistoricalDataServiceImpl.this.condition.signalAll();
 
                         return;
                     }
 
-                    Date date = format.parse(dateString);
-                    Date requestedDate = IBHistoricalDataServiceImpl.this.requestIdDateMap.get(requestId);
-
-                    // retrieve ticks only between marketOpen & close
-                    if (DateUtil.compareTime(date, IBHistoricalDataServiceImpl.this.security.getSecurityFamily().getMarketClose()) > 0
-                            || DateUtil.compareTime(date, IBHistoricalDataServiceImpl.this.security.getSecurityFamily().getMarketOpen()) < 0) {
-
-                        return;
+                    Date date = null;
+                    try {
+                        date = dateTimeFormat.parse(dateString);
+                    } catch (Exception e) {
+                        date = dateFormat.parse(dateString);
                     }
 
-                    // only accept ticks within the last 24h
-                    if (requestedDate.getTime() - date.getTime() > 86400000) {
+                    Bar bar = Bar.Factory.newInstance();
+                    bar.setDateTime(date);
+                    bar.setOpen(RoundUtil.getBigDecimal(open));
+                    bar.setHigh(RoundUtil.getBigDecimal(high));
+                    bar.setLow(RoundUtil.getBigDecimal(low));
+                    bar.setClose(RoundUtil.getBigDecimal(close));
+                    bar.setVol(volume);
 
-                        return;
-                    }
-
-                    Tick tick = IBHistoricalDataServiceImpl.this.dateTickMap.get(date);
-                    if (tick == null) {
-
-                        tick = new TickImpl();
-                        tick.setLast(new BigDecimal(0));
-                        tick.setDateTime(date);
-                        tick.setVol(0);
-                        tick.setVolBid(0);
-                        tick.setVolAsk(0);
-                        tick.setBid(new BigDecimal(0));
-                        tick.setAsk(new BigDecimal(0));
-                        tick.setOpenIntrest(0);
-                        tick.setSettlement(new BigDecimal(0));
-
-                        IBHistoricalDataServiceImpl.this.dateTickMap.put(date, tick);
-                    }
-
-                    String whatToShow = IBHistoricalDataServiceImpl.this.requestIdWhatToShowMap.get(requestId);
-
-                    if ("TRADES".equals(whatToShow)) {
-                        Entry<Date, Tick> entry = IBHistoricalDataServiceImpl.this.dateTickMap.lowerEntry(date);
-                        if (entry != null) {
-                            Tick lastTick = entry.getValue();
-                            if (volume > 0) {
-                                tick.setVol(lastTick.getVol() + volume);
-                                tick.setLastDateTime(date);
-                            } else {
-                                tick.setVol(lastTick.getVol());
-                                tick.setLastDateTime(lastTick.getLastDateTime());
-                            }
-                        } else {
-                            if (volume > 0) {
-                                tick.setVol(volume);
-                                tick.setLastDateTime(date);
-                            }
-                        }
-                        BigDecimal last = RoundUtil.getBigDecimal(close);
-                        tick.setLast(last);
-                    } else if ("BID".equals(whatToShow)) {
-                        BigDecimal bid = RoundUtil.getBigDecimal(close);
-                        tick.setBid(bid);
-                    } else if ("ASK".equals(whatToShow)) {
-                        BigDecimal ask = RoundUtil.getBigDecimal(close);
-                        tick.setAsk(ask);
-                    } else if ("BID_ASK".equals(whatToShow)) {
-                        BigDecimal bid = RoundUtil.getBigDecimal(open);
-                        tick.setBid(bid);
-                        BigDecimal ask = RoundUtil.getBigDecimal(close);
-                        tick.setAsk(ask);
-                    }
-
-                    // @formatter:off
-                    String message = whatToShow +
-                            " " + dateString +
-                            " open=" + open +
-                            " high=" + high +
-                            " low=" + low +
-                            " close=" + close +
-                            " volume=" + volume +
-                            " count=" + count +
-                            " WAP=" + WAP +
-                            " hasGaps=" + hasGaps;
-                    // @formatter:on
+                    IBHistoricalDataServiceImpl.this.barList.add(bar);
 
                     if (hasGaps) {
+
+                        // @formatter:off
+                        String message = "bar with gaps " + dateString +
+                                " open=" + open +
+                                " high=" + high +
+                                " low=" + low +
+                                " close=" + close +
+                                " volume=" + volume +
+                                " count=" + count +
+                                " WAP=" + WAP +
+                                " hasGaps=" + hasGaps;
+                        // @formatter:on
+
                         logger.error(message, new HistoricalDataServiceException(message));
-                    } else {
-                        logger.debug(message);
                     }
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    throw new HistoricalDataServiceException(e);
                 } finally {
                     IBHistoricalDataServiceImpl.this.lock.unlock();
                 }
@@ -198,13 +143,13 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
                         if (code == 2105 || code == 2107) {
 
                             super.error(requestId, code, errorMsg);
-                            IBHistoricalDataServiceImpl.this.requestIdBooleanMap.put(requestId, false);
+                            IBHistoricalDataServiceImpl.this.success = false;
                         }
 
                         if (code == 162) {
 
-                            logger.warn("HMDS query returned no data for " + IBHistoricalDataServiceImpl.this.requestIdDateMap.get(requestId));
-                            IBHistoricalDataServiceImpl.this.requestIdBooleanMap.put(requestId, true);
+                            logger.warn("HMDS query returned no data");
+                            IBHistoricalDataServiceImpl.this.success = true;
                         }
 
                         IBHistoricalDataServiceImpl.this.condition.signalAll();
@@ -229,56 +174,220 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
             return;
         }
 
-        this.requestIdBooleanMap = new HashMap<Integer, Boolean>();
-        this.requestIdDateMap = new HashMap<Integer, Date>();
-        this.requestIdWhatToShowMap = new HashMap<Integer, String>();
+        this.success = false;
 
         this.client.connect();
     }
 
     @Override
-    protected void handleDownloadHistoricalData(int[] securityIds, String[] whatToShow, String startDateString, String endDateString) throws Exception {
+    protected synchronized List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int duration, Period durationPeriod, int barSize,
+            Period barSizePeriod, BarType barType) throws Exception {
 
-        Date startDate = format.parse(startDateString + "  24:00:00");
-        Date endDate = format.parse(endDateString + "  24:00:00");
+        this.barList = new ArrayList<Bar>();
+        this.success = false;
+
+        Security security = getSecurityDao().load(securityId);
+
+        this.lock.lock();
+
+        try {
+
+            Contract contract = IBUtil.getContract(security);
+            int requestId = RequestIDGenerator.singleton().getNextRequestId();
+            String dateString = dateTimeFormat.format(endDate);
+
+            String durationString = duration + " ";
+            switch (durationPeriod) {
+                case MILLISECOND:
+                    throw new IllegalArgumentException("MILLISECOND durationPeriod is not allowed");
+                case SECOND:
+                    durationString += "S";
+                    break;
+                case MINUTE:
+                    throw new IllegalArgumentException("MINUTE durationPeriod is not allowed");
+                case HOUR:
+                    throw new IllegalArgumentException("HOUR durationPeriod is not allowed");
+                case DAY:
+                    durationString += "D";
+                    break;
+                case WEEK:
+                    durationString += "W";
+                    break;
+                case YEAR:
+                    durationString += "Y";
+                    break;
+            }
+
+            String barSizeString = barSize + " ";
+            switch (barSizePeriod) {
+                case MILLISECOND:
+                    throw new IllegalArgumentException("MILLISECOND barSize is not allowed");
+                case SECOND:
+                    barSizeString += "sec";
+                    break;
+                case MINUTE:
+                    barSizeString += "min";
+                    break;
+                case HOUR:
+                    barSizeString += "hour";
+                    break;
+                case DAY:
+                    barSizeString += "day";
+                    break;
+                case WEEK:
+                    throw new IllegalArgumentException("WEEK barSize is not allowed");
+                case YEAR:
+                    throw new IllegalArgumentException("YEAR barSize is not allowed");
+            }
+
+            if (barSize > 1) {
+                barSizeString += "s";
+            }
+
+            this.client.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barType.getValue(), 1, 1);
+
+            while (this.success == false) {
+                this.condition.await();
+            }
+
+        } finally {
+            this.lock.unlock();
+        }
+
+        for (Bar bar : this.barList) {
+            bar.setSecurity(security);
+        }
+
+        return this.barList;
+    }
+
+    @Override
+    protected void handleDownload1MinTicks(int[] securityIds, BarType[] barTypes, Date startDate, Date endDate) throws Exception {
 
         for (int securityId : securityIds) {
 
             Security security = getSecurityDao().load(securityId);
-            this.security = security;
 
-            this.writer = new CsvTickWriter(security.getIsin());
+            CsvTickWriter writer = new CsvTickWriter(security.getIsin());
 
-            Contract contract = IBUtil.getContract(security);
+            download1MinTicksForSecurity(security, barTypes, startDate, endDate, writer);
 
-            requestHistoricalDataForSecurity(contract, security, startDate, endDate, whatToShow);
-
+            writer.close();
         }
     }
 
-    @Override
-    protected void handleDownloadHistoricalData(int[] securityIds, String[] whatToShow, String[] startDateString, String[] endDateString) throws Exception {
+    private void download1MinTicksForSecurity(Security security, BarType[] barTypes, Date startDate, Date endDate, CsvTickWriter writer) throws Exception {
 
-        for (int i = 0; i < securityIds.length; i++) {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(startDate);
 
-            Date startDate = format.parse(startDateString[i] + "  24:00:00");
-            Date endDate = format.parse(endDateString[i] + "  24:00:00");
+        Date date;
+        while ((date = cal.getTime()).compareTo(endDate) <= 0) {
 
-            Security security = getSecurityDao().load(securityIds[i]);
-            this.security = security;
+            if ((cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) && (cal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)) {
 
-            this.writer = new CsvTickWriter(security.getIsin());
-
-            Contract contract = IBUtil.getContract(security);
-
-            requestHistoricalDataForSecurity(contract, security, startDate, endDate, whatToShow);
+                download1MinTicksForDate(security, date, barTypes, writer);
+            }
+            cal.add(Calendar.DAY_OF_YEAR, 1);
         }
     }
 
-    @Override
-    protected Collection<Bar> handleGetHistoricalBars(int securityId) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+    private void download1MinTicksForDate(Security security, Date date, BarType[] barTypes, CsvTickWriter writer) throws Exception {
+
+        TreeMap<Date, Tick> timeTickMap = new TreeMap<Date, Tick>();
+
+        // run all barTypes and get the ticks
+        for (BarType barType : barTypes) {
+
+            List<Bar> bars = getHistoricalBars(security.getId(), date, 1, Period.DAY, 1, Period.MINUTE, barType);
+
+            // filter Bars by date
+            for (Iterator<Bar> it = this.barList.iterator(); it.hasNext();) {
+
+                Bar bar = it.next();
+
+                // retrieve bars only between marketOpen & close
+                if (DateUtil.compareTime(bar.getDateTime(), security.getSecurityFamily().getMarketClose()) > 0
+                        || DateUtil.compareTime(bar.getDateTime(), security.getSecurityFamily().getMarketOpen()) < 0) {
+
+                    it.remove();
+                    continue;
+                }
+
+                // only accept bars within the last 24h
+                if (date.getTime() - bar.getDateTime().getTime() > 86400000) {
+
+                    it.remove();
+                    continue;
+                }
+            }
+
+            // to make sure we don't get a pacing error
+            Thread.sleep(10000);
+
+            for (Bar bar : bars) {
+
+                Tick tick = timeTickMap.get(bar.getDateTime());
+
+                if (tick == null) {
+
+                    tick = new TickImpl();
+                    tick.setSecurity(security);
+                    tick.setLast(new BigDecimal(0));
+                    tick.setDateTime(bar.getDateTime());
+                    tick.setVol(0);
+                    tick.setVolBid(0);
+                    tick.setVolAsk(0);
+                    tick.setBid(new BigDecimal(0));
+                    tick.setAsk(new BigDecimal(0));
+                    tick.setOpenIntrest(0);
+                    tick.setSettlement(new BigDecimal(0));
+
+                    timeTickMap.put(bar.getDateTime(), tick);
+                }
+
+                if (BarType.TRADES.equals(barType)) {
+                    Entry<Date, Tick> entry = timeTickMap.lowerEntry(bar.getDateTime());
+                    if (entry != null) {
+                        Tick lastTick = entry.getValue();
+                        if (bar.getVol() > 0) {
+                            tick.setVol(lastTick.getVol() + bar.getVol());
+                            tick.setLastDateTime(bar.getDateTime());
+                        } else {
+                            tick.setVol(lastTick.getVol());
+                            tick.setLastDateTime(lastTick.getLastDateTime());
+                        }
+                    } else {
+                        if (bar.getVol() > 0) {
+                            tick.setVol(bar.getVol());
+                            tick.setLastDateTime(bar.getDateTime());
+                        }
+                    }
+                    BigDecimal last = bar.getClose();
+                    tick.setLast(last);
+                } else if (BarType.BID.equals(barType)) {
+                    BigDecimal bid = bar.getClose();
+                    tick.setBid(bid);
+                } else if (BarType.ASK.equals(barType)) {
+                    BigDecimal ask = bar.getClose();
+                    tick.setAsk(ask);
+                } else if (BarType.BID_ASK.equals(barType)) {
+                    BigDecimal bid = bar.getOpen();
+                    tick.setBid(bid);
+                    BigDecimal ask = bar.getClose();
+                    tick.setAsk(ask);
+                }
+            }
+        }
+
+        // write the ticks to the csvWriter
+        for (Map.Entry<Date, Tick> entry : timeTickMap.entrySet()) {
+
+            Tick tick = entry.getValue();
+            writer.write(tick);
+        }
+
+        logger.debug("wrote " + timeTickMap.entrySet().size() + " ticks for: " + security.getSymbol() + " on date: " + date);
     }
 
     @Override
@@ -296,78 +405,6 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
 
         if (this.client != null) {
             this.client.disconnect();
-        }
-    }
-
-    private void requestHistoricalDataForSecurity(Contract contract, Security security, Date startDate, Date endDate, String[] whatToShow) throws Exception {
-
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(startDate);
-
-        Date date;
-        while ((date = cal.getTime()).compareTo(endDate) <= 0) {
-
-            if ((cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) && (cal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)) {
-
-                requestHistoricalDataForDate(date, contract, security, whatToShow);
-            }
-            cal.add(Calendar.DAY_OF_YEAR, 1);
-        }
-    }
-
-    private void requestHistoricalDataForDate(Date date, Contract contract, Security security, String[] whatToShow) throws Exception {
-
-        this.dateTickMap = new TreeMap<Date, Tick>();
-
-        // run all whatToShows and get the ticks
-        for (String whatToShowNow : whatToShow) {
-            requestHistoricalDataForWhatToShow(date, contract, whatToShowNow);
-
-        }
-
-        // writer the ticks to the csvWriter
-        for (Map.Entry<Date, Tick> entry : this.dateTickMap.entrySet()) {
-
-            Tick tick = entry.getValue();
-            tick.setSecurity(security);
-            this.writer.write(tick);
-        }
-
-        logger.debug("done for: " + security.getSymbol() + " on date: " + date);
-    }
-
-    private void requestHistoricalDataForWhatToShow(Date date, Contract contract, String whatToShow) throws Exception {
-
-        while (true) {
-
-            this.lock.lock();
-
-            try {
-
-                int requestId = RequestIDGenerator.singleton().getNextRequestId();
-                this.requestIdDateMap.put(requestId, date);
-                this.requestIdWhatToShowMap.put(requestId, whatToShow);
-
-                this.client.reqHistoricalData(requestId, contract, format.format(date), "1 D", "1 min", whatToShow, 1, 1);
-
-                Boolean success;
-                while ((success = this.requestIdBooleanMap.get(requestId)) == null) {
-                    if (!this.condition.await(this.historicalDataTimeout, TimeUnit.SECONDS)) {
-                        this.client.cancelHistoricalData(requestId);
-                        continue;
-                    }
-                }
-
-                // to make sure we don't get a pacing error
-                Thread.sleep(10000);
-
-                if (success) {
-                    break;
-                }
-
-            } finally {
-                this.lock.unlock();
-            }
         }
     }
 }

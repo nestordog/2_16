@@ -12,7 +12,7 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
-import com.algoTrader.enumeration.Periodicity;
+import com.algoTrader.enumeration.Period;
 import com.algoTrader.vo.PortfolioValueVO;
 
 public class LookupUtil {
@@ -44,7 +44,7 @@ public class LookupUtil {
 
     public static Security[] getSecuritiesOnWatchlistByPeriodicity(String periodicityString) {
 
-        Periodicity periodicity = Periodicity.valueOf(periodicityString);
+        Period periodicity = Period.valueOf(periodicityString);
         return ServiceLocator.instance().getLookupService().getSecuritiesOnWatchlistByPeriodicity(periodicity).toArray(new Security[] {});
     }
 

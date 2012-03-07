@@ -30,7 +30,7 @@ import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
-import com.algoTrader.enumeration.Periodicity;
+import com.algoTrader.enumeration.Period;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.vo.PortfolioValueVO;
@@ -74,7 +74,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Security> handleGetSecuritiesOnWatchlistByPeriodicity(Periodicity periodicity) throws Exception {
+    protected List<Security> handleGetSecuritiesOnWatchlistByPeriodicity(Period periodicity) throws Exception {
 
         return getSecurityDao().findSecuritiesOnWatchlistByPeriodicity(periodicity);
     }
