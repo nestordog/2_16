@@ -103,7 +103,7 @@ and
 and
     DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0
 and
-    tickWindow.security.securityFamily.periodicity = Periodicity.`HOUR`;
+    tickWindow.security.securityFamily.periodicity = Period.`HOUR`;
 
 @Name('PERSIST_MINUTE_TICKS')
 @Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
@@ -121,4 +121,4 @@ and
 and
     DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0
 and
-    tickWindow.security.securityFamily.periodicity = Periodicity.`MINUTE`;
+    tickWindow.security.securityFamily.periodicity = Period.`MINUTE`;
