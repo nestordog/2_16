@@ -12,3 +12,4 @@ join security as u on s.UNDERLAYING_FK = u.id
 join rate as r on r.`CURRENCY` = s.CURRENCY
 group by u.id
 order by volVal desc
+
