@@ -258,12 +258,12 @@
           <repository>
               <id>bubba-deploy</id>
               <name>Bubba Repositiory</name>
-              <url>scp://bubba.gettheticket.ch/home/web/repo</url>
+              <url>scp://repo.linardcapital.com/home/web/repo</url>
           </repository>
         <snapshotRepository>
             <id>bubba-deploy</id>
             <name>Bubba Repositiory</name>
-            <url>scp://bubba.gettheticket.ch/home/web/repo</url>
+            <url>scp://repo.linardcapital.com/home/web/repo</url>
         </snapshotRepository>
     </distributionManagement>
     <properties>
@@ -423,7 +423,7 @@
         <repository>
             <id>bubba</id>
             <name>Bubba Repository</name>
-            <url>http://bubba.gettheticket.ch/repo</url>
+            <url>http://repo.linardcapital.com/repo</url>
         </repository>
     </repositories>
     <pluginRepositories>
