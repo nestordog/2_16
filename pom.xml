@@ -420,11 +420,6 @@
                 <enabled>false</enabled>
             </releases>
         </repository>
-        <repository>
-            <id>bubba</id>
-            <name>Bubba Repository</name>
-            <url>http://repo.linardcapital.com/repo</url>
-        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
