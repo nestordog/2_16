@@ -65,7 +65,7 @@
     <auto-import import-name="com.algoTrader.enumeration.Direction"/>
     <auto-import import-name="com.algoTrader.enumeration.Side"/>
     <auto-import import-name="com.algoTrader.enumeration.Status"/>
-    <auto-import import-name="com.algoTrader.enumeration.Periodicity"/>
+    <auto-import import-name="com.algoTrader.enumeration.Period"/>
     <auto-import import-name="com.algoTrader.enumeration.OptionType"/>
 
     <auto-import import-name="com.algoTrader.stockOption.StockOptionUtil"/>
