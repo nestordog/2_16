@@ -55,10 +55,12 @@ select
     currentOrder.nextSlice()
 from
     pattern [every currentOrder=com.algoTrader.entity.trade.SlicingLimitOrder
-        -> timer:interval(Math.random() * 5 + 5)]
-    //Tick[security.id = currentOrder.security.id].std:lastevent() as tick
+        -> timer:interval(Math.random() * 5 + 5)] unidirectional,
+    Tick.std:unique(security.id) as tick
 where
-    currentOrder.totalQuantity > currentOrder.filledQuantity;
+    currentOrder.totalQuantity > currentOrder.filledQuantity
+and
+    tick.security.id = currentOrder.security.id;
 
 @Name('CANCEL_ORDER_SLICE')
 @Subscriber(className='com.algoTrader.service.OrderService.cancelOrder')
