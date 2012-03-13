@@ -68,7 +68,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             // create an OrderCallback if removeFromWatchlist is requested
             if (removeFromWatchlist) {
 
-                getRuleService().addOrderCallback(StrategyImpl.BASE, Collections.singleton((Order) order), new TradeCallback() {
+                getRuleService().addTradeCallback(StrategyImpl.BASE, Collections.singleton((Order) order), new TradeCallback() {
                     @Override
                     public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
                         MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();

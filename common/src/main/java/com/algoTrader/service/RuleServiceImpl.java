@@ -623,7 +623,7 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
     }
 
     @Override
-    protected void handleAddOrderCallback(String strategyName, Collection<Order> orders, TradeCallback callback) {
+    protected void handleAddTradeCallback(String strategyName, Collection<Order> orders, TradeCallback callback) {
 
         if (orders.size() == 0) {
             throw new IllegalArgumentException("at least 1 order has to be specified");
