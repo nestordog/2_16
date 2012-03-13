@@ -322,6 +322,24 @@ CREATE TABLE `measurement` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `order_preference`
+--
+
+DROP TABLE IF EXISTS `order_preference`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `order_preference` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `SECURITY_TYPE` varchar(255) NOT NULL,
+  `ORDER_TYPE` varchar(255) NOT NULL,
+  `STRATEGY_FK` int(11) NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `ORDER_PREFERENCE_STRATEGY_FKC` (`STRATEGY_FK`),
+  CONSTRAINT `ORDER_PREFERENCE_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `position`
 --
 
@@ -637,4 +655,4 @@ CREATE TABLE `watch_list_item` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-02-29 10:42:08
+-- Dump completed on 2012-03-13 18:34:29

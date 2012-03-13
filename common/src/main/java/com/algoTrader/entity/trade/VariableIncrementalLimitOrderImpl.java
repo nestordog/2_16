@@ -6,6 +6,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.util.RoundUtil;
@@ -33,12 +34,17 @@ public class VariableIncrementalLimitOrderImpl extends VariableIncrementalLimitO
     }
 
     @Override
-    public void setDefaultLimits(BigDecimal bid, BigDecimal ask) {
+    public void init(Tick tick) {
+
+        // make sure there is a tick
+        if (tick == null) {
+            tick = getSecurity().getLastTick();
+        }
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 
-        double bidDouble = bid.doubleValue();
-        double askDouble = ask.doubleValue();
+        double bidDouble = tick.getBid().doubleValue();
+        double askDouble = tick.getAsk().doubleValue();
         double spread = askDouble - bidDouble;
         double increment = spreadPositionIncrement * spread;
 

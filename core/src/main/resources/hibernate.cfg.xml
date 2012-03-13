@@ -8,7 +8,7 @@
         org.gjt.mm.mysql.Driver
     </property>
     <property name="hibernate.connection.url">
-        jdbc:mysql://localhost:3306/algoTrader
+        jdbc:mysql://localhost:3306/algoTraderTest
     </property>
     <property name="hibernate.dialect">
         org.hibernate.dialect.MySQLDialect
@@ -29,6 +29,7 @@
     <mapping resource="com/algoTrader/entity/Strategy.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Transaction.hbm.xml" />
     <mapping resource="com/algoTrader/entity/WatchListItem.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/OrderPreference.hbm.xml" />
     <mapping resource="com/algoTrader/entity/marketData/MarketDataEvent.hbm.xml" />
     <mapping resource="com/algoTrader/entity/security/Security.hbm.xml" />
     <mapping resource="com/algoTrader/entity/security/SecurityFamily.hbm.xml" />

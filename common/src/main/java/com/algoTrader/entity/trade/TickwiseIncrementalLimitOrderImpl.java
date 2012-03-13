@@ -6,6 +6,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.Side;
 
@@ -30,13 +31,18 @@ public class TickwiseIncrementalLimitOrderImpl extends TickwiseIncrementalLimitO
     }
 
     @Override
-    public void setDefaultLimits(BigDecimal bid, BigDecimal ask) {
+    public void init(Tick tick) {
+
+        // make sure there is a tick
+        if (tick == null) {
+            tick = getSecurity().getLastTick();
+        }
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 
         if (Side.BUY.equals(getSide())) {
-            setStartLimit(family.adjustPrice(bid, startOffsetTicks));
-            setEndLimit(family.adjustPrice(ask, endOffsetTicks));
+            setStartLimit(family.adjustPrice(tick.getBid(), startOffsetTicks));
+            setEndLimit(family.adjustPrice(tick.getAsk(), endOffsetTicks));
 
             if (getStartLimit().doubleValue() <= 0.0) {
                 setStartLimit(family.adjustPrice(new BigDecimal(0), 1));
@@ -50,8 +56,8 @@ public class TickwiseIncrementalLimitOrderImpl extends TickwiseIncrementalLimitO
 
         } else {
 
-            setStartLimit(family.adjustPrice(ask, -startOffsetTicks));
-            setEndLimit(family.adjustPrice(bid, -endOffsetTicks));
+            setStartLimit(family.adjustPrice(tick.getAsk(), -startOffsetTicks));
+            setEndLimit(family.adjustPrice(tick.getBid(), -endOffsetTicks));
 
             if (getStartLimit().doubleValue() <= 0.0) {
                 setStartLimit(family.adjustPrice(new BigDecimal(0), 1));

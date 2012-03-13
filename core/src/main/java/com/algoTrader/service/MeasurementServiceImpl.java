@@ -12,13 +12,25 @@ public class MeasurementServiceImpl extends MeasurementServiceBase {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
 
-        Measurement measurement = Measurement.Factory.newInstance();
-        measurement.setStrategy(strategy);
-        measurement.setType(type);
-        measurement.setDate(date);
-        measurement.setValue(value);
+        // find out if there is a measurement for specified strategyName, type and date
+        Measurement measurement = getMeasurementDao().findMeasurement(strategyName, type, date);
 
-        getMeasurementDao().create(measurement);
+        if (measurement != null) {
+
+            measurement.setValue(value);
+
+            getMeasurementDao().update(measurement);
+
+        } else {
+
+            measurement = Measurement.Factory.newInstance();
+
+            measurement.setStrategy(strategy);
+            measurement.setType(type);
+            measurement.setDate(date);
+
+            getMeasurementDao().create(measurement);
+        }
 
         return measurement;
     }

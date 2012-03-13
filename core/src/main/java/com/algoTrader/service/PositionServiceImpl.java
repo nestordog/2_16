@@ -17,7 +17,7 @@ import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
-import com.algoTrader.entity.trade.MarketOrder;
+import com.algoTrader.entity.trade.InitializingOrder;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.entity.trade.TradeCallback;
@@ -59,16 +59,22 @@ public class PositionServiceImpl extends PositionServiceBase {
             Side side = (position.getQuantity() > 0) ? Side.SELL : Side.BUY;
 
             // prepare the order
-            MarketOrder order = MarketOrder.Factory.newInstance();
+            Order order = getOrderPreferenceDao().createOrder(position.getStrategy().getName(), position.getSecurity().getClass());
+
             order.setStrategy(strategy);
             order.setSecurity(security);
             order.setQuantity(Math.abs(position.getQuantity()));
             order.setSide(side);
 
+            // initialize the order if necessary
+            if (order instanceof InitializingOrder) {
+                ((InitializingOrder) order).init(null);
+            }
+
             // create an OrderCallback if removeFromWatchlist is requested
             if (removeFromWatchlist) {
 
-                getRuleService().addTradeCallback(StrategyImpl.BASE, Collections.singleton((Order) order), new TradeCallback() {
+                getRuleService().addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback() {
                     @Override
                     public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
                         MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
@@ -100,11 +106,17 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         Side side = (position.getQuantity() > 0) ? Side.SELL : Side.BUY;
 
-        MarketOrder order = MarketOrder.Factory.newInstance();
+        Order order = getOrderPreferenceDao().createOrder(position.getStrategy().getName(), position.getSecurity().getClass());
+
         order.setStrategy(strategy);
         order.setSecurity(security);
         order.setQuantity(Math.abs(quantity));
         order.setSide(side);
+
+        // initialize the order if necessary
+        if (order instanceof InitializingOrder) {
+            ((InitializingOrder) order).init(null);
+        }
 
         getOrderService().sendOrder(order);
     }
@@ -274,5 +286,4 @@ public class PositionServiceImpl extends PositionServiceBase {
         // propagate the ExpirePosition event
         getRuleService().sendEvent(position.getStrategy().getName(), expirePositionEvent);
     }
-
 }

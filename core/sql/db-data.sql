@@ -165,6 +165,18 @@ INSERT INTO `intrest_rate` (`ID`, `DURATION`) VALUES (7,2592000000);
 UNLOCK TABLES;
 
 --
+-- Dumping data for table `order_preference`
+--
+-- WHERE:  id<1000
+
+LOCK TABLES `order_preference` WRITE;
+/*!40000 ALTER TABLE `order_preference` DISABLE KEYS */;
+INSERT INTO `order_preference` (`ID`, `SECURITY_TYPE`, `ORDER_TYPE`, `STRATEGY_FK`) VALUES (1, 'Future', 'TickwiseIncrementalLimitOrder', 5),
+INSERT INTO `order_preference` (`ID`, `SECURITY_TYPE`, `ORDER_TYPE`, `STRATEGY_FK`) VALUES (2, 'StockOption', 'TickwiseIncrementalLimitOrder', 5);
+/*!40000 ALTER TABLE `order_preference` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Dumping data for table `security`
 --
 -- WHERE:  id<1000
