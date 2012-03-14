@@ -28,6 +28,7 @@ public class MeasurementServiceImpl extends MeasurementServiceBase {
             measurement.setStrategy(strategy);
             measurement.setType(type);
             measurement.setDate(date);
+            measurement.setValue(value);
 
             getMeasurementDao().create(measurement);
         }
