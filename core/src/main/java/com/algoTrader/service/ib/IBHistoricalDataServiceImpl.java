@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,6 +33,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
     private @Value("${simulation}") boolean simulation;
     private @Value("#{'${marketChannel}' == 'IB'}") boolean ibEnabled;
     private @Value("${ib.historicalDataServiceEnabled}") boolean historicalDataServiceEnabled;
+    private @Value("${ib.historicalDataTimeout}") int historicalDataTimeout;
 
     private IBClient client;
     private IBDefaultAdapter wrapper;
@@ -236,7 +238,10 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
             this.client.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barType.getValue(), 1, 1);
 
             while (this.success == false) {
-                this.condition.await();
+                if (!this.condition.await(this.historicalDataTimeout, TimeUnit.SECONDS)) {
+                    this.client.cancelHistoricalData(requestId);
+                    continue;
+                }
             }
 
         } finally {
