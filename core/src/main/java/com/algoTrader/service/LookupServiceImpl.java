@@ -545,7 +545,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Collection<Measurement> handleGetMeasurementsAfterDate(String strategyName, String type, Date date) throws Exception {
+    protected List<Measurement> handleGetMeasurementsAfterDate(String strategyName, String type, Date date) throws Exception {
 
         return getMeasurementDao().findMeasurementsAfterDate(strategyName, type, date);
     }
