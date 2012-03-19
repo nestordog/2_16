@@ -50,3 +50,10 @@ Reconciliation
 OrderValidation
 TWS 921.5 / IB Gateway 921.5 / IB Client 9.65 / IBController 2.9.0
 Esper 4.5
+
+1.8 (R4728)
+IncrementalLimitOrder
+HistoricalDataService HistoricalBars
+MBean Annotations
+SecurityFamily TickSizePattern
+Measurement & MeasurementService
