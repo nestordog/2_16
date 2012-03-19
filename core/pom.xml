@@ -3,7 +3,7 @@
     <parent>
         <groupId>algotrader</groupId>
         <artifactId>algotrader</artifactId>
-        <version>1.8-SNAPSHOT</version>
+        <version>1.8</version>
     </parent>
     <artifactId>algotrader-core</artifactId>
     <name>AlgoTrader Program Core</name>
@@ -13,7 +13,7 @@
         <dependency>
             <groupId>algotrader</groupId>
             <artifactId>algotrader-common</artifactId>
-            <version>1.8-SNAPSHOT</version>
+            <version>1.8</version>
         </dependency>
         <dependency>
             <groupId>algotrader</groupId>
@@ -221,6 +221,6 @@
         <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
     </properties>
     <scm>
-        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/tags/AlgoTrader-1.7/core</developerConnection>
+        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/tags/algotrader-1.8/core</developerConnection>
     </scm>
 </project>
