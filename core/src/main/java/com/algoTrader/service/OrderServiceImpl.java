@@ -12,6 +12,7 @@ import com.algoTrader.entity.trade.Fill;
 import com.algoTrader.entity.trade.FillImpl;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;
+import com.algoTrader.entity.trade.OrderValidationException;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.util.DateUtil;
@@ -29,6 +30,10 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
     @Override
     protected void handleValidateOrder(Order order) throws Exception {
+
+        if (!order.getSecurity().getSecurityFamily().isTradeable()) {
+            throw new OrderValidationException(order.getSecurity().getSymbol() + " is not tradeable");
+        }
 
         validateExternalOrder(order);
 

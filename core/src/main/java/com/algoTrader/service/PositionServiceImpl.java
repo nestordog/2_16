@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
+import com.algoTrader.entity.PositionImpl;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
@@ -64,10 +65,6 @@ public class PositionServiceImpl extends PositionServiceBase {
                 return;
             }
 
-            if (!security.getSecurityFamily().isTradeable()) {
-                throw new PositionServiceException(security.getSymbol() + " is not tradeable use deletePosition");
-            }
-
             Side side = (position.getQuantity() > 0) ? Side.SELL : Side.BUY;
 
             // prepare the order
@@ -112,7 +109,39 @@ public class PositionServiceImpl extends PositionServiceBase {
     }
 
     @Override
-    protected void handleDeletePosition(int positionId, boolean unsubscribe) throws Exception {
+    protected Position handleCreateNonTradeablePosition(String strategyName, int securityId, long quantity) {
+
+        Security security = getSecurityDao().load(securityId);
+        Strategy strategy = getStrategyDao().findByName(strategyName);
+
+        if (security.getSecurityFamily().isTradeable()) {
+            throw new PositionServiceException(security.getSymbol() + " is tradeable, can only creat non-tradeable positions");
+        }
+
+        Position position = new PositionImpl();
+        position.setQuantity(quantity);
+
+        position.setExitValue(null);
+        position.setMaintenanceMargin(null);
+        position.setProfitTarget(null);
+
+        position.setSecurity(security);
+        security.getPositions().add(position);
+
+        position.setStrategy(strategy);
+        strategy.getPositions().add(position);
+
+        getPositionDao().create(position);
+        getSecurityDao().update(security);
+        getStrategyDao().update(strategy);
+
+        logger.info("created non-tradeable position on " + security + " for strategy " + strategyName + " quantity " + quantity);
+
+        return position;
+    }
+
+    @Override
+    protected void handleDeleteNonTradeablePosition(int positionId, boolean unsubscribe) throws Exception {
 
         Position position = getPositionDao().load(positionId);
 
@@ -121,7 +150,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             Security security = position.getSecurity();
 
             if (security.getSecurityFamily().isTradeable()) {
-                throw new PositionServiceException(security.getSymbol() + " is tradeable use closePosition");
+                throw new PositionServiceException(security.getSymbol() + " is tradeable, can only delete non-tradeable positions");
             }
 
             ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
@@ -136,6 +165,8 @@ public class PositionServiceImpl extends PositionServiceBase {
             getRuleService().routeEvent(position.getStrategy().getName(), closePositionVO);
 
             getPositionDao().update(position);
+
+            logger.info("deleted non-tradeable position on " + security + " for strategy " + position.getStrategy().getName());
         }
 
         // unsubscribe if necessary

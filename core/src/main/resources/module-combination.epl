@@ -1,0 +1,40 @@
+@Name('CREATE_COMBINATION_TICK_WINDOW')
+create window
+    CombinationTickWindow.std:groupwin(component.id).std:lastevent()
+as
+    (tick Tick, component com.algoTrader.entity.security.Component);
+
+@Name('INSERT_INTO_COMBINATION_TICK_WINDOW')
+insert into
+    CombinationTickWindow
+select
+    component.* as component,
+    tick.* as tick
+from
+    Tick as tick,
+    method:LookupUtil.getComponentsByStrategy(engineStrategy.name) as component
+where
+    tick.security.id = component.security.id;
+
+@Name('INSERT_TICK_FROM_COMBINATION_TICK_WINDOW')
+on
+    CombinationTickWindow as trigger
+insert into
+    Tick
+select
+    last(trigger.tick.dateTime) as dateTime,
+    Math.abs(cast(min((case when combinationTick.component.quantity > 0 then combinationTick.tick.volBid else combinationTick.tick.volAsk end) / Math.abs(combinationTick.component.quantity)) * sum(combinationTick.component.quantity), int)) as volBid,
+    Math.abs(cast(min((case when combinationTick.component.quantity > 0 then combinationTick.tick.volAsk else combinationTick.tick.volBid end) / Math.abs(combinationTick.component.quantity)) * sum(combinationTick.component.quantity), int)) as volAsk,
+    RoundUtil.getBigDecimalNullSafe(sum((case when combinationTick.component.quantity > 0 then combinationTick.tick.bid.doubleValue() else combinationTick.tick.ask.doubleValue() end) * combinationTick.component.quantity) / sum(combinationTick.component.quantity)) as bid,
+    RoundUtil.getBigDecimalNullSafe(sum((case when combinationTick.component.quantity > 0 then combinationTick.tick.ask.doubleValue() else combinationTick.tick.bid.doubleValue() end) * combinationTick.component.quantity) / sum(combinationTick.component.quantity)) as ask,
+    last(trigger.component.parentSecurity) as security
+from
+    CombinationTickWindow as combinationTick
+where
+    combinationTick.component.parentSecurity.id = trigger.component.parentSecurity.id
+and
+    combinationTick.component.quantity != 0
+and
+    Math.abs(combinationTick.tick.dateTime.time - trigger.tick.dateTime.time) < Constants.ONE_HOUR
+having
+    count(combinationTick.component.id) = trigger.component.parentSecurity.componentCount;

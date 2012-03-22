@@ -204,7 +204,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         // close all positions based on the combination
         Position position = getPositionDao().findBySecurityAndStrategy(combinationId, strategyName);
-        getPositionService().deletePosition(position.getId(), true);
+        getPositionService().deleteNonTradeablePosition(position.getId(), true);
 
         // delete the combination
         deleteCombination(combination.getId());
