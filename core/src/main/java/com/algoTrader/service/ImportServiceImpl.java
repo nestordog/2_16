@@ -149,7 +149,7 @@ public class ImportServiceImpl extends ImportServiceBase {
                 //                    continue;
                 //                }
 
-                // for every day create an underlaying-Tick
+                // for every day create an underlying-Tick
                 if (!iVol.getDate().equals(date)) {
 
                     date = iVol.getDate();
@@ -159,7 +159,7 @@ public class ImportServiceImpl extends ImportServiceBase {
                     tick.setLast(iVol.getAdjustedStockClosePrice());
                     tick.setBid(new BigDecimal(0));
                     tick.setAsk(new BigDecimal(0));
-                    tick.setSecurity(family.getUnderlaying());
+                    tick.setSecurity(family.getUnderlying());
                     tick.setSettlement(new BigDecimal(0));
 
                     ticks.add(tick);
@@ -184,7 +184,7 @@ public class ImportServiceImpl extends ImportServiceBase {
                     stockOption.setSymbol(symbol);
                     stockOption.setIsin(isin);
                     stockOption.setSecurityFamily(family);
-                    stockOption.setUnderlaying(family.getUnderlaying());
+                    stockOption.setUnderlying(family.getUnderlying());
 
                     getStockOptionDao().create(stockOption);
                     stockOptions.put(stockOption.getSymbol(), stockOption);

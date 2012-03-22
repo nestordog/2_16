@@ -19,7 +19,7 @@ public class StockOptionImpl extends StockOption {
     public double getLeverage() {
 
         try {
-            double underlyingSpot = getUnderlaying().getLastTick().getCurrentValueDouble();
+            double underlyingSpot = getUnderlying().getLastTick().getCurrentValueDouble();
             double currentValue = getLastTick().getCurrentValueDouble();
             double delta = StockOptionUtil.getDelta(this, currentValue, underlyingSpot);
 
@@ -35,16 +35,16 @@ public class StockOptionImpl extends StockOption {
     public double getMargin() {
 
         Tick stockOptionTick = getLastTick();
-        Tick underlayingTick = getUnderlaying().getLastTick();
+        Tick underlyingTick = getUnderlying().getLastTick();
 
         double marginPerContract = 0;
-        if (stockOptionTick != null && underlayingTick != null && stockOptionTick.getCurrentValueDouble() > 0.0) {
+        if (stockOptionTick != null && underlyingTick != null && stockOptionTick.getCurrentValueDouble() > 0.0) {
 
             double stockOptionSettlement = stockOptionTick.getSettlement().doubleValue();
-            double underlayingSettlement = underlayingTick.getSettlement().doubleValue();
+            double underlyingSettlement = underlyingTick.getSettlement().doubleValue();
             int contractSize = getSecurityFamily().getContractSize();
             try {
-                marginPerContract = StockOptionUtil.getMaintenanceMargin(this, stockOptionSettlement, underlayingSettlement) * contractSize;
+                marginPerContract = StockOptionUtil.getMaintenanceMargin(this, stockOptionSettlement, underlyingSettlement) * contractSize;
             } catch (MathException e) {
                 logger.warn("could not calculate margin for " + getSymbol(), e);
             }

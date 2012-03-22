@@ -41,7 +41,7 @@ from
 @Condition(key='statement.closePosition')
 select
     position.id,
-    false as removeFromWatchlist
+    false as unsubscribe
 from
     Tick as tick,
     method:LookupUtil.getOpenPositionsBySecurityId(tick.security.id) as position
@@ -59,29 +59,6 @@ and
     ((position.direction = Direction.SHORT and (tick.currentValue >= position.exitValue))
     or
     (position.direction = Direction.LONG and (tick.currentValue <= position.exitValue)));
-
-@Name('CLOSE_COMBINATION')
-@Subscriber(className='com.algoTrader.service.CombinationService.closeCombination')
-@Condition(key='statement.closeCombination')
-select
-    combination.id
-from
-    Tick as tick,
-    method:LookupUtil.getCombinationsByMasterSecurity(tick.security.id) as combination
-where
-    tick.security.id not in
-    (select
-        openOrder.security.id
-    from
-        OpenOrder as openOrder)
-and
-    combination.masterDirection != Direction.FLAT
-and
-    combination.exitValue is not null
-and
-    ((combination.masterDirection = Direction.SHORT and (tick.currentValue >= combination.exitValue))
-    or
-    (combination.masterDirection = Direction.LONG and (tick.currentValue <= combination.exitValue)));
 
 @Name('PROCESS_CASH_TRANSACTIONS')
 @Subscriber(className='com.algoTrader.service.AccountService.reconcile')

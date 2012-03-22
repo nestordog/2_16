@@ -230,7 +230,7 @@
     <dependency>
         <groupId>algotrader</groupId>
         <artifactId>algotrader-core</artifactId>
-        <version>1.8</version>
+        <version>1.9-SNAPSHOT</version>
         <exclusions>
             <exclusion>
                 <artifactId>hibernate-core</artifactId>
@@ -338,6 +338,6 @@
   <parent>
       <groupId>algotrader</groupId>
       <artifactId>algotrader</artifactId>
-      <version>1.8</version>
+      <version>1.9-SNAPSHOT</version>
   </parent>
 </project>

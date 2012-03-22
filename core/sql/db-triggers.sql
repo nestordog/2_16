@@ -9,12 +9,12 @@
 
 
 /* Header line. Object: allocation_after_update. Script date: 22.11.2011 12:55:28. */
-CREATE TRIGGER `allocation_after_update`
-  AFTER UPDATE ON `allocation`
+CREATE TRIGGER `component_after_update`
+  AFTER UPDATE ON `component`
   FOR EACH ROW BEGIN
      IF NOT NEW.QUANTITY = OLD.QUANTITY OR (NEW.QUANTITY IS NULL XOR OLD.QUANTITY IS NULL) THEN
         INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
-        VALUES ('allocation', NEW.id, NOW(), 'QUANTITY', NEW.QUANTITY);
+        VALUES ('component', NEW.id, NOW(), 'QUANTITY', NEW.QUANTITY);
      END IF;
 END;
 
@@ -25,20 +25,6 @@ CREATE TRIGGER `cash_balance_after_update`
      IF NOT NEW.AMOUNT = OLD.AMOUNT OR (NEW.AMOUNT IS NULL XOR OLD.AMOUNT IS NULL) THEN
         INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
         VALUES ('cash_balance', NEW.id, NOW(), 'AMOUNT', NEW.AMOUNT);
-     END IF;
-END;
-
-/* Header line. Object: combination_after_update. Script date: 22.11.2011 12:55:28. */
-CREATE TRIGGER `combination_after_update`
-  AFTER UPDATE ON `combination`
-  FOR EACH ROW BEGIN
-     IF NOT NEW.EXIT_VALUE = OLD.EXIT_VALUE OR (NEW.EXIT_VALUE IS NULL XOR OLD.EXIT_VALUE IS NULL) THEN
-        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
-        VALUES ('combination', NEW.id, NOW(), 'EXIT_VALUE', NEW.EXIT_VALUE);
-     END IF;
-     IF NOT NEW.PROFIT_TARGET = OLD.PROFIT_TARGET OR (NEW.PROFIT_TARGET IS NULL XOR OLD.PROFIT_TARGET IS NULL) THEN
-        INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
-        VALUES ('combination', NEW.id, NOW(), 'PROFIT_TARGET', NEW.PROFIT_TARGET);
      END IF;
 END;
 
@@ -75,15 +61,15 @@ CREATE TRIGGER `strategy_after_update`
 END;
 
 /* Header line. Object: watch_list_item_after_update. Script date: 22.11.2011 12:55:28. */
-CREATE TRIGGER `watch_list_item_after_update`
-  AFTER UPDATE ON `watch_list_item`
+CREATE TRIGGER `subscription_after_update`
+  AFTER UPDATE ON `subscription`
   FOR EACH ROW BEGIN
      IF NOT NEW.UPPER_ALERT_VALUE = OLD.UPPER_ALERT_VALUE OR (NEW.UPPER_ALERT_VALUE IS NULL XOR OLD.UPPER_ALERT_VALUE IS NULL) THEN
         INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
-        VALUES ('watch_list_item', NEW.id, NOW(), 'UPPER_ALERT_VALUE', NEW.UPPER_ALERT_VALUE);
+        VALUES ('subscription', NEW.id, NOW(), 'UPPER_ALERT_VALUE', NEW.UPPER_ALERT_VALUE);
      END IF;
      IF NOT NEW.LOWER_ALERT_VALUE = OLD.LOWER_ALERT_VALUE OR (NEW.LOWER_ALERT_VALUE IS NULL XOR OLD.LOWER_ALERT_VALUE IS NULL) THEN
         INSERT INTO history (TBL, REF_ID, TIME, COL, VALUE)
-        VALUES ('watch_list_item', NEW.id, NOW(), 'LOWER_ALERT_VALUE', NEW.LOWER_ALERT_VALUE);
+        VALUES ('subscription', NEW.id, NOW(), 'LOWER_ALERT_VALUE', NEW.LOWER_ALERT_VALUE);
      END IF;
 END;

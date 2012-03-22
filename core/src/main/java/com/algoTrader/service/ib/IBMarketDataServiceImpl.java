@@ -34,7 +34,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
     }
 
     @Override
-    protected void handleInitWatchlist() {
+    protected void handleInitSubscriptions() {
 
         if (client != null
                 && (client.getIbAdapter().getState().equals(ConnectionState.READY) || client.getIbAdapter().getState().equals(ConnectionState.SUBSCRIBED))
@@ -43,12 +43,12 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
             client.getIbAdapter().setRequested(true);
             client.getIbAdapter().setState(ConnectionState.SUBSCRIBED);
 
-            super.handleInitWatchlist();
+            super.handleInitSubscriptions();
         }
     }
 
     @Override
-    protected void handlePutOnExternalWatchlist(Security security) throws Exception {
+    protected void handleExternalSubscribe(Security security) throws Exception {
 
         if (!client.getIbAdapter().getState().equals(ConnectionState.READY) && !client.getIbAdapter().getState().equals(ConnectionState.SUBSCRIBED)) {
             throw new IBMarketDataServiceException("IB is not ready for market data subscription on " + security.getSymbol());
@@ -75,7 +75,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    protected void handleRemoveFromExternalWatchlist(Security security) throws Exception {
+    protected void handleExternalUnsubscribe(Security security) throws Exception {
 
         if (!client.getIbAdapter().getState().equals(ConnectionState.SUBSCRIBED)) {
             throw new IBMarketDataServiceException("IB ist not subscribed, security cannot be unsubscribed " + security.getSymbol());

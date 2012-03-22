@@ -39,10 +39,10 @@ public class BarDaoImpl extends BarDaoBase {
         Bar bar = new BarImpl();
         super.barVOToEntity(barVO, bar, true);
 
-        Security security = getSecurityDao().findByIsinFetched(barVO.getIsin());
+        Security security = getSecurityDao().findByIsinInclFamilyAndUnderlying(barVO.getIsin());
 
         // initialize the proxys
-        Hibernate.initialize(security.getUnderlaying());
+        Hibernate.initialize(security.getUnderlying());
         Hibernate.initialize(security.getSecurityFamily());
 
         bar.setSecurity(security);

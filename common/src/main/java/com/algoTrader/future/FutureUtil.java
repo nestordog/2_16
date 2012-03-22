@@ -8,18 +8,18 @@ public class FutureUtil {
 
     private static final double MILLISECONDS_PER_YEAR = 31536000000l;
 
-    public static double getFuturePrice(Future future, double underlayingSpot) {
+    public static double getFuturePrice(Future future, double underlyingSpot) {
 
         FutureFamily family = (FutureFamily) future.getSecurityFamily();
 
         double years = (future.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
 
-        return getFuturePrice(underlayingSpot, years, family.getIntrest(), family.getDividend());
+        return getFuturePrice(underlyingSpot, years, family.getIntrest(), family.getDividend());
     }
 
-    public static double getFuturePrice(double underlayingSpot, double years, double intrest, double dividend) {
+    public static double getFuturePrice(double underlyingSpot, double years, double intrest, double dividend) {
 
-        return underlayingSpot + (underlayingSpot * intrest - dividend) * years;
+        return underlyingSpot + (underlyingSpot * intrest - dividend) * years;
     }
 
     public static double getMaintenanceMargin(Future future) {

@@ -5,10 +5,10 @@ import java.util.Date;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.WatchListItem;
-import com.algoTrader.entity.combination.Allocation;
-import com.algoTrader.entity.combination.Combination;
+import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.security.Combination;
+import com.algoTrader.entity.security.Component;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
@@ -17,19 +17,14 @@ import com.algoTrader.vo.PortfolioValueVO;
 
 public class LookupUtil {
 
-    public static Security[] getSecuritiesInPortfolio() {
+    public static StockOption[] getSubscribedStockOptions() {
 
-        return ServiceLocator.instance().getLookupService().getAllSecuritiesInPortfolio().toArray(new Security[] {});
+        return ServiceLocator.instance().getLookupService().getSubscribedStockOptions().toArray(new StockOption[] {});
     }
 
-    public static StockOption[] getStockOptionsOnWatchlist() {
+    public static Future[] getSubscribedFutures() {
 
-        return ServiceLocator.instance().getLookupService().getStockOptionsOnWatchlist().toArray(new StockOption[] {});
-    }
-
-    public static Future[] getFuturesOnWatchlist() {
-
-        return ServiceLocator.instance().getLookupService().getFuturesOnWatchlist().toArray(new Future[] {});
+        return ServiceLocator.instance().getLookupService().getSubscribedFutures().toArray(new Future[] {});
     }
 
     public static Future getFutureByDuration(int futureFamilyId, Date targetDate, int duration) {
@@ -37,20 +32,20 @@ public class LookupUtil {
         return ServiceLocator.instance().getLookupService().getFutureByDuration(futureFamilyId, targetDate, duration);
     }
 
-    public static Security[] getSecuritiesOnWatchlist() {
+    public static Security[] getSubscribedSecurities() {
 
-        return ServiceLocator.instance().getLookupService().getSecuritiesOnWatchlist().toArray(new Security[] {});
+        return ServiceLocator.instance().getLookupService().getSubscribedSecuritiesInclFamily().toArray(new Security[] {});
     }
 
-    public static Security[] getSecuritiesOnWatchlistByPeriodicity(String periodicityString) {
+    public static Security[] getSubscribedSecuritiesByPeriodicity(String periodicityString) {
 
         Period periodicity = Period.valueOf(periodicityString);
-        return ServiceLocator.instance().getLookupService().getSecuritiesOnWatchlistByPeriodicity(periodicity).toArray(new Security[] {});
+        return ServiceLocator.instance().getLookupService().getSubscribedSecuritiesByPeriodicityInclFamily(periodicity).toArray(new Security[] {});
     }
 
-    public static WatchListItem[] getNonPositionWatchListItem(String strategyName) throws Exception {
+    public static Subscription[] getNonPositionSubscriptions(String strategyName) throws Exception {
 
-        return ServiceLocator.instance().getLookupService().getNonPositionWatchListItem(strategyName).toArray(new WatchListItem[] {});
+        return ServiceLocator.instance().getLookupService().getNonPositionSubscriptions(strategyName).toArray(new Subscription[] {});
     }
 
     public static Security getSecurity(int securityId) {
@@ -58,9 +53,9 @@ public class LookupUtil {
         return ServiceLocator.instance().getLookupService().getSecurity(securityId);
     }
 
-    public static Security getSecurityFetched(int securityId) {
+    public static Security getSecurityInclFamilyAndUnderlying(int securityId) {
 
-        return ServiceLocator.instance().getLookupService().getSecurityFetched(securityId);
+        return ServiceLocator.instance().getLookupService().getSecurityInclFamilyAndUnderlying(securityId);
     }
 
     public static Security getSecurityByIsin(String isin) {
@@ -125,52 +120,42 @@ public class LookupUtil {
         return ServiceLocator.instance().getLookupService().getTickByDateAndSecurity(date, securityId);
     }
 
-    public static WatchListItem getWatchListItem(String strategyName, int securityId) {
+    public static Subscription getSubscription(String strategyName, int securityId) {
 
-        return ServiceLocator.instance().getLookupService().getWatchListItem(strategyName, securityId);
+        return ServiceLocator.instance().getLookupService().getSubscription(strategyName, securityId);
     }
 
-    public static boolean isOnWatchlist(String strategyName, int securityId) {
+    public static boolean isSubscribed(String strategyName, int securityId) {
 
-        return ServiceLocator.instance().getLookupService().getWatchListItem(strategyName, securityId) != null;
+        return ServiceLocator.instance().getLookupService().getSubscription(strategyName, securityId) != null;
     }
 
     public static Combination getCombination(int combinationId) {
 
-        return ServiceLocator.instance().getLookupService().getCombination(combinationId);
-    }
-
-    public static Combination getCombinationByStrategyAndMasterSecurity(String strategyName, int masterSecurityId) {
-
-        return ServiceLocator.instance().getLookupService().getCombinationByStrategyAndMasterSecurity(strategyName, masterSecurityId);
-    }
-
-    public static Combination[] getCombinationsByMasterSecurity(int masterSecurityId) {
-
-        return ServiceLocator.instance().getLookupService().getCombinationsByMasterSecurity(masterSecurityId).toArray(new Combination[] {});
+        return (Combination) ServiceLocator.instance().getLookupService().getSecurity(combinationId);
     }
 
     @SuppressWarnings("rawtypes")
-    public static Combination[] getCombinationsByStrategyAndType(String strategyName, String className) throws ClassNotFoundException {
+    public static Combination[] getCombinationsByStrategyAndComponentClass(String strategyName, String className) throws ClassNotFoundException {
 
         Class cl = Class.forName(className);
-        return ServiceLocator.instance().getLookupService().getCombinationsByStrategyAndType(strategyName, cl).toArray(new Combination[] {});
+        return ServiceLocator.instance().getLookupService().getSubscribedSecuritiesByStrategyAndComponentClass(strategyName, cl).toArray(new Combination[] {});
     }
 
-    public static Allocation[] getAllocationsByStrategy(String strategyName) {
+    public static Component[] getComponentsByStrategy(String strategyName) {
 
-        return ServiceLocator.instance().getLookupService().getAllocationsByStrategy(strategyName).toArray(new Allocation[] {});
+        return ServiceLocator.instance().getLookupService().getSubscribedComponentsByStrategy(strategyName).toArray(new Component[] {});
     }
 
     @SuppressWarnings("rawtypes")
-    public static Allocation[] getAllocationsByStrategyAndType(String strategyName, String className) throws ClassNotFoundException {
+    public static Component[] getComponentsByStrategyAndClass(String strategyName, String className) throws ClassNotFoundException {
 
         Class cl = Class.forName(className);
-        return ServiceLocator.instance().getLookupService().getAllocationsByStrategyAndType(strategyName, cl).toArray(new Allocation[] {});
+        return ServiceLocator.instance().getLookupService().getSubscribedComponentsByStrategyAndClass(strategyName, cl).toArray(new Component[] {});
     }
 
-    public static Allocation getAllocation() {
+    public static Component getNewComponentInstance() {
 
-        return Allocation.Factory.newInstance();
+        return Component.Factory.newInstance();
     }
 }

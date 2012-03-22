@@ -1,11 +1,11 @@
-@Name('CREATE_EQUITY_INDEX_TICK')
+@Name('CREATE_NATURAL_INDEX_TICK')
 @Condition(key='statement.loadStockOptionsFromDB')
 insert into
-    EquityIndexTick
+    NaturalIndexTick
 select
     *
 from
-    Tick(instanceof(security, com.algoTrader.entity.security.EquityIndex));
+    Tick(instanceof(security, com.algoTrader.entity.security.NaturalIndex));
 
 @Name('LOAD_STOCK_OPTIONS_TICKS_FROM_DB')
 @Condition(key='statement.loadStockOptionsFromDB')
@@ -26,16 +26,16 @@ select
     tick.settlement as settlement,
     tick.security as security
 from
-    EquityIndexTick as indexTick,
-    method:LookupUtil.getStockOptionsOnWatchlist() as option,
+    NaturalIndexTick as indexTick,
+    method:LookupUtil.getSubscribedStockOptions() as option,
     method:LookupUtil.getTickByDateAndSecurity(indexTick.dateTime, option.id) as tick
 where
-    option.underlaying.id = indexTick.security.id
+    option.underlying.id = indexTick.security.id
 order by
        tick.security.id;
 
 @Name('SIMULATE_FUTURES_BY_UNDERLYING')
-@Condition(key='statement.simulateFuturesByUnderlaying')
+@Condition(key='statement.simulateFuturesByUnderlying')
 @Priority(2)
 @SimulationOnly
 insert into
@@ -47,10 +47,10 @@ select
     0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
     future as security
 from
-    Tick(instanceof(security, com.algoTrader.entity.security.EquityIndex)) as indexTick,
-    method:LookupUtil.getFuturesOnWatchlist() as future
+    Tick(instanceof(security, com.algoTrader.entity.security.NaturalIndex)) as indexTick,
+    method:LookupUtil.getSubscribedFutures() as future
 where
-    future.underlaying.id = indexTick.security.id;
+    future.underlying.id = indexTick.security.id;
 
 @Name('SIMULATE_FUTURES_BY_GENERIC_FUTURES')
 @Condition(key='statement.simulateFuturesByGenericFutures')
@@ -66,9 +66,9 @@ select
     future as security
 from
     Tick(instanceof(security, com.algoTrader.entity.security.GenericFuture)) as genericFutureTick,
-    method:LookupUtil.getFuturesOnWatchlist() as future
+    method:LookupUtil.getSubscribedFutures() as future
 where
-    future.underlaying.id = genericFutureTick.security.underlaying.id
+    future.underlying.id = genericFutureTick.security.underlying.id
 and
     future.expiration = cast(genericFutureTick.security.expiration?, java.util.Date);
 

@@ -92,22 +92,14 @@ public class ReportingServiceImpl extends ReportingServiceBase {
     protected BigDecimal handleGetStrategyBenchmark(String strategyName) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
-        if (strategy.isBase()) {
-            return null;
-        } else {
-            return strategy.getBenchmark();
-        }
+        return strategy.getBenchmark();
     }
 
     @Override
     protected double handleGetStrategyPerformance(String strategyName) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
-        if (strategy.isBase()) {
-            return 0.0;
-        } else {
-            return strategy.getPerformance();
-        }
+        return strategy.getPerformance();
     }
 
     @Override

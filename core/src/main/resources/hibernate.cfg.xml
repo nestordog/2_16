@@ -28,13 +28,12 @@
     <mapping resource="com/algoTrader/entity/Position.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Strategy.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Transaction.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/WatchListItem.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/Subscription.hbm.xml" />
     <mapping resource="com/algoTrader/entity/OrderPreference.hbm.xml" />
     <mapping resource="com/algoTrader/entity/marketData/MarketDataEvent.hbm.xml" />
     <mapping resource="com/algoTrader/entity/security/Security.hbm.xml" />
     <mapping resource="com/algoTrader/entity/security/SecurityFamily.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/combination/Allocation.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/combination/Combination.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/security/Component.hbm.xml" />
     <mapping resource="com/algoTrader/entity/measurement/Measurement.hbm.xml" />
 </session-factory>
 </hibernate-configuration>

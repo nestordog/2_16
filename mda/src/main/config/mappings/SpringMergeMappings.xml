@@ -132,7 +132,7 @@
 
         <!-- add  marketDataMessageListenerContainer ref -->
         <mapping>
-            <from><![CDATA[<!-- WatchListService service client property merge-point -->]]></from>
+            <from><![CDATA[<!-- SubscriptionService service client property merge-point -->]]></from>
             <to><![CDATA[<property name="marketDataMessageListenerContainer" ref="marketDataMessageListenerContainer"/>]]></to>
         </mapping>
 

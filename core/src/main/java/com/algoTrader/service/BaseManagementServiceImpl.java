@@ -7,15 +7,15 @@ import com.algoTrader.enumeration.ConnectionState;
 public class BaseManagementServiceImpl extends BaseManagementServiceBase {
 
     @Override
-    protected void handleClosePosition(int positionId, boolean removeFromWatchlist) throws Exception {
+    protected void handleClosePosition(int positionId, boolean unsubscribe) throws Exception {
 
-        getPositionService().closePosition(positionId, removeFromWatchlist);
+        getPositionService().closePosition(positionId, unsubscribe);
     }
 
     @Override
-    protected void handleCloseCombination(int combinationId) throws Exception {
+    protected void handleCloseCombination(int combinationId, String strategyName) throws Exception {
 
-        getCombinationService().closeCombination(combinationId);
+        getCombinationService().closeCombination(combinationId, strategyName);
     }
 
     @Override

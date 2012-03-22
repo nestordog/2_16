@@ -68,7 +68,7 @@ public class TickDaoImpl extends TickDaoBase {
         Tick tick = new TickImpl();
         super.rawTickVOToEntity(rawTickVO, tick, true);
 
-        Security security = getSecurityDao().findByIsinFetched(rawTickVO.getIsin());
+        Security security = getSecurityDao().findByIsinInclFamilyAndUnderlying(rawTickVO.getIsin());
 
         // for some reason security get's sometimes loaded as a javassist proxy
         // so we have to manualy get the implementation
@@ -78,7 +78,7 @@ public class TickDaoImpl extends TickDaoBase {
         }
 
         // initialize the proxys
-        Hibernate.initialize(security.getUnderlaying());
+        Hibernate.initialize(security.getUnderlying());
         Hibernate.initialize(security.getSecurityFamily());
         Hibernate.initialize(security.getPositions());
 

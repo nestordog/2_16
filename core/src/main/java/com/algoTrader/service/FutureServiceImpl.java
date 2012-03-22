@@ -21,9 +21,9 @@ public class FutureServiceImpl extends FutureServiceBase {
     protected void handleCreateDummyFutures(int futureFamilyId) {
 
         FutureFamily family = getFutureFamilyDao().load(futureFamilyId);
-        Security underlaying = family.getUnderlaying();
+        Security underlying = family.getUnderlying();
 
-        List<Future> futures = getFutureDao().findAllFutures(underlaying.getId(), DateUtil.getCurrentEPTime());
+        List<Future> futures = getFutureDao().findAllFutures(underlying.getId(), DateUtil.getCurrentEPTime());
 
         // create the missing part of the futures chain
         for (int i = futures.size() + 1; i <= family.getLength(); i++) {
@@ -39,7 +39,7 @@ public class FutureServiceImpl extends FutureServiceBase {
             future.setIsin(isin);
             future.setSymbol(symbol);
             future.setExpiration(expirationDate);
-            future.setUnderlaying(underlaying);
+            future.setUnderlying(underlying);
             future.setSecurityFamily(family);
 
             getFutureDao().create(future);

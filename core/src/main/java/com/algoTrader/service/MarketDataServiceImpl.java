@@ -17,8 +17,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.WatchListItem;
-import com.algoTrader.entity.WatchListItemImpl;
+import com.algoTrader.entity.Subscription;
+import com.algoTrader.entity.SubscriptionImpl;
 import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
@@ -68,9 +68,9 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             security = (Security) HibernateUtil.merge(this.getSessionFactory(), security);
         }
 
-        Hibernate.initialize(security.getUnderlaying());
+        Hibernate.initialize(security.getUnderlying());
         Hibernate.initialize(security.getSecurityFamily());
-        Hibernate.initialize(security.getWatchListItems());
+        Hibernate.initialize(security.getSubscriptions());
         Hibernate.initialize(security.getPositions());
 
         getRuleService().sendMarketDataEvent(marketDataEvent);
@@ -98,142 +98,142 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
     }
 
     @Override
-    protected void handleInitWatchlist() {
+    protected void handleInitSubscriptions() {
 
         if (!this.simulation) {
 
-            List<Security> securities = getSecurityDao().findSecuritiesOnActiveWatchlist();
+            List<Security> securities = getSecurityDao().findSubscribedForAutoActivateStrategiesInclFamily();
 
             for (Security security : securities) {
-                putOnExternalWatchlist(security);
+                externalSubscribe(security);
             }
         }
     }
 
     @Override
-    protected void handlePutOnWatchlist(String strategyName, int securityId) throws Exception {
+    protected void handleSubscribe(String strategyName, int securityId) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
         Security security = getSecurityDao().load(securityId);
 
-        if (getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId) == null) {
+        if (getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId) == null) {
 
-            // only put on external watchlist if nobody was watching this security so far
-            if (security.getWatchListItems().size() == 0) {
+            // only external subscribe if nobody was watching this security so far
+            if (security.getSubscriptions().size() == 0) {
                 if (!this.simulation) {
-                    putOnExternalWatchlist(security);
+                    externalSubscribe(security);
                 }
             }
 
             // update links
-            WatchListItem watchListItem = new WatchListItemImpl();
-            watchListItem.setSecurity(security);
-            watchListItem.setStrategy(strategy);
-            watchListItem.setPersistent(false);
-            getWatchListItemDao().create(watchListItem);
+            Subscription subscription = new SubscriptionImpl();
+            subscription.setSecurity(security);
+            subscription.setStrategy(strategy);
+            subscription.setPersistent(false);
+            getSubscriptionDao().create(subscription);
 
-            security.getWatchListItems().add(watchListItem);
+            security.getSubscriptions().add(subscription);
             getSecurityDao().update(security);
 
-            strategy.getWatchListItems().add(watchListItem);
+            strategy.getSubscriptions().add(subscription);
             getStrategyDao().update(strategy);
 
-            logger.info("put security on watchlist " + security.getSymbol());
+            logger.info("subscribed security " + security.getSymbol());
         }
     }
 
     @Override
-    protected void handleRemoveFromWatchlist(String strategyName, int securityId) throws Exception {
+    protected void handleUnsubscribe(String strategyName, int securityId) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
         Security security = getSecurityDao().load(securityId);
 
-        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
+        Subscription subscription = getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId);
 
-        if (watchListItem != null && !watchListItem.isPersistent()) {
+        if (subscription != null && !subscription.isPersistent()) {
 
             // update links
-            security.getWatchListItems().remove(watchListItem);
+            security.getSubscriptions().remove(subscription);
             getSecurityDao().update(security);
 
-            strategy.getWatchListItems().remove(watchListItem);
+            strategy.getSubscriptions().remove(subscription);
             getStrategyDao().update(strategy);
 
-            getWatchListItemDao().remove(watchListItem);
+            getSubscriptionDao().remove(subscription);
 
-            // only remove from external watchlist if nobody is watching this security anymore
-            if (security.getWatchListItems().size() == 0) {
+            // only external unsubscribe if nobody is watching this security anymore
+            if (security.getSubscriptions().size() == 0) {
                 if (!this.simulation) {
-                    removeFromExternalWatchlist(security);
+                    externalUnsubscribe(security);
                 }
             }
 
-            logger.info("removed security from watchlist " + security.getSymbol());
+            logger.info("unsubscribed security " + security.getSymbol());
         }
     }
 
     @Override
-    protected void handleRemoveNonPositionWatchListItem(String strategyName) throws Exception {
+    protected void handleRemoveNonPositionSubscriptions(String strategyName) throws Exception {
 
-        List<WatchListItem> watchListItems = getWatchListItemDao().findNonPositionWatchListItem(strategyName);
+        List<Subscription> subscriptions = getSubscriptionDao().findNonPositionSubscriptions(strategyName);
 
-        for (WatchListItem watchListItem : watchListItems) {
-            removeFromWatchlist(watchListItem.getStrategy().getName(), watchListItem.getSecurity().getId());
+        for (Subscription subscription : subscriptions) {
+            unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
         }
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    protected void handleRemoveNonPositionWatchListItemByType(String strategyName, Class type) throws Exception {
+    protected void handleRemoveNonPositionSubscriptionsByType(String strategyName, Class type) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        List<WatchListItem> watchListItems = getWatchListItemDao().findNonPositionWatchListItemByType(strategyName, discriminator);
+        List<Subscription> subscriptions = getSubscriptionDao().findNonPositionSubscriptionsByType(strategyName, discriminator);
 
-        for (WatchListItem watchListItem : watchListItems) {
-            removeFromWatchlist(watchListItem.getStrategy().getName(), watchListItem.getSecurity().getId());
+        for (Subscription subscription : subscriptions) {
+            unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
         }
     }
 
     @Override
     protected void handleSetAlertValue(String strategyName, int securityId, Double value, boolean upper) throws Exception {
 
-        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
+        Subscription subscription = getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId);
 
         if (upper) {
-            watchListItem.setUpperAlertValue(value);
-            logger.info("set upper alert value to " + decimalFormat.format(value) + " for watchListItem " + watchListItem);
+            subscription.setUpperAlertValue(value);
+            logger.info("set upper alert value to " + decimalFormat.format(value) + " for subscription " + subscription);
         } else {
-            watchListItem.setLowerAlertValue(value);
-            logger.info("set lower alert value to " + decimalFormat.format(value) + " for watchListItem " + watchListItem);
+            subscription.setLowerAlertValue(value);
+            logger.info("set lower alert value to " + decimalFormat.format(value) + " for subscription " + subscription);
         }
 
-        getWatchListItemDao().update(watchListItem);
+        getSubscriptionDao().update(subscription);
     }
 
     @Override
     protected void handleRemoveAlertValues(String strategyName, int securityId) throws Exception {
 
-        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
-        if (watchListItem.getUpperAlertValue() != null || watchListItem.getLowerAlertValue() != null) {
+        Subscription subscription = getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId);
+        if (subscription.getUpperAlertValue() != null || subscription.getLowerAlertValue() != null) {
 
-            watchListItem.setUpperAlertValue(null);
-            watchListItem.setLowerAlertValue(null);
+            subscription.setUpperAlertValue(null);
+            subscription.setLowerAlertValue(null);
 
-            getWatchListItemDao().update(watchListItem);
+            getSubscriptionDao().update(subscription);
 
-            logger.info("removed alert values for watchListItem " + watchListItem);
+            logger.info("removed alert values for subscription " + subscription);
         }
     }
 
     @Override
     protected void handleSetAmount(String strategyName, int securityId, Double amount) throws Exception {
 
-        WatchListItem watchListItem = getWatchListItemDao().findByStrategyAndSecurity(strategyName, securityId);
+        Subscription subscription = getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId);
 
-        watchListItem.setAmount(amount);
-        logger.info("set amount to " + decimalFormat.format(amount) + " for watchListItem " + watchListItem);
+        subscription.setAmount(amount);
+        logger.info("set amount to " + decimalFormat.format(amount) + " for subscription " + subscription);
 
-        getWatchListItemDao().update(watchListItem);
+        getSubscriptionDao().update(subscription);
     }
 
     public static class PropagateMarketDataEventSubscriber {

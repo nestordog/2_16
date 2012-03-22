@@ -55,7 +55,7 @@ public class FutureSymbol {
         return Integer.parseInt(symbol.substring(0, 1));
     }
 
-    public static String getUnderlaying(String symbol) {
+    public static String getUnderlying(String symbol) {
 
         return symbol.substring(2, 5);
     }

@@ -7,10 +7,15 @@ algotrader
 --ignore-table=algotrader.ask ^
 --ignore-table=algotrader.bar ^
 --ignore-table=algotrader.bid ^
---ignore-table=algotrader.dividend ^
+--ignore-table=algotrader.combination ^
+--ignore-table=algotrader.component ^
+--ignore-table=algotrader.future ^
 --ignore-table=algotrader.history ^
+--ignore-table=algotrader.measurement ^
 --ignore-table=algotrader.position ^
---ignore-table=algotrader.sabr_params ^
+--ignore-table=algotrader.stock_option ^
+--ignore-table=algotrader.synthetic_index ^
+--ignore-table=algotrader.tick ^
 --ignore-table=algotrader.trade ^
 --where="id<1000" ^
 --complete-insert --no-create-info -u @localhost ^

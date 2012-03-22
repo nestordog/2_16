@@ -52,11 +52,11 @@ public class VerificationServiceImpl extends VerificationServiceBase {
             StockOption stockOption = (StockOption) transaction.getSecurity();
 
             Tick optionTick = getTickDao().findByDateAndSecurity(date, stockOption.getId());
-            Tick underlayingTick = getTickDao().findByDateAndSecurity(date, stockOption.getUnderlaying().getId());
-            //Tick volaTick = getTickDao().findByDateAndSecurity(date, stockOption.getUnderlaying().getVolatility().getId());
+            Tick underlyingTick = getTickDao().findByDateAndSecurity(date, stockOption.getUnderlying().getId());
+            //Tick volaTick = getTickDao().findByDateAndSecurity(date, stockOption.getUnderlying().getVolatility().getId());
             Tick volaTick = null; // TODO redo by specifiying the vola security
 
-            if (optionTick == null || underlayingTick == null | volaTick == null || underlayingTick.getLast() == null) {
+            if (optionTick == null || underlyingTick == null | volaTick == null || underlyingTick.getLast() == null) {
                 continue;
             }
 
@@ -64,16 +64,16 @@ public class VerificationServiceImpl extends VerificationServiceBase {
             System.out.print(date + ",");
             System.out.print(transaction.getType().toString() + ",");
             System.out.print(stockOption.getType() + ",");
-            System.out.print((stockOption.getStrike().doubleValue() - underlayingTick.getLast().doubleValue()) + ",");
+            System.out.print((stockOption.getStrike().doubleValue() - underlyingTick.getLast().doubleValue()) + ",");
             System.out.print(((stockOption.getExpiration().getTime() - date.getTime()) / MILLISECONDS_PER_YEAR) + ",");
 
             // real price of option
             System.out.print(optionTick.getCurrentValue() + ",");
 
             // sabr
-            double underlayingValue = underlayingTick.getLast().doubleValue();
+            double underlyingValue = underlyingTick.getLast().doubleValue();
             double volaValue = volaTick.getLast().doubleValue() / 100.0;
-            double sabrValue = StockOptionUtil.getOptionPriceSabr(stockOption, underlayingValue, volaValue);
+            double sabrValue = StockOptionUtil.getOptionPriceSabr(stockOption, underlyingValue, volaValue);
             System.out.print(RoundUtil.getBigDecimal(sabrValue) + ",");
 
             System.out.println();
@@ -86,13 +86,13 @@ public class VerificationServiceImpl extends VerificationServiceBase {
         SimpleDateFormat format = new SimpleDateFormat("yyyy.MM.dd kk:mm");
         getRuleService().initServiceProvider(StrategyImpl.BASE);
 
-        CsvTickReader underlayingReader = new CsvTickReader("CH0008616382");
-        Security underlaying = getSecurityDao().findByIsin("CH0008616382");
+        CsvTickReader underlyingReader = new CsvTickReader("CH0008616382");
+        Security underlying = getSecurityDao().findByIsin("CH0008616382");
         Tick tick;
-        List<Tick> underlayingTicks = new ArrayList<Tick>();
-        while ((tick = underlayingReader.readTick()) != null) {
-            tick.setSecurity(underlaying);
-            underlayingTicks.add(tick);
+        List<Tick> underlyingTicks = new ArrayList<Tick>();
+        while ((tick = underlyingReader.readTick()) != null) {
+            tick.setSecurity(underlying);
+            underlyingTicks.add(tick);
         }
 
         CsvTickReader volaReader = new CsvTickReader("CH0019900841");
@@ -144,22 +144,22 @@ public class VerificationServiceImpl extends VerificationServiceBase {
 
             Date testDate = optionTick.getDateTime();
 
-            Tick underlayingTick = selectTickByDate(underlayingTicks, testDate);
+            Tick underlyingTick = selectTickByDate(underlyingTicks, testDate);
             Tick volaTick = selectTickByDate(volaTicks, testDate);
 
             if (volaTick == null) {
                 continue;
             }
 
-            double sabrEst = StockOptionUtil.getOptionPriceSabr(stockOption, underlayingTick.getLast().doubleValue(), volaTick.getLast().doubleValue() / 100.0);
-            double bsEst = StockOptionUtil.getOptionPriceBS(stockOption, underlayingTick.getLast().doubleValue(), volaTick.getLast().doubleValue() / 100.0);
+            double sabrEst = StockOptionUtil.getOptionPriceSabr(stockOption, underlyingTick.getLast().doubleValue(), volaTick.getLast().doubleValue() / 100.0);
+            double bsEst = StockOptionUtil.getOptionPriceBS(stockOption, underlyingTick.getLast().doubleValue(), volaTick.getLast().doubleValue() / 100.0);
             double currentValue = (optionTick.getAsk().doubleValue() + optionTick.getBid().doubleValue()) / 2.0;
 
             System.out.print(format.format(optionTick.getDateTime()) + ",");
             System.out.print(stockOption.getIsin() + ",");
             System.out.print(",strike=" + stockOption.getStrike());
             System.out.print(",exp=" + format.format(stockOption.getExpiration()));
-            System.out.print(",ul=" + underlayingTick.getCurrentValue());
+            System.out.print(",ul=" + underlyingTick.getCurrentValue());
             System.out.print(",vola=" + volaTick.getCurrentValue());
             System.out.print(",cv=" + RoundUtil.getBigDecimal(currentValue));
             System.out.print(",sabr=" + RoundUtil.getBigDecimal(sabrEst));

@@ -6,7 +6,7 @@ import java.util.Date;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import com.algoTrader.entity.security.EquityIndex;
+import com.algoTrader.entity.security.NaturalIndex;
 import com.algoTrader.entity.security.Forex;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
@@ -34,7 +34,7 @@ public class IBUtil {
 
             StockOption stockOption = (StockOption) security;
 
-            contract.m_symbol = stockOption.getUnderlaying().getSymbol();
+            contract.m_symbol = stockOption.getUnderlying().getSymbol();
             contract.m_secType = "OPT";
             contract.m_exchange = IBMarketConverter.marketToString(stockOption.getSecurityFamily().getMarket());
             contract.m_currency = stockOption.getSecurityFamily().getCurrency().toString();
@@ -52,7 +52,7 @@ public class IBUtil {
 
             Future future = (Future) security;
 
-            contract.m_symbol = future.getUnderlaying().getSymbol();
+            contract.m_symbol = future.getUnderlying().getSymbol();
             contract.m_secType = "FUT";
             contract.m_exchange = IBMarketConverter.marketToString(future.getSecurityFamily().getMarket());
             contract.m_currency = future.getSecurityFamily().getCurrency().toString();
@@ -74,7 +74,7 @@ public class IBUtil {
             contract.m_secType = "STK";
             contract.m_exchange = IBMarketConverter.marketToString(security.getSecurityFamily().getMarket());
 
-        } else if (security instanceof EquityIndex) {
+        } else if (security instanceof NaturalIndex) {
 
             contract.m_currency = security.getSecurityFamily().getCurrency().toString();
             contract.m_symbol = security.getSymbol();

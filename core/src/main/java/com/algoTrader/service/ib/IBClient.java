@@ -71,9 +71,9 @@ public final class IBClient extends EClientSocket {
             this.getIbAdapter().setState(ConnectionState.READY);
 
             // in case there is no 2104 message from the IB Gateway (Market data farm connection is OK)
-            // manually invoke initWatchlist after some time
+            // manually invoke initSubscriptions after some time
             sleep();
-            ServiceLocator.instance().getMarketDataService().initWatchlist();
+            ServiceLocator.instance().getMarketDataService().initSubscriptions();
         }
     }
 

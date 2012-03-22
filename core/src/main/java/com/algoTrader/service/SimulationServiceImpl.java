@@ -36,12 +36,12 @@ import com.algoTrader.entity.CashBalance;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.Transaction;
-import com.algoTrader.entity.WatchListItem;
-import com.algoTrader.entity.combination.Allocation;
-import com.algoTrader.entity.combination.AllocationDao;
-import com.algoTrader.entity.combination.Combination;
-import com.algoTrader.entity.combination.CombinationDao;
+import com.algoTrader.entity.security.Combination;
+import com.algoTrader.entity.security.CombinationDao;
+import com.algoTrader.entity.security.Component;
+import com.algoTrader.entity.security.ComponentDao;
 import com.algoTrader.entity.security.FutureDao;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOptionDao;
@@ -72,7 +72,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private @Value("${simulation.roundDigits}") int roundDigits;
     private @Value("${simulation.start}") long start;
     private @Value("${statement.simulateStockOptions}") boolean simulateStockOptions;
-    private @Value("${statement.simulateFuturesByUnderlaying}") boolean simulateFuturesByUnderlaying;
+    private @Value("${statement.simulateFuturesByUnderlying}") boolean simulateFuturesByUnderlying;
     private @Value("${statement.simulateFuturesByGenericFutures}") boolean simulateFuturesByGenericFutures;
 
     public SimulationServiceImpl() {
@@ -126,24 +126,24 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             getStrategyDao().update(strategy);
         }
 
-        // delete all non-presistent watchListItems
-        List<WatchListItem> nonPersistentWatchListItems = getWatchListItemDao().findNonPersistent();
-        for (WatchListItem watchListItem : nonPersistentWatchListItems) {
-            watchListItem.getSecurity().getWatchListItems().remove(watchListItem);
-            watchListItem.getStrategy().getWatchListItems().remove(watchListItem);
+        // delete all non-presistent subscriptions
+        List<Subscription> nonPersistentSubscriptions = getSubscriptionDao().findNonPersistent();
+        for (Subscription subscription : nonPersistentSubscriptions) {
+            subscription.getSecurity().getSubscriptions().remove(subscription);
+            subscription.getStrategy().getSubscriptions().remove(subscription);
         }
-        getWatchListItemDao().remove(nonPersistentWatchListItems);
+        getSubscriptionDao().remove(nonPersistentSubscriptions);
 
         // delete all alert values
-        List<WatchListItem> persistentWatchListItems = getWatchListItemDao().findPersistent();
-        for (WatchListItem watchListItem : persistentWatchListItems) {
-            watchListItem.setUpperAlertValue(null);
-            watchListItem.setLowerAlertValue(null);
-            getWatchListItemDao().update(watchListItem);
+        List<Subscription> persistentSubscriptions = getSubscriptionDao().findPersistent();
+        for (Subscription subscription : persistentSubscriptions) {
+            subscription.setUpperAlertValue(null);
+            subscription.setLowerAlertValue(null);
+            getSubscriptionDao().update(subscription);
         }
 
-        // delete all allocations
-        getAllocationDao().remove((Collection<Allocation>) getAllocationDao().loadAll(AllocationDao.TRANSFORM_NONE));
+        // delete all components
+        getComponentDao().remove((Collection<Component>) getComponentDao().loadAll(ComponentDao.TRANSFORM_NONE));
 
         // delete all combinations
         getCombinationDao().remove((Collection<Combination>) getCombinationDao().loadAll(CombinationDao.TRANSFORM_NONE));
@@ -154,7 +154,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         }
 
         // delete all Futures if they are beeing simulated
-        if (this.simulateFuturesByUnderlaying || this.simulateFuturesByGenericFutures) {
+        if (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures) {
             getSecurityDao().remove((Collection<Security>) getFutureDao().loadAll(FutureDao.TRANSFORM_NONE));
         }
     }
@@ -164,7 +164,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         getRuleService().initCoordination(StrategyImpl.BASE);
 
-        List<Security> securities = getSecurityDao().findSecuritiesOnActiveWatchlist();
+        List<Security> securities = getSecurityDao().findSubscribedForAutoActivateStrategiesInclFamily();
         for (Security security : securities) {
 
             if (security.getIsin() == null) {
@@ -201,7 +201,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     }
 
     @Override
-    protected SimulationResultVO handleRunByUnderlayings() {
+    protected SimulationResultVO handleRunByUnderlyings() {
 
         long startTime = System.currentTimeMillis();
 
@@ -297,7 +297,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @Override
     protected void handleSimulateWithCurrentParams() throws Exception {
 
-        SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlayings();
+        SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
         logMultiLineString(convertStatisticsToLongString(resultVO));
     }
 
@@ -306,7 +306,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         getConfiguration().setProperty(strategyName, parameter, value);
 
-        SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlayings();
+        SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
         resultLogger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
     }
 
@@ -321,7 +321,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             getConfiguration().setProperty(parameters[i], values[i]);
         }
 
-        SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlayings();
+        SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
         buffer.append(convertStatisticsToShortString(resultVO));
         resultLogger.info(buffer.toString());
     }
@@ -335,7 +335,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             getConfiguration().setProperty(strategyName, parameter, format.format(i));
 
-            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlayings();
+            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
             resultLogger.info(parameter + "=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
 
             double value = resultVO.getPerformanceKeysVO().getSharpRatio();
@@ -384,17 +384,16 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                             configuration.setProperty(parameters[2], format.format(i2));
                             String message2 = parameters[2] + "=" + format.format(MathUtils.round(i2, this.roundDigits));
 
-                            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class)
-                                    .runByUnderlayings();
+                            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
                             resultLogger.info(message0 + " " + message1 + " " + message2 + " " + convertStatisticsToShortString(resultVO));
                         }
                     } else {
-                        SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlayings();
+                        SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
                         resultLogger.info(message0 + " " + message1 + " " + convertStatisticsToShortString(resultVO));
                     }
                 }
             } else {
-                SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlayings();
+                SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
                 resultLogger.info(message0 + " " + convertStatisticsToShortString(resultVO));
             }
         }
@@ -638,7 +637,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             ServiceLocator.instance().getConfiguration().setProperty(this.strategyName, this.param, String.valueOf(input));
 
-            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlayings();
+            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
             double result = resultVO.getPerformanceKeysVO().getSharpRatio();
 
             resultLogger.info("optimize on " + this.param + "=" + SimulationServiceImpl.format.format(input) + " "
@@ -673,7 +672,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 buffer.append(param + "=" + SimulationServiceImpl.format.format(value) + " ");
             }
 
-            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlayings();
+            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
             double result = resultVO.getPerformanceKeysVO().getSharpRatio();
 
             resultLogger.info(buffer.toString() + SimulationServiceImpl.convertStatisticsToShortString(resultVO));

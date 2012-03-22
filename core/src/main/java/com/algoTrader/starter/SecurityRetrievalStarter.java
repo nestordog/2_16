@@ -16,8 +16,8 @@ public class SecurityRetrievalStarter {
 
         for (String arg : args) {
 
-            int underlayingId = Integer.parseInt(arg);
-            service.retrieve(underlayingId);
+            int underlyingId = Integer.parseInt(arg);
+            service.retrieve(underlyingId);
         }
 
         ServiceLocator.instance().shutdown();

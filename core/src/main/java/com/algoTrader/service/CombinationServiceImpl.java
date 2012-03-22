@@ -1,6 +1,5 @@
 package com.algoTrader.service;
 
-import java.text.DecimalFormat;
 import java.util.List;
 
 import org.apache.commons.collections15.CollectionUtils;
@@ -8,9 +7,8 @@ import org.apache.commons.collections15.Predicate;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.combination.Allocation;
-import com.algoTrader.entity.combination.Combination;
+import com.algoTrader.entity.security.Combination;
+import com.algoTrader.entity.security.Component;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.CombinationType;
 import com.algoTrader.util.HibernateUtil;
@@ -19,26 +17,13 @@ import com.algoTrader.util.MyLogger;
 public class CombinationServiceImpl extends CombinationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(CombinationServiceImpl.class.getName());
-    private static DecimalFormat format = new DecimalFormat("#,##0.0000");
 
     @Override
-    protected Combination handleCreateCombination(String strategyName, CombinationType type, int masterSecurityId)
-            throws Exception {
-
-        Strategy strategy = getStrategyDao().findByName(strategyName);
+    protected Combination handleCreateCombination(CombinationType type) throws Exception {
 
         // create the combination
         Combination combination = Combination.Factory.newInstance();
         combination.setType(type);
-        combination.setStrategy(strategy);
-
-        Security masterSecurity = getSecurityDao().load(masterSecurityId);
-
-        if (masterSecurity == null) {
-            throw new IllegalArgumentException("security does not exist: " + masterSecurityId);
-        }
-
-        combination.setMaster(masterSecurity);
 
         // save to DB
         getCombinationDao().create(combination);
@@ -58,7 +43,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         } else {
 
-            // remove the combination and all associated allocations
+            // remove the combination and all associated components
             getCombinationDao().remove(combination);
 
             logger.debug("deleted combination " + combination);
@@ -66,24 +51,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     }
 
     @Override
-    protected void handleDeleteCombination(String strategyName, int masterSecurityId) throws Exception {
-
-        Combination combination = getCombinationDao().findByStrategyAndMasterSecurity(strategyName, masterSecurityId);
-
-        if (combination == null) {
-            logger.warn("combination does not exist on: " + strategyName + " and master security id: " + masterSecurityId);
-
-        } else {
-
-            // remove the combination and all associated allocations
-            getCombinationDao().remove(combination);
-
-            logger.debug("deleted combination " + combination);
-        }
-    }
-
-    @Override
-    protected void handleAddAllocation(int combinationId, final int securityId, long quantity) throws Exception {
+    protected void handleAddComponent(int combinationId, final int securityId, long quantity) throws Exception {
 
         Combination combination = getCombinationDao().load(combinationId);
 
@@ -97,39 +65,39 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             throw new IllegalArgumentException("security does not exist: " + securityId);
         }
 
-        // find the allocation to the specified security
-        Allocation allocation = CollectionUtils.find(combination.getAllocations(), new Predicate<Allocation>() {
+        // find the component to the specified security
+        Component component = CollectionUtils.find(combination.getComponents(), new Predicate<Component>() {
             @Override
-            public boolean evaluate(Allocation allocation) {
-                return security.equals(allocation.getSecurity());
+            public boolean evaluate(Component component) {
+                return security.equals(component.getSecurity());
             }
         });
 
-        if (allocation != null) {
+        if (component != null) {
 
             // adjust the quantity
-            allocation.setQuantity(allocation.getQuantity() + quantity);
-            getAllocationDao().update(allocation);
+            component.setQuantity(component.getQuantity() + quantity);
+            getComponentDao().update(component);
 
         } else {
 
-            // create a new allocation
-            allocation = Allocation.Factory.newInstance();
-            allocation.setSecurity(security);
-            allocation.setQuantity(quantity);
-            allocation.setCombination(combination);
-            getAllocationDao().create(allocation);
+            // create a new component
+            component = Component.Factory.newInstance();
+            component.setSecurity(security);
+            component.setQuantity(quantity);
+            component.setParentSecurity(combination);
+            getComponentDao().create(component);
 
             // update the combination
-            combination.getAllocations().add(allocation);
+            combination.getComponents().add(component);
             getCombinationDao().create(combination);
         }
 
-        logger.debug("added allocation " + quantity + " of " + allocation + " to combination " + combination);
+        logger.debug("added component " + quantity + " of " + component + " to combination " + combination);
     }
 
     @Override
-    protected void handleSetAllocation(int combinationId, final int securityId, long quantity) throws Exception {
+    protected void handleSetComponentQuantity(int combinationId, final int securityId, long quantity) throws Exception {
 
         Combination combination = getCombinationDao().load(combinationId);
 
@@ -143,39 +111,39 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             throw new IllegalArgumentException("security does not exist: " + securityId);
         }
 
-        // find the allocation to the specified security
-        Allocation allocation = CollectionUtils.find(combination.getAllocations(), new Predicate<Allocation>() {
+        // find the component to the specified security
+        Component component = CollectionUtils.find(combination.getComponents(), new Predicate<Component>() {
             @Override
-            public boolean evaluate(Allocation allocation) {
-                return security.equals(allocation.getSecurity());
+            public boolean evaluate(Component component) {
+                return security.equals(component.getSecurity());
             }
         });
 
-        if (allocation != null) {
+        if (component != null) {
 
             // set the quantity
-            allocation.setQuantity(quantity);
-            getAllocationDao().update(allocation);
+            component.setQuantity(quantity);
+            getComponentDao().update(component);
 
         } else {
 
-            // create a new allocation
-            allocation = Allocation.Factory.newInstance();
-            allocation.setSecurity(security);
-            allocation.setQuantity(quantity);
-            allocation.setCombination(combination);
-            getAllocationDao().create(allocation);
+            // create a new component
+            component = Component.Factory.newInstance();
+            component.setSecurity(security);
+            component.setQuantity(quantity);
+            component.setParentSecurity(combination);
+            getComponentDao().create(component);
 
             // update the combination
-            combination.getAllocations().add(allocation);
+            combination.getComponents().add(component);
             getCombinationDao().create(combination);
         }
 
-        logger.debug("set allocation " + quantity + " of " + allocation + " to combination " + combination);
+        logger.debug("set component " + quantity + " of " + component + " to combination " + combination);
     }
 
     @Override
-    protected void handleRemoveAllocation(int combinationId, final int securityId) {
+    protected void handleRemoveComponent(int combinationId, final int securityId) {
 
         Combination combination = getCombinationDao().load(combinationId);
 
@@ -189,33 +157,33 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             throw new IllegalArgumentException("security does not exist: " + securityId);
         }
 
-        // find the allocation to the specified security
-        Allocation allocation = CollectionUtils.find(combination.getAllocations(), new Predicate<Allocation>() {
+        // find the component to the specified security
+        Component component = CollectionUtils.find(combination.getComponents(), new Predicate<Component>() {
             @Override
-            public boolean evaluate(Allocation allocation) {
-                return security.equals(allocation.getSecurity());
+            public boolean evaluate(Component component) {
+                return security.equals(component.getSecurity());
             }
         });
 
-        if (allocation != null) {
+        if (component != null) {
 
             // update the combination
-            combination.getAllocations().remove(allocation);
+            combination.getComponents().remove(component);
             getCombinationDao().update(combination);
 
-            // delete the allocation
-            getAllocationDao().remove(allocation);
+            // delete the component
+            getComponentDao().remove(component);
 
         } else {
 
-            throw new IllegalArgumentException("allocation on securityId " + securityId + " does not exist");
+            throw new IllegalArgumentException("component on securityId " + securityId + " does not exist");
         }
 
-        logger.debug("removed allocation " + allocation + " from combination " + combination);
+        logger.debug("removed component " + component + " from combination " + combination);
     }
 
     @Override
-    protected void handleCloseCombination(int combinationId) throws Exception {
+    protected void handleCloseCombination(int combinationId, String strategyName) throws Exception {
 
         Combination combination = getCombinationDao().load(combinationId);
 
@@ -228,56 +196,28 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         // reduce all associated positions by the specified amount
         // Note: positions are not closed, because other combinations might relate to them as well
-        for (Allocation allocation : combination.getAllocations()) {
+        for (Component component : combination.getComponents()) {
 
-            Position position = getPositionDao().findBySecurityAndStrategy(allocation.getSecurity().getId(), combination.getStrategy().getName());
-            getPositionService().reducePosition(position.getId(), allocation.getQuantity());
+            Position position = getPositionDao().findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
+            getPositionService().reducePosition(position.getId(), component.getQuantity());
         }
 
+        // close all positions based on the combination
+        Position position = getPositionDao().findBySecurityAndStrategy(combinationId, strategyName);
+        getPositionService().deletePosition(position.getId(), true);
 
+        // delete the combination
         deleteCombination(combination.getId());
-    }
-
-    @Override
-    protected void handleSetExitValue(int combinationId, double exitValue) throws Exception {
-
-        Combination combination = getCombinationDao().load(combinationId);
-
-        if (combination == null) {
-            throw new IllegalArgumentException("combination does not exist: " + combinationId);
-        }
-
-        combination.setExitValue(exitValue);
-
-        getCombinationDao().update(combination);
-
-        logger.info("set exit value " + format.format(exitValue) + " for combination " + combination);
-    }
-
-    @Override
-    protected void handleSetProfitTarget(int combinationId, double profitTarget) throws Exception {
-
-        Combination combination = getCombinationDao().load(combinationId);
-
-        if (combination == null) {
-            throw new IllegalArgumentException("combination does not exist: " + combinationId);
-        }
-
-        combination.setProfitTarget(profitTarget);
-
-        getCombinationDao().update(combination);
-
-        logger.info("set profitTarget " + format.format(profitTarget) + " for combination " + combination);
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    protected void handleDeleteZeroQtyCombinations(String strategyName, Class type) throws Exception {
+    protected void handleDeleteCombinationsWithZeroQty(String strategyName, Class type) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        List<Combination> combinations = getCombinationDao().findZeroQtyCombinations(strategyName, discriminator);
+        List<Security> combinations = getSecurityDao().findSubscribedByStrategyAndComponentClassWithZeroQty(strategyName, discriminator);
 
-        getCombinationDao().remove(combinations);
+        getSecurityDao().remove(combinations);
 
         if (combinations.size() > 0) {
             logger.debug("deleted zero quantity combinations: " + combinations);

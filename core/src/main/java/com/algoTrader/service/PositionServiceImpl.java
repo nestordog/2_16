@@ -14,6 +14,7 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
+import com.algoTrader.entity.security.Combination;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
@@ -29,6 +30,7 @@ import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
+import com.algoTrader.vo.ClosePositionVO;
 import com.algoTrader.vo.ExpirePositionVO;
 
 public class PositionServiceImpl extends PositionServiceBase {
@@ -37,17 +39,17 @@ public class PositionServiceImpl extends PositionServiceBase {
     private static DecimalFormat format = new DecimalFormat("#,##0.0000");
 
     @Override
-    protected void handleCloseAllPositionsByStrategy(String strategyName, boolean removeFromWatchlist) throws Exception {
+    protected void handleCloseAllPositionsByStrategy(String strategyName, boolean unsubscribe) throws Exception {
 
         for (Position position : getPositionDao().findOpenPositionsByStrategy(strategyName)) {
             if (position.isOpen()) {
-                closePosition(position.getId(), removeFromWatchlist);
+                closePosition(position.getId(), unsubscribe);
             }
         }
     }
 
     @Override
-    protected void handleClosePosition(int positionId, boolean removeFromWatchlist) throws Exception {
+    protected void handleClosePosition(int positionId, boolean unsubscribe) throws Exception {
 
         Position position = getPositionDao().load(positionId);
 
@@ -55,6 +57,16 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             Strategy strategy = position.getStrategy();
             Security security = position.getSecurity();
+
+            // handle Combinations by the combination service
+            if (security instanceof Combination) {
+                getCombinationService().closeCombination(security.getId(), strategy.getName());
+                return;
+            }
+
+            if (!security.getSecurityFamily().isTradeable()) {
+                throw new PositionServiceException(security.getSymbol() + " is not tradeable use deletePosition");
+            }
 
             Side side = (position.getQuantity() > 0) ? Side.SELL : Side.BUY;
 
@@ -71,8 +83,8 @@ public class PositionServiceImpl extends PositionServiceBase {
                 ((InitializingOrder) order).init(null);
             }
 
-            // create an OrderCallback if removeFromWatchlist is requested
-            if (removeFromWatchlist) {
+            // create an OrderCallback if unsubscribe is requested
+            if (unsubscribe) {
 
                 getRuleService().addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback() {
                     @Override
@@ -81,7 +93,7 @@ public class PositionServiceImpl extends PositionServiceBase {
                         for (OrderStatus orderStatus : orderStati) {
                             if (Status.EXECUTED.equals(orderStatus.getStatus())) {
                                 Order order = orderStatus.getParentOrder();
-                                marketDataService.removeFromWatchlist(order.getStrategy().getName(), order.getSecurity().getId());
+                                marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
                             }
                         }
                     }
@@ -92,8 +104,43 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         } else {
 
-            // if there was no open position bat removeFromWatchlist was requested do that anyway
-            getMarketDataService().removeFromWatchlist(position.getStrategy().getName(), position.getSecurity().getId());
+            // if there was no open position but unsubscribe was requested do that anyway
+            if (unsubscribe) {
+                getMarketDataService().unsubscribe(position.getStrategy().getName(), position.getSecurity().getId());
+            }
+        }
+    }
+
+    @Override
+    protected void handleDeletePosition(int positionId, boolean unsubscribe) throws Exception {
+
+        Position position = getPositionDao().load(positionId);
+
+        if (position.isOpen()) {
+
+            Security security = position.getSecurity();
+
+            if (security.getSecurityFamily().isTradeable()) {
+                throw new PositionServiceException(security.getSymbol() + " is tradeable use closePosition");
+            }
+
+            ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
+
+            // set all values to null
+            position.setQuantity(0);
+            position.setExitValue(null);
+            position.setMaintenanceMargin(null);
+            position.setProfitTarget(null);
+
+            // propagate the ClosePosition event
+            getRuleService().routeEvent(position.getStrategy().getName(), closePositionVO);
+
+            getPositionDao().update(position);
+        }
+
+        // unsubscribe if necessary
+        if (unsubscribe) {
+            getMarketDataService().unsubscribe(position.getStrategy().getName(), position.getSecurity().getId());
         }
     }
 
@@ -263,14 +310,14 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             StockOption stockOption = (StockOption) security;
             int scale = security.getSecurityFamily().getScale();
-            double underlayingSpot = security.getUnderlaying().getLastTick().getCurrentValueDouble();
-            double intrinsicValue = StockOptionUtil.getIntrinsicValue(stockOption, underlayingSpot);
+            double underlyingSpot = security.getUnderlying().getLastTick().getCurrentValueDouble();
+            double intrinsicValue = StockOptionUtil.getIntrinsicValue(stockOption, underlyingSpot);
             BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue, scale);
             transaction.setPrice(price);
 
         } else if (security instanceof Future) {
 
-            BigDecimal price = security.getUnderlaying().getLastTick().getCurrentValue();
+            BigDecimal price = security.getUnderlying().getLastTick().getCurrentValue();
             transaction.setPrice(price);
 
         } else {
@@ -280,8 +327,8 @@ public class PositionServiceImpl extends PositionServiceBase {
         // perisite the transaction
         getTransactionService().persistTransaction(transaction);
 
-        // remove the security from the watchlist
-        getMarketDataService().removeFromWatchlist(position.getStrategy().getName(), security.getId());
+        // unsubscribe the security
+        getMarketDataService().unsubscribe(position.getStrategy().getName(), security.getId());
 
         // propagate the ExpirePosition event
         getRuleService().sendEvent(position.getStrategy().getName(), expirePositionEvent);

@@ -88,17 +88,14 @@ public class TestServiceImpl extends TestServiceBase {
             case 3:
                 getSecurityDao().findByIsin("1OSMIMA003QQ");
                 break;
-            case 4:
-                getSecurityDao().findSecuritiesInPortfolio();
-                break;
             case 5:
-                getSecurityDao().findSecuritiesOnWatchlist();
+                getSecurityDao().findSubscribedInclFamily();
                 break;
             case 6:
-                getSecurityDao().findSecuritiesOnActiveWatchlist();
+                getSecurityDao().findSubscribedForAutoActivateStrategiesInclFamily();
                 break;
             case 8:
-                getSecurityDao().findByIdFetched(6);
+                getSecurityDao().findByIdInclFamilyAndUnderlying(6);
                 break;
 
             case 9:
@@ -111,7 +108,7 @@ public class TestServiceImpl extends TestServiceBase {
                 getStockOptionDao().findNearestStockOption(4, new Date(), new BigDecimal(6500), "PUT");
                 break;
             case 12:
-                getStockOptionDao().findStockOptionsOnWatchlist();
+                getStockOptionDao().findSubscribedStockOptions();
                 break;
 
             case 13:
@@ -210,7 +207,7 @@ public class TestServiceImpl extends TestServiceBase {
                 getStockOptionFamilyDao().loadAll();
                 break;
             case 49:
-                getStockOptionFamilyDao().findByUnderlaying(2);
+                getStockOptionFamilyDao().findByUnderlying(2);
                 break;
 
         }
@@ -220,7 +217,7 @@ public class TestServiceImpl extends TestServiceBase {
     protected void handleTestSabr() throws Exception {
 
         String dateString = "07.12.2010 09:13:00";
-        int underlayingId = 4;
+        int underlyingId = 4;
         int volaId = 5;
         int stockOptionId = 717;
 
@@ -230,12 +227,12 @@ public class TestServiceImpl extends TestServiceBase {
         ruleService.initServiceProvider(StrategyImpl.BASE);
         ruleService.sendEvent(StrategyImpl.BASE, new CurrentTimeEvent(date.getTime()));
 
-        double underlayingValue = getTickDao().findByDateAndSecurity(date, underlayingId).getCurrentValueDouble();
+        double underlyingValue = getTickDao().findByDateAndSecurity(date, underlyingId).getCurrentValueDouble();
         double volaValue = getTickDao().findByDateAndSecurity(date, volaId).getCurrentValueDouble() / 100.0;
 
         StockOption stockOption = getStockOptionDao().load(stockOptionId);
 
-        double optionPrice = StockOptionUtil.getOptionPriceSabr(stockOption, underlayingValue, volaValue);
+        double optionPrice = StockOptionUtil.getOptionPriceSabr(stockOption, underlyingValue, volaValue);
 
         System.out.println(optionPrice);
     }

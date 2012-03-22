@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.WatchListItem;
+import com.algoTrader.entity.Subscription;
 import com.algoTrader.util.StrategyUtil;
 
-public class WatchListServiceImpl extends WatchListServiceBase {
+public class SubscriptionServiceImpl extends SubscriptionServiceBase {
 
     private @Value("${simulation}") boolean simulation;
 
@@ -27,23 +27,23 @@ public class WatchListServiceImpl extends WatchListServiceBase {
     }
 
     @Override
-    protected void handleRemoveFromWatchlist(String strategyName, int securityId) throws Exception {
+    protected void handleUnsubscribe(String strategyName, int securityId) throws Exception {
 
-        getMarketDataService().removeFromWatchlist(strategyName, securityId);
+        getMarketDataService().unsubscribe(strategyName, securityId);
 
-        initWatchlist(strategyName);
+        initSubscriptions(strategyName);
     }
 
     @Override
-    protected void handlePutOnWatchlist(String strategyName, int securityId) throws Exception {
+    protected void handleSubscribe(String strategyName, int securityId) throws Exception {
 
-        getMarketDataService().putOnWatchlist(strategyName, securityId);
+        getMarketDataService().subscribe(strategyName, securityId);
 
-        initWatchlist(strategyName);
+        initSubscriptions(strategyName);
     }
 
     @Override
-    protected void handleInitWatchlist(String strategyName) throws Exception {
+    protected void handleInitSubscriptions(String strategyName) throws Exception {
 
         if (this.simulation || StrategyUtil.isStartedStrategyBASE())
             return;
@@ -51,8 +51,8 @@ public class WatchListServiceImpl extends WatchListServiceBase {
         // assemble the message selector
         List<String> selections = new ArrayList<String>();
         Strategy strategy = getLookupService().getStrategyByName(StrategyUtil.getStartedStrategyName());
-        for (WatchListItem watchlistItem : strategy.getWatchListItems()) {
-            selections.add("securityId=" + watchlistItem.getSecurity().getId());
+        for (Subscription subscription : strategy.getSubscriptions()) {
+            selections.add("securityId=" + subscription.getSecurity().getId());
         }
 
         String messageSelector = StringUtils.join(selections, " OR ");
@@ -67,10 +67,10 @@ public class WatchListServiceImpl extends WatchListServiceBase {
         (new Thread() {
             @Override
             public void run() {
-                WatchListServiceImpl.this.marketDataMessageListenerContainer.stop();
-                WatchListServiceImpl.this.marketDataMessageListenerContainer.shutdown();
-                WatchListServiceImpl.this.marketDataMessageListenerContainer.start();
-                WatchListServiceImpl.this.marketDataMessageListenerContainer.initialize();
+                SubscriptionServiceImpl.this.marketDataMessageListenerContainer.stop();
+                SubscriptionServiceImpl.this.marketDataMessageListenerContainer.shutdown();
+                SubscriptionServiceImpl.this.marketDataMessageListenerContainer.start();
+                SubscriptionServiceImpl.this.marketDataMessageListenerContainer.initialize();
             }
         }).start();
     }

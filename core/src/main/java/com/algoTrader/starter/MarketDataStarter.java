@@ -30,8 +30,8 @@ public class MarketDataStarter {
         OrderService orderService = ServiceLocator.instance().getOrderService();
         orderService.init();
 
-        // subscribe marketData for all securities on the watchlist (needs to be invoked after all Spring Services have been properly initialized)
-        marketDataService.initWatchlist();
+        // init market data subscriptions (needs to be invoked after all Spring Services have been properly initialized)
+        marketDataService.initSubscriptions();
 
         // wait a little to avoid several IBClients connecting at the same time
         // TODO find a better way for this

@@ -71,7 +71,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
 
     private void retrieveStockOptions(StockOptionFamily family) throws Exception {
 
-        Security underlaying = family.getUnderlaying();
+        Security underlying = family.getUnderlying();
 
         // engage the retrieval process
         retrieveContractDetails(family);
@@ -92,7 +92,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             BigDecimal strike = RoundUtil.getBigDecimal(contract.m_strike, family.getScale());
             Date expiration = format.parse(contract.m_expiry + "130000");
 
-            if (underlaying.getSecurityFamily().getMarket().equals(Market.CBOE) || underlaying.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {
+            if (underlying.getSecurityFamily().getMarket().equals(Market.CBOE) || underlying.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {
                 expiration = DateUtils.addDays(expiration, 1);
             }
 
@@ -107,7 +107,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             stockOption.setType(type);
             stockOption.setStrike(strike);
             stockOption.setExpiration(expiration);
-            stockOption.setUnderlaying(underlaying);
+            stockOption.setUnderlying(underlying);
             stockOption.setSecurityFamily(family);
 
             // ignore stockOptions that already exist
@@ -123,7 +123,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
 
     private void retrieveFutures(FutureFamily family) throws Exception {
 
-        Security underlaying = family.getUnderlaying();
+        Security underlying = family.getUnderlying();
 
         // engage the retrieval process
         retrieveContractDetails(family);
@@ -142,7 +142,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             Contract contract = contractDetails.m_summary;
             Date expiration = format.parse(contract.m_expiry + "130000");
 
-            if (underlaying.getSecurityFamily().getMarket().equals(Market.CBOE) || underlaying.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {
+            if (underlying.getSecurityFamily().getMarket().equals(Market.CBOE) || underlying.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {
                 expiration = DateUtils.addDays(expiration, 1);
             }
 
@@ -153,7 +153,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             future.setIsin(isin);
             future.setExtId(extId);
             future.setExpiration(expiration);
-            future.setUnderlaying(underlaying);
+            future.setUnderlying(underlying);
             future.setSecurityFamily(family);
 
             // ignore futures that already exist
@@ -178,7 +178,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             int requestId = RequestIDGenerator.singleton().getNextRequestId();
             Contract contract = new Contract();
             contract.m_currency = family.getCurrency().toString();
-            contract.m_symbol = family.getUnderlaying().getSymbol();
+            contract.m_symbol = family.getUnderlying().getSymbol();
             contract.m_exchange = IBMarketConverter.marketToString(family.getMarket());
 
             if (family instanceof StockOptionFamily) {

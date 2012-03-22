@@ -3,7 +3,6 @@ package com.algoTrader.service;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -11,20 +10,14 @@ import java.util.TreeMap;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.lang.StringUtils;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.WatchListItem;
-import com.algoTrader.entity.combination.Allocation;
-import com.algoTrader.entity.combination.Combination;
-import com.algoTrader.entity.combination.CombinationTick;
+import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
-import com.algoTrader.vo.CombinationTickVO;
 import com.algoTrader.vo.DiagramVO;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.TickVO;
@@ -119,90 +112,36 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
         List<TickVO> tickVOs = getTickVOs(ticks);
 
-        // get all securities on the watchlist
+        // get all subscribed securities
         List<TickVO> processedTickVOs = new ArrayList<TickVO>();
 
-        // for base iterate over all securities on watchlist(no alert values will be displayed)
-        // for strategies iterate over all watchListItems
+        // for base iterate over all subscribed securities (no alert values will be displayed)
+        // for strategies iterate over all subscriptions
         if (StrategyUtil.isStartedStrategyBASE()) {
-            for (Security security : getLookupService().getSecuritiesOnWatchlist()) {
+            for (Security security : getLookupService().getSubscribedSecuritiesInclFamily()) {
 
                 TickVO tickVO = getTickVO(tickVOs, security);
 
                 processedTickVOs.add(tickVO);
             }
         } else {
-            for (WatchListItem watchListItem : getLookupService().getWatchListItemsByStrategy(strategyName)) {
+            for (Subscription subscription : getLookupService().getSubscriptionsByStrategy(strategyName)) {
 
-                final Security security = watchListItem.getSecurity();
+                final Security security = subscription.getSecurity();
 
-                TickVO tickVO = getTickVO(tickVOs, watchListItem.getSecurity());
+                TickVO tickVO = getTickVO(tickVOs, subscription.getSecurity());
 
                 // add db data
                 int scale = security.getSecurityFamily().getScale();
-                tickVO.setLowerAlertValue(watchListItem.getLowerAlertValue() != null ? RoundUtil.getBigDecimal(watchListItem.getLowerAlertValue(), scale) : null);
-                tickVO.setUpperAlertValue(watchListItem.getUpperAlertValue() != null ? RoundUtil.getBigDecimal(watchListItem.getUpperAlertValue(), scale) : null);
-                tickVO.setAmount(watchListItem.getAmount() != null ? RoundUtil.getBigDecimal(watchListItem.getAmount(), scale) : null);
+                tickVO.setLowerAlertValue(subscription.getLowerAlertValue() != null ? RoundUtil.getBigDecimal(subscription.getLowerAlertValue(), scale) : null);
+                tickVO.setUpperAlertValue(subscription.getUpperAlertValue() != null ? RoundUtil.getBigDecimal(subscription.getUpperAlertValue(), scale) : null);
+                tickVO.setAmount(subscription.getAmount() != null ? RoundUtil.getBigDecimal(subscription.getAmount(), scale) : null);
 
                 processedTickVOs.add(tickVO);
             }
         }
 
         return processedTickVOs;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected List<CombinationTickVO> handleGetDataCombinationTicks() throws Exception {
-
-        String strategyName = StrategyUtil.getStartedStrategyName();
-        List<CombinationTick> combinationTicks = getRuleService().getAllEventsProperty(strategyName, "GET_LAST_COMBINATION_TICK", "tick");
-
-        // instantiate CombinationTickVO since we have no access to Spring from the strategies
-        List<CombinationTickVO> combinationTickVOs = getCombinationTickVOs(combinationTicks);
-
-        final Collection<Combination> actualCombinations;
-        if (StrategyUtil.isStartedStrategyBASE()) {
-            actualCombinations = new ArrayList<Combination>();
-        } else {
-            actualCombinations = getLookupService().getCombinationsByStrategy(strategyName);
-        }
-
-        List<CombinationTickVO> processedCombinationTickVOs = new ArrayList<CombinationTickVO>();
-        for (final Combination combination : actualCombinations) {
-
-            CombinationTickVO combinationTickVO = CollectionUtils.find(combinationTickVOs, new Predicate<CombinationTickVO>() {
-                @Override
-                public boolean evaluate(CombinationTickVO combinationTickVO) {
-                    return combinationTickVO.getId() == combination.getId();
-                }
-            });
-
-            if (combinationTickVO == null) {
-                combinationTickVO = new CombinationTickVO();
-            }
-
-            // set db data
-            int scale = combination.getMaster().getSecurityFamily().getScale();
-            combinationTickVO.setId(combination.getId());
-            combinationTickVO.setType(combination.getType());
-            combinationTickVO.setExitValue(combination.getExitValue() != null ? RoundUtil.getBigDecimal(combination.getExitValue(), scale) : null);
-            combinationTickVO.setProfitTarget(combination.getProfitTarget() != null ? RoundUtil.getBigDecimal(combination.getProfitTarget(), scale) : null);
-
-            if (combination.getAllocations().size() > 0) {
-                String description = StringUtils.join(CollectionUtils.collect(combination.getAllocations(), new Transformer<Allocation, String>() {
-                    @Override
-                    public String transform(Allocation allocation) {
-                        return allocation.getQuantity() + " " + allocation.getSecurity();
-                    }
-                }), " / ");
-                combinationTickVO.setDescription(description);
-            }
-
-            processedCombinationTickVOs.add(combinationTickVO);
-        }
-
-        return processedCombinationTickVOs;
     }
 
     @Override
@@ -279,15 +218,15 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected void handlePutOnWatchlist(int securityid) throws Exception {
+    protected void handleSubscribe(int securityid) throws Exception {
 
-        getWatchListService().putOnWatchlist(StrategyUtil.getStartedStrategyName(), securityid);
+        getSubscriptionService().subscribe(StrategyUtil.getStartedStrategyName(), securityid);
     }
 
     @Override
-    protected void handleRemoveFromWatchlist(int securityid) throws Exception {
+    protected void handleUnsubscribe(int securityid) throws Exception {
 
-        getWatchListService().removeFromWatchlist(StrategyUtil.getStartedStrategyName(), securityid);
+        getSubscriptionService().unsubscribe(StrategyUtil.getStartedStrategyName(), securityid);
     }
 
     private List<TickVO> getTickVOs(List<Tick> ticks) {
@@ -311,27 +250,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
             tickVO.setCurrentValue(tick.getCurrentValue());
 
             tickVOs.add(tickVO);
-        }
-        return tickVOs;
-    }
-
-    private List<CombinationTickVO> getCombinationTickVOs(List<CombinationTick> ticks) {
-
-        // create CombinationTickVOs based on the ticks (have to do this manually since we have no access to the Dao)
-        List<CombinationTickVO> tickVOs = new ArrayList<CombinationTickVO>();
-        for (CombinationTick combinationTick : ticks) {
-
-            CombinationTickVO combinationTickVO = new CombinationTickVO();
-
-            combinationTickVO.setId(combinationTick.getCombination().getId());
-            combinationTickVO.setDateTime(combinationTick.getDateTime());
-            combinationTickVO.setVolBid(combinationTick.getVolBid());
-            combinationTickVO.setVolAsk(combinationTick.getVolAsk());
-            combinationTickVO.setBid(combinationTick.getBid());
-            combinationTickVO.setCurrentValue(combinationTick.getCurrentValue());
-            combinationTickVO.setAsk(combinationTick.getAsk());
-
-            tickVOs.add(combinationTickVO);
         }
         return tickVOs;
     }

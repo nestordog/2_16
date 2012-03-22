@@ -111,7 +111,7 @@ public class IBDefaultAdapter implements EWrapper {
                 // Connectivity between IB and TWS has been restored data lost.
                 setRequested(false);
                 setState(ConnectionState.READY);
-                ServiceLocator.instance().getMarketDataService().initWatchlist();
+                ServiceLocator.instance().getMarketDataService().initSubscriptions();
                 logger.info(message);
                 break;
 
@@ -122,7 +122,7 @@ public class IBDefaultAdapter implements EWrapper {
                     setState(ConnectionState.SUBSCRIBED);
                 } else {
                     setState(ConnectionState.READY);
-                    ServiceLocator.instance().getMarketDataService().initWatchlist();
+                    ServiceLocator.instance().getMarketDataService().initSubscriptions();
                 }
                 logger.info(message);
                 break;
@@ -141,7 +141,7 @@ public class IBDefaultAdapter implements EWrapper {
                     setState(ConnectionState.SUBSCRIBED);
                 } else {
                     setState(ConnectionState.READY);
-                    ServiceLocator.instance().getMarketDataService().initWatchlist();
+                    ServiceLocator.instance().getMarketDataService().initSubscriptions();
                 }
                 logger.info(message);
                 break;

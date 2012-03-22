@@ -1,6 +1,8 @@
-package com.algoTrader.entity.combination;
+package com.algoTrader.entity.security;
 
-public class AllocationImpl extends Allocation {
+import com.algoTrader.entity.security.Component;
+
+public class ComponentImpl extends Component {
 
     private static final long serialVersionUID = 8647813109138743881L;
 

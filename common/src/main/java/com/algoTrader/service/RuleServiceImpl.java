@@ -29,7 +29,7 @@ import org.springframework.jms.core.MessagePostProcessor;
 
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
-import com.algoTrader.entity.WatchListItem;
+import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.TickCallback;
 import com.algoTrader.entity.trade.Order;
@@ -398,9 +398,9 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
     protected void handleSendMarketDataEvent(final MarketDataEvent marketDataEvent) {
 
         if (this.simulation) {
-            for (WatchListItem watchListItem : marketDataEvent.getSecurity().getWatchListItems()) {
-                if (!watchListItem.getStrategy().getName().equals(StrategyImpl.BASE)) {
-                    sendEvent(watchListItem.getStrategy().getName(), marketDataEvent);
+            for (Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
+                if (!subscription.getStrategy().getName().equals(StrategyImpl.BASE)) {
+                    sendEvent(subscription.getStrategy().getName(), marketDataEvent);
                 }
             }
 
@@ -473,8 +473,8 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
             try {
                 while (it.hasNext()) {
                     EventBean bean = it.next();
-                    Object underlaying = bean.getUnderlying();
-                    list.add(underlaying);
+                    Object underlying = bean.getUnderlying();
+                    list.add(underlying);
                 }
             } finally {
                 it.close();
@@ -493,8 +493,8 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
             try {
                 while (it.hasNext()) {
                     EventBean bean = it.next();
-                    Object underlaying = bean.get(property);
-                    list.add(underlaying);
+                    Object underlying = bean.get(property);
+                    list.add(underlying);
                 }
             } finally {
                 it.close();
