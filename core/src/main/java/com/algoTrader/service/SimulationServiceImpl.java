@@ -32,7 +32,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.CashBalance;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
@@ -45,6 +44,7 @@ import com.algoTrader.entity.security.ComponentDao;
 import com.algoTrader.entity.security.FutureDao;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOptionDao;
+import com.algoTrader.entity.strategy.CashBalance;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.MarketDataType;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;

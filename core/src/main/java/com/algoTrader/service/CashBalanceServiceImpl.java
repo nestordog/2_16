@@ -8,10 +8,10 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.algoTrader.entity.CashBalance;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.security.Forex;
+import com.algoTrader.entity.strategy.CashBalance;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.Pair;

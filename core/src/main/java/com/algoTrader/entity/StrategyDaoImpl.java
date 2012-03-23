@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.security.Forex;
+import com.algoTrader.entity.strategy.CashBalance;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.util.DoubleMap;
 import com.algoTrader.util.RoundUtil;

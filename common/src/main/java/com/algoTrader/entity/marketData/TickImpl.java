@@ -27,7 +27,7 @@ public class TickImpl extends Tick {
                 return getLast();
             }
         } else {
-            if (this.getSecurity().getSecurityFamily().isTradeable()) {
+            if (this.getSecurity().getSecurityFamily().isTradeable() || this.getSecurity().getSecurityFamily().isSynthetic()) {
                 return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0, scale);
             } else {
                 return getLast();

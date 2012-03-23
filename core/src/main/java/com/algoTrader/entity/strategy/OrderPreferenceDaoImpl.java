@@ -1,8 +1,10 @@
-package com.algoTrader.entity;
+package com.algoTrader.entity.strategy;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 
+import com.algoTrader.entity.strategy.OrderPreference;
+import com.algoTrader.entity.strategy.OrderPreferenceDaoBase;
 import com.algoTrader.entity.trade.MarketOrder;
 import com.algoTrader.entity.trade.Order;
 

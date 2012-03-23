@@ -3,7 +3,7 @@ package com.algoTrader.service;
 import java.util.Date;
 
 import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.measurement.Measurement;
+import com.algoTrader.entity.strategy.Measurement;
 
 public class MeasurementServiceImpl extends MeasurementServiceBase {
 

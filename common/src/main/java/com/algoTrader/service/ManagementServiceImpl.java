@@ -3,6 +3,7 @@ package com.algoTrader.service;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -118,7 +119,8 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         // for base iterate over all subscribed securities (no alert values will be displayed)
         // for strategies iterate over all subscriptions
         if (StrategyUtil.isStartedStrategyBASE()) {
-            for (Security security : getLookupService().getSubscribedSecuritiesInclFamily()) {
+            Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategiesInclFamily();
+            for (Security security : securities) {
 
                 TickVO tickVO = getTickVO(tickVOs, security);
 

@@ -1,5 +1,8 @@
 package com.algoTrader.entity.security;
 
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Transformer;
+import org.apache.commons.lang.StringUtils;
 
 
 public class CombinationImpl extends Combination {
@@ -9,8 +12,11 @@ public class CombinationImpl extends Combination {
     @Override
     public String getSymbol() {
 
-        // TODO Auto-generated method stub
-        return null;
+        return StringUtils.join(CollectionUtils.collect(getComponents(), new Transformer<Component, String>() {
+            @Override
+            public String transform(Component component) {
+                return component.getQuantity() + " " + component.getSecurity();
+            }
+        }), " / ");
     }
-
 }

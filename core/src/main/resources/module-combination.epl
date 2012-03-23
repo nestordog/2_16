@@ -12,9 +12,7 @@ select
     tick.* as tick
 from
     Tick as tick,
-    method:LookupUtil.getComponentsByStrategy(engineStrategy.name) as component
-where
-    tick.security.id = component.security.id;
+    method:LookupUtil.getComponentsBySecurity(tick.security.id) as component;
 
 @Name('INSERT_TICK_FROM_COMBINATION_TICK_WINDOW')
 on

@@ -147,6 +147,11 @@ public class LookupUtil {
         return ServiceLocator.instance().getLookupService().getSubscribedComponentsByStrategy(strategyName).toArray(new Component[] {});
     }
 
+    public static Component[] getComponentsBySecurity(int securityId) {
+
+        return ServiceLocator.instance().getLookupService().getSubscribedComponentsBySecurity(securityId).toArray(new Component[] {});
+    }
+
     @SuppressWarnings("rawtypes")
     public static Component[] getComponentsByStrategyAndClass(String strategyName, String className) throws ClassNotFoundException {
 

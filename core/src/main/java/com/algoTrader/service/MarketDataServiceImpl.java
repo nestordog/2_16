@@ -105,7 +105,9 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             List<Security> securities = getSecurityDao().findSubscribedForAutoActivateStrategiesInclFamily();
 
             for (Security security : securities) {
-                externalSubscribe(security);
+                if (!security.getSecurityFamily().isSynthetic()) {
+                    externalSubscribe(security);
+                }
             }
         }
     }
@@ -119,8 +121,9 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         if (getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId) == null) {
 
             // only external subscribe if nobody was watching this security so far
-            if (security.getSubscriptions().size() == 0) {
-                if (!this.simulation) {
+            List<Subscription> subscriptions = getSubscriptionDao().findBySecurityForAutoActivateStrategies(security.getId());
+            if (subscriptions.size() == 0) {
+                if (!this.simulation && !security.getSecurityFamily().isSynthetic()) {
                     externalSubscribe(security);
                 }
             }
@@ -163,7 +166,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             // only external unsubscribe if nobody is watching this security anymore
             if (security.getSubscriptions().size() == 0) {
-                if (!this.simulation) {
+                if (!this.simulation && !security.getSecurityFamily().isSynthetic()) {
                     externalUnsubscribe(security);
                 }
             }

@@ -11,15 +11,12 @@ import org.apache.commons.collections15.Predicate;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.algoTrader.entity.CashBalance;
-import com.algoTrader.entity.CashBalanceDao;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickDao;
-import com.algoTrader.entity.measurement.Measurement;
 import com.algoTrader.entity.security.Combination;
 import com.algoTrader.entity.security.Component;
 import com.algoTrader.entity.security.Future;
@@ -28,6 +25,9 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.security.StockOptionFamily;
+import com.algoTrader.entity.strategy.CashBalance;
+import com.algoTrader.entity.strategy.CashBalanceDao;
+import com.algoTrader.entity.strategy.Measurement;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.Period;
@@ -109,6 +109,12 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
         return getSecurityDao().findSubscribedByStrategyAndComponentClass(strategyName, discriminator);
+    }
+
+    @Override
+    protected Collection<Security> handleGetSubscribedSecuritiesForAutoActivateStrategiesInclFamily() throws Exception {
+
+        return getSecurityDao().findSubscribedForAutoActivateStrategiesInclFamily();
     }
 
     @Override
@@ -510,6 +516,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Component> handleGetSubscribedComponentsByStrategy(String strategyName) throws Exception {
 
         return getComponentDao().findSubscribedByStrategy(strategyName);
+    }
+
+    @Override
+    protected Collection<Component> handleGetSubscribedComponentsBySecurity(int securityId) throws Exception {
+
+        return getComponentDao().findSubscribedBySecurity(securityId);
     }
 
     @Override

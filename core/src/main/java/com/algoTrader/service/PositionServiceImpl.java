@@ -145,29 +145,20 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         Position position = getPositionDao().load(positionId);
 
-        if (position.isOpen()) {
+        Security security = position.getSecurity();
 
-            Security security = position.getSecurity();
-
-            if (security.getSecurityFamily().isTradeable()) {
-                throw new PositionServiceException(security.getSymbol() + " is tradeable, can only delete non-tradeable positions");
-            }
-
-            ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
-
-            // set all values to null
-            position.setQuantity(0);
-            position.setExitValue(null);
-            position.setMaintenanceMargin(null);
-            position.setProfitTarget(null);
-
-            // propagate the ClosePosition event
-            getRuleService().routeEvent(position.getStrategy().getName(), closePositionVO);
-
-            getPositionDao().update(position);
-
-            logger.info("deleted non-tradeable position on " + security + " for strategy " + position.getStrategy().getName());
+        if (security.getSecurityFamily().isTradeable()) {
+            throw new PositionServiceException(security.getSymbol() + " is tradeable, can only delete non-tradeable positions");
         }
+
+        ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
+
+        // propagate the ClosePosition event
+        getRuleService().routeEvent(position.getStrategy().getName(), closePositionVO);
+
+        getPositionDao().remove(position);
+
+        logger.info("deleted non-tradeable position on " + security + " for strategy " + position.getStrategy().getName());
 
         // unsubscribe if necessary
         if (unsubscribe) {

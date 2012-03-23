@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.security.Forex;
+import com.algoTrader.entity.strategy.CashBalance;
 import com.algoTrader.util.RoundUtil;
 
 public class StrategyImpl extends Strategy {

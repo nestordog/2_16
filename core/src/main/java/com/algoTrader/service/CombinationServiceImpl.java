@@ -10,6 +10,7 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.security.Combination;
 import com.algoTrader.entity.security.Component;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.CombinationType;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
@@ -19,14 +20,20 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     private static Logger logger = MyLogger.getLogger(CombinationServiceImpl.class.getName());
 
     @Override
-    protected Combination handleCreateCombination(CombinationType type) throws Exception {
+    protected Combination handleCreateCombination(CombinationType type, int securityFamilyId) throws Exception {
 
         // create the combination
         Combination combination = Combination.Factory.newInstance();
         combination.setType(type);
 
+        // attach the security family
+        SecurityFamily securityFamily = getSecurityFamilyDao().load(securityFamilyId);
+        combination.setSecurityFamily(securityFamily);
+        securityFamily.getSecurities().add(combination);
+
         // save to DB
         getCombinationDao().create(combination);
+        getSecurityFamilyDao().update(securityFamily);
 
         logger.debug("created combination " + combination);
 
@@ -59,6 +66,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
         }
 
+        String combinationString = combination.toString();
         final Security security = getSecurityDao().load(securityId);
 
         if (security == null) {
@@ -93,7 +101,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             getCombinationDao().create(combination);
         }
 
-        logger.debug("added component " + quantity + " of " + component + " to combination " + combination);
+        logger.debug("added component quantity " + quantity + " of " + component + " to combination " + combinationString);
     }
 
     @Override
@@ -139,7 +147,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             getCombinationDao().create(combination);
         }
 
-        logger.debug("set component " + quantity + " of " + component + " to combination " + combination);
+        logger.debug("set component quantity " + quantity + " of " + component + " to combination " + combination);
     }
 
     @Override
@@ -151,6 +159,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
         }
 
+        String combinationString = combination.toString();
         final Security security = getSecurityDao().load(securityId);
 
         if (security == null) {
@@ -179,7 +188,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             throw new IllegalArgumentException("component on securityId " + securityId + " does not exist");
         }
 
-        logger.debug("removed component " + component + " from combination " + combination);
+        logger.debug("removed component " + component + " from combination " + combinationString);
     }
 
     @Override
