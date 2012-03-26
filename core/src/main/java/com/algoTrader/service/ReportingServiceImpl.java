@@ -99,7 +99,11 @@ public class ReportingServiceImpl extends ReportingServiceBase {
     protected double handleGetStrategyPerformance(String strategyName) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
-        return strategy.getPerformance();
+        if (strategy.isBase()) {
+            return getStrategyDao().getPortfolioPerformance();
+        } else {
+            return strategy.getPerformance();
+        }
     }
 
     @Override

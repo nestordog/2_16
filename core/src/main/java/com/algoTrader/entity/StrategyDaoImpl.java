@@ -188,4 +188,15 @@ public class StrategyDaoImpl extends StrategyDaoBase {
         }
         return exposure / getPortfolioNetLiqValueDouble();
     }
+
+    @Override
+    protected double handleGetPortfolioPerformance() throws Exception {
+
+        Strategy base = findByName(StrategyImpl.BASE);
+        if (base.getBenchmark() != null) {
+            return getPortfolioNetLiqValueDouble() / base.getBenchmark().doubleValue() - 1.0;
+        } else {
+            return Double.NaN;
+        }
+    }
 }
