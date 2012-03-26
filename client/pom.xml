@@ -36,5 +36,10 @@
           <artifactId>orson</artifactId>
           <version>0.5.0</version>
       </dependency>
+      <dependency>
+          <groupId>com.jcraft</groupId>
+          <artifactId>jsch</artifactId>
+          <version>0.1.46</version>
+      </dependency>
   </dependencies>
 </project>
