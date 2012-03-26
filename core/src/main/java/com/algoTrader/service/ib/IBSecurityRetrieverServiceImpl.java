@@ -79,7 +79,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
         // get all current stockOptions (sorted by isin)
         Comparator<Security> comparator = getComparator();
         Set<Security> existingStockOptions = new TreeSet<Security>(getComparator());
-        existingStockOptions.addAll(getStockOptionDao().findBySecurityFamily(family.getId()));
+        existingStockOptions.addAll(getStockOptionDao().findStockOptionsBySecurityFamily(family.getId()));
 
         Set<StockOption> newStockOptions = new TreeSet<StockOption>(comparator);
         for (ContractDetails contractDetails : this.contractDetailsList) {
@@ -131,7 +131,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
         // get all current futures (sorted by isin)
         Comparator<Security> comparator = getComparator();
         Set<Future> existingFutures = new TreeSet<Future>(comparator);
-        existingFutures.addAll(getFutureDao().findBySecurityFamily(family.getId()));
+        existingFutures.addAll(getFutureDao().findFuturesBySecurityFamily(family.getId()));
 
         Set<Future> newFutures = new TreeSet<Future>(comparator);
         for (ContractDetails contractDetails : this.contractDetailsList) {

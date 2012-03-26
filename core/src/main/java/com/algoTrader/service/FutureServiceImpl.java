@@ -23,7 +23,7 @@ public class FutureServiceImpl extends FutureServiceBase {
         FutureFamily family = getFutureFamilyDao().load(futureFamilyId);
         Security underlying = family.getUnderlying();
 
-        List<Future> futures = getFutureDao().findAllFutures(underlying.getId(), DateUtil.getCurrentEPTime());
+        List<Future> futures = getFutureDao().findFuturesByMinExpiration(family.getId(), DateUtil.getCurrentEPTime());
 
         // create the missing part of the futures chain
         for (int i = futures.size() + 1; i <= family.getLength(); i++) {

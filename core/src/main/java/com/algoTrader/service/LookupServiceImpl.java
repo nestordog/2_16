@@ -118,34 +118,72 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected StockOption handleGetNearestStockOption(int underlyingId, Date expirationDate, BigDecimal underlyingSpot, OptionType optionType)
-            throws Exception {
+    protected StockOption handleGetStockOptionByMinExpirationAndMinStrikeDistance(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot,
+            OptionType optionType) throws Exception {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
-        StockOption stockOption = getStockOptionDao().findNearestStockOption(underlyingId, expirationDate, underlyingSpot, optionType.getValue());
+        StockOption stockOption = getStockOptionDao().findByMinExpirationAndStrikeLimit(underlyingId, targetExpirationDate, underlyingSpot,
+                optionType.getValue());
 
         // if no future was found, create it if simulating options
         if (this.simulation && this.simulateStockOptions) {
             if ((stockOption == null) || Math.abs(stockOption.getStrike().doubleValue() - underlyingSpot.doubleValue()) > family.getStrikeDistance()) {
 
-                stockOption = getStockOptionService().createDummyStockOption(family.getId(), expirationDate, underlyingSpot, optionType);
+                stockOption = getStockOptionService().createDummyStockOption(family.getId(), targetExpirationDate, underlyingSpot, optionType);
             }
         }
 
         if (stockOption == null) {
-            throw new LookupServiceException("no stockOption available for expiration " + expirationDate + " strike " + underlyingSpot + " type " + optionType);
+            throw new LookupServiceException("no stockOption available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type "
+                    + optionType);
         } else {
             return stockOption;
         }
     }
 
     @Override
-    protected StockOption handleGetNearestStockOptionWithTicks(int underlyingId, Date expirationDate, BigDecimal underlyingSpot, OptionType optionType,
+    protected StockOption handleGetStockOptionByMinExpirationAndMinStrikeDistanceWithTicks(int underlyingId, Date targetExpirationDate,
+            BigDecimal underlyingSpot, OptionType optionType, Date date) throws Exception {
+
+        return getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(underlyingId, targetExpirationDate, underlyingSpot, optionType.getValue(),
+                date);
+    }
+
+    @Override
+    protected StockOption handleGetStockOptionByMinExpirationAndStrikeLimit(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot,
+            OptionType optionType)
+            throws Exception {
+
+        StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
+
+        StockOption stockOption = getStockOptionDao().findByMinExpirationAndStrikeLimit(underlyingId, targetExpirationDate, underlyingSpot,
+                optionType.getValue());
+
+        // if no future was found, create it if simulating options
+        if (this.simulation && this.simulateStockOptions) {
+            if ((stockOption == null) || Math.abs(stockOption.getStrike().doubleValue() - underlyingSpot.doubleValue()) > family.getStrikeDistance()) {
+
+                stockOption = getStockOptionService().createDummyStockOption(family.getId(), targetExpirationDate, underlyingSpot, optionType);
+            }
+        }
+
+        if (stockOption == null) {
+            throw new LookupServiceException("no stockOption available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type "
+                    + optionType);
+        } else {
+            return stockOption;
+        }
+    }
+
+    @Override
+    protected StockOption handleGetStockOptionByMinExpirationAndStrikeLimitWithTicks(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot,
+            OptionType optionType,
             Date date) throws Exception {
 
-        return getStockOptionDao().findNearestStockOptionWithTicks(underlyingId, expirationDate, underlyingSpot, optionType.getValue(), date);
+        return getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(underlyingId, targetExpirationDate, underlyingSpot, optionType.getValue(), date);
     }
+
 
     @Override
     protected List<StockOption> handleGetSubscribedStockOptions() throws Exception {
@@ -154,15 +192,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Date handleGetNearestExpirationWithTicks(int underlyingId, Date date, Date targetDate) throws Exception {
+    protected Future handleGetFutureByMinExpiration(int futureFamilyId, Date expirationDate) throws Exception {
 
-        return getStockOptionDao().findNearestExpirationWithTicks(underlyingId, date, targetDate);
-    }
-
-    @Override
-    protected Future handleGetNearestFuture(int futureFamilyId, Date expirationDate) throws Exception {
-
-        Future future = getFutureDao().findNearestFuture(futureFamilyId, expirationDate);
+        Future future = getFutureDao().findByMinExpiration(futureFamilyId, expirationDate);
 
         // if no future was found, create the missing part of the future-chain
         if (this.simulation && future == null && (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures)) {
@@ -170,7 +202,7 @@ public class LookupServiceImpl extends LookupServiceBase {
             FutureFamily futureFamily = getFutureFamilyDao().load(futureFamilyId);
 
             getFutureService().createDummyFutures(futureFamily.getId());
-            future = getFutureDao().findNearestFuture(futureFamilyId, expirationDate);
+            future = getFutureDao().findByMinExpiration(futureFamilyId, expirationDate);
         }
 
         if (future == null) {
@@ -186,13 +218,13 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         FutureFamily futureFamily = getFutureFamilyDao().load(futureFamilyId);
 
-        Future future = getFutureDao().findFutureByExpiration(futureFamilyId, expirationDate);
+        Future future = getFutureDao().findByExpiration(futureFamilyId, expirationDate);
 
         // if no future was found, create the missing part of the future-chain
         if (this.simulation && future == null && (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures)) {
 
             getFutureService().createDummyFutures(futureFamily.getId());
-            future = getFutureDao().findFutureByExpiration(futureFamilyId, expirationDate);
+            future = getFutureDao().findByExpiration(futureFamilyId, expirationDate);
         }
 
         if (future == null) {
@@ -208,13 +240,13 @@ public class LookupServiceImpl extends LookupServiceBase {
         FutureFamily futureFamily = getFutureFamilyDao().load(futureFamilyId);
 
         Date expirationDate = DateUtil.getExpirationDateNMonths(futureFamily.getExpirationType(), targetExpirationDate, duration);
-        Future future = getFutureDao().findFutureByExpiration(futureFamilyId, expirationDate);
+        Future future = getFutureDao().findByExpiration(futureFamilyId, expirationDate);
 
         // if no future was found, create the missing part of the future-chain
         if (this.simulation && future == null && (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures)) {
 
             getFutureService().createDummyFutures(futureFamily.getId());
-            future = getFutureDao().findFutureByExpiration(futureFamilyId, expirationDate);
+            future = getFutureDao().findByExpiration(futureFamilyId, expirationDate);
         }
 
         if (future == null) {
@@ -227,7 +259,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<Future> handleGetFuturesByMinExpiration(int futureFamilyId, Date minExpirationDate) throws Exception {
 
-        return getFutureDao().findFutureByMinExpiration(futureFamilyId, minExpirationDate);
+        return getFutureDao().findFuturesByMinExpiration(futureFamilyId, minExpirationDate);
     }
 
     @Override

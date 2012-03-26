@@ -40,24 +40,39 @@ public class TickwiseIncrementalLimitOrderImpl extends TickwiseIncrementalLimitO
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 
+        // check spead and adjust offsetTicks if spead is too narrow
+        int spreadTicks = family.getSpreadTicks(tick.getBid(), tick.getAsk());
+        int adjustedStartOffsetTicks = startOffsetTicks;
+        int adjustedEndOffsetTicks = endOffsetTicks;
+        if (spreadTicks < 0) {
+
+            throw new RuntimeException("markets are crossed: bid " + tick.getBid() + " ask " + tick.getAsk());
+
+        } else if (spreadTicks < (startOffsetTicks - endOffsetTicks)) {
+
+            // first reduce startOffsetTicks to min 0
+            adjustedStartOffsetTicks = Math.max(spreadTicks + endOffsetTicks, 0);
+            if (spreadTicks < (adjustedStartOffsetTicks - endOffsetTicks)) {
+
+                // if necessary also increase endOffstTicks to max 0
+                adjustedEndOffsetTicks = Math.min(adjustedStartOffsetTicks - spreadTicks, 0);
+            }
+        }
+
         if (Side.BUY.equals(getSide())) {
-            setStartLimit(family.adjustPrice(tick.getBid(), startOffsetTicks));
-            setEndLimit(family.adjustPrice(tick.getAsk(), endOffsetTicks));
+            setStartLimit(family.adjustPrice(tick.getBid(), adjustedStartOffsetTicks));
+            setEndLimit(family.adjustPrice(tick.getAsk(), adjustedEndOffsetTicks));
 
             if (getStartLimit().doubleValue() <= 0.0) {
                 setStartLimit(family.adjustPrice(new BigDecimal(0), 1));
-            }
-
-            if (getStartLimit().doubleValue() > getEndLimit().doubleValue()) {
-                throw new RuntimeException("startLimit " + getStartLimit() + " cannot be greater than endLimit " + getEndLimit());
             }
 
             setLimit(getStartLimit());
 
         } else {
 
-            setStartLimit(family.adjustPrice(tick.getAsk(), -startOffsetTicks));
-            setEndLimit(family.adjustPrice(tick.getBid(), -endOffsetTicks));
+            setStartLimit(family.adjustPrice(tick.getAsk(), -adjustedStartOffsetTicks));
+            setEndLimit(family.adjustPrice(tick.getBid(), -adjustedEndOffsetTicks));
 
             if (getStartLimit().doubleValue() <= 0.0) {
                 setStartLimit(family.adjustPrice(new BigDecimal(0), 1));
@@ -65,10 +80,6 @@ public class TickwiseIncrementalLimitOrderImpl extends TickwiseIncrementalLimitO
 
             if (getEndLimit().doubleValue() <= 0.0) {
                 setEndLimit(family.adjustPrice(new BigDecimal(0), 1));
-            }
-
-            if (getStartLimit().doubleValue() < getEndLimit().doubleValue()) {
-                throw new RuntimeException("startLimit " + getStartLimit() + " cannot be smaller than endLimit " + getEndLimit());
             }
 
             setLimit(getStartLimit());

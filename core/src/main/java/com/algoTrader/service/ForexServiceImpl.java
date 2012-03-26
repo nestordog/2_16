@@ -69,9 +69,9 @@ public class ForexServiceImpl extends ForexServiceBase {
 
             } else {
 
-                logger.info("no forex equalization is performed because amount " + RoundUtil.getBigDecimal(Math.abs(netLiqValueBase)) + " is less than "
-                        + this.fxEqualizationMinAmount);
-                return;
+                logger.info("no forex equalization is performed on " + balance.getCurrency() + " because amount "
+                        + RoundUtil.getBigDecimal(Math.abs(netLiqValueBase)) + " is less than " + this.fxEqualizationMinAmount);
+                continue;
             }
         }
     }

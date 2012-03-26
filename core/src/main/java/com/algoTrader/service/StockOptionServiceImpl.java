@@ -83,7 +83,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
         for (Date date : dates) {
 
-            List<Date> expirationDates = (List<Date>) getStockOptionDao().findExpirationsByDate(StockOptionDao.TRANSFORM_NONE, date);
+            List<Date> expirationDates = (List<Date>) getStockOptionDao().findExpirationsByUnderlyingAndDate(StockOptionDao.TRANSFORM_NONE, underlying.getId(), date);
 
             // only consider the next two expiration dates
             if (expirationDates.size() > 2) {
@@ -232,8 +232,8 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
             return null;
         }
 
-        StockOption callOption = getStockOptionDao().findNearestStockOption(underlying.getId(), date, underlyingTick.getLast(), "CALL");
-        StockOption putOption = getStockOptionDao().findNearestStockOption(underlying.getId(), date, underlyingTick.getLast(), "PUT");
+        StockOption callOption = getStockOptionDao().findByMinExpirationAndStrikeLimit(underlying.getId(), date, underlyingTick.getLast(), "CALL");
+        StockOption putOption = getStockOptionDao().findByMinExpirationAndStrikeLimit(underlying.getId(), date, underlyingTick.getLast(), "PUT");
 
         Tick callTick = getTickDao().findByDateAndSecurity(date, callOption.getId());
         if (callTick == null || callTick.getBid() == null || callTick.getAsk() == null) {

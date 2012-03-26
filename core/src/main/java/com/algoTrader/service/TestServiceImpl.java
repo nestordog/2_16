@@ -105,7 +105,7 @@ public class TestServiceImpl extends TestServiceBase {
                 getStockOptionDao().loadAll();
                 break;
             case 11:
-                getStockOptionDao().findNearestStockOption(4, new Date(), new BigDecimal(6500), "PUT");
+                getStockOptionDao().findByMinExpirationAndStrikeLimit(4, new Date(), new BigDecimal(6500), "PUT");
                 break;
             case 12:
                 getStockOptionDao().findSubscribedStockOptions();

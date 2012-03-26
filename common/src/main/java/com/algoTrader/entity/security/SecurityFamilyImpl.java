@@ -52,7 +52,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
         int ticks = 0;
         while (price.compareTo(ask) < 0) {
             ticks++;
-            adjustPrice(price, 1);
+            price = adjustPrice(price, 1);
         }
         return ticks;
     }
