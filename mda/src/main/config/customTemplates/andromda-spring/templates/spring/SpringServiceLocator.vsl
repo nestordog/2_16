@@ -184,18 +184,7 @@ public class $serviceLocatorName
      */
     public final <T> T getService(String serviceName, Class<T> clazz) 
     {
-        // check and see if we are in OSGi environment
-        org.osgi.framework.Bundle bundle = org.osgi.framework.FrameworkUtil.getBundle(this.getClass());
-        if (bundle != null) 
-        {
-            org.osgi.framework.BundleContext bundleContext = bundle.getBundleContext();
-            org.osgi.framework.ServiceReference<T> serviceReference = bundleContext.getServiceReference(clazz);
-            return bundleContext.getService(serviceReference);
-        } else 
-        {
-            // otherwise use the local spring context
-            return getContext().getBean(BEAN_PREFIX + serviceName, clazz);
-        }
+        return getContext().getBean(BEAN_PREFIX + serviceName, clazz);
     }
 
     /**
