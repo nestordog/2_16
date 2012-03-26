@@ -696,7 +696,7 @@ $target.getDocumentation("     * ")
 			org.hibernate.collection.AbstractPersistentCollection col = (org.hibernate.collection.AbstractPersistentCollection) this.${target.name};
 			if (!col.wasInitialized() && col.getSession() == null) {
 
-				this.${target.name} = ($target.getterSetterTypeName) com.algoTrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadCollection(this, "call(${entity.entityName}.${target.getterName})", col);
+				this.${target.name} = ($target.getterSetterTypeName) com.algoTrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadCollection(this, "${entity.entityName}.${target.getterName}", col);
 			}
 		}	
 #else
@@ -707,7 +707,7 @@ $target.getDocumentation("     * ")
 
 			if (initializer.isUninitialized() && initializer.getSession() == null) {
 
-				this.${target.name} = ($target.getterSetterTypeName) com.algoTrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadProxy(this, "call(${entity.entityName}.${target.getterName})", proxy);
+				this.${target.name} = ($target.getterSetterTypeName) com.algoTrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadProxy(this, "${entity.entityName}.${target.getterName}", proxy);
 			}
 		}
 #end		
