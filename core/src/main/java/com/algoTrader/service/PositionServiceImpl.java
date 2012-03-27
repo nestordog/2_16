@@ -203,10 +203,10 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         // in generall, exit value should not be set higher (lower) than existing exitValue for long (short) positions
         if (!force) {
-            if (Direction.SHORT.equals(position.getDirection()) && exitValue > position.getExitValueDouble()) {
+            if (Direction.SHORT.equals(position.getDirection()) && position.getExitValue() != null && exitValue > position.getExitValueDouble()) {
                 logger.warn("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of short position " + positionId);
                 return;
-            } else if (Direction.LONG.equals(position.getDirection()) && exitValue < position.getExitValueDouble()) {
+            } else if (Direction.LONG.equals(position.getDirection()) && position.getExitValue() != null && exitValue < position.getExitValueDouble()) {
                 logger.warn("exit value " + exitValue + " is lower than existing exit value " + position.getExitValue() + " of long position " + positionId);
                 return;
             }
