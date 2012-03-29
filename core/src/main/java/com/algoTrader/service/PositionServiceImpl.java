@@ -20,7 +20,7 @@ import com.algoTrader.entity.security.Combination;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
-import com.algoTrader.entity.trade.InitializingOrder;
+import com.algoTrader.entity.trade.InitializingOrderI;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.entity.trade.TradeCallback;
@@ -77,8 +77,8 @@ public class PositionServiceImpl extends PositionServiceBase {
             order.setSide(side);
 
             // initialize the order if necessary
-            if (order instanceof InitializingOrder) {
-                ((InitializingOrder) order).init(null);
+            if (order instanceof InitializingOrderI) {
+                ((InitializingOrderI) order).init(null);
             }
 
             // create an OrderCallback if unsubscribe is requested
@@ -183,8 +183,8 @@ public class PositionServiceImpl extends PositionServiceBase {
         order.setSide(side);
 
         // initialize the order if necessary
-        if (order instanceof InitializingOrder) {
-            ((InitializingOrder) order).init(null);
+        if (order instanceof InitializingOrderI) {
+            ((InitializingOrderI) order).init(null);
         }
 
         getOrderService().sendOrder(order);

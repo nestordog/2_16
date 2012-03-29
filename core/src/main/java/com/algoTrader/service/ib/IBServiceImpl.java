@@ -11,12 +11,12 @@ import com.algoTrader.enumeration.ConnectionState;
 
 public class IBServiceImpl extends IBServiceBase {
 
-    private Set<IBServiceInterface> services;
+    private Set<IBServiceI> services;
 
     @Override
     protected void handleInit() {
 
-        for (IBServiceInterface service : this.getAllIBServices()) {
+        for (IBServiceI service : this.getAllIBServices()) {
             service.init();
         }
     }
@@ -24,7 +24,7 @@ public class IBServiceImpl extends IBServiceBase {
     @Override
     protected void handleConnect() {
 
-        for (IBServiceInterface service : this.getAllIBServices()) {
+        for (IBServiceI service : this.getAllIBServices()) {
             service.connect();
         }
     }
@@ -33,17 +33,17 @@ public class IBServiceImpl extends IBServiceBase {
     protected Map<String, ConnectionState> handleGetAllConnectionStates() {
 
         Map<String, ConnectionState> connectionStates = new HashMap<String, ConnectionState>();
-        for (IBServiceInterface service : this.getAllIBServices()) {
+        for (IBServiceI service : this.getAllIBServices()) {
             connectionStates.put(ClassUtils.getShortName(service.getClass().getInterfaces()[0]), service.getConnectionState());
         }
         return connectionStates;
     }
 
-    private Set<IBServiceInterface> getAllIBServices() {
+    private Set<IBServiceI> getAllIBServices() {
 
         if (this.services == null) {
 
-            this.services = new HashSet<IBServiceInterface>();
+            this.services = new HashSet<IBServiceI>();
             this.services.add(getIBAccountService());
             this.services.add(getIBHistoricalDataService());
             this.services.add(getIBSecurityRetrieverService());

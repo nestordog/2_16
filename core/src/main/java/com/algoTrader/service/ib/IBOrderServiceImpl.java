@@ -4,10 +4,10 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.Position;
-import com.algoTrader.entity.trade.LimitOrderInterface;
+import com.algoTrader.entity.trade.LimitOrderI;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderQuantityValidationException;
-import com.algoTrader.entity.trade.StopOrderInterface;
+import com.algoTrader.entity.trade.StopOrderI;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.util.MyLogger;
@@ -156,13 +156,13 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
         }
 
         //set the limit price if order is a limit order or stop limit order
-        if (order instanceof LimitOrderInterface) {
-            ibOrder.m_lmtPrice = ((LimitOrderInterface) order).getLimit().doubleValue();
+        if (order instanceof LimitOrderI) {
+            ibOrder.m_lmtPrice = ((LimitOrderI) order).getLimit().doubleValue();
         }
 
         //set the stop price if order is a stop order or stop limit order
-        if (order instanceof StopOrderInterface) {
-            ibOrder.m_auxPrice = ((StopOrderInterface) order).getStop().doubleValue();
+        if (order instanceof StopOrderI) {
+            ibOrder.m_auxPrice = ((StopOrderI) order).getStop().doubleValue();
         }
 
         // progapate the order to all corresponding esper engines
