@@ -33,14 +33,11 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
+import com.algoTrader.entity.Property;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.Transaction;
-import com.algoTrader.entity.security.Combination;
-import com.algoTrader.entity.security.CombinationDao;
-import com.algoTrader.entity.security.Component;
-import com.algoTrader.entity.security.ComponentDao;
 import com.algoTrader.entity.security.FutureDao;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOptionDao;
@@ -134,19 +131,15 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         }
         getSubscriptionDao().remove(nonPersistentSubscriptions);
 
-        // delete all alert values
-        List<Subscription> persistentSubscriptions = getSubscriptionDao().findPersistent();
-        for (Subscription subscription : persistentSubscriptions) {
-            subscription.setUpperAlertValue(null);
-            subscription.setLowerAlertValue(null);
-            getSubscriptionDao().update(subscription);
+        // delete all non-persistent combinations
+        getCombinationDao().remove(getCombinationDao().findNonPersistent());
+
+        // delete all non-persistent properties
+        List<Property> nonPersistentProperties = getPropertyDao().findNonPersistent();
+        for (Property property : nonPersistentProperties) {
+            property.getConfigurable().getProperties().remove(property);
         }
-
-        // delete all components
-        getComponentDao().remove((Collection<Component>) getComponentDao().loadAll(ComponentDao.TRANSFORM_NONE));
-
-        // delete all combinations
-        getCombinationDao().remove((Collection<Combination>) getCombinationDao().loadAll(CombinationDao.TRANSFORM_NONE));
+        getPropertyDao().remove(nonPersistentProperties);
 
         // delete all StockOptions if they are beeing simulated
         if (this.simulateStockOptions) {

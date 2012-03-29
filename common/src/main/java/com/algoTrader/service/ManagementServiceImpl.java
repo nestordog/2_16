@@ -16,7 +16,6 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
-import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
 import com.algoTrader.vo.DiagramVO;
@@ -129,15 +128,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         } else {
             for (Subscription subscription : getLookupService().getSubscriptionsByStrategy(strategyName)) {
 
-                final Security security = subscription.getSecurity();
-
                 TickVO tickVO = getTickVO(tickVOs, subscription.getSecurity());
-
-                // add db data
-                int scale = security.getSecurityFamily().getScale();
-                tickVO.setLowerAlertValue(subscription.getLowerAlertValue() != null ? RoundUtil.getBigDecimal(subscription.getLowerAlertValue(), scale) : null);
-                tickVO.setUpperAlertValue(subscription.getUpperAlertValue() != null ? RoundUtil.getBigDecimal(subscription.getUpperAlertValue(), scale) : null);
-                tickVO.setAmount(subscription.getAmount() != null ? RoundUtil.getBigDecimal(subscription.getAmount(), scale) : null);
 
                 processedTickVOs.add(tickVO);
             }

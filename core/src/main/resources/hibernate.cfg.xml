@@ -18,9 +18,12 @@
 
     <property name="show_sql">false</property>
     <!-- <property name="hibernate.hbm2ddl.auto">update</property> -->
-    <property name="cache.provider_class">org.hibernate.cache.EhCacheProvider</property>
-    <property name="hibernate.cache.query_cache_factory">org.hibernate.cache.StandardQueryCacheFactory</property>
-    <property name="hibernate.cache.use_query_cache">true</property>
+
+    <property name="hibernate.cache.use_second_level_cache">false</property>
+<!--     <property name="cache.provider_class">org.hibernate.cache.EhCacheProvider</property> -->
+<!--     <property name="hibernate.cache.query_cache_factory">org.hibernate.cache.StandardQueryCacheFactory</property> -->
+    <property name="hibernate.cache.use_query_cache">false</property>
+
     <property name="current_session_context_class">thread</property>
     <property name="hibernate.jdbc.batch_size">50</property>
 
@@ -28,6 +31,7 @@
     <mapping resource="com/algoTrader/entity/Strategy.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Transaction.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Subscription.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/Property.hbm.xml" />
     <mapping resource="com/algoTrader/entity/marketData/MarketDataEvent.hbm.xml" />
     <mapping resource="com/algoTrader/entity/security/Security.hbm.xml" />
     <mapping resource="com/algoTrader/entity/security/SecurityFamily.hbm.xml" />

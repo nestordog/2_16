@@ -15,6 +15,7 @@ import com.algoTrader.entity.PositionImpl;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
+import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Combination;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
@@ -123,7 +124,6 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         position.setExitValue(null);
         position.setMaintenanceMargin(null);
-        position.setProfitTarget(null);
 
         position.setSecurity(security);
         security.getPositions().add(position);
@@ -195,7 +195,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         Position position = getPositionDao().load(positionId);
 
-        // we don't want to set the exitValue to (almost)Zero
+        // prevent exitValues near Zero
         if (exitValue <= 0.05) {
             logger.warn("setting of exitValue below 0.05 is prohibited: " + exitValue);
             return;
@@ -213,13 +213,14 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
 
         // exitValue cannot be lower than currentValue
-        double currentValue = position.getSecurity().getLastTick().getCurrentValueDouble();
-        if (Direction.SHORT.equals(position.getDirection()) && exitValue < currentValue) {
-            throw new PositionServiceException("ExitValue (" + exitValue + ") for short-position " + position.getId() + " is lower than currentValue: "
-                    + currentValue);
-        } else if (Direction.LONG.equals(position.getDirection()) && exitValue > currentValue) {
-            throw new PositionServiceException("ExitValue (" + exitValue + ") for long-position " + position.getId() + " is higher than currentValue: "
-                    + currentValue);
+        Tick tick = position.getSecurity().getLastTick();
+        if (tick != null) {
+            double currentValue = tick.getCurrentValueDouble();
+            if (Direction.SHORT.equals(position.getDirection()) && exitValue < currentValue) {
+                throw new PositionServiceException("ExitValue (" + exitValue + ") for short-position " + position.getId() + " is lower than currentValue: " + currentValue);
+            } else if (Direction.LONG.equals(position.getDirection()) && exitValue > currentValue) {
+                throw new PositionServiceException("ExitValue (" + exitValue + ") for long-position " + position.getId() + " is higher than currentValue: " + currentValue);
+            }
         }
 
         position.setExitValue(exitValue);
@@ -240,27 +241,6 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             logger.info("removed exit value of " + position.getSecurity().getSymbol());
         }
-    }
-
-    @Override
-    protected void handleSetProfitTarget(int positionId, double profitTarget) throws Exception {
-
-        Position position = getPositionDao().load(positionId);
-
-        // profit value cannot be lower than currentValue
-        double currentValue = position.getSecurity().getLastTick().getCurrentValueDouble();
-        if (Direction.SHORT.equals(position.getDirection()) && profitTarget > currentValue) {
-            throw new PositionServiceException("ProfitValue (" + profitTarget + ") for short-position " + position.getId() + " is higher than currentValue: "
-                    + currentValue);
-        } else if (Direction.LONG.equals(position.getDirection()) && profitTarget < currentValue) {
-            throw new PositionServiceException("ProfitValue (" + profitTarget + ") for long-position " + position.getId() + " is lower than currentValue: "
-                    + currentValue);
-        }
-
-        position.setProfitTarget(profitTarget);
-        getPositionDao().update(position);
-
-        logger.info("set profit target " + position.getSecurity().getSymbol() + " to " + profitTarget);
     }
 
     @Override

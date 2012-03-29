@@ -197,48 +197,6 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         }
     }
 
-    @Override
-    protected void handleSetAlertValue(String strategyName, int securityId, Double value, boolean upper) throws Exception {
-
-        Subscription subscription = getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId);
-
-        if (upper) {
-            subscription.setUpperAlertValue(value);
-            logger.info("set upper alert value to " + decimalFormat.format(value) + " for subscription " + subscription);
-        } else {
-            subscription.setLowerAlertValue(value);
-            logger.info("set lower alert value to " + decimalFormat.format(value) + " for subscription " + subscription);
-        }
-
-        getSubscriptionDao().update(subscription);
-    }
-
-    @Override
-    protected void handleRemoveAlertValues(String strategyName, int securityId) throws Exception {
-
-        Subscription subscription = getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId);
-        if (subscription.getUpperAlertValue() != null || subscription.getLowerAlertValue() != null) {
-
-            subscription.setUpperAlertValue(null);
-            subscription.setLowerAlertValue(null);
-
-            getSubscriptionDao().update(subscription);
-
-            logger.info("removed alert values for subscription " + subscription);
-        }
-    }
-
-    @Override
-    protected void handleSetAmount(String strategyName, int securityId, Double amount) throws Exception {
-
-        Subscription subscription = getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId);
-
-        subscription.setAmount(amount);
-        logger.info("set amount to " + decimalFormat.format(amount) + " for subscription " + subscription);
-
-        getSubscriptionDao().update(subscription);
-    }
-
     public static class PropagateMarketDataEventSubscriber {
 
         public void update(MarketDataEvent marketDataEvent) {
