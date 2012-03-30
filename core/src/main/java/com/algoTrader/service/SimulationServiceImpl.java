@@ -1,6 +1,7 @@
 package com.algoTrader.service;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -88,9 +89,11 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             Collection<Transaction> transactions = strategy.getTransactions();
             Set<Transaction> toRemoveTransactions = new HashSet<Transaction>();
             Set<Transaction> toKeepTransactions = new HashSet<Transaction>();
+            BigDecimal initialAmount = new BigDecimal(0);
             for (Transaction transaction : transactions) {
                 if (transaction.getId() == 1) {
                     toKeepTransactions.add(transaction);
+                    initialAmount = transaction.getPrice();
                 } else {
                     toRemoveTransactions.add(transaction);
                 }
@@ -98,10 +101,20 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             getTransactionDao().remove(toRemoveTransactions);
             strategy.setTransactions(toKeepTransactions);
 
-            // delete all cashBalances and references to them
+            // delete all cashBalances except the initial CREDIT
             Collection<CashBalance> cashBalances = strategy.getCashBalances();
-            getCashBalanceDao().remove(cashBalances);
-            strategy.getCashBalances().removeAll(cashBalances);
+            Set<CashBalance> toRemoveCashBalance = new HashSet<CashBalance>();
+            Set<CashBalance> toKeepCashBalances = new HashSet<CashBalance>();
+            for (CashBalance cashBalance : cashBalances) {
+                if (cashBalance.getId() == 1) {
+                    toKeepCashBalances.add(cashBalance);
+                    cashBalance.setAmount(initialAmount);
+                } else {
+                    toRemoveCashBalance.add(cashBalance);
+                }
+            }
+            getCashBalanceDao().remove(toRemoveCashBalance);
+            strategy.setCashBalances(toKeepCashBalances);
 
             // delete all positions and references to them
             Collection<Position> positions = strategy.getPositions();

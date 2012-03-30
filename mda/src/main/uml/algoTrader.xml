@@ -5758,6 +5758,13 @@
                                 </type>
                             </ownedParameter>
                             <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1332842019721_2483_5706' name='' visibility='public' isOrdered='false' isUnique='true' direction='return' isException='false' isStream='false' type='_16_5_4_8b60294_1333011771203_706423_6171'/>
+                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1333115965657_896163_4997' name='persistent' visibility='public' isOrdered='false' isUnique='true' direction='in' isException='false' isStream='false'>
+                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_736816_6'>
+                                    <xmi:Extension extender='MagicDraw UML 16.5'>
+                                        <referenceExtension referentPath='datatype::boolean' referentType='DataType'/>
+                                    </xmi:Extension>
+                                </type>
+                            </ownedParameter>
                         </ownedOperation>
                         <ownedOperation xmi:type='uml:Operation' xmi:id='_16_5_4_8b60294_1332842030673_376658_5707' name='removeProperty' visibility='public' isLeaf='false' isStatic='false' isAbstract='false' concurrency='sequential' isQuery='false'>
                             <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1332842030675_250526_5708' name='propertyHolder' visibility='public' isOrdered='false' isUnique='true' direction='in' isException='false' isStream='false' type='_16_5_4_8b60294_1333011771203_706423_6171'/>
@@ -12182,7 +12189,7 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='false'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
@@ -12321,7 +12328,7 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='false'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
@@ -12433,7 +12440,7 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='false'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='43'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
@@ -12740,7 +12747,7 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='false'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='1600'/>
                     <maximized xmi:value='false'/>
@@ -13350,7 +13357,7 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='false'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
@@ -13579,7 +13586,7 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='true'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
@@ -13843,7 +13850,7 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='false'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
@@ -14092,7 +14099,7 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='false'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
@@ -14224,7 +14231,7 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='true'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
@@ -14368,7 +14375,7 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='false'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
@@ -14577,7 +14584,7 @@
                     <zoomFactor xmi:value='0.75'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='false'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='303'/>
                     <maximized xmi:value='false'/>
@@ -18960,7 +18967,7 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='false'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='13'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
@@ -19604,8 +19611,8 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='true'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
-                    <diagramScrollPositionX xmi:value='37'/>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
+                    <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
                     <active xmi:value='false'/>
@@ -19932,23 +19939,6 @@
                                 <mdElement elementClass='Role' xmi:id='_9_5_1_8b60294_1302789158363_339407_12451'>
                                     <elementID xmi:idref='_9_5_1_8b60294_1302789146218_733872_10923'/>
                                     <geometry>1270, 30, 10, 10</geometry>
-                                    <mdOwnedViews>
-                                        <mdElement elementClass='TextBoxWithIcon' xmi:id='_16_5_4_8b60294_1323096966929_915205_4510'>
-                                            <geometry>1106, 2, 171, 30</geometry>
-                                            <text>&lt;&lt;PersistentAssociationEnd&gt;&gt;
-&lt;&lt;PersistentElement&gt;&gt;</text>
-                                        </mdElement>
-                                        <mdElement elementClass='TextBox' xmi:id='_16_5_4_8b60294_1323096988743_641116_4515'>
-                                            <geometry>1051, 38, 226, 32</geometry>
-                                            <text>&lt;html&gt;
-&lt;body&gt;
-&lt;p&gt;{&lt;span style=&#39;white-space: nowrap&#39;&gt;andromda_hibernate_lazy = false&lt;/span&gt;,&lt;br&gt;&lt;span style=&#39;white-space: nowrap&#39;&gt;andromda_hibernate_outerjoin = default&lt;/span&gt;}&lt;/p&gt;
-&lt;/body&gt;
-&lt;/html&gt;</text>
-                                        </mdElement>
-                                    </mdOwnedViews>
-                                    <roleStereotypeID xmi:idref='_16_5_4_8b60294_1323096966929_915205_4510'/>
-                                    <roleTaggedValuesID xmi:idref='_16_5_4_8b60294_1323096988743_641116_4515'/>
                                 </mdElement>
                             </mdOwnedViews>
                             <associationFirstEndID xmi:idref='_9_5_1_8b60294_1302789158363_291413_12445'/>
@@ -19976,7 +19966,7 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='false'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
@@ -20513,7 +20503,7 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='true'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
@@ -20648,9 +20638,9 @@
                     <zoomFactor xmi:value='1.0'/>
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='false'/>
-                    <diagramWindowBounds>2, 24, 1664, 928</diagramWindowBounds>
+                    <diagramWindowBounds>2, 24, 1469, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
-                    <diagramScrollPositionY xmi:value='880'/>
+                    <diagramScrollPositionY xmi:value='960'/>
                     <maximized xmi:value='false'/>
                     <active xmi:value='true'/>
                     <mdOwnedViews>
@@ -20799,7 +20789,7 @@
                                     <index xmi:value='0'/>
                                 </mdElement>
                             </properties>
-                            <geometry>480, 1010, 128, 66</geometry>
+                            <geometry>950, 1420, 128, 66</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314817408474_577874_3409'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314816522002_389300_1679'/>
@@ -21061,7 +21051,7 @@
                                     <propertyDescriptionID>SUPPRESS_CLASS_OPERATIONS_DESCRIPTION</propertyDescriptionID>
                                 </mdElement>
                             </properties>
-                            <geometry>10, 1010, 456, 153</geometry>
+                            <geometry>10, 1010, 829, 153</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1332848420249_675636_6040'>
                             <elementID xmi:idref='_16_5_4_8b60294_1332841860221_300796_5681'/>
@@ -21079,7 +21069,7 @@
                                     <propertyDescriptionID>SUPPRESS_CLASS_OPERATIONS_DESCRIPTION</propertyDescriptionID>
                                 </mdElement>
                             </properties>
-                            <geometry>10, 1510, 887, 78</geometry>
+                            <geometry>10, 1510, 1002, 78</geometry>
                         </mdElement>
                     </mdOwnedViews>
                 </mdElement>
@@ -22144,7 +22134,7 @@
                         <mdElement elementClass='StringProperty'>
                             <propertyID>BROWSER_LAYOUT</propertyID>
                             <propertyDescriptionID>BROWSER_LAYOUT_DESCRIPTION</propertyDescriptionID>
-                            <value>0 14 0 0 0 0 0 0 0 0 0 0 4 0 0 0 3 0 0 0 0 6 0 0 0 9 0 0 0 f 0 4d 0 45 0 53 0 53 0 41 0 47 0 45 0 53 0 5f 0 57 0 49 0 4e 0 44 0 4f 0 57 0 0 32 ff 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 f 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 63 0 0 0 1 0 0 0 4 0 0 32 ff 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 2 0 0 0 0 0 0 1 dc 0 0 0 1 0 0 32 ff 0 0 0 1 0 0 90 9 0 0 1 dc 0 0 0 0 0 0 0 2 0 0 4e 9b 0 0 1 dc 0 0 0 1 0 0 0 0 0 0 32 ff 0 0 0 0 0 0 0 3c 0 0 0 3c 0 0 0 c8 0 0 0 c8 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 14 0 53 0 45 0 41 0 52 0 43 0 48 0 5f 0 52 0 45 0 53 0 55 0 4c 0 54 0 53 0 5f 0 54 0 52 0 45 0 45 0 31 0 0 a0 b6 0 0 0 8 0 0 0 0 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 0 f2 0 0 0 0 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 a0 b6 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 14 79 0 0 0 5 0 0 e8 50 0 0 cd 0 0 0 5c a0 0 0 70 28 0 0 a0 b6 0 0 0 3 0 0 28 80 0 0 14 79 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 f 0 45 0 58 0 54 0 45 0 4e 0 53 0 49 0 4f 0 4e 0 53 0 5f 0 54 0 52 0 45 0 45 0 0 70 28 0 0 0 8 0 0 0 0 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 0 f2 0 0 0 0 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 70 28 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 14 79 0 0 0 5 0 0 e8 50 0 0 cd 0 0 0 5c a0 0 0 70 28 0 0 a0 b6 0 0 0 3 0 0 28 80 0 0 14 79 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 d 0 44 0 49 0 41 0 47 0 52 0 41 0 4d 0 53 0 5f 0 54 0 52 0 45 0 45 0 0 5c a0 0 0 0 8 0 0 0 0 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 0 f2 0 0 0 0 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 5c a0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 14 79 0 0 0 5 0 0 e8 50 0 0 cd 0 0 0 5c a0 0 0 70 28 0 0 a0 b6 0 0 0 3 0 0 28 80 0 0 14 79 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 a 0 50 0 52 0 4f 0 50 0 45 0 52 0 54 0 49 0 45 0 53 0 0 a0 22 0 0 0 8 0 0 0 1 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 0 f2 0 0 0 0 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 a0 22 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 7d 94 0 0 0 3 0 0 38 4e 0 0 c6 32 0 0 a0 22 0 0 0 3 0 0 28 80 0 0 7d 94 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 d 0 44 0 4f 0 43 0 55 0 4d 0 45 0 4e 0 54 0 41 0 54 0 49 0 4f 0 4e 0 0 c6 32 0 0 0 8 0 0 0 1 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 0 f2 0 0 0 0 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 c6 32 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 7d 94 0 0 0 3 0 0 38 4e 0 0 c6 32 0 0 a0 22 0 0 0 3 0 0 28 80 0 0 7d 94 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 c 0 5a 0 4f 0 4f 0 4d 0 5f 0 43 0 4f 0 4e 0 54 0 52 0 4f 0 4c 0 0 38 4e 0 0 0 8 0 0 0 1 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 0 f2 0 0 0 0 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 38 4e 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 7d 94 0 0 0 3 0 0 38 4e 0 0 c6 32 0 0 a0 22 0 0 0 3 0 0 28 80 0 0 7d 94 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10 0 43 0 4f 0 4e 0 54 0 41 0 49 0 4e 0 4d 0 45 0 4e 0 54 0 5f 0 54 0 52 0 45 0 45 0 0 e8 50 0 0 0 8 0 0 0 0 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 0 f2 0 0 0 0 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 e8 50 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 14 79 0 0 0 5 0 0 e8 50 0 0 cd 0 0 0 5c a0 0 0 70 28 0 0 a0 b6 0 0 0 3 0 0 28 80 0 0 14 79 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10 0 49 0 4e 0 48 0 45 0 52 0 49 0 54 0 41 0 4e 0 43 0 45 0 5f 0 54 0 52 0 45 0 45 0 0 cd 0 0 0 0 8 0 0 0 0 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 0 f2 0 0 0 0 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 cd 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 14 79 0 0 0 5 0 0 e8 50 0 0 cd 0 0 0 5c a0 0 0 70 28 0 0 a0 b6 0 0 0 3 0 0 28 80 0 0 14 79 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 63 0 0 0 0 0 0 90 9 0 0 0 0 1 0 0 4 63 0 0 0 1 0 0 4e 9b 0 0 0 0 2 0 0 4 63 0 0 0 0 0 0 28 80 0 0 0 0 2 0 0 4 64 0 0 14 79 0 0 0 5 0 0 4 65 0 0 0 10 0 43 0 4f 0 4e 0 54 0 41 0 49 0 4e 0 4d 0 45 0 4e 0 54 0 5f 0 54 0 52 0 45 0 45 0 0 4 65 0 0 0 10 0 49 0 4e 0 48 0 45 0 52 0 49 0 54 0 41 0 4e 0 43 0 45 0 5f 0 54 0 52 0 45 0 45 0 0 4 65 0 0 0 d 0 44 0 49 0 41 0 47 0 52 0 41 0 4d 0 53 0 5f 0 54 0 52 0 45 0 45 0 0 4 65 0 0 0 f 0 45 0 58 0 54 0 45 0 4e 0 53 0 49 0 4f 0 4e 0 53 0 5f 0 54 0 52 0 45 0 45 0 0 4 65 0 0 0 14 0 53 0 45 0 41 0 52 0 43 0 48 0 5f 0 52 0 45 0 53 0 55 0 4c 0 54 0 53 0 5f 0 54 0 52 0 45 0 45 0 31 ff ff ff ff ff ff ff ff 0 0 0 0 0 0 4 64 0 0 7d 94 0 0 0 3 0 0 4 65 0 0 0 c 0 5a 0 4f 0 4f 0 4d 0 5f 0 43 0 4f 0 4e 0 54 0 52 0 4f 0 4c 0 0 4 65 0 0 0 d 0 44 0 4f 0 43 0 55 0 4d 0 45 0 4e 0 54 0 41 0 54 0 49 0 4f 0 4e 0 0 4 65 0 0 0 a 0 50 0 52 0 4f 0 50 0 45 0 52 0 54 0 49 0 45 0 53 ff ff ff ff ff ff ff ff 0 0 0 2 0 0 0 f2 0 0 2 c4 0 0 4 63 0 0 0 0 0 0 d7 85 0 0 0 0 1 0 0 4 66 ff ff ff ff ff ff ff ff 0 0 0 0 0 0 6 88 0 0 0 e6 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff 0 0 0 3 0 0 0 0 0 0 0 7 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 5 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 f 0 4d 0 45 0 53 0 53 0 41 0 47 0 45 0 53 0 5f 0 57 0 49 0 4e 0 44 0 4f 0 57 0 0 0 0 </value>
+                            <value>0 14 0 0 0 0 0 0 0 0 0 0 4 0 0 0 3 0 0 0 0 6 0 0 0 9 0 0 0 f 0 4d 0 45 0 53 0 53 0 41 0 47 0 45 0 53 0 5f 0 57 0 49 0 4e 0 44 0 4f 0 57 0 0 32 ff 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 f 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 63 0 0 0 1 0 0 0 4 0 0 32 ff 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 2 0 0 0 0 0 0 1 dc 0 0 0 1 0 0 32 ff 0 0 0 2 0 0 e4 bf 0 0 1 dc 0 0 0 1 0 0 0 1 0 0 1 dc 0 0 90 9 0 0 e4 bf 0 0 0 0 0 0 0 2 0 0 4e 9b 0 0 e4 bf 0 0 0 1 0 0 0 0 0 0 32 ff 0 0 0 0 0 0 0 3c 0 0 0 3c 0 0 0 c8 0 0 0 c8 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 14 0 53 0 45 0 41 0 52 0 43 0 48 0 5f 0 52 0 45 0 53 0 55 0 4c 0 54 0 53 0 5f 0 54 0 52 0 45 0 45 0 31 0 0 a0 b6 0 0 0 8 0 0 0 0 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 1 b5 0 0 1 44 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 a0 b6 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 14 79 0 0 0 5 0 0 e8 50 0 0 cd 0 0 0 5c a0 0 0 70 28 0 0 a0 b6 0 0 0 3 0 0 28 80 0 0 14 79 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 f 0 45 0 58 0 54 0 45 0 4e 0 53 0 49 0 4f 0 4e 0 53 0 5f 0 54 0 52 0 45 0 45 0 0 70 28 0 0 0 8 0 0 0 0 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 1 b5 0 0 1 44 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 70 28 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 14 79 0 0 0 5 0 0 e8 50 0 0 cd 0 0 0 5c a0 0 0 70 28 0 0 a0 b6 0 0 0 3 0 0 28 80 0 0 14 79 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 d 0 44 0 49 0 41 0 47 0 52 0 41 0 4d 0 53 0 5f 0 54 0 52 0 45 0 45 0 0 5c a0 0 0 0 8 0 0 0 0 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 1 b5 0 0 1 44 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 5c a0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 14 79 0 0 0 5 0 0 e8 50 0 0 cd 0 0 0 5c a0 0 0 70 28 0 0 a0 b6 0 0 0 3 0 0 28 80 0 0 14 79 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 a 0 50 0 52 0 4f 0 50 0 45 0 52 0 54 0 49 0 45 0 53 0 0 a0 22 0 0 0 8 0 0 0 1 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 1 b5 0 0 0 f3 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 a0 22 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 7d 94 0 0 0 3 0 0 38 4e 0 0 c6 32 0 0 a0 22 0 0 0 3 0 0 28 80 0 0 7d 94 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 d 0 44 0 4f 0 43 0 55 0 4d 0 45 0 4e 0 54 0 41 0 54 0 49 0 4f 0 4e 0 0 c6 32 0 0 0 8 0 0 0 1 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 1 b5 0 0 0 f3 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 c6 32 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 7d 94 0 0 0 3 0 0 38 4e 0 0 c6 32 0 0 a0 22 0 0 0 3 0 0 28 80 0 0 7d 94 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 c 0 5a 0 4f 0 4f 0 4d 0 5f 0 43 0 4f 0 4e 0 54 0 52 0 4f 0 4c 0 0 38 4e 0 0 0 8 0 0 0 1 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 1 b5 0 0 0 f3 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 38 4e 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 7d 94 0 0 0 3 0 0 38 4e 0 0 c6 32 0 0 a0 22 0 0 0 3 0 0 28 80 0 0 7d 94 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10 0 43 0 4f 0 4e 0 54 0 41 0 49 0 4e 0 4d 0 45 0 4e 0 54 0 5f 0 54 0 52 0 45 0 45 0 0 e8 50 0 0 0 8 0 0 0 0 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 1 b5 0 0 1 44 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 e8 50 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 14 79 0 0 0 5 0 0 e8 50 0 0 cd 0 0 0 5c a0 0 0 70 28 0 0 a0 b6 0 0 0 3 0 0 28 80 0 0 14 79 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10 0 49 0 4e 0 48 0 45 0 52 0 49 0 54 0 41 0 4e 0 43 0 45 0 5f 0 54 0 52 0 45 0 45 0 0 cd 0 0 0 0 8 0 0 0 0 0 0 0 1 0 0 0 f 0 0 0 4 0 0 0 4 0 0 0 8 0 0 1 b5 0 0 1 44 0 0 0 c8 0 0 0 c8 ff ff ff ff ff ff ff ff 0 0 1 2c 0 0 1 48 0 0 0 0 0 0 0 1 0 0 0 4 0 0 cd 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 7 7e 0 0 3 be 0 0 0 8 0 0 0 0 0 0 14 79 0 0 0 5 0 0 e8 50 0 0 cd 0 0 0 5c a0 0 0 70 28 0 0 a0 b6 0 0 0 3 0 0 28 80 0 0 14 79 0 0 0 0 0 0 0 2 0 0 14 79 0 0 7d 94 0 0 4e 9b 0 0 28 80 0 0 0 1 0 0 0 2 0 0 28 80 0 0 d7 85 0 0 90 9 0 0 4e 9b 0 0 0 0 0 0 0 1 0 0 4e 9b 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 63 0 0 0 0 0 0 90 9 0 0 0 0 1 0 0 4 63 0 0 0 1 0 0 4e 9b 0 0 0 0 2 0 0 4 63 0 0 0 0 0 0 28 80 0 0 0 0 2 0 0 4 64 0 0 14 79 0 0 0 5 0 0 4 65 0 0 0 10 0 43 0 4f 0 4e 0 54 0 41 0 49 0 4e 0 4d 0 45 0 4e 0 54 0 5f 0 54 0 52 0 45 0 45 0 0 4 65 0 0 0 10 0 49 0 4e 0 48 0 45 0 52 0 49 0 54 0 41 0 4e 0 43 0 45 0 5f 0 54 0 52 0 45 0 45 0 0 4 65 0 0 0 d 0 44 0 49 0 41 0 47 0 52 0 41 0 4d 0 53 0 5f 0 54 0 52 0 45 0 45 0 0 4 65 0 0 0 f 0 45 0 58 0 54 0 45 0 4e 0 53 0 49 0 4f 0 4e 0 53 0 5f 0 54 0 52 0 45 0 45 0 0 4 65 0 0 0 14 0 53 0 45 0 41 0 52 0 43 0 48 0 5f 0 52 0 45 0 53 0 55 0 4c 0 54 0 53 0 5f 0 54 0 52 0 45 0 45 0 31 0 0 0 f2 0 0 1 46 0 0 0 0 0 0 4 64 0 0 7d 94 0 0 0 3 0 0 4 65 0 0 0 c 0 5a 0 4f 0 4f 0 4d 0 5f 0 43 0 4f 0 4e 0 54 0 52 0 4f 0 4c 0 0 4 65 0 0 0 d 0 44 0 4f 0 43 0 55 0 4d 0 45 0 4e 0 54 0 41 0 54 0 49 0 4f 0 4e 0 0 4 65 0 0 0 a 0 50 0 52 0 4f 0 50 0 45 0 52 0 54 0 49 0 45 0 53 0 0 0 f2 0 0 0 f5 0 0 0 2 0 0 1 b5 0 0 2 c4 0 0 4 63 0 0 0 0 0 0 d7 85 0 0 0 0 1 0 0 4 66 ff ff ff ff ff ff ff ff 0 0 0 0 0 0 5 c5 0 0 0 e6 0 0 7 7e 0 0 2 3f ff ff ff ff ff ff ff ff 0 0 0 3 0 0 0 0 0 0 0 7 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 5 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 f 0 4d 0 45 0 53 0 53 0 41 0 47 0 45 0 53 0 5f 0 57 0 49 0 4e 0 44 0 4f 0 57 0 0 0 0 </value>
                         </mdElement>
                         <mdElement elementClass='StringProperty'>
                             <propertyID>LAYOUT_BEFORE_FULL_SCREEN</propertyID>
@@ -22234,7 +22224,7 @@
                         <mdElement elementClass='StringProperty'>
                             <propertyID>INFO_PROPERTY</propertyID>
                             <propertyDescriptionID>INFO_PROPERTY_DESCRIPTION</propertyDescriptionID>
-                            <value>4 68 3 68 7 6f 35 41 1b 2 50 72 b5 c5 bb fc aa c3 da 34 d6 56 42 86 19 1c 3 ed ad ed d0 29 3d 9e 2c 15 8a 45 29 7c ae 8e 60 af 7b fd 4e 40 ef 87 5c 17 6b 2b 75 10 d7 58 ee 85 0 6f 9f a8 4a f2 31 64 aa 7 7a 6c </value>
+                            <value>4 68 3 68 7 6f 35 41 1b 2 50 72 b5 c5 bb fc aa c3 da 34 d6 56 43 8a 19 1c 8 ed ad e1 d0 29 3d 9e 2c 15 8a 45 29 7c ae 8e 60 af 7b fd 4e 40 ef 87 5c 17 6b 2b 75 10 d7 58 ee 85 0 6f 9f a8 4a f2 31 64 aa 7 7a 6c </value>
                         </mdElement>
                         <mdElement elementClass='LIST_PROPERTY'>
                             <propertyID>ADDITIONAL_CONTAINMENT_TREES</propertyID>
@@ -29964,8 +29954,8 @@
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463575_784627_3480application1' base_Class='_9_5_1_8b60294_1314818371295_544499_6297' algoTrader_value_object_private='true'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463468_85005_3305' base_Operation='_9_5_1_8b60294_1302789146219_428652_11020' andromda_hibernate_query_useCache='true' andromda_hibernate_query='select f&#10;from SecurityImpl as s&#10;join s.securityFamily as f&#10;where s.isin = :isin'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1326981225319_102282_4575' base_Operation='_16_5_4_8b60294_1326981225315_175491_4574' andromda_hibernate_query_useCache='true' andromda_hibernate_query='select s&#10;from StockOptionImpl as s&#10;join s.securityFamily as sf&#10;where sf.id = :securityFamilyId&#10;'/>
-    <andromda_common:Nullable xmi:id='_16_5_4_8b60294_1322591463439_766188_3257' base_Parameter='_9_5_1_8b60294_1311341834836_548071_695'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1326981365608_431647_4610' base_Operation='_16_5_4_8b60294_1326981365606_628298_4609' andromda_hibernate_query_useCache='true' andromda_hibernate_query='select f&#10;from FutureImpl as f&#10;join f.securityFamily as sf&#10;where sf.id = :securityFamilyId&#10;'/>
+    <andromda_common:Nullable xmi:id='_16_5_4_8b60294_1322591463439_766188_3257' base_Parameter='_9_5_1_8b60294_1311341834836_548071_695'/>
     <MagicDraw_Profile:DiagramInfo xmi:id='_16_5_4_8b60294_1332695160140_285877_4967' base_Diagram='_16_5_4_8b60294_1332695160134_635624_4955' Creation_date='3/25/12 7:06 PM' Author='aflury' Modification_date='3/25/12 7:06 PM'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463648_524789_3553' base_Class='_9_5_1_8b60294_1314818371295_238150_6312'/>
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463648_524789_3553application1' base_Class='_9_5_1_8b60294_1314818371295_238150_6312' algoTrader_value_object_private='true'/>
@@ -30014,6 +30004,7 @@
     <andromda_persistence:PersistentElement xmi:id='_16_5_4_8b60294_1322591463501_231045_3368application1' base_Property='_9_5_1_8b60294_1302789146218_213487_10926'>
         <andromda_hibernate_lazy>false</andromda_hibernate_lazy>
     </andromda_persistence:PersistentElement>
+    <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1333115478164_731226_4962' base_Operation='_9_5_1_8b60294_1320095677911_489886_1853' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <andromda_persistence:PersistentAssociationEnd xmi:id='_16_5_4_8b60294_1333011821748_556993_6192' base_Property='_16_5_4_8b60294_1333011821748_783423_6191' andromda_hibernate_collection_type='map' andromda_hibernate_collection_index='name'/>
     <andromda_common:Enumeration xmi:id='_16_5_4_8b60294_1322591463496_263543_3358' base_Class='_9_5_1_8b60294_1302789146218_96868_10869'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1326811642952_188655_4719' base_Operation='_16_5_4_8b60294_1326811642951_590001_4718' andromda_hibernate_query_useCache='true'/>
@@ -30098,12 +30089,12 @@
     <algoTrader_profile:AlgoTraderFinderMethod xmi:id='_16_5_4_8b60294_1322591463483_265263_3336application1' base_Operation='_9_5_1_8b60294_1302789146209_30405_9887' algoTrader_entity_query_native_entity='com.algoTrader.entity.marketData.TickImpl.class' algoTrader_entity_query_native='true'/>
     <algoTrader_profile:AlgoTraderEntity xmi:id='_16_5_4_8b60294_1322591463536_84732_3425' base_Class='_9_5_1_8b60294_1305552684243_534420_918' algoTrader_entity_nonPersistent='true'/>
     <andromda_persistence:Entity xmi:id='_16_5_4_8b60294_1322591463536_84732_3425application1' base_Class='_9_5_1_8b60294_1305552684243_534420_918'/>
-    <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463522_736787_3403' base_Operation='_9_5_1_8b60294_1302789146209_414006_9874' andromda_hibernate_query_useCache='true' andromda_hibernate_query='from TickImpl as t &#10;join fetch t.security as s &#10;where t.dateTime = :date&#10;and s.underlying = :underlying&#10;and s.type = :type&#10;and s.expiration = :expiration&#10;order by s.strike'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463504_359394_3374' base_Operation='_9_5_1_8b60294_1319475258475_217061_37' andromda_hibernate_query_useCache='true' andromda_hibernate_query='from FutureImpl f&#10;where f.securityFamily.id = :futureFamilyId &#10;and f.expiration &gt;= :minExpirationDate &#10;order by f.expiration&#10;'/>
+    <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463522_736787_3403' base_Operation='_9_5_1_8b60294_1302789146209_414006_9874' andromda_hibernate_query_useCache='true' andromda_hibernate_query='from TickImpl as t &#10;join fetch t.security as s &#10;where t.dateTime = :date&#10;and s.underlying = :underlying&#10;and s.type = :type&#10;and s.expiration = :expiration&#10;order by s.strike'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463517_194440_3391' base_Operation='_9_5_1_8b60294_1302789146207_591886_9648' andromda_hibernate_query_useCache='true' andromda_hibernate_query='from StrategyImpl&#10;where name = :name&#10;'/>
     <andromda_service:Service xmi:id='_16_5_4_8b60294_1322591463497_660926_3360' base_Class='_9_5_1_8b60294_1302789146218_252254_10841' andromda_spring_service_remoting_type='none'/>
     <algoTrader_profile:AlgoTraderService xmi:id='_16_5_4_8b60294_1322591463497_660926_3360application1' base_Class='_9_5_1_8b60294_1302789146218_252254_10841' algoTrader_service_no_transaction_interceptor='true' algoTrader_service_client='true' algoTrader_service_no_hibernate_interceptor='true'/>
-    <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1333091412232_268779_4918' base_Operation='_16_5_4_8b60294_1333091412229_815588_4917' andromda_hibernate_query_useCache='true' andromda_hibernate_query='from CombinationImpl&#10;where persistent = false'/>
+    <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1333091412232_268779_4918' base_Operation='_16_5_4_8b60294_1333091412229_815588_4917' andromda_hibernate_query_useCache='true' andromda_hibernate_query='from ComponentImpl&#10;where persistent = false'/>
     <andromda_common:Enumeration xmi:id='_16_5_4_8b60294_1322591463560_973633_3459' base_Class='_9_5_1_8b60294_1302789146218_901642_10881'/>
     <andromda_common:Nullable xmi:id='_16_5_4_8b60294_1322591463437_799221_3256' base_Parameter='_9_5_1_8b60294_1318582278092_289450_1201'/>
     <algoTrader_profile:AlgoTraderServiceMethod xmi:id='_16_5_4_8b60294_1327770525708_717147_4482' base_Operation='_9_5_1_8b60294_1302789146213_664460_10257' algoTrader_service_method_manageable_attribute='true'/>
@@ -30145,6 +30136,7 @@
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463515_911084_3389' base_Operation='_9_5_1_8b60294_1320943467647_706161_573' andromda_hibernate_query_useCache='true' andromda_hibernate_query='select distinct c&#10;from ComponentImpl as c&#10;join fetch c.security as s&#10;join fetch c.parentSecurity as p&#10;join p.subscriptions as su&#10;join su.strategy as st&#10;where st.name = :strategyName'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463544_844578_3438' base_Class='_9_5_1_8b60294_1314818371295_790739_6315'/>
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463544_844578_3438application1' base_Class='_9_5_1_8b60294_1314818371295_790739_6315' algoTrader_value_object_private='true'/>
+    <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1333115558718_907436_4976' base_Operation='_9_5_1_8b60294_1320144030716_792053_2097' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <andromda_persistence:Entity xmi:id='_16_5_4_8b60294_1322591463534_332063_3422' base_Class='_9_5_1_8b60294_1305552684241_283003_888'/>
     <algoTrader_profile:AlgoTraderEntity xmi:id='_16_5_4_8b60294_1322591463534_332063_3422application1' base_Class='_9_5_1_8b60294_1305552684241_283003_888' algoTrader_entity_nonPersistent='true'/>
     <andromda_common:Exception xmi:id='_16_5_4_8b60294_1327486693691_772340_4512' base_Class='_16_5_4_8b60294_1327486592150_285628_4462'/>
@@ -30200,12 +30192,6 @@
     <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1322591463531_68760_3417' base_Operation='_9_5_1_8b60294_1302789146216_623125_10491' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463500_704022_3366' base_Operation='_9_5_1_8b60294_1302789146209_623509_9922' andromda_hibernate_query='select distinct dateTime&#10;from TickImpl'/>
     <andromda_service:Service xmi:id='_16_5_4_8b60294_1322591463580_848774_3492' base_Class='_9_5_1_8b60294_1302789146215_113579_10430' andromda_service_private='true'/>
-    <andromda_persistence:PersistentAssociationEnd xmi:id='_16_5_4_8b60294_1323096966886_386591_4508' base_Property='_9_5_1_8b60294_1302789146218_733872_10923'>
-        <andromda_hibernate_outerjoin>default</andromda_hibernate_outerjoin>
-    </andromda_persistence:PersistentAssociationEnd>
-    <andromda_persistence:PersistentElement xmi:id='_16_5_4_8b60294_1323096966886_386591_4508application1' base_Property='_9_5_1_8b60294_1302789146218_733872_10923'>
-        <andromda_hibernate_lazy>false</andromda_hibernate_lazy>
-    </andromda_persistence:PersistentElement>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463488_510693_3343' base_Operation='_9_5_1_8b60294_1314815968552_591888_23' andromda_hibernate_query_useCache='true' andromda_hibernate_query='from SecurityImpl as s&#10;where s.symbol = :symbol'/>
     <andromda_persistence:Entity xmi:id='_16_5_4_8b60294_1322591463461_562877_3284' base_Class='_9_5_1_8b60294_1308744792454_566907_539'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463652_736751_3554' base_Class='_9_5_1_8b60294_1302789146211_74173_10139'/>
@@ -30218,6 +30204,7 @@
     <andromda_persistence:PersistentElement xmi:id='_16_5_4_8b60294_1322591463566_917927_3466application1' base_Property='_9_5_1_8b60294_1302789146219_545162_11004'>
         <andromda_hibernate_lazy>false</andromda_hibernate_lazy>
     </andromda_persistence:PersistentElement>
+    <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1333115490302_183844_4969' base_Operation='_9_5_1_8b60294_1320088098684_734501_903' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463506_643839_3377' base_Class='_9_5_1_8b60294_1302789146211_400279_10128'/>
     <andromda_service:Service xmi:id='_16_5_4_8b60294_1322591463622_662606_3534' base_Class='_9_5_1_8b60294_1315831410013_465610_1746' andromda_service_private='true'/>
     <algoTrader_profile:AlgoTraderServiceMethod xmi:id='_16_5_4_8b60294_1327770587010_121413_4510' base_Operation='_9_5_1_8b60294_1302789146213_563548_10259' algoTrader_service_method_manageable_attribute='true'/>
@@ -30252,6 +30239,7 @@
     <andromda_persistence:Entity xmi:id='_16_5_4_8b60294_1322591463645_616097_3549' base_Class='_9_5_1_8b60294_1302789146218_563717_10899'/>
     <andromda_persistence:Entity xmi:id='_16_5_4_8b60294_1322591463463_31968_3287' base_Class='_9_5_1_8b60294_1314816165576_671201_684'/>
     <algoTrader_profile:AlgoTraderEntity xmi:id='_16_5_4_8b60294_1322591463463_31968_3287application1' base_Class='_9_5_1_8b60294_1314816165576_671201_684' algoTrader_entity_nonPersistent='true'/>
+    <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1333115573935_968470_4983' base_Operation='_9_5_1_8b60294_1320491600002_194685_4589' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <andromda_common:Nullable xmi:id='_16_5_4_8b60294_1331657726847_54791_4433' base_Parameter='_16_5_4_8b60294_1331656971765_475423_4425'/>
     <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1322591463581_438793_3494' base_Operation='_9_5_1_8b60294_1321021792006_241102_1554' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <andromda_service:Service xmi:id='_16_5_4_8b60294_1325358630594_323902_4455' base_Class='_16_5_4_8b60294_1325358542923_752898_4436' andromda_spring_service_config_only='true' andromda_service_private='true'/>
@@ -30293,10 +30281,11 @@
     <algoTrader_profile:AlgoTraderService xmi:id='_16_5_4_8b60294_1322591463495_505021_3356application1' base_Class='_9_5_1_8b60294_1304021803677_700766_431' algoTrader_service_client='true'/>
     <andromda_service:Service xmi:id='_16_5_4_8b60294_1322591463568_281395_3469' base_Class='_9_5_1_8b60294_1302789146217_695378_10679'/>
     <algoTrader_profile:AlgoTraderService xmi:id='_16_5_4_8b60294_1322591463568_281395_3469application1' base_Class='_9_5_1_8b60294_1302789146217_695378_10679' algoTrader_service_no_transaction_interceptor='true'/>
-    <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1330425300254_936975_4769' base_Operation='_16_5_4_8b60294_1330425063880_420518_4759' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1322591463589_100950_3501' base_Operation='_9_5_1_8b60294_1312377588815_804231_1818' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
+    <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1330425300254_936975_4769' base_Operation='_16_5_4_8b60294_1330425063880_420518_4759' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463574_910019_3479' base_Class='_9_5_1_8b60294_1314816464355_752330_1482'/>
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463574_910019_3479application1' base_Class='_9_5_1_8b60294_1314816464355_752330_1482' algoTrader_value_object_private='true'/>
+    <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1333115584516_612252_4990' base_Operation='_9_5_1_8b60294_1321020929286_880204_1486' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463510_989160_3382' base_Class='_9_5_1_8b60294_1302789146211_999890_10067'/>
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463510_989160_3382application1' base_Class='_9_5_1_8b60294_1302789146211_999890_10067' algoTrader_value_object_private='true'/>
     <andromda_persistence:PersistentElement xmi:id='_16_5_4_8b60294_1332339824673_529167_4775' base_Property='_16_5_4_8b60294_1332339824672_687447_4773'>
@@ -30331,6 +30320,7 @@
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1332769916356_767901_5488' base_Operation='_16_5_4_8b60294_1332769916355_543391_5487' andromda_hibernate_query_useCache='true' andromda_hibernate_query='select s.*, so.*&#10;from stock_option so&#10;inner join security s on s.id = so.id&#10;join tick as t on s.id = t.security_fk&#10;where s.underlying_fk = :underlyingId&#10;and so.expiration &gt;= :targetExpirationDate&#10;and so.type = :optionTypeString&#10;and t.date_time = :date&#10;order by so.expiration asc, abs(:underlayingSpot - so.strike) asc&#10;limit 1'/>
     <algoTrader_profile:AlgoTraderFinderMethod xmi:id='_16_5_4_8b60294_1332769916356_767901_5488application1' base_Operation='_16_5_4_8b60294_1332769916355_543391_5487' algoTrader_entity_query_native_entity='com.algoTrader.entity.security.StockOptionImpl.class' algoTrader_entity_query_native='true'/>
     <andromda_service:Service xmi:id='_16_5_4_8b60294_1322591463576_252099_3482' base_Class='_9_5_1_8b60294_1314811412776_372571_1120' andromda_service_private='true'/>
+    <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1333115451918_863620_4955' base_Operation='_9_5_1_8b60294_1320075559642_199883_753' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <algoTrader_profile:AlgoTraderEntity xmi:id='_16_5_4_8b60294_1329409765262_902061_5237' base_Class='_16_5_4_8b60294_1329409765261_797701_5236' algoTrader_entity_nonPersistent='true'/>
     <andromda_persistence:Entity xmi:id='_16_5_4_8b60294_1329409765262_902061_5237application1' base_Class='_16_5_4_8b60294_1329409765261_797701_5236'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463460_615826_3283' base_Operation='_9_5_1_8b60294_1320777636741_31963_759' andromda_hibernate_query_useCache='true' andromda_hibernate_query='from SubscriptionImpl as s&#10;where s.strategy.name = :strategyName&#10;and s.security not in (&#10;&#9;select p.security &#10;&#9;from PositionImpl as p &#10;&#9;where p.strategy.name = :strategyName&#10;&#9;and p.quantity != 0)'/>

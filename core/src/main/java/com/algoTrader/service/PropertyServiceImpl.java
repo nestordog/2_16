@@ -7,23 +7,25 @@ import com.algoTrader.util.HibernateUtil;
 public class PropertyServiceImpl extends PropertyServiceBase {
 
     @Override
-    protected PropertyHolder handleAddProperty(PropertyHolder configurable, String name, Object value) throws Exception {
+    protected PropertyHolder handleAddProperty(PropertyHolder propertyHolder, String name, Object value, boolean persistent) throws Exception {
 
-        // reattach the configurable
-        configurable = (PropertyHolder) HibernateUtil.reattach(this.getSessionFactory(), configurable);
+        // reattach the propertyHolder
+        propertyHolder = (PropertyHolder) HibernateUtil.reattach(this.getSessionFactory(), propertyHolder);
 
-        Property property = configurable.getProperties().get(name);
+        Property property = propertyHolder.getProperties().get(name);
         if (property == null) {
 
             // create the property
             property = Property.Factory.newInstance();
             property.setName(name);
             property.setValue(value);
+            property.setPersistent(persistent);
+            property.setPropertyHolder(propertyHolder);
 
             getPropertyDao().create(property);
 
-            configurable.getProperties().put(name, property);
-            getPropertyHolderDao().update(configurable);
+            propertyHolder.getProperties().put(name, property);
+            getPropertyHolderDao().update(propertyHolder);
 
         } else {
 
@@ -31,20 +33,20 @@ public class PropertyServiceImpl extends PropertyServiceBase {
             getPropertyDao().update(property);
         }
 
-        return configurable;
+        return propertyHolder;
     }
 
     @Override
-    protected PropertyHolder handleRemoveProperty(PropertyHolder configurable, String name) throws Exception {
+    protected PropertyHolder handleRemoveProperty(PropertyHolder propertyHolder, String name) throws Exception {
 
-        Property property = configurable.getProperties().get(name);
+        Property property = propertyHolder.getProperties().get(name);
         if (property != null) {
 
             getPropertyDao().remove(property);
 
-            configurable.getProperties().remove(name);
+            propertyHolder.getProperties().remove(name);
         }
 
-        return configurable;
+        return propertyHolder;
     }
 }
