@@ -21,18 +21,20 @@ insert into
     Tick
 select
     last(trigger.tick.dateTime) as dateTime,
-    Math.abs(cast(min((case when combinationTick.component.quantity > 0 then combinationTick.tick.volBid else combinationTick.tick.volAsk end) / Math.abs(combinationTick.component.quantity)) * sum(combinationTick.component.quantity), int)) as volBid,
-    Math.abs(cast(min((case when combinationTick.component.quantity > 0 then combinationTick.tick.volAsk else combinationTick.tick.volBid end) / Math.abs(combinationTick.component.quantity)) * sum(combinationTick.component.quantity), int)) as volAsk,
-    RoundUtil.getBigDecimalNullSafe(sum((case when combinationTick.component.quantity > 0 then combinationTick.tick.bid.doubleValue() else combinationTick.tick.ask.doubleValue() end) * combinationTick.component.quantity) / sum(combinationTick.component.quantity)) as bid,
-    RoundUtil.getBigDecimalNullSafe(sum((case when combinationTick.component.quantity > 0 then combinationTick.tick.ask.doubleValue() else combinationTick.tick.bid.doubleValue() end) * combinationTick.component.quantity) / sum(combinationTick.component.quantity)) as ask,
+    Math.abs(cast(min((case when win.component.quantity > 0 then win.tick.volBid else win.tick.volAsk end) / Math.abs(win.component.quantity)) * sum(win.component.quantity), int)) as volBid,
+    Math.abs(cast(min((case when win.component.quantity > 0 then win.tick.volAsk else win.tick.volBid end) / Math.abs(win.component.quantity)) * sum(win.component.quantity), int)) as volAsk,
+    RoundUtil.getBigDecimalNullSafe(sum((case when win.component.quantity > 0 then win.tick.bid.doubleValue() else win.tick.ask.doubleValue() end) * win.component.quantity) / sum(win.component.quantity)) as bid,
+    RoundUtil.getBigDecimalNullSafe(sum((case when win.component.quantity > 0 then win.tick.ask.doubleValue() else win.tick.bid.doubleValue() end) * win.component.quantity) / sum(win.component.quantity)) as ask,
     last(trigger.component.parentSecurity) as security
 from
-    CombinationTickWindow as combinationTick
+    CombinationTickWindow as win
 where
-    combinationTick.component.parentSecurity.id = trigger.component.parentSecurity.id
+    win.component.parentSecurity.id = trigger.component.parentSecurity.id
 and
-    combinationTick.component.quantity != 0
+    win.component.quantity != 0
 and
-    Math.abs(combinationTick.tick.dateTime.time - trigger.tick.dateTime.time) < Constants.ONE_HOUR
+    Math.abs(win.tick.dateTime.time - trigger.tick.dateTime.time) < Constants.ONE_HOUR
+group by
+    trigger.component.parentSecurity.componentCount
 having
-    count(combinationTick.component.id) = trigger.component.parentSecurity.componentCount;
+    count(win.component.id) = trigger.component.parentSecurity.componentCount;
