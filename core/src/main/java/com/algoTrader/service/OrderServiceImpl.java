@@ -55,16 +55,13 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
             Security security = order.getSecurity();
             Strategy strategy = order.getStrategy();
 
-            // lock or merge the security & strategy
-            if (!HibernateUtil.lock(this.getSessionFactory(), security)) {
-                security = (Security) HibernateUtil.merge(this.getSessionFactory(), security);
-                order.setSecurity(security);
-            }
+            // reattach the security & strategy
+            security = (Security) HibernateUtil.reattach(this.getSessionFactory(), security);
+            strategy = (Strategy) HibernateUtil.reattach(this.getSessionFactory(), strategy);
 
-            if (!HibernateUtil.lock(this.getSessionFactory(), strategy)) {
-                strategy = (Strategy) HibernateUtil.merge(this.getSessionFactory(), strategy);
-                order.setStrategy(strategy);
-            }
+            // reasociate the potentially merged security & strategy
+            order.setSecurity(security);
+            order.setStrategy(strategy);
 
             // use broker specific functionality to execute the order
             sendExternalOrder(order);

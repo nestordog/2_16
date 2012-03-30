@@ -1,18 +1,16 @@
 package com.algoTrader.service;
 
-import com.algoTrader.entity.Configurable;
 import com.algoTrader.entity.Property;
+import com.algoTrader.entity.PropertyHolder;
 import com.algoTrader.util.HibernateUtil;
 
 public class PropertyServiceImpl extends PropertyServiceBase {
 
     @Override
-    protected Configurable handleAddProperty(Configurable configurable, String name, Object value) throws Exception {
+    protected PropertyHolder handleAddProperty(PropertyHolder configurable, String name, Object value) throws Exception {
 
-        // lock and merge the configurable
-        if (!HibernateUtil.lock(this.getSessionFactory(), configurable)) {
-            configurable = (Configurable) HibernateUtil.merge(this.getSessionFactory(), configurable);
-        }
+        // reattach the configurable
+        configurable = (PropertyHolder) HibernateUtil.reattach(this.getSessionFactory(), configurable);
 
         Property property = configurable.getProperties().get(name);
         if (property == null) {
@@ -25,7 +23,7 @@ public class PropertyServiceImpl extends PropertyServiceBase {
             getPropertyDao().create(property);
 
             configurable.getProperties().put(name, property);
-            getConfigurableDao().update(configurable);
+            getPropertyHolderDao().update(configurable);
 
         } else {
 
@@ -37,7 +35,7 @@ public class PropertyServiceImpl extends PropertyServiceBase {
     }
 
     @Override
-    protected Configurable handleRemoveProperty(Configurable configurable, String name) throws Exception {
+    protected PropertyHolder handleRemoveProperty(PropertyHolder configurable, String name) throws Exception {
 
         Property property = configurable.getProperties().get(name);
         if (property != null) {

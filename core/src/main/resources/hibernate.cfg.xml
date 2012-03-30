@@ -27,10 +27,9 @@
     <property name="current_session_context_class">thread</property>
     <property name="hibernate.jdbc.batch_size">50</property>
 
-    <mapping resource="com/algoTrader/entity/Position.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/PropertyHolder.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Strategy.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Transaction.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/Subscription.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Property.hbm.xml" />
     <mapping resource="com/algoTrader/entity/marketData/MarketDataEvent.hbm.xml" />
     <mapping resource="com/algoTrader/entity/security/Security.hbm.xml" />

@@ -41,9 +41,9 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         Strategy strategy = fill.getParentOrder().getStrategy();
         Security security = fill.getParentOrder().getSecurity();
 
-        // initialize the security & strategy
-        HibernateUtil.lock(this.getSessionFactory(), security);
-        HibernateUtil.lock(this.getSessionFactory(), strategy);
+        // reattach the security & strategy
+        HibernateUtil.reattach(this.getSessionFactory(), security);
+        HibernateUtil.reattach(this.getSessionFactory(), strategy);
 
         TransactionType transactionType = Side.BUY.equals(fill.getSide()) ? TransactionType.BUY : TransactionType.SELL;
         long quantity = Side.BUY.equals(fill.getSide()) ? fill.getQuantity() : -fill.getQuantity();
@@ -209,17 +209,10 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             }
 
             Transaction transaction = transactions.iterator().next();
-            Strategy strategy = transaction.getStrategy();
             Security security = transaction.getSecurity();
 
-            // initialize/merge the security & strategy
-            if (!HibernateUtil.lock(this.getSessionFactory(), security)) {
-                security = (Security) HibernateUtil.merge(this.getSessionFactory(), security);
-            }
-
-            if (!HibernateUtil.lock(this.getSessionFactory(), strategy)) {
-                strategy = (Strategy) HibernateUtil.merge(this.getSessionFactory(), strategy);
-            }
+            // reattach the security
+            security = (Security) HibernateUtil.reattach(this.getSessionFactory(), security);
 
             //@formatter:off
             mailLogger.info("executed transaction: " + transaction.getType() + " " +

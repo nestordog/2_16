@@ -1,33 +1,69 @@
 package com.algoTrader.util;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.hibernate.EntityMode;
 import org.hibernate.LockOptions;
 import org.hibernate.NonUniqueObjectException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.collection.AbstractPersistentCollection;
 import org.hibernate.impl.SessionFactoryImpl;
 import org.hibernate.persister.entity.AbstractEntityPersister;
+import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.type.Type;
 
 public class HibernateUtil {
 
-    public static boolean lock(SessionFactory sessionFactory, Object target) {
+    private static Logger logger = MyLogger.getLogger(HibernateUtil.class.getName());
 
+    public static Object reattach(SessionFactory sessionFactory, Object target) {
+
+        // make sure no proxies and persistentCollecitions are still attached to another session
+        SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) sessionFactory;
+        AbstractEntityPersister persister = (AbstractEntityPersister) sessionFactoryImpl.getEntityPersister(target.getClass().getName());
+        Object[] values = persister.getPropertyValues(target, EntityMode.POJO);
+        Type[] types = persister.getPropertyTypes();
+        boolean evicted = false;
+        for (int i = 0; i < types.length; i++) {
+            Session session = null; // other session
+            if (types[i].isCollectionType() && values[i] instanceof AbstractPersistentCollection) {
+                AbstractPersistentCollection col = (AbstractPersistentCollection) values[i];
+                session = (Session) col.getSession();
+                if (session != null) {
+                    session.evict(target);
+                    evicted = true;
+                }
+            } else if (types[i].isEntityType() && values[i] instanceof HibernateProxy) {
+                HibernateProxy proxy = (HibernateProxy) values[i];
+                session = (Session) proxy.getHibernateLazyInitializer().getSession();
+                if (session != null) {
+                    session.evict(values[i]);
+                    evicted = true;
+                }
+            }
+        }
+        if (evicted) {
+            logger.debug("evicted " + target.getClass() + " " + target);
+        }
+
+        // get the current session
         Session session = sessionFactory.getCurrentSession();
+
+        // start a transaction if non was stated already
+        session.beginTransaction();
 
         try {
+            // try to lock
             session.buildLockRequest(LockOptions.NONE).lock(target);
-            return true;
+            return target;
+
         } catch (NonUniqueObjectException e) {
-            //  different object with the same identifier value was already associated with the session
-            return false;
+
+            //  in case "a different object with the same identifier value was already associated with the session" merge the target
+            logger.debug("merged " + target.getClass() + " " + target);
+            return session.merge(target);
         }
-    }
-
-    public static Object merge(SessionFactory sessionFactory, Object target) {
-
-        Session session = sessionFactory.getCurrentSession();
-
-        return session.merge(target);
     }
 
     public static int getDisriminatorValue(SessionFactory sessionFactory, Class<?> type) {

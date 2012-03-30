@@ -18,17 +18,13 @@ public class MarketDataUtil {
             // but might not have a last/lastDateTime yet on the current day
             if (tick.getVolBid() == 0) {
                 return false;
-            }
-            if (tick.getVolAsk() == 0) {
+            } else if (tick.getVolAsk() == 0) {
                 return false;
-            }
-            if (tick.getOpenIntrest() == 0) {
-                //return false;
-            }
-            if (tick.getBid() != null && tick.getBid().doubleValue() <= 0) {
+            } else if (tick.getOpenIntrest() == 0) {
                 return false;
-            }
-            if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0) {
+            } else if (tick.getBid() != null && tick.getBid().doubleValue() <= 0) {
+                return false;
+            } else if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0) {
                 return false;
             }
 
@@ -38,24 +34,23 @@ public class MarketDataUtil {
             // but might not have a last/lastDateTime yet on the current day
             if (tick.getVolBid() == 0) {
                 return false;
-            }
-            if (tick.getVolAsk() == 0) {
+            } else if (tick.getVolAsk() == 0) {
                 return false;
-            }
-            if (tick.getBid() != null && tick.getBid().doubleValue() <= 0) {
+            } else if (tick.getBid() != null && tick.getBid().doubleValue() <= 0) {
                 return false;
-            }
-            if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0) {
+            } else if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0) {
                 return false;
             }
 
         } else if (tick.getSecurity() instanceof Forex) {
 
-            // no special checks
             if (tick.getVolBid() == 0) {
                 return false;
-            }
-            if (tick.getVolAsk() == 0) {
+            } else if (tick.getVolAsk() == 0) {
+                return false;
+            } else if (tick.getBid().doubleValue() < 0) {
+                return false;
+            } else if (tick.getAsk().doubleValue() < 0) {
                 return false;
             }
 
@@ -63,8 +58,7 @@ public class MarketDataUtil {
 
             if (tick.getLast() == null) {
                 return false;
-            }
-            if (tick.getLastDateTime() == null) {
+            } else if (tick.getLastDateTime() == null) {
                 return false;
             }
         }
@@ -72,14 +66,12 @@ public class MarketDataUtil {
         // check these fields for all security-types
         if (tick.getBid() == null) {
             return false;
-        }
-        if (tick.getAsk() == null) {
+        } else if (tick.getAsk() == null) {
             return false;
-        }
-        if (tick.getSettlement() == null) {
+        } else if (tick.getSettlement() == null) {
             return false;
+        } else {
+            return true;
         }
-
-        return true;
     }
 }
