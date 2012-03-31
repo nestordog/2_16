@@ -1,4 +1,4 @@
-@Name('CREATE_COMBINATION_TICK_WINDOW')
+@Name('COMBINATION_TICK_WINDOW')
 create window
     CombinationTickWindow.std:groupwin(component.id).std:lastevent()
 as
