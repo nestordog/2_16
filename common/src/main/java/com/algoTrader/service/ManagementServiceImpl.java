@@ -179,15 +179,15 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected void handleActivate(String moduleName, String ruleName) throws Exception {
+    protected void handleDeployStatement(String moduleName, String statementName) throws Exception {
 
-        getRuleService().deployRule(StrategyUtil.getStartedStrategyName(), moduleName, ruleName);
+        getRuleService().deployRule(StrategyUtil.getStartedStrategyName(), moduleName, statementName);
     }
 
     @Override
-    protected void handleDeactivate(String ruleName) throws Exception {
+    protected void handleDeployModule(String moduleName) throws Exception {
 
-        getRuleService().undeployRule(StrategyUtil.getStartedStrategyName(), ruleName);
+        getRuleService().deployModule(StrategyUtil.getStartedStrategyName(), moduleName);
     }
 
     @Override

@@ -134,22 +134,44 @@ public class DataViewer extends JPanel {
                 this.cells = rows;
 
                 // handle special arrays returned by "StmtStreamNotifierType1MBean"
-            } else if ((array.length == 2) && (array[0] instanceof Object[]) && (array[1] instanceof Object[] || array[1] == null)) {
+            } else if ((array.length == 2)
+                    && (((array[0] instanceof Object[]) && ((Object[]) array[0])[0] instanceof Object[]) || array[0] == null)
+                    && (((array[1] instanceof Object[]) && ((Object[]) array[1])[0] instanceof Object[]) || array[1] == null)) {
 
                 Object[] insertStream = (Object[]) array[0];
-                Object[] object1 = (Object[]) insertStream[0];
-                this.columnNames = new String[object1.length];
-                this.columnClasses = new Class<?>[object1.length];
+                Object[] removeStream = (Object[]) array[1];
+
+                Object[] object1 = (Object[]) (insertStream != null ? insertStream[0] : removeStream[0]);
+                this.columnNames = new String[object1.length + 1];
+                this.columnClasses = new Class<?>[object1.length + 1];
+                this.columnNames[0] = "In/Out";
+                this.columnClasses[0] = String.class;
                 for (int i = 0; i < object1.length; i++) {
                     if (object1[i] != null) {
-                        this.columnClasses[i] = object1[i].getClass();
+                        this.columnClasses[i + 1] = object1[i].getClass();
                     } else {
-                        this.columnClasses[i] = Object.class;
+                        this.columnClasses[i + 1] = Object.class;
                     }
                 }
 
-                this.cells = new Object[1][object1.length];
-                this.cells[0] = object1;
+                this.cells = new Object[(insertStream != null ? insertStream.length : 0) + (removeStream != null ? removeStream.length : 0)][object1.length + 1];
+                int i = 0;
+                if (insertStream != null) {
+                    for (Object obj : insertStream) {
+                        Object[] events = (Object[]) obj;
+                        this.cells[i][0] = "In";
+                        System.arraycopy(events, 0, this.cells[i], 1, events.length);
+                        i++;
+                    }
+                }
+                if (removeStream != null) {
+                    for (Object obj : removeStream) {
+                        Object[] events = (Object[]) obj;
+                        this.cells[i][0] = "Out";
+                        System.arraycopy(events, 0, this.cells[i], 1, events.length);
+                        i++;
+                    }
+                }
 
                 // handle array[][]
             } else if (array[0] instanceof Object[]) {
@@ -245,7 +267,7 @@ public class DataViewer extends JPanel {
         @Override
         public int getColumnCount() {
 
-            return this.cells[0].length;
+            return this.columnNames.length;
         }
 
         @Override
