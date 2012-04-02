@@ -134,11 +134,9 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             // associate the security
             security.addSubscriptions(subscription);
-            getSecurityDao().update(security);
 
             // associate the strategy
             strategy.addSubscriptions(subscription);
-            getStrategyDao().update(strategy);
 
             logger.info("subscribed security " + security.getSymbol());
         }
@@ -156,10 +154,8 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             // update links
             security.getSubscriptions().remove(subscription);
-            getSecurityDao().update(security);
 
             strategy.getSubscriptions().remove(subscription);
-            getStrategyDao().update(strategy);
 
             getSubscriptionDao().remove(subscription);
 

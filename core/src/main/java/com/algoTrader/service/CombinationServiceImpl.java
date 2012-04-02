@@ -34,7 +34,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         // save to DB
         getCombinationDao().create(combination);
-        getSecurityFamilyDao().update(securityFamily);
 
         logger.debug("created combination " + combination);
 
@@ -86,7 +85,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
             // adjust the quantity
             component.setQuantity(component.getQuantity() + quantity);
-            getComponentDao().update(component);
 
         } else {
 
@@ -94,12 +92,11 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             component = Component.Factory.newInstance();
             component.setSecurity(security);
             component.setQuantity(quantity);
-            getComponentDao().create(component);
 
             // associate with combination
             combination.addComponents(component);
 
-            getCombinationDao().create(combination);
+            getComponentDao().create(component);
         }
 
         logger.debug("added component quantity " + quantity + " of " + component + " to combination " + combinationString);
@@ -134,7 +131,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
             // set the quantity
             component.setQuantity(quantity);
-            getComponentDao().update(component);
 
         } else {
 
@@ -142,12 +138,11 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             component = Component.Factory.newInstance();
             component.setSecurity(security);
             component.setQuantity(quantity);
-            getComponentDao().create(component);
 
             // associate the combination
             combination.addComponents(component);
 
-            getCombinationDao().create(combination);
+            getComponentDao().create(component);
         }
 
         logger.debug("set component quantity " + quantity + " of " + component + " to combination " + combination);
@@ -183,7 +178,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
             // update the combination
             combination.getComponents().remove(component);
-            getCombinationDao().update(combination);
 
             // delete the component
             getComponentDao().remove(component);

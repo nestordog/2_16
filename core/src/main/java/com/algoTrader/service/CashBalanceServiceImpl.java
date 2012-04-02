@@ -28,20 +28,21 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
         if (transaction.getSecurity() instanceof Forex) {
 
             // gross transaction value is booked in transaction currency
-            processAmount(transaction.getStrategy(), transaction.getCurrency(), transaction.getGrossValue());
+            processAmount(transaction.getStrategy().getName(), transaction.getCurrency(), transaction.getGrossValue());
 
             // commission is booked in baseCurrency (commission is also stored in base currency in db)
-            processAmount(transaction.getStrategy(), this.portfolioBaseCurrency, transaction.getCommission().negate());
+            processAmount(transaction.getStrategy().getName(), this.portfolioBaseCurrency, transaction.getCommission().negate());
         } else {
 
             // the entire transaction (price + commission) is booked in transaction currency
-            processAmount(transaction.getStrategy(), transaction.getCurrency(), transaction.getNetValue());
+            processAmount(transaction.getStrategy().getName(), transaction.getCurrency(), transaction.getNetValue());
         }
     }
 
     @Override
-    protected void handleProcessAmount(Strategy strategy, Currency currency, BigDecimal amount) throws Exception {
+    protected void handleProcessAmount(String strategyName, Currency currency, BigDecimal amount) throws Exception {
 
+        Strategy strategy = getStrategyDao().findByName(strategyName);
         CashBalance cashBalance = getCashBalanceDao().findByStrategyAndCurrency(strategy, currency);
 
         // create the cashBalance, if it does not exist yet
@@ -56,13 +57,10 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
             strategy.addCashBalances(cashBalance);
 
             getCashBalanceDao().create(cashBalance);
-            getStrategyDao().update(strategy);
 
         } else {
 
             cashBalance.setAmount(cashBalance.getAmount().add(amount));
-
-            getCashBalanceDao().update(cashBalance);
         }
     }
 
@@ -108,7 +106,6 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
                 if (oldAmount.doubleValue() != amount.doubleValue()) {
 
                     cashBalance.setAmount(amount);
-                    getCashBalanceDao().update(cashBalance);
 
                     logger.info("adjusted cashBalance: " + cashBalance + " from: " + oldAmount);
                 } else {
@@ -126,7 +123,6 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
                 strategy.addCashBalances(cashBalance);
 
                 getCashBalanceDao().create(cashBalance);
-                getStrategyDao().update(strategy);
 
                 logger.info("created cashBalance: " + cashBalance);
             }
@@ -137,7 +133,6 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
             Strategy strategy = cashBalance.getStrategy();
             strategy.getCashBalances().remove(cashBalance);
-            getStrategyDao().update(strategy);
 
             logger.info("removed cashBalance: " + cashBalance);
         }

@@ -120,8 +120,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             Collection<Position> positions = strategy.getPositions();
             getPositionDao().remove(positions);
             strategy.getPositions().removeAll(positions);
-
-            getStrategyDao().update(strategy);
         }
 
         // delete all non-presistent subscriptions and references to them
