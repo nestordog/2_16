@@ -5,7 +5,7 @@ import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.service.RuleService;
+import com.algoTrader.service.EventService;
 
 public class MyLogger extends Logger {
 
@@ -40,7 +40,7 @@ public class MyLogger extends Logger {
     protected void forcedLog(String fqcn, Priority level, Object message, Throwable t) {
 
         if (ServiceLocator.instance().isInitialized()) {
-            RuleService ruleService = ServiceLocator.instance().getRuleService();
+            EventService ruleService = ServiceLocator.instance().getEventService();
 
             String strategyName = StrategyUtil.getStartedStrategyName();
             if (ruleService.isInitialized(strategyName) && !ruleService.isInternalClock(strategyName)) {

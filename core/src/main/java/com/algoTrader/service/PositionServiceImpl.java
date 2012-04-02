@@ -84,7 +84,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             // create an OrderCallback if unsubscribe is requested
             if (unsubscribe) {
 
-                getRuleService().addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback() {
+                getEventService().addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback() {
                     @Override
                     public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
                         MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
@@ -154,7 +154,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
 
         // propagate the ClosePosition event
-        getRuleService().routeEvent(position.getStrategy().getName(), closePositionVO);
+        getEventService().routeEvent(position.getStrategy().getName(), closePositionVO);
 
         getPositionDao().remove(position);
 
@@ -191,24 +191,24 @@ public class PositionServiceImpl extends PositionServiceBase {
     }
 
     @Override
-    protected void handleSetExitValue(int positionId, double exitValue, boolean force) throws MathException {
+    protected Position handleSetExitValue(int positionId, double exitValue, boolean force) throws MathException {
 
         Position position = getPositionDao().load(positionId);
 
         // prevent exitValues near Zero
         if (exitValue <= 0.05) {
             logger.warn("setting of exitValue below 0.05 is prohibited: " + exitValue);
-            return;
+            return position;
         }
 
         // in generall, exit value should not be set higher (lower) than existing exitValue for long (short) positions
         if (!force) {
             if (Direction.SHORT.equals(position.getDirection()) && position.getExitValue() != null && exitValue > position.getExitValueDouble()) {
                 logger.warn("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of short position " + positionId);
-                return;
+                return position;
             } else if (Direction.LONG.equals(position.getDirection()) && position.getExitValue() != null && exitValue < position.getExitValueDouble()) {
                 logger.warn("exit value " + exitValue + " is lower than existing exit value " + position.getExitValue() + " of long position " + positionId);
-                return;
+                return position;
             }
         }
 
@@ -227,10 +227,12 @@ public class PositionServiceImpl extends PositionServiceBase {
         getPositionDao().update(position);
 
         logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + format.format(exitValue));
+
+        return position;
     }
 
     @Override
-    protected void handleRemoveExitValue(int positionId) throws Exception {
+    protected Position handleRemoveExitValue(int positionId) throws Exception {
 
         Position position = getPositionDao().load(positionId);
 
@@ -241,17 +243,31 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             logger.info("removed exit value of " + position.getSecurity().getSymbol());
         }
+
+        return position;
     }
 
     @Override
-    protected void handleSetMargin(int positionId) throws Exception {
+    protected Position handleSetMargin(int positionId) throws Exception {
 
         Position position = getPositionDao().load(positionId);
+
         setMargin(position);
+
+        return position;
     }
 
     @Override
-    protected void handleSetMargin(Position position) throws Exception {
+    protected void handleSetMargins() throws Exception {
+
+        List<Position> positions = getPositionDao().findOpenPositions();
+
+        for (Position position : positions) {
+            setMargin(position);
+        }
+    }
+
+    private void setMargin(Position position) throws Exception {
 
         Security security = position.getSecurity();
         double marginPerContract = security.getMargin();
@@ -272,16 +288,6 @@ public class PositionServiceImpl extends PositionServiceBase {
     }
 
     @Override
-    protected void handleSetMargins() throws Exception {
-
-        List<Position> positions = getPositionDao().findOpenPositions();
-
-        for (Position position : positions) {
-            setMargin(position);
-        }
-    }
-
-    @Override
     protected void handleExpirePositions() throws Exception {
 
         Date date = DateUtil.getCurrentEPTime();
@@ -293,7 +299,13 @@ public class PositionServiceImpl extends PositionServiceBase {
     }
 
     @Override
-    protected void handleExpirePosition(Position position) throws Exception {
+    protected void handleExpirePosition(int positionId) throws Exception {
+        Position position = getPositionDao().load(positionId);
+
+        expirePosition(position);
+    }
+
+    private void expirePosition(Position position) throws Exception {
 
         Security security = position.getSecurity();
 
@@ -333,6 +345,6 @@ public class PositionServiceImpl extends PositionServiceBase {
         getMarketDataService().unsubscribe(position.getStrategy().getName(), security.getId());
 
         // propagate the ExpirePosition event
-        getRuleService().sendEvent(position.getStrategy().getName(), expirePositionEvent);
+        getEventService().sendEvent(position.getStrategy().getName(), expirePositionEvent);
     }
 }

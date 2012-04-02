@@ -6,14 +6,14 @@ import java.util.GregorianCalendar;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.ExpirationType;
-import com.algoTrader.service.RuleService;
+import com.algoTrader.service.EventService;
 
 public class DateUtil {
 
     public static Date getCurrentEPTime() {
 
         String strategyName = StrategyUtil.getStartedStrategyName();
-        RuleService ruleService = ServiceLocator.instance().getRuleService();
+        EventService ruleService = ServiceLocator.instance().getEventService();
         if (ruleService.isInitialized(strategyName) && !ruleService.isInternalClock(strategyName)) {
             return new Date(ruleService.getCurrentTime(strategyName));
         } else {

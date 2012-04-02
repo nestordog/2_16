@@ -27,9 +27,9 @@ public class TestServiceImpl extends TestServiceBase {
     @Override
     protected void handleTestPattern() {
 
-        RuleService ruleService = ServiceLocator.instance().getRuleService();
+        EventService ruleService = ServiceLocator.instance().getEventService();
         ruleService.initServiceProvider("SMI");
-        ruleService.deployRule("SMI", "test", "TEST");
+        ruleService.deployStatement("SMI", "test", "TEST");
 
         Security index = getSecurityDao().load(4);
         Security vola = getSecurityDao().load(5);
@@ -223,7 +223,7 @@ public class TestServiceImpl extends TestServiceBase {
 
         Date date = (new SimpleDateFormat("dd.MM.yyyy kk:mm:ss")).parse(dateString);
 
-        RuleService ruleService = ServiceLocator.instance().getService("ruleService", RuleService.class);
+        EventService ruleService = ServiceLocator.instance().getService("ruleService", EventService.class);
         ruleService.initServiceProvider(StrategyImpl.BASE);
         ruleService.sendEvent(StrategyImpl.BASE, new CurrentTimeEvent(date.getTime()));
 

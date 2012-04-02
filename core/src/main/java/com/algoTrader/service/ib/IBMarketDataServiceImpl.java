@@ -63,7 +63,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
         subscribeTickEvent.setTick(tick);
         subscribeTickEvent.setTickerId(tickerId);
 
-        getRuleService().sendEvent(StrategyImpl.BASE, subscribeTickEvent);
+        getEventService().sendEvent(StrategyImpl.BASE, subscribeTickEvent);
 
         // requestMarketData from IB
         Contract contract = IBUtil.getContract(security);
@@ -82,7 +82,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
         }
 
         // get the tickerId by querying the TickWindow
-        List<Map> events = getRuleService().executeQuery(StrategyImpl.BASE, "select tickerId from TickWindow where security.id = " + security.getId());
+        List<Map> events = getEventService().executeQuery(StrategyImpl.BASE, "select tickerId from TickWindow where security.id = " + security.getId());
 
         if (events.size() == 1) {
 
@@ -91,7 +91,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
 
             UnsubscribeTickVO unsubscribeTickEvent = new UnsubscribeTickVO();
             unsubscribeTickEvent.setSecurityId(security.getId());
-            getRuleService().sendEvent(StrategyImpl.BASE, unsubscribeTickEvent);
+            getEventService().sendEvent(StrategyImpl.BASE, unsubscribeTickEvent);
 
             logger.debug("cancelled market data for : " + security.getSymbol());
         } else {

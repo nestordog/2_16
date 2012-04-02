@@ -513,8 +513,8 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
                     " description: " + transaction.getDescription());
             // @formatter:on
 
-            if (getRuleService().isInitialized(StrategyImpl.BASE)) {
-                getRuleService().sendEvent(StrategyImpl.BASE, transaction);
+            if (getEventService().isInitialized(StrategyImpl.BASE)) {
+                getEventService().sendEvent(StrategyImpl.BASE, transaction);
             }
         }
 

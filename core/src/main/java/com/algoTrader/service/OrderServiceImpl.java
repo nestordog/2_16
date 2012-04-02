@@ -135,7 +135,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     @Override
     protected void handleCancelAllOrders() throws Exception {
 
-        List<Order> orders = getRuleService().getAllEvents(StrategyImpl.BASE, "CREATE_WINDOW_OPEN_ORDER");
+        List<Order> orders = getEventService().getAllEvents(StrategyImpl.BASE, "CREATE_WINDOW_OPEN_ORDER");
         for (Order order : orders) {
             cancelExternalOrder(order);
         }
@@ -151,11 +151,11 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     protected void handlePropagateOrder(Order order) throws Exception {
 
         // send the order into the base engine to be correlated with fills
-        getRuleService().sendEvent(StrategyImpl.BASE, order);
+        getEventService().sendEvent(StrategyImpl.BASE, order);
 
         // also send the order to the strategy that placed the order
         if (!StrategyImpl.BASE.equals(order.getStrategy().getName())) {
-            getRuleService().routeEvent(order.getStrategy().getName(), order);
+            getEventService().routeEvent(order.getStrategy().getName(), order);
         }
     }
 
@@ -164,7 +164,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
         // send the fill to the strategy that placed the corresponding order
         if (!StrategyImpl.BASE.equals(orderStatus.getParentOrder().getStrategy().getName())) {
-            getRuleService().routeEvent(orderStatus.getParentOrder().getStrategy().getName(), orderStatus);
+            getEventService().routeEvent(orderStatus.getParentOrder().getStrategy().getName(), orderStatus);
         }
 
         if (!this.simulation) {

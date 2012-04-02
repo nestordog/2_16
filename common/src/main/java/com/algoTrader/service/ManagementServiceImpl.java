@@ -40,7 +40,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected String handleGetCurrentTime() throws Exception {
 
-        return format.format(new Date(getRuleService().getCurrentTime(StrategyUtil.getStartedStrategyName())));
+        return format.format(new Date(getEventService().getCurrentTime(StrategyUtil.getStartedStrategyName())));
     }
 
     @Override
@@ -108,7 +108,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected List<TickVO> handleGetDataTicks() {
 
         String strategyName = StrategyUtil.getStartedStrategyName();
-        List<Tick> ticks = getRuleService().getAllEventsProperty(strategyName, "GET_LAST_TICK", "tick");
+        List<Tick> ticks = getEventService().getAllEventsProperty(strategyName, "GET_LAST_TICK", "tick");
 
         List<TickVO> tickVOs = getTickVOs(ticks);
 
@@ -172,28 +172,28 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected List<Object> handleGetAllEvents(String ruleName) throws Exception {
+    protected List<Object> handleGetAllEvents(String statementName) throws Exception {
 
         String strategyName = StrategyUtil.getStartedStrategyName();
-        return getRuleService().getAllEvents(strategyName, ruleName);
+        return getEventService().getAllEvents(strategyName, statementName);
     }
 
     @Override
     protected void handleDeployStatement(String moduleName, String statementName) throws Exception {
 
-        getRuleService().deployRule(StrategyUtil.getStartedStrategyName(), moduleName, statementName);
+        getEventService().deployStatement(StrategyUtil.getStartedStrategyName(), moduleName, statementName);
     }
 
     @Override
     protected void handleDeployModule(String moduleName) throws Exception {
 
-        getRuleService().deployModule(StrategyUtil.getStartedStrategyName(), moduleName);
+        getEventService().deployModule(StrategyUtil.getStartedStrategyName(), moduleName);
     }
 
     @Override
     protected void handleSetVariableValue(String variableName, String value) {
 
-        getRuleService().setVariableValue(StrategyUtil.getStartedStrategyName(), variableName, value);
+        getEventService().setVariableValue(StrategyUtil.getStartedStrategyName(), variableName, value);
     }
 
     @Override

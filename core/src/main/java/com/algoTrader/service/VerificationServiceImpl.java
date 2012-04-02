@@ -36,14 +36,14 @@ public class VerificationServiceImpl extends VerificationServiceBase {
     @Override
     protected void handleVerifyTransactions() throws Exception {
 
-        getRuleService().initServiceProvider(StrategyImpl.BASE);
+        getEventService().initServiceProvider(StrategyImpl.BASE);
 
         Collection<Transaction> transactions = getTransactionDao().findAllTrades();
 
         for (Transaction transaction : transactions) {
 
             Date date = transaction.getDateTime();
-            getRuleService().sendEvent(StrategyImpl.BASE, new CurrentTimeEvent(date.getTime()));
+            getEventService().sendEvent(StrategyImpl.BASE, new CurrentTimeEvent(date.getTime()));
 
             if (!(transaction.getType().equals(TransactionType.BUY) || transaction.getType().equals(TransactionType.SELL))) {
                 continue;
@@ -84,7 +84,7 @@ public class VerificationServiceImpl extends VerificationServiceBase {
     protected void handleVerifyTicks() throws Exception {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy.MM.dd kk:mm");
-        getRuleService().initServiceProvider(StrategyImpl.BASE);
+        getEventService().initServiceProvider(StrategyImpl.BASE);
 
         CsvTickReader underlyingReader = new CsvTickReader("CH0008616382");
         Security underlying = getSecurityDao().findByIsin("CH0008616382");
@@ -138,7 +138,7 @@ public class VerificationServiceImpl extends VerificationServiceBase {
 
         for (Tick optionTick : optionTicks) {
 
-            getRuleService().sendEvent(StrategyImpl.BASE, new CurrentTimeEvent(optionTick.getDateTime().getTime()));
+            getEventService().sendEvent(StrategyImpl.BASE, new CurrentTimeEvent(optionTick.getDateTime().getTime()));
 
             StockOption stockOption = (StockOption) optionTick.getSecurity();
 

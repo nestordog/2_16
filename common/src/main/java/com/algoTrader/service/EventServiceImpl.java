@@ -81,9 +81,9 @@ import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.csv.CSVInputAdapter;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
-public class RuleServiceImpl extends RuleServiceBase implements ApplicationContextAware {
+public class EventServiceImpl extends EventServiceBase implements ApplicationContextAware {
 
-    private static Logger logger = MyLogger.getLogger(RuleServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(EventServiceImpl.class.getName());
 
     private @Value("${simulation}") boolean simulation;
     private @Value("#{T(java.util.Arrays).asList(('${misc.moduleDeployExcludeStatements}').split(','))}") List<String> moduleDeployExcludeStatements;
@@ -135,31 +135,31 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
     }
 
     @Override
-    protected void handleDeployRule(String strategyName, String moduleName, String ruleName) {
+    protected void handleDeployStatement(String strategyName, String moduleName, String statementName) {
 
-        internalDeployRule(strategyName, moduleName, ruleName, null, new Object[] {}, null);
+        internalDeployStatement(strategyName, moduleName, statementName, null, new Object[] {}, null);
     }
 
     @Override
-    protected void handleDeployRule(String strategyName, String moduleName, String ruleName, String alias, Object[] params) {
+    protected void handleDeployStatement(String strategyName, String moduleName, String statementName, String alias, Object[] params) {
 
-        internalDeployRule(strategyName, moduleName, ruleName, alias, params, null);
+        internalDeployStatement(strategyName, moduleName, statementName, alias, params, null);
     }
 
     @Override
-    protected void handleDeployRule(String strategyName, String moduleName, String ruleName, String alias, Object[] params, Object callback) {
+    protected void handleDeployStatement(String strategyName, String moduleName, String statementName, String alias, Object[] params, Object callback) {
 
-        internalDeployRule(strategyName, moduleName, ruleName, alias, params, callback);
+        internalDeployStatement(strategyName, moduleName, statementName, alias, params, callback);
     }
 
-    private void internalDeployRule(String strategyName, String moduleName, String ruleName, String alias, Object[] params, Object callback) {
+    private void internalDeployStatement(String strategyName, String moduleName, String statementName, String alias, Object[] params, Object callback) {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
 
         // do nothing if the statement already exists
-        EPStatement oldStatement = administrator.getStatement(ruleName);
+        EPStatement oldStatement = administrator.getStatement(statementName);
         if (oldStatement != null && oldStatement.isStarted()) {
-            logger.warn(ruleName + " is already deployed and started");
+            logger.warn(statementName + " is already deployed and started");
             return;
         }
 
@@ -170,7 +170,7 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
         try {
             module = deployAdmin.read("module-" + moduleName + ".epl");
         } catch (Exception e) {
-            throw new RuleServiceException("module" + moduleName + " could not be read", e);
+            throw new EventServiceException("module" + moduleName + " could not be read", e);
         }
 
         // go through all statements in the module
@@ -187,12 +187,12 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
                 model = administrator.compileEPL(exp);
             }
 
-            // go through all annotations and check if the statement has the 'name' 'ruleName'
+            // go through all annotations and check if the statement has the 'name' 'statementName'
             List<AnnotationPart> annotationParts = model.getAnnotations();
             for (AnnotationPart annotationPart : annotationParts) {
                 if (annotationPart.getName().equals("Name")) {
                     for (AnnotationAttribute attribute : annotationPart.getAttributes()) {
-                        if (attribute.getValue().equals(ruleName)) {
+                        if (attribute.getValue().equals(statementName)) {
 
                             // create the statement and set the prepared statement params if a prepared statement
                             if (exp.contains("?")) {
@@ -230,9 +230,9 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
         }
 
         if (newStatement == null) {
-            logger.warn("statement " + ruleName + " was not found");
+            logger.warn("statement " + statementName + " was not found");
         } else {
-            logger.debug("deployed rule " + newStatement.getName() + " on service provider: " + strategyName);
+            logger.debug("deployed statement " + newStatement.getName() + " on service provider: " + strategyName);
         }
     }
 
@@ -247,7 +247,7 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
             Module module = deployAdmin.read("module-" + moduleName + ".epl");
             deployResult = deployAdmin.deploy(module, new DeploymentOptions());
         } catch (Exception e) {
-            throw new RuleServiceException("module " + moduleName + " could not be deployed", e);
+            throw new EventServiceException("module " + moduleName + " could not be deployed", e);
         }
 
         for (EPStatement statement : deployResult.getStatements()) {
@@ -277,34 +277,34 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
 
     @Override
     /**
-     * @param ruleNameRegex rule name regular expression
+     * @param statementNameRegex statement name regular expression
      */
-    protected String[] handleFindRuleNames(String strategyName, final String ruleNameRegex) {
+    protected String[] handleFindStatementNames(String strategyName, final String statementNameRegex) {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
 
-        // find the first statement that matches the given ruleName regex
+        // find the first statement that matches the given statementName regex
         return CollectionUtils.select(Arrays.asList(administrator.getStatementNames()), new Predicate<String>() {
             @Override
             public boolean evaluate(String statement) {
-                return statement.matches(ruleNameRegex);
+                return statement.matches(statementNameRegex);
             }
         }).toArray(new String[] {});
     }
 
     @Override
     /**
-     * @param ruleNameRegex rule name regular expression
+     * @param statementNameRegex statement name regular expression
      */
-    protected boolean handleIsDeployed(String strategyName, final String ruleNameRegex) {
+    protected boolean handleIsDeployed(String strategyName, final String statementNameRegex) {
 
-        // find the first statement that matches the given ruleName regex
-        String[] statementNames = findRuleNames(strategyName, ruleNameRegex);
+        // find the first statement that matches the given statementName regex
+        String[] statementNames = findStatementNames(strategyName, statementNameRegex);
 
         if (statementNames.length == 0) {
             return false;
         } else if (statementNames.length > 1) {
-            logger.error("more than one rule matches: " + ruleNameRegex);
+            logger.error("more than one statement matches: " + statementNameRegex);
         }
 
         // get the statement
@@ -319,14 +319,14 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
     }
 
     @Override
-    protected void handleUndeployRule(String strategyName, String ruleName) {
+    protected void handleUndeployStatement(String strategyName, String statementName) {
 
         // destroy the statement
-        EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
+        EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
 
         if (statement != null && statement.isStarted()) {
             statement.destroy();
-            logger.debug("undeployed rule " + ruleName);
+            logger.debug("undeployed statement " + statementName);
         }
     }
 
@@ -340,7 +340,7 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
                 try {
                     deployAdmin.undeploy(deploymentInformation.getDeploymentId());
                 } catch (Exception e) {
-                    throw new RuleServiceException("module " + moduleName + " could no be undeployed", e);
+                    throw new EventServiceException("module " + moduleName + " could no be undeployed", e);
                 }
             }
         }
@@ -432,9 +432,9 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
     }
 
     @Override
-    protected Object handleGetLastEvent(String strategyName, String ruleName) {
+    protected Object handleGetLastEvent(String strategyName, String statementName) {
 
-        EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
+        EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
         if (statement != null && statement.isStarted()) {
             SafeIterator<EventBean> it = statement.safeIterator();
             try {
@@ -449,9 +449,9 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
     }
 
     @Override
-    protected Object handleGetLastEventProperty(String strategyName, String ruleName, String property) {
+    protected Object handleGetLastEventProperty(String strategyName, String statementName, String property) {
 
-        EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
+        EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
         if (statement != null && statement.isStarted()) {
             SafeIterator<EventBean> it = statement.safeIterator();
             try {
@@ -464,9 +464,9 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
     }
 
     @Override
-    protected List<Object> handleGetAllEvents(String strategyName, String ruleName) {
+    protected List<Object> handleGetAllEvents(String strategyName, String statementName) {
 
-        EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
+        EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
         List<Object> list = new ArrayList<Object>();
         if (statement != null && statement.isStarted()) {
             SafeIterator<EventBean> it = statement.safeIterator();
@@ -484,9 +484,9 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
     }
 
     @Override
-    protected List<Object> handleGetAllEventsProperty(String strategyName, String ruleName, String property) {
+    protected List<Object> handleGetAllEventsProperty(String strategyName, String statementName, String property) {
 
-        EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(ruleName);
+        EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
         List<Object> list = new ArrayList<Object>();
         if (statement != null && statement.isStarted()) {
             SafeIterator<EventBean> it = statement.safeIterator();
@@ -649,7 +649,7 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
             logger.warn(alias + " is already deployed");
         } else {
 
-            deployRule(strategyName, "prepared", "ON_TRADE_COMPLETED", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds }, callback);
+            deployStatement(strategyName, "prepared", "ON_TRADE_COMPLETED", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds }, callback);
         }
     }
 
@@ -673,7 +673,7 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
             logger.warn(alias + " is already deployed");
         } else {
 
-            deployRule(strategyName, "prepared", "ON_FIRST_TICK", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds }, callback);
+            deployStatement(strategyName, "prepared", "ON_FIRST_TICK", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds }, callback);
         }
     }
 
@@ -688,7 +688,7 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
 
         EPServiceProvider serviceProvider = this.serviceProviders.get(providerURI);
         if (serviceProvider == null) {
-            throw new RuleServiceException("strategy " + providerURI + " is not initialized yet!");
+            throw new EventServiceException("strategy " + providerURI + " is not initialized yet!");
         }
 
         return serviceProvider;
@@ -711,7 +711,7 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
                 }
             }
         } catch (ClassNotFoundException e) {
-            throw new RuleServiceException(e);
+            throw new EventServiceException(e);
         }
     }
 
@@ -726,7 +726,7 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
                     Object obj = getSubscriber(subscriber.className());
                     statement.setSubscriber(obj);
                 } catch (Exception e) {
-                    throw new RuleServiceException("subscriber " + subscriber.className() + " could not be created for statement " + statement.getName(), e);
+                    throw new EventServiceException("subscriber " + subscriber.className() + " could not be created for statement " + statement.getName(), e);
                 }
 
             } else if (annotation instanceof Listeners) {
@@ -742,7 +742,7 @@ public class RuleServiceImpl extends RuleServiceBase implements ApplicationConte
                             statement.addListener((UpdateListener) obj);
                         }
                     } catch (Exception e) {
-                        throw new RuleServiceException("listener " + className + " could not be created for statement " + statement.getName(), e);
+                        throw new EventServiceException("listener " + className + " could not be created for statement " + statement.getName(), e);
                     }
                 }
             } else if (annotation instanceof RunTimeOnly && this.simulation) {

@@ -163,7 +163,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @Override
     protected void handleInputCSV() {
 
-        getRuleService().initCoordination(StrategyImpl.BASE);
+        getEventService().initCoordination(StrategyImpl.BASE);
 
         List<Security> securities = getSecurityDao().findSubscribedForAutoActivateStrategiesInclFamily();
         for (Security security : securities) {
@@ -193,12 +193,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
             }
 
-            getRuleService().coordinate(StrategyImpl.BASE, spec);
+            getEventService().coordinate(StrategyImpl.BASE, spec);
 
             logger.debug("started simulation for security " + security.getSymbol());
         }
 
-        getRuleService().startCoordination(StrategyImpl.BASE);
+        getEventService().startCoordination(StrategyImpl.BASE);
     }
 
     @Override
@@ -213,8 +213,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         // init all activatable strategies
         List<Strategy> strategies = getStrategyDao().findAutoActivateStrategies();
         for (Strategy strategy : strategies) {
-            getRuleService().initServiceProvider(strategy.getName());
-            getRuleService().deployAllModules(strategy.getName());
+            getEventService().initServiceProvider(strategy.getName());
+            getEventService().deployAllModules(strategy.getName());
         }
 
         // feed the ticks
@@ -226,14 +226,14 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         }
 
         // send the EndOfSimulation event
-        getRuleService().sendEvent(StrategyImpl.BASE, new EndOfSimulationVO());
+        getEventService().sendEvent(StrategyImpl.BASE, new EndOfSimulationVO());
 
         // get the results
         SimulationResultVO resultVO = getSimulationResultVO(startTime);
 
         // destroy all service providers
         for (Strategy strategy : strategies) {
-            getRuleService().destroyServiceProvider(strategy.getName());
+            getEventService().destroyServiceProvider(strategy.getName());
         }
 
         // run a garbage collection
@@ -268,31 +268,31 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         resetDB();
 
-        getRuleService().initServiceProvider(StrategyImpl.BASE);
+        getEventService().initServiceProvider(StrategyImpl.BASE);
 
         // activate the necessary rules
-        getRuleService().deployRule(StrategyImpl.BASE, "base", "CREATE_PORTFOLIO_VALUE");
-        getRuleService().deployRule(StrategyImpl.BASE, "base", "CREATE_MONTHLY_PERFORMANCE");
-        getRuleService().deployRule(StrategyImpl.BASE, "base", "GET_LAST_TICK");
-        getRuleService().deployRule(StrategyImpl.BASE, "base", "CREATE_PERFORMANCE_KEYS");
-        getRuleService().deployRule(StrategyImpl.BASE, "base", "KEEP_MONTHLY_PERFORMANCE");
-        getRuleService().deployRule(StrategyImpl.BASE, "base", "CREATE_DRAW_DOWN");
-        getRuleService().deployRule(StrategyImpl.BASE, "base", "CREATE_MAX_DRAW_DOWN");
-        getRuleService().deployRule(StrategyImpl.BASE, "base", "PROCESS_PREARRANGED_ORDERS");
+        getEventService().deployStatement(StrategyImpl.BASE, "base", "CREATE_PORTFOLIO_VALUE");
+        getEventService().deployStatement(StrategyImpl.BASE, "base", "CREATE_MONTHLY_PERFORMANCE");
+        getEventService().deployStatement(StrategyImpl.BASE, "base", "GET_LAST_TICK");
+        getEventService().deployStatement(StrategyImpl.BASE, "base", "CREATE_PERFORMANCE_KEYS");
+        getEventService().deployStatement(StrategyImpl.BASE, "base", "KEEP_MONTHLY_PERFORMANCE");
+        getEventService().deployStatement(StrategyImpl.BASE, "base", "CREATE_DRAW_DOWN");
+        getEventService().deployStatement(StrategyImpl.BASE, "base", "CREATE_MAX_DRAW_DOWN");
+        getEventService().deployStatement(StrategyImpl.BASE, "base", "PROCESS_PREARRANGED_ORDERS");
 
         // initialize the coordination
-        getRuleService().initCoordination(StrategyImpl.BASE);
+        getEventService().initCoordination(StrategyImpl.BASE);
 
-        getRuleService().coordinateTicks(StrategyImpl.BASE, new Date(this.start));
+        getEventService().coordinateTicks(StrategyImpl.BASE, new Date(this.start));
 
-        getRuleService().coordinate(StrategyImpl.BASE, orders, "transactions[0].dateTime");
+        getEventService().coordinate(StrategyImpl.BASE, orders, "transactions[0].dateTime");
 
-        getRuleService().startCoordination(StrategyImpl.BASE);
+        getEventService().startCoordination(StrategyImpl.BASE);
 
         SimulationResultVO resultVO = getSimulationResultVO(startTime);
         logMultiLineString(convertStatisticsToLongString(resultVO));
 
-        getRuleService().destroyServiceProvider(StrategyImpl.BASE);
+        getEventService().destroyServiceProvider(StrategyImpl.BASE);
     }
 
     @Override
@@ -418,12 +418,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @SuppressWarnings("unchecked")
     protected SimulationResultVO handleGetSimulationResultVO(long startTime) {
 
-        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) getRuleService().getLastEvent(StrategyImpl.BASE, "CREATE_PERFORMANCE_KEYS");
-        List<PeriodPerformanceVO> monthlyPerformances = getRuleService().getAllEvents(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
-        MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) getRuleService().getLastEvent(StrategyImpl.BASE, "CREATE_MAX_DRAW_DOWN");
-        TradesVO allTrades = (TradesVO) getRuleService().getLastEvent(StrategyImpl.BASE, "ALL_TRADES");
-        TradesVO winningTrades = (TradesVO) getRuleService().getLastEvent(StrategyImpl.BASE, "WINNING_TRADES");
-        TradesVO loosingTrades = (TradesVO) getRuleService().getLastEvent(StrategyImpl.BASE, "LOOSING_TRADES");
+        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) getEventService().getLastEvent(StrategyImpl.BASE, "CREATE_PERFORMANCE_KEYS");
+        List<PeriodPerformanceVO> monthlyPerformances = getEventService().getAllEvents(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
+        MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) getEventService().getLastEvent(StrategyImpl.BASE, "CREATE_MAX_DRAW_DOWN");
+        TradesVO allTrades = (TradesVO) getEventService().getLastEvent(StrategyImpl.BASE, "ALL_TRADES");
+        TradesVO winningTrades = (TradesVO) getEventService().getLastEvent(StrategyImpl.BASE, "WINNING_TRADES");
+        TradesVO loosingTrades = (TradesVO) getEventService().getLastEvent(StrategyImpl.BASE, "LOOSING_TRADES");
 
         // compile yearly performance
         List<PeriodPerformanceVO> yearlyPerformances = null;

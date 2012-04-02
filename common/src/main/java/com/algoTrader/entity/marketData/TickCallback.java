@@ -33,7 +33,7 @@ public abstract class TickCallback {
         String alias = "ON_FIRST_TICK_" + StringUtils.join(sortedSecurityIds, "_");
 
         // undeploy the statement
-        ServiceLocator.instance().getRuleService().undeployRule(strategyName, alias);
+        ServiceLocator.instance().getEventService().undeployStatement(strategyName, alias);
 
         long startTime = System.currentTimeMillis();
         logger.debug("onFirstTick start " + sortedSecurityIds);

@@ -71,7 +71,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         Hibernate.initialize(security.getSubscriptions());
         Hibernate.initialize(security.getPositions());
 
-        getRuleService().sendMarketDataEvent(marketDataEvent);
+        getEventService().sendMarketDataEvent(marketDataEvent);
     }
 
     @Override

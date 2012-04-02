@@ -58,7 +58,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     }
 
     @Override
-    protected void handleAddComponent(int combinationId, final int securityId, long quantity) throws Exception {
+    protected Combination handleAddComponent(int combinationId, final int securityId, long quantity) throws Exception {
 
         Combination combination = getCombinationDao().load(combinationId);
 
@@ -102,10 +102,12 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         }
 
         logger.debug("added component quantity " + quantity + " of " + component + " to combination " + combinationString);
+
+        return combination;
     }
 
     @Override
-    protected void handleSetComponentQuantity(int combinationId, final int securityId, long quantity) throws Exception {
+    protected Combination handleSetComponentQuantity(int combinationId, final int securityId, long quantity) throws Exception {
 
         Combination combination = getCombinationDao().load(combinationId);
 
@@ -148,10 +150,12 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         }
 
         logger.debug("set component quantity " + quantity + " of " + component + " to combination " + combination);
+
+        return combination;
     }
 
     @Override
-    protected void handleRemoveComponent(int combinationId, final int securityId) {
+    protected Combination handleRemoveComponent(int combinationId, final int securityId) {
 
         Combination combination = getCombinationDao().load(combinationId);
 
@@ -189,6 +193,8 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         }
 
         logger.debug("removed component " + component + " from combination " + combinationString);
+
+        return combination;
     }
 
     @Override

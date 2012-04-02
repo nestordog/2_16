@@ -66,63 +66,63 @@ public final class IBEsperAdapter extends IBDefaultAdapter {
     @Override
     public void accountDownloadEnd(final String accountName) {
         final AccountDownloadEnd o = new AccountDownloadEnd(accountName);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.accountDownloadEnd(accountName));
     }
 
     @Override
     public void bondContractDetails(final int reqId, final ContractDetails contractDetails) {
         final ContractDetailsCommon o = new ContractDetailsCommon(reqId, contractDetails);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.bondContractDetails(reqId, contractDetails));
     }
 
     @Override
     public void contractDetails(final int reqId, final ContractDetails contractDetails) {
         final ContractDetailsCommon o = new ContractDetailsCommon(reqId, contractDetails);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.contractDetails(reqId, contractDetails));
     }
 
     @Override
     public void contractDetailsEnd(final int reqId) {
         final ContractDetailsEnd o = new ContractDetailsEnd(reqId);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.contractDetailsEnd(reqId));
     }
 
     @Override
     public void currentTime(final long time) {
         final CurrentTime o = new CurrentTime(time);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.currentTime(time));
     }
 
     @Override
     public void deltaNeutralValidation(final int reqId, final UnderComp underComp) {
         final DeltaNeutralValidation o = new DeltaNeutralValidation(reqId, underComp);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.deltaNeutralValidation(reqId, underComp));
     }
 
     @Override
     public void execDetails(final int reqId, final Contract contract, final Execution execution) {
         final ExecDetails o = new ExecDetails(reqId, contract, execution);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.execDetails(reqId, contract, execution));
     }
 
     @Override
     public void execDetailsEnd(final int reqId) {
         final ExecDetailsEnd o = new ExecDetailsEnd(reqId);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.execDetailsEnd(reqId));
     }
 
     @Override
     public void fundamentalData(final int reqId, final String data) {
         final FundamentalData o = new FundamentalData(reqId, data);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.fundamentalData(reqId, data));
     }
 
@@ -130,28 +130,28 @@ public final class IBEsperAdapter extends IBDefaultAdapter {
     public void historicalData(final int reqId, final String date, final double open, final double high, final double low, final double close,
             final int volume, final int count, final double wap, final boolean hasGaps) {
         final HistoricalData o = new HistoricalData(reqId, date, open, high, low, close, volume, count, wap, hasGaps);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.historicalData(reqId, date, open, high, low, close, volume, count, wap, hasGaps));
     }
 
     @Override
     public void managedAccounts(final String accountsList) {
         final ManagedAccounts o = new ManagedAccounts(accountsList);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.managedAccounts(accountsList));
     }
 
     @Override
     public void openOrder(final int orderId, final Contract contract, final Order order, final OrderState orderState) {
         final OpenOrder o = new OpenOrder(orderId, contract, order, orderState);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.openOrder(orderId, contract, order, orderState));
     }
 
     @Override
     public void openOrderEnd() {
         //final OpenOrderEnd o = new OpenOrderEnd();
-        //ServiceLocator.commonInstance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        //ServiceLocator.commonInstance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.openOrderEnd());
     }
 
@@ -159,7 +159,7 @@ public final class IBEsperAdapter extends IBDefaultAdapter {
     public void orderStatus(final int orderId, final String status, final int filled, final int remaining, final double avgFillPrice, final int permId,
             final int parentId, final double lastFillPrice, final int clientId, final String whyHeld) {
         final OrderStatus o = new OrderStatus(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.orderStatus(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
     }
 
@@ -167,14 +167,14 @@ public final class IBEsperAdapter extends IBDefaultAdapter {
     public void realtimeBar(final int reqId, final long time, final double open, final double high, final double low, final double close, final long volume,
             final double wap, final int count) {
         final RealtimeBar o = new RealtimeBar(reqId, time, open, high, low, close, volume, wap, count);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.realtimeBar(reqId, time, open, high, low, close, volume, wap, count));
     }
 
     @Override
     public void receiveFA(final int faDataType, final String xml) {
         final ReceiveFA o = new ReceiveFA(faDataType, xml);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.receiveFA(faDataType, xml));
     }
 
@@ -182,21 +182,21 @@ public final class IBEsperAdapter extends IBDefaultAdapter {
     public void scannerData(final int reqId, final int rank, final ContractDetails contractDetails, final String distance, final String benchmark,
             final String projection, final String legsStr) {
         final ScannerData o = new ScannerData(reqId, rank, contractDetails, distance, benchmark, projection, legsStr);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.scannerData(reqId, rank, contractDetails, distance, benchmark, projection, legsStr));
     }
 
     @Override
     public void scannerDataEnd(final int reqId) {
         final ScannerDataEnd o = new ScannerDataEnd(reqId);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.scannerDataEnd(reqId));
     }
 
     @Override
     public void scannerParameters(final String xml) {
         final ScannerParameters o = new ScannerParameters(xml);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.scannerParameters(xml));
     }
 
@@ -205,7 +205,7 @@ public final class IBEsperAdapter extends IBDefaultAdapter {
             final int holdDays, final String futureExpiry, final double dividendImpact, final double dividendsToExpiry) {
         final TickEFP o = new TickEFP(tickerId, tickType, basisPoints, formattedBasisPoints, impliedFuture, holdDays, futureExpiry, dividendImpact,
                 dividendsToExpiry);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.trace(EWrapperMsgGenerator.tickEFP(tickerId, tickType, basisPoints, formattedBasisPoints, impliedFuture, holdDays, futureExpiry, dividendImpact,
                 dividendsToExpiry));
     }
@@ -213,7 +213,7 @@ public final class IBEsperAdapter extends IBDefaultAdapter {
     @Override
     public void tickGeneric(final int tickerId, final int tickType, final double value) {
         final TickGeneric o = new TickGeneric(tickerId, tickType, value);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.trace(EWrapperMsgGenerator.tickGeneric(tickerId, tickType, value));
     }
 
@@ -221,56 +221,56 @@ public final class IBEsperAdapter extends IBDefaultAdapter {
     public void tickOptionComputation(final int tickerId, final int field, final double impliedVol, final double delta, final double optPrice,
             final double pvDividend, final double gamma, final double vega, final double theta, final double undPrice) {
         final TickOptionComputation o = new TickOptionComputation(tickerId, field, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.trace(EWrapperMsgGenerator.tickOptionComputation(tickerId, field, impliedVol, delta, optPrice, pvDividend, gamma, vega, theta, undPrice));
     }
 
     @Override
     public void tickPrice(final int tickerId, final int field, final double price, final int canAutoExecute) {
         final TickPrice o = new TickPrice(tickerId, field, price, canAutoExecute);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.trace(EWrapperMsgGenerator.tickPrice(tickerId, field, price, canAutoExecute));
     }
 
     @Override
     public void tickSize(final int tickerId, final int field, final int size) {
         final TickSize o = new TickSize(tickerId, field, size);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.trace(EWrapperMsgGenerator.tickSize(tickerId, field, size));
     }
 
     @Override
     public void tickSnapshotEnd(final int reqId) {
         final TickSnapshotEnd o = new TickSnapshotEnd(reqId);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.trace(EWrapperMsgGenerator.tickSnapshotEnd(reqId));
     }
 
     @Override
     public void tickString(final int tickerId, final int tickType, final String value) {
         final TickString o = new TickString(tickerId, tickType, value);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.trace(EWrapperMsgGenerator.tickString(tickerId, tickType, value));
     }
 
     @Override
     public void updateAccountTime(final String timeStamp) {
         final UpdateAccountTime o = new UpdateAccountTime(timeStamp);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.updateAccountTime(timeStamp));
     }
 
     @Override
     public void updateAccountValue(final String key, final String value, final String currency, final String accountName) {
         final UpdateAccountValue o = new UpdateAccountValue(key, value, currency, accountName);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.updateAccountValue(key, value, currency, accountName));
     }
 
     @Override
     public void updateMktDepth(final int tickerId, final int position, final int operation, final int side, final double price, final int size) {
         final UpdateMktDepth o = new UpdateMktDepth(tickerId, position, operation, side, price, size);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.updateMktDepth(tickerId, position, operation, side, price, size));
     }
 
@@ -278,14 +278,14 @@ public final class IBEsperAdapter extends IBDefaultAdapter {
     public void updateMktDepthL2(final int tickerId, final int position, final String marketMaker, final int operation, final int side, final double price,
             final int size) {
         final UpdateMktDepthL2 o = new UpdateMktDepthL2(tickerId, position, marketMaker, operation, side, price, size);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.updateMktDepthL2(tickerId, position, marketMaker, operation, side, price, size));
     }
 
     @Override
     public void updateNewsBulletin(final int msgId, final int msgType, final String message, final String origExchange) {
         final UpdateNewsBulletin o = new UpdateNewsBulletin(msgId, msgType, message, origExchange);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.updateNewsBulletin(msgId, msgType, message, origExchange));
     }
 
@@ -293,7 +293,7 @@ public final class IBEsperAdapter extends IBDefaultAdapter {
     public void updatePortfolio(final Contract contract, final int position, final double marketPrice, final double marketValue, final double averageCost,
             final double unrealizedPNL, final double realizedPNL, final String accountName) {
         final UpdatePortfolio o = new UpdatePortfolio(contract, position, marketPrice, marketValue, averageCost, unrealizedPNL, realizedPNL, accountName);
-        ServiceLocator.instance().getRuleService().sendEvent(StrategyImpl.BASE, o);
+        ServiceLocator.instance().getEventService().sendEvent(StrategyImpl.BASE, o);
         logger.debug(EWrapperMsgGenerator.updatePortfolio(contract, position, marketPrice, marketValue, averageCost, unrealizedPNL, realizedPNL, accountName));
     }
 }

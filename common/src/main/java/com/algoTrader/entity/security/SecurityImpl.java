@@ -13,7 +13,7 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Direction;
-import com.algoTrader.service.RuleService;
+import com.algoTrader.service.EventService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
 import com.espertech.esper.event.WrapperEventBean;
@@ -32,7 +32,7 @@ public abstract class SecurityImpl extends Security {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Tick getLastTick() {
 
-        RuleService ruleService = ServiceLocator.instance().getRuleService();
+        EventService ruleService = ServiceLocator.instance().getEventService();
         if (ruleService.isInitialized(StrategyUtil.getStartedStrategyName())) {
             List<Map> events = ruleService.getAllEvents(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK");
 

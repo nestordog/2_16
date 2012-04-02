@@ -2,9 +2,9 @@ package com.algoTrader.starter;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.service.EventService;
 import com.algoTrader.service.MarketDataService;
 import com.algoTrader.service.OrderService;
-import com.algoTrader.service.RuleService;
 import com.algoTrader.service.ib.IBService;
 
 public class MarketDataStarter {
@@ -18,7 +18,7 @@ public class MarketDataStarter {
 
         // start all BASE rules
         ServiceLocator.instance().init(ServiceLocator.SERVER_BEAN_REFERENCE_LOCATION);
-        RuleService ruleService = ServiceLocator.instance().getRuleService();
+        EventService ruleService = ServiceLocator.instance().getEventService();
         ruleService.initServiceProvider(StrategyImpl.BASE);
         ruleService.setInternalClock(StrategyImpl.BASE, true);
         ruleService.deployAllModules(StrategyImpl.BASE);

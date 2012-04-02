@@ -125,7 +125,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 position.setMaintenanceMargin(null);
 
                 // propagate the ClosePosition event
-                getRuleService().routeEvent(position.getStrategy().getName(), closePositionVO);
+                getEventService().routeEvent(position.getStrategy().getName(), closePositionVO);
             }
 
             position.getTransactions().add(transaction);
@@ -150,7 +150,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             tradePerformance.setAvgAge(avgAge);
             tradePerformance.setWinning(profit > 0);
 
-            getRuleService().routeEvent(StrategyImpl.BASE, tradePerformance);
+            getEventService().routeEvent(StrategyImpl.BASE, tradePerformance);
         }
 
         //@formatter:off
@@ -175,7 +175,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         // propagate the transaction to the corresponding strategy
         if (!StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
-            getRuleService().routeEvent(transaction.getStrategy().getName(), transaction);
+            getEventService().routeEvent(transaction.getStrategy().getName(), transaction);
         }
     }
 
@@ -184,7 +184,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         // send the fill to the strategy that placed the corresponding order
         if (!StrategyImpl.BASE.equals(fill.getParentOrder().getStrategy().getName())) {
-            getRuleService().routeEvent(fill.getParentOrder().getStrategy().getName(), fill);
+            getEventService().routeEvent(fill.getParentOrder().getStrategy().getName(), fill);
         }
 
         if (!this.simulation) {

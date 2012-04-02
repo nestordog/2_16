@@ -112,7 +112,7 @@ public class LookupUtil {
 
     public static boolean hasLastTicks() {
 
-        return (ServiceLocator.instance().getRuleService().getLastEvent(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK") != null);
+        return (ServiceLocator.instance().getEventService().getLastEvent(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK") != null);
     }
 
     public static Tick getTickByDateAndSecurity(Date date, int securityId) {

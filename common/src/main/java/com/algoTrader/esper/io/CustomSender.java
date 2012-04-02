@@ -6,8 +6,8 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.service.EventService;
 import com.algoTrader.service.MarketDataService;
-import com.algoTrader.service.RuleService;
 import com.algoTrader.vo.BarVO;
 import com.algoTrader.vo.RawTickVO;
 import com.espertech.esper.client.time.CurrentTimeEvent;
@@ -20,7 +20,7 @@ public class CustomSender extends AbstractSender {
     public void sendEvent(AbstractSendableEvent event, Object beanToSend) {
 
         // raw Ticks are always sent using MarketDataService
-        RuleService ruleService = ServiceLocator.instance().getRuleService();
+        EventService ruleService = ServiceLocator.instance().getEventService();
         if (beanToSend instanceof RawTickVO) {
 
             MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
