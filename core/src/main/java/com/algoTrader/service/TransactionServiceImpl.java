@@ -72,7 +72,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         Strategy strategy = transaction.getStrategy();
         Security security = transaction.getSecurity();
 
-        strategy.getTransactions().add(transaction);
+        // associate the strategy
+        strategy.addTransactions(transaction);
 
         double profit = 0.0;
         double profitPct = 0.0;
@@ -88,14 +89,14 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             position.setExitValue(null);
             position.setMaintenanceMargin(null);
 
-            position.setSecurity(security);
-            security.getPositions().add(position);
+            // associate the security
+            security.addPositions(position);
 
-            position.getTransactions().add(transaction);
-            transaction.setPosition(position);
+            // associate the transaction
+            position.addTransactions(transaction);
 
-            position.setStrategy(strategy);
-            strategy.getPositions().add(position);
+            // associate the strategy
+            strategy.addPositions(position);
 
             getPositionDao().create(position);
 
@@ -128,8 +129,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 getEventService().routeEvent(position.getStrategy().getName(), closePositionVO);
             }
 
-            position.getTransactions().add(transaction);
-            transaction.setPosition(position);
+            // associate the position
+            position.addTransactions(transaction);
 
             getPositionDao().update(position);
         }

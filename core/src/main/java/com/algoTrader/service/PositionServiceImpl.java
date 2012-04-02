@@ -125,11 +125,11 @@ public class PositionServiceImpl extends PositionServiceBase {
         position.setExitValue(null);
         position.setMaintenanceMargin(null);
 
-        position.setSecurity(security);
-        security.getPositions().add(position);
+        // associate the security
+        security.addPositions(position);
 
-        position.setStrategy(strategy);
-        strategy.getPositions().add(position);
+        // associate the strategy
+        strategy.addPositions(position);
 
         getPositionDao().create(position);
         getSecurityDao().update(security);

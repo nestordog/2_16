@@ -19,6 +19,32 @@ public class HibernateUtil {
 
     public static Object reattach(SessionFactory sessionFactory, Object target) {
 
+        boolean evicted = evict(sessionFactory, target);
+
+        if (evicted) {
+            logger.debug("evicted " + target.getClass() + " " + target);
+        }
+
+        // get the current session
+        Session session = sessionFactory.getCurrentSession();
+
+        // start a transaction if non was stated already
+        session.beginTransaction();
+
+        try {
+            // try to lock
+            session.buildLockRequest(LockOptions.NONE).lock(target);
+            return target;
+
+        } catch (NonUniqueObjectException e) {
+
+            //  in case "a different object with the same identifier value was already associated with the session" merge the target
+            logger.debug("merged " + target.getClass() + " " + target);
+            return session.merge(target);
+        }
+    }
+
+    private static boolean evict(SessionFactory sessionFactory, Object target) {
         // make sure no proxies and persistentCollecitions are still attached to another session
         SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) sessionFactory;
         AbstractEntityPersister persister = (AbstractEntityPersister) sessionFactoryImpl.getEntityPersister(target.getClass().getName());
@@ -43,27 +69,7 @@ public class HibernateUtil {
                 }
             }
         }
-        if (evicted) {
-            logger.debug("evicted " + target.getClass() + " " + target);
-        }
-
-        // get the current session
-        Session session = sessionFactory.getCurrentSession();
-
-        // start a transaction if non was stated already
-        session.beginTransaction();
-
-        try {
-            // try to lock
-            session.buildLockRequest(LockOptions.NONE).lock(target);
-            return target;
-
-        } catch (NonUniqueObjectException e) {
-
-            //  in case "a different object with the same identifier value was already associated with the session" merge the target
-            logger.debug("merged " + target.getClass() + " " + target);
-            return session.merge(target);
-        }
+        return evicted;
     }
 
     public static int getDisriminatorValue(SessionFactory sessionFactory, Class<?> type) {
@@ -73,5 +79,15 @@ public class HibernateUtil {
         AbstractEntityPersister persisiter = (AbstractEntityPersister) sessionFactoryImpl.getEntityPersister(className);
         String discriminatorStringValue = persisiter.getDiscriminatorSQLValue();
         return Integer.valueOf(discriminatorStringValue);
+    }
+
+    public static Object getProxyImplementation(Object object) {
+
+        if (object instanceof HibernateProxy) {
+            HibernateProxy proxy = (HibernateProxy) object;
+            return proxy.getHibernateLazyInitializer().getImplementation();
+        } else {
+            return object;
+        }
     }
 }

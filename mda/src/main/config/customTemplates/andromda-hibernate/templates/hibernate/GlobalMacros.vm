@@ -739,7 +739,10 @@ $target.getDocumentation("     * ")
      */
     public $target.type.fullyQualifiedName ${target.adderName}($target.collectionIndexType elementKey, $target.type.fullyQualifiedName elementToAdd)
     {
-        return this.${target.name}.put(elementKey, elementToAdd);
+#if($associationEnd.navigable)	
+        elementToAdd.${associationEnd.setterName}(this);
+#end
+		return this.${target.name}.put(elementKey, elementToAdd);
     }
 
     /**
@@ -761,7 +764,10 @@ $target.getDocumentation("     * ")
      */
     public boolean ${target.adderName}($target.type.fullyQualifiedName elementToAdd)
     {
-        return this.${target.name}.add(elementToAdd);
+#if($associationEnd.navigable)	
+        elementToAdd.${associationEnd.setterName}(this);
+#end
+		return this.${target.name}.add(elementToAdd);
     }
 
     /**

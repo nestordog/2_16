@@ -28,8 +28,9 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         // attach the security family
         SecurityFamily securityFamily = getSecurityFamilyDao().load(securityFamilyId);
-        combination.setSecurityFamily(securityFamily);
-        securityFamily.getSecurities().add(combination);
+
+        // associate the security family
+        securityFamily.addSecurities(combination);
 
         // save to DB
         getCombinationDao().create(combination);
@@ -93,11 +94,11 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             component = Component.Factory.newInstance();
             component.setSecurity(security);
             component.setQuantity(quantity);
-            component.setParentSecurity(combination);
             getComponentDao().create(component);
 
-            // update the combination
-            combination.getComponents().add(component);
+            // associate with combination
+            combination.addComponents(component);
+
             getCombinationDao().create(combination);
         }
 
@@ -141,11 +142,11 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             component = Component.Factory.newInstance();
             component.setSecurity(security);
             component.setQuantity(quantity);
-            component.setParentSecurity(combination);
             getComponentDao().create(component);
 
-            // update the combination
-            combination.getComponents().add(component);
+            // associate the combination
+            combination.addComponents(component);
+
             getCombinationDao().create(combination);
         }
 

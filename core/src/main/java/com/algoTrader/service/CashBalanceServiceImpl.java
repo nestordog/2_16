@@ -49,11 +49,11 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
             cashBalance = CashBalance.Factory.newInstance();
 
-            cashBalance.setStrategy(strategy);
             cashBalance.setCurrency(currency);
             cashBalance.setAmount(amount);
 
-            strategy.getCashBalances().add(cashBalance);
+            // associate with strategy
+            strategy.addCashBalances(cashBalance);
 
             getCashBalanceDao().create(cashBalance);
             getStrategyDao().update(strategy);
@@ -119,11 +119,11 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
             } else {
 
                 cashBalance = CashBalance.Factory.newInstance();
-                cashBalance.setStrategy(strategy);
                 cashBalance.setCurrency(currency);
                 cashBalance.setAmount(amount);
 
-                strategy.getCashBalances().add(cashBalance);
+                // associate with strategy
+                strategy.addCashBalances(cashBalance);
 
                 getCashBalanceDao().create(cashBalance);
                 getStrategyDao().update(strategy);

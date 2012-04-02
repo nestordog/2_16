@@ -160,4 +160,19 @@ public abstract class SecurityImpl extends Security {
     public int getComponentCount() {
         return getComponents().size();
     }
+
+    @Override
+    public boolean validateTick(Tick tick) {
+
+        // check these fields for all security-types
+        if (tick.getBid() == null) {
+            return false;
+        } else if (tick.getAsk() == null) {
+            return false;
+        } else if (tick.getSettlement() == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

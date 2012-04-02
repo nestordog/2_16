@@ -2,6 +2,7 @@ package com.algoTrader.entity.security;
 
 import java.util.Date;
 
+import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.future.FutureUtil;
 import com.algoTrader.util.DateUtil;
 
@@ -41,5 +42,23 @@ public class FutureImpl extends Future {
     @Override
     public Date getExpiration() {
         return new Date(super.getExpiration().getTime());
+    }
+
+    @Override
+    public boolean validateTick(Tick tick) {
+
+        // futures need to have a bis/ask volume
+        // but might not have a last/lastDateTime yet on the current day
+        if (tick.getVolBid() == 0) {
+            return false;
+        } else if (tick.getVolAsk() == 0) {
+            return false;
+        } else if (tick.getBid() != null && tick.getBid().doubleValue() <= 0) {
+            return false;
+        } else if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0) {
+            return false;
+        }
+
+        return super.validateTick(tick);
     }
 }

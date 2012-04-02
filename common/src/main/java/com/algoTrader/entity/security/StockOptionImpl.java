@@ -76,4 +76,23 @@ public class StockOptionImpl extends StockOption {
         return new Date(super.getExpiration().getTime());
     }
 
+    @Override
+    public boolean validateTick(Tick tick) {
+
+        // stockOptions need to have a bis/ask volume / openIntrest
+        // but might not have a last/lastDateTime yet on the current day
+        if (tick.getVolBid() == 0) {
+            return false;
+        } else if (tick.getVolAsk() == 0) {
+            return false;
+        } else if (tick.getOpenIntrest() == 0) {
+            return false;
+        } else if (tick.getBid() != null && tick.getBid().doubleValue() <= 0) {
+            return false;
+        } else if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0) {
+            return false;
+        }
+
+        return super.validateTick(tick);
+    }
 }

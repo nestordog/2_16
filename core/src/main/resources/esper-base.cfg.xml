@@ -74,7 +74,6 @@
     <auto-import import-name="com.algoTrader.util.RoundUtil"/>
     <auto-import import-name="com.algoTrader.util.DrawDownUtil"/>
     <auto-import import-name="com.algoTrader.util.DateUtil"/>
-    <auto-import import-name="com.algoTrader.util.MarketDataUtil"/>
     <auto-import import-name="com.algoTrader.util.OrderUtil"/>
     <auto-import import-name="com.algoTrader.util.Constants"/>
     <auto-import import-name="com.algoTrader.esper.annotation.*"/>

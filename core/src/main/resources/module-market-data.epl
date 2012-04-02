@@ -68,7 +68,7 @@ where
 and
     tickWindow.refresh
 and
-    MarketDataUtil.isTickValid(tickWindow)
+    tickWindow.security.validateTick(cast(tickWindow.getFirst(),com.algoTrader.entity.marketData.Tick))
 and
     (simulation
 or
@@ -97,7 +97,7 @@ select
 from
     TickWindow as tickWindow
 where
-    MarketDataUtil.isTickValid(tickWindow)
+    tickWindow.security.validateTick(cast(tickWindow.getFirst(),com.algoTrader.entity.marketData.Tick))
 and
     DateUtil.compareTime(tickWindow.security.securityFamily.marketOpen, current_timestamp.toDate()) <= 0
 and
@@ -115,7 +115,7 @@ select
 from
     TickWindow as tickWindow
 where
-    MarketDataUtil.isTickValid(tickWindow)
+    tickWindow.security.validateTick(cast(tickWindow.getFirst(),com.algoTrader.entity.marketData.Tick))
 and
     DateUtil.compareTime(tickWindow.security.securityFamily.marketOpen, current_timestamp.toDate()) <= 0
 and

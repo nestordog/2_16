@@ -7,10 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.Future;
-import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.Direction;
-import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.DateUtil;
 
 public class PositionImpl extends Position {
@@ -33,37 +30,6 @@ public class PositionImpl extends Position {
         } else {
             return Direction.FLAT;
         }
-    }
-
-    /**
-     * empty positions and sideways positons return null
-     */
-    @Override
-    public boolean isBullish() {
-
-        if (!isOpen()) {
-            return false;
-        }
-
-        if (getSecurity() instanceof StockOption) {
-            if (((StockOption) getSecurity()).getType().equals(OptionType.PUT)) {
-                return getQuantity() < 0;
-            } else {
-                return getQuantity() > 0;
-            }
-        } else if (getSecurity() instanceof Future) {
-
-            return getQuantity() > 0;
-        } else {
-            // we have nothing else yet
-            return false;
-        }
-    }
-
-    @Override
-    public boolean isBearish() {
-
-        return !isBullish();
     }
 
     /**

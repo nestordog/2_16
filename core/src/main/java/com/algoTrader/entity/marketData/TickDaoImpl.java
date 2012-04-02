@@ -1,12 +1,13 @@
 package com.algoTrader.entity.marketData;
 
 import org.hibernate.Hibernate;
-import org.hibernate.proxy.HibernateProxy;
 
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.vo.RawTickVO;
 import com.algoTrader.vo.TickVO;
 
+@SuppressWarnings("unchecked")
 public class TickDaoImpl extends TickDaoBase {
 
     @Override
@@ -70,14 +71,10 @@ public class TickDaoImpl extends TickDaoBase {
 
         Security security = getSecurityDao().findByIsinInclFamilyAndUnderlying(rawTickVO.getIsin());
 
-        // for some reason security get's sometimes loaded as a javassist proxy
-        // so we have to manualy get the implementation
-        if (security instanceof HibernateProxy) {
-            HibernateProxy proxy = (HibernateProxy) security;
-            security = (Security) proxy.getHibernateLazyInitializer().getImplementation();
-        }
+        // if security is a proxy, replace it with the implementation
+        security = (Security) HibernateUtil.getProxyImplementation(security);
 
-        // initialize the proxys
+        // initialize the associated proxyies of security
         Hibernate.initialize(security.getUnderlying());
         Hibernate.initialize(security.getSecurityFamily());
         Hibernate.initialize(security.getPositions());
