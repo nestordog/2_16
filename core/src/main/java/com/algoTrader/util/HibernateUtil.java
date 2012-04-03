@@ -44,17 +44,29 @@ public class HibernateUtil {
         }
     }
 
+    /**
+     * make sure no proxies and persistentCollecitions are still attached to another session
+     */
     private static boolean evict(SessionFactory sessionFactory, Object target) {
 
-        // make sure no proxies and persistentCollecitions are still attached to another session
         SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) sessionFactory;
         Session currentSession = sessionFactory.getCurrentSession();
-        AbstractEntityPersister persister = (AbstractEntityPersister) sessionFactoryImpl.getEntityPersister(target.getClass().getName());
+
+        // get the className either direct or from the proxy
+        String className;
+        if (target instanceof HibernateProxy) {
+            className = ((HibernateProxy) target).getHibernateLazyInitializer().getEntityName();
+        } else
+            className = target.getClass().getName();
+
+        AbstractEntityPersister persister = (AbstractEntityPersister) sessionFactoryImpl.getEntityPersister(className);
         Object[] values = persister.getPropertyValues(target, EntityMode.POJO);
         Type[] types = persister.getPropertyTypes();
         boolean evicted = false;
         for (int i = 0; i < types.length; i++) {
             Session session = null; // other session
+
+            // check collections (if session is not the same as current session evict)
             if (types[i].isCollectionType() && values[i] instanceof AbstractPersistentCollection) {
                 AbstractPersistentCollection col = (AbstractPersistentCollection) values[i];
                 session = (Session) col.getSession();
@@ -62,6 +74,7 @@ public class HibernateUtil {
                     session.evict(target);
                     evicted = true;
                 }
+                // check proxies (if session is not the same as current session evict)
             } else if (types[i].isEntityType() && values[i] instanceof HibernateProxy) {
                 HibernateProxy proxy = (HibernateProxy) values[i];
                 session = (Session) proxy.getHibernateLazyInitializer().getSession();
