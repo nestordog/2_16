@@ -628,8 +628,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
                     transaction.setCommission(commission);
 
                     // process the difference in commission
-                    double CommissionDiffDouble = commission.doubleValue() - existingCommission.doubleValue();
-                    BigDecimal commissionDiff = RoundUtil.getBigDecimal(Math.abs(CommissionDiffDouble), this.portfolioDigits);
+                    BigDecimal commissionDiff = RoundUtil.getBigDecimal(existingCommission.doubleValue() - commission.doubleValue(), this.portfolioDigits);
 
                     getCashBalanceService().processAmount(transaction.getStrategy().getName(), transaction.getCurrency(), commissionDiff);
 
