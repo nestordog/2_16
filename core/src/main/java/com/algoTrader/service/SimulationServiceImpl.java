@@ -1,18 +1,14 @@
 package com.algoTrader.service;
 
 import java.io.File;
-import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -33,16 +29,9 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Property;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
-import com.algoTrader.entity.Subscription;
-import com.algoTrader.entity.Transaction;
-import com.algoTrader.entity.security.Component;
-import com.algoTrader.entity.security.FutureDao;
 import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.security.StockOptionDao;
-import com.algoTrader.entity.strategy.CashBalance;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.MarketDataType;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
@@ -69,93 +58,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
     private @Value("${simulation.roundDigits}") int roundDigits;
     private @Value("${simulation.start}") long start;
-    private @Value("${statement.simulateStockOptions}") boolean simulateStockOptions;
-    private @Value("${statement.simulateFuturesByUnderlying}") boolean simulateFuturesByUnderlying;
-    private @Value("${statement.simulateFuturesByGenericFutures}") boolean simulateFuturesByGenericFutures;
 
     public SimulationServiceImpl() {
         format.setMinimumFractionDigits(this.roundDigits);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    protected void handleResetDB() throws Exception {
-
-        // process all strategies
-        Collection<Strategy> strategies = getStrategyDao().loadAll();
-        for (Strategy strategy : strategies) {
-
-            // delete all transactions except the initial CREDIT
-            Collection<Transaction> transactions = strategy.getTransactions();
-            Set<Transaction> toRemoveTransactions = new HashSet<Transaction>();
-            Set<Transaction> toKeepTransactions = new HashSet<Transaction>();
-            BigDecimal initialAmount = new BigDecimal(0);
-            for (Transaction transaction : transactions) {
-                if (transaction.getId() == 1) {
-                    toKeepTransactions.add(transaction);
-                    initialAmount = transaction.getPrice();
-                } else {
-                    toRemoveTransactions.add(transaction);
-                }
-            }
-            getTransactionDao().remove(toRemoveTransactions);
-            strategy.setTransactions(toKeepTransactions);
-
-            // delete all cashBalances except the initial CREDIT
-            Collection<CashBalance> cashBalances = strategy.getCashBalances();
-            Set<CashBalance> toRemoveCashBalance = new HashSet<CashBalance>();
-            Set<CashBalance> toKeepCashBalances = new HashSet<CashBalance>();
-            for (CashBalance cashBalance : cashBalances) {
-                if (cashBalance.getId() == 1) {
-                    toKeepCashBalances.add(cashBalance);
-                    cashBalance.setAmount(initialAmount);
-                } else {
-                    toRemoveCashBalance.add(cashBalance);
-                }
-            }
-            getCashBalanceDao().remove(toRemoveCashBalance);
-            strategy.setCashBalances(toKeepCashBalances);
-
-            // delete all positions and references to them
-            Collection<Position> positions = strategy.getPositions();
-            getPositionDao().remove(positions);
-            strategy.getPositions().removeAll(positions);
-        }
-
-        // delete all non-presistent subscriptions and references to them
-        List<Subscription> nonPersistentSubscriptions = getSubscriptionDao().findNonPersistent();
-        getSubscriptionDao().remove(nonPersistentSubscriptions);
-        for (Subscription subscription : nonPersistentSubscriptions) {
-            subscription.getSecurity().getSubscriptions().remove(subscription);
-            subscription.getStrategy().getSubscriptions().remove(subscription);
-        }
-
-        // delete all non-persistent combinations
-        getCombinationDao().remove(getCombinationDao().findNonPersistent());
-
-        // delete all non-persistent components and references to them
-        List<Component> nonPersistentComponents = getComponentDao().findNonPersistent();
-        getComponentDao().remove(nonPersistentComponents);
-        for (Component component : nonPersistentComponents) {
-            component.getParentSecurity().getComponents().remove(component);
-        }
-
-        // delete all non-persistent properties
-        List<Property> nonPersistentProperties = getPropertyDao().findNonPersistent();
-        getPropertyDao().remove(nonPersistentProperties);
-        for (Property property : nonPersistentProperties) {
-            property.getPropertyHolder().getProperties().remove(property);
-        }
-
-        // delete all StockOptions if they are beeing simulated
-        if (this.simulateStockOptions) {
-            getSecurityDao().remove((Collection<Security>) getStockOptionDao().loadAll(StockOptionDao.TRANSFORM_NONE));
-        }
-
-        // delete all Futures if they are beeing simulated
-        if (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures) {
-            getSecurityDao().remove((Collection<Security>) getFutureDao().loadAll(FutureDao.TRANSFORM_NONE));
-        }
     }
 
     @Override
@@ -204,9 +109,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         long startTime = System.currentTimeMillis();
 
-        // must call resetDB through ServiceLocator in order to get a transaction
-        ServiceLocator.instance().getService("simulationService", SimulationService.class).resetDB();
-        ServiceLocator.instance().getService("accountService", AccountService.class).rebalancePortfolio();
+        getResetService().resetDB();
+
+        getAccountService().rebalancePortfolio();
 
         // init all activatable strategies
         List<Strategy> strategies = getStrategyDao().findAutoActivateStrategies();
@@ -246,25 +151,25 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         long startTime = System.currentTimeMillis();
 
         // get the existingTransactions before they are deleted
-        Collection<Transaction> transactions = ServiceLocator.instance().getLookupService().getAllTrades();
+        //        Collection<Transaction> transactions = ServiceLocator.instance().getLookupService().getAllTrades();
 
         // create orders
         List<Order> orders = new ArrayList<Order>();
-        for (Transaction transaction : transactions) {
+        //        for (Transaction transaction : transactions) {
+        //
+        //            // TODO needs to be redone with the new Async Order
+        //            Order order = new OrderImpl();
+        //            order.setStrategy(transaction.getStrategy());
+        //            order.setRequestedQuantity(Math.abs(transaction.getQuantity()));
+        //            order.setTransactionType(transaction.getType());
+        //            order.setStatus(Status.PREARRANGED);
+        //            order.getTransactions().add(transaction);
+        //            order.setSecurity(transaction.getSecurity());
+        //
+        //            orders.add(order);
+        //        }
 
-            // TODO needs to be redone with the new Async Order
-//            Order order = new OrderImpl();
-//            order.setStrategy(transaction.getStrategy());
-//            order.setRequestedQuantity(Math.abs(transaction.getQuantity()));
-//            order.setTransactionType(transaction.getType());
-//            order.setStatus(Status.PREARRANGED);
-//            order.getTransactions().add(transaction);
-//            order.setSecurity(transaction.getSecurity());
-            //
-            //            orders.add(order);
-        }
-
-        resetDB();
+        getResetService().resetDB();
 
         getEventService().initServiceProvider(StrategyImpl.BASE);
 

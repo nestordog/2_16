@@ -45,8 +45,10 @@ public class HibernateUtil {
     }
 
     private static boolean evict(SessionFactory sessionFactory, Object target) {
+
         // make sure no proxies and persistentCollecitions are still attached to another session
         SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) sessionFactory;
+        Session currentSession = sessionFactory.getCurrentSession();
         AbstractEntityPersister persister = (AbstractEntityPersister) sessionFactoryImpl.getEntityPersister(target.getClass().getName());
         Object[] values = persister.getPropertyValues(target, EntityMode.POJO);
         Type[] types = persister.getPropertyTypes();
@@ -56,14 +58,14 @@ public class HibernateUtil {
             if (types[i].isCollectionType() && values[i] instanceof AbstractPersistentCollection) {
                 AbstractPersistentCollection col = (AbstractPersistentCollection) values[i];
                 session = (Session) col.getSession();
-                if (session != null) {
+                if (session != null && !session.equals(currentSession)) {
                     session.evict(target);
                     evicted = true;
                 }
             } else if (types[i].isEntityType() && values[i] instanceof HibernateProxy) {
                 HibernateProxy proxy = (HibernateProxy) values[i];
                 session = (Session) proxy.getHibernateLazyInitializer().getSession();
-                if (session != null) {
+                if (session != null && !session.equals(currentSession)) {
                     session.evict(values[i]);
                     evicted = true;
                 }
