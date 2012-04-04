@@ -371,9 +371,21 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected List<Position> handleGetOpenTradeablePositions() throws Exception {
+
+        return getPositionDao().findOpenTradeablePositions();
+    }
+
+    @Override
     protected List<Position> handleGetOpenPositionsByStrategy(String strategyName) throws Exception {
 
         return getPositionDao().findOpenPositionsByStrategy(strategyName);
+    }
+
+    @Override
+    protected List<Position> handleGetOpenTradeablePositionsByStrategy(String strategyName) throws Exception {
+
+        return getPositionDao().findOpenTradeablePositionsByStrategy(strategyName);
     }
 
     @Override

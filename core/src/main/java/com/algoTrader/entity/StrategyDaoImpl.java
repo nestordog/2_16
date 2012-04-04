@@ -56,7 +56,7 @@ public class StrategyDaoImpl extends StrategyDaoBase {
         double amount = 0.0;
 
         // sum of all non-FX positions
-        Collection<Position> positions = getPositionDao().findOpenPositions();
+        Collection<Position> positions = getPositionDao().findOpenTradeablePositions();
         for (Position position : positions) {
 
             if (!(position.getSecurity() instanceof Forex)) {
@@ -76,7 +76,7 @@ public class StrategyDaoImpl extends StrategyDaoBase {
     protected double handleGetPortfolioMaintenanceMarginDouble() throws Exception {
 
         double margin = 0.0;
-        Collection<Position> positions = getPositionDao().findOpenPositions();
+        Collection<Position> positions = getPositionDao().findOpenTradeablePositions();
         for (Position position : positions) {
             margin += position.getMaintenanceMarginBaseDouble();
         }
@@ -138,7 +138,7 @@ public class StrategyDaoImpl extends StrategyDaoBase {
         }
 
         // sum of all positions
-        Collection<Position> positions = getPositionDao().findOpenPositions();
+        Collection<Position> positions = getPositionDao().findOpenTradeablePositions();
         for (Position position : positions) {
 
             // Forex positions are considered cash
@@ -182,7 +182,7 @@ public class StrategyDaoImpl extends StrategyDaoBase {
     protected double handleGetPortfolioLeverage() throws Exception {
 
         double exposure = 0.0;
-        Collection<Position> positions = getPositionDao().findOpenPositions();
+        Collection<Position> positions = getPositionDao().findOpenTradeablePositions();
         for (Position position : positions) {
             exposure += position.getExposure();
         }

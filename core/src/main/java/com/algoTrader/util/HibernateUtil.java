@@ -3,6 +3,7 @@ package com.algoTrader.util;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.EntityMode;
+import org.hibernate.HibernateException;
 import org.hibernate.LockOptions;
 import org.hibernate.NonUniqueObjectException;
 import org.hibernate.Session;
@@ -18,12 +19,6 @@ public class HibernateUtil {
     private static Logger logger = MyLogger.getLogger(HibernateUtil.class.getName());
 
     public static Object reattach(SessionFactory sessionFactory, Object target) {
-
-        boolean evicted = evict(sessionFactory, target);
-
-        if (evicted) {
-            logger.debug("evicted " + target.getClass() + " " + target);
-        }
 
         // get the current session
         Session session = sessionFactory.getCurrentSession();
@@ -41,13 +36,37 @@ public class HibernateUtil {
             //  in case "a different object with the same identifier value was already associated with the session" merge the target
             logger.debug("merged " + target.getClass() + " " + target);
             return session.merge(target);
+
+        } catch (HibernateException e) {
+
+            if (e.getMessage().startsWith("Illegal attempt to associate a collection with two open sessions")
+                    || e.getMessage().startsWith("illegally attempted to associate a proxy with two open Sessions")) {
+
+                // evict the target from the other session
+                evict(sessionFactory, target);
+
+                try {
+                    // try to lock (again(
+                    session.buildLockRequest(LockOptions.NONE).lock(target);
+                    return target;
+
+                } catch (NonUniqueObjectException e1) {
+
+                    //  in case "a different object with the same identifier value was already associated with the session" merge the target
+                    logger.debug("merged " + target.getClass() + " " + target);
+                    return session.merge(target);
+                }
+            } else {
+                // some other HibernateException
+                throw e;
+            }
         }
     }
 
     /**
      * make sure no proxies and persistentCollecitions are still attached to another session
      */
-    private static boolean evict(SessionFactory sessionFactory, Object target) {
+    private static void evict(SessionFactory sessionFactory, Object target) {
 
         SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) sessionFactory;
         Session currentSession = sessionFactory.getCurrentSession();
@@ -84,7 +103,10 @@ public class HibernateUtil {
                 }
             }
         }
-        return evicted;
+
+        if (evicted) {
+            logger.debug("evicted " + target.getClass() + " " + target);
+        }
     }
 
     public static int getDisriminatorValue(SessionFactory sessionFactory, Class<?> type) {

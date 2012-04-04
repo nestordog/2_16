@@ -92,7 +92,7 @@ public class ResetServiceImpl extends ResetServiceBase {
         List<Property> nonPersistentProperties = getPropertyDao().findNonPersistent();
         getPropertyDao().remove(nonPersistentProperties);
         for (Property property : nonPersistentProperties) {
-            property.getPropertyHolder().getProperties().remove(property);
+            property.getPropertyHolder().removeProperties(property.getName());
         }
 
         // delete all StockOptions if they are beeing simulated

@@ -42,7 +42,7 @@ public class PropertyServiceImpl extends PropertyServiceBase {
 
             getPropertyDao().remove(property);
 
-            propertyHolder.getProperties().remove(name);
+            propertyHolder.removeProperties(name);
         }
 
         return propertyHolder;

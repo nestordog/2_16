@@ -12,11 +12,15 @@ public class CombinationImpl extends Combination {
     @Override
     public String getSymbol() {
 
-        return StringUtils.join(CollectionUtils.collect(getComponents(), new Transformer<Component, String>() {
-            @Override
-            public String transform(Component component) {
-                return component.getQuantity() + " " + component.getSecurity();
-            }
-        }), " / ");
+        if (getComponents().size() > 0) {
+            return StringUtils.join(CollectionUtils.collect(getComponents(), new Transformer<Component, String>() {
+                @Override
+                public String transform(Component component) {
+                    return component.getQuantity() + " " + component.getSecurity();
+                }
+            }), " / ");
+        } else {
+            return getType().toString();
+        }
     }
 }

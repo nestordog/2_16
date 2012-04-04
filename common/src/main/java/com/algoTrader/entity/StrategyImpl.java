@@ -62,7 +62,7 @@ public class StrategyImpl extends Strategy {
         double amount = 0.0;
 
         // sum of all non-FX positions
-        List<Position> positions = getOpenPositions();
+        List<Position> positions = getOpenTradeablePositions();
         for (Position position : positions) {
 
             if (!(position.getSecurity() instanceof Forex)) {
@@ -82,7 +82,7 @@ public class StrategyImpl extends Strategy {
     public double getMaintenanceMarginDouble() {
 
         double margin = 0.0;
-        List<Position> positions = getOpenPositions();
+        List<Position> positions = getOpenTradeablePositions();
         for (Position position : positions) {
             margin += position.getMaintenanceMarginBaseDouble();
         }
@@ -129,7 +129,7 @@ public class StrategyImpl extends Strategy {
     public double getRedemptionValueDouble() {
 
         double redemptionValue = 0.0;
-        List<Position> positions = getOpenPositions();
+        List<Position> positions = getOpenTradeablePositions();
         for (Position position : positions) {
             redemptionValue += position.getRedemptionValueBaseDouble();
         }
@@ -140,7 +140,7 @@ public class StrategyImpl extends Strategy {
     public double getMaxLossDouble() {
 
         double maxLoss = 0.0;
-        List<Position> positions = getOpenPositions();
+        List<Position> positions = getOpenTradeablePositions();
         for (Position position : positions) {
             maxLoss += position.getMaxLossBaseDouble();
         }
@@ -151,7 +151,7 @@ public class StrategyImpl extends Strategy {
     public double getLeverage() {
 
         double exposure = 0.0;
-        List<Position> positions = getOpenPositions();
+        List<Position> positions = getOpenTradeablePositions();
         for (Position position : positions) {
             exposure += position.getExposure();
         }
@@ -175,8 +175,8 @@ public class StrategyImpl extends Strategy {
         return getName();
     }
 
-    private List<Position> getOpenPositions() {
-        return ServiceLocator.instance().getLookupService().getOpenPositionsByStrategy(getName());
+    private List<Position> getOpenTradeablePositions() {
+        return ServiceLocator.instance().getLookupService().getOpenTradeablePositionsByStrategy(getName());
     }
 
     private List<Position> getOpenFXPositions() {
