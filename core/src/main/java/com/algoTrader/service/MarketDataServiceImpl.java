@@ -129,14 +129,17 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             // update links
             Subscription subscription = new SubscriptionImpl();
             subscription.setPersistent(false);
+            subscription.setSecurity(security);
+            subscription.setStrategy(strategy);
+
+            // save to DB
+            getSubscriptionDao().create(subscription);
 
             // associate the security
             security.addSubscriptions(subscription);
 
             // associate the strategy
             strategy.addSubscriptions(subscription);
-
-            getSubscriptionDao().create(subscription);
 
             logger.info("subscribed security " + security.getSymbol());
         }

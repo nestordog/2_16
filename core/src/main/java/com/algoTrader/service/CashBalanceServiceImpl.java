@@ -50,13 +50,15 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
             cashBalance = CashBalance.Factory.newInstance();
 
+            cashBalance.setStrategy(strategy);
             cashBalance.setCurrency(currency);
             cashBalance.setAmount(amount);
 
+            // save to DB
+            getCashBalanceDao().create(cashBalance);
+
             // associate with strategy
             strategy.addCashBalances(cashBalance);
-
-            getCashBalanceDao().create(cashBalance);
 
         } else {
 
@@ -116,13 +118,15 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
             } else {
 
                 cashBalance = CashBalance.Factory.newInstance();
+                cashBalance.setStrategy(strategy);
                 cashBalance.setCurrency(currency);
                 cashBalance.setAmount(amount);
 
+                // save to DB
+                getCashBalanceDao().create(cashBalance);
+
                 // associate with strategy
                 strategy.addCashBalances(cashBalance);
-
-                getCashBalanceDao().create(cashBalance);
 
                 logger.info("created cashBalance: " + cashBalance);
             }

@@ -89,16 +89,17 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             position.setExitValue(null);
             position.setMaintenanceMargin(null);
 
-            // associate the security
-            security.addPositions(position);
+            position.setSecurity(security);
+            position.setStrategy(strategy);
 
-            // associate the transaction
-            position.addTransactions(transaction);
-
-            // associate the strategy
-            strategy.addPositions(position);
-
+            // save to DB
             getPositionDao().create(position);
+
+
+            // associate security / strategy / transaction
+            security.addPositions(position);
+            strategy.addPositions(position);
+            position.addTransactions(transaction);
 
         } else {
 
