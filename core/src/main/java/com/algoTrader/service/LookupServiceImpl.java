@@ -557,6 +557,18 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected Collection<Component> handleGetAllComponents() throws Exception {
+
+        return getComponentDao().loadAll();
+    }
+
+    @Override
+    protected Collection<Component> handleGetAllSubscribedComponents() throws Exception {
+
+        return getComponentDao().findAllSubscribed();
+    }
+
+    @Override
     protected List<Component> handleGetSubscribedComponentsByStrategy(String strategyName) throws Exception {
 
         return getComponentDao().findSubscribedByStrategy(strategyName);
@@ -580,6 +592,12 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
         return getComponentDao().findSubscribedByStrategyAndClass(strategyName, discriminator);
+    }
+
+    @Override
+    protected long handleGetComponentCount(int securityId) throws Exception {
+
+        return getSecurityDao().findComponentCount(securityId);
     }
 
     @Override

@@ -12,7 +12,9 @@ select
     tick.* as tick
 from
     Tick as tick,
-    method:LookupUtil.getComponentsBySecurity(tick.security.id) as component;
+    method:LookupUtil.getAllSubscribedComponents() as component
+where
+    component.security.id = tick.security.id;
 
 @Name('INSERT_TICK_FROM_COMBINATION_TICK_WINDOW')
 on
@@ -35,6 +37,6 @@ and
 and
     Math.abs(win.tick.dateTime.time - trigger.tick.dateTime.time) < Constants.ONE_HOUR
 group by
-    trigger.component.parentSecurity.componentCount
+    trigger.component.parentSecurity.id
 having
-    count(win.component.id) = trigger.component.parentSecurity.componentCount;
+    count(win.component.id) = LookupUtil.getComponentCount(trigger.component.parentSecurity.id);

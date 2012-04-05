@@ -142,6 +142,11 @@ public class LookupUtil {
         return ServiceLocator.instance().getLookupService().getSubscribedSecuritiesByStrategyAndComponentClass(strategyName, cl).toArray(new Combination[] {});
     }
 
+    public static Component[] getAllSubscribedComponents() {
+
+        return ServiceLocator.instance().getLookupService().getAllSubscribedComponents().toArray(new Component[] {});
+    }
+
     public static Component[] getComponentsByStrategy(String strategyName) {
 
         return ServiceLocator.instance().getLookupService().getSubscribedComponentsByStrategy(strategyName).toArray(new Component[] {});
@@ -162,5 +167,10 @@ public class LookupUtil {
     public static Component getNewComponentInstance() {
 
         return Component.Factory.newInstance();
+    }
+
+    public static long getComponentCount(int securityId) {
+
+        return ServiceLocator.instance().getLookupService().getComponentCount(securityId);
     }
 }

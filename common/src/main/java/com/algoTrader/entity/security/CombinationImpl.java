@@ -10,7 +10,7 @@ public class CombinationImpl extends Combination {
     private static final long serialVersionUID = -3967940153149799380L;
 
     @Override
-    public String getSymbol() {
+    public String toString() {
 
         if (getComponents().size() > 0) {
             return StringUtils.join(CollectionUtils.collect(getComponents(), new Transformer<Component, String>() {
