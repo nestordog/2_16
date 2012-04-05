@@ -134,6 +134,8 @@ public class PositionServiceImpl extends PositionServiceBase {
         // associate the security / strategy
         security.addPositions(position);
         strategy.addPositions(position);
+        getSecurityDao().update(security);
+        getStrategyDao().update(strategy);
 
         logger.info("created non-tradeable position on " + security + " for strategy " + strategyName + " quantity " + quantity);
 
@@ -224,6 +226,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
 
         position.setExitValue(exitValue);
+        getPositionDao().update(position);
 
         logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + format.format(exitValue));
 
@@ -238,6 +241,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         if (position.getExitValue() != null) {
 
             position.setExitValue(null);
+            getPositionDao().update(position);
 
             logger.info("removed exit value of " + position.getSecurity().getSymbol());
         }
@@ -276,6 +280,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
 
             position.setMaintenanceMargin(totalMargin);
+            getPositionDao().update(position);
 
             double maintenanceMargin = position.getStrategy().getMaintenanceMarginDouble();
 

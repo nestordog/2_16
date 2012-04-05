@@ -16,6 +16,14 @@ from
 where
     component.security.id = tick.security.id;
 
+@Name('REMOVE_FROM_COMBINATION_TICK_WINDOW')
+on
+    RemoveComponentEvent as removeComponentEvent
+delete from
+    CombinationTickWindow
+where
+    component.id = removeComponentEvent.componentId;
+
 @Name('INSERT_TICK_FROM_COMBINATION_TICK_WINDOW')
 on
     CombinationTickWindow as trigger

@@ -19,6 +19,8 @@ public class MeasurementServiceImpl extends MeasurementServiceBase {
 
             measurement.setValue(value);
 
+            getMeasurementDao().update(measurement);
+
         } else {
 
             measurement = Measurement.Factory.newInstance();

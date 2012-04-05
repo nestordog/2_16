@@ -59,10 +59,12 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
             // associate with strategy
             strategy.addCashBalances(cashBalance);
-
+            getStrategyDao().update(strategy);
         } else {
 
             cashBalance.setAmount(cashBalance.getAmount().add(amount));
+
+            getCashBalanceDao().update(cashBalance);
         }
     }
 
@@ -108,6 +110,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
                 if (oldAmount.doubleValue() != amount.doubleValue()) {
 
                     cashBalance.setAmount(amount);
+                    getCashBalanceDao().update(cashBalance);
 
                     logger.info("adjusted cashBalance: " + cashBalance + " from: " + oldAmount);
                 } else {
@@ -127,6 +130,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
                 // associate with strategy
                 strategy.addCashBalances(cashBalance);
+                getStrategyDao().update(strategy);
 
                 logger.info("created cashBalance: " + cashBalance);
             }
@@ -136,7 +140,8 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
         for (CashBalance cashBalance : existingCashBalances) {
 
             Strategy strategy = cashBalance.getStrategy();
-            strategy.getCashBalances().remove(cashBalance);
+            strategy.removeCashBalances(cashBalance);
+            getStrategyDao().update(strategy);
 
             logger.info("removed cashBalance: " + cashBalance);
         }

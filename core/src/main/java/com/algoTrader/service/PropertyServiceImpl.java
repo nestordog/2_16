@@ -20,15 +20,17 @@ public class PropertyServiceImpl extends PropertyServiceBase {
             property.setName(name);
             property.setValue(value);
             property.setPersistent(persistent);
-
-            // associate the propertyHolder
-            propertyHolder.addProperties(name, property);
+            property.setPropertyHolder(propertyHolder);
 
             getPropertyDao().create(property);
+
+            propertyHolder.getProperties().put(name, property);
+            getPropertyHolderDao().update(propertyHolder);
 
         } else {
 
             property.setValue(value);
+            getPropertyDao().update(property);
         }
 
         return propertyHolder;

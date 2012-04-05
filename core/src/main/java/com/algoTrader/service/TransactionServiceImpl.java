@@ -132,6 +132,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
             // associate the position
             position.addTransactions(transaction);
+
+            getPositionDao().update(position);
         }
 
         // add the amount to the corresponding cashBalance
@@ -139,6 +141,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         // update all entities
         getTransactionDao().create(transaction);
+        getStrategyDao().update(strategy);
+        getSecurityDao().update(security);
 
         // create a TradePerformanceVO and send it into Esper
         if (profit != 0.0) {

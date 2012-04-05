@@ -1,7 +1,6 @@
 package com.algoTrader.service;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,7 +34,6 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     private static final long serialVersionUID = 2871084846072648536L;
     private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
-    private static DecimalFormat decimalFormat = new DecimalFormat("#,##0.0000");
 
     private @Value("${simulation}") boolean simulation;
 
@@ -56,15 +54,14 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
     @Override
     protected void handlePropagateMarketDataEvent(MarketDataEvent marketDataEvent) {
 
-        Security security = marketDataEvent.getSecurity();
+        // reattach the security
+        Security security = (Security) HibernateUtil.reattach(this.getSessionFactory(), marketDataEvent.getSecurity());
+        marketDataEvent.setSecurity(security);
 
         // marketDataEvent.toString is expensive, so only log if debug is anabled
         if (!logger.getParent().getLevel().isGreaterOrEqual(Level.DEBUG)) {
-            logger.trace(marketDataEvent.getSecurity().getSymbol() + " " + marketDataEvent);
+            logger.trace(security + " " + marketDataEvent);
         }
-
-        // reattach the security
-        security = (Security) HibernateUtil.reattach(this.getSessionFactory(), security);
 
         Hibernate.initialize(security.getUnderlying());
         Hibernate.initialize(security.getSecurityFamily());
@@ -137,9 +134,11 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             // associate the security
             security.addSubscriptions(subscription);
+            getSecurityDao().update(security);
 
             // associate the strategy
             strategy.addSubscriptions(subscription);
+            getStrategyDao().update(strategy);
 
             logger.info("subscribed security " + security.getSymbol());
         }
@@ -156,9 +155,11 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         if (subscription != null && !subscription.isPersistent()) {
 
             // update links
-            security.getSubscriptions().remove(subscription);
+            security.removeSubscriptions(subscription);
+            getSecurityDao().update(security);
 
-            strategy.getSubscriptions().remove(subscription);
+            strategy.removeSubscriptions(subscription);
+            getStrategyDao().update(strategy);
 
             getSubscriptionDao().remove(subscription);
 

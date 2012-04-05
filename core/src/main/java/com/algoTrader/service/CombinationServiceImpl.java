@@ -5,8 +5,12 @@ import java.util.List;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.log4j.Logger;
+import org.hibernate.engine.EntityEntry;
+import org.hibernate.engine.PersistenceContext;
+import org.hibernate.impl.SessionImpl;
 
 import com.algoTrader.entity.Position;
+import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Combination;
 import com.algoTrader.entity.security.Component;
 import com.algoTrader.entity.security.Security;
@@ -14,6 +18,7 @@ import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.CombinationType;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
+import com.algoTrader.vo.RemoveComponentEventVO;
 
 public class CombinationServiceImpl extends CombinationServiceBase {
 
@@ -35,6 +40,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         // associate the security family
         securityFamily.addSecurities(combination);
+        getSecurityFamilyDao().update(securityFamily);
 
         logger.debug("created combination " + combination);
 
@@ -51,6 +57,10 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         } else {
 
+            // disassociated the security family
+            combination.getSecurityFamily().removeSecurities(combination);
+            getSecurityFamilyDao().update(combination.getSecurityFamily());
+
             // remove the combination and all associated components
             getCombinationDao().remove(combination);
 
@@ -61,7 +71,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected Combination handleAddComponent(int combinationId, final int securityId, long quantity) throws Exception {
 
-        Combination combination = getCombinationDao().load(combinationId);
+        Combination combination = (Combination) getSecurityDao().load(combinationId);
 
         if (combination == null) {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
@@ -86,6 +96,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
             // adjust the quantity
             component.setQuantity(component.getQuantity() + quantity);
+            getComponentDao().update(component);
 
         } else {
 
@@ -102,6 +113,9 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             combination.addComponents(component);
         }
 
+        // update changes to combination
+        getCombinationDao().update(combination);
+
         logger.debug("added component quantity " + quantity + " of " + component + " to combination " + combinationString);
 
         return combination;
@@ -110,7 +124,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected Combination handleSetComponentQuantity(int combinationId, final int securityId, long quantity) throws Exception {
 
-        Combination combination = getCombinationDao().load(combinationId);
+        Combination combination = (Combination) getSecurityDao().load(combinationId);
 
         if (combination == null) {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
@@ -134,6 +148,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
             // set the quantity
             component.setQuantity(quantity);
+            getComponentDao().update(component);
 
         } else {
 
@@ -148,8 +163,16 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
             // associate the combination
             combination.addComponents(component);
-
         }
+
+        SessionImpl session = (SessionImpl) getSessionFactory().getCurrentSession();
+        PersistenceContext context = session.getPersistenceContext();
+        EntityEntry entry = (EntityEntry) context.getEntityEntries().get(combination);
+        Object obje = context.getEntity(entry.getEntityKey());
+
+        // update changes to combination
+        getCombinationDao().update(combination);
+
 
         logger.debug("set component quantity " + quantity + " of " + component + " to combination " + combination);
 
@@ -159,7 +182,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected Combination handleRemoveComponent(int combinationId, final int securityId) {
 
-        Combination combination = getCombinationDao().load(combinationId);
+        Combination combination = (Combination) getSecurityDao().load(combinationId);
 
         if (combination == null) {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
@@ -183,10 +206,16 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         if (component != null) {
 
             // update the combination
-            combination.getComponents().remove(component);
+            combination.removeComponents(component);
+            getCombinationDao().update(combination);
 
             // delete the component
             getComponentDao().remove(component);
+
+            // remove from COMBINATION_TICK_WINDOW
+            RemoveComponentEventVO removeComponentEvent = new RemoveComponentEventVO();
+            removeComponentEvent.setComponentId(component.getId());
+            getEventService().sendEvent(StrategyImpl.BASE, removeComponentEvent);
 
         } else {
 
@@ -201,7 +230,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected void handleCloseCombination(int combinationId, String strategyName) throws Exception {
 
-        Combination combination = getCombinationDao().load(combinationId);
+        Combination combination = (Combination) getSecurityDao().load(combinationId);
 
         if (combination == null) {
             logger.warn("combination does not exist: " + combinationId);
@@ -238,7 +267,5 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         if (combinations.size() > 0) {
             logger.debug("deleted zero quantity combinations: " + combinations);
         }
-
-        // TODO remove combinations from COMBINATION_TICK_WINDOW
     }
 }
