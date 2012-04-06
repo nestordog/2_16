@@ -89,17 +89,16 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             position.setExitValue(null);
             position.setMaintenanceMargin(null);
 
-            position.setSecurity(security);
-            position.setStrategy(strategy);
-
-            // save to DB
-            getPositionDao().create(position);
-
-
-            // associate security / strategy / transaction
+            // associate the security
             security.addPositions(position);
-            strategy.addPositions(position);
+
+            // associate the transaction
             position.addTransactions(transaction);
+
+            // associate the strategy
+            strategy.addPositions(position);
+
+            getPositionDao().create(position);
 
         } else {
 
@@ -132,8 +131,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
             // associate the position
             position.addTransactions(transaction);
-
-            getPositionDao().update(position);
         }
 
         // add the amount to the corresponding cashBalance
@@ -141,8 +138,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         // update all entities
         getTransactionDao().create(transaction);
-        getStrategyDao().update(strategy);
-        getSecurityDao().update(security);
 
         // create a TradePerformanceVO and send it into Esper
         if (profit != 0.0) {

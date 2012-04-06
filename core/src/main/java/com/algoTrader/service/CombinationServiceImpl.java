@@ -5,9 +5,6 @@ import java.util.List;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.log4j.Logger;
-import org.hibernate.engine.EntityEntry;
-import org.hibernate.engine.PersistenceContext;
-import org.hibernate.impl.SessionImpl;
 
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.StrategyImpl;
@@ -33,16 +30,28 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         // attach the security family
         SecurityFamily securityFamily = getSecurityFamilyDao().load(securityFamilyId);
-        combination.setSecurityFamily(securityFamily);
+
+        // associate the security family
+        securityFamily.addSecurities(combination);
 
         // save to DB
         getCombinationDao().create(combination);
 
-        // associate the security family
-        securityFamily.addSecurities(combination);
-        getSecurityFamilyDao().update(securityFamily);
-
         logger.debug("created combination " + combination);
+
+        return combination;
+    }
+
+    @Override
+    protected Combination handleCreateCombination(CombinationType type, int securityFamilyId, int underlyingId) throws Exception {
+
+        Security underlying = getSecurityDao().get(underlyingId);
+        if (underlying == null) {
+            throw new IllegalArgumentException("underlying does not exist: " + underlyingId);
+        }
+
+        Combination combination = createCombination(type, securityFamilyId);
+        combination.setUnderlying(underlying);
 
         return combination;
     }
@@ -59,7 +68,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
             // disassociated the security family
             combination.getSecurityFamily().removeSecurities(combination);
-            getSecurityFamilyDao().update(combination.getSecurityFamily());
 
             // remove the combination and all associated components
             getCombinationDao().remove(combination);
@@ -71,7 +79,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected Combination handleAddComponent(int combinationId, final int securityId, long quantity) throws Exception {
 
-        Combination combination = (Combination) getSecurityDao().load(combinationId);
+        Combination combination = getCombinationDao().load(combinationId);
 
         if (combination == null) {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
@@ -96,7 +104,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
             // adjust the quantity
             component.setQuantity(component.getQuantity() + quantity);
-            getComponentDao().update(component);
 
         } else {
 
@@ -104,17 +111,12 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             component = Component.Factory.newInstance();
             component.setSecurity(security);
             component.setQuantity(quantity);
-            component.setParentSecurity(combination);
-
-            // save to DB
-            getComponentDao().create(component);
 
             // associate with combination
             combination.addComponents(component);
-        }
 
-        // update changes to combination
-        getCombinationDao().update(combination);
+            getComponentDao().create(component);
+        }
 
         logger.debug("added component quantity " + quantity + " of " + component + " to combination " + combinationString);
 
@@ -148,7 +150,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
             // set the quantity
             component.setQuantity(quantity);
-            getComponentDao().update(component);
 
         } else {
 
@@ -156,23 +157,12 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             component = Component.Factory.newInstance();
             component.setSecurity(security);
             component.setQuantity(quantity);
-            component.setParentSecurity(combination);
-
-            // save to DB
-            getComponentDao().create(component);
 
             // associate the combination
             combination.addComponents(component);
+
+            getComponentDao().create(component);
         }
-
-        SessionImpl session = (SessionImpl) getSessionFactory().getCurrentSession();
-        PersistenceContext context = session.getPersistenceContext();
-        EntityEntry entry = (EntityEntry) context.getEntityEntries().get(combination);
-        Object obje = context.getEntity(entry.getEntityKey());
-
-        // update changes to combination
-        getCombinationDao().update(combination);
-
 
         logger.debug("set component quantity " + quantity + " of " + component + " to combination " + combination);
 
@@ -182,7 +172,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected Combination handleRemoveComponent(int combinationId, final int securityId) {
 
-        Combination combination = (Combination) getSecurityDao().load(combinationId);
+        Combination combination = getCombinationDao().load(combinationId);
 
         if (combination == null) {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
@@ -206,8 +196,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         if (component != null) {
 
             // update the combination
-            combination.removeComponents(component);
-            getCombinationDao().update(combination);
+            combination.getComponents().remove(component);
 
             // delete the component
             getComponentDao().remove(component);
@@ -230,7 +219,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected void handleCloseCombination(int combinationId, String strategyName) throws Exception {
 
-        Combination combination = (Combination) getSecurityDao().load(combinationId);
+        Combination combination = getCombinationDao().load(combinationId);
 
         if (combination == null) {
             logger.warn("combination does not exist: " + combinationId);

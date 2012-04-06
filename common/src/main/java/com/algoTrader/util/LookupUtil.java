@@ -58,6 +58,11 @@ public class LookupUtil {
         return ServiceLocator.instance().getLookupService().getSecurityInclFamilyAndUnderlying(securityId);
     }
 
+    public static Security getSecurityInclFamilyUnderlyingAndComponents(int securityId) {
+
+        return ServiceLocator.instance().getLookupService().getSecurityInclFamilyUnderlyingAndComponents(securityId);
+    }
+
     public static Security getSecurityByIsin(String isin) {
 
         return ServiceLocator.instance().getLookupService().getSecurityByIsin(isin);

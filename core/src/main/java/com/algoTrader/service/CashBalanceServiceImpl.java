@@ -50,21 +50,17 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
             cashBalance = CashBalance.Factory.newInstance();
 
-            cashBalance.setStrategy(strategy);
             cashBalance.setCurrency(currency);
             cashBalance.setAmount(amount);
 
-            // save to DB
-            getCashBalanceDao().create(cashBalance);
-
             // associate with strategy
             strategy.addCashBalances(cashBalance);
-            getStrategyDao().update(strategy);
+
+            getCashBalanceDao().create(cashBalance);
+
         } else {
 
             cashBalance.setAmount(cashBalance.getAmount().add(amount));
-
-            getCashBalanceDao().update(cashBalance);
         }
     }
 
@@ -110,7 +106,6 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
                 if (oldAmount.doubleValue() != amount.doubleValue()) {
 
                     cashBalance.setAmount(amount);
-                    getCashBalanceDao().update(cashBalance);
 
                     logger.info("adjusted cashBalance: " + cashBalance + " from: " + oldAmount);
                 } else {
@@ -121,16 +116,13 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
             } else {
 
                 cashBalance = CashBalance.Factory.newInstance();
-                cashBalance.setStrategy(strategy);
                 cashBalance.setCurrency(currency);
                 cashBalance.setAmount(amount);
 
-                // save to DB
-                getCashBalanceDao().create(cashBalance);
-
                 // associate with strategy
                 strategy.addCashBalances(cashBalance);
-                getStrategyDao().update(strategy);
+
+                getCashBalanceDao().create(cashBalance);
 
                 logger.info("created cashBalance: " + cashBalance);
             }
@@ -140,8 +132,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
         for (CashBalance cashBalance : existingCashBalances) {
 
             Strategy strategy = cashBalance.getStrategy();
-            strategy.removeCashBalances(cashBalance);
-            getStrategyDao().update(strategy);
+            strategy.getCashBalances().remove(cashBalance);
 
             logger.info("removed cashBalance: " + cashBalance);
         }

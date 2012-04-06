@@ -68,6 +68,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected Security handleGetSecurityInclFamilyUnderlyingAndComponents(int securityId) throws Exception {
+
+        return getSecurityDao().findByIdInclFamilyUnderlyingAndComponents(securityId);
+    }
+
+    @Override
     protected List<Security> handleGetSecuritiesByIds(Collection<Integer> ids) throws Exception {
 
         return getSecurityDao().findByIds(ids);
@@ -605,4 +611,5 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         return getMeasurementDao().findMeasurementsAfterDate(strategyName, type, date);
     }
+
 }
