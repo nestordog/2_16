@@ -97,7 +97,7 @@ public abstract class SecurityImpl extends Security {
             int contractSize = getSecurityFamily().getContractSize();
             marginPerContract = lastTick.getCurrentValueDouble() * contractSize / initialMarginMarkup;
         } else {
-            logger.warn("no last tick available or currentValue to low to set margin on " + getSymbol());
+            logger.warn("no last tick available or currentValue to low to set margin on " + this);
         }
         return marginPerContract;
     }

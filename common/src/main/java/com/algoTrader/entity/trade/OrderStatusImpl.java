@@ -9,7 +9,7 @@ public class OrderStatusImpl extends OrderStatus {
 
         //@formatter:off
         return getStatus() + " " +
-            getParentOrder().getSecurity().getSymbol() +
+            getParentOrder().getSecurity() +
             " filledQuantity " + getFilledQuantity() +
             " remainingQuantity " + getRemainingQuantity();
         //@formatter:on

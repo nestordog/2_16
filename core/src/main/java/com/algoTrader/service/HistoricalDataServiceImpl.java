@@ -152,7 +152,7 @@ public abstract class HistoricalDataServiceImpl extends HistoricalDataServiceBas
             writer.write(tick);
         }
 
-        logger.debug("wrote " + timeTickMap.entrySet().size() + " ticks for: " + security.getSymbol() + " on date: " + date);
+        logger.debug("wrote " + timeTickMap.entrySet().size() + " ticks for: " + security + " on date: " + date);
     }
 
 }

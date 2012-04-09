@@ -12,7 +12,7 @@ public class CombinationImpl extends Combination {
     @Override
     public String toString() {
 
-        return getType().toString() + " " + StringUtils.join(CollectionUtils.collect(getComponents(), new Transformer<Component, String>() {
+        return (getSymbol() != null ? getSymbol() : getType()) + " " + StringUtils.join(CollectionUtils.collect(getComponents(), new Transformer<Component, String>() {
             @Override
             public String transform(Component component) {
                 return component.getQuantity() + " " + component.getSecurity();

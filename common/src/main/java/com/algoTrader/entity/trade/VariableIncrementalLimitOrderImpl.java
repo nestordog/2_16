@@ -25,7 +25,7 @@ public class VariableIncrementalLimitOrderImpl extends VariableIncrementalLimitO
         //@formatter:off
         return getSide() + " " + getQuantity() + " "
             + ClassUtils.getShortClassName(this.getClass()) + " "
-            + getSecurity().getSymbol() +
+            + getSecurity() +
             " startLimit " + getStartLimit() +
             " endLimit " + getEndLimit() +
             " currentLimit " + getLimit() +

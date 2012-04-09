@@ -1,5 +1,8 @@
 package com.algoTrader.entity.marketData;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.hibernate.Hibernate;
 
 import com.algoTrader.entity.security.Security;
@@ -9,6 +12,8 @@ import com.algoTrader.vo.TickVO;
 
 @SuppressWarnings("unchecked")
 public class TickDaoImpl extends TickDaoBase {
+
+    Map<String, Integer> securityIds = new HashMap<String, Integer>();
 
     @Override
     public void toTickVO(Tick tick, TickVO tickVO) {
@@ -69,7 +74,15 @@ public class TickDaoImpl extends TickDaoBase {
         Tick tick = new TickImpl();
         super.rawTickVOToEntity(rawTickVO, tick, true);
 
-        Security security = getSecurityDao().findByIsinInclFamilyAndUnderlying(rawTickVO.getIsin());
+        // cache security id, as queries byIsin get evicted from cache whenever any change to security table happens
+        Integer securityId = this.securityIds.get(rawTickVO.getIsin());
+        Security security;
+        if (securityId != null) {
+            security = getSecurityDao().load(securityId);
+        } else {
+            security = getSecurityDao().findByIsin(rawTickVO.getIsin());
+            this.securityIds.put(rawTickVO.getIsin(), security.getId());
+        }
 
         // if security is a proxy, replace it with the implementation
         security = (Security) HibernateUtil.getProxyImplementation(security);

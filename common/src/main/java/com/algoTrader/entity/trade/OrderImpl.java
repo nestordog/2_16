@@ -13,7 +13,7 @@ public abstract class OrderImpl extends Order {
         return getSide() + " " +
                 getQuantity() + " " +
                 ClassUtils.getShortClassName(this.getClass()) + " " +
-                getSecurity().getSymbol();
+                getSecurity();
         //@formatter:on
     }
 

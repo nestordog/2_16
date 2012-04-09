@@ -214,7 +214,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             //@formatter:off
             mailLogger.info("executed transaction: " + transaction.getType() + " " +
                     totalQuantity + " " +
-                    security.getSymbol() +
+                    security +
                     " avgPrice " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) + " " + security.getSecurityFamily().getCurrency() +
                     " commission " + totalCommission);
             //@formatter:on

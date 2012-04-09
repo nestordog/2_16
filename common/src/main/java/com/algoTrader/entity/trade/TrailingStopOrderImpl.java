@@ -6,9 +6,10 @@ public class TrailingStopOrderImpl extends TrailingStopOrder {
 
     private static final long serialVersionUID = -7260306708056150268L;
 
+    @Override
     public String toString() {
 
-        return getSide() + " " + getQuantity() + " " + ClassUtils.getShortClassName(this.getClass()) + " " + getSecurity().getSymbol() + " trailingAmount "
+        return getSide() + " " + getQuantity() + " " + ClassUtils.getShortClassName(this.getClass()) + " " + getSecurity() + " trailingAmount "
                 + getTrailingAmount();
     }
 }

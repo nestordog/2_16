@@ -68,7 +68,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
         getStockOptionDao().create(stockOption);
 
-        logger.info("created dummy option " + stockOption.getSymbol());
+        logger.info("created dummy option " + stockOption);
 
         return stockOption;
     }

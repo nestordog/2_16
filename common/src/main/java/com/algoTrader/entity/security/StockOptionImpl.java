@@ -46,10 +46,10 @@ public class StockOptionImpl extends StockOption {
             try {
                 marginPerContract = StockOptionUtil.getMaintenanceMargin(this, stockOptionSettlement, underlyingSettlement) * contractSize;
             } catch (MathException e) {
-                logger.warn("could not calculate margin for " + getSymbol(), e);
+                logger.warn("could not calculate margin for " + this, e);
             }
         } else {
-            logger.warn("no last tick available or currentValue to low to set margin on " + getSymbol());
+            logger.warn("no last tick available or currentValue to low to set margin on " + this);
         }
         return marginPerContract;
     }

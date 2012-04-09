@@ -66,7 +66,7 @@ public class SlicingLimitOrderImpl extends SlicingLimitOrder {
         //@formatter:off
         return getSide() + " " + getQuantity() + " "
             + ClassUtils.getShortClassName(this.getClass()) + " "
-            + getSecurity().getSymbol() +
+            + getSecurity() +
             " totalQuantity " + getTotalQuantity() +
             " lotQuantity " + getLotQuantity() +
             " filledQuantity " + getFilledQuantity() +

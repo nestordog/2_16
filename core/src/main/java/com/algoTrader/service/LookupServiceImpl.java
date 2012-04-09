@@ -353,12 +353,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Position handleGetPositionFetched(int id) throws Exception {
-
-        return getPositionDao().findByIdFetched(id);
-    }
-
-    @Override
     protected List<Position> handleGetPositionsByStrategy(String strategyName) throws Exception {
 
         return getPositionDao().findByStrategy(strategyName);
@@ -505,7 +499,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Tick handleGetTickByDateAndSecurity(Date date, int securityId) {
 
-        return getTickDao().findByDateAndSecurity(date, securityId);
+        Tick tick = getTickDao().findByDateAndSecurity(date, securityId);
+        if (tick != null) {
+            Hibernate.initialize(tick.getSecurity());
+            Hibernate.initialize(tick.getSecurity().getSecurityFamily());
+        }
+        return tick;
     }
 
     @Override
@@ -571,7 +570,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Collection<Component> handleGetAllSubscribedComponents() throws Exception {
 
-        return getComponentDao().findAllSubscribed();
+        return getComponentDao().findSubscribed();
     }
 
     @Override

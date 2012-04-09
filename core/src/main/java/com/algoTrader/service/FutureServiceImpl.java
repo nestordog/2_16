@@ -44,7 +44,7 @@ public class FutureServiceImpl extends FutureServiceBase {
 
             getFutureDao().create(future);
 
-            logger.info("created future " + future.getSymbol());
+            logger.info("created future " + future);
         }
     }
 }

@@ -14,7 +14,7 @@ public class FillImpl extends Fill {
         return format.format(getDateTime()) + " " +
             getSide() + " " +
             getQuantity() + " " +
-            getParentOrder().getSecurity().getSymbol() +
+            getParentOrder().getSecurity() +
             " price " + getPrice() + " " + getParentOrder().getSecurity().getSecurityFamily().getCurrency() +
             " extId " + getExtId();
         //@formatter:on

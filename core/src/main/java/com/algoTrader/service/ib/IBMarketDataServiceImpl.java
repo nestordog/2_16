@@ -51,7 +51,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
     protected void handleExternalSubscribe(Security security) throws Exception {
 
         if (!client.getIbAdapter().getState().equals(ConnectionState.READY) && !client.getIbAdapter().getState().equals(ConnectionState.SUBSCRIBED)) {
-            throw new IBMarketDataServiceException("IB is not ready for market data subscription on " + security.getSymbol());
+            throw new IBMarketDataServiceException("IB is not ready for market data subscription on " + security);
         }
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
@@ -70,7 +70,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
 
         client.reqMktData(tickerId, contract, this.genericTickList, false);
 
-        logger.debug("request " + tickerId + " for : " + security.getSymbol());
+        logger.debug("request " + tickerId + " for : " + security);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -78,7 +78,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
     protected void handleExternalUnsubscribe(Security security) throws Exception {
 
         if (!client.getIbAdapter().getState().equals(ConnectionState.SUBSCRIBED)) {
-            throw new IBMarketDataServiceException("IB ist not subscribed, security cannot be unsubscribed " + security.getSymbol());
+            throw new IBMarketDataServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
         }
 
         // get the tickerId by querying the TickWindow
@@ -93,7 +93,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
             unsubscribeTickEvent.setSecurityId(security.getId());
             getEventService().sendEvent(StrategyImpl.BASE, unsubscribeTickEvent);
 
-            logger.debug("cancelled market data for : " + security.getSymbol());
+            logger.debug("cancelled market data for : " + security);
         } else {
             throw new IBMarketDataServiceException("tickerId for security " + security + " was not found");
         }

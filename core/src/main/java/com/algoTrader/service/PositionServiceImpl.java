@@ -116,7 +116,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         Strategy strategy = getStrategyDao().findByName(strategyName);
 
         if (security.getSecurityFamily().isTradeable()) {
-            throw new PositionServiceException(security.getSymbol() + " is tradeable, can only creat non-tradeable positions");
+            throw new PositionServiceException(security + " is tradeable, can only creat non-tradeable positions");
         }
 
         Position position = new PositionImpl();
@@ -146,7 +146,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         Security security = position.getSecurity();
 
         if (security.getSecurityFamily().isTradeable()) {
-            throw new PositionServiceException(security.getSymbol() + " is tradeable, can only delete non-tradeable positions");
+            throw new PositionServiceException(security + " is tradeable, can only delete non-tradeable positions");
         }
 
         ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
@@ -223,7 +223,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         position.setExitValue(exitValue);
 
-        logger.info("set exit value " + position.getSecurity().getSymbol() + " to " + format.format(exitValue));
+        logger.info("set exit value " + position.getSecurity() + " to " + format.format(exitValue));
 
         return position;
     }
@@ -237,7 +237,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             position.setExitValue(null);
 
-            logger.info("removed exit value of " + position.getSecurity().getSymbol());
+            logger.info("removed exit value of " + position.getSecurity());
         }
 
         return position;
@@ -277,7 +277,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             double maintenanceMargin = position.getStrategy().getMaintenanceMarginDouble();
 
-            logger.debug("set margin for " + security.getSymbol() + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: "
+            logger.debug("set margin for " + security + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: "
                     + RoundUtil.getBigDecimal(maintenanceMargin));
         }
     }

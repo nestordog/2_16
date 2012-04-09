@@ -44,13 +44,15 @@ select
     false as unsubscribe
 from
     Tick as tick,
-    method:LookupUtil.getOpenPositionsBySecurityId(tick.security.id) as position
+    method:LookupUtil.getOpenPositions() as position
 where
     tick.security.id not in
-    (select
-        openOrder.security.id
-    from
-        OpenOrder as openOrder)
+        (select
+            openOrder.security.id
+        from
+            OpenOrder as openOrder)
+and
+    position.security.id = tick.security.id
 and
     position.direction != Direction.FLAT
 and

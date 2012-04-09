@@ -32,7 +32,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     protected void handleValidateOrder(Order order) throws Exception {
 
         if (!order.getSecurity().getSecurityFamily().isTradeable()) {
-            throw new OrderValidationException(order.getSecurity().getSymbol() + " is not tradeable");
+            throw new OrderValidationException(order.getSecurity() + " is not tradeable");
         }
 
         validateExternalOrder(order);
@@ -103,7 +103,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
         // set the commission
         if (security.getSecurityFamily().getCommission() == null) {
-            throw new RuntimeException("commission is undefined for " + security.getSymbol());
+            throw new RuntimeException("commission is undefined for " + security);
         }
 
         fill.setParentOrder(order);

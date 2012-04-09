@@ -54,8 +54,9 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
     @Override
     protected void handlePropagateMarketDataEvent(MarketDataEvent marketDataEvent) {
 
-        // reattach the security
+        // reattach and convert the security if necessary
         Security security = (Security) HibernateUtil.reattach(this.getSessionFactory(), marketDataEvent.getSecurity());
+        security = (Security) HibernateUtil.getProxyImplementation(security);
         marketDataEvent.setSecurity(security);
 
         // marketDataEvent.toString is expensive, so only log if debug is anabled
@@ -135,7 +136,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             getSubscriptionDao().create(subscription);
 
-            logger.info("subscribed security " + security.getSymbol());
+            logger.info("subscribed security " + security);
         }
     }
 
@@ -163,7 +164,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
                 }
             }
 
-            logger.info("unsubscribed security " + security.getSymbol());
+            logger.info("unsubscribed security " + security);
         }
     }
 

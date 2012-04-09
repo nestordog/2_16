@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.security.Combination;
 import com.algoTrader.entity.security.Component;
 import com.algoTrader.entity.security.Security;
@@ -65,6 +66,11 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             logger.warn("combination does not exist: " + combinationId);
 
         } else {
+
+            // unsubscribe potential subscribers
+            for (Subscription subscription : combination.getSubscriptions()) {
+                getMarketDataService().unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
+            }
 
             // disassociated the security family
             combination.getSecurityFamily().removeSecurities(combination);
@@ -251,9 +257,12 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
         List<Security> combinations = getSecurityDao().findSubscribedByStrategyAndComponentClassWithZeroQty(strategyName, discriminator);
 
-        getSecurityDao().remove(combinations);
-
         if (combinations.size() > 0) {
+
+            for (Security security : combinations) {
+                deleteCombination(security.getId());
+            }
+
             logger.debug("deleted zero quantity combinations: " + combinations);
         }
     }

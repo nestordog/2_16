@@ -40,7 +40,7 @@ public abstract class TradeCallback {
         // call orderCompleted
         onTradeCompleted(orderStatusList);
 
-        logger.debug("onTradeCompleted end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+        logger.debug("onTradeCompleted end " + sortedSecurityIds + " (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
     public abstract void onTradeCompleted(List<OrderStatus> orderStatus) throws Exception;

@@ -6,9 +6,10 @@ public class StopLimitOrderImpl extends StopLimitOrder {
 
     private static final long serialVersionUID = -6796363895406178181L;
 
+    @Override
     public String toString() {
 
-        return getSide() + " " + getQuantity() + " " + ClassUtils.getShortClassName(this.getClass()) + " " + getSecurity().getSymbol() + " stop " + getStop()
+        return getSide() + " " + getQuantity() + " " + ClassUtils.getShortClassName(this.getClass()) + " " + getSecurity() + " stop " + getStop()
                 + " limit " + getLimit();
     }
 }
