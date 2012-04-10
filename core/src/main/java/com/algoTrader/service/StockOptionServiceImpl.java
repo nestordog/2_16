@@ -179,7 +179,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         double forward = StockOptionUtil.getForward(underlyingSpot.doubleValue(), years, family.getIntrest(), family.getDividend());
         double atmStrike = RoundUtil.roundStockOptionStrikeToNextN(underlyingSpot, family.getStrikeDistance(), type).doubleValue();
 
-        List<Tick> ticks = getTickDao().findBySecurityDateTypeAndExpiration(underlying, date, type, expirationDate);
+        List<Tick> ticks = getTickDao().findBySecurityDateTypeAndExpirationInclSecurity(underlying, date, type, expirationDate);
         List<Double> strikes = new ArrayList<Double>();
         List<Double> currentValues = new ArrayList<Double>();
         List<Double> volatilities = new ArrayList<Double>();
@@ -232,8 +232,18 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
             return null;
         }
 
-        StockOption callOption = getStockOptionDao().findByMinExpirationAndStrikeLimit(underlying.getId(), date, underlyingTick.getLast(), "CALL");
-        StockOption putOption = getStockOptionDao().findByMinExpirationAndStrikeLimit(underlying.getId(), date, underlyingTick.getLast(), "PUT");
+        List<StockOption> callOptions = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlying.getId(), date, underlyingTick.getLast(), "CALL");
+        List<StockOption> putOptions = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlying.getId(), date, underlyingTick.getLast(), "PUT");
+
+        StockOption callOption = null;
+        if (!callOptions.isEmpty()) {
+            callOption = callOptions.get(0);
+        }
+
+        StockOption putOption = null;
+        if (!putOptions.isEmpty()) {
+            putOption = putOptions.get(0);
+        }
 
         Tick callTick = getTickDao().findByDateAndSecurity(date, callOption.getId());
         if (callTick == null || callTick.getBid() == null || callTick.getAsk() == null) {

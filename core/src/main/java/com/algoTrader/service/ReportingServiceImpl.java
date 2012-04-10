@@ -136,9 +136,9 @@ public class ReportingServiceImpl extends ReportingServiceBase {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
         if (strategy.isBase()) {
-            return (List<TransactionVO>) getTransactionDao().findLastNTransactions(TransactionDao.TRANSFORM_TRANSACTIONVO, maxTransactionCount);
+            return (List<TransactionVO>) getTransactionDao().findTransactionsDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 0, maxTransactionCount);
         } else {
-            return (List<TransactionVO>) getTransactionDao().findLastNTransactionsByStrategy(TransactionDao.TRANSFORM_TRANSACTIONVO, maxTransactionCount,
+            return (List<TransactionVO>) getTransactionDao().findTransactionsByStrategyDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 0, maxTransactionCount,
                     strategyName);
         }
     }

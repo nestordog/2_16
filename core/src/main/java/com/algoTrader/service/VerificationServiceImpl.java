@@ -38,7 +38,7 @@ public class VerificationServiceImpl extends VerificationServiceBase {
 
         getEventService().initServiceProvider(StrategyImpl.BASE);
 
-        Collection<Transaction> transactions = getTransactionDao().findAllTrades();
+        Collection<Transaction> transactions = getTransactionDao().findAllTradesInclSecurity();
 
         for (Transaction transaction : transactions) {
 

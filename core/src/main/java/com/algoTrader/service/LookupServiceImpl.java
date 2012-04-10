@@ -106,7 +106,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<Security> handleGetSubscribedSecuritiesByStrategyAndComponent(String strategyName, int securityId) throws Exception {
 
-        return getSecurityDao().findSubscribedByStrategyAndComponent(strategyName, securityId);
+        return getSecurityDao().findSubscribedByStrategyAndComponentInclComponent(strategyName, securityId);
     }
 
     @SuppressWarnings("rawtypes")
@@ -114,7 +114,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Security> handleGetSubscribedSecuritiesByStrategyAndComponentClass(String strategyName, final Class type) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        return getSecurityDao().findSubscribedByStrategyAndComponentClass(strategyName, discriminator);
+        return getSecurityDao().findSubscribedByStrategyAndComponentClassInclComponent(strategyName, discriminator);
     }
 
     @Override
@@ -129,8 +129,12 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
-        StockOption stockOption = getStockOptionDao().findByMinExpirationAndStrikeLimit(underlyingId, targetExpirationDate, underlyingSpot,
-                optionType.getValue());
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType.getValue());
+
+        StockOption stockOption = null;
+        if (!list.isEmpty()) {
+            stockOption = list.get(0);
+        }
 
         // if no future was found, create it if simulating options
         if (this.simulation && this.simulateStockOptions) {
@@ -141,8 +145,7 @@ public class LookupServiceImpl extends LookupServiceBase {
         }
 
         if (stockOption == null) {
-            throw new LookupServiceException("no stockOption available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type "
-                    + optionType);
+            throw new LookupServiceException("no stockOption available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type " + optionType);
         } else {
             return stockOption;
         }
@@ -152,8 +155,14 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected StockOption handleGetStockOptionByMinExpirationAndMinStrikeDistanceWithTicks(int underlyingId, Date targetExpirationDate,
             BigDecimal underlyingSpot, OptionType optionType, Date date) throws Exception {
 
-        return getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(underlyingId, targetExpirationDate, underlyingSpot, optionType.getValue(),
-                date);
+        List<StockOption> list =  getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType.getValue(), date);
+
+        StockOption stockOption = null;
+        if (!list.isEmpty()) {
+            stockOption = list.get(0);
+        }
+
+        return stockOption;
     }
 
     @Override
@@ -163,8 +172,12 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
-        StockOption stockOption = getStockOptionDao().findByMinExpirationAndStrikeLimit(underlyingId, targetExpirationDate, underlyingSpot,
-                optionType.getValue());
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType.getValue());
+
+        StockOption stockOption = null;
+        if (!list.isEmpty()) {
+            stockOption = list.get(0);
+        }
 
         // if no future was found, create it if simulating options
         if (this.simulation && this.simulateStockOptions) {
@@ -187,7 +200,14 @@ public class LookupServiceImpl extends LookupServiceBase {
             OptionType optionType,
             Date date) throws Exception {
 
-        return getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(underlyingId, targetExpirationDate, underlyingSpot, optionType.getValue(), date);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType.getValue(), date);
+
+        StockOption stockOption = null;
+        if (!list.isEmpty()) {
+            stockOption = list.get(0);
+        }
+
+        return stockOption;
     }
 
 
@@ -200,7 +220,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Future handleGetFutureByMinExpiration(int futureFamilyId, Date expirationDate) throws Exception {
 
-        Future future = getFutureDao().findByMinExpiration(futureFamilyId, expirationDate);
+        List<Future> list = getFutureDao().findByMinExpiration(0, 1, futureFamilyId, expirationDate);
+
+        Future future = null;
+        if (!list.isEmpty()) {
+            future = list.get(0);
+        }
 
         // if no future was found, create the missing part of the future-chain
         if (this.simulation && future == null && (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures)) {
@@ -208,7 +233,12 @@ public class LookupServiceImpl extends LookupServiceBase {
             FutureFamily futureFamily = getFutureFamilyDao().load(futureFamilyId);
 
             getFutureService().createDummyFutures(futureFamily.getId());
-            future = getFutureDao().findByMinExpiration(futureFamilyId, expirationDate);
+
+            list = getFutureDao().findByMinExpiration(0, 1, futureFamilyId, expirationDate);
+
+            if (!list.isEmpty()) {
+                future = list.get(0);
+            }
         }
 
         if (future == null) {
@@ -429,7 +459,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<Transaction> handleGetAllTrades() throws Exception {
 
-        return getTransactionDao().findAllTrades();
+        return getTransactionDao().findAllTradesInclSecurity();
     }
 
     @Override
@@ -447,9 +477,11 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Tick handleGetLastTick(int securityId) throws Exception {
 
-        Tick tick = getTickDao().findLastTickForSecurityAndMaxDate(securityId, DateUtil.getCurrentEPTime());
+        List<Tick> list = getTickDao().findTicksForSecurityAndMaxDate(0, 1, securityId, DateUtil.getCurrentEPTime());
 
-        if (tick != null) {
+        Tick tick = null;
+        if (!list.isEmpty()) {
+            tick = list.get(0);
             Hibernate.initialize(tick.getSecurity());
             Hibernate.initialize(tick.getSecurity().getSecurityFamily());
         }
@@ -462,7 +494,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         List<Integer> ids = (List<Integer>) getTickDao().findLastNTickIdsForSecurity(TickDao.TRANSFORM_NONE, securityId, numberOfTicks);
         if (ids.size() > 0) {
-            return getTickDao().findByIdsFetched(ids);
+            return getTickDao().findByIdsInclSecurityAndUnderlying(ids);
         } else {
             return new ArrayList<Tick>();
         }
@@ -473,7 +505,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         List<Integer> ids = (List<Integer>) getTickDao().findDailyTickIdsBeforeTime(TickDao.TRANSFORM_NONE, securityId, maxDate, time);
         if (ids.size() > 0) {
-            return getTickDao().findByIdsFetched(ids);
+            return getTickDao().findByIdsInclSecurityAndUnderlying(ids);
         } else {
             return new ArrayList<Tick>();
         }
@@ -484,7 +516,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         List<Integer> ids = (List<Integer>) getTickDao().findDailyTickIdsAfterTime(TickDao.TRANSFORM_NONE, securityId, maxDate, time);
         if (ids.size() > 0) {
-            return getTickDao().findByIdsFetched(ids);
+            return getTickDao().findByIdsInclSecurityAndUnderlying(ids);
         } else {
             return new ArrayList<Tick>();
         }
@@ -558,7 +590,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Collection<Combination> handleGetCombinationByStrategyAndUnderlying(String strategyName, int underlyingId) throws Exception {
 
-        return getCombinationDao().findSubscribedByStrategyAndUnderlying(strategyName, underlyingId);
+        return getCombinationDao().findSubscribedByStrategyAndUnderlyingInclComponent(strategyName, underlyingId);
     }
 
     @Override
@@ -570,25 +602,25 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Collection<Component> handleGetAllSubscribedComponents() throws Exception {
 
-        return getComponentDao().findSubscribed();
+        return getComponentDao().findSubscribedInclSecurity();
     }
 
     @Override
     protected List<Component> handleGetSubscribedComponentsByStrategy(String strategyName) throws Exception {
 
-        return getComponentDao().findSubscribedByStrategy(strategyName);
+        return getComponentDao().findSubscribedByStrategyInclSecurity(strategyName);
     }
 
     @Override
     protected Collection<Component> handleGetSubscribedComponentsBySecurity(int securityId) throws Exception {
 
-        return getComponentDao().findSubscribedBySecurity(securityId);
+        return getComponentDao().findSubscribedBySecurityInclSecurity(securityId);
     }
 
     @Override
     protected List<Component> handleGetSubscribedComponentsByStrategyAndSecurity(String strategyName, int securityId) throws Exception {
 
-        return getComponentDao().findSubscribedByStrategyAndSecurity(strategyName, securityId);
+        return getComponentDao().findSubscribedByStrategyAndSecurityInclSecurity(strategyName, securityId);
     }
 
     @SuppressWarnings("rawtypes")
@@ -596,7 +628,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Component> handleGetSubscribedComponentsByStrategyAndClass(String strategyName, Class type) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        return getComponentDao().findSubscribedByStrategyAndClass(strategyName, discriminator);
+        return getComponentDao().findSubscribedByStrategyAndClassInclSecurity(strategyName, discriminator);
     }
 
     @Override
