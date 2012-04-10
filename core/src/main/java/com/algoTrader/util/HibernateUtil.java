@@ -40,7 +40,8 @@ public class HibernateUtil {
         } catch (HibernateException e) {
 
             if (e.getMessage().startsWith("Illegal attempt to associate a collection with two open sessions")
-                    || e.getMessage().startsWith("illegally attempted to associate a proxy with two open Sessions")) {
+                    || e.getMessage().startsWith("illegally attempted to associate a proxy with two open Sessions")
+                    || e.getMessage().startsWith("reassociated object has dirty collection")) {
 
                 // evict the target from the other session
                 evict(sessionFactory, target);

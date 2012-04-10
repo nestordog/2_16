@@ -22,6 +22,7 @@ import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
@@ -56,18 +57,21 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
         // reattach and convert the security if necessary
         Security security = (Security) HibernateUtil.reattach(this.getSessionFactory(), marketDataEvent.getSecurity());
-        security = (Security) HibernateUtil.getProxyImplementation(security);
-        marketDataEvent.setSecurity(security);
+
+        // initialize collections
+        Hibernate.initialize(security.getSubscriptions());
+        Hibernate.initialize(security.getPositions());
+
+        // get proxy implementations
+        marketDataEvent.setSecurity((Security) HibernateUtil.getProxyImplementation(security));
+        security.setUnderlying((Security) HibernateUtil.getProxyImplementation(security.getUnderlying()));
+        security.setSecurityFamily((SecurityFamily) HibernateUtil.getProxyImplementation(security.getSecurityFamily()));
 
         // marketDataEvent.toString is expensive, so only log if debug is anabled
         if (!logger.getParent().getLevel().isGreaterOrEqual(Level.DEBUG)) {
             logger.trace(security + " " + marketDataEvent);
         }
 
-        Hibernate.initialize(security.getUnderlying());
-        Hibernate.initialize(security.getSecurityFamily());
-        Hibernate.initialize(security.getSubscriptions());
-        Hibernate.initialize(security.getPositions());
 
         getEventService().sendMarketDataEvent(marketDataEvent);
     }

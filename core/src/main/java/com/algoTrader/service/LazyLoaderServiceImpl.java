@@ -34,14 +34,15 @@ public class LazyLoaderServiceImpl extends LazyLoaderServiceBase {
 
         Session session = this.getSessionFactory().openSession();
 
+        Object implementation;
         try {
             session.buildLockRequest(LockOptions.NONE).lock(target);
-            Hibernate.initialize(proxy);
+            implementation = proxy.getHibernateLazyInitializer().getImplementation();
 
             logger.debug("loaded proxy: " + context);
         } finally {
             session.close();
         }
-        return proxy;
+        return implementation;
     }
 }

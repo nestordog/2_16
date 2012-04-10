@@ -81,10 +81,10 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             File file = new File("results/" + marketDataType.toString().toLowerCase() + "data/" + dataSet + "/" + security.getIsin() + ".csv");
 
             if (file == null || !file.exists()) {
-                logger.warn("no data available for " + security);
+                logger.warn("no data available for " + security.getSymbol());
                 continue;
             } else {
-                logger.info("data available for " + security);
+                logger.info("data available for " + security.getSymbol());
             }
 
             CSVInputAdapterSpec spec;
@@ -98,7 +98,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             getEventService().coordinate(StrategyImpl.BASE, spec);
 
-            logger.debug("started simulation for security " + security);
+            logger.debug("started simulation for security " + security.getSymbol());
         }
 
         getEventService().startCoordination(StrategyImpl.BASE);

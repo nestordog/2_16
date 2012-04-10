@@ -690,24 +690,35 @@ $target.getDocumentation("     * ")
 #end
     public $target.getterSetterTypeName ${target.getterName}()
     {
+        return this.${target.name};
+    }
+
+    public $target.getterSetterTypeName ${target.getterName}Initialized()
+    {
 #if ($target.many)	
-		if (this.${target.name} instanceof AbstractPersistentCollection && !com.algoTrader.util.StrategyUtil.isStartedStrategyBASE()) {
+		if (this.${target.name} instanceof org.hibernate.collection.AbstractPersistentCollection) {
 
 			org.hibernate.collection.AbstractPersistentCollection col = (org.hibernate.collection.AbstractPersistentCollection) this.${target.name};
-			if (!col.wasInitialized() && col.getSession() == null) {
-
-				this.${target.name} = ($target.getterSetterTypeName) com.algoTrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadCollection(this, "${entity.entityName}.${target.getterName}", col);
+			if (!col.wasInitialized()) {
+				if (col.getSession() != null) {
+					col.forceInitialization();
+				} else {			
+					this.${target.name} = ($target.getterSetterTypeName) com.algoTrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadCollection(this, "${entity.entityName}.${target.getterName}", col);
+				}
 			}
 		}	
 #else
-		if (this.${target.name} instanceof HibernateProxy && !com.algoTrader.util.StrategyUtil.isStartedStrategyBASE()) {
+		if (this.${target.name} instanceof org.hibernate.proxy.HibernateProxy) {
 
 			org.hibernate.proxy.HibernateProxy proxy = (org.hibernate.proxy.HibernateProxy) this.${target.name};
 			org.hibernate.proxy.LazyInitializer initializer = proxy.getHibernateLazyInitializer();
 
-			if (initializer.isUninitialized() && initializer.getSession() == null) {
-
-				this.${target.name} = ($target.getterSetterTypeName) com.algoTrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadProxy(this, "${entity.entityName}.${target.getterName}", proxy);
+			if (initializer.isUninitialized()) {
+				if (initializer.getSession() != null) {
+					this.${target.name} = ($target.getterSetterTypeName) initializer.getImplementation();
+				} else {
+					this.${target.name} = ($target.getterSetterTypeName) com.algoTrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadProxy(this, "${entity.entityName}.${target.getterName}", proxy);
+				}
 			}
 		}
 #end		
