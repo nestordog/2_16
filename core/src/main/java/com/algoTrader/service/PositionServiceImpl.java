@@ -139,6 +139,22 @@ public class PositionServiceImpl extends PositionServiceBase {
     }
 
     @Override
+    protected Position handleModifyNonTradeablePosition(int positionId, long quantity) {
+
+        Position position = getPositionDao().load(positionId);
+
+        if (position == null) {
+            throw new PositionServiceException("position " + positionId + " could not be found");
+        }
+
+        position.setQuantity(quantity);
+
+        logger.info("modified non-tradeable position " + positionId + " new quantity " + quantity);
+
+        return position;
+    }
+
+    @Override
     protected void handleDeleteNonTradeablePosition(int positionId, boolean unsubscribe) throws Exception {
 
         Position position = getPositionDao().load(positionId);
