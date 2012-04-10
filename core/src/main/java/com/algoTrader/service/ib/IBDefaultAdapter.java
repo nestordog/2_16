@@ -63,13 +63,6 @@ public class IBDefaultAdapter implements EWrapper {
                 logger.warn(message);
                 break;
 
-            case 201:
-
-                // Order rejected - reason:
-                // cancel the order
-                logger.error(message);
-                break;
-
             case 202:
 
                 // Order cancelled
@@ -81,7 +74,7 @@ public class IBDefaultAdapter implements EWrapper {
 
                 // Order Message: Warning: Your order size is below the EUR 20000 IdealPro minimum and will be routed as an odd lot order.
                 // do nothing, this is ok for small FX Orders
-                logger.debug(message);
+                logger.info(message);
                 break;
 
             case 434:
@@ -89,21 +82,21 @@ public class IBDefaultAdapter implements EWrapper {
                 // The order size cannot be zero
                 // This happens in a closing order using PctChange where the percentage is
                 // small enough to round to zero for each individual client account
-                logger.debug(message);
+                logger.info(message);
                 break;
 
             case 502:
 
                 // Couldn't connect to TWS
                 setState(ConnectionState.DISCONNECTED);
-                logger.info(message);
+                logger.debug(message);
                 break;
 
             case 1100:
 
                 // Connectivity between IB and TWS has been lost.
                 setState(ConnectionState.CONNECTED);
-                logger.info(message);
+                logger.debug(message);
                 break;
 
             case 1101:
@@ -112,7 +105,7 @@ public class IBDefaultAdapter implements EWrapper {
                 setRequested(false);
                 setState(ConnectionState.READY);
                 ServiceLocator.instance().getMarketDataService().initSubscriptions();
-                logger.info(message);
+                logger.debug(message);
                 break;
 
             case 1102:
@@ -124,14 +117,14 @@ public class IBDefaultAdapter implements EWrapper {
                     setState(ConnectionState.READY);
                     ServiceLocator.instance().getMarketDataService().initSubscriptions();
                 }
-                logger.info(message);
+                logger.debug(message);
                 break;
 
             case 2110:
 
                 // Connectivity between TWS and server is broken. It will be restored automatically.
                 setState(ConnectionState.CONNECTED);
-                logger.info(message);
+                logger.debug(message);
                 break;
 
             case 2104:
@@ -143,14 +136,14 @@ public class IBDefaultAdapter implements EWrapper {
                     setState(ConnectionState.READY);
                     ServiceLocator.instance().getMarketDataService().initSubscriptions();
                 }
-                logger.info(message);
+                logger.debug(message);
                 break;
 
             default:
                 if (code < 1000) {
                     logger.error(message);
                 } else {
-                    logger.info(message);
+                    logger.debug(message);
                 }
                 break;
         }
