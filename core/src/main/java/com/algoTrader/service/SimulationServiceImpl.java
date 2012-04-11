@@ -109,9 +109,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         long startTime = System.currentTimeMillis();
 
+        // reset the db
         getResetService().resetDB();
-
-        getAccountService().rebalancePortfolio();
 
         // init all activatable strategies
         List<Strategy> strategies = getStrategyDao().findAutoActivateStrategies();
@@ -119,6 +118,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             getEventService().initServiceProvider(strategy.getName());
             getEventService().deployAllModules(strategy.getName());
         }
+
+        // rebalance portfolio (to distribute initial CREDIT to strategies)
+        getAccountService().rebalancePortfolio();
 
         // feed the ticks
         inputCSV();

@@ -62,7 +62,7 @@ and
     or
     (position.direction = Direction.LONG and (tick.currentValue <= position.exitValue)));
 
-@Name('PROCESS_CASH_TRANSACTIONS')
+@Name('RECONCILE')
 @Subscriber(className='com.algoTrader.service.AccountService.reconcile')
 @Condition(key='statement.reconcile')
 @RunTimeOnly
@@ -79,7 +79,7 @@ where
 select
     null
 from
-    pattern[every timer:at (0, 10, *, *, 3) -> Portfolio];
+    pattern[every timer:at (0, 10, *, *, 3)];
 
 @Name('REBALANCE_PORTFOLIO')
 @Subscriber(className='com.algoTrader.service.AccountService.rebalancePortfolio')
@@ -87,4 +87,4 @@ from
 select
     null
 from
-    pattern[every timer:at (0, 11, *, *, 3) -> Portfolio];
+    pattern[every timer:at (0, 11, *, *, 3)];

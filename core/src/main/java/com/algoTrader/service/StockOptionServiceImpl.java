@@ -232,8 +232,8 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
             return null;
         }
 
-        List<StockOption> callOptions = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlying.getId(), date, underlyingTick.getLast(), "CALL");
-        List<StockOption> putOptions = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlying.getId(), date, underlyingTick.getLast(), "PUT");
+        List<StockOption> callOptions = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlying.getId(), date, underlyingTick.getLast(), OptionType.CALL);
+        List<StockOption> putOptions = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlying.getId(), date, underlyingTick.getLast(), OptionType.PUT);
 
         StockOption callOption = null;
         if (!callOptions.isEmpty()) {

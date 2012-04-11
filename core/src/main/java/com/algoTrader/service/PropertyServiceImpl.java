@@ -1,10 +1,15 @@
 package com.algoTrader.service;
 
+import org.apache.log4j.Logger;
+
 import com.algoTrader.entity.Property;
 import com.algoTrader.entity.PropertyHolder;
 import com.algoTrader.util.HibernateUtil;
+import com.algoTrader.util.MyLogger;
 
 public class PropertyServiceImpl extends PropertyServiceBase {
+
+    private static Logger logger = MyLogger.getLogger(PropertyServiceImpl.class.getName());
 
     @Override
     protected PropertyHolder handleAddProperty(PropertyHolder propertyHolder, String name, Object value, boolean persistent) throws Exception {
@@ -31,6 +36,8 @@ public class PropertyServiceImpl extends PropertyServiceBase {
             property.setValue(value);
         }
 
+        logger.info("added property " + name + " value " + " to " + propertyHolder);
+
         return propertyHolder;
     }
 
@@ -44,6 +51,8 @@ public class PropertyServiceImpl extends PropertyServiceBase {
 
             propertyHolder.removeProperties(name);
         }
+
+        logger.info("removed property " + name + " from " + propertyHolder);
 
         return propertyHolder;
     }

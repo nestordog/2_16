@@ -23,9 +23,6 @@ public class HibernateUtil {
         // get the current session
         Session session = sessionFactory.getCurrentSession();
 
-        // start a transaction if non was stated already
-        session.beginTransaction();
-
         try {
             // try to lock
             session.buildLockRequest(LockOptions.NONE).lock(target);
@@ -34,8 +31,17 @@ public class HibernateUtil {
         } catch (NonUniqueObjectException e) {
 
             //  in case "a different object with the same identifier value was already associated with the session" merge the target
-            logger.debug("merged " + target.getClass() + " " + target);
-            return session.merge(target);
+            Object obj = session.merge(target);
+
+            try {
+                // try to get the entity id (cannot use toString because of lazy initialization)
+                Integer id = (Integer) target.getClass().getMethod("getId", new Class[] {}).invoke(target, new Object[] {});
+                logger.debug("merged " + target.getClass() + " " + id);
+            } catch (Exception e1) {
+                logger.debug("merged " + target.getClass());
+            }
+
+            return obj;
 
         } catch (HibernateException e) {
 
@@ -46,17 +52,8 @@ public class HibernateUtil {
                 // evict the target from the other session
                 evict(sessionFactory, target);
 
-                try {
-                    // try to lock (again(
-                    session.buildLockRequest(LockOptions.NONE).lock(target);
-                    return target;
-
-                } catch (NonUniqueObjectException e1) {
-
-                    //  in case "a different object with the same identifier value was already associated with the session" merge the target
-                    logger.debug("merged " + target.getClass() + " " + target);
-                    return session.merge(target);
-                }
+                // start over
+                return reattach(sessionFactory, target);
             } else {
                 // some other HibernateException
                 throw e;

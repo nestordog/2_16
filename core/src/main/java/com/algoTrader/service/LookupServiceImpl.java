@@ -129,7 +129,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType.getValue());
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType);
 
         StockOption stockOption = null;
         if (!list.isEmpty()) {
@@ -155,7 +155,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected StockOption handleGetStockOptionByMinExpirationAndMinStrikeDistanceWithTicks(int underlyingId, Date targetExpirationDate,
             BigDecimal underlyingSpot, OptionType optionType, Date date) throws Exception {
 
-        List<StockOption> list =  getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType.getValue(), date);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date);
 
         StockOption stockOption = null;
         if (!list.isEmpty()) {
@@ -172,7 +172,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType.getValue());
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType);
 
         StockOption stockOption = null;
         if (!list.isEmpty()) {
@@ -200,7 +200,7 @@ public class LookupServiceImpl extends LookupServiceBase {
             OptionType optionType,
             Date date) throws Exception {
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType.getValue(), date);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date);
 
         StockOption stockOption = null;
         if (!list.isEmpty()) {

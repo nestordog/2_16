@@ -106,7 +106,7 @@ public class ImportServiceImpl extends ImportServiceBase {
     }
 
     @Override
-    protected void handleImportIVolTicks(String stockOptionFamilyId, String subfolder) throws Exception {
+    protected void handleImportIVolTicks(String stockOptionFamilyId, String fileName) throws Exception {
 
         StockOptionFamily family = getStockOptionFamilyDao().load(Integer.parseInt(stockOptionFamilyId));
         Map<String, StockOption> stockOptions = new HashMap<String, StockOption>();
@@ -118,13 +118,13 @@ public class ImportServiceImpl extends ImportServiceBase {
 
         Date date = null;
 
-        File dir = new File("results/iVol/" + subfolder);
+        File dir = new File("results/iVol/" + fileName);
 
         for (File file : dir.listFiles()) {
 
             //            String dateString = file.getName().substring(5, 15);
             //            Date fileDate = fileFormat.parse(dateString);
-            CsvIVolReader csvReader = new CsvIVolReader(subfolder + "/" + file.getName());
+            CsvIVolReader csvReader = new CsvIVolReader(fileName + "/" + file.getName());
 
             IVolVO iVol;
             List<Tick> ticks = new ArrayList<Tick>();
@@ -151,6 +151,8 @@ public class ImportServiceImpl extends ImportServiceBase {
 
                 // for every day create an underlying-Tick
                 if (!iVol.getDate().equals(date)) {
+
+                    logger.info("processing " + iVol.getDate());
 
                     date = iVol.getDate();
 
