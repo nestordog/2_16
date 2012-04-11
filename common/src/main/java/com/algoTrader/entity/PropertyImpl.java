@@ -11,15 +11,15 @@ public class PropertyImpl extends Property {
     public String toString() {
 
         if (getIntValue() != null) {
-            return getName() + "=" + getIntValue().toString();
+            return getIntValue().toString();
         } else if (getDoubleValue() != null) {
-            return getName() + "=" + getDoubleValue().toString();
+            return getDoubleValue().toString();
         } else if (getMoneyValue() != null) {
-            return getName() + "=" + getMoneyValue().toString();
+            return getMoneyValue().toString();
         } else if (getTextValue() != null) {
-            return getName() + "=" + getTextValue().toString();
+            return getTextValue().toString();
         } else if (getDateValue() != null) {
-            return getName() + "=" + getDateValue().toString();
+            return getDateValue().toString();
         } else {
             return "";
         }

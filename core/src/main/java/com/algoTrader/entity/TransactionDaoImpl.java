@@ -33,7 +33,7 @@ public class TransactionDaoImpl extends TransactionDaoBase {
 
         Security security = transaction.getSecurity();
         if (security != null) {
-            transactionVO.setSymbol(security.getSymbol());
+            transactionVO.setName(security.toString());
 
             int scale = security.getSecurityFamily().getScale();
             transactionVO.setPrice(transaction.getPrice().setScale(scale, BigDecimal.ROUND_HALF_UP));

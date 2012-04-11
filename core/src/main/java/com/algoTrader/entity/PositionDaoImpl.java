@@ -1,10 +1,13 @@
 package com.algoTrader.entity;
 
+import java.util.Map;
+
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.ClosePositionVO;
 import com.algoTrader.vo.ExpirePositionVO;
 import com.algoTrader.vo.PositionVO;
 
+@SuppressWarnings("unchecked")
 public class PositionDaoImpl extends PositionDaoBase {
 
     @Override
@@ -28,7 +31,7 @@ public class PositionDaoImpl extends PositionDaoBase {
     private void completePositionVO(Position position, PositionVO positionVO) {
 
         int scale = position.getSecurity().getSecurityFamily().getScale();
-        positionVO.setSymbol(position.getSecurity().getSymbol());
+        positionVO.setName(position.getSecurity().toString());
         positionVO.setCurrency(position.getSecurity().getSecurityFamily().getCurrency());
         positionVO.setMarketPrice(RoundUtil.getBigDecimal(position.getMarketPriceDouble(), scale));
         positionVO.setMarketValue(RoundUtil.getBigDecimal(position.getMarketValueDouble()));
@@ -38,6 +41,12 @@ public class PositionDaoImpl extends PositionDaoBase {
         positionVO.setExitValue(position.getExitValue() != null ? RoundUtil.getBigDecimal(position.getExitValue(), scale) : null);
         positionVO.setRedemptionValue(RoundUtil.getBigDecimal(position.getRedemptionValueDouble()));
         positionVO.setMaxLoss(RoundUtil.getBigDecimal(position.getMaxLossDouble()));
+
+        // add properties if any
+        Map<String, Property> properties = position.getPropertiesInitialized();
+        if (!properties.isEmpty()) {
+            positionVO.setProperties(properties);
+        }
     }
 
     @Override

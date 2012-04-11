@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -13,6 +14,7 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.Property;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
@@ -115,20 +117,37 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         // get all subscribed securities
         List<TickVO> processedTickVOs = new ArrayList<TickVO>();
 
-        // for base iterate over all subscribed securities (no alert values will be displayed)
-        // for strategies iterate over all subscriptions
         if (StrategyUtil.isStartedStrategyBASE()) {
+
+            // for base iterate over all subscribed securities
             Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategiesInclFamily();
             for (Security security : securities) {
 
                 TickVO tickVO = getTickVO(tickVOs, security);
 
                 processedTickVOs.add(tickVO);
+
+                // add properties from all subscriptions
+                Map<String, Property> properties = new HashMap<String, Property>();
+                for (Subscription subscription : security.getSubscriptionsInitialized()) {
+                    properties.putAll(subscription.getPropertiesInitialized());
+                }
+                if (!properties.isEmpty()) {
+                    tickVO.setProperties(properties);
+                }
             }
         } else {
+
+            // for strategies iterate over all subscriptions
             for (Subscription subscription : getLookupService().getSubscriptionsByStrategy(strategyName)) {
 
                 TickVO tickVO = getTickVO(tickVOs, subscription.getSecurity());
+
+                // add properties from this strategies subscription
+                Map<String, Property> properties = subscription.getPropertiesInitialized();
+                if (!properties.isEmpty()) {
+                    tickVO.setProperties(properties);
+                }
 
                 processedTickVOs.add(tickVO);
             }
@@ -264,7 +283,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
         // set db data
         tickVO.setSecurityId(security.getId());
-        tickVO.setSymbol(security.getSymbol());
+        tickVO.setName(security.toString());
         return tickVO;
     }
 }
