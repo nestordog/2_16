@@ -116,7 +116,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
     protected void handleSubscribe(String strategyName, int securityId) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
-        Security security = getSecurityDao().load(securityId);
+        Security security = getSecurityDao().get(securityId);
 
         if (getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId) == null) {
 
@@ -148,7 +148,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
     protected void handleUnsubscribe(String strategyName, int securityId) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
-        Security security = getSecurityDao().load(securityId);
+        Security security = getSecurityDao().get(securityId);
 
         Subscription subscription = getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId);
 

@@ -177,7 +177,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
         this.barList = new ArrayList<Bar>();
         this.success = false;
 
-        Security security = getSecurityDao().load(securityId);
+        Security security = getSecurityDao().get(securityId);
 
         this.lock.lock();
 

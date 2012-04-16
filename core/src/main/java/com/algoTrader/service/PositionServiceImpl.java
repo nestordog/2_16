@@ -53,7 +53,7 @@ public class PositionServiceImpl extends PositionServiceBase {
     @Override
     protected void handleClosePosition(int positionId, boolean unsubscribe) throws Exception {
 
-        Position position = getPositionDao().load(positionId);
+        Position position = getPositionDao().get(positionId);
 
         if (position.isOpen()) {
 
@@ -112,7 +112,7 @@ public class PositionServiceImpl extends PositionServiceBase {
     @Override
     protected Position handleCreateNonTradeablePosition(String strategyName, int securityId, long quantity) {
 
-        Security security = getSecurityDao().load(securityId);
+        Security security = getSecurityDao().get(securityId);
         Strategy strategy = getStrategyDao().findByName(strategyName);
 
         if (security.getSecurityFamily().isTradeable()) {
@@ -141,7 +141,7 @@ public class PositionServiceImpl extends PositionServiceBase {
     @Override
     protected Position handleModifyNonTradeablePosition(int positionId, long quantity) {
 
-        Position position = getPositionDao().load(positionId);
+        Position position = getPositionDao().get(positionId);
 
         if (position == null) {
             throw new PositionServiceException("position " + positionId + " could not be found");
@@ -157,7 +157,7 @@ public class PositionServiceImpl extends PositionServiceBase {
     @Override
     protected void handleDeleteNonTradeablePosition(int positionId, boolean unsubscribe) throws Exception {
 
-        Position position = getPositionDao().load(positionId);
+        Position position = getPositionDao().get(positionId);
 
         Security security = position.getSecurity();
 
@@ -183,7 +183,7 @@ public class PositionServiceImpl extends PositionServiceBase {
     @Override
     protected void handleReducePosition(int positionId, long quantity) throws Exception {
 
-        Position position = getPositionDao().load(positionId);
+        Position position = getPositionDao().get(positionId);
         Strategy strategy = position.getStrategy();
         Security security = position.getSecurity();
 
@@ -207,7 +207,7 @@ public class PositionServiceImpl extends PositionServiceBase {
     @Override
     protected Position handleSetExitValue(int positionId, double exitValue, boolean force) throws MathException {
 
-        Position position = getPositionDao().load(positionId);
+        Position position = getPositionDao().get(positionId);
 
         // prevent exitValues near Zero
         if (exitValue <= 0.05) {
@@ -247,7 +247,7 @@ public class PositionServiceImpl extends PositionServiceBase {
     @Override
     protected Position handleRemoveExitValue(int positionId) throws Exception {
 
-        Position position = getPositionDao().load(positionId);
+        Position position = getPositionDao().get(positionId);
 
         if (position.getExitValue() != null) {
 
@@ -262,7 +262,7 @@ public class PositionServiceImpl extends PositionServiceBase {
     @Override
     protected Position handleSetMargin(int positionId) throws Exception {
 
-        Position position = getPositionDao().load(positionId);
+        Position position = getPositionDao().get(positionId);
 
         setMargin(position);
 
@@ -311,7 +311,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
     @Override
     protected void handleExpirePosition(int positionId) throws Exception {
-        Position position = getPositionDao().load(positionId);
+        Position position = getPositionDao().get(positionId);
 
         expirePosition(position);
     }

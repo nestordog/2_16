@@ -108,7 +108,7 @@ public class ImportServiceImpl extends ImportServiceBase {
     @Override
     protected void handleImportIVolTicks(String stockOptionFamilyId, String fileName) throws Exception {
 
-        StockOptionFamily family = getStockOptionFamilyDao().load(Integer.parseInt(stockOptionFamilyId));
+        StockOptionFamily family = getStockOptionFamilyDao().get(Integer.parseInt(stockOptionFamilyId));
         Map<String, StockOption> stockOptions = new HashMap<String, StockOption>();
 
         for (Security security : family.getSecurities()) {

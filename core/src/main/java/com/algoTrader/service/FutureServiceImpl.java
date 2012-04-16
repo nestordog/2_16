@@ -20,7 +20,7 @@ public class FutureServiceImpl extends FutureServiceBase {
     @Override
     protected void handleCreateDummyFutures(int futureFamilyId) {
 
-        FutureFamily family = getFutureFamilyDao().load(futureFamilyId);
+        FutureFamily family = getFutureFamilyDao().get(futureFamilyId);
         Security underlying = family.getUnderlying();
 
         List<Future> futures = getFutureDao().findFuturesByMinExpiration(family.getId(), DateUtil.getCurrentEPTime());

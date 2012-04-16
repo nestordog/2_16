@@ -31,7 +31,7 @@ public abstract class HistoricalDataServiceImpl extends HistoricalDataServiceBas
 
         for (int securityId : securityIds) {
 
-            Security security = getSecurityDao().load(securityId);
+            Security security = getSecurityDao().get(securityId);
 
             CsvTickWriter writer = new CsvTickWriter(security.getIsin());
 

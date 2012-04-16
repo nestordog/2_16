@@ -30,7 +30,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         combination.setType(type);
 
         // attach the security family
-        SecurityFamily securityFamily = getSecurityFamilyDao().load(securityFamilyId);
+        SecurityFamily securityFamily = getSecurityFamilyDao().get(securityFamilyId);
 
         // associate the security family
         securityFamily.addSecurities(combination);
@@ -46,7 +46,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected Combination handleCreateCombination(CombinationType type, int securityFamilyId, int underlyingId) throws Exception {
 
-        Security underlying = getSecurityDao().get(underlyingId);
+        Security underlying = getSecurityDao().load(underlyingId);
         if (underlying == null) {
             throw new IllegalArgumentException("underlying does not exist: " + underlyingId);
         }
@@ -60,7 +60,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected void handleDeleteCombination(int combinationId) throws Exception {
 
-        Combination combination = getCombinationDao().load(combinationId);
+        Combination combination = getCombinationDao().get(combinationId);
 
         if (combination == null) {
             logger.warn("combination does not exist: " + combinationId);
@@ -85,7 +85,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected Combination handleAddComponent(int combinationId, final int securityId, long quantity) throws Exception {
 
-        Combination combination = getCombinationDao().load(combinationId);
+        Combination combination = getCombinationDao().get(combinationId);
 
         if (combination == null) {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
@@ -132,7 +132,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected Combination handleSetComponentQuantity(int combinationId, final int securityId, long quantity) throws Exception {
 
-        Combination combination = (Combination) getSecurityDao().load(combinationId);
+        Combination combination = (Combination) getSecurityDao().get(combinationId);
 
         if (combination == null) {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
@@ -178,7 +178,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected Combination handleRemoveComponent(int combinationId, final int securityId) {
 
-        Combination combination = getCombinationDao().load(combinationId);
+        Combination combination = getCombinationDao().get(combinationId);
 
         if (combination == null) {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
@@ -225,7 +225,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected void handleCloseCombination(int combinationId, String strategyName) throws Exception {
 
-        Combination combination = getCombinationDao().load(combinationId);
+        Combination combination = getCombinationDao().get(combinationId);
 
         if (combination == null) {
             logger.warn("combination does not exist: " + combinationId);

@@ -58,7 +58,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
     @Override
     protected void handleRetrieve(int securityFamilyId) throws Exception {
 
-        SecurityFamily securityFamily = getSecurityFamilyDao().load(securityFamilyId);
+        SecurityFamily securityFamily = getSecurityFamilyDao().get(securityFamilyId);
 
         if (securityFamily instanceof StockOptionFamily) {
             retrieveStockOptions((StockOptionFamily) securityFamily);

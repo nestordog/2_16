@@ -78,7 +78,7 @@ public class TickDaoImpl extends TickDaoBase {
         Integer securityId = this.securityIds.get(rawTickVO.getIsin());
         Security security;
         if (securityId != null) {
-            security = getSecurityDao().load(securityId);
+            security = getSecurityDao().get(securityId);
         } else {
             security = getSecurityDao().findByIsin(rawTickVO.getIsin());
             this.securityIds.put(rawTickVO.getIsin(), security.getId());

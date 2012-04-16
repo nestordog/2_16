@@ -52,7 +52,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Security handleGetSecurity(int id) throws java.lang.Exception {
 
-        return getSecurityDao().load(id);
+        return getSecurityDao().get(id);
     }
 
     @Override
@@ -230,9 +230,7 @@ public class LookupServiceImpl extends LookupServiceBase {
         // if no future was found, create the missing part of the future-chain
         if (this.simulation && future == null && (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures)) {
 
-            FutureFamily futureFamily = getFutureFamilyDao().load(futureFamilyId);
-
-            getFutureService().createDummyFutures(futureFamily.getId());
+            getFutureService().createDummyFutures(futureFamilyId);
 
             list = getFutureDao().findByMinExpiration(0, 1, futureFamilyId, expirationDate);
 
@@ -252,14 +250,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Future handleGetFutureByExpiration(int futureFamilyId, Date expirationDate) throws Exception {
 
-        FutureFamily futureFamily = getFutureFamilyDao().load(futureFamilyId);
-
         Future future = getFutureDao().findByExpiration(futureFamilyId, expirationDate);
 
         // if no future was found, create the missing part of the future-chain
         if (this.simulation && future == null && (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures)) {
 
-            getFutureService().createDummyFutures(futureFamily.getId());
+            getFutureService().createDummyFutures(futureFamilyId);
             future = getFutureDao().findByExpiration(futureFamilyId, expirationDate);
         }
 
@@ -273,7 +269,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Future handleGetFutureByDuration(int futureFamilyId, Date targetExpirationDate, int duration) throws Exception {
 
-        FutureFamily futureFamily = getFutureFamilyDao().load(futureFamilyId);
+        FutureFamily futureFamily = getFutureFamilyDao().get(futureFamilyId);
 
         Date expirationDate = DateUtil.getExpirationDateNMonths(futureFamily.getExpirationType(), targetExpirationDate, duration);
         Future future = getFutureDao().findByExpiration(futureFamilyId, expirationDate);
@@ -331,7 +327,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Strategy handleGetStrategy(int id) throws java.lang.Exception {
 
-        return getStrategyDao().load(id);
+        return getStrategyDao().get(id);
     }
 
     @Override
@@ -355,7 +351,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected SecurityFamily handleGetSecurityFamily(int id) throws Exception {
 
-        return getSecurityFamilyDao().load(id);
+        return getSecurityFamilyDao().get(id);
     }
 
     @Override
@@ -379,7 +375,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Position handleGetPosition(int id) throws java.lang.Exception {
 
-        return getPositionDao().load(id);
+        return getPositionDao().get(id);
     }
 
     @Override
@@ -471,7 +467,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Transaction handleGetTransaction(int id) throws java.lang.Exception {
 
-        return getTransactionDao().load(id);
+        return getTransactionDao().get(id);
     }
 
     @Override

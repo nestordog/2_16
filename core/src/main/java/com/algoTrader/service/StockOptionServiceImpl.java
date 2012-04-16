@@ -45,7 +45,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     @Override
     protected StockOption handleCreateDummyStockOption(int stockOptionFamilyId, Date expirationDate, BigDecimal targetStrike, OptionType type) throws Exception {
 
-        StockOptionFamily family = getStockOptionFamilyDao().load(stockOptionFamilyId);
+        StockOptionFamily family = getStockOptionFamilyDao().get(stockOptionFamilyId);
         Security underlying = family.getUnderlying();
 
         // set third Friday of the month
