@@ -13,6 +13,7 @@ import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.Period;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.vo.PortfolioValueVO;
 
 public class LookupUtil {
@@ -117,7 +118,7 @@ public class LookupUtil {
 
     public static boolean hasLastTicks() {
 
-        return (ServiceLocator.instance().getEventService().getLastEvent(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK") != null);
+        return (EsperManager.getLastEvent(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK") != null);
     }
 
     public static Tick getTickByDateAndSecurity(Date date, int securityId) {

@@ -10,7 +10,7 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.algoTrader.ServiceLocator;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.MyLogger;
 
 public abstract class TickCallback {
@@ -33,7 +33,7 @@ public abstract class TickCallback {
         String alias = "ON_FIRST_TICK_" + StringUtils.join(sortedSecurityIds, "_");
 
         // undeploy the statement
-        ServiceLocator.instance().getEventService().undeployStatement(strategyName, alias);
+        EsperManager.undeployStatement(strategyName, alias);
 
         long startTime = System.currentTimeMillis();
         logger.debug("onFirstTick start " + sortedSecurityIds);

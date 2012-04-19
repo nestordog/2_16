@@ -22,6 +22,7 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.io.CsvTickReader;
@@ -36,14 +37,14 @@ public class VerificationServiceImpl extends VerificationServiceBase {
     @Override
     protected void handleVerifyTransactions() throws Exception {
 
-        getEventService().initServiceProvider(StrategyImpl.BASE);
+        EsperManager.initServiceProvider(StrategyImpl.BASE);
 
         Collection<Transaction> transactions = getTransactionDao().findAllTradesInclSecurity();
 
         for (Transaction transaction : transactions) {
 
             Date date = transaction.getDateTime();
-            getEventService().sendEvent(StrategyImpl.BASE, new CurrentTimeEvent(date.getTime()));
+            EsperManager.sendEvent(StrategyImpl.BASE, new CurrentTimeEvent(date.getTime()));
 
             if (!(transaction.getType().equals(TransactionType.BUY) || transaction.getType().equals(TransactionType.SELL))) {
                 continue;
@@ -84,7 +85,7 @@ public class VerificationServiceImpl extends VerificationServiceBase {
     protected void handleVerifyTicks() throws Exception {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy.MM.dd kk:mm");
-        getEventService().initServiceProvider(StrategyImpl.BASE);
+        EsperManager.initServiceProvider(StrategyImpl.BASE);
 
         CsvTickReader underlyingReader = new CsvTickReader("CH0008616382");
         Security underlying = getSecurityDao().findByIsin("CH0008616382");
@@ -138,7 +139,7 @@ public class VerificationServiceImpl extends VerificationServiceBase {
 
         for (Tick optionTick : optionTicks) {
 
-            getEventService().sendEvent(StrategyImpl.BASE, new CurrentTimeEvent(optionTick.getDateTime().getTime()));
+            EsperManager.sendEvent(StrategyImpl.BASE, new CurrentTimeEvent(optionTick.getDateTime().getTime()));
 
             StockOption stockOption = (StockOption) optionTick.getSecurity();
 

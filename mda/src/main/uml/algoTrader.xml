@@ -39,17 +39,11 @@
             <packagedElement xmi:type='uml:Package' xmi:id='_9_5_1_8b60294_1302789146206_936564_9553' name='org.hibernate.proxy' visibility='public'>
                 <packagedElement xmi:type='uml:Class' xmi:id='_9_5_1_8b60294_1302789146206_983265_9559' name='HibernateProxy' visibility='public'/>
             </packagedElement>
-            <packagedElement xmi:type='uml:Package' xmi:id='_9_5_1_8b60294_1302789146206_198650_9554' name='com.espertech.esper.client.time' visibility='public'>
-                <packagedElement xmi:type='uml:Class' xmi:id='_9_5_1_8b60294_1302789146206_890059_9563' name='CurrentTimeEvent' visibility='public'/>
-            </packagedElement>
             <packagedElement xmi:type='uml:Package' xmi:id='_9_5_1_8b60294_1302789146206_419900_9555' name='org.hibernate.collection' visibility='public'>
                 <packagedElement xmi:type='uml:Class' xmi:id='_9_5_1_8b60294_1302789146206_755787_9560' name='AbstractPersistentCollection' visibility='public'/>
             </packagedElement>
             <packagedElement xmi:type='uml:Package' xmi:id='_9_5_1_8b60294_1302789146206_82530_9557' name='org.hibernate' visibility='public'>
                 <packagedElement xmi:type='uml:Class' xmi:id='_9_5_1_8b60294_1302789146206_523128_9562' name='SessionFactory' visibility='public' isAbstract='true'/>
-            </packagedElement>
-            <packagedElement xmi:type='uml:Package' xmi:id='_9_5_1_8b60294_1302789146206_521149_9556' name='com.espertech.esperio.csv' visibility='public'>
-                <packagedElement xmi:type='uml:Class' xmi:id='_9_5_1_8b60294_1302789146206_128979_9565' name='CSVInputAdapterSpec' visibility='public'/>
             </packagedElement>
             <packagedElement xmi:type='uml:Package' xmi:id='_9_5_1_8b60294_1314818351083_735634_5605' name='com.ib.client' visibility='public'>
                 <packagedElement xmi:type='uml:Class' xmi:id='_9_5_1_8b60294_1314818351079_841930_5598' name='EClientSocket' visibility='public'/>
@@ -1151,10 +1145,6 @@
                         <supplier xmi:idref='_9_5_1_8b60294_1302789146208_86488_9668'/>
                         <client xmi:idref='_9_5_1_8b60294_1302789146215_166426_10462'/>
                     </packagedElement>
-                    <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1302789146213_98920_10242' visibility='public'>
-                        <supplier xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                        <client xmi:idref='_9_5_1_8b60294_1302789146213_357367_10283'/>
-                    </packagedElement>
                     <packagedElement xmi:type='uml:Class' xmi:id='_9_5_1_8b60294_1302789146213_357367_10283' name='ManagementService' visibility='public'>
                         <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146213_304540_10247' name='getCurrentTime' visibility='public'>
                             <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146213_146269_10246' visibility='public' direction='return'>
@@ -1493,10 +1483,6 @@
                             </ownedParameter>
                         </ownedOperation>
                     </packagedElement>
-                    <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1302789146213_712411_10300' visibility='public'>
-                        <supplier xmi:idref='_9_5_1_8b60294_1302789146217_695378_10679'/>
-                        <client xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                    </packagedElement>
                     <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1302789146213_390313_10301' visibility='public'>
                         <supplier xmi:idref='_9_5_1_8b60294_1302789146210_362917_9999'/>
                         <client xmi:idref='_9_5_1_8b60294_1302789146214_811122_10385'/>
@@ -1517,21 +1503,9 @@
                         <supplier xmi:idref='_9_5_1_8b60294_1302789146219_615611_11000'/>
                         <client xmi:idref='_9_5_1_8b60294_1302789146216_167901_10495'/>
                     </packagedElement>
-                    <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1302789146213_150486_10310' visibility='public'>
-                        <supplier xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                        <client xmi:idref='_9_5_1_8b60294_1302789146215_437242_10417'/>
-                    </packagedElement>
-                    <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1302789146213_930611_10313' visibility='public'>
-                        <supplier xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                        <client xmi:idref='_9_5_1_8b60294_1302789146215_113579_10430'/>
-                    </packagedElement>
                     <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1302789146213_72152_10315' visibility='public'>
                         <supplier xmi:idref='_9_5_1_8b60294_1302789146214_979295_10361'/>
                         <client xmi:idref='_9_5_1_8b60294_1302789146214_811122_10385'/>
-                    </packagedElement>
-                    <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1302789146213_656017_10317' visibility='public'>
-                        <supplier xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                        <client xmi:idref='_9_5_1_8b60294_1302789146214_979295_10361'/>
                     </packagedElement>
                     <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1302789146213_474022_10318' visibility='public'>
                         <supplier xmi:idref='_9_5_1_8b60294_1302789146208_990968_9812'/>
@@ -2077,10 +2051,6 @@
                                 </type>
                             </ownedParameter>
                         </ownedOperation>
-                    </packagedElement>
-                    <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1302789146215_515603_10421' visibility='public'>
-                        <supplier xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                        <client xmi:idref='_9_5_1_8b60294_1302789146216_284186_10542'/>
                     </packagedElement>
                     <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1302789146215_463275_10423' visibility='public'>
                         <supplier xmi:idref='_9_5_1_8b60294_1302789146208_215886_9708'/>
@@ -3721,792 +3691,6 @@
                             </ownedParameter>
                         </ownedOperation>
                     </packagedElement>
-                    <packagedElement xmi:type='uml:Class' xmi:id='_9_5_1_8b60294_1302789146218_252254_10841' name='EventService' visibility='public'>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146217_175504_10740' name='initServiceProvider' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_31458_10738' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_532250_10739' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146217_91777_10743' name='isInitialized' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_122945_10741' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_123473_10742' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_736816_6'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::boolean' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146217_418235_10746' name='destroyServiceProvider' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_2910_10744' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_585677_10745' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146217_237364_10751' name='deployStatement' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_460106_10747' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_73205_10748' name='moduleName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_446410_10749' name='statementName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_738482_10750' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146217_775736_10757' name='deployStatement' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_174045_10752' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_929008_10753' name='moduleName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_12690_10754' name='statementName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1311341834836_548071_695' name='alias' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_19865_10755' name='params' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_827203_54'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::Object[]' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_58043_10756' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1318582278092_887702_1204' name='deployStatement' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1318582278092_88041_1198' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1318582278092_615737_1199' name='moduleName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1318582278092_254439_1200' name='statementName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1318582278092_289450_1201' name='alias' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1318582278092_526787_1202' name='params' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_827203_54'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::Object[]' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1318582767758_136237_1219' name='callback' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_60450_7'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::Object' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1318582278092_251913_1203' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146217_72060_10761' name='deployModule' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_304645_10758' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_146143_10759' name='moduleName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_58479_10760' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146217_718126_10764' name='deployAllModules' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_336393_10762' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_286897_10763' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1321270820751_864425_241' name='findStatementNames' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1321270852609_106801_253' name='strategyname' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1321270852621_508167_254' name='statementNameRegex' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1321270852622_694602_255' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_132353_2'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String[]' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146217_316094_10768' name='isDeployed' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_994774_10765' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_683908_10766' name='statementNameRegex' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_851397_10767' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_736816_6'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::boolean' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146217_205936_10772' name='undeployStatement' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_790490_10769' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_900044_10770' name='statementName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_578448_10771' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146217_357065_10781' name='undeployModule' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_538206_10778' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_527277_10779' name='moduleName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_478418_10780' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146217_63488_10785' name='sendEvent' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_628644_10782' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_35467_10783' name='object' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_60450_7'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::Object' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_339153_10784' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146217_195839_10789' name='routeEvent' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_802452_10786' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_819654_10787' name='object' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_60450_7'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::Object' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_76918_10788' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1321630760462_959939_2648' name='sendMarketDataEvent' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1321630760461_122937_2646' name='marketDataEvent' visibility='public' type='_9_5_1_8b60294_1305552684242_501560_916'/>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1321630760462_753274_2647' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1314819463794_114105_6607' name='executeQuery' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1314819463794_139214_6604' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1314819463794_667917_6605' name='query' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1314819463794_213915_6606' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_809265_8'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::List' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146217_223234_10793' name='getLastEvent' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_901061_10790' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_501274_10791' name='statementName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_190764_10792' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_60450_7'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::Object' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146217_566275_10798' name='getLastEventProperty' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_57458_10794' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_273517_10795' name='statementName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_404019_10796' name='property' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_613362_10797' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_60450_7'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::Object' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146218_174560_10802' name='getAllEvents' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_625287_10799' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146217_443310_10800' name='statementName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_855690_10801' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_809265_8'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::List' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146218_876027_10807' name='getAllEventsProperty' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_182555_10803' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_704282_10804' name='statementName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_541860_10805' name='property' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_755781_10806' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_809265_8'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::List' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146218_101999_10811' name='setInternalClock' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_503390_10808' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_327866_10809' name='internal' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_736816_6'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::boolean' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_967326_10810' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146218_285675_10814' name='isInternalClock' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_205952_10812' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_138784_10813' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_736816_6'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::boolean' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146218_419173_10817' name='setCurrentTime' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_407577_10815' name='currentTime' visibility='public' type='_9_5_1_8b60294_1302789146206_890059_9563'/>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_767732_10816' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146218_130629_10820' name='getCurrentTime' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_763656_10818' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_501913_10819' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_238790_9'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::long' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146218_71904_10823' name='initCoordination' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_580914_10821' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_960601_10822' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146218_963752_10827' name='coordinate' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_472624_10824' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_55137_10825' name='csvInputAdapterSpec' visibility='public' type='_9_5_1_8b60294_1302789146206_128979_9565'/>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_758952_10826' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146218_65623_10832' name='coordinate' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_527965_10828' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_516005_10829' name='baseObjects' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_331753_26'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::Collection' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_199777_10830' name='timeStampColumn' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_781108_10831' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1304360310164_841891_617' name='coordinateTicks' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1304360346379_479970_630' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1304360346379_202541_631' name='startDate' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_195604_13'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::Date' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1304360346379_411888_632' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146218_845978_10835' name='startCoordination' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_911538_10833' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_44885_10834' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1306957127267_900569_10' name='getVariableValue' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1306957148726_619630_23' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1306957148726_425062_24' name='key' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1306957148726_852981_25' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_60450_7'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::Object' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146218_931572_10840' name='setVariableValue' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_142394_10836' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_910242_10837' name='key' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_504638_10838' name='value' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146218_770351_10839' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1322073330409_40478_736' name='setVariableValue' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1322073330409_739502_732' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1322073330409_927049_733' name='key' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1322073330409_904217_734' name='value' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_60450_7'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::Object' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1322073330409_840668_735' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1318533827500_76086_513' name='addTradeCallback' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1321527794460_453892_446' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1318533846489_38351_520' name='orders' visibility='public' isUnique='false' type='_9_5_1_8b60294_1314816165577_544780_701'>
-                                <upperValue xmi:type='uml:LiteralUnlimitedNatural' xmi:id='_16_5_4_8b60294_1322672341956_692173_4830' visibility='public' value='*'/>
-                                <lowerValue xmi:type='uml:LiteralUnlimitedNatural' xmi:id='_16_5_4_8b60294_1322672341956_769677_4829' visibility='public' value='*'/>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1318534213041_754896_560' name='callback' visibility='public' type='_9_5_1_8b60294_1318581945261_766061_999'/>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1318533846489_529043_521' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                        <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1318848286518_869989_2093' name='addFirstTickCallback' visibility='public'>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1318848313823_7900_2106' name='strategyName' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1318848313823_27781_2107' name='securityIds' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_465331_71'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::int[]' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1318848313823_305612_2108' name='callback' visibility='public' type='_9_5_1_8b60294_1318848146912_89723_2000'/>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1318848313823_797172_2109' visibility='public' direction='return'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
-                                    <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::void' referentType='DataType'/>
-                                    </xmi:Extension>
-                                </type>
-                            </ownedParameter>
-                        </ownedOperation>
-                    </packagedElement>
                     <packagedElement xmi:type='uml:Package' xmi:id='_9_5_1_8b60294_1302789146215_874864_10419' name='ib' visibility='public'>
                         <packagedElement xmi:type='uml:Class' xmi:id='_9_5_1_8b60294_1302789146210_362917_9999' name='IBService' visibility='public'>
                             <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146210_798904_9994' name='init' visibility='public'>
@@ -4667,10 +3851,6 @@
                     </packagedElement>
                     <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1304022449117_852541_1773' visibility='public'>
                         <supplier xmi:idref='_9_5_1_8b60294_1302789146214_979295_10361'/>
-                        <client xmi:idref='_9_5_1_8b60294_1304021803677_700766_431'/>
-                    </packagedElement>
-                    <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1304022451853_247927_1784' visibility='public'>
-                        <supplier xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
                         <client xmi:idref='_9_5_1_8b60294_1304021803677_700766_431'/>
                     </packagedElement>
                     <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1304022454421_215728_1795' visibility='public'>
@@ -4834,10 +4014,6 @@
                     </packagedElement>
                     <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1314813061676_478144_2125' visibility='public'>
                         <supplier xmi:idref='_9_5_1_8b60294_1302789146206_523128_9562'/>
-                        <client xmi:idref='_9_5_1_8b60294_1314811412776_372571_1120'/>
-                    </packagedElement>
-                    <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1314813064317_754835_2136' visibility='public'>
-                        <supplier xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
                         <client xmi:idref='_9_5_1_8b60294_1314811412776_372571_1120'/>
                     </packagedElement>
                     <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1314813089138_149827_2147' visibility='public'>
@@ -5133,10 +4309,6 @@
                         <supplier xmi:idref='_9_5_1_8b60294_1302789146206_523128_9562'/>
                         <client xmi:idref='_9_5_1_8b60294_1314816522002_389300_1679'/>
                     </packagedElement>
-                    <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1314817838033_982285_4520' visibility='public'>
-                        <supplier xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                        <client xmi:idref='_9_5_1_8b60294_1314816522002_389300_1679'/>
-                    </packagedElement>
                     <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1314817840257_361070_4531' visibility='public'>
                         <supplier xmi:idref='_9_5_1_8b60294_1302789146209_939206_9923'/>
                         <client xmi:idref='_9_5_1_8b60294_1314816522002_389300_1679'/>
@@ -5152,10 +4324,6 @@
                     <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1314817845390_118140_4564' visibility='public'>
                         <supplier xmi:idref='_9_5_1_8b60294_1302789146208_86488_9668'/>
                         <client xmi:idref='_9_5_1_8b60294_1314816522002_389300_1679'/>
-                    </packagedElement>
-                    <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1314818015429_721303_5507' visibility='public'>
-                        <supplier xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                        <client xmi:idref='_9_5_1_8b60294_1314816522005_967892_1705'/>
                     </packagedElement>
                     <packagedElement xmi:type='uml:Dependency' xmi:id='_9_5_1_8b60294_1314818017390_229326_5518' visibility='public'>
                         <supplier xmi:idref='_9_5_1_8b60294_1314811412776_372571_1120'/>
@@ -5525,10 +4693,6 @@
                         <supplier xmi:idref='_9_5_1_8b60294_1302789146217_695378_10679'/>
                         <client xmi:idref='_9_5_1_8b60294_1302789146213_357367_10283'/>
                     </packagedElement>
-                    <packagedElement xmi:type='uml:Dependency' xmi:id='_16_5_4_8b60294_1325358664450_433493_4464' visibility='public'>
-                        <supplier xmi:idref='_16_5_4_8b60294_1325358542923_752898_4436'/>
-                        <client xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                    </packagedElement>
                     <packagedElement xmi:type='uml:Dependency' xmi:id='_16_5_4_8b60294_1325358810414_721383_4488' visibility='public'>
                         <supplier xmi:idref='_16_5_4_8b60294_1325358542923_752898_4436'/>
                         <client xmi:idref='_9_5_1_8b60294_1302789146216_284186_10542'/>
@@ -5850,10 +5014,6 @@
                     <packagedElement xmi:type='uml:Dependency' xmi:id='_16_5_4_8b60294_1333555512587_343443_4510' visibility='public'>
                         <supplier xmi:idref='_9_5_1_8b60294_1302789146218_322171_10921'/>
                         <client xmi:idref='_9_5_1_8b60294_1302789146212_663667_10234'/>
-                    </packagedElement>
-                    <packagedElement xmi:type='uml:Dependency' xmi:id='_16_5_4_8b60294_1333643498202_392000_4782' visibility='public'>
-                        <supplier xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                        <client xmi:idref='_9_5_1_8b60294_1320095450455_10067_1747'/>
                     </packagedElement>
                     <packagedElement xmi:type='uml:Dependency' xmi:id='_16_5_4_8b60294_1333991286277_309175_4940' visibility='public'>
                         <supplier xmi:idref='_9_5_1_8b60294_1314816522002_389300_1679'/>
@@ -12472,7 +11632,7 @@
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
-                    <active xmi:value='true'/>
+                    <active xmi:value='false'/>
                     <mdOwnedViews>
                         <mdElement elementClass='DiagramFrame' xmi:id='_16_5_4_8b60294_1322591618499_811686_4609'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146191_146809_9547'/>
@@ -13759,7 +12919,7 @@
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
-                    <active xmi:value='false'/>
+                    <active xmi:value='true'/>
                     <mdOwnedViews>
                         <mdElement elementClass='DiagramFrame' xmi:id='_16_5_4_8b60294_1322591618371_273432_4606'>
                             <elementID xmi:idref='_9_5_1_8b60294_1322218667554_975883_453'/>
@@ -13791,35 +12951,6 @@
                             </properties>
                             <geometry>10, 20, 544, 474</geometry>
                         </mdElement>
-                        <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1322218983608_587329_1679'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                            <properties>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                </mdElement>
-                                <mdElement elementClass='ChoiceProperty'>
-                                    <propertyID>STEREOTYPES_DISPLAY_MODE</propertyID>
-                                    <propertyDescriptionID>STEREOTYPES_DISPLAY_MODE_DESCRIPTION</propertyDescriptionID>
-                                    <value>STEREOTYPE_DISPLAY_MODE_SHAPE_IMAGE_AND_TEXT</value>
-                                    <choice xmi:value='STEREOTYPE_DISPLAY_MODE_TEXT_AND_ICON^STEREOTYPE_DISPLAY_MODE_TEXT^STEREOTYPE_DISPLAY_MODE_ICON^STEREOTYPE_DISPLAY_MODE_SHAPE_IMAGE_AND_TEXT^STEREOTYPE_DISPLAY_MODE_SHAPE_IMAGE^STEREOTYPE_DISPLAY_MODE_DO_NOT_DISPLAY_STEREOTYPES'/>
-                                    <index xmi:value='3'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>SUPPRESS_CLASS_OPERATIONS</propertyID>
-                                    <propertyGroup>OPERATIONS</propertyGroup>
-                                    <propertyDescriptionID>SUPPRESS_CLASS_OPERATIONS_DESCRIPTION</propertyDescriptionID>
-                                </mdElement>
-                                <mdElement elementClass='ChoiceProperty'>
-                                    <propertyID>TAGGED_VALUES_DISPLAY_MODE</propertyID>
-                                    <propertyDescriptionID>TAGGED_VALUES_DISPLAY_MODE_DESCRIPTION</propertyDescriptionID>
-                                    <value>ON_SHAPE</value>
-                                    <choice xmi:value='ON_SHAPE^IN_COMPARTMENT^DO_NOT_DISPLAY'/>
-                                    <index xmi:value='0'/>
-                                </mdElement>
-                            </properties>
-                            <geometry>580, 10, 795, 640</geometry>
-                        </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1322218987280_302044_1788'>
                             <elementID xmi:idref='_9_5_1_8b60294_1315831429871_290204_1762'/>
                             <properties>
@@ -13847,7 +12978,7 @@
                                     <index xmi:value='0'/>
                                 </mdElement>
                             </properties>
-                            <geometry>10, 520, 376, 143</geometry>
+                            <geometry>10, 510, 376, 143</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1325610356520_95076_5193'>
                             <elementID xmi:idref='_9_5_1_8b60294_1304021803677_700766_431'/>
@@ -13867,7 +12998,7 @@
                                     <index xmi:value='0'/>
                                 </mdElement>
                             </properties>
-                            <geometry>10, 670, 282, 89</geometry>
+                            <geometry>10, 660, 282, 89</geometry>
                         </mdElement>
                     </mdOwnedViews>
                 </mdElement>
@@ -15562,7 +14693,7 @@
                     <diagramFrameInitialSizeSet xmi:value='false'/>
                     <diagramWindowBounds>2, 24, 1586, 928</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
-                    <diagramScrollPositionY xmi:value='513'/>
+                    <diagramScrollPositionY xmi:value='150'/>
                     <maximized xmi:value='false'/>
                     <active xmi:value='false'/>
                     <mdOwnedViews>
@@ -15570,10 +14701,6 @@
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146192_217779_9549'/>
                             <visible xmi:value='false'/>
                             <geometry>0, 0, 2066, 1384</geometry>
-                        </mdElement>
-                        <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158323_775645_11401'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                            <geometry>1390, 660, 81, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158324_441933_11422'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146217_695378_10679'/>
@@ -16089,23 +15216,6 @@
                             <geometry>1108, 910; 1107, 822; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
-                        <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158328_880404_11524'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                            <geometry>860, 1000, 81, 30</geometry>
-                        </mdElement>
-                        <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1302789158328_734025_11525'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146215_515603_10421'/>
-                            <properties>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>SHOW_TAGGED_VALUES</propertyID>
-                                    <propertyDescriptionID>SHOW_TAGGED_VALUES_DESCRIPTION</propertyDescriptionID>
-                                </mdElement>
-                            </properties>
-                            <linkFirstEndID xmi:idref='_9_5_1_8b60294_1302789158328_880404_11524'/>
-                            <linkSecondEndID xmi:idref='_9_5_1_8b60294_1302789158326_325562_11460'/>
-                            <geometry>941, 1024; 980, 1033; </geometry>
-                            <nameVisible xmi:value='true'/>
-                        </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158328_283607_11530'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146208_86488_9668'/>
                             <properties>
@@ -16278,27 +15388,12 @@
                             </properties>
                             <geometry>1090, 690, 64, 69</geometry>
                         </mdElement>
-                        <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158333_510432_11644'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                            <geometry>940, 580, 81, 30</geometry>
-                        </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1302789158333_256752_11645'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146213_474022_10318'/>
                             <linkFirstEndID xmi:idref='_9_5_1_8b60294_1302789158333_300338_11643'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1302789158333_814171_11641'/>
                             <geometry>1117, 690; 1110, 640; </geometry>
                             <nameVisible xmi:value='true'/>
-                        </mdElement>
-                        <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1302789158333_949593_11650'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146213_656017_10317'/>
-                            <linkFirstEndID xmi:idref='_9_5_1_8b60294_1302789158333_510432_11644'/>
-                            <linkSecondEndID xmi:idref='_9_5_1_8b60294_1302789158333_814171_11641'/>
-                            <geometry>1021, 605; 1060, 614; </geometry>
-                            <nameVisible xmi:value='true'/>
-                        </mdElement>
-                        <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158334_404346_11660'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                            <geometry>1870, 670, 81, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158334_863973_11662'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146214_979295_10361'/>
@@ -16311,31 +15406,9 @@
                             <geometry>1530, 235; 1453, 250; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
-                        <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158335_842059_11677'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                            <geometry>820, 200, 81, 30</geometry>
-                        </mdElement>
-                        <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1302789158335_658203_11678'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146213_930611_10313'/>
-                            <linkFirstEndID xmi:idref='_9_5_1_8b60294_1302789158335_842059_11677'/>
-                            <linkSecondEndID xmi:idref='_9_5_1_8b60294_1302789158327_687435_11505'/>
-                            <geometry>820, 215; 775, 215; </geometry>
-                            <nameVisible xmi:value='true'/>
-                        </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158335_476648_11696'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146215_437242_10417'/>
                             <geometry>50, 610, 99, 30</geometry>
-                        </mdElement>
-                        <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158336_80103_11697'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                            <geometry>180, 640, 81, 30</geometry>
-                        </mdElement>
-                        <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1302789158336_885837_11698'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146213_150486_10310'/>
-                            <linkFirstEndID xmi:idref='_9_5_1_8b60294_1302789158336_80103_11697'/>
-                            <linkSecondEndID xmi:idref='_9_5_1_8b60294_1302789158335_476648_11696'/>
-                            <geometry>180, 645; 149, 637; </geometry>
-                            <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158336_225085_11704'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146219_615611_11000'/>
@@ -16598,13 +15671,6 @@
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146217_695378_10679'/>
                             <geometry>1530, 640, 92, 30</geometry>
                         </mdElement>
-                        <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1302789158340_403237_11805'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146213_712411_10300'/>
-                            <linkFirstEndID xmi:idref='_9_5_1_8b60294_1302789158340_182871_11804'/>
-                            <linkSecondEndID xmi:idref='_9_5_1_8b60294_1302789158323_775645_11401'/>
-                            <geometry>1530, 661; 1471, 669; </geometry>
-                            <nameVisible xmi:value='true'/>
-                        </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158341_409099_11829'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146206_523128_9562'/>
                             <geometry>1530, 730, 97, 30</geometry>
@@ -16622,14 +15688,7 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158341_630225_11843'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146213_357367_10283'/>
-                            <geometry>1690, 750, 124, 30</geometry>
-                        </mdElement>
-                        <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1302789158342_683666_11844'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146213_98920_10242'/>
-                            <linkFirstEndID xmi:idref='_9_5_1_8b60294_1302789158334_404346_11660'/>
-                            <linkSecondEndID xmi:idref='_9_5_1_8b60294_1302789158341_630225_11843'/>
-                            <geometry>1880, 700; 1782, 750; </geometry>
-                            <nameVisible xmi:value='true'/>
+                            <geometry>1690, 660, 124, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158342_123874_11849'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146215_166426_10462'/>
@@ -16733,13 +15792,13 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158343_980530_11874'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146215_166426_10462'/>
-                            <geometry>1870, 710, 105, 30</geometry>
+                            <geometry>1870, 620, 105, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1302789158343_890017_11875'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146212_475272_10237'/>
                             <linkFirstEndID xmi:idref='_9_5_1_8b60294_1302789158343_980530_11874'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1302789158341_630225_11843'/>
-                            <geometry>1870, 737; 1814, 750; </geometry>
+                            <geometry>1870, 647; 1814, 660; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1302789158343_888747_11886'>
@@ -17431,7 +16490,7 @@
                             <elementID xmi:idref='_9_5_1_8b60294_1303320320380_610543_303'/>
                             <linkFirstEndID xmi:idref='_9_5_1_8b60294_1303320312904_541586_255'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1302789158327_411948_11500'/>
-                            <geometry>1541, 200; 1414, 250; </geometry>
+                            <geometry>1540, 200; 1414, 250; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1304022236364_63980_583'>
@@ -17454,13 +16513,9 @@
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146214_979295_10361'/>
                             <geometry>1870, 160, 96, 30</geometry>
                         </mdElement>
-                        <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1304022337314_429197_1300'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                            <geometry>1870, 210, 81, 30</geometry>
-                        </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1304022361391_909505_1401'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146216_586970_10574'/>
-                            <geometry>1870, 260, 120, 30</geometry>
+                            <geometry>1870, 210, 120, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1304022423525_827887_1741'>
                             <elementID xmi:idref='_9_5_1_8b60294_1304022423523_338178_1740'/>
@@ -17490,18 +16545,11 @@
                             <geometry>1903, 190; 1780, 310; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
-                        <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1304022451856_273962_1785'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1304022451853_247927_1784'/>
-                            <linkFirstEndID xmi:idref='_9_5_1_8b60294_1304022337314_429197_1300'/>
-                            <linkSecondEndID xmi:idref='_9_5_1_8b60294_1304022236364_63980_583'/>
-                            <geometry>1888, 240; 1787, 310; </geometry>
-                            <nameVisible xmi:value='true'/>
-                        </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1304022454424_87434_1796'>
                             <elementID xmi:idref='_9_5_1_8b60294_1304022454421_215728_1795'/>
                             <linkFirstEndID xmi:idref='_9_5_1_8b60294_1304022361391_909505_1401'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1304022236364_63980_583'/>
-                            <geometry>1880, 290; 1810, 311; </geometry>
+                            <geometry>1906, 240; 1790, 310; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1305554520340_70555_4238'>
@@ -18106,10 +17154,6 @@
                             </properties>
                             <geometry>290, 100, 64, 69</geometry>
                         </mdElement>
-                        <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314812995366_197194_2042'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                            <geometry>10, 60, 81, 30</geometry>
-                        </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1314813059324_733941_2115'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314813059322_241943_2114'/>
                             <linkFirstEndID xmi:idref='_9_5_1_8b60294_1314812952567_281768_1727'/>
@@ -18122,13 +17166,6 @@
                             <linkFirstEndID xmi:idref='_9_5_1_8b60294_1314812910797_731524_1524'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1314812893921_229579_1453'/>
                             <geometry>107, 24; 150, 24; </geometry>
-                            <nameVisible xmi:value='true'/>
-                        </mdElement>
-                        <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1314813064319_667565_2137'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1314813064317_754835_2136'/>
-                            <linkFirstEndID xmi:idref='_9_5_1_8b60294_1314812995366_197194_2042'/>
-                            <linkSecondEndID xmi:idref='_9_5_1_8b60294_1314812893921_229579_1453'/>
-                            <geometry>91, 62; 161, 40; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1314813089140_199037_2148'>
@@ -18166,10 +17203,6 @@
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314817647097_2868_3780'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146206_523128_9562'/>
                             <geometry>434, 10, 97, 30</geometry>
-                        </mdElement>
-                        <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314817651696_927952_3900'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                            <geometry>714, 20, 81, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314817672396_860187_4017'>
                             <elementID xmi:idref='_9_5_1_8b60294_1305552684241_757215_882'/>
@@ -18278,13 +17311,6 @@
                             <geometry>531, 24; 564, 24; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
-                        <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1314817838036_580168_4521'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1314817838033_982285_4520'/>
-                            <linkFirstEndID xmi:idref='_9_5_1_8b60294_1314817651696_927952_3900'/>
-                            <linkSecondEndID xmi:idref='_9_5_1_8b60294_1314817636517_327702_3699'/>
-                            <geometry>714, 32; 683, 30; </geometry>
-                            <nameVisible xmi:value='true'/>
-                        </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1314817840258_824471_4532'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314817840257_361070_4531'/>
                             <linkFirstEndID xmi:idref='_9_5_1_8b60294_1314817696966_899670_4378'/>
@@ -18317,30 +17343,19 @@
                             <elementID xmi:idref='_9_5_1_8b60294_1314816522005_967892_1705'/>
                             <geometry>1380, 50, 84, 30</geometry>
                         </mdElement>
-                        <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314817907057_431249_4733'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1302789146218_252254_10841'/>
-                            <geometry>1530, 50, 81, 30</geometry>
-                        </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314817911705_429371_4835'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314811412776_372571_1120'/>
-                            <geometry>1534, 90, 118, 30</geometry>
+                            <geometry>1534, 60, 118, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314817916310_632063_4906'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146206_523128_9562'/>
                             <geometry>1534, 10, 97, 30</geometry>
                         </mdElement>
-                        <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1314818015430_544761_5508'>
-                            <elementID xmi:idref='_9_5_1_8b60294_1314818015429_721303_5507'/>
-                            <linkFirstEndID xmi:idref='_9_5_1_8b60294_1314817907057_431249_4733'/>
-                            <linkSecondEndID xmi:idref='_9_5_1_8b60294_1314817900006_482914_4635'/>
-                            <geometry>1530, 65; 1464, 65; </geometry>
-                            <nameVisible xmi:value='true'/>
-                        </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1314818017392_589051_5519'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818017390_229326_5518'/>
                             <linkFirstEndID xmi:idref='_9_5_1_8b60294_1314817911705_429371_4835'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1314817900006_482914_4635'/>
-                            <geometry>1534, 91; 1464, 75; </geometry>
+                            <geometry>1534, 73; 1464, 68; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1314818019854_135935_5530'>
@@ -18478,24 +17493,24 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1315825978810_359437_1000'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314816522002_389300_1679'/>
-                            <geometry>1870, 310, 119, 30</geometry>
+                            <geometry>1870, 260, 119, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1315825990017_737640_1072'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314816522005_967892_1705'/>
-                            <geometry>1870, 360, 84, 30</geometry>
+                            <geometry>1870, 310, 84, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1315825996412_325668_1126'>
                             <elementID xmi:idref='_9_5_1_8b60294_1315825996411_662232_1125'/>
                             <linkFirstEndID xmi:idref='_9_5_1_8b60294_1315825978810_359437_1000'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1304022236364_63980_583'/>
-                            <geometry>1870, 325; 1810, 325; </geometry>
+                            <geometry>1884, 290; 1810, 312; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1315825999282_964033_1137'>
                             <elementID xmi:idref='_9_5_1_8b60294_1315825999280_375585_1136'/>
                             <linkFirstEndID xmi:idref='_9_5_1_8b60294_1315825990017_737640_1072'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1304022236364_63980_583'/>
-                            <geometry>1870, 361; 1810, 340; </geometry>
+                            <geometry>1870, 327; 1810, 326; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1315831907262_889547_2068'>
@@ -18985,7 +18000,7 @@
                             <elementID xmi:idref='_9_5_1_8b60294_1315832210373_446599_2789'/>
                             <linkFirstEndID xmi:idref='_9_5_1_8b60294_1315832203127_535978_2757'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1304022236364_63980_583'/>
-                            <geometry>1906, 410; 1790, 340; </geometry>
+                            <geometry>1877, 360; 1810, 339; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1315831836946_646125_1944'>
@@ -18994,7 +18009,7 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1315832203127_535978_2757'>
                             <elementID xmi:idref='_9_5_1_8b60294_1315831429871_290204_1762'/>
-                            <geometry>1870, 410, 122, 30</geometry>
+                            <geometry>1870, 360, 122, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1321618398381_831331_1731'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314816522002_389300_1679'/>
@@ -19020,13 +18035,13 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1321981903895_3278_581'>
                             <elementID xmi:idref='_9_5_1_8b60294_1315831429871_290204_1762'/>
-                            <geometry>1870, 750, 122, 30</geometry>
+                            <geometry>1870, 660, 122, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_9_5_1_8b60294_1321981913548_834361_600'>
                             <elementID xmi:idref='_9_5_1_8b60294_1321981913547_741864_599'/>
                             <linkFirstEndID xmi:idref='_9_5_1_8b60294_1321981903895_3278_581'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1302789158341_630225_11843'/>
-                            <geometry>1870, 765; 1814, 765; </geometry>
+                            <geometry>1870, 675; 1814, 675; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1307607639310_359581_2354'>
@@ -19124,13 +18139,13 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1323168489121_574588_4215'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146217_695378_10679'/>
-                            <geometry>1870, 792, 92, 30</geometry>
+                            <geometry>1870, 702, 92, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_16_5_4_8b60294_1323168496951_39866_4295'>
                             <elementID xmi:idref='_16_5_4_8b60294_1323168498717_216428_4296'/>
                             <linkFirstEndID xmi:idref='_16_5_4_8b60294_1323168489121_574588_4215'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1302789158341_630225_11843'/>
-                            <geometry>1870, 795; 1811, 780; </geometry>
+                            <geometry>1870, 705; 1811, 690; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='InterfaceRealization' xmi:id='_16_5_4_8b60294_1322740277519_431141_7009'>
@@ -19218,13 +18233,6 @@
                             <elementID xmi:idref='_16_5_4_8b60294_1325358542923_752898_4436'/>
                             <geometry>1535, 686, 84, 30</geometry>
                         </mdElement>
-                        <mdElement elementClass='Dependency' xmi:id='_16_5_4_8b60294_1325358662349_387413_4463'>
-                            <elementID xmi:idref='_16_5_4_8b60294_1325358664450_433493_4464'/>
-                            <linkFirstEndID xmi:idref='_16_5_4_8b60294_1325358564776_524732_4437'/>
-                            <linkSecondEndID xmi:idref='_9_5_1_8b60294_1302789158323_775645_11401'/>
-                            <geometry>1535, 693; 1471, 682; </geometry>
-                            <nameVisible xmi:value='true'/>
-                        </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1325358803793_310595_4465'>
                             <elementID xmi:idref='_16_5_4_8b60294_1325358542923_752898_4436'/>
                             <geometry>1140, 1050, 84, 30</geometry>
@@ -19238,13 +18246,13 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1325358960886_90273_4489'>
                             <elementID xmi:idref='_16_5_4_8b60294_1325358542923_752898_4436'/>
-                            <geometry>1870, 502, 84, 30</geometry>
+                            <geometry>1870, 452, 84, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_16_5_4_8b60294_1325358970072_294240_4511'>
                             <elementID xmi:idref='_16_5_4_8b60294_1325358972368_273142_4512'/>
                             <linkFirstEndID xmi:idref='_16_5_4_8b60294_1325358960886_90273_4489'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1304022236364_63980_583'/>
-                            <geometry>1901, 502; 1777, 340; </geometry>
+                            <geometry>1896, 452; 1780, 340; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1326196368344_354724_4079'>
@@ -19285,13 +18293,13 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1326448090527_64484_4079'>
                             <elementID xmi:idref='_16_5_4_8b60294_1325358542923_752898_4436'/>
-                            <geometry>1870, 830, 84, 30</geometry>
+                            <geometry>1870, 740, 84, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_16_5_4_8b60294_1326448096405_104835_4101'>
                             <elementID xmi:idref='_16_5_4_8b60294_1326448098289_639195_4102'/>
                             <linkFirstEndID xmi:idref='_16_5_4_8b60294_1326448090527_64484_4079'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1302789158341_630225_11843'/>
-                            <geometry>1882, 830; 1782, 780; </geometry>
+                            <geometry>1882, 740; 1782, 690; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1326807766208_224535_4675'>
@@ -19432,13 +18440,13 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1327498442968_812565_4578'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146215_437242_10417'/>
-                            <geometry>1530, 130, 99, 30</geometry>
+                            <geometry>1530, 100, 99, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_16_5_4_8b60294_1327498454880_723441_4601'>
                             <elementID xmi:idref='_16_5_4_8b60294_1327498456284_201484_4602'/>
                             <linkFirstEndID xmi:idref='_16_5_4_8b60294_1327498442968_812565_4578'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1314817900006_482914_4635'/>
-                            <geometry>1550, 130; 1452, 80; </geometry>
+                            <geometry>1530, 100; 1464, 79; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1330425709052_655697_4775'>
@@ -19536,24 +18544,24 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1330511809892_968950_4974'>
                             <elementID xmi:idref='_16_5_4_8b60294_1330424995425_75866_4732'/>
-                            <geometry>1870, 550, 129, 30</geometry>
+                            <geometry>1870, 500, 129, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1330511820662_434482_4994'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146215_847379_10398'/>
-                            <geometry>1870, 590, 133, 30</geometry>
+                            <geometry>1870, 540, 133, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_16_5_4_8b60294_1330511825715_670470_5018'>
                             <elementID xmi:idref='_16_5_4_8b60294_1330511827389_557042_5019'/>
                             <linkFirstEndID xmi:idref='_16_5_4_8b60294_1330511809892_968950_4974'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1304022236364_63980_583'/>
-                            <geometry>1923, 550; 1776, 340; </geometry>
+                            <geometry>1921, 500; 1778, 340; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_16_5_4_8b60294_1330511829957_331070_5021'>
                             <elementID xmi:idref='_16_5_4_8b60294_1330511831603_668392_5022'/>
                             <linkFirstEndID xmi:idref='_16_5_4_8b60294_1330511820662_434482_4994'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1304022236364_63980_583'/>
-                            <geometry>1927, 590; 1774, 340; </geometry>
+                            <geometry>1925, 540; 1776, 340; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1331135765441_108735_4683'>
@@ -19644,13 +18652,13 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1331892960432_678415_4398'>
                             <elementID xmi:idref='_9_5_1_8b60294_1320095450455_10067_1747'/>
-                            <geometry>1870, 450, 121, 30</geometry>
+                            <geometry>1870, 400, 121, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_16_5_4_8b60294_1331892964323_58990_4427'>
                             <elementID xmi:idref='_16_5_4_8b60294_1331892966185_28019_4428'/>
                             <linkFirstEndID xmi:idref='_16_5_4_8b60294_1331892960432_678415_4398'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1304022236364_63980_583'/>
-                            <geometry>1912, 450; 1783, 340; </geometry>
+                            <geometry>1902, 400; 1792, 340; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_16_5_4_8b60294_1331892979728_786486_4430'>
@@ -19916,13 +18924,13 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1333015174359_820816_4888'>
                             <elementID xmi:idref='_16_5_4_8b60294_1332841860221_300796_5681'/>
-                            <geometry>1870, 630, 99, 30</geometry>
+                            <geometry>1870, 580, 99, 30</geometry>
                         </mdElement>
                         <mdElement elementClass='Dependency' xmi:id='_16_5_4_8b60294_1333015179818_116001_4909'>
                             <elementID xmi:idref='_16_5_4_8b60294_1333015182539_639270_4910'/>
                             <linkFirstEndID xmi:idref='_16_5_4_8b60294_1333015174359_820816_4888'/>
                             <linkSecondEndID xmi:idref='_9_5_1_8b60294_1304022236364_63980_583'/>
-                            <geometry>1912, 630; 1772, 340; </geometry>
+                            <geometry>1910, 580; 1774, 340; </geometry>
                             <nameVisible xmi:value='true'/>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1333471995842_63763_5265'>
@@ -21760,7 +20768,6 @@
                 <packagedElement xmi:type='uml:DataType' xmi:id='_9_0_1fe00f9_1119336925531_331753_26' name='Collection' visibility='public'/>
                 <packagedElement xmi:type='uml:DataType' xmi:id='_9_0_1fe00f9_1119336925531_654186_46' name='Money' visibility='public'/>
                 <packagedElement xmi:type='uml:DataType' xmi:id='_9_0_1fe00f9_1119336925531_324247_52' name='void' visibility='public'/>
-                <packagedElement xmi:type='uml:DataType' xmi:id='_9_0_1fe00f9_1119336925531_827203_54' name='Object[]' visibility='public'/>
                 <packagedElement xmi:type='uml:DataType' xmi:id='_9_0_1fe00f9_1119336925531_221770_56' name='Double' visibility='public'/>
                 <packagedElement xmi:type='uml:DataType' xmi:id='_9_0_1fe00f9_1119336925531_227130_59' name='Long' visibility='public'/>
                 <packagedElement xmi:type='uml:DataType' xmi:id='_9_0_1fe00f9_1119336925531_817948_60' name='Map' visibility='public'/>
@@ -22194,8 +21201,8 @@
             <stereotype name='UML_Standard_Profile:modelLibrary' stereotypeID='magicdraw_1046861421236_39100_29'/>
             <stereotype name='andromda_common:Exception' stereotypeID='_9_0_1fe00f9_1119373197267_97120_6'/>
             <tag name='andromda_common:Exception:andromda_serialVersionUID' tagID='_17_0_1_2e90116_1302564159457_293404_4211'/>
-            <stereotype name='andromda_common:Nullable' stereotypeID='_9_0_1fe00f9_1119373197267_872834_19'/>
             <stereotype name='UML_Standard_Profile:metamodel' stereotypeID='magicdraw_1046861421236_601240_36'/>
+            <stereotype name='andromda_common:Nullable' stereotypeID='_9_0_1fe00f9_1119373197267_872834_19'/>
         </stereotypesIDS>
         <index/>
         <options>
@@ -22438,7 +21445,7 @@
                         <mdElement elementClass='StringProperty'>
                             <propertyID>DIAGRAMS_LAYOUT</propertyID>
                             <propertyDescriptionID>DIAGRAMS_LAYOUT_DESCRIPTION</propertyDescriptionID>
-                            <value>0 0 0 14 0 0 0 1 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 31 0 34 0 36 0 38 0 30 0 39 0 5f 0 39 0 35 0 34 0 37 0 0 0 1 0 0 0 cc 0 0 0 e2 0 0 0 e 0 0 0 10 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 31 0 31 0 33 0 38 0 38 0 36 0 5f 0 39 0 35 0 35 0 32 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 30 0 34 0 32 0 34 0 39 0 31 0 39 0 37 0 38 0 35 0 5f 0 33 0 31 0 36 0 37 0 30 0 38 0 5f 0 34 0 36 0 31 0 33 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 33 0 33 0 38 0 39 0 36 0 38 0 31 0 35 0 33 0 36 0 5f 0 33 0 39 0 32 0 33 0 31 0 35 0 5f 0 35 0 31 0 39 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 35 0 35 0 35 0 32 0 36 0 38 0 34 0 32 0 33 0 38 0 5f 0 34 0 33 0 36 0 37 0 37 0 39 0 5f 0 38 0 37 0 30 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 31 0 36 0 35 0 35 0 37 0 34 0 5f 0 34 0 37 0 38 0 33 0 31 0 30 0 5f 0 36 0 34 0 35 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 32 0 36 0 39 0 35 0 31 0 36 0 30 0 31 0 33 0 34 0 5f 0 36 0 33 0 35 0 36 0 32 0 34 0 5f 0 34 0 39 0 35 0 35 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 32 0 37 0 38 0 35 0 34 0 34 0 5f 0 39 0 35 0 34 0 38 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 37 0 35 0 36 0 31 0 31 0 37 0 5f 0 32 0 39 0 34 0 30 0 32 0 31 0 5f 0 34 0 39 0 30 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 36 0 36 0 37 0 35 0 35 0 34 0 5f 0 39 0 37 0 35 0 38 0 38 0 33 0 5f 0 34 0 35 0 33 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 39 0 34 0 37 0 39 0 32 0 35 0 5f 0 39 0 35 0 34 0 35 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 35 0 38 0 38 0 38 0 32 0 31 0 5f 0 31 0 37 0 31 0 31 0 31 0 36 0 5f 0 31 0 37 0 38 0 34 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 32 0 31 0 37 0 37 0 37 0 39 0 5f 0 39 0 35 0 34 0 39 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 37 0 33 0 37 0 33 0 38 0 30 0 5f 0 39 0 35 0 35 0 31 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 35 0 36 0 30 0 39 0 30 0 32 0 30 0 36 0 33 0 31 0 5f 0 33 0 33 0 38 0 34 0 32 0 39 0 5f 0 34 0 36 0 30 0 30 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 31 0 34 0 36 0 38 0 30 0 39 0 5f 0 39 0 35 0 34 0 37 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 38 0 33 0 37 0 31 0 32 0 39 0 34 0 5f 0 39 0 37 0 38 0 34 0 37 0 34 0 5f 0 36 0 32 0 35 0 35 0 0 0 0 </value>
+                            <value>0 0 0 14 0 0 0 1 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 36 0 36 0 37 0 35 0 35 0 34 0 5f 0 39 0 37 0 35 0 38 0 38 0 33 0 5f 0 34 0 35 0 33 0 0 0 1 0 0 0 cc 0 0 0 e2 0 0 0 8 0 0 0 10 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 31 0 31 0 33 0 38 0 38 0 36 0 5f 0 39 0 35 0 35 0 32 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 30 0 34 0 32 0 34 0 39 0 31 0 39 0 37 0 38 0 35 0 5f 0 33 0 31 0 36 0 37 0 30 0 38 0 5f 0 34 0 36 0 31 0 33 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 33 0 33 0 38 0 39 0 36 0 38 0 31 0 35 0 33 0 36 0 5f 0 33 0 39 0 32 0 33 0 31 0 35 0 5f 0 35 0 31 0 39 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 35 0 35 0 35 0 32 0 36 0 38 0 34 0 32 0 33 0 38 0 5f 0 34 0 33 0 36 0 37 0 37 0 39 0 5f 0 38 0 37 0 30 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 31 0 36 0 35 0 35 0 37 0 34 0 5f 0 34 0 37 0 38 0 33 0 31 0 30 0 5f 0 36 0 34 0 35 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 32 0 36 0 39 0 35 0 31 0 36 0 30 0 31 0 33 0 34 0 5f 0 36 0 33 0 35 0 36 0 32 0 34 0 5f 0 34 0 39 0 35 0 35 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 32 0 37 0 38 0 35 0 34 0 34 0 5f 0 39 0 35 0 34 0 38 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 37 0 35 0 36 0 31 0 31 0 37 0 5f 0 32 0 39 0 34 0 30 0 32 0 31 0 5f 0 34 0 39 0 30 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 36 0 36 0 37 0 35 0 35 0 34 0 5f 0 39 0 37 0 35 0 38 0 38 0 33 0 5f 0 34 0 35 0 33 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 39 0 34 0 37 0 39 0 32 0 35 0 5f 0 39 0 35 0 34 0 35 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 35 0 38 0 38 0 38 0 32 0 31 0 5f 0 31 0 37 0 31 0 31 0 31 0 36 0 5f 0 31 0 37 0 38 0 34 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 32 0 31 0 37 0 37 0 37 0 39 0 5f 0 39 0 35 0 34 0 39 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 37 0 33 0 37 0 33 0 38 0 30 0 5f 0 39 0 35 0 35 0 31 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 35 0 36 0 30 0 39 0 30 0 32 0 30 0 36 0 33 0 31 0 5f 0 33 0 33 0 38 0 34 0 32 0 39 0 5f 0 34 0 36 0 30 0 30 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 31 0 34 0 36 0 38 0 30 0 39 0 5f 0 39 0 35 0 34 0 37 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 38 0 33 0 37 0 31 0 32 0 39 0 34 0 5f 0 39 0 37 0 38 0 34 0 37 0 34 0 5f 0 36 0 32 0 35 0 35 0 0 0 0 </value>
                         </mdElement>
                         <mdElement elementClass='StringProperty'>
                             <propertyID>MT_LAST_SELECTED_TRANSFORMATION</propertyID>
@@ -22514,7 +21521,7 @@
                         <mdElement elementClass='StringProperty'>
                             <propertyID>INFO_PROPERTY</propertyID>
                             <propertyDescriptionID>INFO_PROPERTY_DESCRIPTION</propertyDescriptionID>
-                            <value>78 1e 5c 75 5f 4a 64 31 5a 42 6a 22 2a 56 34 e2 47 34 a7 18 86 cd 38 50 e3 f5 d5 2c 97 44 28 43 d4 11 2c d1 14 d1 5c 57 64 a7 9f b8 7f 61 c2 f0 a5 22 fd e4 f5 3d 9b 47 17 17 c5 65 3c ad 56 bb 9c d7 46 21 ab 2b d1 2b </value>
+                            <value>78 1e 5c 75 5f 4a 64 31 5a 42 6a 22 2a 56 34 e2 47 34 a7 18 86 cd 38 5b e3 f6 d7 2c 96 41 28 43 d4 11 2c d1 14 d1 5c 57 64 a7 9f b8 7f 61 c2 f0 a5 22 fd e4 f5 3d 9b 47 17 17 c5 65 3c ad 56 bb 9c d7 46 21 ab 2b d1 2b </value>
                         </mdElement>
                         <mdElement elementClass='LIST_PROPERTY'>
                             <propertyID>ADDITIONAL_CONTAINMENT_TREES</propertyID>
@@ -30286,13 +29293,13 @@
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463501_179856_3367' base_Operation='_9_5_1_8b60294_1302789146208_28860_9692' andromda_hibernate_query_useCache='true' andromda_hibernate_query='from TransactionImpl as t&#10;where t.type = &#39;CREDIT&#39;&#10;or t.type = &#39;DEBIT&#39;&#10;or t.type = &#39;INTREST_PAID&#39;&#10;or t.type = &#39;INTREST_RECEIVED&#39;&#10;or t.type = &#39;FEES&#39;&#10;or t.type = &#39;REFUND&#39;&#10;order by t.id'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463612_451302_3521' base_Class='_9_5_1_8b60294_1302789146211_327861_10045'/>
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463612_451302_3521application1' base_Class='_9_5_1_8b60294_1302789146211_327861_10045' algoTrader_value_object_private='true'/>
-    <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463550_49463_3446' base_Operation='_9_5_1_8b60294_1302789146208_118930_9836' andromda_hibernate_query_useCache='true' andromda_hibernate_query='from StockOptionImpl as so &#10;where so.underlying.id = :underlyingId &#10;and so.expiration &gt;= :targetExpirationDate &#10;and so.type = :optionType&#10;order by so.expiration asc, abs(:underlyingSpot - so.strike) asc&#10;'/>
     <andromda_persistence:PersistentAssociationEnd xmi:id='_16_5_4_8b60294_1322591463566_917927_3466' base_Property='_9_5_1_8b60294_1302789146219_545162_11004'>
         <andromda_hibernate_outerjoin>true</andromda_hibernate_outerjoin>
     </andromda_persistence:PersistentAssociationEnd>
     <andromda_persistence:PersistentElement xmi:id='_16_5_4_8b60294_1322591463566_917927_3466application1' base_Property='_9_5_1_8b60294_1302789146219_545162_11004'>
         <andromda_hibernate_lazy>false</andromda_hibernate_lazy>
     </andromda_persistence:PersistentElement>
+    <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463550_49463_3446' base_Operation='_9_5_1_8b60294_1302789146208_118930_9836' andromda_hibernate_query_useCache='true' andromda_hibernate_query='from StockOptionImpl as so &#10;where so.underlying.id = :underlyingId &#10;and so.expiration &gt;= :targetExpirationDate &#10;and so.type = :optionType&#10;order by so.expiration asc, abs(:underlyingSpot - so.strike) asc&#10;'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463528_542899_3414' base_Class='_9_5_1_8b60294_1314818371296_251069_6373'/>
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463528_542899_3414application1' base_Class='_9_5_1_8b60294_1314818371296_251069_6373' algoTrader_value_object_private='true'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463529_345749_3415' base_Class='_9_5_1_8b60294_1314818371295_651065_6302'/>
@@ -30318,10 +29325,10 @@
     <andromda_service:Service xmi:id='_16_5_4_8b60294_1322591463526_898856_3410' base_Class='_9_5_1_8b60294_1302977672258_899964_2196' andromda_service_private='true'/>
     <algoTrader_profile:AlgoTraderServiceMethod xmi:id='_16_5_4_8b60294_1327770478728_422255_4458' base_Operation='_9_5_1_8b60294_1302789146213_85326_10269' algoTrader_service_method_manageable_attribute='true'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463480_288030_3329' base_Operation='_9_5_1_8b60294_1302789146209_882756_9879' andromda_hibernate_query_useCache='true' andromda_hibernate_query='from TickImpl as s&#10;where s.security.id = :securityId&#10;order by s.dateTime'/>
-    <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1332769691621_841408_5460' base_Operation='_16_5_4_8b60294_1332769691619_279695_5459' andromda_hibernate_query_useCache='true' andromda_hibernate_query='from StockOptionImpl as so&#10;where so.underlying.id = :underlyingId &#10;and so.expiration &gt;= :targetExpirationDate &#10;and so.type = :optionType&#10;and (case so.type when &#39;PUT&#39; then so.strike else -so.strike end)  &lt;= (case so.type when &#39;PUT&#39; then 1 else -1 end) * :underlyingSpot&#10;order by so.expiration asc, (case so.type when &#39;PUT&#39; then -so.strike else so.strike end) asc'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1333530960895_600889_4606' base_Operation='_16_5_4_8b60294_1333530960890_834166_4605' andromda_hibernate_query_useCache='true' andromda_hibernate_query='select p&#10;from PositionImpl as p &#10;join p.security.securityFamily as f&#10;where p.quantity != 0&#10;and f.tradeable = true&#10;order by p.id'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1323429569629_925033_3964' base_Operation='_16_5_4_8b60294_1323429569624_570475_3963' andromda_hibernate_query='select t1.id &#10;from tick as t1 &#10;join (select min(id) as id &#10;&#9;from tick &#10;&#9;where date_time &lt; :maxDate &#10;&#9;and security_fk = :securityId &#10;&#9;and time(date_time) &gt; time(:time)&#10;&#9;group by date(date_time)&#10;) as t2 &#10;on t1.id = t2.id &#10;order by t1.date_time asc'/>
     <algoTrader_profile:AlgoTraderFinderMethod xmi:id='_16_5_4_8b60294_1323429569629_925033_3964application1' base_Operation='_16_5_4_8b60294_1323429569624_570475_3963' algoTrader_entity_query_native='true'/>
+    <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1332769691621_841408_5460' base_Operation='_16_5_4_8b60294_1332769691619_279695_5459' andromda_hibernate_query_useCache='true' andromda_hibernate_query='from StockOptionImpl as so&#10;where so.underlying.id = :underlyingId &#10;and so.expiration &gt;= :targetExpirationDate &#10;and so.type = :optionType&#10;and (case so.type when &#39;PUT&#39; then so.strike else -so.strike end)  &lt;= (case so.type when &#39;PUT&#39; then 1 else -1 end) * :underlyingSpot&#10;order by so.expiration asc, (case so.type when &#39;PUT&#39; then -so.strike else so.strike end) asc'/>
     <andromda_persistence:Entity xmi:id='_16_5_4_8b60294_1330423096233_272426_4597' base_Class='_16_5_4_8b60294_1330423071461_75258_4566' andromda_hibernate_ehcache_maxElementsInMemory='1'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463679_667622_3578' base_Class='_9_5_1_8b60294_1314818371296_432904_6384'/>
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463679_667622_3578application1' base_Class='_9_5_1_8b60294_1314818371296_432904_6384' algoTrader_value_object_private='true'/>
@@ -30350,7 +29357,6 @@
     <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1333370567129_304497_5043' base_Operation='_9_5_1_8b60294_1302789146214_106747_10356' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463577_772143_3484' base_Class='_9_5_1_8b60294_1314818371295_904603_6348'/>
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463577_772143_3484application1' base_Class='_9_5_1_8b60294_1314818371295_904603_6348' algoTrader_value_object_private='true'/>
-    <andromda_common:Nullable xmi:id='_16_5_4_8b60294_1322591463439_766188_3257' base_Parameter='_9_5_1_8b60294_1311341834836_548071_695'/>
     <andromda_persistence:Entity xmi:id='_16_5_4_8b60294_1322591463473_388083_3313' base_Class='_9_5_1_8b60294_1305552684241_117569_886'/>
     <algoTrader_profile:AlgoTraderEntity xmi:id='_16_5_4_8b60294_1322591463473_388083_3313application1' base_Class='_9_5_1_8b60294_1305552684241_117569_886' algoTrader_entity_nonPersistent='true'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463698_273117_3596' base_Class='_9_5_1_8b60294_1314818371295_388235_6340'/>
@@ -30494,8 +29500,6 @@
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463666_500975_3562' base_Class='_9_5_1_8b60294_1313146372058_927538_0'/>
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463666_500975_3562application1' base_Class='_9_5_1_8b60294_1313146372058_927538_0' algoTrader_value_object_private='true'/>
     <andromda_persistence:Entity xmi:id='_16_5_4_8b60294_1331654088577_638256_4327' base_Class='_16_5_4_8b60294_1331654064773_334276_4309'/>
-    <andromda_service:Service xmi:id='_16_5_4_8b60294_1322591463497_660926_3360' base_Class='_9_5_1_8b60294_1302789146218_252254_10841' andromda_spring_service_remoting_type='none'/>
-    <algoTrader_profile:AlgoTraderService xmi:id='_16_5_4_8b60294_1322591463497_660926_3360application1' base_Class='_9_5_1_8b60294_1302789146218_252254_10841' algoTrader_service_no_hibernate_interceptor='true' algoTrader_service_no_transaction_interceptor='true' algoTrader_service_client='true'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463515_911084_3389' base_Operation='_9_5_1_8b60294_1320943467647_706161_573' andromda_hibernate_query_useCache='true' andromda_hibernate_query='select distinct c&#10;from ComponentImpl as c&#10;join fetch c.security as s&#10;join fetch c.parentSecurity as p&#10;join p.subscriptions as su&#10;where su.strategy.name = :strategyName'/>
     <andromda_persistence:Entity xmi:id='_16_5_4_8b60294_1322591463676_16772_3574' base_Class='_9_5_1_8b60294_1302789146219_320106_10976'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1333660209480_52362_4378' base_Operation='_16_5_4_8b60294_1333567085269_176528_4372' andromda_hibernate_query_useCache='true' andromda_hibernate_query='select count(c.id)&#10;from SecurityImpl as s&#10;join s.components as c&#10;where s.id = :securityId'/>
@@ -30513,8 +29517,8 @@
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463683_458063_3584' base_Class='_9_5_1_8b60294_1302789146211_250580_10053'/>
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463683_458063_3584application1' base_Class='_9_5_1_8b60294_1302789146211_250580_10053' algoTrader_value_object_private='true'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463599_500962_3509' base_Class='_9_5_1_8b60294_1305554346238_666565_4015'/>
-    <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1326190826054_933505_4653' base_Operation='_16_5_4_8b60294_1326190800950_314827_4645' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1333115478164_731226_4962' base_Operation='_9_5_1_8b60294_1320095677911_489886_1853' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
+    <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1326190826054_933505_4653' base_Operation='_16_5_4_8b60294_1326190800950_314827_4645' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <MagicDraw_Profile:DiagramInfo xmi:id='_16_5_4_8b60294_1322591463568_904632_3471' base_Diagram='_9_5_1_8b60294_1302789146192_113886_9552' Modification_date='4/14/11 4:53 PM' Author='aflury' Creation_date='4/14/11 4:53 PM'/>
     <algoTrader_profile:AlgoTraderServiceMethod xmi:id='_16_5_4_8b60294_1327770539039_706395_4486' base_Operation='_9_5_1_8b60294_1302789146213_906139_10261' algoTrader_service_method_manageable_attribute='true'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463583_312200_3496' base_Class='_9_5_1_8b60294_1314818371296_330710_6399'/>
@@ -30642,7 +29646,6 @@
     <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1326805852067_800128_4540' base_Operation='_16_5_4_8b60294_1326805852066_642634_4539' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463668_508435_3565' base_Class='_9_5_1_8b60294_1314818371295_206664_6330'/>
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463668_508435_3565application1' base_Class='_9_5_1_8b60294_1314818371295_206664_6330' algoTrader_value_object_private='true'/>
-    <andromda_common:Nullable xmi:id='_16_5_4_8b60294_1322591463437_799221_3256' base_Parameter='_9_5_1_8b60294_1318582278092_289450_1201'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463538_98754_3429' base_Operation='_9_5_1_8b60294_1302789146209_820607_9907' andromda_hibernate_query='select t.id from (&#10;&#9;select *&#10;&#9;from tick&#10;&#9;where security_fk = :securityId&#10;&#9;order by date_time desc&#10;&#9;limit :n&#10;) as t&#10;order by t.date_time asc'/>
     <algoTrader_profile:AlgoTraderFinderMethod xmi:id='_16_5_4_8b60294_1322591463538_98754_3429application1' base_Operation='_9_5_1_8b60294_1302789146209_820607_9907' algoTrader_entity_query_native='true'/>
     <andromda_service:Service xmi:id='_16_5_4_8b60294_1332841879971_676708_5700' base_Class='_16_5_4_8b60294_1332841860221_300796_5681'/>

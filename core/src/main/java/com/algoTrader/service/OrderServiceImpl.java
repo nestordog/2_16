@@ -15,6 +15,7 @@ import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.entity.trade.OrderValidationException;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
@@ -135,7 +136,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     @Override
     protected void handleCancelAllOrders() throws Exception {
 
-        List<Order> orders = getEventService().getAllEvents(StrategyImpl.BASE, "CREATE_WINDOW_OPEN_ORDER");
+        List<Order> orders = EsperManager.getAllEvents(StrategyImpl.BASE, "CREATE_WINDOW_OPEN_ORDER");
         for (Order order : orders) {
             cancelExternalOrder(order);
         }
@@ -151,11 +152,11 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     protected void handlePropagateOrder(Order order) throws Exception {
 
         // send the order into the base engine to be correlated with fills
-        getEventService().sendEvent(StrategyImpl.BASE, order);
+        EsperManager.sendEvent(StrategyImpl.BASE, order);
 
         // also send the order to the strategy that placed the order
         if (!StrategyImpl.BASE.equals(order.getStrategy().getName())) {
-            getEventService().routeEvent(order.getStrategy().getName(), order);
+            EsperManager.routeEvent(order.getStrategy().getName(), order);
         }
     }
 
@@ -164,7 +165,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
         // send the fill to the strategy that placed the corresponding order
         if (!StrategyImpl.BASE.equals(orderStatus.getParentOrder().getStrategy().getName())) {
-            getEventService().routeEvent(orderStatus.getParentOrder().getStrategy().getName(), orderStatus);
+            EsperManager.routeEvent(orderStatus.getParentOrder().getStrategy().getName(), orderStatus);
         }
 
         if (!this.simulation) {

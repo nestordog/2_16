@@ -1,4 +1,4 @@
-package com.algoTrader.service;
+package com.algoTrader.esper;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -20,13 +20,10 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Subscription;
@@ -81,23 +78,22 @@ import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.csv.CSVInputAdapter;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
-public class EventServiceImpl extends EventServiceBase implements ApplicationContextAware {
+public class EsperManager {
 
-    private static Logger logger = MyLogger.getLogger(EventServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(EsperManager.class.getName());
     private static Logger metricsLogger = MyLogger.getLogger("com.algoTrader.metrics.MetricsLogger");
 
-    private @Value("${simulation}") boolean simulation;
-    private @Value("#{T(java.util.Arrays).asList(('${misc.moduleDeployExcludeStatements}').split(','))}") List<String> moduleDeployExcludeStatements;
+    private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
+    private static List<String> moduleDeployExcludeStatements = Arrays.asList((ServiceLocator.instance().getConfiguration().getString("misc.moduleDeployExcludeStatements")).split(","));
 
-    private Map<String, AdapterCoordinator> coordinators = new HashMap<String, AdapterCoordinator>();
-    private Map<String, Boolean> internalClock = new HashMap<String, Boolean>();
-    private Map<String, EPServiceProvider> serviceProviders = new HashMap<String, EPServiceProvider>();
+    private static Map<String, AdapterCoordinator> coordinators = new HashMap<String, AdapterCoordinator>();
+    private static Map<String, Boolean> internalClock = new HashMap<String, Boolean>();
+    private static Map<String, EPServiceProvider> serviceProviders = new HashMap<String, EPServiceProvider>();
 
-    private JmsTemplate marketDataTemplate;
-    private JmsTemplate strategyTemplate;
+    private static JmsTemplate marketDataTemplate;
+    private static JmsTemplate strategyTemplate;
 
-    @Override
-    protected void handleInitServiceProvider(String strategyName) {
+    public static void initServiceProvider(String strategyName) {
 
         String providerURI = getProviderURI(strategyName);
 
@@ -106,54 +102,49 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
 
         initVariables(strategyName, configuration);
 
-        Strategy strategy = getLookupService().getStrategyByNameFetched(strategyName);
+        Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByNameFetched(strategyName);
         configuration.getVariables().get("engineStrategy").setInitializationValue(strategy);
 
         EPServiceProvider serviceProvider = EPServiceProviderManager.getProvider(providerURI, configuration);
 
         // must send time event before first schedule pattern
         serviceProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
-        this.internalClock.put(strategyName, false);
+        internalClock.put(strategyName, false);
 
         logger.debug("initialized service provider: " + strategyName);
 
-        this.serviceProviders.put(providerURI, serviceProvider);
+        serviceProviders.put(providerURI, serviceProvider);
     }
 
-    @Override
-    protected boolean handleIsInitialized(String strategyName) {
+    public static boolean isInitialized(String strategyName) {
 
-        return this.serviceProviders.containsKey(getProviderURI(strategyName));
+        return serviceProviders.containsKey(getProviderURI(strategyName));
     }
 
-    @Override
-    protected void handleDestroyServiceProvider(String strategyName) {
+    public static void destroyServiceProvider(String strategyName) {
 
         getServiceProvider(strategyName).destroy();
-        this.serviceProviders.remove(getProviderURI(strategyName));
+        serviceProviders.remove(getProviderURI(strategyName));
 
         logger.debug("destroyed service provider: " + strategyName);
     }
 
-    @Override
-    protected void handleDeployStatement(String strategyName, String moduleName, String statementName) {
+    public static void deployStatement(String strategyName, String moduleName, String statementName) {
 
         internalDeployStatement(strategyName, moduleName, statementName, null, new Object[] {}, null);
     }
 
-    @Override
-    protected void handleDeployStatement(String strategyName, String moduleName, String statementName, String alias, Object[] params) {
+    public static void deployStatement(String strategyName, String moduleName, String statementName, String alias, Object[] params) {
 
         internalDeployStatement(strategyName, moduleName, statementName, alias, params, null);
     }
 
-    @Override
-    protected void handleDeployStatement(String strategyName, String moduleName, String statementName, String alias, Object[] params, Object callback) {
+    public static void deployStatement(String strategyName, String moduleName, String statementName, String alias, Object[] params, Object callback) {
 
         internalDeployStatement(strategyName, moduleName, statementName, alias, params, callback);
     }
 
-    private void internalDeployStatement(String strategyName, String moduleName, String statementName, String alias, Object[] params, Object callback) {
+    private static void internalDeployStatement(String strategyName, String moduleName, String statementName, String alias, Object[] params, Object callback) {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
 
@@ -171,7 +162,7 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         try {
             module = deployAdmin.read("module-" + moduleName + ".epl");
         } catch (Exception e) {
-            throw new EventServiceException("module" + moduleName + " could not be read", e);
+            throw new RuntimeException("module" + moduleName + " could not be read", e);
         }
 
         // go through all statements in the module
@@ -237,8 +228,7 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         }
     }
 
-    @Override
-    protected void handleDeployModule(String strategyName, String moduleName) {
+    public static void deployModule(String strategyName, String moduleName) {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
         EPDeploymentAdmin deployAdmin = administrator.getDeploymentAdmin();
@@ -248,13 +238,13 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
             Module module = deployAdmin.read("module-" + moduleName + ".epl");
             deployResult = deployAdmin.deploy(module, new DeploymentOptions());
         } catch (Exception e) {
-            throw new EventServiceException("module " + moduleName + " could not be deployed", e);
+            throw new RuntimeException("module " + moduleName + " could not be deployed", e);
         }
 
         for (EPStatement statement : deployResult.getStatements()) {
 
             // check if the statement should be excluded
-            if (this.moduleDeployExcludeStatements.contains(statement.getName())) {
+            if (moduleDeployExcludeStatements.contains(statement.getName())) {
                 statement.destroy();
                 continue;
             }
@@ -266,10 +256,9 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         logger.debug("deployed module " + moduleName + " on service provider: " + strategyName);
     }
 
-    @Override
-    protected void handleDeployAllModules(String strategyName) {
+    public static void deployAllModules(String strategyName) {
 
-        Strategy strategy = getLookupService().getStrategyByName(strategyName);
+        Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(strategyName);
         String[] modules = strategy.getModules().split(",");
         for (String module : modules) {
             if (module != null && !module.equals("")) {
@@ -278,16 +267,17 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         }
     }
 
-    @Override
+
     /**
      * @param statementNameRegex statement name regular expression
      */
-    protected String[] handleFindStatementNames(String strategyName, final String statementNameRegex) {
+    public static String[] findStatementNames(String strategyName, final String statementNameRegex) {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
 
         // find the first statement that matches the given statementName regex
         return CollectionUtils.select(Arrays.asList(administrator.getStatementNames()), new Predicate<String>() {
+
             @Override
             public boolean evaluate(String statement) {
                 return statement.matches(statementNameRegex);
@@ -295,11 +285,11 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         }).toArray(new String[] {});
     }
 
-    @Override
+
     /**
      * @param statementNameRegex statement name regular expression
      */
-    protected boolean handleIsDeployed(String strategyName, final String statementNameRegex) {
+    public static boolean isDeployed(String strategyName, final String statementNameRegex) {
 
         // find the first statement that matches the given statementName regex
         String[] statementNames = findStatementNames(strategyName, statementNameRegex);
@@ -321,8 +311,7 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         }
     }
 
-    @Override
-    protected void handleUndeployStatement(String strategyName, String statementName) {
+    public static void undeployStatement(String strategyName, String statementName) {
 
         // destroy the statement
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
@@ -333,8 +322,7 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         }
     }
 
-    @Override
-    protected void handleUndeployModule(String strategyName, String moduleName) {
+    public static void undeployModule(String strategyName, String moduleName) {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
         EPDeploymentAdmin deployAdmin = administrator.getDeploymentAdmin();
@@ -343,7 +331,7 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
                 try {
                     deployAdmin.undeploy(deploymentInformation.getDeploymentId());
                 } catch (Exception e) {
-                    throw new EventServiceException("module " + moduleName + " could no be undeployed", e);
+                    throw new RuntimeException("module " + moduleName + " could no be undeployed", e);
                 }
             }
         }
@@ -351,12 +339,10 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         logger.debug("undeployed module " + moduleName);
     }
 
-    @Override
-    protected void handleSendEvent(String strategyName, Object obj) {
+    public static void sendEvent(String strategyName, Object obj) {
 
-        if (this.simulation) {
-            Strategy strategy = getLookupService().getStrategyByName(strategyName);
-            if (strategy.isAutoActivate()) {
+        if (simulation) {
+            if (isInitialized(strategyName)) {
 
                 long start = System.nanoTime();
 
@@ -375,12 +361,10 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         }
     }
 
-    @Override
-    protected void handleRouteEvent(String strategyName, Object obj) {
+    public static void routeEvent(String strategyName, Object obj) {
 
-        if (this.simulation) {
-            Strategy strategy = getLookupService().getStrategyByName(strategyName);
-            if (strategy.isAutoActivate()) {
+        if (simulation) {
+            if (isInitialized(strategyName)) {
                 getServiceProvider(strategyName).getEPRuntime().route(obj);
             }
         } else {
@@ -394,18 +378,18 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         }
     }
 
-    private void sendExternalEvent(String strategyName, Object obj) {
+    private static void sendExternalEvent(String strategyName, Object obj) {
 
         // sent to the strateyg queue
-        this.strategyTemplate.convertAndSend(strategyName + ".QUEUE", obj);
+        getStrategyTemplate().convertAndSend(strategyName + ".QUEUE", obj);
 
         logger.trace("propagated event to " + strategyName + " " + obj);
     }
 
-    @Override
-    protected void handleSendMarketDataEvent(final MarketDataEvent marketDataEvent) {
 
-        if (this.simulation) {
+    public static void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
+
+        if (simulation) {
             for (Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
                 if (!subscription.getStrategy().getName().equals(StrategyImpl.BASE)) {
                     sendEvent(subscription.getStrategy().getName(), marketDataEvent);
@@ -415,7 +399,8 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         } else {
 
             // send using the jms template
-            this.marketDataTemplate.convertAndSend(marketDataEvent, new MessagePostProcessor() {
+            getMarketDataTemplate().convertAndSend(marketDataEvent, new MessagePostProcessor() {
+
                 @Override
                 public Message postProcessMessage(Message message) throws JMSException {
 
@@ -427,8 +412,8 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         }
     }
 
-    @Override
-    protected List<Object> handleExecuteQuery(String strategyName, String query) {
+    @SuppressWarnings("rawtypes")
+    public static List executeQuery(String strategyName, String query) {
 
         List<Object> objects = new ArrayList<Object>();
         EPOnDemandQueryResult result = getServiceProvider(strategyName).getEPRuntime().executeQuery(query);
@@ -439,8 +424,7 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         return objects;
     }
 
-    @Override
-    protected Object handleGetLastEvent(String strategyName, String statementName) {
+    public static Object getLastEvent(String strategyName, String statementName) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
         if (statement != null && statement.isStarted()) {
@@ -456,8 +440,7 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         return null;
     }
 
-    @Override
-    protected Object handleGetLastEventProperty(String strategyName, String statementName, String property) {
+    public static Object getLastEventProperty(String strategyName, String statementName, String property) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
         if (statement != null && statement.isStarted()) {
@@ -471,8 +454,8 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         return null;
     }
 
-    @Override
-    protected List<Object> handleGetAllEvents(String strategyName, String statementName) {
+    @SuppressWarnings("rawtypes")
+    public static List getAllEvents(String strategyName, String statementName) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
         List<Object> list = new ArrayList<Object>();
@@ -491,8 +474,8 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         return list;
     }
 
-    @Override
-    protected List<Object> handleGetAllEventsProperty(String strategyName, String statementName, String property) {
+    @SuppressWarnings("rawtypes")
+    public static List getAllEventsProperty(String strategyName, String statementName, String property) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
         List<Object> list = new ArrayList<Object>();
@@ -511,10 +494,9 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         return list;
     }
 
-    @Override
-    protected void handleSetInternalClock(String strategyName, boolean internal) {
+    public static void setInternalClock(String strategyName, boolean internal) {
 
-        this.internalClock.put(strategyName, internal);
+        internalClock.put(strategyName, internal);
 
         if (internal) {
             sendEvent(strategyName, new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_INTERNAL));
@@ -531,14 +513,12 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         logger.debug("set internal clock to: " + internal + " for strategy: " + strategyName);
     }
 
-    @Override
-    protected boolean handleIsInternalClock(String strategyName) {
+    public static boolean isInternalClock(String strategyName) {
 
-        return this.internalClock.get(strategyName);
+        return internalClock.get(strategyName);
     }
 
-    @Override
-    protected void handleSetCurrentTime(CurrentTimeEvent currentTimeEvent) {
+    public static void setCurrentTime(CurrentTimeEvent currentTimeEvent) {
 
         // sent currentTime to all local engines
         for (String providerURI : EPServiceProviderManager.getProviderURIs()) {
@@ -546,20 +526,17 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         }
     }
 
-    @Override
-    protected long handleGetCurrentTime(String strategyName) {
+    public static long getCurrentTime(String strategyName) {
 
         return getServiceProvider(strategyName).getEPRuntime().getCurrentTime();
     }
 
-    @Override
-    protected void handleInitCoordination(String strategyName) {
+    public static void initCoordination(String strategyName) {
 
-        this.coordinators.put(strategyName, new AdapterCoordinatorImpl(getServiceProvider(strategyName), true, true));
+        coordinators.put(strategyName, new AdapterCoordinatorImpl(getServiceProvider(strategyName), true, true));
     }
 
-    @Override
-    protected void handleCoordinate(String strategyName, CSVInputAdapterSpec csvInputAdapterSpec) {
+    public static void coordinate(String strategyName, CSVInputAdapterSpec csvInputAdapterSpec) {
 
         InputAdapter inputAdapter;
         if (csvInputAdapterSpec instanceof CsvTickInputAdapterSpec) {
@@ -569,33 +546,30 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         } else {
             inputAdapter = new CSVInputAdapter(getServiceProvider(strategyName), csvInputAdapterSpec);
         }
-        this.coordinators.get(strategyName).coordinate(inputAdapter);
+        coordinators.get(strategyName).coordinate(inputAdapter);
     }
 
-    @Override
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected void handleCoordinate(String strategyName, Collection baseObjects, String timeStampColumn) {
+    public static void coordinate(String strategyName, Collection baseObjects, String timeStampColumn) {
 
         InputAdapter inputAdapter = new DBInputAdapter(getServiceProvider(strategyName), baseObjects, timeStampColumn);
-        this.coordinators.get(strategyName).coordinate(inputAdapter);
+        coordinators.get(strategyName).coordinate(inputAdapter);
     }
 
-    @Override
-    protected void handleCoordinateTicks(String strategyName, Date startDate) {
+    public static void coordinateTicks(String strategyName, Date startDate) {
 
         InputAdapter inputAdapter = new BatchDBTickInputAdapter(getServiceProvider(strategyName), startDate);
-        this.coordinators.get(strategyName).coordinate(inputAdapter);
+        coordinators.get(strategyName).coordinate(inputAdapter);
     }
 
-    @Override
-    protected void handleStartCoordination(String strategyName) {
+    public static void startCoordination(String strategyName) {
 
-        this.coordinators.get(strategyName).start();
+        coordinators.get(strategyName).start();
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Override
-    protected void handleSetVariableValue(String strategyName, String variableName, String value) {
+    public static void setVariableValue(String strategyName, String variableName, String value) {
 
         variableName = variableName.replace(".", "_");
         EPRuntime runtime = getServiceProvider(strategyName).getEPRuntime();
@@ -612,8 +586,7 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         }
     }
 
-    @Override
-    protected void handleSetVariableValue(String strategyName, String variableName, Object value) {
+    public static void setVariableValue(String strategyName, String variableName, Object value) {
 
         variableName = variableName.replace(".", "_");
         EPRuntime runtime = getServiceProvider(strategyName).getEPRuntime();
@@ -622,16 +595,14 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         }
     }
 
-    @Override
-    protected Object handleGetVariableValue(String strategyName, String key) {
+    public static Object getVariableValue(String strategyName, String key) {
 
         key = key.replace(".", "_");
         EPRuntime runtime = getServiceProvider(strategyName).getEPRuntime();
         return runtime.getVariableValue(key);
     }
 
-    @Override
-    protected void handleAddTradeCallback(String strategyName, Collection<Order> orders, TradeCallback callback) {
+    public static void addTradeCallback(String strategyName, Collection<Order> orders, TradeCallback callback) {
 
         if (orders.size() == 0) {
             throw new IllegalArgumentException("at least 1 order has to be specified");
@@ -639,6 +610,7 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
 
         // get the securityIds sorted asscending
         Set<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(orders, new Transformer<Order, Integer>() {
+
             @Override
             public Integer transform(Order order) {
                 return order.getSecurity().getId();
@@ -661,8 +633,7 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         }
     }
 
-    @Override
-    protected void handleAddFirstTickCallback(String strategyName, int[] securityIds, TickCallback callback) {
+    public static void addFirstTickCallback(String strategyName, int[] securityIds, TickCallback callback) {
 
         // sort the securityIds
         Arrays.sort(securityIds);
@@ -685,18 +656,18 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         }
     }
 
-    private String getProviderURI(String strategyName) {
+    private static String getProviderURI(String strategyName) {
 
         return (strategyName == null || "".equals(strategyName)) ? StrategyImpl.BASE : strategyName.toUpperCase();
     }
 
-    private EPServiceProvider getServiceProvider(String strategyName) {
+    private static EPServiceProvider getServiceProvider(String strategyName) {
 
         String providerURI = getProviderURI(strategyName);
 
-        EPServiceProvider serviceProvider = this.serviceProviders.get(providerURI);
+        EPServiceProvider serviceProvider = serviceProviders.get(providerURI);
         if (serviceProvider == null) {
-            throw new EventServiceException("strategy " + providerURI + " is not initialized yet!");
+            throw new RuntimeException("strategy " + providerURI + " is not initialized yet!");
         }
 
         return serviceProvider;
@@ -705,13 +676,13 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
     /**
      * initialize all the variables from the Configuration
      */
-    private void initVariables(String strategyName, Configuration configuration) {
+    private static void initVariables(String strategyName, Configuration configuration) {
 
         try {
             Map<String, ConfigurationVariable> variables = configuration.getVariables();
             for (Map.Entry<String, ConfigurationVariable> entry : variables.entrySet()) {
                 String variableName = entry.getKey().replace("_", ".");
-                String value = getConfiguration().getString(strategyName, variableName);
+                String value = ServiceLocator.instance().getConfiguration().getString(strategyName, variableName);
                 if (value != null) {
                     Class<?> clazz = Class.forName(entry.getValue().getType());
                     Object castedObj = JavaClassHelper.parse(clazz, value);
@@ -719,11 +690,11 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
                 }
             }
         } catch (ClassNotFoundException e) {
-            throw new EventServiceException(e);
+            throw new RuntimeException(e);
         }
     }
 
-    private void processAnnotations(String strategyName, EPStatement statement) {
+    private static void processAnnotations(String strategyName, EPStatement statement) {
 
         Annotation[] annotations = statement.getAnnotations();
         for (Annotation annotation : annotations) {
@@ -734,7 +705,7 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
                     Object obj = getSubscriber(subscriber.className());
                     statement.setSubscriber(obj);
                 } catch (Exception e) {
-                    throw new EventServiceException("subscriber " + subscriber.className() + " could not be created for statement " + statement.getName(), e);
+                    throw new RuntimeException("subscriber " + subscriber.className() + " could not be created for statement " + statement.getName(), e);
                 }
 
             } else if (annotation instanceof Listeners) {
@@ -750,15 +721,15 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
                             statement.addListener((UpdateListener) obj);
                         }
                     } catch (Exception e) {
-                        throw new EventServiceException("listener " + className + " could not be created for statement " + statement.getName(), e);
+                        throw new RuntimeException("listener " + className + " could not be created for statement " + statement.getName(), e);
                     }
                 }
-            } else if (annotation instanceof RunTimeOnly && this.simulation) {
+            } else if (annotation instanceof RunTimeOnly && simulation) {
 
                 statement.destroy();
                 return;
 
-            } else if (annotation instanceof SimulationOnly && !this.simulation) {
+            } else if (annotation instanceof SimulationOnly && !simulation) {
 
                 statement.destroy();
                 return;
@@ -767,7 +738,7 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
 
                 Condition condition = (Condition) annotation;
                 String key = condition.key();
-                if (!getConfiguration().getBoolean(strategyName, key)) {
+                if (!ServiceLocator.instance().getConfiguration().getBoolean(strategyName, key)) {
                     statement.destroy();
                     return;
                 }
@@ -775,7 +746,7 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         }
     }
 
-    private Object getSubscriber(String fqdn) throws ClassNotFoundException {
+    private static Object getSubscriber(String fqdn) throws ClassNotFoundException {
 
         // try to see if the fqdn represents a class
         try {
@@ -789,18 +760,20 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         return SubscriberCreator.createSubscriber(fqdn);
     }
 
-    /**
-     * manual lookup of templates since they are only available if applicationContext-jms.xml is active
-     */
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    // manual lookup of templates since they are only available if applicationContext-jms.xml is active
+    private static JmsTemplate getStrategyTemplate() {
 
-        if (applicationContext.containsBean("marketDataTemplate")) {
-            this.marketDataTemplate = applicationContext.getBean("marketDataTemplate", JmsTemplate.class);
+        if (strategyTemplate == null) {
+            strategyTemplate = ServiceLocator.instance().getService("strategyTemplate", JmsTemplate.class);
         }
+        return strategyTemplate;
+    }
 
-        if (applicationContext.containsBean("strategyTemplate")) {
-            this.strategyTemplate = applicationContext.getBean("strategyTemplate", JmsTemplate.class);
+    private static JmsTemplate getMarketDataTemplate() {
+
+        if (marketDataTemplate == null) {
+            marketDataTemplate = ServiceLocator.instance().getService("marketDataTemplate", JmsTemplate.class);
         }
+        return marketDataTemplate;
     }
 }

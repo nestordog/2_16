@@ -2,7 +2,7 @@ package com.algoTrader.starter;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
-import com.algoTrader.service.EventService;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.service.MarketDataService;
 import com.algoTrader.service.OrderService;
 import com.algoTrader.service.ib.IBService;
@@ -18,10 +18,10 @@ public class MarketDataStarter {
 
         // start all BASE rules
         ServiceLocator.instance().init(ServiceLocator.SERVER_BEAN_REFERENCE_LOCATION);
-        EventService ruleService = ServiceLocator.instance().getEventService();
-        ruleService.initServiceProvider(StrategyImpl.BASE);
-        ruleService.setInternalClock(StrategyImpl.BASE, true);
-        ruleService.deployAllModules(StrategyImpl.BASE);
+
+        EsperManager.initServiceProvider(StrategyImpl.BASE);
+        EsperManager.setInternalClock(StrategyImpl.BASE, true);
+        EsperManager.deployAllModules(StrategyImpl.BASE);
 
         // initialize the IB services
         MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();

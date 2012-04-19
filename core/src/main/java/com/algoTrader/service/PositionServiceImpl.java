@@ -28,6 +28,7 @@ import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
@@ -84,7 +85,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             // create an OrderCallback if unsubscribe is requested
             if (unsubscribe) {
 
-                getEventService().addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback() {
+                EsperManager.addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback() {
                     @Override
                     public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
                         MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
@@ -168,7 +169,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
 
         // propagate the ClosePosition event
-        getEventService().routeEvent(position.getStrategy().getName(), closePositionVO);
+        EsperManager.routeEvent(position.getStrategy().getName(), closePositionVO);
 
         getPositionDao().remove(position);
 
@@ -356,6 +357,6 @@ public class PositionServiceImpl extends PositionServiceBase {
         getMarketDataService().unsubscribe(position.getStrategy().getName(), security.getId());
 
         // propagate the ExpirePosition event
-        getEventService().sendEvent(position.getStrategy().getName(), expirePositionEvent);
+        EsperManager.sendEvent(position.getStrategy().getName(), expirePositionEvent);
     }
 }

@@ -45,6 +45,7 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.HttpClientUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -513,8 +514,8 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
                     " description: " + transaction.getDescription());
             // @formatter:on
 
-            if (getEventService().isInitialized(StrategyImpl.BASE)) {
-                getEventService().sendEvent(StrategyImpl.BASE, transaction);
+            if (EsperManager.isInitialized(StrategyImpl.BASE)) {
+                EsperManager.sendEvent(StrategyImpl.BASE, transaction);
             }
         }
 

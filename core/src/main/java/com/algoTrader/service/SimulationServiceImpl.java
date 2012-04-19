@@ -34,6 +34,7 @@ import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.MarketDataType;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
 import com.algoTrader.esper.io.CsvTickInputAdapterSpec;
 import com.algoTrader.util.MyLogger;
@@ -66,7 +67,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @Override
     protected void handleInputCSV() {
 
-        getEventService().initCoordination(StrategyImpl.BASE);
+        EsperManager.initCoordination(StrategyImpl.BASE);
 
         List<Security> securities = getSecurityDao().findSubscribedForAutoActivateStrategiesInclFamily();
         for (Security security : securities) {
@@ -96,12 +97,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
             }
 
-            getEventService().coordinate(StrategyImpl.BASE, spec);
+            EsperManager.coordinate(StrategyImpl.BASE, spec);
 
             logger.debug("started simulation for security " + security.getSymbol());
         }
 
-        getEventService().startCoordination(StrategyImpl.BASE);
+        EsperManager.startCoordination(StrategyImpl.BASE);
     }
 
     @Override
@@ -115,8 +116,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         // init all activatable strategies
         List<Strategy> strategies = getStrategyDao().findAutoActivateStrategies();
         for (Strategy strategy : strategies) {
-            getEventService().initServiceProvider(strategy.getName());
-            getEventService().deployAllModules(strategy.getName());
+            EsperManager.initServiceProvider(strategy.getName());
+            EsperManager.deployAllModules(strategy.getName());
         }
 
         // rebalance portfolio (to distribute initial CREDIT to strategies)
@@ -131,14 +132,14 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         }
 
         // send the EndOfSimulation event
-        getEventService().sendEvent(StrategyImpl.BASE, new EndOfSimulationVO());
+        EsperManager.sendEvent(StrategyImpl.BASE, new EndOfSimulationVO());
 
         // get the results
         SimulationResultVO resultVO = getSimulationResultVO(startTime);
 
         // destroy all service providers
         for (Strategy strategy : strategies) {
-            getEventService().destroyServiceProvider(strategy.getName());
+            EsperManager.destroyServiceProvider(strategy.getName());
         }
 
         // run a garbage collection
@@ -173,31 +174,31 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         getResetService().resetDB();
 
-        getEventService().initServiceProvider(StrategyImpl.BASE);
+        EsperManager.initServiceProvider(StrategyImpl.BASE);
 
         // activate the necessary rules
-        getEventService().deployStatement(StrategyImpl.BASE, "base", "CREATE_PORTFOLIO_VALUE");
-        getEventService().deployStatement(StrategyImpl.BASE, "base", "CREATE_MONTHLY_PERFORMANCE");
-        getEventService().deployStatement(StrategyImpl.BASE, "base", "GET_LAST_TICK");
-        getEventService().deployStatement(StrategyImpl.BASE, "base", "CREATE_PERFORMANCE_KEYS");
-        getEventService().deployStatement(StrategyImpl.BASE, "base", "KEEP_MONTHLY_PERFORMANCE");
-        getEventService().deployStatement(StrategyImpl.BASE, "base", "CREATE_DRAW_DOWN");
-        getEventService().deployStatement(StrategyImpl.BASE, "base", "CREATE_MAX_DRAW_DOWN");
-        getEventService().deployStatement(StrategyImpl.BASE, "base", "PROCESS_PREARRANGED_ORDERS");
+        EsperManager.deployStatement(StrategyImpl.BASE, "base", "CREATE_PORTFOLIO_VALUE");
+        EsperManager.deployStatement(StrategyImpl.BASE, "base", "CREATE_MONTHLY_PERFORMANCE");
+        EsperManager.deployStatement(StrategyImpl.BASE, "base", "GET_LAST_TICK");
+        EsperManager.deployStatement(StrategyImpl.BASE, "base", "CREATE_PERFORMANCE_KEYS");
+        EsperManager.deployStatement(StrategyImpl.BASE, "base", "KEEP_MONTHLY_PERFORMANCE");
+        EsperManager.deployStatement(StrategyImpl.BASE, "base", "CREATE_DRAW_DOWN");
+        EsperManager.deployStatement(StrategyImpl.BASE, "base", "CREATE_MAX_DRAW_DOWN");
+        EsperManager.deployStatement(StrategyImpl.BASE, "base", "PROCESS_PREARRANGED_ORDERS");
 
         // initialize the coordination
-        getEventService().initCoordination(StrategyImpl.BASE);
+        EsperManager.initCoordination(StrategyImpl.BASE);
 
-        getEventService().coordinateTicks(StrategyImpl.BASE, new Date(this.start));
+        EsperManager.coordinateTicks(StrategyImpl.BASE, new Date(this.start));
 
-        getEventService().coordinate(StrategyImpl.BASE, orders, "transactions[0].dateTime");
+        EsperManager.coordinate(StrategyImpl.BASE, orders, "transactions[0].dateTime");
 
-        getEventService().startCoordination(StrategyImpl.BASE);
+        EsperManager.startCoordination(StrategyImpl.BASE);
 
         SimulationResultVO resultVO = getSimulationResultVO(startTime);
         logMultiLineString(convertStatisticsToLongString(resultVO));
 
-        getEventService().destroyServiceProvider(StrategyImpl.BASE);
+        EsperManager.destroyServiceProvider(StrategyImpl.BASE);
     }
 
     @Override
@@ -323,12 +324,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @SuppressWarnings("unchecked")
     protected SimulationResultVO handleGetSimulationResultVO(long startTime) {
 
-        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) getEventService().getLastEvent(StrategyImpl.BASE, "CREATE_PERFORMANCE_KEYS");
-        List<PeriodPerformanceVO> monthlyPerformances = getEventService().getAllEvents(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
-        MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) getEventService().getLastEvent(StrategyImpl.BASE, "CREATE_MAX_DRAW_DOWN");
-        TradesVO allTrades = (TradesVO) getEventService().getLastEvent(StrategyImpl.BASE, "ALL_TRADES");
-        TradesVO winningTrades = (TradesVO) getEventService().getLastEvent(StrategyImpl.BASE, "WINNING_TRADES");
-        TradesVO loosingTrades = (TradesVO) getEventService().getLastEvent(StrategyImpl.BASE, "LOOSING_TRADES");
+        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) EsperManager.getLastEvent(StrategyImpl.BASE, "CREATE_PERFORMANCE_KEYS");
+        List<PeriodPerformanceVO> monthlyPerformances = EsperManager.getAllEvents(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
+        MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) EsperManager.getLastEvent(StrategyImpl.BASE, "CREATE_MAX_DRAW_DOWN");
+        TradesVO allTrades = (TradesVO) EsperManager.getLastEvent(StrategyImpl.BASE, "ALL_TRADES");
+        TradesVO winningTrades = (TradesVO) EsperManager.getLastEvent(StrategyImpl.BASE, "WINNING_TRADES");
+        TradesVO loosingTrades = (TradesVO) EsperManager.getLastEvent(StrategyImpl.BASE, "LOOSING_TRADES");
 
         // compile yearly performance
         List<PeriodPerformanceVO> yearlyPerformances = null;

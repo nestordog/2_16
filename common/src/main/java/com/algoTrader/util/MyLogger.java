@@ -5,7 +5,7 @@ import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.service.EventService;
+import com.algoTrader.esper.EsperManager;
 
 public class MyLogger extends Logger {
 
@@ -40,12 +40,11 @@ public class MyLogger extends Logger {
     protected void forcedLog(String fqcn, Priority level, Object message, Throwable t) {
 
         if (ServiceLocator.instance().isInitialized()) {
-            EventService ruleService = ServiceLocator.instance().getEventService();
 
             String strategyName = StrategyUtil.getStartedStrategyName();
-            if (ruleService.isInitialized(strategyName) && !ruleService.isInternalClock(strategyName)) {
+            if (EsperManager.isInitialized(strategyName) && !EsperManager.isInternalClock(strategyName)) {
 
-                long engineTime = ruleService.getCurrentTime(strategyName);
+                long engineTime = EsperManager.getCurrentTime(strategyName);
                 if (engineTime != 0) {
 
                     callAppenders(new LoggingEvent(fqcn, this, engineTime, level, message, t));

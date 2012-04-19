@@ -18,6 +18,7 @@ import com.algoTrader.entity.Property;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
 import com.algoTrader.vo.DiagramVO;
@@ -42,7 +43,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected String handleGetCurrentTime() throws Exception {
 
-        return format.format(new Date(getEventService().getCurrentTime(StrategyUtil.getStartedStrategyName())));
+        return format.format(new Date(EsperManager.getCurrentTime(StrategyUtil.getStartedStrategyName())));
     }
 
     @Override
@@ -110,7 +111,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected List<TickVO> handleGetDataTicks() {
 
         String strategyName = StrategyUtil.getStartedStrategyName();
-        List<Tick> ticks = getEventService().getAllEventsProperty(strategyName, "GET_LAST_TICK", "tick");
+        List<Tick> ticks = EsperManager.getAllEventsProperty(strategyName, "GET_LAST_TICK", "tick");
 
         List<TickVO> tickVOs = getTickVOs(ticks);
 
@@ -194,25 +195,25 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected List<Object> handleGetAllEvents(String statementName) throws Exception {
 
         String strategyName = StrategyUtil.getStartedStrategyName();
-        return getEventService().getAllEvents(strategyName, statementName);
+        return EsperManager.getAllEvents(strategyName, statementName);
     }
 
     @Override
     protected void handleDeployStatement(String moduleName, String statementName) throws Exception {
 
-        getEventService().deployStatement(StrategyUtil.getStartedStrategyName(), moduleName, statementName);
+        EsperManager.deployStatement(StrategyUtil.getStartedStrategyName(), moduleName, statementName);
     }
 
     @Override
     protected void handleDeployModule(String moduleName) throws Exception {
 
-        getEventService().deployModule(StrategyUtil.getStartedStrategyName(), moduleName);
+        EsperManager.deployModule(StrategyUtil.getStartedStrategyName(), moduleName);
     }
 
     @Override
     protected void handleSetVariableValue(String variableName, String value) {
 
-        getEventService().setVariableValue(StrategyUtil.getStartedStrategyName(), variableName, value);
+        EsperManager.setVariableValue(StrategyUtil.getStartedStrategyName(), variableName, value);
     }
 
     @Override

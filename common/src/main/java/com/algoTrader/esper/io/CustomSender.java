@@ -8,7 +8,7 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.service.EventService;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.service.MarketDataService;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.BarVO;
@@ -28,7 +28,6 @@ public class CustomSender extends AbstractSender {
         long start = System.nanoTime();
 
         // raw Ticks are always sent using MarketDataService
-        EventService ruleService = ServiceLocator.instance().getEventService();
         if (beanToSend instanceof RawTickVO) {
 
             MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
@@ -37,7 +36,7 @@ public class CustomSender extends AbstractSender {
 
             long rawTick = System.nanoTime();
 
-            ruleService.sendEvent(StrategyImpl.BASE, tick);
+            EsperManager.sendEvent(StrategyImpl.BASE, tick);
 
             long sendEvent = System.nanoTime();
             metricsLogger.trace("custom_sender," + (start - this.time)  + "," + (rawTick - start) + "," + (sendEvent- rawTick));
@@ -49,12 +48,12 @@ public class CustomSender extends AbstractSender {
 
             Bar bar = marketDataService.completeBar((BarVO) beanToSend);
 
-            ruleService.sendEvent(StrategyImpl.BASE, bar);
+            EsperManager.sendEvent(StrategyImpl.BASE, bar);
 
             // currentTimeEvents are sent to all started strategies
         } else if (beanToSend instanceof CurrentTimeEvent) {
 
-            ruleService.setCurrentTime((CurrentTimeEvent) beanToSend);
+            EsperManager.setCurrentTime((CurrentTimeEvent) beanToSend);
 
             // everything else (especially Ticks) are sent to the specified runtime
         } else {

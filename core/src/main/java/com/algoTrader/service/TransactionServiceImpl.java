@@ -20,6 +20,7 @@ import com.algoTrader.entity.trade.Fill;
 import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -126,7 +127,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 position.setMaintenanceMargin(null);
 
                 // propagate the ClosePosition event
-                getEventService().routeEvent(position.getStrategy().getName(), closePositionVO);
+                EsperManager.routeEvent(position.getStrategy().getName(), closePositionVO);
             }
 
             // associate the position
@@ -147,7 +148,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             tradePerformance.setAvgAge(avgAge);
             tradePerformance.setWinning(profit > 0);
 
-            getEventService().routeEvent(StrategyImpl.BASE, tradePerformance);
+            EsperManager.routeEvent(StrategyImpl.BASE, tradePerformance);
         }
 
         //@formatter:off
@@ -172,7 +173,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         // propagate the transaction to the corresponding strategy
         if (!StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
-            getEventService().routeEvent(transaction.getStrategy().getName(), transaction);
+            EsperManager.routeEvent(transaction.getStrategy().getName(), transaction);
         }
     }
 
@@ -181,7 +182,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         // send the fill to the strategy that placed the corresponding order
         if (!StrategyImpl.BASE.equals(fill.getParentOrder().getStrategy().getName())) {
-            getEventService().routeEvent(fill.getParentOrder().getStrategy().getName(), fill);
+            EsperManager.routeEvent(fill.getParentOrder().getStrategy().getName(), fill);
         }
 
         if (!this.simulation) {

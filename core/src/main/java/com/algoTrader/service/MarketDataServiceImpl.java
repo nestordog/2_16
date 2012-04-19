@@ -23,6 +23,7 @@ import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.SecurityFamily;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
@@ -79,7 +80,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             logger.trace(security + " " + marketDataEvent);
         }
 
-        getEventService().sendMarketDataEvent(marketDataEvent);
+        EsperManager.sendMarketDataEvent(marketDataEvent);
 
         long sendEvent = System.nanoTime();
         metricsLogger.trace("propagate_market_data_event," + (reattach - start) + "," + (initialize - reattach) + "," + (sendEvent - initialize));

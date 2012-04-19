@@ -11,6 +11,7 @@ import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.ConnectionState;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.SubscribeTickVO;
 import com.algoTrader.vo.UnsubscribeTickVO;
@@ -63,7 +64,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
         subscribeTickEvent.setTick(tick);
         subscribeTickEvent.setTickerId(tickerId);
 
-        getEventService().sendEvent(StrategyImpl.BASE, subscribeTickEvent);
+        EsperManager.sendEvent(StrategyImpl.BASE, subscribeTickEvent);
 
         // requestMarketData from IB
         Contract contract = IBUtil.getContract(security);
@@ -82,7 +83,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
         }
 
         // get the tickerId by querying the TickWindow
-        List<Map> events = getEventService().executeQuery(StrategyImpl.BASE, "select tickerId from TickWindow where security.id = " + security.getId());
+        List<Map> events = EsperManager.executeQuery(StrategyImpl.BASE, "select tickerId from TickWindow where security.id = " + security.getId());
 
         if (events.size() == 1) {
 
@@ -91,7 +92,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
 
             UnsubscribeTickVO unsubscribeTickEvent = new UnsubscribeTickVO();
             unsubscribeTickEvent.setSecurityId(security.getId());
-            getEventService().sendEvent(StrategyImpl.BASE, unsubscribeTickEvent);
+            EsperManager.sendEvent(StrategyImpl.BASE, unsubscribeTickEvent);
 
             logger.debug("cancelled market data for : " + security);
         } else {

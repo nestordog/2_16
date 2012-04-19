@@ -14,6 +14,7 @@ import com.algoTrader.entity.security.Component;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.CombinationType;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.InsertComponentEventVO;
@@ -73,9 +74,11 @@ public class CombinationServiceImpl extends CombinationServiceBase {
                 getMarketDataService().unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
             }
 
-            // delete all components
+            // update the ComponentWindow
             for (Component component : combination.getComponents()) {
-                removeComponent(combination.getId(), component.getSecurity().getId());
+
+                // update the ComponentWindow
+                removeFromComponentWindow(component);
             }
 
             // disassociated the security family
@@ -133,11 +136,8 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             // delete the component
             getComponentDao().remove(component);
 
-            // send the RemoveComponentEvent
-            RemoveComponentEventVO removeComponentEvent = new RemoveComponentEventVO();
-            removeComponentEvent.setComponentId(component.getId());
-            getEventService().routeEvent(StrategyImpl.BASE, removeComponentEvent);
-
+            // update the ComponentWindow
+            removeFromComponentWindow(component);
             resetComponentWindow(combination);
 
         } else {
@@ -148,6 +148,13 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         logger.debug("removed component " + component + " from combination " + combinationString);
 
         return combination;
+    }
+
+    private void removeFromComponentWindow(Component component) {
+
+        RemoveComponentEventVO removeComponentEvent = new RemoveComponentEventVO();
+        removeComponentEvent.setComponentId(component.getId());
+        EsperManager.routeEvent(StrategyImpl.BASE, removeComponentEvent);
     }
 
     @Override
@@ -264,7 +271,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             insertComponentEvent.setQuantity(component.getQuantity());
             insertComponentEvent.setSecurityId(component.getSecurity().getId());
             insertComponentEvent.setParentSecurity(combination);
-            getEventService().routeEvent(StrategyImpl.BASE, insertComponentEvent);
+            EsperManager.routeEvent(StrategyImpl.BASE, insertComponentEvent);
         }
     }
 }

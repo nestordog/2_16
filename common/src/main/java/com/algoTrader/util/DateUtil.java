@@ -4,18 +4,16 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.ExpirationType;
-import com.algoTrader.service.EventService;
+import com.algoTrader.esper.EsperManager;
 
 public class DateUtil {
 
     public static Date getCurrentEPTime() {
 
         String strategyName = StrategyUtil.getStartedStrategyName();
-        EventService ruleService = ServiceLocator.instance().getEventService();
-        if (ruleService.isInitialized(strategyName) && !ruleService.isInternalClock(strategyName)) {
-            return new Date(ruleService.getCurrentTime(strategyName));
+        if (EsperManager.isInitialized(strategyName) && !EsperManager.isInternalClock(strategyName)) {
+            return new Date(EsperManager.getCurrentTime(strategyName));
         } else {
             return new Date();
         }
