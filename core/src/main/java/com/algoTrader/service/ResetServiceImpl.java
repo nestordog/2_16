@@ -69,8 +69,8 @@ public class ResetServiceImpl extends ResetServiceBase {
             for (Position position : positions) {
                 position.getSecurity().removePositions(position);
             }
-            strategy.getPositions().removeAll(positions);
             getPositionDao().remove(positions);
+            strategy.getPositions().removeAll(positions);
         }
 
         // delete all non-presistent subscriptions and references to them
