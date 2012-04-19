@@ -1,50 +1,91 @@
-@Name('COMBINATION_TICK_WINDOW')
+@Name('COMPONENT_WINDOW')
 create window
-    CombinationTickWindow.std:groupwin(component.id).std:lastevent()
+    ComponentWindow.std:groupwin(componentId).std:lastevent()
 as
-    (tick Tick, component com.algoTrader.entity.security.Component);
+    (componentId int,
+    quantity long,
+    securityId int,
+    parentSecurity com.algoTrader.entity.security.Security,
+    dateTime java.util.Date,
+    volBid int,
+    volAsk int,
+    bid java.math.BigDecimal,
+    ask java.math.BigDecimal);
 
-@Name('INSERT_INTO_COMBINATION_TICK_WINDOW')
+@Name('INSERT_INTO_COMPONENT_WINDOW')
 insert into
-    CombinationTickWindow
+    ComponentWindow
 select
-    component.* as component,
-    tick.* as tick
+    componentId,
+    quantity,
+    securityId,
+    parentSecurity,
+    null as dateTime,
+    0 as volBid,
+    0 as volAsk,
+    null as bid,
+    null as ask
 from
-    Tick as tick,
-    method:LookupUtil.getAllSubscribedComponents() as component
-where
-    component.security.id = tick.security.id;
+    InsertComponentEvent;
 
-@Name('REMOVE_FROM_COMBINATION_TICK_WINDOW')
+@Name('REMOVE_FROM_COMPONENT_WINDOW')
 on
     RemoveComponentEvent as removeComponentEvent
 delete from
-    CombinationTickWindow
+    ComponentWindow as componentWindow
 where
-    component.id = removeComponentEvent.componentId;
+    componentWindow.componentId = removeComponentEvent.componentId;
 
-@Name('INSERT_TICK_FROM_COMBINATION_TICK_WINDOW')
+/*
+@Name('UPDATE_COMPONENT_WINDOW')
 on
-    CombinationTickWindow as trigger
+    UpdateComponentEvent as updateComponentEvent
+update
+    ComponentWindow as componentWindow
+set
+    componentWindow.quantity = updateComponentEvent.quantity,
+    componentWindow.parentSecurity = updateComponentEvent.parentSecurity
+where
+    componentWindow.componentId = updateComponentEvent.componentId;
+*/
+
+@Name('UPDATE_COMPONENT_WINDOW_FROM_TICK')
+on
+    Tick as tick
+update
+    ComponentWindow as componentWindow
+set
+    componentWindow.dateTime = tick.dateTime,
+    componentWindow.volBid = tick.volBid,
+    componentWindow.volAsk = tick.volAsk,
+    componentWindow.bid = tick.bid,
+    componentWindow.ask = tick.ask
+where
+    componentWindow.securityId = tick.security.id;
+
+@Name('INSERT_COMBINATION_TICK_FROM_COMPONENT_WINDOW')
+on
+    ComponentWindow as trigger
 insert into
     Tick
 select
-    last(trigger.tick.dateTime) as dateTime,
-    Math.abs(cast(min((case when win.component.quantity > 0 then win.tick.volBid else win.tick.volAsk end) / Math.abs(win.component.quantity)) * sum(win.component.quantity), int)) as volBid,
-    Math.abs(cast(min((case when win.component.quantity > 0 then win.tick.volAsk else win.tick.volBid end) / Math.abs(win.component.quantity)) * sum(win.component.quantity), int)) as volAsk,
-    RoundUtil.getBigDecimalNullSafe(sum((case when win.component.quantity > 0 then win.tick.bid.doubleValue() else win.tick.ask.doubleValue() end) * win.component.quantity) / sum(win.component.quantity)) as bid,
-    RoundUtil.getBigDecimalNullSafe(sum((case when win.component.quantity > 0 then win.tick.ask.doubleValue() else win.tick.bid.doubleValue() end) * win.component.quantity) / sum(win.component.quantity)) as ask,
-    last(trigger.component.parentSecurity) as security
+    max(trigger.dateTime) as dateTime,
+    Math.abs(cast(min((case when win.quantity > 0 then win.volBid else win.volAsk end) / Math.abs(win.quantity)) * sum(win.quantity), int)) as volBid,
+    Math.abs(cast(min((case when win.quantity > 0 then win.volAsk else win.volBid end) / Math.abs(win.quantity)) * sum(win.quantity), int)) as volAsk,
+    RoundUtil.getBigDecimalNullSafe(sum((case when win.quantity > 0 then win.bid.doubleValue() else win.ask.doubleValue() end) * win.quantity) / sum(win.quantity)) as bid,
+    RoundUtil.getBigDecimalNullSafe(sum((case when win.quantity > 0 then win.ask.doubleValue() else win.bid.doubleValue() end) * win.quantity) / sum(win.quantity)) as ask,
+    last(trigger.parentSecurity) as security
 from
-    CombinationTickWindow as win
+    ComponentWindow as win
 where
-    win.component.parentSecurity.id = trigger.component.parentSecurity.id
+    win.parentSecurity.id = trigger.parentSecurity.id
 and
-    win.component.quantity != 0
+    win.quantity != 0 // ignore zero-qty components
 and
-    Math.abs(win.tick.dateTime.time - trigger.tick.dateTime.time) < Constants.ONE_HOUR
+    not win.dateTime is null // ignore new components having null dateTime
+and
+    trigger.dateTime.time - win.dateTime.time < Constants.ONE_HOUR // ignore components older hand an hour
 group by
-    trigger.component.parentSecurity.id
+    trigger.parentSecurity.id, trigger.parentSecurity.componentCount
 having
-    count(win.component.id) = LookupUtil.getComponentCount(trigger.component.parentSecurity.id);
+    count(win.componentId) = trigger.parentSecurity.componentCount; // total count of non-ignored components must equal component count of the parent

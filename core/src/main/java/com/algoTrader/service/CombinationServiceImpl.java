@@ -16,6 +16,7 @@ import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.CombinationType;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
+import com.algoTrader.vo.InsertComponentEventVO;
 import com.algoTrader.vo.RemoveComponentEventVO;
 
 public class CombinationServiceImpl extends CombinationServiceBase {
@@ -72,10 +73,15 @@ public class CombinationServiceImpl extends CombinationServiceBase {
                 getMarketDataService().unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
             }
 
+            // delete all components
+            for (Component component : combination.getComponents()) {
+                removeComponent(combination.getId(), component.getSecurity().getId());
+            }
+
             // disassociated the security family
             combination.getSecurityFamily().removeSecurities(combination);
 
-            // remove the combination and all associated components
+            // remove the combination
             getCombinationDao().remove(combination);
 
             logger.debug("deleted combination " + combination);
@@ -83,97 +89,17 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     }
 
     @Override
-    protected Combination handleAddComponent(int combinationId, final int securityId, long quantity) throws Exception {
+    protected Combination handleAddComponentQuantity(int combinationId, final int securityId, long quantity) throws Exception {
 
-        Combination combination = getCombinationDao().get(combinationId);
-
-        if (combination == null) {
-            throw new IllegalArgumentException("combination does not exist: " + combinationId);
-        }
-
-        String combinationString = combination.toString();
-        final Security security = getSecurityDao().load(securityId);
-
-        if (security == null) {
-            throw new IllegalArgumentException("security does not exist: " + securityId);
-        }
-
-        // find the component to the specified security
-        Component component = CollectionUtils.find(combination.getComponents(), new Predicate<Component>() {
-            @Override
-            public boolean evaluate(Component component) {
-                return security.equals(component.getSecurity());
-            }
-        });
-
-        if (component != null) {
-
-            // adjust the quantity
-            component.setQuantity(component.getQuantity() + quantity);
-
-        } else {
-
-            // create a new component
-            component = Component.Factory.newInstance();
-            component.setSecurity(security);
-            component.setQuantity(quantity);
-
-            // associate with combination
-            combination.addComponents(component);
-
-            getComponentDao().create(component);
-        }
-
-        logger.debug("added component quantity " + quantity + " of " + component + " to combination " + combinationString);
-
-        return combination;
+        return addOrRemoveComponentQuantity(combinationId, securityId, quantity, true);
     }
 
     @Override
-    protected Combination handleSetComponentQuantity(int combinationId, final int securityId, long quantity) throws Exception {
+    protected Combination handleSetComponentQuantity(int combinationId, int securityId, long quantity) throws Exception {
 
-        Combination combination = (Combination) getSecurityDao().get(combinationId);
-
-        if (combination == null) {
-            throw new IllegalArgumentException("combination does not exist: " + combinationId);
-        }
-
-        final Security security = getSecurityDao().load(securityId);
-
-        if (security == null) {
-            throw new IllegalArgumentException("security does not exist: " + securityId);
-        }
-
-        // find the component to the specified security
-        Component component = CollectionUtils.find(combination.getComponents(), new Predicate<Component>() {
-            @Override
-            public boolean evaluate(Component component) {
-                return security.equals(component.getSecurity());
-            }
-        });
-
-        if (component != null) {
-
-            // set the quantity
-            component.setQuantity(quantity);
-
-        } else {
-
-            // create a new component
-            component = Component.Factory.newInstance();
-            component.setSecurity(security);
-            component.setQuantity(quantity);
-
-            // associate the combination
-            combination.addComponents(component);
-
-            getComponentDao().create(component);
-        }
-
-        logger.debug("set component quantity " + quantity + " of " + component + " to combination " + combination);
-
-        return combination;
+        return addOrRemoveComponentQuantity(combinationId, securityId, quantity, false);
     }
+
 
     @Override
     protected Combination handleRemoveComponent(int combinationId, final int securityId) {
@@ -207,10 +133,12 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             // delete the component
             getComponentDao().remove(component);
 
-            // remove from COMBINATION_TICK_WINDOW
+            // send the RemoveComponentEvent
             RemoveComponentEventVO removeComponentEvent = new RemoveComponentEventVO();
             removeComponentEvent.setComponentId(component.getId());
-            getEventService().sendEvent(StrategyImpl.BASE, removeComponentEvent);
+            getEventService().routeEvent(StrategyImpl.BASE, removeComponentEvent);
+
+            resetComponentWindow(combination);
 
         } else {
 
@@ -242,7 +170,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             getPositionService().reducePosition(position.getId(), component.getQuantity());
         }
 
-        // close all positions based on the combination
+        // close all non-tradeable positions based on the combination
         Position position = getPositionDao().findBySecurityAndStrategy(combinationId, strategyName);
         getPositionService().deleteNonTradeablePosition(position.getId(), true);
 
@@ -264,6 +192,79 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             }
 
             logger.debug("deleted zero quantity combinations: " + combinations);
+        }
+    }
+
+    private Combination addOrRemoveComponentQuantity(int combinationId, final int securityId, long quantity, boolean add) throws Exception {
+
+        Combination combination = getCombinationDao().get(combinationId);
+
+        if (combination == null) {
+            throw new IllegalArgumentException("combination does not exist: " + combinationId);
+        }
+
+        String combinationString = combination.toString();
+        final Security security = getSecurityDao().load(securityId);
+
+        if (security == null) {
+            throw new IllegalArgumentException("security does not exist: " + securityId);
+        }
+
+        // find the component to the specified security
+        Component component = CollectionUtils.find(combination.getComponents(), new Predicate<Component>() {
+            @Override
+            public boolean evaluate(Component component) {
+                return security.equals(component.getSecurity());
+            }
+        });
+
+        if (component != null) {
+
+            // add or set the quantity
+            if (add) {
+                component.setQuantity(component.getQuantity() + quantity);
+            } else {
+                component.setQuantity(quantity);
+            }
+
+        } else {
+
+            // create a new component
+            component = Component.Factory.newInstance();
+            component.setSecurity(security);
+            component.setQuantity(quantity);
+
+            // associate with combination
+            combination.addComponents(component);
+
+            getComponentDao().create(component);
+
+        }
+
+        resetComponentWindow(combination);
+
+        if (add) {
+            logger.debug("added component quantity " + quantity + " of " + component + " to combination " + combinationString);
+        } else {
+            logger.debug("set component quantity " + quantity + " of " + component + " to combination " + combinationString);
+        }
+
+        return combination;
+    }
+
+    /**
+     * reset all entries in the ComponentWindow as parent Security has changed due to changes in component qty of one of the components
+     */
+    private void resetComponentWindow(Combination combination) {
+
+        for (Component component : combination.getComponents()) {
+
+            InsertComponentEventVO insertComponentEvent = new InsertComponentEventVO();
+            insertComponentEvent.setComponentId(component.getId());
+            insertComponentEvent.setQuantity(component.getQuantity());
+            insertComponentEvent.setSecurityId(component.getSecurity().getId());
+            insertComponentEvent.setParentSecurity(combination);
+            getEventService().routeEvent(StrategyImpl.BASE, insertComponentEvent);
         }
     }
 }
