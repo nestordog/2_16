@@ -35,6 +35,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     private static final long serialVersionUID = 2871084846072648536L;
     private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
+    private static Logger metricsLogger = MyLogger.getLogger("com.algoTrader.metrics.MetricsLogger");
 
     private @Value("${simulation}") boolean simulation;
 
@@ -55,8 +56,12 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
     @Override
     protected void handlePropagateMarketDataEvent(MarketDataEvent marketDataEvent) {
 
+        long start = System.nanoTime();
+
         // reattach and convert the security if necessary
         Security security = (Security) HibernateUtil.reattach(this.getSessionFactory(), marketDataEvent.getSecurity());
+
+        long reattach = System.nanoTime();
 
         // initialize collections
         Hibernate.initialize(security.getSubscriptions());
@@ -67,13 +72,17 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         security.setUnderlying((Security) HibernateUtil.getProxyImplementation(security.getUnderlying()));
         security.setSecurityFamily((SecurityFamily) HibernateUtil.getProxyImplementation(security.getSecurityFamily()));
 
+        long initialize = System.nanoTime();
+
         // marketDataEvent.toString is expensive, so only log if debug is anabled
         if (!logger.getParent().getLevel().isGreaterOrEqual(Level.DEBUG)) {
             logger.trace(security + " " + marketDataEvent);
         }
 
-
         getEventService().sendMarketDataEvent(marketDataEvent);
+
+        long sendEvent = System.nanoTime();
+        metricsLogger.trace("propagate_market_data_event," + (reattach - start) + "," + (initialize - reattach) + "," + (sendEvent - initialize));
     }
 
     @Override
@@ -198,7 +207,13 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
         public void update(MarketDataEvent marketDataEvent) {
 
+            long start = System.nanoTime();
+
             ServiceLocator.instance().getMarketDataService().propagateMarketDataEvent(marketDataEvent);
+
+            long sendEvent = System.nanoTime() - start;
+
+            metricsLogger.trace("propagate_market_data_event_subscriber," + sendEvent);
         }
     }
 

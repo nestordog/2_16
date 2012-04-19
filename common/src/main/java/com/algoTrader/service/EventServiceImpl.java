@@ -84,6 +84,7 @@ import com.espertech.esperio.csv.CSVInputAdapterSpec;
 public class EventServiceImpl extends EventServiceBase implements ApplicationContextAware {
 
     private static Logger logger = MyLogger.getLogger(EventServiceImpl.class.getName());
+    private static Logger metricsLogger = MyLogger.getLogger("com.algoTrader.metrics.MetricsLogger");
 
     private @Value("${simulation}") boolean simulation;
     private @Value("#{T(java.util.Arrays).asList(('${misc.moduleDeployExcludeStatements}').split(','))}") List<String> moduleDeployExcludeStatements;
@@ -271,7 +272,9 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         Strategy strategy = getLookupService().getStrategyByName(strategyName);
         String[] modules = strategy.getModules().split(",");
         for (String module : modules) {
-            deployModule(strategyName, module);
+            if (module != null && !module.equals("")) {
+                deployModule(strategyName, module);
+            }
         }
     }
 
@@ -354,7 +357,12 @@ public class EventServiceImpl extends EventServiceBase implements ApplicationCon
         if (this.simulation) {
             Strategy strategy = getLookupService().getStrategyByName(strategyName);
             if (strategy.isAutoActivate()) {
+
+                long start = System.nanoTime();
+
                 getServiceProvider(strategyName).getEPRuntime().sendEvent(obj);
+
+                metricsLogger.trace("event_service_send_event," + strategyName + "," + obj.getClass() + "," + (System.nanoTime() - start));
             }
         } else {
 
