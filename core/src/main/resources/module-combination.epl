@@ -86,6 +86,6 @@ and
 and
     trigger.dateTime.time - win.dateTime.time < Constants.ONE_HOUR // ignore components older hand an hour
 group by
-    trigger.parentSecurity.id, trigger.parentSecurity.componentCount
+    win.parentSecurity.id, trigger.parentSecurity.id, trigger.parentSecurity.componentCount
 having
     count(win.componentId) = trigger.parentSecurity.componentCount; // total count of non-ignored components must equal component count of the parent
