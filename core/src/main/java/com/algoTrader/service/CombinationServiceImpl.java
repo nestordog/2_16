@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.StrategyImpl;
@@ -22,7 +23,21 @@ import com.algoTrader.vo.RemoveComponentEventVO;
 
 public class CombinationServiceImpl extends CombinationServiceBase {
 
+    private static final long serialVersionUID = -2720603696641382966L;
+
     private static Logger logger = MyLogger.getLogger(CombinationServiceImpl.class.getName());
+
+    private @Value("${simulation}") boolean simulation;
+
+    @Override
+    protected void handleInit() throws Exception {
+
+        if (!this.simulation) {
+            for (Combination combination : getCombinationDao().loadAll()) {
+                resetComponentWindow(combination);
+            }
+        }
+    }
 
     @Override
     protected Combination handleCreateCombination(CombinationType type, int securityFamilyId) throws Exception {

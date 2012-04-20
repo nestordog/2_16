@@ -36,13 +36,7 @@ public final class IBClient extends EClientSocket {
 
             instance = new IBClient(defaultClientId, new IBEsperAdapter(defaultClientId));
 
-            // connect in a separate thread, because it might take a while
-            (new Thread() {
-                @Override
-                public void run() {
-                    instance.connect();
-                }
-            }).start();
+            instance.connect();
         }
         return instance;
     }

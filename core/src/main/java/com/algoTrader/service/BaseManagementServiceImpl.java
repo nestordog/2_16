@@ -3,6 +3,7 @@ package com.algoTrader.service;
 import java.util.Map;
 
 import com.algoTrader.enumeration.ConnectionState;
+import com.algoTrader.service.ib.IBServiceManager;
 
 public class BaseManagementServiceImpl extends BaseManagementServiceBase {
 
@@ -63,13 +64,12 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     @Override
     protected void handleReconnectIB() throws Exception {
 
-        getIBService().connect();
+        IBServiceManager.connect();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected Map<String, ConnectionState> handleGetAllConnectionStates() {
 
-        return getIBService().getAllConnectionStates();
+        return IBServiceManager.getAllConnectionStates();
     }
 }

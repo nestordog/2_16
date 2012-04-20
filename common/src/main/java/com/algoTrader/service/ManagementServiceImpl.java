@@ -121,6 +121,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         if (StrategyUtil.isStartedStrategyBASE()) {
 
             // for base iterate over all subscribed securities
+            // TODO eliminate LazyLoading with new Finder: Subscription.findForAutoActivateStrategiesInclProperties
             Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategiesInclFamily();
             for (Security security : securities) {
 
@@ -140,6 +141,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         } else {
 
             // for strategies iterate over all subscriptions
+            // TODO eliminate LazyLoading with new Finder: Subscription.findByStrategyInclProperties
             for (Subscription subscription : getLookupService().getSubscriptionsByStrategy(strategyName)) {
 
                 TickVO tickVO = getTickVO(tickVOs, subscription.getSecurity());

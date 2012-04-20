@@ -27,10 +27,28 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
     private @Value("${ib.genericTickList}") String genericTickList;
 
     @Override
-    public void handleInit() {
+    public void handleInit() throws Exception {
 
         if (!this.simulation) {
             client = IBClient.getDefaultInstance();
+        }
+    }
+
+    @Override
+    protected void handleConnect() {
+
+        if (!this.simulation) {
+            client.connect();
+        }
+    }
+
+    @Override
+    protected ConnectionState handleGetConnectionState() {
+
+        if (client == null) {
+            return ConnectionState.DISCONNECTED;
+        } else {
+            return client.getIbAdapter().getState();
         }
     }
 
