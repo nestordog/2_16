@@ -157,12 +157,11 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         List<StockOption> list = getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date);
 
-        StockOption stockOption = null;
         if (!list.isEmpty()) {
-            stockOption = list.get(0);
+            return list.get(0);
+        } else {
+            return null;
         }
-
-        return stockOption;
     }
 
     @Override
@@ -202,12 +201,11 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date);
 
-        StockOption stockOption = null;
         if (!list.isEmpty()) {
-            stockOption = list.get(0);
+            return list.get(0);
+        } else {
+            return null;
         }
-
-        return stockOption;
     }
 
 
@@ -639,4 +637,15 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getMeasurementDao().findMeasurementsAfterDate(strategyName, type, date);
     }
 
+    @Override
+    protected Measurement handleGetMeasurementForMaxDate(String strategyName, String type, Date maxDate) throws Exception {
+
+        List<Measurement> list = getMeasurementDao().findMeasurementsBeforeDate(0, 1, strategyName, type, maxDate);
+
+        if (!list.isEmpty()) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
 }

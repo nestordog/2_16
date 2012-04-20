@@ -31,7 +31,6 @@
 
     <event-type name="RemoveComponentEvent" class="com.algoTrader.vo.RemoveComponentEventVO"/>
     <event-type name="InsertComponentEvent" class="com.algoTrader.vo.InsertComponentEventVO"/>
-    <event-type name="UpdateComponentEvent" class="com.algoTrader.vo.UpdateComponentEventVO"/>
 
     <event-type name="MonthlyPerformance" class="com.algoTrader.vo.PeriodPerformanceVO"/>
     <event-type name="PerformanceKeys" class="com.algoTrader.vo.PerformanceKeysVO"/>

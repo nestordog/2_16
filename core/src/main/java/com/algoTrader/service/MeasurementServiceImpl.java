@@ -8,27 +8,27 @@ import com.algoTrader.entity.strategy.Measurement;
 public class MeasurementServiceImpl extends MeasurementServiceBase {
 
     @Override
-    protected Measurement handleCreateMeasurement(String strategyName, String type, Date date, double value) throws Exception {
+    protected Measurement handleCreateMeasurement(String strategyName, String name, Date date, Object value) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
 
         // find out if there is a measurement for specified strategyName, type and date
-        Measurement measurement = getMeasurementDao().findMeasurement(strategyName, type, date);
+        Measurement measurement = getMeasurementDao().findMeasurementByDate(strategyName, name, date);
 
-        if (measurement != null) {
-
-            measurement.setValue(value);
-
-        } else {
+        if (measurement == null) {
 
             measurement = Measurement.Factory.newInstance();
 
             measurement.setStrategy(strategy);
-            measurement.setType(type);
+            measurement.setName(name);
             measurement.setDate(date);
             measurement.setValue(value);
 
             getMeasurementDao().create(measurement);
+
+        } else {
+
+            measurement.setValue(value);
         }
 
         return measurement;

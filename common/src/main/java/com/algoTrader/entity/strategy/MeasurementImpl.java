@@ -1,30 +1,28 @@
-package com.algoTrader.entity;
+package com.algoTrader.entity.strategy;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
-public class PropertyImpl extends Property {
+public class MeasurementImpl extends Measurement {
 
-    private static final long serialVersionUID = -3790829266158776151L;
+    private static final long serialVersionUID = 6810736380413592621L;
 
     @Override
     public String toString() {
 
+        String value;
         if (getIntValue() != null) {
-            return getIntValue().toString();
+            value = getIntValue().toString();
         } else if (getDoubleValue() != null) {
-            return getDoubleValue().toString();
+            value = getDoubleValue().toString();
         } else if (getMoneyValue() != null) {
-            return getMoneyValue().toString();
-        } else if (getTextValue() != null) {
-            return getTextValue().toString();
-        } else if (getDateValue() != null) {
-            return getDateValue().toString();
+            value = getMoneyValue().toString();
         } else if (getBooleanValue() != null) {
-            return getBooleanValue().toString();
+            value = getBooleanValue().toString();
         } else {
-            return "";
+            value = "";
         }
+
+        return getName() + " " + getDate() + " " + value;
     }
 
     @Override
@@ -34,8 +32,6 @@ public class PropertyImpl extends Property {
         setIntValue(null);
         setDoubleValue(null);
         setMoneyValue(null);
-        setTextValue(null);
-        setDateValue(null);
         setBooleanValue(null);
 
         // set the value of the correct type
@@ -45,10 +41,6 @@ public class PropertyImpl extends Property {
             setDoubleValue((Double) value);
         } else if (value instanceof BigDecimal) {
             setMoneyValue((BigDecimal) value);
-        } else if (value instanceof String) {
-            setTextValue((String) value);
-        } else if (value instanceof Date) {
-            setDateValue((Date) value);
         } else if (value instanceof Boolean) {
             setBooleanValue((Boolean) value);
         } else {
