@@ -1,5 +1,5 @@
 @Name('GET_LAST_TICK')
-@Priority(6)
+@Priority(4)
 select
     tick.security.id as securityId,
     tick.* as tick

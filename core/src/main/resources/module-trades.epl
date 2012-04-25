@@ -1,26 +1,26 @@
-@Name('CREATE_WINDOW_OPEN_ORDER')
+@Name('OPEN_ORDER_WINDOW')
 create
-    window OpenOrder.win:keepall()
+    window OpenOrderWindow.win:keepall()
 as
     GenericOrder;
 
-@Name('INSERT_INTO_OPEN_ORDER')
+@Name('INSERT_INTO_OPEN_ORDER_WINDOW')
 @RunTimeOnly()
 insert into
-    OpenOrder
+    OpenOrderWindow
 select
     *
 from
     GenericOrder;
 
-@Name('DELETE_FROM_OPEN_ORDER')
+@Name('DELETE_FROM_OPEN_ORDER_WINDOW')
 @RunTimeOnly()
 on
     OrderStatus(status = Status.EXECUTED or status = Status.CANCELED) as orderStatus
 delete from
-    OpenOrder as openOrder
+    OpenOrderWindow as openOrderWindow
 where
-    orderStatus.parentOrder.number = openOrder.number;
+    orderStatus.parentOrder.number = openOrderWindow.number;
 
 @Name('LOG_TRANSACTION_SUMMARY')
 @Subscriber(className='com.algoTrader.service.TransactionServiceImpl$LogTransactionSummarySubscriber')

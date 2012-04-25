@@ -1,3 +1,11 @@
+/*
+ * Priorities on Tick:
+ * Prio 4: GET_LAST_TICK
+ * Prio 3: UPDATE_COMPONENT_WINDOW
+ * Prio 2: CLOSE_POSITION
+ * Prio 1: PROPAGATE_MARKET_DATA_EVENTS
+ */
+
 @Name('TICK_WINDOW')
 create window
     TickWindow.std:groupwin(security.id).std:lastevent()
@@ -8,7 +16,7 @@ as
 from
     Tick;
 
-@Name('SUBSCRIBE_TICK')
+@Name('INSERT_INTO_TICK_WINDOW')
 @RunTimeOnly()
 insert into
     TickWindow
@@ -19,7 +27,7 @@ select
 from
     SubscribeTickEvent;
 
-@Name('UNSUBSCRIBE_TICK')
+@Name('DELETE_FROM_TICK_WINDOW')
 @RunTimeOnly()
 on
     UnsubscribeTickEvent as unsubscribeEvent
@@ -28,7 +36,7 @@ delete from
 where
     tickWindow.security.id = unsubscribeEvent.securityId;
 
-@Name('RETRIEVE_TICK')
+@Name('UPDATE_TICK_WINDOW')
 @RunTimeOnly()
 on
     pattern [every timer:interval(misc_defaultRetrievalSeconds sec)]
@@ -82,6 +90,7 @@ and
 
 @Name('PROPAGATE_MARKET_DATA_EVENTS')
 @Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PropagateMarketDataEventSubscriber')
+@Priority(1)
 select
     *
 from

@@ -36,7 +36,7 @@ public class PropertyServiceImpl extends PropertyServiceBase {
             property.setValue(value);
         }
 
-        logger.info("added property " + name + " value " + " to " + propertyHolder);
+        logger.info("added property " + name + " value " + value + " to " + propertyHolder);
 
         return propertyHolder;
     }

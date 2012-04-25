@@ -1,4 +1,4 @@
-@Name('CREATE_PORTFOLIO_VALUE')
+@Name('INSERT_INTO_PORTFOLIO')
 @Subscriber(className='com.algoTrader.esper.subscriber.PrintPortfolioValueSubscriber')
 insert into
     Portfolio
@@ -39,6 +39,7 @@ from
 @Name('CLOSE_POSITION')
 @Subscriber(className='com.algoTrader.service.PositionService.closePosition')
 @Condition(key='statement.closePosition')
+@Priority(2)
 select
     position.id,
     false as unsubscribe
@@ -48,9 +49,9 @@ from
 where
     tick.security.id not in
         (select
-            openOrder.security.id
+            openOrderWindow.security.id
         from
-            OpenOrder as openOrder)
+            OpenOrderWindow as openOrderWindow)
 and
     position.security.id = tick.security.id
 and

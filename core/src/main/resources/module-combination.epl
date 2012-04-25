@@ -28,7 +28,7 @@ select
 from
     InsertComponentEvent;
 
-@Name('REMOVE_FROM_COMPONENT_WINDOW')
+@Name('DELETE_FROM_COMPONENT_WINDOW')
 on
     RemoveComponentEvent as removeComponentEvent
 delete from
@@ -36,7 +36,8 @@ delete from
 where
     componentWindow.componentId = removeComponentEvent.componentId;
 
-@Name('UPDATE_COMPONENT_WINDOW_FROM_TICK')
+@Name('UPDATE_COMPONENT_WINDOW')
+@Priority(3)
 on
     Tick as tick
 update
@@ -50,29 +51,43 @@ set
 where
     componentWindow.securityId = tick.security.id;
 
-@Name('INSERT_COMBINATION_TICK_FROM_COMPONENT_WINDOW')
-on
-    ComponentWindow as trigger
+@Name('INSERT_INTO_COMBINATION_TICK')
 insert into
-    Tick
+    CombinationTick
 select
-    max(trigger.dateTime) as dateTime,
+    max(win.dateTime) as dateTime,
     Math.abs(cast(min((case when win.quantity > 0 then win.volBid else win.volAsk end) / Math.abs(win.quantity)) * sum(win.quantity), int)) as volBid,
     Math.abs(cast(min((case when win.quantity > 0 then win.volAsk else win.volBid end) / Math.abs(win.quantity)) * sum(win.quantity), int)) as volAsk,
     RoundUtil.getBigDecimalNullSafe(sum((case when win.quantity > 0 then win.bid.doubleValue() else win.ask.doubleValue() end) * win.quantity) / sum(win.quantity)) as bid,
     RoundUtil.getBigDecimalNullSafe(sum((case when win.quantity > 0 then win.ask.doubleValue() else win.bid.doubleValue() end) * win.quantity) / sum(win.quantity)) as ask,
-    last(trigger.parentSecurity) as security
+    last(win.parentSecurity) as security,
+    count(win.componentId) as componentCount,
+    max(win.dateTime.time) - min(win.dateTime.time) as timeDiff
 from
     ComponentWindow as win
 where
-    win.parentSecurity.id = trigger.parentSecurity.id
-and
     win.quantity != 0 // ignore zero-qty components
 and
     not win.dateTime is null // ignore new components having null dateTime
-and
-    trigger.dateTime.time - win.dateTime.time < Constants.ONE_HOUR // ignore components older hand an hour
 group by
-    win.parentSecurity.id, trigger.parentSecurity.id, trigger.parentSecurity.componentCount
-having
-    count(win.componentId) = trigger.parentSecurity.componentCount; // total count of non-ignored components must equal component count of the parent
+    win.parentSecurity.id
+order by
+    win.parentSecurity.id;
+
+// filter CombinationTicks (must be done in separate statement due to Esper Bug)
+@Name('INSERT_INTO_TICK_FROM_COMPONENT_WINDOW')
+insert into
+    Tick
+select
+    dateTime,
+    volBid,
+    volAsk,
+    bid,
+    ask,
+    security
+from
+    CombinationTick
+where
+    componentCount = security.componentCount // total count of non-ignored components must equal component count of the parent
+and
+    timeDiff < Constants.ONE_HOUR // ignore components older hand an hour;
