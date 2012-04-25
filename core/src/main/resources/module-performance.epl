@@ -1,4 +1,4 @@
-@Name('CREATE_MONTHLY_PERFORMANCE')
+@Name('INSERT_INTO_MONTHLY_PERFORMANCE')
 @SimulationOnly
 @Priority(2)
 insert into
@@ -12,7 +12,7 @@ having
     prior(1, portfolio.value.netLiqValue) is not null and
     portfolio.value.netLiqValue != prior(1, portfolio.value.netLiqValue);
 
-@Name('CREATE_PERFORMANCE_KEYS')
+@Name('INSERT_INTO_PERFORMANCE_KEYS')
 @SimulationOnly
 insert into
     PerformanceKeys
@@ -31,7 +31,7 @@ having
 and
     perf.stddev != Double.NaN;
 
-@Name('ALL_TRADES')
+@Name('INSERT_INTO_ALL_TRADES')
 @SimulationOnly
 insert into
     AllTrades
@@ -44,7 +44,7 @@ select
 from
     TradePerformance.win:keepall() as allTrades;
 
-@Name('WINNING_TRADES')
+@Name('INSERT_INTO_WINNING_TRADES')
 @SimulationOnly
 insert into
     WinningTrades
@@ -57,7 +57,7 @@ select
 from
     TradePerformance(winning = true).win:keepall() as winningTrades;
 
-@Name('LOOSING_TRADES')
+@Name('INSERT_INTO_LOOSING_TRADES')
 @SimulationOnly
 insert into
     LoosingTrades
@@ -77,7 +77,7 @@ select
 from
     MonthlyPerformance.win:keepall();
 
-@Name('CREATE_DRAW_DOWN')
+@Name('INSERT_INTO_DRAW_DOWN')
 @SimulationOnly
 insert
     into DrawDown
@@ -90,7 +90,7 @@ select
 from
     Portfolio as portfolio;
 
-@Name('CREATE_MAX_DRAW_DOWN')
+@Name('INSERT_INTO_MAX_DRAW_DOWN')
 @SimulationOnly
 insert into
     MaxDrawDown
