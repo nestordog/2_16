@@ -244,9 +244,17 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
             // add or set the quantity
             if (add) {
-                component.setQuantity(component.getQuantity() + quantity);
+                if (quantity == 0) {
+                    return combination;
+                } else {
+                    component.setQuantity(component.getQuantity() + quantity);
+                }
             } else {
-                component.setQuantity(quantity);
+                if (component.getQuantity() == quantity) {
+                    return combination;
+                } else {
+                    component.setQuantity(quantity);
+                }
             }
 
         } else {

@@ -240,7 +240,8 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         position.setExitValue(exitValue);
 
-        logger.info("set exit value " + position.getSecurity() + " to " + format.format(exitValue));
+        int scale = position.getSecurity().getSecurityFamily().getScale();
+        logger.info("set exit value " + position.getSecurity() + " to " + RoundUtil.getBigDecimal(exitValue, scale));
 
         return position;
     }

@@ -15,7 +15,7 @@
 
     <property name="hibernate.cache.use_second_level_cache">false</property>
     <property name="hibernate.cache.use_query_cache">false</property>
-    <!--     <property name="cache.provider_class">org.hibernate.cache.EhCacheProvider</property> -->
+    <!--     <property name="cache.provider_class">net.sf.ehcache.hibernate.SingletonEhCacheProvider</property> -->
     <!--     <property name="hibernate.cache.query_cache_factory">org.hibernate.cache.StandardQueryCacheFactory</property> -->
 
     <property name="current_session_context_class">thread</property>

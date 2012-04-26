@@ -129,7 +129,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         inputCSV();
 
         // close all open positions that might still exist
-        for (Position position : getPositionDao().loadAll()) {
+        for (Position position : getPositionDao().findOpenTradeablePositions()) {
             getPositionService().closePosition(position.getId(), false);
         }
 
@@ -329,7 +329,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @SuppressWarnings("unchecked")
     protected SimulationResultVO handleGetSimulationResultVO(long startTime) {
 
-        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) EsperManager.getLastEvent(StrategyImpl.BASE, "CREATE_PERFORMANCE_KEYS");
+        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) EsperManager.getLastEvent(StrategyImpl.BASE, "INSERT_INTO_PERFORMANCE_KEYS");
         List<PeriodPerformanceVO> monthlyPerformances = EsperManager.getAllEvents(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
         MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) EsperManager.getLastEvent(StrategyImpl.BASE, "INSERT_INTO_MAX_DRAW_DOWN");
         TradesVO allTrades = (TradesVO) EsperManager.getLastEvent(StrategyImpl.BASE, "INSERT_INTO_ALL_TRADES");
