@@ -34,7 +34,6 @@ import com.espertech.esper.collection.Pair;
 
 public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
-    private static final long serialVersionUID = 2871084846072648536L;
     private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
     private static Logger metricsLogger = MyLogger.getLogger("com.algoTrader.metrics.MetricsLogger");
 

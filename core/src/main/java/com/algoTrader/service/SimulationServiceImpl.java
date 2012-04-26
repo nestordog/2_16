@@ -10,6 +10,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.ConvergenceException;
@@ -141,6 +143,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         for (Strategy strategy : strategies) {
             EsperManager.destroyServiceProvider(strategy.getName());
         }
+
+        // clear the second-level cache
+        CacheManager.getInstance().clearAll();
 
         // run a garbage collection
         System.gc();
@@ -326,10 +331,10 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         PerformanceKeysVO performanceKeys = (PerformanceKeysVO) EsperManager.getLastEvent(StrategyImpl.BASE, "CREATE_PERFORMANCE_KEYS");
         List<PeriodPerformanceVO> monthlyPerformances = EsperManager.getAllEvents(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
-        MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) EsperManager.getLastEvent(StrategyImpl.BASE, "CREATE_MAX_DRAW_DOWN");
-        TradesVO allTrades = (TradesVO) EsperManager.getLastEvent(StrategyImpl.BASE, "ALL_TRADES");
-        TradesVO winningTrades = (TradesVO) EsperManager.getLastEvent(StrategyImpl.BASE, "WINNING_TRADES");
-        TradesVO loosingTrades = (TradesVO) EsperManager.getLastEvent(StrategyImpl.BASE, "LOOSING_TRADES");
+        MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) EsperManager.getLastEvent(StrategyImpl.BASE, "INSERT_INTO_MAX_DRAW_DOWN");
+        TradesVO allTrades = (TradesVO) EsperManager.getLastEvent(StrategyImpl.BASE, "INSERT_INTO_ALL_TRADES");
+        TradesVO winningTrades = (TradesVO) EsperManager.getLastEvent(StrategyImpl.BASE, "INSERT_INTO_WINNING_TRADES");
+        TradesVO loosingTrades = (TradesVO) EsperManager.getLastEvent(StrategyImpl.BASE, "INSERT_INTO_LOOSING_TRADES");
 
         // compile yearly performance
         List<PeriodPerformanceVO> yearlyPerformances = null;
