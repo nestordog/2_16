@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.Property;
 import com.algoTrader.entity.PropertyHolder;
-import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 
 public class PropertyServiceImpl extends PropertyServiceBase {
@@ -12,10 +11,10 @@ public class PropertyServiceImpl extends PropertyServiceBase {
     private static Logger logger = MyLogger.getLogger(PropertyServiceImpl.class.getName());
 
     @Override
-    protected PropertyHolder handleAddProperty(PropertyHolder propertyHolder, String name, Object value, boolean persistent) throws Exception {
+    protected PropertyHolder handleAddProperty(int propertyHolderId, String name, Object value, boolean persistent) throws Exception {
 
         // reattach the propertyHolder
-        propertyHolder = (PropertyHolder) HibernateUtil.reattach(this.getSessionFactory(), propertyHolder);
+        PropertyHolder propertyHolder = getPropertyHolderDao().load(propertyHolderId);
 
         Property property = propertyHolder.getProperties().get(name);
         if (property == null) {
@@ -42,9 +41,11 @@ public class PropertyServiceImpl extends PropertyServiceBase {
     }
 
     @Override
-    protected PropertyHolder handleRemoveProperty(PropertyHolder propertyHolder, String name) throws Exception {
+    protected PropertyHolder handleRemoveProperty(int propertyHolderId, String name) throws Exception {
 
+        PropertyHolder propertyHolder = getPropertyHolderDao().load(propertyHolderId);
         Property property = propertyHolder.getProperties().get(name);
+
         if (property != null) {
 
             getPropertyDao().remove(property);

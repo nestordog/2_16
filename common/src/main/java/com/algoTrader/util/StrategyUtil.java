@@ -17,7 +17,7 @@ public class StrategyUtil {
 
         if (strategy == null) {
             String strategyName = getStartedStrategyName();
-            strategy = ServiceLocator.instance().getLookupService().getStrategyByNameFetched(strategyName);
+            strategy = ServiceLocator.instance().getLookupService().getStrategyByName(strategyName);
         }
         return strategy;
     }

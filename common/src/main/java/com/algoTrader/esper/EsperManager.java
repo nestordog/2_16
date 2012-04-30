@@ -102,7 +102,7 @@ public class EsperManager {
 
         initVariables(strategyName, configuration);
 
-        Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByNameFetched(strategyName);
+        Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(strategyName);
         configuration.getVariables().get("engineStrategy").setInitializationValue(strategy);
 
         EPServiceProvider serviceProvider = EPServiceProviderManager.getProvider(providerURI, configuration);

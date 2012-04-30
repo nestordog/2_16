@@ -1,49 +1,55 @@
 package com.algoTrader.entity.marketData;
 
-import org.hibernate.Hibernate;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.algoTrader.entity.security.Security;
-import com.algoTrader.vo.BarVO;
+import com.algoTrader.vo.RawBarVO;
 
-/**
- * @see Bar
- */
 public class BarDaoImpl extends BarDaoBase {
 
+    Map<String, Integer> securityIds = new HashMap<String, Integer>();
+
     @Override
-    public void toBarVO(Bar bar, BarVO barVO) {
+    public void toRawBarVO(Bar bar, RawBarVO barVO) {
 
-        super.toBarVO(bar, barVO);
+        super.toRawBarVO(bar, barVO);
 
-        completeBarVO(bar, barVO);
+        completeRawBarVO(bar, barVO);
     }
 
     @Override
-    public BarVO toBarVO(final Bar bar) {
+    public RawBarVO toRawBarVO(final Bar bar) {
 
-        BarVO rawBarVO = super.toBarVO(bar);
+        RawBarVO rawBarVO = super.toRawBarVO(bar);
 
-        completeBarVO(bar, rawBarVO);
+        completeRawBarVO(bar, rawBarVO);
 
         return rawBarVO;
     }
 
-    private void completeBarVO(Bar bar, BarVO barVO) {
+    private void completeRawBarVO(Bar bar, RawBarVO barVO) {
 
         barVO.setIsin(bar.getSecurity().getIsin());
     }
 
     @Override
-    public Bar barVOToEntity(BarVO barVO) {
+    public Bar rawBarVOToEntity(RawBarVO barVO) {
 
         Bar bar = new BarImpl();
-        super.barVOToEntity(barVO, bar, true);
+        super.rawBarVOToEntity(barVO, bar, true);
 
-        Security security = getSecurityDao().findByIsinInclFamilyAndUnderlying(barVO.getIsin());
+        // cache security id, as queries byIsin get evicted from cache whenever any change to security table happens
+        String isin = barVO.getIsin();
+        Integer securityId = this.securityIds.get(isin);
+        if (securityId == null) {
+            securityId = getSecurityDao().findSecurityIdByIsin(isin);
+            this.securityIds.put(isin, securityId);
+        }
 
-        // initialize the proxys
-        Hibernate.initialize(security.getUnderlying());
-        Hibernate.initialize(security.getSecurityFamily());
+        // get the fully initialized security
+        Security security = getSecurityDao().get(securityId);
+        security.initialize();
 
         bar.setSecurity(security);
 

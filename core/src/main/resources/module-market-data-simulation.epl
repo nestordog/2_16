@@ -7,7 +7,7 @@ select
 from
     Tick(instanceof(security, com.algoTrader.entity.security.NaturalIndex));
 
-@Name('LOAD_STOCK_OPTIONS_TICKS_FROM_DB')
+@Name('INSERT_INTO_TICK_OPTIONS_FROM_DB')
 @Condition(key='statement.loadStockOptionsFromDB')
 @Priority(2)
 @SimulationOnly
@@ -27,14 +27,14 @@ select
     tick.security as security
 from
     NaturalIndexTick as indexTick,
-    method:LookupUtil.getSubscribedStockOptions() as option,
-    method:LookupUtil.getTickByDateAndSecurity(indexTick.dateTime, option.id) as tick
+    method:LookupUtil.getSubscribedStockOptions() as stockOption,
+    method:LookupUtil.getTickByDateAndSecurityInclSecurityInitialized(indexTick.dateTime, stockOption.id) as tick
 where
-    option.underlying.id = indexTick.security.id
+    stockOption.underlying.id = indexTick.security.id
 order by
        tick.security.id;
 
-@Name('SIMULATE_FUTURES_BY_UNDERLYING')
+@Name('INSERT_INTO_TICK_SIMULATED_FUTURES_BY_UNDERLYING')
 @Condition(key='statement.simulateFuturesByUnderlying')
 @Priority(2)
 @SimulationOnly
@@ -45,14 +45,14 @@ select
     RoundUtil.getBigDecimal(FutureUtil.getFuturePrice(future, indexTick.currentValueDouble)) as last,
     current_timestamp.toDate() as lastDateTime,
     0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
-    future as security
+    LookupUtil.getSecurityInitialized(future.id) as security
 from
     Tick(instanceof(security, com.algoTrader.entity.security.NaturalIndex)) as indexTick,
     method:LookupUtil.getSubscribedFutures() as future
 where
     future.underlying.id = indexTick.security.id;
 
-@Name('SIMULATE_FUTURES_BY_GENERIC_FUTURES')
+@Name('INSERT_INTO_TICK_SIMULATED_FUTURES_BY_GENERIC_FUTURES')
 @Condition(key='statement.simulateFuturesByGenericFutures')
 @Priority(2)
 @SimulationOnly
@@ -63,7 +63,7 @@ select
     genericFutureTick.last as last,
     current_timestamp.toDate() as lastDateTime,
     0 as vol, 0 as volBid, 0 as volAsk,    cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask,    0 as openIntrest, cast(0.0, BigDecimal) as settlement,
-    future as security
+    LookupUtil.getSecurityInitialized(future.id) as security
 from
     Tick(instanceof(security, com.algoTrader.entity.security.GenericFuture)) as genericFutureTick,
     method:LookupUtil.getSubscribedFutures() as future

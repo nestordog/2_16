@@ -23,8 +23,6 @@ import com.algoTrader.util.RoundUtil;
 
 public abstract class OrderServiceImpl extends OrderServiceBase {
 
-    private static final long serialVersionUID = -197227736784463124L;
-
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
 
     private @Value("${simulation}") boolean simulation;
@@ -44,6 +42,10 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     @Override
     protected void handleSendOrder(Order order) throws Exception {
 
+        // reasociate the potentially merged security & strategy
+        order.setSecurity((Security) HibernateUtil.reattach(this.getSessionFactory(), order.getSecurity()));
+        order.setStrategy((Strategy) HibernateUtil.reattach(this.getSessionFactory(), order.getStrategy()));
+
         // validate the order before sending it
         validateOrder(order);
 
@@ -53,28 +55,8 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
             sendInternalOrder(order);
         } else {
 
-            Security security = order.getSecurity();
-            Strategy strategy = order.getStrategy();
-
-            // reattach the security & strategy
-            security = (Security) HibernateUtil.reattach(this.getSessionFactory(), security);
-            strategy = (Strategy) HibernateUtil.reattach(this.getSessionFactory(), strategy);
-
-            // reasociate the potentially merged security & strategy
-            order.setSecurity(security);
-            order.setStrategy(strategy);
-
             // use broker specific functionality to execute the order
             sendExternalOrder(order);
-        }
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Override
-    protected void handleSendOrders(List orders) throws Exception {
-
-        for (Order order : (List<Order>) orders) {
-            sendOrder(order);
         }
     }
 

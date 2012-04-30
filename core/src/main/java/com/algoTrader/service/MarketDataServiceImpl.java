@@ -10,7 +10,6 @@ import java.util.Map;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -22,13 +21,12 @@ import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.io.CsvTickWriter;
-import com.algoTrader.vo.BarVO;
+import com.algoTrader.vo.RawBarVO;
 import com.algoTrader.vo.RawTickVO;
 import com.espertech.esper.collection.Pair;
 
@@ -48,53 +46,20 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
     }
 
     @Override
-    protected Bar handleCompleteBar(BarVO barVO) {
+    protected Bar handleCompleteBar(RawBarVO barVO) {
 
-        return getBarDao().barVOToEntity(barVO);
-    }
-
-    @Override
-    protected void handlePropagateMarketDataEvent(MarketDataEvent marketDataEvent) {
-
-        long start = System.nanoTime();
-
-        // reattach and convert the security if necessary
-        Security security = (Security) HibernateUtil.reattach(this.getSessionFactory(), marketDataEvent.getSecurity());
-
-        long reattach = System.nanoTime();
-
-        // initialize collections
-        Hibernate.initialize(security.getSubscriptions());
-        Hibernate.initialize(security.getPositions());
-
-        // get proxy implementations
-        marketDataEvent.setSecurity((Security) HibernateUtil.getProxyImplementation(security));
-        security.setUnderlying((Security) HibernateUtil.getProxyImplementation(security.getUnderlying()));
-        security.setSecurityFamily((SecurityFamily) HibernateUtil.getProxyImplementation(security.getSecurityFamily()));
-
-        long initialize = System.nanoTime();
-
-        // marketDataEvent.toString is expensive, so only log if debug is anabled
-        if (!logger.getParent().getLevel().isGreaterOrEqual(Level.DEBUG)) {
-            logger.trace(security + " " + marketDataEvent);
-        }
-
-        EsperManager.sendMarketDataEvent(marketDataEvent);
-
-        long sendEvent = System.nanoTime();
-        metricsLogger.trace("propagate_market_data_event," + (reattach - start) + "," + (initialize - reattach) + "," + (sendEvent - initialize));
+        return getBarDao().rawBarVOToEntity(barVO);
     }
 
     @Override
     protected void handlePersistTick(Tick tick) throws IOException {
-
-        Security security = tick.getSecurity();
 
         // get the current Date rounded to MINUTES
         Date date = DateUtils.round(DateUtil.getCurrentEPTime(), Calendar.MINUTE);
         tick.setDateTime(date);
 
         // write the tick to file
+        Security security = tick.getSecurity();
         CsvTickWriter csvWriter = this.csvWriters.get(security);
         if (csvWriter == null) {
             csvWriter = new CsvTickWriter(security.getIsin());
@@ -209,7 +174,12 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             long start = System.nanoTime();
 
-            ServiceLocator.instance().getMarketDataService().propagateMarketDataEvent(marketDataEvent);
+            // security.toString & marketDataEvent.toString is expensive, so only log if debug is anabled
+            if (!logger.getParent().getLevel().isGreaterOrEqual(Level.DEBUG)) {
+                logger.trace(marketDataEvent.getSecurity() + " " + marketDataEvent);
+            }
+
+            EsperManager.sendMarketDataEvent(marketDataEvent);
 
             long sendEvent = System.nanoTime() - start;
 

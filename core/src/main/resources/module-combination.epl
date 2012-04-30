@@ -5,7 +5,7 @@ as
     (componentId int,
     quantity long,
     securityId int,
-    parentSecurity com.algoTrader.entity.security.Security,
+    parentSecurityId int,
     dateTime java.util.Date,
     volBid int,
     volAsk int,
@@ -19,7 +19,7 @@ select
     componentId,
     quantity,
     securityId,
-    parentSecurity,
+    parentSecurityId,
     null as dateTime,
     0 as volBid,
     0 as volAsk,
@@ -60,7 +60,7 @@ select
     Math.abs(cast(min((case when win.quantity > 0 then win.volAsk else win.volBid end) / Math.abs(win.quantity)) * sum(win.quantity), int)) as volAsk,
     RoundUtil.getBigDecimalNullSafe(sum((case when win.quantity > 0 then win.bid.doubleValue() else win.ask.doubleValue() end) * win.quantity) / sum(win.quantity)) as bid,
     RoundUtil.getBigDecimalNullSafe(sum((case when win.quantity > 0 then win.ask.doubleValue() else win.bid.doubleValue() end) * win.quantity) / sum(win.quantity)) as ask,
-    last(win.parentSecurity) as security,
+    last(LookupUtil.getSecurityInclComponentsInitialized(win.parentSecurityId)) as security, // needed to getcomponentCount
     count(win.componentId) as componentCount,
     max(win.dateTime.time) - min(win.dateTime.time) as timeDiff
 from
@@ -70,9 +70,9 @@ where
 and
     not win.dateTime is null // ignore new components having null dateTime
 group by
-    win.parentSecurity.id
+    win.parentSecurityId
 order by
-    win.parentSecurity.id;
+    win.parentSecurityId;
 
 // filter CombinationTicks (must be done in separate statement due to Esper Bug)
 @Name('INSERT_INTO_TICK_FROM_COMPONENT_WINDOW')

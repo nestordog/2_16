@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.Position;
@@ -30,7 +29,6 @@ import com.algoTrader.entity.strategy.CashBalanceDao;
 import com.algoTrader.entity.strategy.Measurement;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
-import com.algoTrader.enumeration.Period;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.vo.PortfolioValueVO;
@@ -68,39 +66,34 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Security handleGetSecurityInclFamilyUnderlyingAndComponents(int securityId) throws Exception {
+    protected Security handleGetSecurityInitialized(int id) throws java.lang.Exception {
 
-        return getSecurityDao().findByIdInclFamilyUnderlyingAndComponents(securityId);
+        Security security = getSecurityDao().get(id);
+
+        // initialize the security
+        security.initialize();
+
+        return security;
+    }
+
+    @Override
+    protected Security handleGetSecurityInclComponentsInitialized(int id) throws java.lang.Exception {
+
+        Security security = getSecurityDao().get(id);
+
+        // initialize the security
+        security.initialize();
+
+        // initialize components
+        security.getComponentsInitialized();
+
+        return security;
     }
 
     @Override
     protected List<Security> handleGetSecuritiesByIds(Collection<Integer> ids) throws Exception {
 
         return getSecurityDao().findByIds(ids);
-    }
-
-    @Override
-    protected List<Security> handleGetSubscribedSecuritiesInclFamily() throws Exception {
-
-        return getSecurityDao().findSubscribedInclFamily();
-    }
-
-    @Override
-    protected List<Security> handleGetSubscribedSecuritiesByStrategyInclFamily(String strategyName) throws Exception {
-
-        return getSecurityDao().findSubscribedByStrategyInclFamily(strategyName);
-    }
-
-    @Override
-    protected List<Security> handleGetSubscribedSecuritiesByPeriodicityInclFamily(Period periodicity) throws Exception {
-
-        return getSecurityDao().findSubscribedByPeriodicityInclFamily(periodicity);
-    }
-
-    @Override
-    protected List<Security> handleGetSubscribedSecuritiesByStrategyInclComponent(String strategyName) throws Exception {
-
-        return getSecurityDao().findSubscribedByStrategyInclComponent(strategyName);
     }
 
     @Override
@@ -335,18 +328,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Strategy handleGetStrategyByNameFetched(String name) throws Exception {
-
-        return getStrategyDao().findByNameFetched(name);
-    }
-
-    @Override
-    protected List<Strategy> handleGetAutoActivateStrategies() throws Exception {
-
-        return getStrategyDao().findAutoActivateStrategies();
-    }
-
-    @Override
     protected SecurityFamily handleGetSecurityFamily(int id) throws Exception {
 
         return getSecurityFamilyDao().get(id);
@@ -476,22 +457,10 @@ public class LookupServiceImpl extends LookupServiceBase {
         Tick tick = null;
         if (!list.isEmpty()) {
             tick = list.get(0);
-            Hibernate.initialize(tick.getSecurity());
-            Hibernate.initialize(tick.getSecurity().getSecurityFamily());
+            tick.getSecurity().initialize();
         }
 
         return tick;
-    }
-
-    @Override
-    protected List<Tick> handleGetLastNTicks(int securityId, int numberOfTicks) {
-
-        List<Integer> ids = (List<Integer>) getTickDao().findLastNTickIdsForSecurity(TickDao.TRANSFORM_NONE, securityId, numberOfTicks);
-        if (ids.size() > 0) {
-            return getTickDao().findByIdsInclSecurityAndUnderlying(ids);
-        } else {
-            return new ArrayList<Tick>();
-        }
     }
 
     @Override
@@ -523,13 +492,13 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Tick handleGetTickByDateAndSecurity(Date date, int securityId) {
+    protected Tick handleGetTickByDateAndSecurityInclSecurityInitialized(Date date, int securityId) {
 
         Tick tick = getTickDao().findByDateAndSecurity(date, securityId);
-        if (tick != null) {
-            Hibernate.initialize(tick.getSecurity());
-            Hibernate.initialize(tick.getSecurity().getSecurityFamily());
-        }
+
+        // initialize the security
+        tick.getSecurity().initialize();
+
         return tick;
     }
 
@@ -564,12 +533,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Currency> handleGetHeldCurrencies(String strategyName) throws Exception {
-
-        return (List<Currency>) getCashBalanceDao().findHeldCurrenciesByStrategy(CashBalanceDao.TRANSFORM_NONE, strategyName);
-    }
-
-    @Override
     protected List<CashBalance> handleGetCashBalancesByStrategy(Strategy strategy) throws Exception {
 
         return getCashBalanceDao().findCashBalancesByStrategy(strategy);
@@ -588,18 +551,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Collection<Component> handleGetAllComponents() throws Exception {
-
-        return getComponentDao().loadAll();
-    }
-
-    @Override
-    protected Collection<Component> handleGetAllSubscribedComponents() throws Exception {
-
-        return getComponentDao().findSubscribedInclSecurity();
-    }
-
-    @Override
     protected List<Component> handleGetSubscribedComponentsByStrategy(String strategyName) throws Exception {
 
         return getComponentDao().findSubscribedByStrategyInclSecurity(strategyName);
@@ -615,20 +566,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Component> handleGetSubscribedComponentsByStrategyAndSecurity(String strategyName, int securityId) throws Exception {
 
         return getComponentDao().findSubscribedByStrategyAndSecurityInclSecurity(strategyName, securityId);
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    protected List<Component> handleGetSubscribedComponentsByStrategyAndClass(String strategyName, Class type) throws Exception {
-
-        int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        return getComponentDao().findSubscribedByStrategyAndClassInclSecurity(strategyName, discriminator);
-    }
-
-    @Override
-    protected long handleGetComponentCount(int securityId) throws Exception {
-
-        return getSecurityDao().findComponentCount(securityId);
     }
 
     @Override

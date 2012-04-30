@@ -3,10 +3,7 @@ package com.algoTrader.entity.marketData;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.hibernate.Hibernate;
-
 import com.algoTrader.entity.security.Security;
-import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.vo.RawTickVO;
 import com.algoTrader.vo.TickVO;
 
@@ -75,22 +72,16 @@ public class TickDaoImpl extends TickDaoBase {
         super.rawTickVOToEntity(rawTickVO, tick, true);
 
         // cache security id, as queries byIsin get evicted from cache whenever any change to security table happens
-        Integer securityId = this.securityIds.get(rawTickVO.getIsin());
-        Security security;
-        if (securityId != null) {
-            security = getSecurityDao().get(securityId);
-        } else {
-            security = getSecurityDao().findByIsin(rawTickVO.getIsin());
-            this.securityIds.put(rawTickVO.getIsin(), security.getId());
+        String isin = rawTickVO.getIsin();
+        Integer securityId = this.securityIds.get(isin);
+        if (securityId == null) {
+            securityId = getSecurityDao().findSecurityIdByIsin(isin);
+            this.securityIds.put(isin, securityId);
         }
 
-        // if security is a proxy, replace it with the implementation
-        security = (Security) HibernateUtil.getProxyImplementation(security);
-
-        // initialize the associated proxyies of security
-        Hibernate.initialize(security.getUnderlying());
-        Hibernate.initialize(security.getSecurityFamily());
-        Hibernate.initialize(security.getPositions());
+        // get the fully initialized security
+        Security security = getSecurityDao().get(securityId);
+        security.initialize();
 
         tick.setSecurity(security);
 

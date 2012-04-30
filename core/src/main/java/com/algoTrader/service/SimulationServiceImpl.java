@@ -209,7 +209,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @Override
     protected void handleSimulateWithCurrentParams() throws Exception {
 
-        SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
+        SimulationResultVO resultVO = runByUnderlyings();
         logMultiLineString(convertStatisticsToLongString(resultVO));
     }
 
@@ -218,7 +218,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         getConfiguration().setProperty(strategyName, parameter, value);
 
-        SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
+        SimulationResultVO resultVO = runByUnderlyings();
         resultLogger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
     }
 
@@ -233,7 +233,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             getConfiguration().setProperty(parameters[i], values[i]);
         }
 
-        SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
+        SimulationResultVO resultVO = runByUnderlyings();
         buffer.append(convertStatisticsToShortString(resultVO));
         resultLogger.info(buffer.toString());
     }
@@ -247,7 +247,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
             getConfiguration().setProperty(strategyName, parameter, format.format(i));
 
-            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
+            SimulationResultVO resultVO = runByUnderlyings();
             resultLogger.info(parameter + "=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
 
             double value = resultVO.getPerformanceKeysVO().getSharpRatio();
@@ -296,16 +296,16 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                             configuration.setProperty(parameters[2], format.format(i2));
                             String message2 = parameters[2] + "=" + format.format(MathUtils.round(i2, this.roundDigits));
 
-                            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
+                            SimulationResultVO resultVO = runByUnderlyings();
                             resultLogger.info(message0 + " " + message1 + " " + message2 + " " + convertStatisticsToShortString(resultVO));
                         }
                     } else {
-                        SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
+                        SimulationResultVO resultVO = runByUnderlyings();
                         resultLogger.info(message0 + " " + message1 + " " + convertStatisticsToShortString(resultVO));
                     }
                 }
             } else {
-                SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
+                SimulationResultVO resultVO = runByUnderlyings();
                 resultLogger.info(message0 + " " + convertStatisticsToShortString(resultVO));
             }
         }

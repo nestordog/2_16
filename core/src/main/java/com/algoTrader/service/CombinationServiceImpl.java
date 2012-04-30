@@ -293,7 +293,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             insertComponentEvent.setComponentId(component.getId());
             insertComponentEvent.setQuantity(component.getQuantity());
             insertComponentEvent.setSecurityId(component.getSecurity().getId());
-            insertComponentEvent.setParentSecurity(combination);
+            insertComponentEvent.setParentSecurityId(combination.getId());
             EsperManager.routeEvent(StrategyImpl.BASE, insertComponentEvent);
         }
     }

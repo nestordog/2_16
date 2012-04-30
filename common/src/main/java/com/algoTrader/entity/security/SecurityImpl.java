@@ -174,4 +174,16 @@ public abstract class SecurityImpl extends Security {
             return true;
         }
     }
+
+    @Override
+    public void initialize() {
+
+        // initialize collections
+        getPositionsInitialized();
+        getSubscriptionsInitialized();
+
+        // get proxy implementations
+        setUnderlying(getUnderlyingInitialized());
+        setSecurityFamily(getSecurityFamilyInitialized());
+    }
 }

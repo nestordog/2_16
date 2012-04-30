@@ -11,7 +11,7 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.service.MarketDataService;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.vo.BarVO;
+import com.algoTrader.vo.RawBarVO;
 import com.algoTrader.vo.RawTickVO;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esperio.AbstractSendableEvent;
@@ -42,11 +42,11 @@ public class CustomSender extends AbstractSender {
             metricsLogger.trace("custom_sender," + (start - this.time)  + "," + (rawTick - start) + "," + (sendEvent- rawTick));
 
             // Bars are always sent using MarketDataService
-        } else if (beanToSend instanceof BarVO) {
+        } else if (beanToSend instanceof RawBarVO) {
 
             MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
 
-            Bar bar = marketDataService.completeBar((BarVO) beanToSend);
+            Bar bar = marketDataService.completeBar((RawBarVO) beanToSend);
 
             EsperManager.sendEvent(StrategyImpl.BASE, bar);
 
