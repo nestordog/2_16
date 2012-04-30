@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import com.algoTrader.entity.security.ExpirableFamilyI;
+import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.ExpirationType;
 import com.algoTrader.esper.EsperManager;
 
@@ -186,6 +188,26 @@ public class DateUtil {
             return get30DaysPriorNext3rdFridayNMonths(input, months);
         } else {
             throw new IllegalArgumentException("unknown expiration type " + type);
+        }
+    }
+
+    public static Date getExpirationDate(SecurityFamily securityFamily, Date input) {
+
+        if (securityFamily instanceof ExpirableFamilyI) {
+            ExpirableFamilyI expirableFamily = (ExpirableFamilyI) securityFamily;
+            return getExpirationDate(expirableFamily.getExpirationType(), input);
+        } else {
+            throw new IllegalArgumentException("securityFamily must be a ExpirableFamily");
+        }
+    }
+
+    public static Date getExpirationDateNMonths(SecurityFamily securityFamily, Date input, int months) {
+
+        if (securityFamily instanceof ExpirableFamilyI) {
+            ExpirableFamilyI expirableFamily = (ExpirableFamilyI) securityFamily;
+            return getExpirationDateNMonths(expirableFamily.getExpirationType(), input, months);
+        } else {
+            throw new IllegalArgumentException("securityFamily must be a ExpirableFamily");
         }
     }
 

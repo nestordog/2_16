@@ -28,6 +28,21 @@ select
 from
     InsertComponentEvent;
 
+@Name('UPDATE_COMPONENT_WINDOW_QUANTITY')
+on
+    UpdateComponentEvent as updateComponentEvent
+update
+    ComponentWindow as componentWindow
+set
+    componentWindow.quantity = updateComponentEvent.quantity,
+    componentWindow.dateTime = null,
+    componentWindow.volBid = 0,
+    componentWindow.volAsk = 0,
+    componentWindow.bid = null,
+    componentWindow.ask = null
+where
+    componentWindow.componentId = updateComponentEvent.componentId;
+
 @Name('DELETE_FROM_COMPONENT_WINDOW')
 on
     RemoveComponentEvent as removeComponentEvent
@@ -36,7 +51,7 @@ delete from
 where
     componentWindow.componentId = removeComponentEvent.componentId;
 
-@Name('UPDATE_COMPONENT_WINDOW')
+@Name('UPDATE_COMPONENT_WINDOW_FROM_TICK')
 @Priority(3)
 on
     Tick as tick
@@ -68,7 +83,7 @@ from
 where
     win.quantity != 0 // ignore zero-qty components
 and
-    not win.dateTime is null // ignore new components having null dateTime
+    not win.dateTime is null // ignore new or updated components having null dateTime
 group by
     win.parentSecurityId
 order by

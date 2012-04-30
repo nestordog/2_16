@@ -20,6 +20,7 @@ import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.InsertComponentEventVO;
 import com.algoTrader.vo.RemoveComponentEventVO;
+import com.algoTrader.vo.UpdateComponentEventVO;
 
 public class CombinationServiceImpl extends CombinationServiceBase {
 
@@ -34,7 +35,15 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         if (!this.simulation) {
             for (Combination combination : getCombinationDao().loadAll()) {
-                resetComponentWindow(combination);
+                for (Component component : combination.getComponents()) {
+
+                    InsertComponentEventVO insertComponentEvent = new InsertComponentEventVO();
+                    insertComponentEvent.setComponentId(component.getId());
+                    insertComponentEvent.setQuantity(component.getQuantity());
+                    insertComponentEvent.setSecurityId(component.getSecurity().getId());
+                    insertComponentEvent.setParentSecurityId(combination.getId());
+                    EsperManager.routeEvent(StrategyImpl.BASE, insertComponentEvent);
+                }
             }
         }
     }
@@ -153,7 +162,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
             // update the ComponentWindow
             removeFromComponentWindow(component);
-            resetComponentWindow(combination);
 
         } else {
 
@@ -257,6 +265,12 @@ public class CombinationServiceImpl extends CombinationServiceBase {
                 }
             }
 
+            // send the UpdateComponentEvent
+            UpdateComponentEventVO updateComponentEvent = new UpdateComponentEventVO();
+            updateComponentEvent.setComponentId(component.getId());
+            updateComponentEvent.setQuantity(component.getQuantity());
+            EsperManager.routeEvent(StrategyImpl.BASE, updateComponentEvent);
+
         } else {
 
             // create a new component
@@ -269,9 +283,14 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
             getComponentDao().create(component);
 
+            // send the InsertComponentEvent
+            InsertComponentEventVO insertComponentEvent = new InsertComponentEventVO();
+            insertComponentEvent.setComponentId(component.getId());
+            insertComponentEvent.setQuantity(component.getQuantity());
+            insertComponentEvent.setSecurityId(component.getSecurity().getId());
+            insertComponentEvent.setParentSecurityId(combination.getId());
+            EsperManager.routeEvent(StrategyImpl.BASE, insertComponentEvent);
         }
-
-        resetComponentWindow(combination);
 
         if (add) {
             logger.debug("added component quantity " + quantity + " of " + component + " to combination " + combinationString);
@@ -280,21 +299,5 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         }
 
         return combination;
-    }
-
-    /**
-     * reset all entries in the ComponentWindow as parent Security has changed due to changes in component qty of one of the components
-     */
-    private void resetComponentWindow(Combination combination) {
-
-        for (Component component : combination.getComponents()) {
-
-            InsertComponentEventVO insertComponentEvent = new InsertComponentEventVO();
-            insertComponentEvent.setComponentId(component.getId());
-            insertComponentEvent.setQuantity(component.getQuantity());
-            insertComponentEvent.setSecurityId(component.getSecurity().getId());
-            insertComponentEvent.setParentSecurityId(combination.getId());
-            EsperManager.routeEvent(StrategyImpl.BASE, insertComponentEvent);
-        }
     }
 }
