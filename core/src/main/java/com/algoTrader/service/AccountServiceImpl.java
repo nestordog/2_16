@@ -27,7 +27,7 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
     @Override
     protected void handleRebalancePortfolio() throws Exception {
 
-        double portfolioNetLiqValue = getStrategyDao().getPortfolioNetLiqValueDouble();
+        double portfolioNetLiqValue = getPortfolioService().getNetLiqValueDouble();
         double totalAllocation = 0.0;
         double totalRebalanceAmount = 0.0;
         double maxRebalanceAmount = 0.0;
@@ -35,7 +35,7 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
         Collection<Transaction> transactions = new ArrayList<Transaction>();
         for (Strategy strategy : strategies) {
 
-            double actualNetLiqValue = MathUtils.round(strategy.getNetLiqValueDouble(), 2);
+            double actualNetLiqValue = MathUtils.round(getPortfolioService().getNetLiqValueDouble(strategy.getName()), 2);
             double targetNetLiqValue = MathUtils.round(portfolioNetLiqValue * strategy.getAllocation(), 2);
             double rebalanceAmount = targetNetLiqValue - actualNetLiqValue;
 

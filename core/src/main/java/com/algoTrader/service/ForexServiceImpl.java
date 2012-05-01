@@ -30,7 +30,7 @@ public class ForexServiceImpl extends ForexServiceBase {
 
         Strategy base = getStrategyDao().findByName(StrategyImpl.BASE);
 
-        List<BalanceVO> balances = getStrategyDao().getPortfolioBalances();
+        List<BalanceVO> balances = getPortfolioService().getBalances();
         for (BalanceVO balance : balances) {
 
             if (balance.getCurrency().equals(this.portfolioBaseCurrency)) {

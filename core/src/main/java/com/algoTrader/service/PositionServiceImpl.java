@@ -293,7 +293,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             position.setMaintenanceMargin(totalMargin);
 
-            double maintenanceMargin = position.getStrategy().getMaintenanceMarginDouble();
+            double maintenanceMargin = getPortfolioService().getMaintenanceMarginDouble(position.getStrategy().getName());
 
             logger.debug("set margin for " + security + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: "
                     + RoundUtil.getBigDecimal(maintenanceMargin));

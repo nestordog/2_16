@@ -367,7 +367,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         SimulationResultVO resultVO = new SimulationResultVO();
         resultVO.setMins(((double) (System.currentTimeMillis() - startTime)) / 60000);
         resultVO.setDataSet(getConfiguration().getDataSet());
-        resultVO.setNetLiqValue(getStrategyDao().getPortfolioNetLiqValueDouble());
+        resultVO.setNetLiqValue(getPortfolioService().getNetLiqValueDouble());
         resultVO.setMonthlyPerformanceVOs(monthlyPerformances);
         resultVO.setYearlyPerformanceVOs(yearlyPerformances);
         resultVO.setPerformanceKeysVO(performanceKeys);

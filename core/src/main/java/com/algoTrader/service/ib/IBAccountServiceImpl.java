@@ -299,8 +299,8 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
         } else {
 
-            Strategy strategy = getStrategyDao().findByName(strategyName);
-            return (long) (strategy.getAvailableFundsDouble() / initialMarginPerContractInBase);
+            double availableFunds = getPortfolioService().getAvailableFundsDouble(strategyName);
+            return (long) (availableFunds / initialMarginPerContractInBase);
         }
     }
 

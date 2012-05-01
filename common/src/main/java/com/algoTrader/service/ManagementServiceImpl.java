@@ -15,6 +15,7 @@ import org.apache.commons.collections15.Predicate;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Property;
+import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
@@ -55,55 +56,90 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected BigDecimal handleGetStrategyCashBalance() throws Exception {
 
-        return getReportingService().getStrategyCashBalance(StrategyUtil.getStartedStrategyName());
+        String strategyName = StrategyUtil.getStartedStrategyName();
+        if (strategyName.equals(StrategyImpl.BASE)) {
+            return getPortfolioService().getCashBalance();
+        } else {
+            return getPortfolioService().getCashBalance(StrategyUtil.getStartedStrategyName());
+        }
     }
 
     @Override
     protected BigDecimal handleGetStrategySecuritiesCurrentValue() throws Exception {
 
-        return getReportingService().getStrategySecuritiesCurrentValue(StrategyUtil.getStartedStrategyName());
+        String strategyName = StrategyUtil.getStartedStrategyName();
+        if (strategyName.equals(StrategyImpl.BASE)) {
+            return getPortfolioService().getSecuritiesCurrentValue();
+        } else {
+            return getPortfolioService().getSecuritiesCurrentValue(strategyName);
+        }
     }
 
     @Override
     protected BigDecimal handleGetStrategyMaintenanceMargin() throws Exception {
 
-        return getReportingService().getStrategyMaintenanceMargin(StrategyUtil.getStartedStrategyName());
+        String strategyName = StrategyUtil.getStartedStrategyName();
+        if (strategyName.equals(StrategyImpl.BASE)) {
+            return getPortfolioService().getMaintenanceMargin();
+        } else {
+            return getPortfolioService().getMaintenanceMargin(strategyName);
+        }
     }
 
     @Override
     protected BigDecimal handleGetStrategyNetLiqValue() throws Exception {
 
-        return getReportingService().getStrategyNetLiqValue(StrategyUtil.getStartedStrategyName());
+        String strategyName = StrategyUtil.getStartedStrategyName();
+        if (strategyName.equals(StrategyImpl.BASE)) {
+            return getPortfolioService().getNetLiqValue();
+        } else {
+            return getPortfolioService().getNetLiqValue(strategyName);
+        }
     }
 
     @Override
     protected BigDecimal handleGetStrategyAvailableFunds() throws Exception {
 
-        return getReportingService().getStrategyAvailableFunds(StrategyUtil.getStartedStrategyName());
+        String strategyName = StrategyUtil.getStartedStrategyName();
+        if (strategyName.equals(StrategyImpl.BASE)) {
+            return getPortfolioService().getAvailableFunds();
+        } else {
+            return getPortfolioService().getAvailableFunds(strategyName);
+        }
     }
 
     @Override
     protected double handleGetStrategyAllocation() throws Exception {
 
-        return getReportingService().getStrategyAllocation(StrategyUtil.getStartedStrategyName());
+        return StrategyUtil.getStartedStrategy().getAllocation();
     }
 
     @Override
     protected double handleGetStrategyLeverage() throws Exception {
 
-        return getReportingService().getStrategyLeverage(StrategyUtil.getStartedStrategyName());
+        String strategyName = StrategyUtil.getStartedStrategyName();
+        if (strategyName.equals(StrategyImpl.BASE)) {
+            return getPortfolioService().getLeverage();
+        } else {
+            return getPortfolioService().getLeverage(strategyName);
+        }
     }
 
     @Override
     protected BigDecimal handleGetStrategyBenchmark() throws Exception {
 
-        return getReportingService().getStrategyBenchmark(StrategyUtil.getStartedStrategyName());
+        return StrategyUtil.getStartedStrategy().getBenchmark();
     }
 
     @Override
     protected double handleGetStrategyPerformance() throws Exception {
 
-        return getReportingService().getStrategyPerformance(StrategyUtil.getStartedStrategyName());
+        String strategyName = StrategyUtil.getStartedStrategyName();
+        if (strategyName.equals(StrategyImpl.BASE)) {
+            return getPortfolioService().getPerformance();
+        } else {
+            return getPortfolioService().getPerformance(strategyName);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -163,21 +199,26 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @SuppressWarnings("unchecked")
     protected List<PositionVO> handleGetDataPositions() throws Exception {
 
-        return getReportingService().getDataOpenPositions(StrategyUtil.getStartedStrategyName());
+        return getLookupService().getOpenPositionsVO(StrategyUtil.getStartedStrategyName());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     protected List<BalanceVO> handleGetDataBalances() throws Exception {
 
-        return getReportingService().getDataBalances(StrategyUtil.getStartedStrategyName());
+        String strategyName = StrategyUtil.getStartedStrategyName();
+        if (strategyName.equals(StrategyImpl.BASE)) {
+            return getPortfolioService().getBalances();
+        } else {
+            return new ArrayList<BalanceVO>();
+        }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     protected List<TransactionVO> handleGetDataTransactions() throws Exception {
 
-        return getReportingService().getDataTransactions(StrategyUtil.getStartedStrategyName());
+        return getLookupService().getTransactionsVO(StrategyUtil.getStartedStrategyName());
     }
 
     @Override

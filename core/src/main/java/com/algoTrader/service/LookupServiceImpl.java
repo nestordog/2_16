@@ -11,9 +11,12 @@ import org.apache.commons.collections15.Predicate;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.Position;
+import com.algoTrader.entity.PositionDao;
 import com.algoTrader.entity.Strategy;
+import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.Transaction;
+import com.algoTrader.entity.TransactionDao;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickDao;
 import com.algoTrader.entity.security.Combination;
@@ -32,6 +35,8 @@ import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.vo.PortfolioValueVO;
+import com.algoTrader.vo.PositionVO;
+import com.algoTrader.vo.TransactionVO;
 
 @SuppressWarnings("unchecked")
 public class LookupServiceImpl extends LookupServiceBase {
@@ -40,6 +45,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     private @Value("${statement.simulateStockOptions}") boolean simulateStockOptions;
     private @Value("${statement.simulateFuturesByUnderlying}") boolean simulateFuturesByUnderlying;
     private @Value("${statement.simulateFuturesByGenericFutures}") boolean simulateFuturesByGenericFutures;
+    private @Value("${misc.transactionDisplayCount}") int transactionDisplayCount;
 
     @Override
     protected Collection<Security> handleGetAllSecurities() throws Exception {
@@ -426,6 +432,16 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected List<PositionVO> handleGetOpenPositionsVO(String strategyName) throws Exception {
+
+        if (strategyName.equals(StrategyImpl.BASE)) {
+            return (List<PositionVO>) getPositionDao().findOpenPositions(PositionDao.TRANSFORM_POSITIONVO);
+        } else {
+            return (List<PositionVO>) getPositionDao().findOpenPositionsByStrategy(PositionDao.TRANSFORM_POSITIONVO, strategyName);
+        }
+    }
+
+    @Override
     protected Collection<Transaction> handleGetAllTransactions() throws Exception {
 
         return getTransactionDao().loadAll();
@@ -447,6 +463,16 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected Transaction handleGetTransaction(int id) throws java.lang.Exception {
 
         return getTransactionDao().get(id);
+    }
+
+    @Override
+    protected List<TransactionVO> handleGetTransactionsVO(String strategyName) throws Exception {
+
+        if (strategyName.equals(StrategyImpl.BASE)) {
+            return (List<TransactionVO>) getTransactionDao().findTransactionsDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 0, this.transactionDisplayCount);
+        } else {
+            return (List<TransactionVO>) getTransactionDao().findTransactionsByStrategyDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 0, this.transactionDisplayCount, strategyName);
+        }
     }
 
     @Override
@@ -505,10 +531,10 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected PortfolioValueVO handleGetPortfolioValue() throws Exception {
 
-        double cashBalance = getStrategyDao().getPortfolioCashBalanceDouble();
-        double securitiesCurrentValue = getStrategyDao().getPortfolioSecuritiesCurrentValueDouble();
-        double maintenanceMargin = getStrategyDao().getPortfolioMaintenanceMarginDouble();
-        double leverage = getStrategyDao().getPortfolioLeverage();
+        double cashBalance = getPortfolioService().getCashBalanceDouble();
+        double securitiesCurrentValue = getPortfolioService().getSecuritiesCurrentValueDouble();
+        double maintenanceMargin = getPortfolioService().getMaintenanceMarginDouble();
+        double leverage = getPortfolioService().getLeverage();
 
         PortfolioValueVO portfolioValueVO = new PortfolioValueVO();
         portfolioValueVO.setCashBalance(cashBalance);
@@ -533,9 +559,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<CashBalance> handleGetCashBalancesByStrategy(Strategy strategy) throws Exception {
+    protected List<CashBalance> handleGetCashBalancesByStrategy(String strategyName) throws Exception {
 
-        return getCashBalanceDao().findCashBalancesByStrategy(strategy);
+        return getCashBalanceDao().findCashBalancesByStrategy(strategyName);
     }
 
     @Override
