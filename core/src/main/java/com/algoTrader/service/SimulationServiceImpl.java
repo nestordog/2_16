@@ -40,6 +40,7 @@ import com.algoTrader.esper.EsperManager;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
 import com.algoTrader.esper.io.CsvTickInputAdapterSpec;
 import com.algoTrader.util.MyLogger;
+import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.util.spring.Configuration;
 import com.algoTrader.vo.EndOfSimulationVO;
 import com.algoTrader.vo.MaxDrawDownVO;
@@ -127,6 +128,10 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         // feed the ticks
         inputCSV();
+
+        // log metrics in case they have been enabled
+        MetricsUtil.logMetrics();
+        EsperManager.logStatementMetrics();
 
         // close all open positions that might still exist
         for (Position position : getPositionDao().findOpenTradeablePositions()) {

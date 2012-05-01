@@ -51,9 +51,16 @@ public class SubscriberCreator {
                 CtMethod updateMethod = CtNewMethod.make(Modifier.PUBLIC, CtClass.voidType, "update", params, new CtClass[] {}, "return null;", subscriberClass);
 
                 // assemble the body of the method
-                String updateMethodBody = "{long startTime = System.currentTimeMillis(); " + "logger.debug(\"" + serviceMethodName + " start\"); " + "(("
-                        + serviceClassName + ") getService())." + serviceMethodName + "($$); " + "logger.debug(\"" + serviceMethodName
-                        + " end (\" + (System.currentTimeMillis() - startTime) + \"ms execution)\");}";
+                //@formatter:off
+                String updateMethodBody =
+                        "{" +
+                        "    logger.debug(\"" + serviceMethodName + " start\"); " +
+                        "    long startTime = System.nanoTime(); " +
+                        "    (("+ serviceClassName + ") getService())." + serviceMethodName + "($$); " +
+                        "    logger.debug(\"" + serviceMethodName + " end\");" +
+                        "    com.algoTrader.util.metric.MetricsUtil.accountEnd(\"" + StringUtils.substringAfterLast(subscriberClassName, ".") + "\", startTime);" +
+                        "}";
+                //@formatter:on
 
                 updateMethod.setBody(updateMethodBody);
                 subscriberClass.addMethod(updateMethod);

@@ -26,6 +26,7 @@ import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.io.CsvTickWriter;
+import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.RawBarVO;
 import com.algoTrader.vo.RawTickVO;
 import com.espertech.esper.collection.Pair;
@@ -33,7 +34,6 @@ import com.espertech.esper.collection.Pair;
 public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
-    private static Logger metricsLogger = MyLogger.getLogger("com.algoTrader.metrics.MetricsLogger");
 
     private @Value("${simulation}") boolean simulation;
 
@@ -170,20 +170,18 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     public static class PropagateMarketDataEventSubscriber {
 
-        public void update(MarketDataEvent marketDataEvent) {
-
-            long start = System.nanoTime();
+        public void update(final MarketDataEvent marketDataEvent) {
 
             // security.toString & marketDataEvent.toString is expensive, so only log if debug is anabled
             if (!logger.getParent().getLevel().isGreaterOrEqual(Level.DEBUG)) {
                 logger.trace(marketDataEvent.getSecurity() + " " + marketDataEvent);
             }
 
+            long startTime = System.nanoTime();
+
             EsperManager.sendMarketDataEvent(marketDataEvent);
 
-            long sendEvent = System.nanoTime() - start;
-
-            metricsLogger.trace("propagate_market_data_event_subscriber," + sendEvent);
+            MetricsUtil.accountEnd("PropagateMarketDataEventSubscriber.update", startTime);
         }
     }
 

@@ -6,6 +6,7 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
+import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.PortfolioValueVO;
 
 public class PrintPortfolioValueSubscriber {
@@ -17,6 +18,8 @@ public class PrintPortfolioValueSubscriber {
     private static boolean initialized = false;
 
     public void update(long timestamp, PortfolioValueVO portfolioValue, Transaction transaction) {
+
+        long startTime = System.nanoTime();
 
         // dont log anything while initialising macd
         if (portfolioValue.getNetLiqValue() != initialBalance) {
@@ -32,5 +35,7 @@ public class PrintPortfolioValueSubscriber {
                 + ((transaction != null) ? ("," + transaction.getNetValue()) : ""));
             //@formatter:on
         }
+
+        MetricsUtil.accountEnd("PrintPortfolioValueSubscriber", startTime);
     }
 }

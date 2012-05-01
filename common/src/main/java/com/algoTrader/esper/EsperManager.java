@@ -1,6 +1,7 @@
 package com.algoTrader.esper;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,6 +19,7 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.jms.core.JmsTemplate;
@@ -45,6 +47,7 @@ import com.algoTrader.esper.io.DBInputAdapter;
 import com.algoTrader.esper.subscriber.SubscriberCreator;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
+import com.algoTrader.util.metric.MetricsUtil;
 import com.espertech.esper.adapter.InputAdapter;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationVariable;
@@ -66,12 +69,16 @@ import com.espertech.esper.client.deploy.DeploymentResult;
 import com.espertech.esper.client.deploy.EPDeploymentAdmin;
 import com.espertech.esper.client.deploy.Module;
 import com.espertech.esper.client.deploy.ModuleItem;
+import com.espertech.esper.client.metric.StatementMetric;
 import com.espertech.esper.client.soda.AnnotationAttribute;
 import com.espertech.esper.client.soda.AnnotationPart;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.TimerControlEvent;
 import com.espertech.esper.core.service.EPServiceProviderImpl;
+import com.espertech.esper.core.service.EPServiceProviderSPI;
+import com.espertech.esper.epl.metric.MetricReportingServiceImpl;
+import com.espertech.esper.epl.metric.StatementMetricRepository;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
@@ -81,10 +88,10 @@ import com.espertech.esperio.csv.CSVInputAdapterSpec;
 public class EsperManager {
 
     private static Logger logger = MyLogger.getLogger(EsperManager.class.getName());
-    private static Logger metricsLogger = MyLogger.getLogger("com.algoTrader.metrics.MetricsLogger");
 
     private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
     private static List<String> moduleDeployExcludeStatements = Arrays.asList((ServiceLocator.instance().getConfiguration().getString("misc.moduleDeployExcludeStatements")).split(","));
+    private static final boolean metricsEnabled = ServiceLocator.instance().getConfiguration().getBoolean("misc.metricsEnabled");
 
     private static Map<String, AdapterCoordinator> coordinators = new HashMap<String, AdapterCoordinator>();
     private static Map<String, Boolean> internalClock = new HashMap<String, Boolean>();
@@ -344,11 +351,11 @@ public class EsperManager {
         if (simulation) {
             if (isInitialized(strategyName)) {
 
-                long start = System.nanoTime();
+                long startTime = System.nanoTime();
 
                 getServiceProvider(strategyName).getEPRuntime().sendEvent(obj);
 
-                metricsLogger.trace("event_service_send_event," + strategyName + "," + obj.getClass() + "," + (System.nanoTime() - start));
+                MetricsUtil.accountEnd("EsperManager." + strategyName + "." + ClassUtils.getShortClassName(obj.getClass()), startTime);
             }
         } else {
 
@@ -653,6 +660,36 @@ public class EsperManager {
         } else {
 
             deployStatement(strategyName, "prepared", "ON_FIRST_TICK", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds }, callback);
+        }
+    }
+
+    public static void logStatementMetrics() {
+
+        if (metricsEnabled) {
+            for (Map.Entry<String, EPServiceProvider> serviceProvider : serviceProviders.entrySet()) {
+
+                EPServiceProviderSPI serviceProviderSPI = (EPServiceProviderSPI) serviceProvider.getValue();
+                MetricReportingServiceImpl metricReportingService = (MetricReportingServiceImpl) serviceProviderSPI.getMetricReportingService();
+
+                // use reflection to access the field stmtMetricRepository
+                StatementMetricRepository statementMetricRepository = null;
+                try {
+                    Field f = metricReportingService.getClass().getDeclaredField("stmtMetricRepository");
+                    f.setAccessible(true);
+                    statementMetricRepository = (StatementMetricRepository) f.get(metricReportingService);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+                StatementMetric[] metrics = statementMetricRepository.reportGroup(0);
+                if (metrics != null) {
+                    for (StatementMetric metric : metrics) {
+                        if (metric != null) {
+                            logger.info(metric.getEngineURI() + "." + metric.getStatementName() + ": " + metric.getNumInput() + " events " + metric.getWallTime() + " millis");
+                        }
+                    }
+                }
+            }
         }
     }
 

@@ -2,15 +2,13 @@ package com.algoTrader.esper.io;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.service.MarketDataService;
-import com.algoTrader.util.MyLogger;
+import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.RawBarVO;
 import com.algoTrader.vo.RawTickVO;
 import com.espertech.esper.client.time.CurrentTimeEvent;
@@ -19,27 +17,24 @@ import com.espertech.esperio.AbstractSender;
 
 public class CustomSender extends AbstractSender {
 
-    private long time = 0;
-    private static Logger metricsLogger = MyLogger.getLogger("com.algoTrader.metrics.MetricsLogger");
-
     @Override
     public void sendEvent(AbstractSendableEvent event, Object beanToSend) {
 
-        long start = System.nanoTime();
 
         // raw Ticks are always sent using MarketDataService
         if (beanToSend instanceof RawTickVO) {
 
+            long beforeCompleteRawTick = System.nanoTime();
             MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
-
             Tick tick = marketDataService.completeRawTick((RawTickVO) beanToSend);
+            long afterCompleteRawTick = System.nanoTime();
 
-            long rawTick = System.nanoTime();
-
+            long beforeSendEvent = System.nanoTime();
             EsperManager.sendEvent(StrategyImpl.BASE, tick);
+            long afterSendEvent = System.nanoTime();
 
-            long sendEvent = System.nanoTime();
-            metricsLogger.trace("custom_sender," + (start - this.time)  + "," + (rawTick - start) + "," + (sendEvent- rawTick));
+            MetricsUtil.account("CustomSender.completeRawTick", (afterCompleteRawTick - beforeCompleteRawTick));
+            MetricsUtil.account("CustomSender.sendTick", (afterSendEvent - beforeSendEvent));
 
             // Bars are always sent using MarketDataService
         } else if (beanToSend instanceof RawBarVO) {
@@ -53,14 +48,16 @@ public class CustomSender extends AbstractSender {
             // currentTimeEvents are sent to all started strategies
         } else if (beanToSend instanceof CurrentTimeEvent) {
 
+            long beforeSendEvent = System.nanoTime();
             EsperManager.setCurrentTime((CurrentTimeEvent) beanToSend);
+            long afterSendEvent = System.nanoTime();
+
+            MetricsUtil.account("CustomSender.sendCurrentTimeEvent", (afterSendEvent - beforeSendEvent));
 
             // everything else (especially Ticks) are sent to the specified runtime
         } else {
             this.runtime.sendEvent(beanToSend);
         }
-
-        this.time = System.nanoTime();
     }
 
     @Override
