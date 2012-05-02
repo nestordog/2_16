@@ -62,6 +62,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
     private @Value("${simulation.roundDigits}") int roundDigits;
     private @Value("${simulation.start}") long start;
+    private @Value("${dataSource.dataSetLocation}") String dataSetLocation;
 
     public SimulationServiceImpl() {
         format.setMinimumFractionDigits(this.roundDigits);
@@ -82,7 +83,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             MarketDataType marketDataType = getConfiguration().getDataSetType();
             String dataSet = getConfiguration().getDataSet();
 
-            File file = new File("results/" + marketDataType.toString().toLowerCase() + "data/" + dataSet + "/" + security.getIsin() + ".csv");
+            String baseDir = this.dataSetLocation.equals("") ? "results/" : this.dataSetLocation;
+            File file = new File(baseDir + marketDataType.toString().toLowerCase() + "data/" + dataSet + "/" + security.getIsin() + ".csv");
 
             if (file == null || !file.exists()) {
                 logger.warn("no data available for " + security.getSymbol());
