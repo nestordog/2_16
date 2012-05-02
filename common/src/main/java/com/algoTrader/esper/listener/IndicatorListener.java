@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.util.MyLogger;
+import com.algoTrader.util.metric.MetricsUtil;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
@@ -21,6 +22,8 @@ public class IndicatorListener implements StatementAwareUpdateListener {
 
     @Override
     public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPServiceProvider epServiceProvider) {
+
+        long startTime = System.nanoTime();
 
         // print the headers
         if (propertyNames == null) {
@@ -41,5 +44,7 @@ public class IndicatorListener implements StatementAwareUpdateListener {
             }
             logger.info(StringUtils.join(values, ","));
         }
+
+        MetricsUtil.accountEnd("IndicatorListener", startTime);
     }
 }

@@ -1,7 +1,6 @@
 package com.algoTrader.esper;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,6 +47,7 @@ import com.algoTrader.esper.subscriber.SubscriberCreator;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.util.metric.MetricsUtil;
+import com.algoTrader.vo.StatementMetric;
 import com.espertech.esper.adapter.InputAdapter;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationVariable;
@@ -69,16 +69,12 @@ import com.espertech.esper.client.deploy.DeploymentResult;
 import com.espertech.esper.client.deploy.EPDeploymentAdmin;
 import com.espertech.esper.client.deploy.Module;
 import com.espertech.esper.client.deploy.ModuleItem;
-import com.espertech.esper.client.metric.StatementMetric;
 import com.espertech.esper.client.soda.AnnotationAttribute;
 import com.espertech.esper.client.soda.AnnotationPart;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.TimerControlEvent;
 import com.espertech.esper.core.service.EPServiceProviderImpl;
-import com.espertech.esper.core.service.EPServiceProviderSPI;
-import com.espertech.esper.epl.metric.MetricReportingServiceImpl;
-import com.espertech.esper.epl.metric.StatementMetricRepository;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
@@ -663,32 +659,13 @@ public class EsperManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static void logStatementMetrics() {
 
-        if (metricsEnabled) {
-            for (Map.Entry<String, EPServiceProvider> serviceProvider : serviceProviders.entrySet()) {
-
-                EPServiceProviderSPI serviceProviderSPI = (EPServiceProviderSPI) serviceProvider.getValue();
-                MetricReportingServiceImpl metricReportingService = (MetricReportingServiceImpl) serviceProviderSPI.getMetricReportingService();
-
-                // use reflection to access the field stmtMetricRepository
-                StatementMetricRepository statementMetricRepository = null;
-                try {
-                    Field f = metricReportingService.getClass().getDeclaredField("stmtMetricRepository");
-                    f.setAccessible(true);
-                    statementMetricRepository = (StatementMetricRepository) f.get(metricReportingService);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-
-                StatementMetric[] metrics = statementMetricRepository.reportGroup(0);
-                if (metrics != null) {
-                    for (StatementMetric metric : metrics) {
-                        if (metric != null) {
-                            logger.info(metric.getEngineURI() + "." + metric.getStatementName() + ": " + metric.getNumInput() + " events " + metric.getWallTime() + " millis");
-                        }
-                    }
-                }
+        for (Map.Entry<String, EPServiceProvider> entry : serviceProviders.entrySet()) {
+            List<StatementMetric> metrics = getAllEvents(entry.getKey(), "METRICS");
+            for (StatementMetric metric : metrics) {
+                logger.info(metric.getEngineURI() + "." + metric.getStatementName() + ": " + metric.getNumInput() + " events " + metric.getWallTime() + " millis");
             }
         }
     }

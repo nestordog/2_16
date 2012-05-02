@@ -65,6 +65,9 @@
         <legacy-type accessor-style="public" code-generation="disabled" property-resolution-style="case_sensitive"/>
     </event-type>
 
+    <!--  Metrics -->
+    <event-type name="StatementMetric" class="com.algoTrader.vo.StatementMetricVO"/>
+
     <auto-import import-name="com.algoTrader.enumeration.TransactionType"/>
     <auto-import import-name="com.algoTrader.enumeration.Direction"/>
     <auto-import import-name="com.algoTrader.enumeration.Side"/>
@@ -128,7 +131,7 @@
             </threading>
             <expression udf-cache="false"/>
             <execution prioritized="true"/>
-<!--             <metrics-reporting enabled="true" engine-interval="-1" statement-interval="63072000000" />         -->
+<!--             <metrics-reporting enabled="true" engine-interval="-1" statement-interval="86400000" />         -->
         </defaults>
     </engine-settings>
 

@@ -117,12 +117,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Collection<Security> handleGetSubscribedSecuritiesForAutoActivateStrategiesInclFamily() throws Exception {
-
-        return getSecurityDao().findSubscribedForAutoActivateStrategiesInclFamily();
-    }
-
-    @Override
     protected StockOption handleGetStockOptionByMinExpirationAndMinStrikeDistance(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot,
             OptionType optionType) throws Exception {
 
@@ -307,6 +301,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Subscription> handleGetSubscriptionsByStrategy(String strategyName) throws Exception {
 
         return getSubscriptionDao().findByStrategy(strategyName);
+    }
+
+    @Override
+    protected List<Subscription> handleGetSubscriptionsForAutoActivateStrategies() throws Exception {
+
+        return getSubscriptionDao().findForAutoActivateStrategies();
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.algoTrader.service;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -152,32 +151,38 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         List<TickVO> tickVOs = getTickVOs(ticks);
 
         // get all subscribed securities
-        List<TickVO> processedTickVOs = new ArrayList<TickVO>();
 
         if (StrategyUtil.isStartedStrategyBASE()) {
 
             // for base iterate over all subscribed securities
-            // TODO eliminate LazyLoading with new Finder: Subscription.findForAutoActivateStrategiesInclProperties
-            Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategiesInclFamily();
-            for (Security security : securities) {
+            Map<Security, TickVO> processedTickVOs = new HashMap<Security, TickVO>();
+            for (Subscription subscription : getLookupService().getSubscriptionsForAutoActivateStrategies()) {
 
-                TickVO tickVO = getTickVO(tickVOs, security);
+                Security security = subscription.getSecurity();
 
-                processedTickVOs.add(tickVO);
-
-                // add properties from all subscriptions
-                Map<String, Property> properties = new HashMap<String, Property>();
-                for (Subscription subscription : security.getSubscriptionsInitialized()) {
-                    properties.putAll(subscription.getPropertiesInitialized());
+                // try to get the processedTick
+                TickVO tickVO = processedTickVOs.get(security);
+                if (tickVO == null) {
+                    tickVO = getTickVO(tickVOs, security);
+                    processedTickVOs.put(security, tickVO);
                 }
+
+                // add all properties from this subscription
+                Map<String, Property> properties = subscription.getPropertiesInitialized();
                 if (!properties.isEmpty()) {
-                    tickVO.setProperties(properties);
+                    if (tickVO.getProperties() != null) {
+                        tickVO.getProperties().putAll(properties);
+                    } else {
+                        tickVO.setProperties(properties);
+                    }
                 }
             }
+            return new ArrayList<TickVO>(processedTickVOs.values());
+
         } else {
 
             // for strategies iterate over all subscriptions
-            // TODO eliminate LazyLoading with new Finder: Subscription.findByStrategyInclProperties
+            List<TickVO> processedTickVOs = new ArrayList<TickVO>();
             for (Subscription subscription : getLookupService().getSubscriptionsByStrategy(strategyName)) {
 
                 TickVO tickVO = getTickVO(tickVOs, subscription.getSecurity());
@@ -190,9 +195,9 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
                 processedTickVOs.add(tickVO);
             }
+            return processedTickVOs;
         }
 
-        return processedTickVOs;
     }
 
     @Override
