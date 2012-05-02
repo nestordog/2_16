@@ -47,7 +47,7 @@ import com.algoTrader.esper.subscriber.SubscriberCreator;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.util.metric.MetricsUtil;
-import com.algoTrader.vo.StatementMetric;
+import com.algoTrader.vo.StatementMetricVO;
 import com.espertech.esper.adapter.InputAdapter;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationVariable;
@@ -663,8 +663,8 @@ public class EsperManager {
     public static void logStatementMetrics() {
 
         for (Map.Entry<String, EPServiceProvider> entry : serviceProviders.entrySet()) {
-            List<StatementMetric> metrics = getAllEvents(entry.getKey(), "METRICS");
-            for (StatementMetric metric : metrics) {
+            List<StatementMetricVO> metrics = getAllEvents(entry.getKey(), "METRICS");
+            for (StatementMetricVO metric : metrics) {
                 logger.info(metric.getEngineURI() + "." + metric.getStatementName() + ": " + metric.getNumInput() + " events " + metric.getWallTime() + " millis");
             }
         }
