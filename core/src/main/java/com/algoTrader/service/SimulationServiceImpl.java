@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -73,7 +74,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         EsperManager.initCoordination(StrategyImpl.BASE);
 
-        List<Security> securities = getSecurityDao().findSubscribedForAutoActivateStrategiesInclFamily();
+        Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategiesInclFamily();
         for (Security security : securities) {
 
             if (security.getIsin() == null) {
@@ -119,7 +120,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         getResetService().resetDB();
 
         // init all activatable strategies
-        List<Strategy> strategies = getStrategyDao().findAutoActivateStrategies();
+        Collection<Strategy> strategies = getLookupService().getAutoActivateStrategies();
         for (Strategy strategy : strategies) {
             EsperManager.initServiceProvider(strategy.getName());
             EsperManager.deployAllModules(strategy.getName());
@@ -136,7 +137,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         EsperManager.logStatementMetrics();
 
         // close all open positions that might still exist
-        for (Position position : getPositionDao().findOpenTradeablePositions()) {
+        for (Position position : getLookupService().getOpenTradeablePositions()) {
             getPositionService().closePosition(position.getId(), false);
         }
 

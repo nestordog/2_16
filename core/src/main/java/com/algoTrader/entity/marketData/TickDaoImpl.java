@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.RawTickVO;
 import com.algoTrader.vo.TickVO;
 
@@ -68,20 +69,34 @@ public class TickDaoImpl extends TickDaoBase {
     @Override
     public Tick rawTickVOToEntity(RawTickVO rawTickVO) {
 
+        long beforeRawTickToEntity = System.nanoTime();
         Tick tick = new TickImpl();
         super.rawTickVOToEntity(rawTickVO, tick, true);
+        long afterRawTickToEntity = System.nanoTime();
 
         // cache security id, as queries byIsin get evicted from cache whenever any change to security table happens
+        long beforeGetSecurityId = System.nanoTime();
         String isin = rawTickVO.getIsin();
         Integer securityId = this.securityIds.get(isin);
         if (securityId == null) {
             securityId = getSecurityDao().findSecurityIdByIsin(isin);
             this.securityIds.put(isin, securityId);
         }
+        long afterGetSecurityId = System.nanoTime();
 
         // get the fully initialized security
+        long beforeSecurityLookup = System.nanoTime();
         Security security = getSecurityDao().get(securityId);
+        long afterSecurityLookup = System.nanoTime();
+
+        long beforeInitialization = System.nanoTime();
         security.initialize();
+        long afterInitialization = System.nanoTime();
+
+        MetricsUtil.account("TickDao.rawTickToEntity", (afterRawTickToEntity - beforeRawTickToEntity));
+        MetricsUtil.account("TickDao.getSecurityId", (afterGetSecurityId - beforeGetSecurityId));
+        MetricsUtil.account("TickDao.securityLookup", (afterSecurityLookup - beforeSecurityLookup));
+        MetricsUtil.account("TickDao.initialization", (afterInitialization - beforeInitialization));
 
         tick.setSecurity(security);
 

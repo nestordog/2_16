@@ -17,6 +17,7 @@ import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionDao;
+import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickDao;
 import com.algoTrader.entity.security.Combination;
@@ -34,8 +35,11 @@ import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
+import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.PortfolioValueVO;
 import com.algoTrader.vo.PositionVO;
+import com.algoTrader.vo.RawBarVO;
+import com.algoTrader.vo.RawTickVO;
 import com.algoTrader.vo.TransactionVO;
 
 @SuppressWarnings("unchecked")
@@ -105,7 +109,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<Security> handleGetSubscribedSecuritiesByStrategyAndComponent(String strategyName, int securityId) throws Exception {
 
-        return getSecurityDao().findSubscribedByStrategyAndComponentInclComponent(strategyName, securityId);
+        return getSecurityDao().findSubscribedByStrategyAndComponent(strategyName, securityId);
     }
 
     @SuppressWarnings("rawtypes")
@@ -113,7 +117,13 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Security> handleGetSubscribedSecuritiesByStrategyAndComponentClass(String strategyName, final Class type) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        return getSecurityDao().findSubscribedByStrategyAndComponentClassInclComponent(strategyName, discriminator);
+        return getSecurityDao().findSubscribedByStrategyAndComponentClass(strategyName, discriminator);
+    }
+
+    @Override
+    protected List<Security> handleGetSubscribedSecuritiesForAutoActivateStrategiesInclFamily() throws Exception {
+
+        return getSecurityDao().findSubscribedForAutoActivateStrategiesInclFamily();
     }
 
     @Override
@@ -331,6 +341,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected Strategy handleGetStrategyByName(String name) throws Exception {
 
         return getStrategyDao().findByName(name);
+    }
+
+    @Override
+    protected List<Strategy> handleGetAutoActivateStrategies() throws Exception {
+
+        return getStrategyDao().findAutoActivateStrategies();
     }
 
     @Override
@@ -573,7 +589,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Collection<Combination> handleGetCombinationByStrategyAndUnderlying(String strategyName, int underlyingId) throws Exception {
 
-        return getCombinationDao().findSubscribedByStrategyAndUnderlyingInclComponent(strategyName, underlyingId);
+        return getCombinationDao().findSubscribedByStrategyAndUnderlying(strategyName, underlyingId);
     }
 
     @Override
@@ -610,5 +626,23 @@ public class LookupServiceImpl extends LookupServiceBase {
         } else {
             return null;
         }
+    }
+
+    @Override
+    protected Tick handleGetTickFromRawTick(RawTickVO rawTick) {
+
+        long beforeCompleteRawTick = System.nanoTime();
+        Tick tick = getTickDao().rawTickVOToEntity(rawTick);
+        long afterCompleteRawTick = System.nanoTime();
+
+        MetricsUtil.account("LookupService.getTickFromRawTick", (afterCompleteRawTick - beforeCompleteRawTick));
+
+        return tick;
+    }
+
+    @Override
+    protected Bar handleGetBarFromRawBar(RawBarVO barVO) {
+
+        return getBarDao().rawBarVOToEntity(barVO);
     }
 }

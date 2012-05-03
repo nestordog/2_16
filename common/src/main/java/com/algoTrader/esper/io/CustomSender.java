@@ -7,7 +7,6 @@ import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.esper.EsperManager;
-import com.algoTrader.service.MarketDataService;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.RawBarVO;
 import com.algoTrader.vo.RawTickVO;
@@ -25,8 +24,7 @@ public class CustomSender extends AbstractSender {
         if (beanToSend instanceof RawTickVO) {
 
             long beforeCompleteRawTick = System.nanoTime();
-            MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
-            Tick tick = marketDataService.completeRawTick((RawTickVO) beanToSend);
+            Tick tick = ServiceLocator.instance().getLookupService().getTickFromRawTick((RawTickVO) beanToSend);
             long afterCompleteRawTick = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();
@@ -39,9 +37,7 @@ public class CustomSender extends AbstractSender {
             // Bars are always sent using MarketDataService
         } else if (beanToSend instanceof RawBarVO) {
 
-            MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
-
-            Bar bar = marketDataService.completeBar((RawBarVO) beanToSend);
+            Bar bar = ServiceLocator.instance().getLookupService().getBarFromRawBar((RawBarVO) beanToSend);
 
             EsperManager.sendEvent(StrategyImpl.BASE, bar);
 

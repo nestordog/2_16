@@ -59,7 +59,7 @@ public class MetricsUtil {
 
         if (metricsEnabled) {
 
-            logger.info("Total Duration: " + getDuration() + " millis");
+            logger.info("TotalDuration: " + getDuration() + " millis");
 
             for (Map.Entry<String, Metric> entry : metrics.entrySet()) {
                 Metric metric = entry.getValue();

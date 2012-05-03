@@ -87,7 +87,6 @@ public class EsperManager {
 
     private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
     private static List<String> moduleDeployExcludeStatements = Arrays.asList((ServiceLocator.instance().getConfiguration().getString("misc.moduleDeployExcludeStatements")).split(","));
-    private static final boolean metricsEnabled = ServiceLocator.instance().getConfiguration().getBoolean("misc.metricsEnabled");
 
     private static Map<String, AdapterCoordinator> coordinators = new HashMap<String, AdapterCoordinator>();
     private static Map<String, Boolean> internalClock = new HashMap<String, Boolean>();

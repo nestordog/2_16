@@ -17,7 +17,6 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.SubscriptionImpl;
-import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
@@ -27,8 +26,6 @@ import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.io.CsvTickWriter;
 import com.algoTrader.util.metric.MetricsUtil;
-import com.algoTrader.vo.RawBarVO;
-import com.algoTrader.vo.RawTickVO;
 import com.espertech.esper.collection.Pair;
 
 public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
@@ -38,18 +35,6 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
     private @Value("${simulation}") boolean simulation;
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
-
-    @Override
-    protected Tick handleCompleteRawTick(RawTickVO rawTick) {
-
-        return getTickDao().rawTickVOToEntity(rawTick);
-    }
-
-    @Override
-    protected Bar handleCompleteBar(RawBarVO barVO) {
-
-        return getBarDao().rawBarVOToEntity(barVO);
-    }
 
     @Override
     protected void handlePersistTick(Tick tick) throws IOException {
