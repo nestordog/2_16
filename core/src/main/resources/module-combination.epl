@@ -6,6 +6,7 @@ as
     quantity long,
     securityId int,
     parentSecurityId int,
+    componentCount int,
     dateTime java.util.Date,
     volBid int,
     volAsk int,
@@ -20,6 +21,7 @@ select
     quantity,
     securityId,
     parentSecurityId,
+    componentCount,
     null as dateTime,
     0 as volBid,
     0 as volAsk,
@@ -35,6 +37,7 @@ update
     ComponentWindow as componentWindow
 set
     componentWindow.quantity = updateComponentEvent.quantity,
+    componentWindow.componentCount = updateComponentEvent.componentCount,
     componentWindow.dateTime = null,
     componentWindow.volBid = 0,
     componentWindow.volAsk = 0,
@@ -75,8 +78,8 @@ select
     Math.abs(cast(min((case when win.quantity > 0 then win.volAsk else win.volBid end) / Math.abs(win.quantity)) * sum(win.quantity), int)) as volAsk,
     RoundUtil.getBigDecimalNullSafe(sum((case when win.quantity > 0 then win.bid.doubleValue() else win.ask.doubleValue() end) * win.quantity) / sum(win.quantity)) as bid,
     RoundUtil.getBigDecimalNullSafe(sum((case when win.quantity > 0 then win.ask.doubleValue() else win.bid.doubleValue() end) * win.quantity) / sum(win.quantity)) as ask,
-    last(LookupUtil.getSecurityInclComponentsInitialized(win.parentSecurityId)) as security, // needed to getcomponentCount
-    count(win.componentId) as componentCount,
+    last(win.parentSecurityId) as parentSecurityId,
+    last(componentCount) - count(win.componentId) as countDiff,
     max(win.dateTime.time) - min(win.dateTime.time) as timeDiff
 from
     ComponentWindow as win
@@ -99,10 +102,12 @@ select
     volAsk,
     bid,
     ask,
-    security
+    LookupUtil.getSecurityInclComponentsInitialized(parentSecurityId) as security
 from
     CombinationTick
 where
-    componentCount = security.componentCount // total count of non-ignored components must equal component count of the parent
+    countDiff = 0 // total count of non-ignored components must equal component count of the parent
 and
-    timeDiff < Constants.ONE_HOUR // ignore components older hand an hour;
+    ((not simulation) or (timeDiff = 0)) // during simulation generate only one tick per time_stamp
+and
+    (simulation or (timeDiff < Constants.ONE_HOUR)) // during live-trading ignore components older hand an hour;

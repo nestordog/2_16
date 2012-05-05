@@ -20,7 +20,6 @@ import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.InsertComponentEventVO;
 import com.algoTrader.vo.RemoveComponentEventVO;
-import com.algoTrader.vo.UpdateComponentEventVO;
 
 public class CombinationServiceImpl extends CombinationServiceBase {
 
@@ -35,15 +34,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         if (!this.simulation) {
             for (Combination combination : getCombinationDao().loadAll()) {
-                for (Component component : combination.getComponents()) {
-
-                    InsertComponentEventVO insertComponentEvent = new InsertComponentEventVO();
-                    insertComponentEvent.setComponentId(component.getId());
-                    insertComponentEvent.setQuantity(component.getQuantity());
-                    insertComponentEvent.setSecurityId(component.getSecurity().getId());
-                    insertComponentEvent.setParentSecurityId(combination.getId());
-                    EsperManager.routeEvent(StrategyImpl.BASE, insertComponentEvent);
-                }
+                resetComponentWindow(combination);
             }
         }
     }
@@ -160,8 +151,11 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             // delete the component
             getComponentDao().remove(component);
 
-            // update the ComponentWindow
+            // remove the component from the ComponentWindow
             removeFromComponentWindow(component);
+
+            // update the ComponentWindow
+            resetComponentWindow(combination);
 
         } else {
 
@@ -171,13 +165,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         logger.debug("removed component " + component + " from combination " + combinationString);
 
         return combination;
-    }
-
-    private void removeFromComponentWindow(Component component) {
-
-        RemoveComponentEventVO removeComponentEvent = new RemoveComponentEventVO();
-        removeComponentEvent.setComponentId(component.getId());
-        EsperManager.routeEvent(StrategyImpl.BASE, removeComponentEvent);
     }
 
     @Override
@@ -265,12 +252,6 @@ public class CombinationServiceImpl extends CombinationServiceBase {
                 }
             }
 
-            // send the UpdateComponentEvent
-            UpdateComponentEventVO updateComponentEvent = new UpdateComponentEventVO();
-            updateComponentEvent.setComponentId(component.getId());
-            updateComponentEvent.setQuantity(component.getQuantity());
-            EsperManager.routeEvent(StrategyImpl.BASE, updateComponentEvent);
-
         } else {
 
             // create a new component
@@ -282,15 +263,10 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             combination.addComponents(component);
 
             getComponentDao().create(component);
-
-            // send the InsertComponentEvent
-            InsertComponentEventVO insertComponentEvent = new InsertComponentEventVO();
-            insertComponentEvent.setComponentId(component.getId());
-            insertComponentEvent.setQuantity(component.getQuantity());
-            insertComponentEvent.setSecurityId(component.getSecurity().getId());
-            insertComponentEvent.setParentSecurityId(combination.getId());
-            EsperManager.routeEvent(StrategyImpl.BASE, insertComponentEvent);
         }
+
+        // update the ComponentWindow
+        resetComponentWindow(combination);
 
         if (add) {
             logger.debug("added component quantity " + quantity + " of " + component + " to combination " + combinationString);
@@ -299,5 +275,32 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         }
 
         return combination;
+    }
+
+    /**
+     * send a RemoveComponentEvent to remove the component from the component window
+     */
+    private void removeFromComponentWindow(Component component) {
+
+        RemoveComponentEventVO removeComponentEvent = new RemoveComponentEventVO();
+        removeComponentEvent.setComponentId(component.getId());
+        EsperManager.routeEvent(StrategyImpl.BASE, removeComponentEvent);
+    }
+
+    /**
+     * reset all entries in the ComponentWindow as parentSecurity.componentCount might have changed
+     */
+    private void resetComponentWindow(Combination combination) {
+
+        for (Component component : combination.getComponents()) {
+
+            InsertComponentEventVO insertComponentEvent = new InsertComponentEventVO();
+            insertComponentEvent.setComponentId(component.getId());
+            insertComponentEvent.setQuantity(component.getQuantity());
+            insertComponentEvent.setSecurityId(component.getSecurity().getId());
+            insertComponentEvent.setParentSecurityId(combination.getId());
+            insertComponentEvent.setComponentCount(combination.getComponentCount());
+            EsperManager.routeEvent(StrategyImpl.BASE, insertComponentEvent);
+        }
     }
 }
