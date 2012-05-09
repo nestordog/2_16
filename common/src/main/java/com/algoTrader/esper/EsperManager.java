@@ -324,6 +324,18 @@ public class EsperManager {
         }
     }
 
+    public static void restartStatement(String strategyName, String statementName) {
+
+        // destroy the statement
+        EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
+
+        if (statement != null && statement.isStarted()) {
+            statement.stop();
+            statement.start();
+            logger.debug("restarted statement " + statementName);
+        }
+    }
+
     public static void undeployModule(String strategyName, String moduleName) {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();

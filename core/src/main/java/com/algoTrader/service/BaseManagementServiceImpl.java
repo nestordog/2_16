@@ -72,4 +72,10 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
 
         return IBServiceManager.getAllConnectionStates();
     }
+
+    @Override
+    protected void handleResetComponentWindow() throws Exception {
+
+        getCombinationService().resetComponentWindow();
+    }
 }

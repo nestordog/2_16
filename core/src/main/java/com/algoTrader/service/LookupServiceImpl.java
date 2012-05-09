@@ -132,7 +132,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType);
 
         StockOption stockOption = null;
         if (!list.isEmpty()) {
@@ -158,7 +158,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected StockOption handleGetStockOptionByMinExpirationAndMinStrikeDistanceWithTicks(int underlyingId, Date targetExpirationDate,
             BigDecimal underlyingSpot, OptionType optionType, Date date) throws Exception {
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(0, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType, date);
 
         if (!list.isEmpty()) {
             return list.get(0);
@@ -174,7 +174,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType);
 
         StockOption stockOption = null;
         if (!list.isEmpty()) {
@@ -202,7 +202,7 @@ public class LookupServiceImpl extends LookupServiceBase {
             OptionType optionType,
             Date date) throws Exception {
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(0, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(0, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType, date);
 
         if (!list.isEmpty()) {
             return list.get(0);
@@ -308,15 +308,29 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Subscription> handleGetSubscriptionsByStrategy(String strategyName) throws Exception {
+    protected List<Subscription> handleGetSubscriptionsByStrategyInclComponents(String strategyName) throws Exception {
 
-        return getSubscriptionDao().findByStrategy(strategyName);
+        List<Subscription> subscriptions = getSubscriptionDao().findByStrategy(strategyName);
+
+        // even when fetching components by the query they are sometimes not initialized, so initializing them manally
+        for (Subscription subscription : subscriptions) {
+            subscription.getSecurity().getComponentsInitialized();
+        }
+
+        return subscriptions;
     }
 
     @Override
-    protected List<Subscription> handleGetSubscriptionsForAutoActivateStrategies() throws Exception {
+    protected List<Subscription> handleGetSubscriptionsForAutoActivateStrategiesInclComponents() throws Exception {
 
-        return getSubscriptionDao().findForAutoActivateStrategies();
+        List<Subscription> subscriptions = getSubscriptionDao().findForAutoActivateStrategies();
+
+        // even when fetching components by the query they are sometimes not initialized, so initializing them manally
+        for (Subscription subscription : subscriptions) {
+            subscription.getSecurity().getComponentsInitialized();
+        }
+
+        return subscriptions;
     }
 
     @Override

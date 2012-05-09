@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -155,16 +154,16 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         if (StrategyUtil.isStartedStrategyBASE()) {
 
             // for base iterate over all subscribed securities
-            Map<Security, TickVO> processedTickVOs = new HashMap<Security, TickVO>();
-            for (Subscription subscription : getLookupService().getSubscriptionsForAutoActivateStrategies()) {
+            Map<Integer, TickVO> processedTickVOs = new TreeMap<Integer, TickVO>();
+            for (Subscription subscription : getLookupService().getSubscriptionsForAutoActivateStrategiesInclComponents()) {
 
                 Security security = subscription.getSecurity();
 
                 // try to get the processedTick
-                TickVO tickVO = processedTickVOs.get(security);
+                TickVO tickVO = processedTickVOs.get(security.getId());
                 if (tickVO == null) {
                     tickVO = getTickVO(tickVOs, security);
-                    processedTickVOs.put(security, tickVO);
+                    processedTickVOs.put(security.getId(), tickVO);
                 }
 
                 // add all properties from this subscription
@@ -183,7 +182,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
             // for strategies iterate over all subscriptions
             List<TickVO> processedTickVOs = new ArrayList<TickVO>();
-            for (Subscription subscription : getLookupService().getSubscriptionsByStrategy(strategyName)) {
+            for (Subscription subscription : getLookupService().getSubscriptionsByStrategyInclComponents(strategyName)) {
 
                 TickVO tickVO = getTickVO(tickVOs, subscription.getSecurity());
 

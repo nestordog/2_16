@@ -212,6 +212,18 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         }
     }
 
+    @Override
+    protected void handleResetComponentWindow() throws Exception {
+
+        // need to restart the named window in order to remove all contained events
+        EsperManager.restartStatement(StrategyImpl.BASE, "COMPONENT_WINDOW");
+
+        // reset the component window
+        for (Combination combination : getCombinationDao().loadAll()) {
+            resetComponentWindow(combination);
+        }
+    }
+
     private Combination addOrRemoveComponentQuantity(int combinationId, final int securityId, long quantity, boolean add) throws Exception {
 
         Combination combination = getCombinationDao().get(combinationId);
