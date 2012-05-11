@@ -136,12 +136,6 @@
             <to><![CDATA[<property name="marketDataMessageListenerContainer" ref="marketDataMessageListenerContainer"/>]]></to>
         </mapping>
 
-        <!-- add hibernate.generate_statistics to applicationContext.xml -->
-        <mapping>
-            <from><![CDATA[<!-- applicationContext hibernateProperties merge-point -->]]></from>
-            <to><![CDATA[<prop key="hibernate.generate_statistics">true</prop>]]></to>
-        </mapping>
-
         <!-- remove condition remotable for SpringClientServiceLocator.vsl -->
         <mapping>
             <from><![CDATA[<template
