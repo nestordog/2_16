@@ -49,14 +49,20 @@ public abstract class SecurityImpl extends Security {
             }
         }
 
-        // if we did not get the tick up to now go to the db an get the last tick
-        Tick tick = ServiceLocator.instance().getLookupService().getLastTick(getId());
+        if (getSecurityFamily().isSynthetic()) {
 
-        if (tick == null) {
-            logger.warn("no last tick was found for " + this);
+            return null;
+        } else {
+
+            // if we did not get the tick up to now go to the db an get the last tick
+            Tick tick = ServiceLocator.instance().getLookupService().getLastTick(getId());
+
+            if (tick == null) {
+                logger.warn("no last tick was found for " + this);
+            }
+
+            return tick;
         }
-
-        return tick;
     }
 
     @Override

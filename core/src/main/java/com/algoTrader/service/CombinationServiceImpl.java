@@ -34,7 +34,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         if (!this.simulation) {
             for (Combination combination : getCombinationDao().loadAll()) {
-                resetComponentWindow(combination);
+                insertIntoComponentWindow(combination);
             }
         }
     }
@@ -155,7 +155,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             removeFromComponentWindow(component);
 
             // update the ComponentWindow
-            resetComponentWindow(combination);
+            insertIntoComponentWindow(combination);
 
         } else {
 
@@ -215,12 +215,12 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     @Override
     protected void handleResetComponentWindow() throws Exception {
 
-        // need to restart the named window in order to remove all contained events
-        EsperManager.restartStatement(StrategyImpl.BASE, "COMPONENT_WINDOW");
+        // emtpy the entire component window
+        removeFromComponentWindow(null);
 
         // reset the component window
         for (Combination combination : getCombinationDao().loadAll()) {
-            resetComponentWindow(combination);
+            insertIntoComponentWindow(combination);
         }
     }
 
@@ -278,7 +278,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         }
 
         // update the ComponentWindow
-        resetComponentWindow(combination);
+        insertIntoComponentWindow(combination);
 
         if (add) {
             logger.debug("added component quantity " + quantity + " of " + component + " to combination " + combinationString);
@@ -290,19 +290,26 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     }
 
     /**
-     * send a RemoveComponentEvent to remove the component from the component window
+     * send a RemoveComponentEvent to remove one or all components from the component window
      */
     private void removeFromComponentWindow(Component component) {
 
         RemoveComponentEventVO removeComponentEvent = new RemoveComponentEventVO();
-        removeComponentEvent.setComponentId(component.getId());
-        EsperManager.routeEvent(StrategyImpl.BASE, removeComponentEvent);
+
+        // if a component is specified remove it, otherwise empty the entire window
+        if (component != null) {
+            removeComponentEvent.setComponentId(component.getId());
+        } else {
+            removeComponentEvent.setComponentId(0);
+        }
+
+        EsperManager.sendEvent(StrategyImpl.BASE, removeComponentEvent);
     }
 
     /**
      * reset all entries in the ComponentWindow as parentSecurity.componentCount might have changed
      */
-    private void resetComponentWindow(Combination combination) {
+    private void insertIntoComponentWindow(Combination combination) {
 
         for (Component component : combination.getComponents()) {
 
@@ -312,7 +319,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             insertComponentEvent.setSecurityId(component.getSecurity().getId());
             insertComponentEvent.setParentSecurityId(combination.getId());
             insertComponentEvent.setComponentCount(combination.getComponentCount());
-            EsperManager.routeEvent(StrategyImpl.BASE, insertComponentEvent);
+            EsperManager.sendEvent(StrategyImpl.BASE, insertComponentEvent);
         }
     }
 }

@@ -6,8 +6,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Predicate;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.Position;
@@ -439,14 +437,14 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<Position> handleGetOpenPositionsByStrategyAndType(String strategyName, final Class type) throws Exception {
 
-        List<Position> positions = getPositionDao().findOpenPositionsByStrategy(strategyName);
+        int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
+        return getPositionDao().findOpenPositionsByStrategyAndType(strategyName, discriminator);
+    }
 
-        return new ArrayList(CollectionUtils.select(positions, new Predicate<Position>() {
-            @Override
-            public boolean evaluate(Position position) {
-                return type.isAssignableFrom(position.getSecurity().getClass());
-            }
-        }));
+    @Override
+    protected List<Position> handleGetOpenPositionsByStrategyAndSecurityFamily(String strategyName, int securityFamilyId) throws Exception {
+
+        return getPositionDao().findOpenPositionsByStrategyAndSecurityFamily(strategyName, securityFamilyId);
     }
 
     @Override

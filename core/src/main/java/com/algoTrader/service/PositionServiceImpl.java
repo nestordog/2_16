@@ -1,7 +1,6 @@
 package com.algoTrader.service;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -39,7 +38,6 @@ import com.algoTrader.vo.ExpirePositionVO;
 public class PositionServiceImpl extends PositionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(PositionServiceImpl.class.getName());
-    private static DecimalFormat format = new DecimalFormat("#,##0.0000");
 
     @Override
     protected void handleCloseAllPositionsByStrategy(String strategyName, boolean unsubscribe) throws Exception {
@@ -52,54 +50,18 @@ public class PositionServiceImpl extends PositionServiceBase {
     }
 
     @Override
-    protected void handleClosePosition(int positionId, boolean unsubscribe) throws Exception {
+    protected void handleClosePosition(int positionId, final boolean unsubscribe) throws Exception {
 
-        Position position = getPositionDao().get(positionId);
+        final Position position = getPositionDao().get(positionId);
 
         if (position.isOpen()) {
 
-            Strategy strategy = position.getStrategy();
-            Security security = position.getSecurity();
-
             // handle Combinations by the combination service
-            if (security instanceof Combination) {
-                getCombinationService().closeCombination(security.getId(), strategy.getName());
-                return;
+            if (position.getSecurity() instanceof Combination) {
+                getCombinationService().closeCombination(position.getSecurity().getId(), position.getStrategy().getName());
+            } else {
+                reduceOrClosePosition(position, position.getQuantity(), unsubscribe);
             }
-
-            Side side = (position.getQuantity() > 0) ? Side.SELL : Side.BUY;
-
-            // prepare the order
-            Order order = getOrderPreferenceDao().createOrder(position.getStrategy().getName(), position.getSecurity().getClass());
-
-            order.setStrategy(strategy);
-            order.setSecurity(security);
-            order.setQuantity(Math.abs(position.getQuantity()));
-            order.setSide(side);
-
-            // initialize the order if necessary
-            if (order instanceof InitializingOrderI) {
-                ((InitializingOrderI) order).init(null);
-            }
-
-            // create an OrderCallback if unsubscribe is requested
-            if (unsubscribe) {
-
-                EsperManager.addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback() {
-                    @Override
-                    public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
-                        MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
-                        for (OrderStatus orderStatus : orderStati) {
-                            if (Status.EXECUTED.equals(orderStatus.getStatus())) {
-                                Order order = orderStatus.getParentOrder();
-                                marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
-                            }
-                        }
-                    }
-                });
-            }
-
-            getOrderService().sendOrder(order);
 
         } else {
 
@@ -108,6 +70,60 @@ public class PositionServiceImpl extends PositionServiceBase {
                 getMarketDataService().unsubscribe(position.getStrategy().getName(), position.getSecurity().getId());
             }
         }
+    }
+
+    @Override
+    protected void handleReducePosition(int positionId, long quantity) throws Exception {
+
+        Position position = getPositionDao().get(positionId);
+
+        if (Math.abs(quantity) > Math.abs(position.getQuantity())) {
+            throw new PositionServiceException("position reduction of " + quantity + " for position " + position.getId() + " is greater than current quantity " + position.getQuantity());
+        } else {
+            reduceOrClosePosition(position, position.getQuantity(), false);
+        }
+    }
+
+    private void reduceOrClosePosition(final Position position, long quantity, final boolean unsubscribe) {
+
+        Strategy strategy = position.getStrategy();
+        Security security = position.getSecurity();
+
+        Side side = (position.getQuantity() > 0) ? Side.SELL : Side.BUY;
+
+        // prepare the order
+        Order order = getOrderPreferenceDao().createOrder(strategy.getName(), security.getClass());
+
+        order.setStrategy(strategy);
+        order.setSecurity(security);
+        order.setQuantity(Math.abs(quantity));
+        order.setSide(side);
+
+        // initialize the order if necessary
+        if (order instanceof InitializingOrderI) {
+            ((InitializingOrderI) order).init(null);
+        }
+
+        // unsubscribe is requested / notify non-full executions
+        EsperManager.addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback() {
+            @Override
+            public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
+                for (OrderStatus orderStatus : orderStati) {
+                    Order order = orderStatus.getParentOrder();
+                    if (Status.EXECUTED.equals(orderStatus.getStatus())) {
+                        if (unsubscribe) {
+                            MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
+                            marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
+                        }
+                    } else {
+                        logger.error("reduction / closing of position  " + position.getId() + " did not executed fully, " + "filledQty: " + orderStatus.getFilledQuantity() + " remainingQty: "
+                                + orderStatus.getRemainingQuantity());
+                    }
+                }
+            }
+        });
+
+        getOrderService().sendOrder(order);
     }
 
     @Override
@@ -179,30 +195,6 @@ public class PositionServiceImpl extends PositionServiceBase {
         if (unsubscribe) {
             getMarketDataService().unsubscribe(position.getStrategy().getName(), position.getSecurity().getId());
         }
-    }
-
-    @Override
-    protected void handleReducePosition(int positionId, long quantity) throws Exception {
-
-        Position position = getPositionDao().get(positionId);
-        Strategy strategy = position.getStrategy();
-        Security security = position.getSecurity();
-
-        Side side = (position.getQuantity() > 0) ? Side.SELL : Side.BUY;
-
-        Order order = getOrderPreferenceDao().createOrder(position.getStrategy().getName(), position.getSecurity().getClass());
-
-        order.setStrategy(strategy);
-        order.setSecurity(security);
-        order.setQuantity(Math.abs(quantity));
-        order.setSide(side);
-
-        // initialize the order if necessary
-        if (order instanceof InitializingOrderI) {
-            ((InitializingOrderI) order).init(null);
-        }
-
-        getOrderService().sendOrder(order);
     }
 
     @Override

@@ -47,21 +47,33 @@ from
     Tick as tick,
     method:LookupUtil.getOpenPositions() as position
 where
-    tick.security.id not in
-        (select
-            openOrderWindow.security.id
-        from
-            OpenOrderWindow as openOrderWindow)
-and
     position.security.id = tick.security.id
-and
-    position.direction != Direction.FLAT
 and
     position.exitValue is not null
 and
+    position.direction != Direction.FLAT
+and
     ((position.direction = Direction.SHORT and (tick.currentValue >= position.exitValue))
     or
-    (position.direction = Direction.LONG and (tick.currentValue <= position.exitValue)));
+    (position.direction = Direction.LONG and (tick.currentValue <= position.exitValue)))
+and
+    // there should not be any open trades from this strategy for the same security
+    position.security.id not in
+        (select
+            security.id
+        from
+            OpenOrderWindow
+        where
+            strategy.id = position.strategy.id)
+and
+    // there should not be any open trades at all from this strategy for combination positions
+    (not instanceof(position.security, com.algoTrader.entity.security.Combination) or not exists
+        (select
+            *
+        from
+            OpenOrderWindow
+        where
+            strategy.id = position.strategy.id));
 
 @Name('RECONCILE')
 @Subscriber(className='com.algoTrader.service.AccountService.reconcile')
