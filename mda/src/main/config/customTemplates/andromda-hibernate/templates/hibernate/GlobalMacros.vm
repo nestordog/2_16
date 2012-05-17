@@ -1,5 +1,5 @@
 ## AlgoTrader 15211
-## line 693 - 713 use LazyLoaderService
+## line 693 - 711 use LazyLoaderService
 ##
 ##  This macro will render the equals() method
 ##  If an entity is rendered, the attributeSet consists of the identifiers,
@@ -713,12 +713,10 @@ $target.getDocumentation("     * ")
 			org.hibernate.proxy.HibernateProxy proxy = (org.hibernate.proxy.HibernateProxy) this.${target.name};
 			org.hibernate.proxy.LazyInitializer initializer = proxy.getHibernateLazyInitializer();
 
-			if (initializer.isUninitialized()) {
-				if (initializer.getSession() != null) {
-					this.${target.name} = ($target.getterSetterTypeName) initializer.getImplementation();
-				} else {
-					this.${target.name} = ($target.getterSetterTypeName) com.algoTrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadProxy(this, "${entity.entityName}.${target.getterName}", proxy);
-				}
+			if (initializer.getSession() != null) {
+				this.${target.name} = ($target.getterSetterTypeName) initializer.getImplementation();
+			} else {
+				this.${target.name} = ($target.getterSetterTypeName) com.algoTrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadProxy(this, "${entity.entityName}.${target.getterName}", proxy);
 			}
 		}
 #end		

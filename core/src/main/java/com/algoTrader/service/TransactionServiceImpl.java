@@ -127,7 +127,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 position.setMaintenanceMargin(null);
 
                 // propagate the ClosePosition event
-                EsperManager.routeEvent(position.getStrategy().getName(), closePositionVO);
+                EsperManager.sendEvent(position.getStrategy().getName(), closePositionVO);
             }
 
             // associate the position

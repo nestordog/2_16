@@ -87,7 +87,7 @@ public class PositionServiceImpl extends PositionServiceBase {
     private void reduceOrClosePosition(final Position position, long quantity, final boolean unsubscribe) {
 
         Strategy strategy = position.getStrategy();
-        Security security = position.getSecurity();
+        Security security = position.getSecurityInitialized();
 
         Side side = (position.getQuantity() > 0) ? Side.SELL : Side.BUY;
 
@@ -185,7 +185,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
 
         // propagate the ClosePosition event
-        EsperManager.routeEvent(position.getStrategy().getName(), closePositionVO);
+        EsperManager.sendEvent(position.getStrategy().getName(), closePositionVO);
 
         getPositionDao().remove(position);
 
