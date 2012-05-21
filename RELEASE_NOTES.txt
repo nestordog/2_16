@@ -57,3 +57,13 @@ HistoricalDataService HistoricalBars
 MBean Annotations
 SecurityFamily TickSizePattern
 Measurement & MeasurementService
+
+1.9 (R4883)
+SyntheticSecurities (Combinations / SyntheticIndices)
+AlgoTraderSSHClient
+PropertyService / PropertyHolder / Property
+improve Hibernate Sessions Handling / Caching
+Metrics Logging
+PortfolioService
+General performance optimizations
+
