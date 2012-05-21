@@ -8,7 +8,7 @@
     <name>AlgoTrader</name>
     <description>The AlgoTrader Project.</description>
     <scm>
-        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/tags/algotrader-1.8</developerConnection>
+        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</developerConnection>
         <url>/tags/algotrader-1.8</url>
     </scm>
     <developers>
