@@ -80,7 +80,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         if (Math.abs(quantity) > Math.abs(position.getQuantity())) {
             throw new PositionServiceException("position reduction of " + quantity + " for position " + position.getId() + " is greater than current quantity " + position.getQuantity());
         } else {
-            reduceOrClosePosition(position, position.getQuantity(), false);
+            reduceOrClosePosition(position, quantity, false);
         }
     }
 
