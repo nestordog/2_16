@@ -36,6 +36,12 @@ public class LookupUtil {
         return ServiceLocator.instance().getLookupService().getSecurity(securityId);
     }
 
+    public static int getSecurityFamilyIdBySecurity(int securityId) {
+
+        Security security = getSecurity(securityId);
+        return security != null ? security.getSecurityFamily().getId() : 0;
+    }
+
     public static Security getSecurityInitialized(int securityId) throws java.lang.Exception {
 
         return ServiceLocator.instance().getLookupService().getSecurityInitialized(securityId);
