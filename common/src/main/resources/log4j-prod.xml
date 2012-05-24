@@ -77,7 +77,7 @@
         <param name="SMTPUsername" value="AKIAIYZ5D5DRYKLERLIA" />
         <param name="SMTPPassword" value="Ahsspx/BqUnRy4ORAAcvWo68/3ZXbkhBfKG+i26wd6co" />
         <param name="From" value="aws@linardcapital.com" />
-        <param name="To" value="development@linardcapital.com" />
+        <param name="To" value="trading@linardcapital.com" />
         <param name="Subject" value="AlgoTrader Transaction ${environment}" />
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d%n%n%-5p%n%n%c%n%n%m%n%n" />
