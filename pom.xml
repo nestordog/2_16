@@ -3,13 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>algotrader</groupId>
     <artifactId>algotrader</artifactId>
-    <version>1.9-SNAPSHOT</version>
+    <version>1.9</version>
     <packaging>pom</packaging>
     <name>AlgoTrader</name>
     <description>The AlgoTrader Project.</description>
     <scm>
-        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</developerConnection>
-        <url>/tags/algotrader-1.8</url>
+        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/tags/algotrader-1.9</developerConnection>
+        <url>/tags/algotrader-1.9</url>
     </scm>
     <developers>
         <developer>
