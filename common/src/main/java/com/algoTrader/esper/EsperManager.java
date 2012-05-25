@@ -92,8 +92,7 @@ public class EsperManager {
     private static Map<String, Boolean> internalClock = new HashMap<String, Boolean>();
     private static Map<String, EPServiceProvider> serviceProviders = new HashMap<String, EPServiceProvider>();
 
-    private static JmsTemplate marketDataTemplate;
-    private static JmsTemplate strategyTemplate;
+    private static Map<String, JmsTemplate> templates = new HashMap<String, JmsTemplate>();
 
     public static void initServiceProvider(String strategyName) {
 
@@ -395,11 +394,10 @@ public class EsperManager {
     private static void sendExternalEvent(String strategyName, Object obj) {
 
         // sent to the strateyg queue
-        getStrategyTemplate().convertAndSend(strategyName + ".QUEUE", obj);
+        getTemplate("strategyTemplate").convertAndSend(strategyName + ".QUEUE", obj);
 
         logger.trace("propagated event to " + strategyName + " " + obj);
     }
-
 
     public static void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
 
@@ -413,13 +411,38 @@ public class EsperManager {
         } else {
 
             // send using the jms template
-            getMarketDataTemplate().convertAndSend(marketDataEvent, new MessagePostProcessor() {
+            getTemplate("marketDataTemplate").convertAndSend(marketDataEvent, new MessagePostProcessor() {
 
                 @Override
                 public Message postProcessMessage(Message message) throws JMSException {
 
-                    // ad securityId Property
+                    // add securityId Property
                     message.setIntProperty("securityId", marketDataEvent.getSecurity().getId());
+                    return message;
+                }
+            });
+        }
+    }
+
+    public static void sendGenericEvent(final Object object) {
+
+        if (simulation) {
+            for (String strategyName : serviceProviders.keySet()) {
+                if (!strategyName.equals(StrategyImpl.BASE)) {
+                    sendEvent(strategyName, object);
+                }
+            }
+
+        } else {
+
+            // send using the jms template
+            getTemplate("genericTemplate").convertAndSend(object, new MessagePostProcessor() {
+
+                @Override
+                public Message postProcessMessage(Message message) throws JMSException {
+
+                    // add class Property
+                    message.setStringProperty("clazz", object.getClass().getName());
                     return message;
                 }
             });
@@ -786,19 +809,12 @@ public class EsperManager {
     }
 
     // manual lookup of templates since they are only available if applicationContext-jms.xml is active
-    private static JmsTemplate getStrategyTemplate() {
+    private static JmsTemplate getTemplate(String name) {
 
-        if (strategyTemplate == null) {
-            strategyTemplate = ServiceLocator.instance().getService("strategyTemplate", JmsTemplate.class);
+        if (!templates.containsKey(name)) {
+            templates.put(name, ServiceLocator.instance().getService(name, JmsTemplate.class));
         }
-        return strategyTemplate;
-    }
 
-    private static JmsTemplate getMarketDataTemplate() {
-
-        if (marketDataTemplate == null) {
-            marketDataTemplate = ServiceLocator.instance().getService("marketDataTemplate", JmsTemplate.class);
-        }
-        return marketDataTemplate;
+        return templates.get(name);
     }
 }

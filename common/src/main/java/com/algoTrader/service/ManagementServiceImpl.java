@@ -280,13 +280,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected void handleSubscribe(int securityid) throws Exception {
 
-        getSubscriptionService().subscribe(StrategyUtil.getStartedStrategyName(), securityid);
+        getSubscriptionService().subscribeMarketDataEvent(StrategyUtil.getStartedStrategyName(), securityid);
     }
 
     @Override
     protected void handleUnsubscribe(int securityid) throws Exception {
 
-        getSubscriptionService().unsubscribe(StrategyUtil.getStartedStrategyName(), securityid);
+        getSubscriptionService().unsubscribeMarketDataEvent(StrategyUtil.getStartedStrategyName(), securityid);
     }
 
     private List<TickVO> getTickVOs(List<Tick> ticks) {

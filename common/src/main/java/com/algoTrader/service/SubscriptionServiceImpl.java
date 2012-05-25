@@ -16,10 +16,15 @@ public class SubscriptionServiceImpl extends SubscriptionServiceBase {
     private @Value("${simulation}") boolean simulation;
 
     public DefaultMessageListenerContainer marketDataMessageListenerContainer;
+    public DefaultMessageListenerContainer genericMessageListenerContainer;
     public DefaultMessageListenerContainer strategyMessageListenerContainer;
 
     public void setMarketDataMessageListenerContainer(DefaultMessageListenerContainer marketDataMessageListenerContainer) {
         this.marketDataMessageListenerContainer = marketDataMessageListenerContainer;
+    }
+
+    public void setGenericMessageListenerContainer(DefaultMessageListenerContainer genericMessageListenerContainer) {
+        this.genericMessageListenerContainer = genericMessageListenerContainer;
     }
 
     public void setStrategyMessageListenerContainer(DefaultMessageListenerContainer strategyMessageListenerContainer) {
@@ -27,23 +32,23 @@ public class SubscriptionServiceImpl extends SubscriptionServiceBase {
     }
 
     @Override
-    protected void handleUnsubscribe(String strategyName, int securityId) throws Exception {
+    protected void handleUnsubscribeMarketDataEvent(String strategyName, int securityId) throws Exception {
 
         getMarketDataService().unsubscribe(strategyName, securityId);
 
-        initSubscriptions(strategyName);
+        initMarketDataEventSubscriptions();
     }
 
     @Override
-    protected void handleSubscribe(String strategyName, int securityId) throws Exception {
+    protected void handleSubscribeMarketDataEvent(String strategyName, int securityId) throws Exception {
 
         getMarketDataService().subscribe(strategyName, securityId);
 
-        initSubscriptions(strategyName);
+        initMarketDataEventSubscriptions();
     }
 
     @Override
-    protected void handleInitSubscriptions(String strategyName) throws Exception {
+    protected void handleInitMarketDataEventSubscriptions() throws Exception {
 
         if (this.simulation || StrategyUtil.isStartedStrategyBASE())
             return;
@@ -71,6 +76,39 @@ public class SubscriptionServiceImpl extends SubscriptionServiceBase {
                 SubscriptionServiceImpl.this.marketDataMessageListenerContainer.shutdown();
                 SubscriptionServiceImpl.this.marketDataMessageListenerContainer.start();
                 SubscriptionServiceImpl.this.marketDataMessageListenerContainer.initialize();
+            }
+        }).start();
+    }
+
+    @Override
+    @SuppressWarnings("rawtypes")
+    protected void handleSubscribeGenericEvents(Class[] classes) throws Exception {
+
+        if (this.simulation || StrategyUtil.isStartedStrategyBASE())
+            return;
+
+        // assemble the message selector
+        List<String> selections = new ArrayList<String>();
+        for (Class<?> clazz : classes) {
+            selections.add("clazz='" + clazz.getName() + "'");
+        }
+
+        String messageSelector = StringUtils.join(selections, " OR ");
+        if ("".equals(messageSelector)) {
+            messageSelector = "false";
+        }
+
+        // update the message selector
+        this.genericMessageListenerContainer.setMessageSelector(messageSelector);
+
+        // restart the container (must do this in a separate thread to prevent dead-locks)
+        (new Thread() {
+            @Override
+            public void run() {
+                SubscriptionServiceImpl.this.genericMessageListenerContainer.stop();
+                SubscriptionServiceImpl.this.genericMessageListenerContainer.shutdown();
+                SubscriptionServiceImpl.this.genericMessageListenerContainer.start();
+                SubscriptionServiceImpl.this.genericMessageListenerContainer.initialize();
             }
         }).start();
     }

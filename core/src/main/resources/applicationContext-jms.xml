@@ -13,6 +13,8 @@
         </property>
     </bean>
 
+    <bean id="javax.jms.Session.DUPS_OK_ACKNOWLEDGE" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+
     <!-- ActiveMQ topic used for marketData -->
     <bean id="marketDataTopic" class="org.apache.activemq.command.ActiveMQTopic">
         <constructor-arg value="MARKETDATA.TOPIC" />
@@ -30,9 +32,27 @@
           <property name="deliveryPersistent" value="false"/>
           <property name="messageIdEnabled" value="false"/>
           <property name="explicitQosEnabled" value="true" />
-        <property name="sessionAcknowledgeMode">
-            <bean id="javax.jms.Session.DUPS_OK_ACKNOWLEDGE" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        <property name="sessionAcknowledgeMode" ref="javax.jms.Session.DUPS_OK_ACKNOWLEDGE"/>
+    </bean>
+
+    <!-- ActiveMQ topic used for generic events -->
+    <bean id="genericTopic" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="GENERIC.TOPIC" />
+    </bean>
+
+    <!-- Spring JMS Template used for marketData -->
+    <bean id="genericTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory">
+            <ref bean="jmsActiveMQFactory" />
         </property>
+        <property name="defaultDestination">
+            <ref bean="genericTopic" />
+        </property>
+        <property name="timeToLive" value="10000"/>
+          <property name="deliveryPersistent" value="false"/>
+          <property name="messageIdEnabled" value="false"/>
+          <property name="explicitQosEnabled" value="true" />
+        <property name="sessionAcknowledgeMode" ref="javax.jms.Session.DUPS_OK_ACKNOWLEDGE"/>
     </bean>
 
     <!-- Spring JMS Template used for strategy specific messages -->
