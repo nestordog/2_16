@@ -130,7 +130,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(1, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType);
 
         StockOption stockOption = null;
         if (!list.isEmpty()) {
@@ -156,7 +156,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected StockOption handleGetStockOptionByMinExpirationAndMinStrikeDistanceWithTicks(int underlyingId, Date targetExpirationDate,
             BigDecimal underlyingSpot, OptionType optionType, Date date) throws Exception {
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(0, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType, date);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType, date);
 
         if (!list.isEmpty()) {
             return list.get(0);
@@ -172,7 +172,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(0, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(1, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType);
 
         StockOption stockOption = null;
         if (!list.isEmpty()) {
@@ -200,7 +200,7 @@ public class LookupServiceImpl extends LookupServiceBase {
             OptionType optionType,
             Date date) throws Exception {
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(0, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType, date);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType, date);
 
         if (!list.isEmpty()) {
             return list.get(0);
@@ -219,7 +219,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Future handleGetFutureByMinExpiration(int futureFamilyId, Date expirationDate) throws Exception {
 
-        List<Future> list = getFutureDao().findByMinExpiration(0, 1, futureFamilyId, expirationDate);
+        List<Future> list = getFutureDao().findByMinExpiration(1, 1, futureFamilyId, expirationDate);
 
         Future future = null;
         if (!list.isEmpty()) {
@@ -231,7 +231,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
             getFutureService().createDummyFutures(futureFamilyId);
 
-            list = getFutureDao().findByMinExpiration(0, 1, futureFamilyId, expirationDate);
+            list = getFutureDao().findByMinExpiration(1, 1, futureFamilyId, expirationDate);
 
             if (!list.isEmpty()) {
                 future = list.get(0);
@@ -506,7 +506,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Tick handleGetLastTick(int securityId) throws Exception {
 
-        List<Tick> list = getTickDao().findTicksForSecurityAndMaxDate(0, 1, securityId, DateUtil.getCurrentEPTime());
+        List<Tick> list = getTickDao().findTicksForSecurityAndMaxDate(1, 1, securityId, DateUtil.getCurrentEPTime());
 
         Tick tick = null;
         if (!list.isEmpty()) {
@@ -631,7 +631,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Measurement handleGetMeasurementForMaxDate(String strategyName, String type, Date maxDate) throws Exception {
 
-        List<Measurement> list = getMeasurementDao().findMeasurementsBeforeDate(0, 1, strategyName, type, maxDate);
+        List<Measurement> list = getMeasurementDao().findMeasurementsBeforeDate(1, 1, strategyName, type, maxDate);
 
         if (!list.isEmpty()) {
             return list.get(0);
