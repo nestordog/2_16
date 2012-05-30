@@ -1,5 +1,10 @@
 package com.algoTrader.esper;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,11 +76,13 @@ import com.espertech.esper.client.deploy.DeploymentResult;
 import com.espertech.esper.client.deploy.EPDeploymentAdmin;
 import com.espertech.esper.client.deploy.Module;
 import com.espertech.esper.client.deploy.ModuleItem;
+import com.espertech.esper.client.deploy.ParseException;
 import com.espertech.esper.client.soda.AnnotationAttribute;
 import com.espertech.esper.client.soda.AnnotationPart;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.TimerControlEvent;
+import com.espertech.esper.core.deploy.EPLModuleUtil;
 import com.espertech.esper.core.service.EPServiceProviderImpl;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esperio.AdapterCoordinator;
@@ -86,6 +93,7 @@ import com.espertech.esperio.csv.CSVInputAdapterSpec;
 public class EsperManager {
 
     private static Logger logger = MyLogger.getLogger(EsperManager.class.getName());
+    private static String newline = System.getProperty("line.separator");
 
     private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
     private static List<String> moduleDeployExcludeStatements = Arrays.asList((ServiceLocator.instance().getConfiguration().getString("misc.moduleDeployExcludeStatements")).split(","));
@@ -238,7 +246,9 @@ public class EsperManager {
 
         DeploymentResult deployResult;
         try {
-            Module module = deployAdmin.read("module-" + moduleName + ".epl");
+            String fileName = "module-" + moduleName + ".epl";
+            String moduleString = processLoads(fileName);
+            Module module = EPLModuleUtil.parseInternal(moduleString, fileName);
             deployResult = deployAdmin.deploy(module, new DeploymentOptions());
         } catch (Exception e) {
             throw new RuntimeException("module " + moduleName + " could not be deployed", e);
@@ -257,6 +267,40 @@ public class EsperManager {
         }
 
         logger.debug("deployed module " + moduleName + " on service provider: " + strategyName);
+    }
+
+    /**
+     * replaces all "load" clauses
+     */
+    private static String processLoads(String fileName) throws IOException, ParseException {
+
+        InputStream stream = EsperManager.class.getResourceAsStream("/" + fileName);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        StringWriter buffer = new StringWriter();
+        String strLine;
+        while ((strLine = reader.readLine()) != null) {
+            if (!strLine.startsWith("load")) {
+                buffer.append(strLine);
+                buffer.append(newline);
+            } else {
+                String argument = StringUtils.substringAfter(strLine, "load").trim();
+                String moduleName = argument.split("\\.")[0];
+                String statementName = argument.split("\\.")[1].split(";")[0];
+                Module module = EPLModuleUtil.readResource("module-" + moduleName + ".epl");
+                for (ModuleItem item : module.getItems()) {
+                    if (item.getExpression().contains("@Name('" + statementName + "')")) {
+                        buffer.append(item.getExpression());
+                        buffer.append(";");
+                        buffer.append(newline);
+                        break;
+                    }
+                }
+            }
+        }
+        reader.close();
+        stream.close();
+
+        return buffer.toString();
     }
 
     public static void deployAllModules(String strategyName) {
