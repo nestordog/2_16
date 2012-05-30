@@ -19,7 +19,19 @@ public class CsvBarInputAdapterSpec extends CSVInputAdapterSpec {
 
         this.file = file;
 
-        String[] barPropertyOrder = new String[] { "dateTime", "open", "high", "low", "close", "adjClose", "vol", "openInterest" };
+        //@formatter:off
+        String[] barPropertyOrder = new String[] {
+                "dateTime",
+                "open",
+                "high",
+                "low",
+                "close",
+                "adjClose",
+                "vol",
+                "openInterest" };
+        //@formatter:on
+
+        setPropertyOrder(barPropertyOrder);
 
         Map<String, Object> barPropertyTypes = new HashMap<String, Object>();
 
@@ -32,7 +44,6 @@ public class CsvBarInputAdapterSpec extends CSVInputAdapterSpec {
         barPropertyTypes.put("vol", int.class);
         barPropertyTypes.put("openInterest", int.class);
 
-        setPropertyOrder(barPropertyOrder);
         setPropertyTypes(barPropertyTypes);
 
         setTimestampColumn("dateTime");

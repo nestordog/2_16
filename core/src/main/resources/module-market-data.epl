@@ -96,6 +96,14 @@ select
 from
     MarketDataEvent;
 
+@Name('PROPAGATE_GENERIC_EVENTS')
+@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PropagateGenericEventSubscriber')
+@Priority(1)
+select
+    *
+from
+    com.algoTrader.vo.GenericEventVO;
+
 @Name('PERSIST_HOUR_TICKS')
 @Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
 @RunTimeOnly()

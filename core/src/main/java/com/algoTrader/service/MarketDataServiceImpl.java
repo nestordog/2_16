@@ -26,6 +26,7 @@ import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.io.CsvTickWriter;
 import com.algoTrader.util.metric.MetricsUtil;
+import com.algoTrader.vo.GenericEventVO;
 import com.espertech.esper.collection.Pair;
 
 public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
@@ -167,6 +168,19 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             EsperManager.sendMarketDataEvent(marketDataEvent);
 
             MetricsUtil.accountEnd("PropagateMarketDataEventSubscriber.update", startTime);
+        }
+    }
+
+    public static class PropagateGenericEventSubscriber {
+
+        public void update(final GenericEventVO genericEvent) {
+
+            // security.toString & marketDataEvent.toString is expensive, so only log if debug is anabled
+            if (!logger.getParent().getLevel().isGreaterOrEqual(Level.DEBUG)) {
+                logger.trace(genericEvent);
+            }
+
+            EsperManager.sendGenericEvent(genericEvent);
         }
     }
 

@@ -40,6 +40,7 @@ import com.algoTrader.enumeration.MarketDataType;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
 import com.algoTrader.esper.io.CsvTickInputAdapterSpec;
+import com.algoTrader.esper.io.GenericEventInputAdapterSpec;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.util.spring.Configuration;
@@ -64,6 +65,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private @Value("${simulation.roundDigits}") int roundDigits;
     private @Value("${simulation.start}") long start;
     private @Value("${dataSource.dataSetLocation}") String dataSetLocation;
+    private @Value("${dataSource.feedGenericEvents}") boolean feedGenericEvents;
 
     public SimulationServiceImpl() {
         format.setMinimumFractionDigits(this.roundDigits);
@@ -74,6 +76,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         EsperManager.initCoordination(StrategyImpl.BASE);
 
+        String baseDir = this.dataSetLocation.equals("") ? "results/" : this.dataSetLocation;
+        String dataSet = getConfiguration().getDataSet();
+
         Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategiesInclFamily();
         for (Security security : securities) {
 
@@ -81,10 +86,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 logger.warn("no data available for " + security.getSymbol());
                 continue;
             }
-            MarketDataType marketDataType = getConfiguration().getDataSetType();
-            String dataSet = getConfiguration().getDataSet();
 
-            String baseDir = this.dataSetLocation.equals("") ? "results/" : this.dataSetLocation;
+            MarketDataType marketDataType = getConfiguration().getDataSetType();
             File file = new File(baseDir + marketDataType.toString().toLowerCase() + "data/" + dataSet + "/" + security.getIsin() + ".csv");
 
             if (file == null || !file.exists()) {
@@ -106,6 +109,27 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             EsperManager.coordinate(StrategyImpl.BASE, spec);
 
             logger.debug("started simulation for security " + security.getSymbol());
+        }
+
+        if (this.feedGenericEvents) {
+
+            File dir = new File(baseDir + "genericdata/" + dataSet);
+            if (dir == null || !dir.exists() || !dir.isDirectory()) {
+                logger.warn("no generic events available");
+            } else {
+                for (File file : dir.listFiles()) {
+
+                    String fileName = file.getName();
+                    String eventClassName = fileName.substring(0, fileName.lastIndexOf("."));
+                    String eventTypeName = eventClassName.substring(eventClassName.lastIndexOf(".") + 1);
+
+                    // add the eventType (in case it does not exist yet)
+                    EsperManager.addEventType(StrategyImpl.BASE, eventTypeName, eventClassName);
+
+                    GenericEventInputAdapterSpec spec = new GenericEventInputAdapterSpec(file, eventTypeName);
+                    EsperManager.coordinate(StrategyImpl.BASE, spec);
+                }
+            }
         }
 
         EsperManager.startCoordination(StrategyImpl.BASE);

@@ -19,7 +19,21 @@ public class CsvTickInputAdapterSpec extends CSVInputAdapterSpec {
 
         this.file = file;
 
-        String[] tickPropertyOrder = new String[] { "dateTime", "last", "lastDateTime", "volBid", "volAsk", "bid", "ask", "vol", "openIntrest", "settlement" };
+        //@formatter:off
+        String[] tickPropertyOrder = new String[] {
+                "dateTime",
+                "last",
+                "lastDateTime",
+                "volBid",
+                "volAsk",
+                "bid",
+                "ask",
+                "vol",
+                "openIntrest",
+                "settlement" };
+        //@formatter:on
+
+        setPropertyOrder(tickPropertyOrder);
 
         Map<String, Object> tickPropertyTypes = new HashMap<String, Object>();
 
@@ -34,7 +48,6 @@ public class CsvTickInputAdapterSpec extends CSVInputAdapterSpec {
         tickPropertyTypes.put("openIntrest", int.class);
         tickPropertyTypes.put("settlement", BigDecimal.class);
 
-        setPropertyOrder(tickPropertyOrder);
         setPropertyTypes(tickPropertyTypes);
 
         setTimestampColumn("dateTime");

@@ -47,9 +47,11 @@ import com.algoTrader.esper.subscriber.SubscriberCreator;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.util.metric.MetricsUtil;
+import com.algoTrader.vo.GenericEventVO;
 import com.algoTrader.vo.StatementMetricVO;
 import com.espertech.esper.adapter.InputAdapter;
 import com.espertech.esper.client.Configuration;
+import com.espertech.esper.client.ConfigurationOperations;
 import com.espertech.esper.client.ConfigurationVariable;
 import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPOnDemandQueryResult;
@@ -352,6 +354,14 @@ public class EsperManager {
         logger.debug("undeployed module " + moduleName);
     }
 
+    public static void addEventType(String strategyName, String eventTypeName, String eventClassName) {
+
+        ConfigurationOperations configuration = getServiceProvider(strategyName).getEPAdministrator().getConfiguration();
+        if (configuration.getEventType(eventTypeName) == null) {
+            configuration.addEventType(eventTypeName, eventClassName);
+        }
+    }
+
     public static void sendEvent(String strategyName, Object obj) {
 
         if (simulation) {
@@ -424,25 +434,25 @@ public class EsperManager {
         }
     }
 
-    public static void sendGenericEvent(final Object object) {
+    public static void sendGenericEvent(final GenericEventVO event) {
 
         if (simulation) {
             for (String strategyName : serviceProviders.keySet()) {
                 if (!strategyName.equals(StrategyImpl.BASE)) {
-                    sendEvent(strategyName, object);
+                    sendEvent(strategyName, event);
                 }
             }
 
         } else {
 
             // send using the jms template
-            getTemplate("genericTemplate").convertAndSend(object, new MessagePostProcessor() {
+            getTemplate("genericTemplate").convertAndSend(event, new MessagePostProcessor() {
 
                 @Override
                 public Message postProcessMessage(Message message) throws JMSException {
 
                     // add class Property
-                    message.setStringProperty("clazz", object.getClass().getName());
+                    message.setStringProperty("clazz", event.getClass().getName());
                     return message;
                 }
             });
