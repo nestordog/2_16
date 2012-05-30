@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>algotrader</groupId>
@@ -9,14 +10,48 @@
     <name>AlgoTrader Program Core</name>
     <repositories>
     </repositories>
+    <scm>
+        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</developerConnection>
+    </scm>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.2.1</version>
+                <configuration>
+                    <tagBase> svn+ssh://repo.linardcapital.com/var/svn/repository/tags
+                    </tagBase>
+                </configuration>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>target/src/main/java</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
+    </build>
     <dependencies>
         <dependency>
-            <groupId>algotrader</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>algotrader-common</artifactId>
-            <version>1.10-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>algotrader</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>algotrader-sabr</artifactId>
             <version>1.0.0</version>
         </dependency>
@@ -24,13 +59,10 @@
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
             <version>1.8.2</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
-            <type>jar</type>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -40,8 +72,6 @@
             <groupId>c3p0</groupId>
             <artifactId>c3p0</artifactId>
             <version>0.9.1.2</version>
-            <type>jar</type>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
@@ -53,9 +83,10 @@
         <dependency>
             <groupId>com.espertech</groupId>
             <artifactId>esperee</artifactId>
-            <version>4.4.1</version>
+            <version>${esperee.version}</version>
             <type>pom</type>
-        </dependency><dependency>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-jmx</artifactId>
             <version>3.5.6-Final</version>
@@ -76,9 +107,8 @@
             <groupId>org.hibernate</groupId>
             <artifactId>jtidy</artifactId>
             <version>r8-21122004</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency><dependency>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
@@ -86,8 +116,6 @@
             <groupId>org.apache.maven.shared</groupId>
             <artifactId>maven-invoker</artifactId>
             <version>2.0.11</version>
-            <type>jar</type>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -126,97 +154,10 @@
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
             <version>2.4.0</version>
-            <type>jar</type>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.andromda.maven.plugins</groupId>
-                <artifactId>andromdapp-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>schema</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jdbcDriver>${jdbc.driver}</jdbcDriver>
-                    <jdbcDriverJar>${jdbc.driver.jar}</jdbcDriverJar>
-                    <jdbcConnectionUrl>${jdbc.url}</jdbcConnectionUrl>
-                    <jdbcUsername>${jdbc.username}</jdbcUsername>
-                    <jdbcPassword>${jdbc.password}</jdbcPassword>
-                    <!-- set this to false if you don't want to execute the generated SQL
-                        scripts (creates and saves DDL under app/target/schema*.sql -->
-                    <executeScripts>false</executeScripts>
-                    <tasks>create</tasks>
-                    <properties>
-                        <property>
-                            <name>mappingsLocation</name>
-                            <value>${project.basedir}/target/src/main/java</value>
-                        </property>
-                        <property>
-                            <name>mappingFileExtension</name>
-                            <value>hbm.xml</value>
-                        </property>
-                        <property>
-                            <name>createOutputPath</name>
-                            <value>${project.basedir}/sql/schema-create.sql</value>
-                        </property>
-                        <property>
-                            <name>dropOutputPath</name>
-                            <value>${project.basedir}/sql/schema-drop.sql</value>
-                        </property>
-                    </properties>
-                    <!-- You might need to execute additional scripts, just uncomment and
-                        add them here: <scripts> <script>${project.basedir}/path/to/scripts/script1.sql</script>
-                        <script>${project.basedir}/path/to/scripts/script2.sql</script> </scripts> -->
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.hibernate</groupId>
-                        <artifactId>hibernate</artifactId>
-                        <version>3.2.6.ga</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.2.1</version>
-                <configuration>
-                      <tagBase>
-                        svn+ssh://repo.linardcapital.com/var/svn/repository/tags
-                      </tagBase>
-                </configuration>
-            </plugin>
-        </plugins>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-            <resource>
-                <directory>target/src/main/java</directory>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </resource>
-        </resources>
-    </build>
     <properties>
         <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
     </properties>
-    <scm>
-        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</developerConnection>
-      <url>/tags/AlgoTrader-1.8/algotrader-core</url>
-  </scm>
+
 </project>

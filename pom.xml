@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>algotrader</groupId>
     <artifactId>algotrader</artifactId>
@@ -7,80 +8,25 @@
     <packaging>pom</packaging>
     <name>AlgoTrader</name>
     <description>The AlgoTrader Project.</description>
-    <scm>
-        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</developerConnection>
-        <url>/tags/AlgoTrader-1.8</url>
-    </scm>
+    <prerequisites>
+        <maven>2.0.10</maven>
+    </prerequisites>
     <developers>
         <developer>
             <id />
             <name>Andy Flury</name>
-            <email>andy.flury@gmail.com</email>
+            <email>andyflury@gmail.com</email>
             <roles>
                 <role>Developer</role>
             </roles>
             <timezone>UTC+1</timezone>
         </developer>
     </developers>
-    <dependencyManagement>
-        <dependencies>
-            <!-- This dependency provides the ability to implement your
-                 business logic in an interpreted manner during development on
-                 your local machine -->
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils</artifactId>
-                <version>1.8.3</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>1.6</version>
-            </dependency><dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>3.2.1</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-httpclient</groupId>
-                <artifactId>commons-httpclient</artifactId>
-                <version>3.1</version>
-            </dependency><dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>2.1</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>2.6</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>1.1.1</version>
-            </dependency>
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.10</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>1.2.16</version>
-                <!--scope>test</scope-->
-            </dependency>
-
-
-        </dependencies>
-    </dependencyManagement>
+    <scm>
+        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</developerConnection>
+    </scm>
     <build>
         <defaultGoal>install</defaultGoal>
-        <!-- To change from default src/main/java and src/test/java - doesn't work for Cobertura>
-        <sourceDirectory>src</sourceDirectory>
-        <testSourceDirectory>src-test</testSourceDirectory -->
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -122,24 +68,8 @@
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>2.3</version>
-                    <configuration>
-                        <excludes>
-                            <exclude>**/*.ref</exclude>
-                        </excludes>
-                    </configuration>
-                </plugin>
-                <!-- Comment to run Eclipse plugin for top level project only, as part of mda install. See mda/eclipse.bat -->
-                <plugin>
-                    <artifactId>maven-eclipse-plugin</artifactId>
-                    <version>2.8</version>
-                    <inherited>true</inherited>
-                    <configuration>
-                        <wtpversion>1.5</wtpversion>
-                        <buildOutputDirectory>target/classes</buildOutputDirectory>
-                    </configuration>
                 </plugin>
                 <plugin>
-                    <!-- Automatically attach sources to build artifact as artifact-version-sources.jar and deploy to local repository -->
                     <artifactId>maven-source-plugin</artifactId>
                     <version>2.1.2</version>
                     <executions>
@@ -159,10 +89,6 @@
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>2.5</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.6</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -223,73 +149,8 @@
                     <compilerArgument>-Xlint:cast,unchecked,fallthrough,finally,serial</compilerArgument>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-site-plugin</artifactId>
-            </plugin>
         </plugins>
     </build>
-    <modules>
-        <!-- Save the values used to generate this project from andromdapp
-        ejb3Persistence=$ejb3Persistence
-        ear=$ear
-        ejb=$ejb
-        ejb3=$ejb3
-        transactionPersistenceType=spring
-        jsr181Webservice=$jsr181Webservice
-        hibernate=$hibernate
-        spring=true
-        webservice=false
-        web=false
-        struts=$struts
-        jsf=$jsf
-        cxf=$cxf
-        rest=$rest
-        ear=$ear
-        jbossSeam=$jbossSeam
-        soapStack=$soapStack
-        -->
-        <module>common</module><module>core</module><module>mda</module>
-
-        <module>client</module>
-        <module>crud</module>
-
-    </modules>
-    <distributionManagement>
-          <repository>
-              <id>bubba-deploy</id>
-              <name>Bubba Repositiory</name>
-              <url>scp://repo.linardcapital.com/home/web/repo</url>
-          </repository>
-        <snapshotRepository>
-            <id>bubba-deploy</id>
-            <name>Bubba Repositiory</name>
-            <url>scp://repo.linardcapital.com/home/web/repo</url>
-        </snapshotRepository>
-    </distributionManagement>
-    <properties>
-        <andromda.version>3.4-SNAPSHOT</andromda.version>
-        <java.version>1.6</java.version>
-        <downloadSources>true</downloadSources>
-        <createChecksum>true</createChecksum>
-        <uniqueVersion>false</uniqueVersion>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sql.mappings>
-            MySQL
-        </sql.mappings>
-        <hibernate.dialect>
-            org.hibernate.dialect.MySQL5InnoDBDialect
-        </hibernate.dialect>
-        <application.id>algotrader</application.id>
-        <application.package>com.algoTrader</application.package>
-        <application.name>AlgoTrader</application.name>
-        <application.version>1.4-SNAPSHOT</application.version>
-        <dataSource.name>jdbc/${application.id}</dataSource.name>
-        <dataSource>java:comp/env/${dataSource.name}</dataSource>
-        <spring.version>3.1.0.RELEASE</spring.version>
-        <!-- SCM user ID and Password here, or in user specific settings.xml file -->
-        <username />
-        <password />
-    </properties>
     <profiles>
         <profile>
             <id>local</id>
@@ -297,26 +158,19 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <!--
-                Change driver path and jar for appropriate database
-                For MySQL use: mysql-connector-java-X-bin.jar
-                For Hypersonic use: hsqldb.jar
-                -->
+                <!-- Change driver path and jar for appropriate database For MySQL use:
+                    mysql-connector-java-X-bin.jar For Hypersonic use: hsqldb.jar -->
                 <jdbc.driver.jar>
                     ${settings.localRepository}\mysql\mysql-connector-java\5.1.15\mysql-connector-java-5.1.15.jar
                 </jdbc.driver.jar>
-                <jdbc.driver>
-                    com.mysql.jdbc.Driver
+                <jdbc.driver> com.mysql.jdbc.Driver
                 </jdbc.driver>
-                <jdbc.url>
-                    jdbc:mysql://localhost:3306/algotrader
+                <jdbc.url> jdbc:mysql://localhost:3306/algotrader
                 </jdbc.url>
                 <!-- Enter id/password for the database connection -->
-                <jdbc.username>
-                    root
+                <jdbc.username> root
                 </jdbc.username>
-                <jdbc.password>
-                    password
+                <jdbc.password> password
                 </jdbc.password>
                 <jdbc.exception.sorter>
                     org.jboss.resource.adapter.jdbc.vendor.MySQLExceptionSorter
@@ -329,31 +183,19 @@
                             <groupId>org.andromda.maven.plugins</groupId>
                             <artifactId>andromdapp-maven-plugin</artifactId>
                             <version>${andromda.version}</version>
-                            <!-- provides the injection of the script wrapper support into the class files (this should only
-                                 be done when developing locally), uncomment this executions element to enable
-                            <executions>
-                                <execution>
-                                    <id>instrument-scripts</id>
-                                    <goals>
-                                        <goal>instrument-scripts</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                            -->
+                            <!-- provides the injection of the script wrapper support into the
+                                class files (this should only be done when developing locally), uncomment
+                                this executions element to enable <executions> <execution> <id>instrument-scripts</id>
+                                <goals> <goal>instrument-scripts</goal> </goals> </execution> </executions> -->
                             <configuration>
                                 <scriptWrapper>org.andromda.scriptwrappers.GroovyScriptWrapper</scriptWrapper>
                                 <locations>
                                     <location>
                                         <rootPath>${project.basedir}/src/main/java</rootPath>
                                         <!-- adjust these to include or exclude specific files, by default
-                                             all files found in the rootPath are considered
-                                        <includes>
-                                            <include>relative/path/to/file/to/include/SomeClass.java</include>
-                                        </includes>
-                                        <excludes>
-                                            <exclude>relative/path/to/file/to/include/SomeClass.java</exclude>
-                                        </excludes>
-                                        -->
+                                            all files found in the rootPath are considered <includes> <include>relative/path/to/file/to/include/SomeClass.java</include>
+                                            </includes> <excludes> <exclude>relative/path/to/file/to/include/SomeClass.java</exclude>
+                                            </excludes> -->
                                     </location>
                                 </locations>
                             </configuration>
@@ -376,19 +218,24 @@
                         <plugin>
                             <artifactId>maven-site-plugin</artifactId>
                             <version>2.2</version>
-                            <!--dependencies>
-                                <dependency>
-                                    <groupId>org.apache.maven.doxia</groupId>
-                                    <artifactId>doxia-module-twiki</artifactId>
-                                    <version>1.1.3</version>
-                                </dependency>
-                            </dependencies-->
+                            <!--dependencies> <dependency> <groupId>org.apache.maven.doxia</groupId>
+                                <artifactId>doxia-module-twiki</artifactId> <version>1.1.3</version> </dependency>
+                                </dependencies -->
                         </plugin>
                     </plugins>
                 </pluginManagement>
             </build>
         </profile>
     </profiles>
+    <modules>
+        <module>common</module>
+        <module>core</module>
+        <module>core/bin</module>
+        <module>mda</module>
+        <module>client</module>
+        <module>client/bin</module>
+        <module>crud</module>
+    </modules>
     <repositories>
         <repository>
             <id>andromda</id>
@@ -443,268 +290,80 @@
             </releases>
         </pluginRepository>
     </pluginRepositories>
-    <prerequisites>
-        <maven>2.0.10</maven>
-    </prerequisites>
-    <!-- Comment to disable project reporting using default maven plugins -->
-    <reporting>
-        <plugins>
-            <plugin>
-                <artifactId>maven-jxr-plugin</artifactId>
-                <version>2.2</version>
-            </plugin>
-            <plugin>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.3.1</version>
-                <reportSets>
-                  <reportSet>
-                    <reports>
-                      <report>cim</report>
-                      <report>dependencies</report>
-                      <report>dependency-convergence</report>
-                      <report>dependency-management</report>
-                      <report>help</report>
-                      <report>index </report>
-                      <report>issue-tracking</report>
-                      <report>license</report>
-                      <report>mailing-list</report>
-                      <report>modules</report>
-                      <report>plugin-management</report>
-                      <report>plugins</report>
-                      <report>project-team</report>
-                      <report>scm</report>
-                      <report>summary</report>
-                    </reports>
-                  </reportSet>
-                </reportSets>
-            </plugin>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.7</version>
-                <configuration>
-                    <minmemory>128m</minmemory>
-                    <maxmemory>1g</maxmemory>
-                    <sourcepath>${project.basedir}/src/main/java;${project.basedir}/target/src/main/java</sourcepath>
-                    <detectLinks />
-                    <links>
-                        <link>http://java.sun.com/javase/6/docs/api/</link>
-                        <link>http://java.sun.com/j2ee/1.4/docs/api/</link>
-                        <link>http://docs.jboss.org/hibernate/stable/core/api</link>
-                        <link>http://static.springsource.org/spring/docs/3.0.x/javadoc-api</link>
-                        <link>http://jakarta.apache.org/commons/collections/apidocs</link>
-                        <link>http://jakarta.apache.org/commons/lang/apidocs</link>
-                        <link>http://jakarta.apache.org/commons/logging/apidocs/</link>
-                        <link>http://www.junit.org/junit/javadoc/</link>
-                        <link>http://logging.apache.org/log4j/docs/api/</link>
-                    </links>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.7.1</version>
-            </plugin>
-            <plugin>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <targetJdk>${java.version}</targetJdk>
-                    <linkXRef>true</linkXRef>
-                    <rulesets>
-                        <ruleset>/rulesets/basic.xml</ruleset>
-                        <ruleset>/rulesets/braces.xml</ruleset>
-                        <ruleset>/rulesets/clone.xml</ruleset>
-                        <ruleset>/rulesets/codesize.xml</ruleset>
-                        <ruleset>/rulesets/controversial.xml</ruleset>
-                        <ruleset>/rulesets/coupling.xml</ruleset>
-                        <ruleset>/rulesets/design.xml</ruleset>
-                        <ruleset>/rulesets/finalizers.xml</ruleset>
-                        <ruleset>/rulesets/logging-java.xml</ruleset>
-                        <ruleset>/rulesets/j2ee.xml</ruleset>
-                        <ruleset>/rulesets/javabeans.xml</ruleset>
-                        <ruleset>/rulesets/junit.xml</ruleset>
-                        <ruleset>/rulesets/naming.xml</ruleset>
-                        <ruleset>/rulesets/optimizations.xml</ruleset>
-                        <ruleset>/rulesets/strictexception.xml</ruleset>
-                        <ruleset>/rulesets/strings.xml</ruleset>
-                        <ruleset>/rulesets/sunsecure.xml</ruleset>
-                        <ruleset>/rulesets/typeresolution.xml</ruleset>
-                        <ruleset>/rulesets/unusedcode.xml</ruleset>
-                    </rulesets>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-checkstyle-plugin</artifactId>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.8.3</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.6</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>3.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-httpclient</groupId>
+                <artifactId>commons-httpclient</artifactId>
+                <version>3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
                 <version>2.6</version>
-                <configuration>
-                    <configLocation>config/maven_checks.xml</configLocation>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jdepend-maven-plugin</artifactId>
-                <version>2.0-beta-2</version>
-            </plugin>
-            <plugin>
-                <artifactId>maven-changes-plugin</artifactId>
-                <version>2.3</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>changes-report</report>
-                            <!-- Uncomment if using JIRA -->
-                            <!--report>jira-report</report-->
-                        </reports>
-                    </reportSet>
-                </reportSets>
-                <configuration>
-                    <columnNames>Key,Type,Summary,Assignee,Status,Resolution,Priority,Component</columnNames>
-                    <sortColumnNames>Key</sortColumnNames>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>taglist-maven-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <tagListOptions>
-                        <tagClasses>
-                            <tagClass>
-                                <displayName>Todo Work</displayName>
-                                <tags>
-                                    <tag>
-                                        <matchString>todo</matchString>
-                                        <matchType>ignoreCase</matchType>
-                                    </tag>
-                                    <tag>
-                                        <matchString>FIXME</matchString>
-                                        <matchType>exact</matchType>
-                                    </tag>
-                                    <tag>
-                                        <matchString>XXX</matchString>
-                                        <matchType>exact</matchType>
-                                    </tag>
-                                    <tag>
-                                        <matchString>@deprecated</matchString>
-                                        <matchType>exact</matchType>
-                                    </tag>
-                                </tags>
-                            </tagClass>
-                        </tagClasses>
-                    </tagListOptions>
-                </configuration>
-            </plugin>
-            <!-- Uncomment after configuring SCM connection>
-            <plugin>
-                <artifactId>maven-changelog-plugin</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math</artifactId>
                 <version>2.2</version>
-                <reportSets>
-                    <reportSet>
-                        <id>All Reports</id>
-                        <configuration>
-                            <type>range</type>
-                            <range>90</range>
-                            <dateFormat>yyyy-MM-dd HH:mm:ss</dateFormat>
-                        </configuration>
-                        <reports>
-                            <report>changelog</report>
-                            <report>file-activity</report>
-                            <report>dev-activity</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin-->
-            <!--plugin>
-                <artifactId>maven-docck-plugin</artifactId>
-                <executions>
-                    <execution>
-                    <goals>
-                    <goal>check</goal>
-                    </goals>
-                    </execution>
-                </executions>
-            </plugin-->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <formats>
-                        <format>html</format>
-                        <format>xml</format>
-                    </formats>
-                </configuration>
-            </plugin>
-            <!-- Compare APIs to a previous version, uncomment when a release version exists -->
-            <!--plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>clirr-maven-plugin</artifactId>
-                <version>2.3</version>
-                <inherited>true</inherited>
-                <configuration>
-                    <minSeverity>info</minSeverity>
-                </configuration>
-            </plugin-->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>javancss-maven-plugin</artifactId>
-                <version>2.0</version>
-                <inherited>true</inherited>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.3.1</version>
-                <configuration>
-                    <xmlOutput>true</xmlOutput>
-                    <effort>Default</effort>
-                    <threshold>Normal</threshold>
-                    <!--xmlOutputDirectory>directory location of findbugs xdoc xml report</xmlOutputDirectory>
-                    <threshold>High|Normal|Low|Exp|Ignore</threshold>
-                    <effort>Min|Default|Max</effort>
-                    <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
-                    <includeFilterFile>findbugs-include.xml</includeFilterFile>
-                    <visitors>FindDeadLocalStores,UnreadFields</visitors>
-                    <omitVisitors>FindDeadLocalStores,UnreadFields</omitVisitors>
-                    <onlyAnalyze>org.codehaus.mojo.findbugs.*</onlyAnalyze>
-                    <pluginList>/libs/fb-contrib/fb-contrib-2.8.0.jar</pluginList>
-                    <debug>true|false</debug>
-                    <relaxed>true|false</relaxed>
-                    <findbugsXmlOutput>true|false</findbugsXmlOutput>
-                    <findbugsXmlOutputDirectory>location of legacy xml format report</findbugsXmlOutputDirectory-->
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-                <version>1.2</version>
-                <reportSets>
-                    <reportSet>
-                      <reports>
-                        <report>dependency-updates-report</report>
-                        <report>plugin-updates-report</report>
-                        <report>property-updates-report</report>
-                      </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <!--plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>dashboard-maven-plugin</artifactId>
-                <version>1.0.0-beta-1</version>
-            </plugin-->
-            <!--plugin>
-                <artifactId>maven-doap-plugin</artifactId>
-                <version>1.0</version>
-                <configuration>
-                    <doapOptions>
-                        <programmingLanguage>java</programmingLanguage>
-                        <category>build-management</category>
-                    </doapOptions>
-                    <asfExtOptions>
-                        <included>false</included>
-                    </asfExtOptions>
-                </configuration>
-            </plugin-->
-        </plugins>
-    </reporting>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.10</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>1.2.16</version>
+                <!--scope>test</scope -->
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <distributionManagement>
+        <repository>
+            <id>bubba-deploy</id>
+            <name>Bubba Repositiory</name>
+            <url>scp://repo.linardcapital.com/home/web/repo</url>
+        </repository>
+        <snapshotRepository>
+            <id>bubba-deploy</id>
+            <name>Bubba Repositiory</name>
+            <url>scp://repo.linardcapital.com/home/web/repo</url>
+        </snapshotRepository>
+    </distributionManagement>
+    <properties>
+        <java.version>1.6</java.version>
+        <andromda.version>3.4-SNAPSHOT</andromda.version>
+        <spring.version>3.1.0.RELEASE</spring.version>
+        <esper.version>4.5.0</esper.version>
+        <esperee.version>4.4.1</esperee.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 </project>
