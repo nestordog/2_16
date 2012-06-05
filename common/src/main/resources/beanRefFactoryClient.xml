@@ -9,8 +9,7 @@
            <list>
                 <value>applicationContext-common.xml</value>
                 <value>applicationContext-remote.xml</value>
-                <value>applicationContext-client.xml</value>
-
+                <value>classpath*:/applicationContext-client*.xml</value>
                 <value>applicationContext-import-remoteServices.xml</value>
            </list>
         </constructor-arg>

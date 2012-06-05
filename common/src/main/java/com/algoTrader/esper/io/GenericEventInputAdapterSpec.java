@@ -13,7 +13,7 @@ public class GenericEventInputAdapterSpec extends CSVInputAdapterSpec {
 
         setAdapterInputSource(new AdapterInputSource(file));
         seteventTypeName(eventTypeName);
-        setTimestampColumn("dateTime");
+        setTimestampColumn("time");
         setUsingExternalTimer(true);
     }
 }

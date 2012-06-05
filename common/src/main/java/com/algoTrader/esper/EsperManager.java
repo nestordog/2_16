@@ -482,7 +482,7 @@ public class EsperManager {
 
         if (simulation) {
             for (String strategyName : serviceProviders.keySet()) {
-                if (!strategyName.equals(StrategyImpl.BASE)) {
+                if (!strategyName.equals(StrategyImpl.BASE) && !strategyName.equals(event.getStrategyName())) {
                     sendEvent(strategyName, event);
                 }
             }

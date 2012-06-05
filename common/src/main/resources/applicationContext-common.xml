@@ -13,8 +13,8 @@
             <list>
                 <!--  defining conf.properties will allow overwrites by strategies -->
                 <!--  files have to be defined in a subdirectory of classloader root otherwise they cannot be loaded from jars -->
-                <value>classpath:/conf/conf.properties</value>
-                <value>classpath*:/conf/conf-**.properties</value>
+                <value>classpath:/conf.properties</value>
+                <value>classpath*:/conf-*.properties</value>
             </list>
         </property>
         <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_OVERRIDE</value></property>

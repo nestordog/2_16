@@ -109,7 +109,8 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected double handleGetStrategyAllocation() throws Exception {
 
-        return StrategyUtil.getStartedStrategy().getAllocation();
+        String strategyName = StrategyUtil.getStartedStrategyName();
+        return getLookupService().getStrategyByName(strategyName).getAllocation();
     }
 
     @Override
@@ -126,7 +127,8 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected BigDecimal handleGetStrategyBenchmark() throws Exception {
 
-        return StrategyUtil.getStartedStrategy().getBenchmark();
+        String strategyName = StrategyUtil.getStartedStrategyName();
+        return getLookupService().getStrategyByName(strategyName).getBenchmark();
     }
 
     @Override
