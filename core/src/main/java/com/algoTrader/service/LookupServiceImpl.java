@@ -118,6 +118,14 @@ public class LookupServiceImpl extends LookupServiceBase {
         return getSecurityDao().findSubscribedByStrategyAndComponentClass(strategyName, discriminator);
     }
 
+    @SuppressWarnings("rawtypes")
+    @Override
+    protected List<Security> handleGetSubscribedSecuritiesByStrategyAndComponentClassWithZeroQty(String strategyName, final Class type) throws Exception {
+
+        int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
+        return getSecurityDao().findSubscribedByStrategyAndComponentClassWithZeroQty(strategyName, discriminator);
+    }
+
     @Override
     protected List<Security> handleGetSubscribedSecuritiesForAutoActivateStrategiesInclFamily() throws Exception {
 
@@ -552,7 +560,9 @@ public class LookupServiceImpl extends LookupServiceBase {
         Tick tick = getTickDao().findByDateAndSecurity(date, securityId);
 
         // initialize the security
-        tick.getSecurity().initialize();
+        if (tick != null) {
+            tick.getSecurityInitialized().initialize();
+        }
 
         return tick;
     }

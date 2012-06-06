@@ -79,6 +79,42 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         String baseDir = this.dataSetLocation.equals("") ? "results/" : this.dataSetLocation;
         String dataSet = getConfiguration().getDataSet();
 
+        if (this.feedGenericEvents) {
+
+            File dir = new File(baseDir + "genericdata/" + dataSet);
+            if (dir == null || !dir.exists() || !dir.isDirectory()) {
+                logger.warn("no generic events available");
+            } else {
+                File[] files = dir.listFiles();
+                File[] sortedFiles = new File[files.length];
+
+                // sort the files according to their order
+                for (File file : files) {
+
+                    String fileName = file.getName();
+                    String baseFileName = fileName.substring(0, fileName.lastIndexOf("."));
+                    int order = Integer.parseInt(baseFileName.substring(baseFileName.lastIndexOf(".") + 1));
+                    sortedFiles[order] = file;
+                }
+
+                // coordinate all files
+                for (File file : sortedFiles) {
+
+                    String fileName = file.getName();
+                    String baseFileName = fileName.substring(0, fileName.lastIndexOf("."));
+                    String eventClassName = baseFileName.substring(0, baseFileName.lastIndexOf("."));
+                    String eventTypeName = eventClassName.substring(eventClassName.lastIndexOf(".") + 1);
+
+                    // add the eventType (in case it does not exist yet)
+                    EsperManager.addEventType(StrategyImpl.BASE, eventTypeName, eventClassName);
+
+                    GenericEventInputAdapterSpec spec = new GenericEventInputAdapterSpec(file, eventTypeName);
+                    EsperManager.coordinate(StrategyImpl.BASE, spec);
+                }
+
+            }
+        }
+
         Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategiesInclFamily();
         for (Security security : securities) {
 
@@ -111,26 +147,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             logger.debug("started simulation for security " + security.getSymbol());
         }
 
-        if (this.feedGenericEvents) {
-
-            File dir = new File(baseDir + "genericdata/" + dataSet);
-            if (dir == null || !dir.exists() || !dir.isDirectory()) {
-                logger.warn("no generic events available");
-            } else {
-                for (File file : dir.listFiles()) {
-
-                    String fileName = file.getName();
-                    String eventClassName = fileName.substring(0, fileName.lastIndexOf("."));
-                    String eventTypeName = eventClassName.substring(eventClassName.lastIndexOf(".") + 1);
-
-                    // add the eventType (in case it does not exist yet)
-                    EsperManager.addEventType(StrategyImpl.BASE, eventTypeName, eventClassName);
-
-                    GenericEventInputAdapterSpec spec = new GenericEventInputAdapterSpec(file, eventTypeName);
-                    EsperManager.coordinate(StrategyImpl.BASE, spec);
-                }
-            }
-        }
 
         EsperManager.startCoordination(StrategyImpl.BASE);
     }
