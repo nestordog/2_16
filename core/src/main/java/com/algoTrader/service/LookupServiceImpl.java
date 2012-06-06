@@ -128,9 +128,8 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected StockOption handleGetStockOptionByMinExpirationAndMinStrikeDistance(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot,
             OptionType optionType) throws Exception {
 
-        StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(1, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndMinStrikeDistance(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType);
 
         StockOption stockOption = null;
         if (!list.isEmpty()) {
@@ -139,6 +138,8 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         // if no future was found, create it if simulating options
         if (this.simulation && this.simulateStockOptions) {
+
+            StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
             if ((stockOption == null) || Math.abs(stockOption.getStrike().doubleValue() - underlyingSpot.doubleValue()) > family.getStrikeDistance()) {
 
                 stockOption = getStockOptionService().createDummyStockOption(family.getId(), targetExpirationDate, underlyingSpot, optionType);
@@ -156,7 +157,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected StockOption handleGetStockOptionByMinExpirationAndMinStrikeDistanceWithTicks(int underlyingId, Date targetExpirationDate,
             BigDecimal underlyingSpot, OptionType optionType, Date date) throws Exception {
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType, date);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date);
 
         if (!list.isEmpty()) {
             return list.get(0);
@@ -172,7 +173,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(1, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType);
 
         StockOption stockOption = null;
         if (!list.isEmpty()) {
@@ -200,7 +201,7 @@ public class LookupServiceImpl extends LookupServiceBase {
             OptionType optionType,
             Date date) throws Exception {
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot.doubleValue(), optionType, date);
+        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date);
 
         if (!list.isEmpty()) {
             return list.get(0);
