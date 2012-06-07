@@ -98,6 +98,9 @@ public class ResetServiceImpl extends ResetServiceBase {
             property.getPropertyHolder().removeProperties(property.getName());
         }
 
+        // delete all measurements
+        getMeasurementDao().remove(getMeasurementDao().loadAll());
+
         // delete all StockOptions if they are beeing simulated
         if (this.simulateStockOptions) {
             getSecurityDao().remove((Collection<Security>) getStockOptionDao().loadAll(StockOptionDao.TRANSFORM_NONE));
@@ -107,5 +110,6 @@ public class ResetServiceImpl extends ResetServiceBase {
         if (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures) {
             getSecurityDao().remove((Collection<Security>) getFutureDao().loadAll(FutureDao.TRANSFORM_NONE));
         }
+
     }
 }
