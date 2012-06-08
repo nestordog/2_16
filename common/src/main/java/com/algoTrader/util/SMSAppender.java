@@ -77,27 +77,29 @@ public class SMSAppender extends SMTPAppender {
 
         if (isSendMailAllowed()) {
             try {
-                MimeBodyPart part = new MimeBodyPart();
                 StringBuffer sbuf = new StringBuffer();
-                String t = this.layout.getHeader();
 
-                if (t != null) {
-                    sbuf.append(t);
+                String header = this.layout.getHeader();
+                if (header != null) {
+                    sbuf.append(header);
                 }
 
                 LoggingEvent event = this.cb.get();
-                sbuf.append(this.layout.format(event));
 
+                String ex = null;
                 if (this.layout.ignoresThrowable()) {
                     String[] s = event.getThrowableStrRep();
                     if (s != null && s.length > 0) {
-                        sbuf.append(s[0]);
+                        ex = s[0].substring(s[0].substring(0, s[0].lastIndexOf(":")).lastIndexOf(".") + 1).trim();
                     }
-                    t = this.layout.getFooter();
                 }
 
-                if (t != null) {
-                    sbuf.append(t);
+                String m = this.layout.format(event).trim();
+                sbuf.append(ex != null & !"".equals(ex) && m != null && !"".equals(m) ? ex + " / " + m : ex + m);
+
+                String footer = this.layout.getFooter();
+                if (footer != null) {
+                    sbuf.append(footer);
                 }
 
                 String content = sbuf.toString();
@@ -105,6 +107,7 @@ public class SMSAppender extends SMTPAppender {
                     content = content.substring(0, 160);
                 }
 
+                MimeBodyPart part = new MimeBodyPart();
                 part.setContent(content, this.layout.getContentType());
                 Multipart mp = new MimeMultipart();
                 mp.addBodyPart(part);
