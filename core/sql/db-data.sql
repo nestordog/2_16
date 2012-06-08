@@ -507,12 +507,14 @@ UNLOCK TABLES;
 
 LOCK TABLES `strategy` WRITE;
 /*!40000 ALTER TABLE `strategy` DISABLE KEYS */;
-INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (1,'BASE','BASE','',0.0,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,ib,algo',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (2,'SMI','THETA','\0',0,'theta-init,theta-main',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (3,'ESTX50','THETA','\0',0,'theta-init,theta-main',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (4,'MULTIIND','MULTIIND','\0',0,'multiind-movavcross,multiind-main',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (5,'EASTWEST','EASTWEST','',1.0,'eastwest-init,eastwest-main,volcarry-main,tailhedge-main',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `FAMILY`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (6,'PERIODIC','PERIODIC','\0',0,'main',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (1,'BASE','',0,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,ib,algo',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (2,'SMI','\0',0,'theta-init,theta-main',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (3,'ESTX50','\0',0,'theta-init,theta-main',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (4,'MULTIIND','\0',0,'multiind-movavcross,multiind-main',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (5,'MACRO','',0,'macro-init,macro-run',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (6,'INTRADAY','',1,'intraday',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (7,'TAILHEDGE','\0',0,'tailhedge',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (8,'PERIODIC','\0',0,'main',NULL);
 /*!40000 ALTER TABLE `strategy` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -532,17 +534,12 @@ INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VA
 INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (7,'',13,4);
 INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (8,'',14,4);
 INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (9,'',15,4);
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (10,'',29,5);
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (11,'',21,5);
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (12,'',22,5);
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (13,'',23,5);
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (14,'',24,5);
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (15,'',25,5);
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (16,'',26,5);
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (17,'',27,5);
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (18,'',28,5);
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (19,'',10,5);
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (20,'',20,5);
+INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (10,'',10,5);
+INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (11,'',29,5);
+INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (12,'',10,6);
+INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (13,'',29,6);
+INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (14,'',10,7);
+INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`) VALUES (15,'',29,7);
 /*!40000 ALTER TABLE `subscription` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -579,4 +576,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-05-23 21:35:34
+-- Dump completed on 2012-06-08 15:29:43

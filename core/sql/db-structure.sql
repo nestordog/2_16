@@ -506,7 +506,6 @@ DROP TABLE IF EXISTS `strategy`;
 CREATE TABLE `strategy` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `NAME` varchar(30) NOT NULL,
-  `FAMILY` varchar(20) NOT NULL,
   `AUTO_ACTIVATE` bit(1) NOT NULL,
   `ALLOCATION` double NOT NULL,
   `MODULES` varchar(255) NOT NULL,
@@ -642,4 +641,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-05-23 21:35:34
+-- Dump completed on 2012-06-08 15:29:42
