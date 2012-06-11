@@ -58,7 +58,7 @@
         <param name="SMTPHost" value="mail.linardcapital.com" />
         <param name="SMTPUsername" value="aws" />
         <param name="SMTPPassword" value="Zermatt11" />
-        <param name="From" value="andy_flury@yahoo.com" />
+        <param name="From" value="aws@linardcapital.com" />
         <param name="To" value="emergency@linardcapital.com" />
         <param name="Subject" value="" />
         <param name="TimeFrame" value="60" />
