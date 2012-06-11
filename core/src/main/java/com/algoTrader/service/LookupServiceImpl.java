@@ -549,6 +549,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected List<Tick> handleGetDailyBarsFromTicks(int securityId, Date fromDate, Date toDate) {
+
+        return getTickDao().findDailyBars(securityId, fromDate, toDate);
+    }
+
+    @Override
     protected List<Tick> handleGetSubscribedTicksByTimePeriod(Date startDate, Date endDate) throws Exception {
 
         return getTickDao().findSubscribedByTimePeriod(startDate, endDate);
