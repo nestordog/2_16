@@ -162,10 +162,10 @@ $attribute.getDocumentation("     * ")
 #if ($enableAnnotations)
     @Override
 #end
-#if($stringUtils.isNotBlank($service.findTaggedValue('algoTrader_service_manageable')))
 #if($stringUtils.isNotBlank($operation.findTaggedValue('algoTrader_service_method_manageable_attribute')))
 	@org.springframework.jmx.export.annotation.ManagedAttribute#if($stringUtils.isNotBlank($operation.getDocumentation('')))(description="$stringUtils.toSingleLine($operation.getDocumentation(''))")#end
-#else	
+#end	
+#if($stringUtils.isNotBlank($operation.findTaggedValue('algoTrader_service_method_manageable')))
 	@org.springframework.jmx.export.annotation.ManagedOperation#if($stringUtils.isNotBlank($operation.getDocumentation('')))(description="$stringUtils.toSingleLine($operation.getDocumentation(''))")#end
 	@org.springframework.jmx.export.annotation.ManagedOperationParameters({ 
 #foreach ($argument in $operation.arguments)	
@@ -173,7 +173,6 @@ $attribute.getDocumentation("     * ")
 #end			
 	})	
 #end	
-#end
     $operation.visibility $operation.getterSetterReturnTypeName $operation.getSignature("final")
 #if ($operation.exceptionsPresent)
         $operation.throwsClause

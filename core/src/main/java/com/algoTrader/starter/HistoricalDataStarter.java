@@ -3,6 +3,8 @@ package com.algoTrader.starter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.BarType;
@@ -18,9 +20,9 @@ public class HistoricalDataStarter {
         Date endDate = format.parse(args[1] + "  24:00:00");
 
         String[] barTypesString = args[2].split(":");
-        BarType[] barTypes = new BarType[barTypesString.length];
-        for (int i = 0; i < barTypesString.length; i++) {
-            barTypes[i] = BarType.fromString(barTypesString[i]);
+        Set<BarType> barTypes = new HashSet<BarType>();
+        for (String element : barTypesString) {
+            barTypes.add(BarType.fromString(element));
         }
 
         String[] securityIdStrings = args[3].split(":");

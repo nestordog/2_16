@@ -124,12 +124,6 @@
     </template>]]></to>
         </mapping>
 
-        <!-- add  managementServiceDiagrams ref -->
-        <mapping>
-            <from><![CDATA[<!-- ManagementService service client property merge-point -->]]></from>
-            <to><![CDATA[<property name="diagrams" ref="managementServiceDiagrams"/>]]></to>
-        </mapping>
-
         <!-- add  marketDataMessageListenerContainer ref -->
         <mapping>
             <from><![CDATA[<!-- SubscriptionService service client property merge-point -->]]></from>

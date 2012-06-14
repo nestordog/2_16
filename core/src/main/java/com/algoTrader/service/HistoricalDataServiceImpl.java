@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -27,7 +28,7 @@ public abstract class HistoricalDataServiceImpl extends HistoricalDataServiceBas
     private static Logger logger = MyLogger.getLogger(HistoricalDataServiceImpl.class.getName());
 
     @Override
-    protected void handleDownload1MinTicks(int[] securityIds, BarType[] barTypes, Date startDate, Date endDate) throws Exception {
+    protected void handleDownload1MinTicks(int[] securityIds, Set<BarType> barTypes, Date startDate, Date endDate) throws Exception {
 
         for (int securityId : securityIds) {
 
@@ -41,7 +42,7 @@ public abstract class HistoricalDataServiceImpl extends HistoricalDataServiceBas
         }
     }
 
-    private void download1MinTicksForSecurity(Security security, BarType[] barTypes, Date startDate, Date endDate, CsvTickWriter writer) throws Exception {
+    private void download1MinTicksForSecurity(Security security, Set<BarType> barTypes, Date startDate, Date endDate, CsvTickWriter writer) throws Exception {
 
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(startDate);
@@ -57,7 +58,7 @@ public abstract class HistoricalDataServiceImpl extends HistoricalDataServiceBas
         }
     }
 
-    private void download1MinTicksForDate(Security security, Date date, BarType[] barTypes, CsvTickWriter writer) throws Exception {
+    private void download1MinTicksForDate(Security security, Date date, Set<BarType> barTypes, CsvTickWriter writer) throws Exception {
 
         TreeMap<Date, Tick> timeTickMap = new TreeMap<Date, Tick>();
 

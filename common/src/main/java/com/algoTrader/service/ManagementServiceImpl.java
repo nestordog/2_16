@@ -20,7 +20,6 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
-import com.algoTrader.vo.DiagramVO;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.TickVO;
 import com.algoTrader.vo.TransactionVO;
@@ -28,16 +27,6 @@ import com.algoTrader.vo.TransactionVO;
 public class ManagementServiceImpl extends ManagementServiceBase {
 
     private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
-
-    private List<DiagramVO> diagrams;
-
-    public List<DiagramVO> getDiagrams() {
-        return this.diagrams;
-    }
-
-    public void setDiagrams(List<DiagramVO> diagrams) {
-        this.diagrams = diagrams;
-    }
 
     @Override
     protected String handleGetCurrentTime() throws Exception {
@@ -231,20 +220,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected Map<Object, Object> handleGetProperties() throws Exception {
 
         return new TreeMap<Object, Object>(getConfiguration().getProperties());
-    }
-
-    @Override
-    protected List<DiagramVO> handleGetIndicatorDiagrams(boolean param) throws Exception {
-
-        return getDiagrams();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected List<Object> handleGetAllEvents(String statementName) throws Exception {
-
-        String strategyName = StrategyUtil.getStartedStrategyName();
-        return EsperManager.getAllEvents(strategyName, statementName);
     }
 
     @Override
