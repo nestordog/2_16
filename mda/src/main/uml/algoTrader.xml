@@ -10166,13 +10166,6 @@
                             </xmi:Extension>
                             <lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_5_4_8b60294_1339665342613_910683_3242' visibility='public'/>
                         </ownedAttribute>
-                        <ownedAttribute xmi:type='uml:Property' xmi:id='_9_5_1_8b60294_1307545928734_345931_1477' name='selected' visibility='public'>
-                            <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_736816_6'>
-                                <xmi:Extension extender='MagicDraw UML 16.5'>
-                                    <referenceExtension referentPath='datatype::boolean' referentType='DataType'/>
-                                </xmi:Extension>
-                            </type>
-                        </ownedAttribute>
                         <ownedAttribute xmi:type='uml:Property' xmi:id='_9_5_1_8b60294_1307698917474_187601_844' name='axisDefinitions' visibility='public' type='_9_5_1_8b60294_1307698890440_588247_828'>
                             <upperValue xmi:type='uml:LiteralUnlimitedNatural' xmi:id='_16_5_4_8b60294_1322591462277_216211_3087' visibility='public' value='*'/>
                             <lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_5_4_8b60294_1322591462277_577848_3086' visibility='public'/>
@@ -21535,7 +21528,7 @@
                                     <value xmi:value='true'/>
                                 </mdElement>
                             </properties>
-                            <geometry>170, 140, 260, 138</geometry>
+                            <geometry>170, 130, 260, 138</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1339609466299_80857_2983'>
                             <elementID xmi:idref='_9_5_1_8b60294_1307521862698_427229_649'/>
@@ -21546,7 +21539,7 @@
                                     <value xmi:value='true'/>
                                 </mdElement>
                             </properties>
-                            <geometry>190, 10, 220, 123</geometry>
+                            <geometry>190, 10, 220, 108</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1339609466299_91148_2984'>
                             <elementID xmi:idref='_16_5_4_8b60294_1339348167626_239634_3080'/>
@@ -21557,7 +21550,7 @@
                                     <value xmi:value='true'/>
                                 </mdElement>
                             </properties>
-                            <geometry>110, 620, 101, 153</geometry>
+                            <geometry>110, 610, 101, 153</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1339609466299_419576_2985'>
                             <elementID xmi:idref='_9_5_1_8b60294_1307521873505_489963_665'/>
@@ -21568,7 +21561,7 @@
                                     <value xmi:value='true'/>
                                 </mdElement>
                             </properties>
-                            <geometry>230, 510, 127, 78</geometry>
+                            <geometry>230, 500, 127, 78</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1339609466299_45081_2986'>
                             <elementID xmi:idref='_16_5_4_8b60294_1339433036420_343779_2700'/>
@@ -21579,7 +21572,7 @@
                                     <value xmi:value='true'/>
                                 </mdElement>
                             </properties>
-                            <geometry>229, 380, 114, 78</geometry>
+                            <geometry>229, 370, 114, 78</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1339609466299_830459_2987'>
                             <elementID xmi:idref='_16_5_4_8b60294_1339595574838_907696_2811'/>
@@ -21590,7 +21583,7 @@
                                     <value xmi:value='true'/>
                                 </mdElement>
                             </properties>
-                            <geometry>170, 290, 247, 78</geometry>
+                            <geometry>170, 280, 247, 78</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1339609466299_596913_2988'>
                             <elementID xmi:idref='_16_5_4_8b60294_1339347210574_896729_2838'/>
@@ -21601,7 +21594,7 @@
                                     <value xmi:value='true'/>
                                 </mdElement>
                             </properties>
-                            <geometry>380, 510, 118, 78</geometry>
+                            <geometry>380, 500, 118, 78</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1339609466299_738127_2989'>
                             <elementID xmi:idref='_16_5_4_8b60294_1339347863559_709768_2975'/>
@@ -21612,7 +21605,7 @@
                                     <value xmi:value='true'/>
                                 </mdElement>
                             </properties>
-                            <geometry>240, 620, 101, 93</geometry>
+                            <geometry>240, 610, 101, 93</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1339609466299_452086_2990'>
                             <elementID xmi:idref='_16_5_4_8b60294_1339347712115_820400_2916'/>
@@ -21623,7 +21616,7 @@
                                     <value xmi:value='true'/>
                                 </mdElement>
                             </properties>
-                            <geometry>380, 620, 101, 78</geometry>
+                            <geometry>380, 610, 101, 78</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1339609466299_247482_2991'>
                             <elementID xmi:idref='_16_5_4_8b60294_1339347400847_579133_2876'/>
@@ -21634,27 +21627,27 @@
                                     <value xmi:value='true'/>
                                 </mdElement>
                             </properties>
-                            <geometry>100, 510, 112, 93</geometry>
+                            <geometry>100, 500, 112, 93</geometry>
                         </mdElement>
                         <mdElement elementClass='Generalization' xmi:id='_16_5_4_8b60294_1339609466299_796402_2992'>
                             <elementID xmi:idref='_16_5_4_8b60294_1339433104696_477321_2735'/>
                             <linkFirstEndID xmi:idref='_16_5_4_8b60294_1339609466299_45081_2986'/>
                             <linkSecondEndID xmi:idref='_16_5_4_8b60294_1339609466299_419576_2985'/>
-                            <geometry>295, 458; 295, 510; </geometry>
+                            <geometry>295, 448; 295, 500; </geometry>
                             <nameVisible xmi:value='false'/>
                         </mdElement>
                         <mdElement elementClass='Generalization' xmi:id='_16_5_4_8b60294_1339609466299_99284_2993'>
                             <elementID xmi:idref='_16_5_4_8b60294_1339433113449_788839_2738'/>
                             <linkFirstEndID xmi:idref='_16_5_4_8b60294_1339609466299_45081_2986'/>
                             <linkSecondEndID xmi:idref='_16_5_4_8b60294_1339609466299_247482_2991'/>
-                            <geometry>295, 458; 295, 485; 164, 485; 164, 510; </geometry>
+                            <geometry>295, 448; 295, 475; 164, 475; 164, 500; </geometry>
                             <nameVisible xmi:value='false'/>
                         </mdElement>
                         <mdElement elementClass='Generalization' xmi:id='_16_5_4_8b60294_1339609466299_106756_2994'>
                             <elementID xmi:idref='_16_5_4_8b60294_1339433101880_852623_2732'/>
                             <linkFirstEndID xmi:idref='_16_5_4_8b60294_1339609466299_45081_2986'/>
                             <linkSecondEndID xmi:idref='_16_5_4_8b60294_1339609466299_596913_2988'/>
-                            <geometry>295, 458; 295, 485; 435, 485; 435, 510; </geometry>
+                            <geometry>295, 448; 295, 475; 435, 475; 435, 500; </geometry>
                             <nameVisible xmi:value='false'/>
                         </mdElement>
                     </mdOwnedViews>
@@ -22800,7 +22793,7 @@
                         <mdElement elementClass='StringProperty'>
                             <propertyID>INFO_PROPERTY</propertyID>
                             <propertyDescriptionID>INFO_PROPERTY_DESCRIPTION</propertyDescriptionID>
-                            <value>35 6d 64 3 77 13 35 7a 1b 51 ae 12 7b ff f7 a2 f6 52 89 f2 19 c3 f7 48 d c1 13 a7 3a 25 d7 ed 1a e5 2e 0 c0 3 bc db f2 bb be fd ad a5 9c 1d c1 cc fe 52 5c 4b fe bf f1 ab af 33 ff 58 5a 28 5a 5b f9 1f 3a cf f d9 </value>
+                            <value>35 6d 64 3 77 13 35 7a 1b 51 ae 12 7b ff f7 a2 f6 52 89 f2 19 c3 f7 46 d c7 16 a7 39 2f d7 ed 1a e5 2e 0 c0 3 bc db f2 bb be fd ad a5 9c 1d c1 cc fe 52 5c 4b fe bf f1 ab af 33 ff 58 5a 28 5a 5b f9 1f 3a cf f d9 </value>
                         </mdElement>
                         <mdElement elementClass='LIST_PROPERTY'>
                             <propertyID>ADDITIONAL_CONTAINMENT_TREES</propertyID>
