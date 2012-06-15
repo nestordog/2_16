@@ -60,8 +60,8 @@ insert into
     CombinationTick
 select
     max(win.dateTime) as dateTime,
-    Math.abs(cast(min((case when win.quantity > 0 then win.volBid else win.volAsk end) / Math.abs(win.quantity)) * sum(win.quantity), int)) as volBid,
-    Math.abs(cast(min((case when win.quantity > 0 then win.volAsk else win.volBid end) / Math.abs(win.quantity)) * sum(win.quantity), int)) as volAsk,
+    MathUtil.nullSafeAbs(cast(min((case when win.quantity > 0 then win.volBid else win.volAsk end) / Math.abs(win.quantity)) * sum(win.quantity), int)) as volBid,
+    MathUtil.nullSafeAbs(cast(min((case when win.quantity > 0 then win.volAsk else win.volBid end) / Math.abs(win.quantity)) * sum(win.quantity), int)) as volAsk,
     RoundUtil.getBigDecimalNullSafe(sum((case when win.quantity > 0 then win.bid.doubleValue() else win.ask.doubleValue() end) * win.quantity) / sum(win.quantity)) as bid,
     RoundUtil.getBigDecimalNullSafe(sum((case when win.quantity > 0 then win.ask.doubleValue() else win.bid.doubleValue() end) * win.quantity) / sum(win.quantity)) as ask,
     last(win.parentSecurityId) as parentSecurityId,
