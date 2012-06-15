@@ -13,10 +13,22 @@ import org.apache.commons.collections15.Predicate;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Property;
+import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.trade.InitializingOrderI;
+import com.algoTrader.entity.trade.LimitOrder;
+import com.algoTrader.entity.trade.LimitOrderI;
+import com.algoTrader.entity.trade.MarketOrder;
+import com.algoTrader.entity.trade.Order;
+import com.algoTrader.entity.trade.StopLimitOrder;
+import com.algoTrader.entity.trade.StopOrder;
+import com.algoTrader.entity.trade.StopOrderI;
+import com.algoTrader.entity.trade.TickwiseIncrementalLimitOrder;
+import com.algoTrader.entity.trade.VariableIncrementalLimitOrder;
+import com.algoTrader.enumeration.Side;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
@@ -235,9 +247,84 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
+    protected void handleSendOrder(int securityId, long quantity, String sideString, String type, Double limit, Double stop) throws Exception {
+
+        Side side = Side.fromValue(sideString);
+        String strategyName = StrategyUtil.getStartedStrategyName();
+
+        Strategy strategy = getLookupService().getStrategyByName(strategyName);
+        final Security security = getLookupService().getSecurity(securityId);
+
+        // instantiate the order
+        Order order;
+        if ("M".equals(type)) {
+            order = MarketOrder.Factory.newInstance();
+        } else if ("L".equals(type)) {
+            order = LimitOrder.Factory.newInstance();
+        } else if ("S".equals(type)) {
+            order = StopOrder.Factory.newInstance();
+        } else if ("SL".equals(type)) {
+            order = StopLimitOrder.Factory.newInstance();
+        } else if ("TIL".equals(type)) {
+            order = TickwiseIncrementalLimitOrder.Factory.newInstance();
+        } else if ("VIL".equals(type)) {
+            order = VariableIncrementalLimitOrder.Factory.newInstance();
+        } else {
+            throw new IllegalArgumentException("unkown order type " + type);
+        }
+
+        // set common values
+        order.setStrategy(strategy);
+        order.setSecurity(security);
+        order.setQuantity(Math.abs(quantity));
+        order.setSide(side);
+
+        // set the limit if applicable
+        if (order instanceof LimitOrderI && limit != null) {
+            ((LimitOrderI) order).setLimit(new BigDecimal(limit));
+        }
+
+        // set the stop if applicable
+        if (order instanceof StopOrderI && stop != null) {
+            ((StopOrderI) order).setStop(new BigDecimal(stop));
+        }
+
+        // init the order if applicable
+        if (order instanceof InitializingOrderI) {
+            ((InitializingOrderI) order).init(null);
+        }
+
+        // send orders
+        getOrderService().sendOrder(order);
+    }
+
+    @Override
     protected void handleSetVariableValue(String variableName, String value) {
 
         EsperManager.setVariableValue(StrategyUtil.getStartedStrategyName(), variableName, value);
+    }
+
+    @Override
+    protected void handleAddProperty(int propertyHolderId, String name, String value, String type) throws Exception {
+
+        Object obj;
+        if ("INT".equals(type)) {
+            obj = Integer.parseInt(value);
+        } else if ("DOUBLE".equals(type)) {
+            obj = Double.parseDouble(value);
+        } else if ("MONEY".equals(type)) {
+            obj = new BigDecimal(value);
+        } else if ("TEXT".equals(type)) {
+            obj = value;
+        } else if ("DATE".equals(type)) {
+            obj = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(value);
+        } else if ("BOOLEAN".equals(type)) {
+            obj = Boolean.parseBoolean(value);
+        } else {
+            throw new IllegalArgumentException("unknown type " + type);
+        }
+
+        getPropertyService().addProperty(propertyHolderId, name, obj, false);
     }
 
     @Override

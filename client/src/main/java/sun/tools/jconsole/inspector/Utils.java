@@ -1,4 +1,6 @@
-// AlgoTrader: 189 return true if array
+// AlgoTrader
+// line 190: return true if array
+// line 297: handle null for numbers
 /*
  * Copyright (c) 2004, 2008, Oracle and/or its affiliates. All rights reserved. DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -291,6 +293,9 @@ public class Utils {
      * Try to convert a string value into a numerical value.
      */
     private static Number createNumberFromStringValue(String value) throws NumberFormatException {
+        if ("".equals(value) || "null".equals(value)) {
+            return null;
+        }
         final String suffix = value.substring(value.length() - 1);
         if ("L".equalsIgnoreCase(suffix)) {
             return Long.valueOf(value.substring(0, value.length() - 1));
