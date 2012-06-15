@@ -427,7 +427,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         return resultVO;
     }
 
-    @SuppressWarnings("unchecked")
     private static String convertStatisticsToShortString(SimulationResultVO resultVO) {
 
         StringBuffer buffer = new StringBuffer();
@@ -462,7 +461,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         return buffer.toString();
     }
 
-    @SuppressWarnings("unchecked")
     private String convertStatisticsToLongString(SimulationResultVO resultVO) {
 
         if (resultVO.getAllTrades().getCount() == 0) {

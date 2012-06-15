@@ -3,6 +3,7 @@ package com.algoTrader.service;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -203,15 +204,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected List<PositionVO> handleGetDataPositions() throws Exception {
 
         return getLookupService().getOpenPositionsVO(StrategyUtil.getStartedStrategyName());
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    protected List<BalanceVO> handleGetDataBalances() throws Exception {
+    protected Collection<BalanceVO> handleGetDataBalances() throws Exception {
 
         String strategyName = StrategyUtil.getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
@@ -222,7 +221,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected List<TransactionVO> handleGetDataTransactions() throws Exception {
 
         return getLookupService().getTransactionsVO(StrategyUtil.getStartedStrategyName());

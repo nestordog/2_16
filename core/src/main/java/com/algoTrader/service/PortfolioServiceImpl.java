@@ -261,10 +261,9 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    protected List<BalanceVO> handleGetBalances() throws Exception {
+    protected Collection<BalanceVO> handleGetBalances() throws Exception {
 
-        List<Currency> currencies = ServiceLocator.instance().getLookupService().getHeldCurrencies();
+        Collection<Currency> currencies = ServiceLocator.instance().getLookupService().getHeldCurrencies();
         DoubleMap<Currency> cashMap = new DoubleMap<Currency>();
         DoubleMap<Currency> securitiesMap = new DoubleMap<Currency>();
 

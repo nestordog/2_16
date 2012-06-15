@@ -1,6 +1,6 @@
 package com.algoTrader.service;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,12 +25,11 @@ public class ForexServiceImpl extends ForexServiceBase {
     private @Value("${misc.fxEqualizationBatchSize}") int fxEqualizationBatchSize;
 
     @Override
-    @SuppressWarnings("unchecked")
     protected void handleEqualizeForex() throws Exception {
 
         Strategy base = getStrategyDao().findByName(StrategyImpl.BASE);
 
-        List<BalanceVO> balances = getPortfolioService().getBalances();
+        Collection<BalanceVO> balances = getPortfolioService().getBalances();
         for (BalanceVO balance : balances) {
 
             if (balance.getCurrency().equals(this.portfolioBaseCurrency)) {

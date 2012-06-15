@@ -18,6 +18,7 @@ import com.algoTrader.entity.TransactionDao;
 import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickDao;
+import com.algoTrader.entity.marketData.TickDaoBase;
 import com.algoTrader.entity.security.Combination;
 import com.algoTrader.entity.security.Component;
 import com.algoTrader.entity.security.Future;
@@ -549,9 +550,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Tick> handleGetDailyBarsFromTicks(int securityId, Date fromDate, Date toDate) {
+    protected List<Bar> handleGetDailyBarsFromTicks(int securityId, Date fromDate, Date toDate) {
 
-        return getTickDao().findDailyBars(securityId, fromDate, toDate);
+        return (List<Bar>) getTickDao().findDailyBars(TickDaoBase.TRANSFORM_NONE, securityId, fromDate, toDate);
     }
 
     @Override
