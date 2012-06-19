@@ -617,7 +617,13 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Collection<Combination> handleGetCombinationByStrategyAndUnderlying(String strategyName, int underlyingId) throws Exception {
+    protected Collection<Combination> handleGetSubscribedCombinationsByStrategy(String strategyName) throws Exception {
+
+        return getCombinationDao().findSubscribedByStrategy(strategyName);
+    }
+
+    @Override
+    protected Collection<Combination> handleGetSubscribedCombinationsByStrategyAndUnderlying(String strategyName, int underlyingId) throws Exception {
 
         return getCombinationDao().findSubscribedByStrategyAndUnderlying(strategyName, underlyingId);
     }
