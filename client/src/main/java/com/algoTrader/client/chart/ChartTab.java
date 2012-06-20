@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -20,6 +21,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.SegmentedTimeline;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.HighLowItemLabelGenerator;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.ValueMarker;
@@ -29,6 +31,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.Minute;
 import org.jfree.data.time.RegularTimePeriod;
+import org.jfree.data.time.TimePeriodAnchor;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.ohlc.OHLCSeries;
@@ -38,7 +41,6 @@ import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.TextAnchor;
 
 import com.algoTrader.enumeration.Color;
-import com.algoTrader.enumeration.Period;
 import com.algoTrader.vo.AxisDefinitionVO;
 import com.algoTrader.vo.BarDefinitionVO;
 import com.algoTrader.vo.BarVO;
@@ -155,18 +157,6 @@ public class ChartTab extends ChartPanel {
 
         DateAxis domainAxis = new DateAxis();
 
-        if (Period.DAY.equals(chartDefinition.getTimePeriod())) {
-            domainAxis.setDateFormatOverride(new SimpleDateFormat("dd.MM.yy"));
-        }
-        if (Period.HOUR.equals(chartDefinition.getTimePeriod())) {
-            domainAxis.setDateFormatOverride(new SimpleDateFormat("dd.MM kk:mm"));
-        }
-        if (Period.MINUTE.equals(chartDefinition.getTimePeriod())) {
-            domainAxis.setDateFormatOverride(new SimpleDateFormat("dd.MM kk:mm"));
-        }
-        if (Period.MINUTE.equals(chartDefinition.getTimePeriod())) {
-            domainAxis.setDateFormatOverride(new SimpleDateFormat("dd.MM kk:mm:ss"));
-        }
         domainAxis.setVerticalTickLabels(true);
 
         getPlot().setDomainAxis(domainAxis);
@@ -215,8 +205,8 @@ public class ChartTab extends ChartPanel {
                     getPlot().setDataset(datasetNumber, dataset);
 
                     // create the renderer
-                    CandlestickRenderer renderer = new CandlestickRenderer();
-                    renderer.setBaseToolTipGenerator(new HighLowItemLabelGenerator());
+                    HideableCandlestickRenderer renderer = new HideableCandlestickRenderer();
+                    renderer.setBaseToolTipGenerator(new HighLowItemLabelGenerator(new SimpleDateFormat("dd.MM.yyyy kk:mm:ss"), NumberFormat.getInstance()));
                     getPlot().setRenderer(datasetNumber, renderer);
 
                 } else {
@@ -260,6 +250,7 @@ public class ChartTab extends ChartPanel {
 
         BarDefinitionVO barDefinition = (BarDefinitionVO) seriesDefinition;
         OHLCSeriesCollection ohlcSeriesCollection = (OHLCSeriesCollection) dataset;
+        ohlcSeriesCollection.setXPosition(TimePeriodAnchor.START);
 
         // create the TimeSeries
         OHLCSeries series = new OHLCSeries(barDefinition.getLabel());
@@ -270,8 +261,10 @@ public class ChartTab extends ChartPanel {
         final int seriesNumber = ohlcSeriesCollection.getSeriesCount() - 1;
 
         // configure the renderer
-        final XYItemRenderer renderer = getPlot().getRenderer(datasetNumber);
+        final CandlestickRenderer renderer = (CandlestickRenderer) getPlot().getRenderer(datasetNumber);
         renderer.setBaseSeriesVisible(seriesDefinition.isSelected());
+        renderer.setSeriesPaint(seriesNumber, getColor(barDefinition.getColor()));
+        renderer.setAutoWidthMethod(HideableCandlestickRenderer.WIDTHMETHOD_SMALLEST);
 
         // add the menu item
         JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(seriesDefinition.getLabel());
@@ -279,7 +272,9 @@ public class ChartTab extends ChartPanel {
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                renderer.setSeriesVisible(seriesNumber, ((JCheckBoxMenuItem) e.getSource()).isSelected());
+                resetAxis();
+                renderer.setSeriesVisible(seriesNumber, ((JCheckBoxMenuItem) e.getSource()).isSelected(), true);
+                initAxis();
             }
         });
         this.getPopupMenu().add(menuItem);
@@ -310,7 +305,9 @@ public class ChartTab extends ChartPanel {
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                resetAxis();
                 renderer.setSeriesVisible(seriesNumber, ((JCheckBoxMenuItem) e.getSource()).isSelected());
+                initAxis();
             }
         });
         this.getPopupMenu().add(menuItem);
@@ -335,7 +332,9 @@ public class ChartTab extends ChartPanel {
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                resetAxis();
                 marker.setAlpha(((JCheckBoxMenuItem) e.getSource()).isSelected() ? 1 : 0);
+                initAxis();
             }
         });
         this.getPopupMenu().add(menuItem);
@@ -343,27 +342,33 @@ public class ChartTab extends ChartPanel {
 
     public void updateData(ChartData chartData) {
 
+        resetAxis();
+
         // add/update indicators
         for (IndicatorVO indicator : chartData.getIndicators()) {
 
             RegularTimePeriod timePeriod = getRegularTimePeriod(indicator.getDateTime());
             TimeSeries series = this.indicators.get(indicator.getName());
 
-            series.addOrUpdate(timePeriod, indicator.getValue());
+            if (series != null) {
+                series.addOrUpdate(timePeriod, indicator.getValue());
+            }
         }
 
         // add/update bars
         for (BarVO bar : chartData.getBars()) {
 
-            RegularTimePeriod timePeriod = getRegularTimePeriod(bar.getDateTime());
             OHLCSeries series = this.bars.get(bar.getSecurityId());
 
-            // remove a value if it already exists
-            if (series.indexOf(timePeriod) >= 0) {
-                series.remove(timePeriod);
-            }
+            if (series != null) {
 
-            series.add(timePeriod, bar.getOpen().doubleValue(), bar.getHigh().doubleValue(), bar.getLow().doubleValue(), bar.getClose().doubleValue());
+                // remove a value if it already exists
+                RegularTimePeriod timePeriod = getRegularTimePeriod(bar.getDateTime());
+                if (series.indexOf(timePeriod) >= 0) {
+                    series.remove(timePeriod);
+                }
+                series.add(timePeriod, bar.getOpen().doubleValue(), bar.getHigh().doubleValue(), bar.getLow().doubleValue(), bar.getClose().doubleValue());
+            }
         }
 
         // update markers
@@ -377,6 +382,24 @@ public class ChartTab extends ChartPanel {
             marker.setLabel(label);
         }
 
+        initAxis();
+    }
+
+    private void resetAxis() {
+
+        // set a default timeline in order to compute the maximum date correctly
+        DateAxis domainAxis = (DateAxis) getPlot().getDomainAxis();
+        domainAxis.setTimeline(new DefaultTimeline());
+
+        // reset value axis
+        ValueAxis rangeAxis = getPlot().getRangeAxis();
+        rangeAxis.setAutoRange(true);
+    }
+
+    private void initAxis() {
+
+        DateAxis domainAxis = (DateAxis) getPlot().getDomainAxis();
+
         // configure the Date Axis (if startTime & endTime is set)
         if (this.chartDefinition.getStartTime() != null && this.chartDefinition.getEndTime() != null) {
 
@@ -388,10 +411,10 @@ public class ChartTab extends ChartPanel {
             int segmentsExcluded = 24 * 60 - segmentsIncluded;
             SegmentedTimeline timeline = new SegmentedTimeline(segmentSize, segmentsIncluded, segmentsExcluded);
 
-            DateAxis oldAxis = (DateAxis) getPlot().getDomainAxis();
-            Date fromDate = oldAxis.getMinimumDate();
+            Date fromDate = domainAxis.getMinimumDate();
+            Date toDate = domainAxis.getMaximumDate();
             long fromTime = fromDate.getTime();
-            long toTime = oldAxis.getMaximumDate().getTime();
+            long toTime = toDate.getTime();
 
             // get year/month/day from fromTime and hour/minute from diagrm.startTime
             Date truncatedDate = DateUtils.truncate(fromDate, Calendar.DAY_OF_MONTH);
@@ -405,7 +428,24 @@ public class ChartTab extends ChartPanel {
             timeline.addBaseTimelineExclusions(fromTime, toTime);
             timeline.setAdjustForDaylightSaving(true);
 
-            ((DateAxis) getPlot().getDomainAxis()).setTimeline(timeline);
+            domainAxis.setTimeline(timeline);
+        }
+
+
+        // make sure the markers are within the rangeAxis
+        ValueAxis rangeAxis = getPlot().getRangeAxis();
+        for (ValueMarker marker : this.markers.values()) {
+
+            if (marker.getAlpha() > 0 && marker.getValue() != 0.0) {
+
+                if (marker.getValue() < rangeAxis.getLowerBound()) {
+                    rangeAxis.setLowerBound(marker.getValue() - rangeAxis.getLowerMargin());
+                }
+
+                if (marker.getValue() > rangeAxis.getUpperBound()) {
+                    rangeAxis.setUpperBound(marker.getValue() + rangeAxis.getUpperMargin());
+                }
+            }
         }
     }
 

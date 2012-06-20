@@ -326,6 +326,12 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
+    protected void handleRemoveProperty(int propertyHolderId, String name) throws Exception {
+
+        getPropertyService().removeProperty(propertyHolderId, name);
+    }
+
+    @Override
     protected void handleShutdown() throws Exception {
 
         // cancel all orders if we called from base
