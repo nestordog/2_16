@@ -1,6 +1,5 @@
 package com.algoTrader.service;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,13 +25,13 @@ public class ChartProvidingStrategyServiceImpl extends ChartProvidingStrategySer
     }
 
     @Override
-    protected Set<IndicatorVO> handleGetIndicators(Date startDate) throws Exception {
+    protected Set<IndicatorVO> handleGetIndicators(long startDateTime) throws Exception {
 
         return new HashSet<IndicatorVO>();
     }
 
     @Override
-    protected Set<BarVO> handleGetBars(Date startDate) throws Exception {
+    protected Set<BarVO> handleGetBars(long startDateTime) throws Exception {
 
         return new HashSet<BarVO>();
     }

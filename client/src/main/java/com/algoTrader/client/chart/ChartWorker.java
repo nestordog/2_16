@@ -1,6 +1,5 @@
 package com.algoTrader.client.chart;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,21 +70,21 @@ public class ChartWorker extends SwingWorker<Map<String, ChartData>, Object> {
             ChartProvidingStrategyService chartProvidingService = JMX.newMBeanProxy(this.chartPlugin.getMBeanServerConnection(), mbeanName, ChartProvidingStrategyService.class);
 
             // retrieve the charts if necessary
-            Date startDate = entry.getValue().getMaxDate();
+            long startDateTime = entry.getValue().getMaxDate();
             if (!this.chartPlugin.isInitialized()) {
 
                 // return the charts, so the SelectionPanel can be initialized
                 chartData.setChartDefinition(chartProvidingService.getChartDefinition());
 
                 // if charts are not initialized yet, load all data
-                startDate = new Date(0);
+                startDateTime = 0;
             }
 
             // retrieve bars for the selected chart and securityIds
-            chartData.setBars(chartProvidingService.getBars(startDate));
+            chartData.setBars(chartProvidingService.getBars(startDateTime));
 
             // retrieve indicators for the selected chart and securityIds
-            chartData.setIndicators(chartProvidingService.getIndicators(startDate));
+            chartData.setIndicators(chartProvidingService.getIndicators(startDateTime));
 
             // retrieve markers for the selected chart and securityIds
             chartData.setMarkers(chartProvidingService.getMarkers());

@@ -97,14 +97,9 @@ public class ChartTab extends ChartPanel {
         this.getPopupMenu().addSeparator();
     }
 
-    public Date getMaxDate() {
+    public long getMaxDate() {
 
-        DateAxis axis = (DateAxis) getPlot().getDomainAxis();
-        if (axis != null) {
-            return axis.getMaximumDate();
-        } else {
-            return new Date(0);
-        }
+        return (long) getPlot().getDataRange(getPlot().getDomainAxis()).getUpperBound();
     }
 
     public void init(ChartDefinitionVO chartDefinition) {
