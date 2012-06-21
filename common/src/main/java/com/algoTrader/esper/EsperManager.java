@@ -35,6 +35,7 @@ import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.TickCallback;
+import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.TradeCallback;
 import com.algoTrader.esper.annotation.Condition;
@@ -724,26 +725,26 @@ public class EsperManager {
         }
     }
 
-    public static void addFirstTickCallback(String strategyName, int[] securityIds, TickCallback callback) {
+    public static void addFirstTickCallback(String strategyName, Collection<Security> securities, TickCallback callback) {
 
-        // sort the securityIds
-        Arrays.sort(securityIds);
+        // create a list of unique security ids
+        Set<Integer> securityIds = new TreeSet<Integer>();
+        securityIds.addAll(CollectionUtils.collect(securities, new Transformer<Security, Integer>() {
+            @Override
+            public Integer transform(Security security) {
+                return security.getId();
+            }
+        }));
 
-        // get unique values
-        Set<Integer> sortedSecurityIds = new TreeSet<Integer>();
-        sortedSecurityIds.addAll(Arrays.asList(ArrayUtils.toObject(securityIds)));
-
-        if (sortedSecurityIds.size() < securityIds.length) {
-            throw new IllegalArgumentException("cannot specify same securityId multiple times");
-        }
-        String alias = "ON_FIRST_TICK_" + StringUtils.join(sortedSecurityIds, "_");
+        String alias = "ON_FIRST_TICK_" + StringUtils.join(securityIds, "_");
 
         if (isDeployed(strategyName, alias)) {
 
             logger.warn(alias + " is already deployed");
         } else {
 
-            deployStatement(strategyName, "prepared", "ON_FIRST_TICK", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds }, callback);
+            int[] securityIdsArray = ArrayUtils.toPrimitive(securityIds.toArray(new Integer[0]));
+            deployStatement(strategyName, "prepared", "ON_FIRST_TICK", alias, new Object[] { securityIds.size(), securityIdsArray }, callback);
         }
     }
 
