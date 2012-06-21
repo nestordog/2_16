@@ -29,6 +29,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.CandlestickRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.Range;
 import org.jfree.data.time.Minute;
 import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.TimePeriodAnchor;
@@ -99,7 +100,12 @@ public class ChartTab extends ChartPanel {
 
     public long getMaxDate() {
 
-        return (long) getPlot().getDataRange(getPlot().getDomainAxis()).getUpperBound();
+        Range range = getPlot().getDataRange(getPlot().getDomainAxis());
+        if (range != null) {
+            return (long) range.getUpperBound();
+        } else {
+            return 0;
+        }
     }
 
     public void init(ChartDefinitionVO chartDefinition) {
