@@ -1,5 +1,8 @@
 package com.algoTrader.util;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
@@ -9,8 +12,11 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.util.http.AuthSSLProtocolSocketFactory;
 
 public class HttpClientUtil {
 
@@ -23,9 +29,9 @@ public class HttpClientUtil {
 
     public static HttpClient getStandardClient() {
 
-        if (standardClient != null) {
-            return standardClient;
-        }
+        //        if (standardClient != null) {
+        //            return standardClient;
+        //        }
 
         // allow the same number of connections as we have workers
         MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
@@ -52,6 +58,19 @@ public class HttpClientUtil {
 
         // user agent
         standardClient.getParams().setParameter(HttpMethodParams.USER_AGENT, userAgent);
+
+        // custom SSLSocketFactory to use defined trustStore
+        String trustStore = System.getProperty("javax.net.ssl.trustStore");
+        String trustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
+        if (trustStore != null && trustStorePassword != null) {
+            try {
+                ProtocolSocketFactory socketFactory = new AuthSSLProtocolSocketFactory(null, null, new URL(trustStore), trustStorePassword);
+                Protocol myhttps = new Protocol("https", socketFactory, 443);
+                Protocol.registerProtocol("https", myhttps);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         return standardClient;
     }
