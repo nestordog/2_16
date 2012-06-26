@@ -58,7 +58,7 @@ public class ChartPlugin extends JConsolePlugin {
 
             String className = instance.getClassName();
             String instanceName = instance.getObjectName().toString();
-            if (instanceName.startsWith("com.algoTrader.chart")) {
+            if (className.endsWith("ChartService")) {
 
                 String chartName = className.substring(className.lastIndexOf(".") + 1);
                 ChartTab chartTab = new ChartTab(this);
