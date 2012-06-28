@@ -538,7 +538,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
             Security security = getSecurityDao().findByExtId(extId);
             if (security == null) {
 
-                logger.warn("security: " + extId + " does not exist");
+                logger.error("position on security: " + extId + " does not exist");
             } else {
 
                 long totalQuantity = 0;
@@ -550,7 +550,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
                 long quantity = Long.parseLong(quantityString);
 
                 if (totalQuantity != quantity) {
-                    logger.warn("position(s) on security: " + extId + " totalQuantity does not match db: " + totalQuantity + " broker: " + quantity);
+                    logger.error("position(s) on security: " + extId + " totalQuantity does not match db: " + totalQuantity + " broker: " + quantity);
                 } else {
                     logger.info("position(s) on security: " + extId + " ok");
                 }
@@ -576,7 +576,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
             Transaction transaction = getTransactionDao().findByExtId(extId);
             if (transaction == null) {
 
-                logger.warn("transaction: " + extId + " does not exist");
+                logger.error("transaction: " + extId + " does not exist");
             } else {
 
                 String dateString = XPathAPI.selectSingleNode(node, "@tradeDate").getNodeValue();
@@ -601,22 +601,22 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
                 }
 
                 if (transaction.getQuantity() != quantity) {
-                    logger.warn("transaction: " + extId + " quantity does not match db: " + transaction.getQuantity() + " broker: " + quantity);
+                    logger.error("transaction: " + extId + " quantity does not match db: " + transaction.getQuantity() + " broker: " + quantity);
                     success = false;
                 }
 
                 if (transaction.getPrice().doubleValue() != price) {
-                    logger.warn("transaction: " + extId + " price does not match db: " + transaction.getPrice() + " broker: " + price);
+                    logger.error("transaction: " + extId + " price does not match db: " + transaction.getPrice() + " broker: " + price);
                     success = false;
                 }
 
                 if (!transaction.getCurrency().equals(currency)) {
-                    logger.warn("transaction: " + extId + " currency does not match db: " + transaction.getCurrency() + " broker: " + currency);
+                    logger.error("transaction: " + extId + " currency does not match db: " + transaction.getCurrency() + " broker: " + currency);
                     success = false;
                 }
 
                 if (!transaction.getType().equals(type)) {
-                    logger.warn("transaction: " + extId + " type does not match db: " + transaction.getType() + " broker: " + type);
+                    logger.error("transaction: " + extId + " type does not match db: " + transaction.getType() + " broker: " + type);
                     success = false;
                 }
 
