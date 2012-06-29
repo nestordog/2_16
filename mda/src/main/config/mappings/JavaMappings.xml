@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<mappings name="Java">
+    <extends>Java</extends>
+    <mapping>
+        <from>Boolean</from>
+        <from>UML2::Boolean</from>
+        <from>UMLPrimitiveTypes::Boolean</from>
+        <from>PrimitiveTypes::Boolean</from>
+        <from>datatype::Boolean</from>
+        <from>RoseJavaDatatypes::java::lang::Boolean</from>
+        <to>Boolean</to>
+    </mapping>
+</mappings>
