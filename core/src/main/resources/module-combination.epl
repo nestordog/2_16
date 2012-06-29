@@ -88,9 +88,10 @@ select
     volAsk,
     bid,
     ask,
-    LookupUtil.getSecurityInclComponentsInitialized(parentSecurityId) as security
+    security
 from
-    CombinationTick
+    CombinationTick,
+    method:LookupUtil.getSecurityInclComponentsInitialized(parentSecurityId) as security
 where
     countDiff = 0 // total count of non-ignored components must equal component count of the parent
 and
