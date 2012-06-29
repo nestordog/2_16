@@ -262,22 +262,21 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     }
 
     @Override
-    protected void handleSimulateBySingleParam(String strategyName, String parameter, String value) throws Exception {
+    protected void handleSimulateBySingleParam(String parameter, String value) throws Exception {
 
-        getConfiguration().setProperty(strategyName, parameter, value);
+        getConfiguration().setProperty(parameter, value);
 
         SimulationResultVO resultVO = runByUnderlyings();
         resultLogger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
     }
 
     @Override
-    protected void handleSimulateByMultiParam(String strategyName, String[] parameters, String[] values) throws Exception {
+    protected void handleSimulateByMultiParam(String[] parameters, String[] values) throws Exception {
 
         StringBuffer buffer = new StringBuffer();
         buffer.append("optimize ");
         for (int i = 0; i < parameters.length; i++) {
             buffer.append(parameters[i] + "=" + values[i] + " ");
-            getConfiguration().setProperty(strategyName, parameters[i], values[i]);
             getConfiguration().setProperty(parameters[i], values[i]);
         }
 
@@ -287,13 +286,13 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     }
 
     @Override
-    protected void handleOptimizeSingleParamLinear(String strategyName, String parameter, double min, double max, double increment) throws Exception {
+    protected void handleOptimizeSingleParamLinear(String parameter, double min, double max, double increment) throws Exception {
 
         double result = min;
         double functionValue = 0;
         for (double i = min; i <= max; i += increment) {
 
-            getConfiguration().setProperty(strategyName, parameter, format.format(i));
+            getConfiguration().setProperty(parameter, format.format(i));
 
             SimulationResultVO resultVO = runByUnderlyings();
             resultLogger.info(parameter + "=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
@@ -309,10 +308,10 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
     @Override
     @SuppressWarnings("deprecation")
-    protected OptimizationResultVO handleOptimizeSingleParam(String strategyName, String parameter, double min, double max, double accuracy)
+    protected OptimizationResultVO handleOptimizeSingleParam(String parameter, double min, double max, double accuracy)
             throws ConvergenceException, FunctionEvaluationException {
 
-        UnivariateRealFunction function = new UnivariateFunction(strategyName, parameter);
+        UnivariateRealFunction function = new UnivariateFunction(parameter);
         UnivariateRealOptimizer optimizer = new BrentOptimizer();
         optimizer.setAbsoluteAccuracy(accuracy);
         optimizer.optimize(function, GoalType.MAXIMIZE, min, max);
@@ -327,7 +326,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     }
 
     @Override
-    protected void handleOptimizeMultiParamLinear(String strategyName, String parameters[], double[] mins, double[] maxs, double[] increments) throws Exception {
+    protected void handleOptimizeMultiParamLinear(String parameters[], double[] mins, double[] maxs, double[] increments) throws Exception {
 
         Configuration configuration = getConfiguration();
         for (double i0 = mins[0]; i0 <= maxs[0]; i0 += increments[0]) {
@@ -360,9 +359,9 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     }
 
     @Override
-    protected void handleOptimizeMultiParam(String strategyName, String[] parameters, double[] starts) throws ConvergenceException, FunctionEvaluationException {
+    protected void handleOptimizeMultiParam(String[] parameters, double[] starts) throws ConvergenceException, FunctionEvaluationException {
 
-        MultivariateRealFunction function = new MultivariateFunction(strategyName, parameters);
+        MultivariateRealFunction function = new MultivariateFunction(parameters);
         MultivariateRealOptimizer optimizer = new MultiDirectional();
         optimizer.setConvergenceChecker(new SimpleScalarValueChecker(0.0, 0.01));
         RealPointValuePair result = optimizer.optimize(function, GoalType.MAXIMIZE, starts);
@@ -582,18 +581,16 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private static class UnivariateFunction implements UnivariateRealFunction {
 
         private String param;
-        private String strategyName;
 
-        public UnivariateFunction(String strategyName, String parameter) {
+        public UnivariateFunction(String parameter) {
             super();
             this.param = parameter;
-            this.strategyName = strategyName;
         }
 
         @Override
         public double value(double input) throws FunctionEvaluationException {
 
-            ServiceLocator.instance().getConfiguration().setProperty(this.strategyName, this.param, String.valueOf(input));
+            ServiceLocator.instance().getConfiguration().setProperty(this.param, String.valueOf(input));
 
             SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
             double result = resultVO.getPerformanceKeysVO().getSharpRatio();
@@ -608,12 +605,10 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private static class MultivariateFunction implements MultivariateRealFunction {
 
         private String[] params;
-        private String strategyName;
 
-        public MultivariateFunction(String strategyName, String[] parameters) {
+        public MultivariateFunction(String[] parameters) {
             super();
             this.params = parameters;
-            this.strategyName = strategyName;
         }
 
         @Override
@@ -625,7 +620,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
                 String param = this.params[i];
                 double value = input[i];
 
-                ServiceLocator.instance().getConfiguration().setProperty(this.strategyName, param, String.valueOf(value));
+                ServiceLocator.instance().getConfiguration().setProperty(param, String.valueOf(value));
 
                 buffer.append(param + "=" + SimulationServiceImpl.format.format(value) + " ");
             }

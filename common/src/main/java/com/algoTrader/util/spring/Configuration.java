@@ -7,7 +7,6 @@ import java.util.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.MarketDataType;
 
@@ -107,39 +106,8 @@ public class Configuration {
         return this.properties.getProperty(key);
     }
 
-    public String getString(String strategyName, String key) {
-        String value;
-        if (StrategyImpl.BASE.equals(strategyName)) {
-            value = this.properties.getProperty(key);
-        } else {
-            value = this.properties.getProperty(strategyName.toLowerCase() + "." + key);
-            if (value == null) {
-                value = this.properties.getProperty(key);
-            }
-        }
-        return value;
-    }
-
     public long getLong(String key) {
         String value = this.properties.getProperty(key);
-        if (value != null) {
-            return Long.valueOf(value);
-        } else {
-            throw new NoSuchElementException('\'' + key + "' doesn't map to an existing object");
-        }
-    }
-
-    public long getLong(String strategyName, String key) {
-        String value;
-        if (StrategyImpl.BASE.equals(strategyName)) {
-            value = this.properties.getProperty(key);
-        } else {
-            value = this.properties.getProperty(strategyName.toLowerCase() + "." + key);
-            if (value == null) {
-                value = this.properties.getProperty(key);
-            }
-        }
-
         if (value != null) {
             return Long.valueOf(value);
         } else {
@@ -156,24 +124,6 @@ public class Configuration {
         }
     }
 
-    public int getInt(String strategyName, String key) {
-        String value;
-        if (StrategyImpl.BASE.equals(strategyName)) {
-            value = this.properties.getProperty(key);
-        } else {
-            value = this.properties.getProperty(strategyName.toLowerCase() + "." + key);
-            if (value == null) {
-                value = this.properties.getProperty(key);
-            }
-        }
-
-        if (value != null) {
-            return Integer.valueOf(value);
-        } else {
-            throw new NoSuchElementException('\'' + key + "' doesn't map to an existing object");
-        }
-    }
-
     public double getDouble(String key) {
         String value = this.properties.getProperty(key);
         if (value != null) {
@@ -183,45 +133,8 @@ public class Configuration {
         }
     }
 
-    public double getDouble(String strategyName, String key) {
-        String value;
-        if (StrategyImpl.BASE.equals(strategyName)) {
-            value = this.properties.getProperty(key);
-        } else {
-            value = this.properties.getProperty(strategyName.toLowerCase() + "." + key);
-            if (value == null) {
-                value = this.properties.getProperty(key);
-            }
-        }
-
-        if (value != null) {
-            return Double.valueOf(value);
-        } else {
-            throw new NoSuchElementException('\'' + key + "' doesn't map to an existing object");
-        }
-
-    }
-
     public BigDecimal getBigDecimal(String key) {
         String value = this.properties.getProperty(key);
-        if (value != null) {
-            return new BigDecimal(value);
-        } else {
-            throw new NoSuchElementException('\'' + key + "' doesn't map to an existing object");
-        }
-    }
-
-    public BigDecimal getBigDecimal(String strategyName, String key) {
-        String value;
-        if (StrategyImpl.BASE.equals(strategyName)) {
-            value = this.properties.getProperty(key);
-        } else {
-            value = this.properties.getProperty(strategyName.toLowerCase() + "." + key);
-            if (value == null) {
-                value = this.properties.getProperty(key);
-            }
-        }
-
         if (value != null) {
             return new BigDecimal(value);
         } else {
@@ -238,35 +151,10 @@ public class Configuration {
         }
     }
 
-    public Boolean getBoolean(String strategyName, String key) {
-        String value;
-        if (StrategyImpl.BASE.equals(strategyName)) {
-            value = this.properties.getProperty(key);
-        } else {
-            value = this.properties.getProperty(strategyName.toLowerCase() + "." + key);
-            if (value == null) {
-                value = this.properties.getProperty(key);
-            }
-        }
-
-        if (value != null) {
-            return Boolean.parseBoolean(value);
-        } else {
-            throw new NoSuchElementException('\'' + key + "' doesn't map to an existing object");
-        }
-    }
-
     /**
      * will not update EL referenced properties (only properties is updated)
      */
     public void setProperty(String key, String value) {
         this.properties.setProperty(key, value);
-    }
-
-    /**
-     * will not update EL referenced properties (only properties is updated)
-     */
-    public void setProperty(String strategyName, String key, String value) {
-        this.properties.setProperty(strategyName.toLowerCase() + "." + key, value);
     }
 }

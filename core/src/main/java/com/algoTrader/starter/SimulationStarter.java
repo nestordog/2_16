@@ -40,16 +40,14 @@ public class SimulationStarter {
 
         } else if (args[0].equals("simulateBySingleParam")) {
 
-            String strategyName = args[1];
-            for (int i = 2; i < args.length; i++) {
+            for (int i = 1; i < args.length; i++) {
                 String[] params = args[i].split(":");
-                ServiceLocator.instance().getService("simulationService", SimulationService.class).simulateBySingleParam(strategyName, params[0], params[1]);
+                ServiceLocator.instance().getService("simulationService", SimulationService.class).simulateBySingleParam(params[0], params[1]);
             }
 
         } else if (args[0].equals("simulateByMultiParam")) {
 
-            String strategyName = args[1];
-            for (int i = 2; i < args.length; i++) {
+            for (int i = 1; i < args.length; i++) {
                 String[] touples = args[i].split(",");
                 String[] parameters = new String[touples.length];
                 String[] values = new String[touples.length];
@@ -57,43 +55,38 @@ public class SimulationStarter {
                     parameters[j] = touples[j].split(":")[0];
                     values[j] = touples[j].split(":")[1];
                 }
-                ServiceLocator.instance().getService("simulationService", SimulationService.class).simulateByMultiParam(strategyName, parameters, values);
+                ServiceLocator.instance().getService("simulationService", SimulationService.class).simulateByMultiParam(parameters, values);
             }
 
         } else if (args[0].equals("optimizeSingleParamLinear")) {
 
-            String strategyName = args[1];
-            for (int i = 2; i < args.length; i++) {
+            for (int i = 1; i < args.length; i++) {
                 String[] params = args[i].split(":");
                 String parameter = params[0];
                 double min = Double.parseDouble(params[1]);
                 double max = Double.parseDouble(params[2]);
                 double increment = Double.parseDouble(params[3]);
 
-                ServiceLocator.instance().getService("simulationService", SimulationService.class)
-                        .optimizeSingleParamLinear(strategyName, parameter, min, max, increment);
+                ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeSingleParamLinear(parameter, min, max, increment);
 
             }
         } else if (args[0].equals("optimizeSingleParam")) {
 
-            String strategyName = args[1];
-
-            String[] params = args[2].split(":");
+            String[] params = args[1].split(":");
             String parameter = params[0];
             double min = Double.valueOf(params[1]);
             double max = Double.valueOf(params[2]);
             double accuracy = Double.valueOf(params[3]);
 
-            ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeSingleParam(strategyName, parameter, min, max, accuracy);
+            ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeSingleParam(parameter, min, max, accuracy);
 
         } else if (args[0].equals("optimizeMultiParamLinear")) {
 
-            String strategyName = args[1];
-            String[] parameters = new String[args.length - 2];
-            double[] mins = new double[args.length - 2];
-            double[] maxs = new double[args.length - 2];
-            double[] increments = new double[args.length - 2];
-            for (int i = 2; i < args.length; i++) {
+            String[] parameters = new String[args.length - 1];
+            double[] mins = new double[args.length - 1];
+            double[] maxs = new double[args.length - 1];
+            double[] increments = new double[args.length - 1];
+            for (int i = 1; i < args.length; i++) {
 
                 String[] params = args[i].split(":");
                 String parameter = params[0];
@@ -101,30 +94,28 @@ public class SimulationStarter {
                 double max = Double.valueOf(params[2]);
                 double increment = Double.valueOf(params[3]);
 
-                parameters[i - 2] = parameter;
-                mins[i - 2] = min;
-                maxs[i - 2] = max;
-                increments[i - 2] = increment;
+                parameters[i - 1] = parameter;
+                mins[i - 1] = min;
+                maxs[i - 1] = max;
+                increments[i - 1] = increment;
             }
 
-            ServiceLocator.instance().getService("simulationService", SimulationService.class)
-                    .optimizeMultiParamLinear(strategyName, parameters, mins, maxs, increments);
+            ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeMultiParamLinear(parameters, mins, maxs, increments);
 
         } else if (args[0].equals("optimizeMultiParam")) {
 
-            String strategyName = args[1];
-            String[] parameters = new String[args.length - 2];
-            double[] starts = new double[args.length - 2];
-            for (int i = 2; i < args.length; i++) {
+            String[] parameters = new String[args.length - 1];
+            double[] starts = new double[args.length - 1];
+            for (int i = 1; i < args.length; i++) {
 
                 String[] params = args[i].split(":");
                 String parameter = params[0];
                 double start = Double.valueOf(params[1]);
-                parameters[i - 2] = parameter;
-                starts[i - 2] = start;
+                parameters[i - 1] = parameter;
+                starts[i - 1] = start;
             }
 
-            ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeMultiParam(strategyName, parameters, starts);
+            ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeMultiParam(parameters, starts);
 
         } else {
             logger.info("invalid command " + args[0]);

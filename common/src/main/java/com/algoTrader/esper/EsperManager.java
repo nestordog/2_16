@@ -112,7 +112,7 @@ public class EsperManager {
         Configuration configuration = new Configuration();
         configuration.configure("esper-" + providerURI.toLowerCase() + ".cfg.xml");
 
-        initVariables(strategyName, configuration);
+        initVariables(configuration);
 
         Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(strategyName);
         configuration.getVariables().get("engineStrategy").setInitializationValue(strategy);
@@ -218,7 +218,7 @@ public class EsperManager {
                             }
 
                             // process annotations
-                            processAnnotations(strategyName, newStatement);
+                            processAnnotations(newStatement);
 
                             // attach the callback if supplied (will override the Subscriber defined in Annotations)
                             if (callback != null) {
@@ -264,7 +264,7 @@ public class EsperManager {
             }
 
             // check if the statement is elgible, other destory it righ away
-            processAnnotations(strategyName, statement);
+            processAnnotations(statement);
         }
 
         logger.debug("deployed module " + moduleName + " on service provider: " + strategyName);
@@ -779,13 +779,13 @@ public class EsperManager {
     /**
      * initialize all the variables from the Configuration
      */
-    private static void initVariables(String strategyName, Configuration configuration) {
+    private static void initVariables(Configuration configuration) {
 
         try {
             Map<String, ConfigurationVariable> variables = configuration.getVariables();
             for (Map.Entry<String, ConfigurationVariable> entry : variables.entrySet()) {
                 String variableName = entry.getKey().replace("_", ".");
-                String value = ServiceLocator.instance().getConfiguration().getString(strategyName, variableName);
+                String value = ServiceLocator.instance().getConfiguration().getString(variableName);
                 if (value != null) {
                     Class<?> clazz = Class.forName(entry.getValue().getType());
                     Object castedObj = JavaClassHelper.parse(clazz, value);
@@ -797,7 +797,7 @@ public class EsperManager {
         }
     }
 
-    private static void processAnnotations(String strategyName, EPStatement statement) {
+    private static void processAnnotations(EPStatement statement) {
 
         Annotation[] annotations = statement.getAnnotations();
         for (Annotation annotation : annotations) {
@@ -841,7 +841,7 @@ public class EsperManager {
 
                 Condition condition = (Condition) annotation;
                 String key = condition.key();
-                if (!ServiceLocator.instance().getConfiguration().getBoolean(strategyName, key)) {
+                if (!ServiceLocator.instance().getConfiguration().getBoolean(key)) {
                     statement.destroy();
                     return;
                 }
