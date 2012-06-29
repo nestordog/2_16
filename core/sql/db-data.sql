@@ -511,11 +511,11 @@ INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, 
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (2,'SMI','\0',0,'theta-init,theta-main',NULL);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (3,'ESTX50','\0',0,'theta-init,theta-main',NULL);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (4,'MULTIIND','\0',0,'multiind-movavcross,multiind-main',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (5,'MACRO','\0',0,'macro-init,macro-run',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (6,'TAILHEDGE','\0',0,'tailhedge',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (7,'STATIC','\0',0,'volcarry,static',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (8,'FIXED','\0',0,'volcarry,intraday',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (9,'ATR','\0',0,'volcarry,intraday,atr',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (5,'MACRO','',1,'market-data-fo,market-data-vix,signal,subscription,macro-init,macro-run',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (6,'TAILHEDGE','\0',0,'market-data-fo,signal,subscription,tailhedge',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (7,'STATIC','\0',0,'market-data-fo,market-data-vix,signal,subscription,volcarry,static',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (8,'FIXED','\0',0,'market-data-fo,market-data-vix,signal,subscription,volcarry,intraday',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (9,'ATR','\0',0,'market-data-fo,market-data-vix,signal,subscription,volcarry,intraday,atr',NULL);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `MODULES`, `BENCHMARK`) VALUES (20,'PERIODIC','\0',0,'main',NULL);
 /*!40000 ALTER TABLE `strategy` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -582,4 +582,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-06-28 18:06:40
+-- Dump completed on 2012-06-29 12:18:50
