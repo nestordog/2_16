@@ -263,8 +263,8 @@ public class ChartTab extends ChartPanel {
 
         // configure the renderer
         final CandlestickRenderer renderer = (CandlestickRenderer) getPlot().getRenderer(datasetNumber);
-        renderer.setBaseSeriesVisible(seriesDefinition.isSelected());
         renderer.setSeriesPaint(seriesNumber, getColor(barDefinition.getColor()));
+        renderer.setSeriesVisible(seriesNumber, seriesDefinition.isSelected());
         renderer.setAutoWidthMethod(HideableCandlestickRenderer.WIDTHMETHOD_SMALLEST);
 
         // add the menu item
@@ -297,8 +297,8 @@ public class ChartTab extends ChartPanel {
         // configure the renderer
         final XYItemRenderer renderer = getPlot().getRenderer(datasetNumber);
         renderer.setSeriesPaint(seriesNumber, getColor(indicatorDefinition.getColor()));
+        renderer.setSeriesVisible(seriesNumber, seriesDefinition.isSelected());
         renderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
-        renderer.setBaseSeriesVisible(seriesDefinition.isSelected());
 
         // add the menu item
         JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(seriesDefinition.getLabel());
