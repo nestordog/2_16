@@ -25,7 +25,7 @@ public class DataViewer extends JPanel {
         super(new GridLayout(1, 0));
 
         JTable table = new JTable(new TableModel(object));
-        table.setPreferredScrollableViewportSize(new Dimension(500, 10 + table.getModel().getRowCount() * 16));
+        table.setPreferredScrollableViewportSize(new Dimension(500, 4 + Math.max(table.getModel().getRowCount(), 2) * 16));
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
         table.setDefaultRenderer(Date.class, new DateRenderer());

@@ -38,6 +38,10 @@ public class TickwiseIncrementalLimitOrderImpl extends TickwiseIncrementalLimitO
             tick = getSecurity().getLastTick();
         }
 
+        if (tick == null) {
+            throw new RuntimeException("no last tick available to initialize TickwiseIncrementalLimitOrder");
+        }
+
         SecurityFamily family = getSecurity().getSecurityFamily();
 
         // check spead and adjust offsetTicks if spead is too narrow
