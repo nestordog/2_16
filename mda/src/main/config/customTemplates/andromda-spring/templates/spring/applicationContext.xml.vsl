@@ -1,4 +1,4 @@
-## AlgoTrader: 15180
+## AlgoTrader: 15250
 ## line 32: only output hbm.xml if tag algoTrader_entity_nonPersistent is not set
 ## line 141 + 181 : only output EntityDao if tag algoTrader_entity_nonPersistent is not set
 ## line 149: set service name instead of fqdn className
@@ -12,7 +12,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:lang="http://www.springframework.org/schema/lang"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-3.0.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-${springVersion}.xsd http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-${springVersion}.xsd">
 
     <!-- ========================= GENERAL DEFINITIONS ========================= -->
 
@@ -34,6 +34,18 @@
 #if ($entity.requiresHibernateMapping && $stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent')))
                 <value>classpath:${entity.packagePath}/${entity.entityName}.hbm.xml</value>
 #end
+#end
+            </list>
+         </property>
+    </bean>
+
+#else
+    <bean id="hibernateAnnotatedClasses" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <!-- applicationContext hibernateAnnotatedClasses merge-point -->
+#foreach($entity in $entities)
+                <value>${entity.packageName}.${entity.entityName}Impl</value>
 #end
             </list>
          </property>
@@ -107,7 +119,7 @@
                 <prop key="hibernate.connection.release_mode">$hibernateConnectionReleaseMode</prop>
 #end
 #if ($stringUtils.isNotBlank($hibernateTransactionFactoryClass))
-        <property name="transaction.factory_class">$hibernateTransactionFactoryClass</property>
+                <prop key="transaction.factory_class">$hibernateTransactionFactoryClass</prop>
 #end
                 <!-- applicationContext hibernateProperties merge-point -->
             </props>
@@ -118,9 +130,12 @@
     <bean id="${beanNamePrefix}sessionFactory" class="$sessionFactory">
         <property name="dataSource" ref="${beanNamePrefix}dataSource"/>
 #if ($hibernateEntityAnnotations)
+#if (!$hibernateUtils.version4)
         <property name="configurationClass">
             <value>org.hibernate.cfg.AnnotationConfiguration</value>
         </property>
+#end
+        <property name="annotatedClasses" ref="hibernateAnnotatedClasses"/>
 #else
         <property name="mappingLocations" ref="${beanNamePrefix}hibernateMappingLocations"/>
 #end
@@ -171,11 +186,13 @@
 ##    <bean id="$entity.getBeanName(false)" class="org.springframework.aop.framework.ProxyFactoryBean">
 ##        <property name="target" ref="$entity.fullyQualifiedDaoImplementationName"/>
 ##        <property name="proxyInterfaces" value="$entity.fullyQualifiedDaoName"/>
+##if (!$hibernateUtils.version4)
 ##        <property name="interceptorNames">
 ##            <list>
 ##                <value>${beanNamePrefix}hibernateInterceptor</value>
 ##            </list>
 ##        </property>
+##end
 ##    </bean>
 ##
 #end
@@ -250,13 +267,13 @@
         <property name="proxyInterfaces" value="$service.fullyQualifiedName"/>
         <property name="interceptorNames">
             <list>
-#if ($acegiServiceSecurity && !$service.private)
+#if ($serviceSecurity && !$service.private)
                 <value>${beanNamePrefix}serviceSecurityInterceptor</value>
 #end
 #if ($enableSpringTransactions && $stringUtils.isBlank($service.findTaggedValue('algoTrader_service_no_transaction_interceptor')))
                 <value>${beanNamePrefix}serviceTransactionInterceptor</value>
 #end
-#if ((!$entities.empty || !$service.allEntityReferences.empty) && $service.hibernateInterceptorEnabled && $stringUtils.isBlank($service.findTaggedValue('algoTrader_service_no_hibernate_interceptor')))
+#if ((!$entities.empty || !$service.allEntityReferences.empty) && $service.hibernateInterceptorEnabled && !$hibernateUtils.version4 && $stringUtils.isBlank($service.findTaggedValue('algoTrader_service_no_hibernate_interceptor')))
                 <value>${beanNamePrefix}hibernateInterceptor</value>
 #end
 #foreach($interceptor in $service.interceptors)
@@ -269,16 +286,16 @@
 #end
     <!-- ========================= End of SERVICE DEFINITIONS ========================= -->
 
-#if ($acegiServiceSecurity)
-    <!-- ================= Start of ACEGI SERVICE SECURITY DEFINITIONS ================ -->
+#if ($serviceSecurity)
+    <!-- ================= Start of SERVICE SPRING SECURITY DEFINITIONS ================ -->
 
-    <bean id="${beanNamePrefix}serviceSecurityInterceptor" class="$acegiServiceSecurityInterceptor">
+    <bean id="${beanNamePrefix}serviceSecurityInterceptor" class="$serviceSecurityInterceptor">
         <property name="accessDecisionManager"><ref bean="${beanNamePrefix}serviceAccessDecisionManager"/></property>
-#if ($stringUtils.isNotBlank($acegiAuthenticationManager))
-        <property name="authenticationManager"><ref bean="$acegiAuthenticationManager"/></property>
+#if ($stringUtils.isNotBlank($securityAuthenticationManager))
+        <property name="authenticationManager"><ref bean="$securityAuthenticationManager"/></property>
 #end
-#if ($stringUtils.isNotBlank($acegiRunAsManager))
-        <property name="runAsManager"><ref bean="$acegiRunAsManager"/></property>
+#if ($stringUtils.isNotBlank($securityRunAsManager))
+        <property name="runAsManager"><ref bean="$securityRunAsManager"/></property>
 #end
         <property name="objectDefinitionSource">
             <value>
@@ -286,11 +303,11 @@
 #set($serviceImplementsInterfaces = !$service.interfaceAbstractions.empty)
 #foreach ($operation in $springUtils.filterUniqueByName($service.implementationOperations))
 #if (!$operation.roles.empty)
-                ${service.fullyQualifiedName}.${operation.name}=#foreach($role in $operation.roles)#if($acegiRolePrefix && !$role.name.startsWith("$acegiRolePrefix"))$acegiRolePrefix#end$role.name#if($velocityHasNext), #end#end
+                ${service.fullyQualifiedName}.${operation.name}=#foreach($role in $operation.roles)#if($securityRolePrefix && !$role.name.startsWith("$securityRolePrefix"))$securityRolePrefix#end$role.name#if($velocityHasNext), #end#end
 
 ##advise service roles to implemented interface methods
 #elseif($serviceImplementsInterfaces)
-                ${service.fullyQualifiedName}.${operation.name}=#foreach($role in $service.roles)#if($acegiRolePrefix && !$role.name.startsWith("$acegiRolePrefix"))$acegiRolePrefix#end$role.name#if($velocityHasNext), #end#end
+                ${service.fullyQualifiedName}.${operation.name}=#foreach($role in $service.roles)#if($securityRolePrefix && !$role.name.startsWith("$securityRolePrefix"))$securityRolePrefix#end$role.name#if($velocityHasNext), #end#end
 
 #end
 #end
@@ -299,7 +316,7 @@
         </property>
     </bean>
 
-    <bean id="${beanNamePrefix}serviceAccessDecisionManager" class="$acegiServiceAccessDecisionManager">
+    <bean id="${beanNamePrefix}serviceAccessDecisionManager" class="$serviceAccessDecisionManager">
         <property name="allowIfAllAbstainDecisions" value="false"/>
         <property name="decisionVoters">
             <list>
@@ -308,12 +325,11 @@
         </property>
     </bean>
 
-    <bean id="${beanNamePrefix}serviceDecisionVoter" class="$acegiServiceDecisionVoter">
-        <property name="rolePrefix" value="$acegiRolePrefix"/>
+    <bean id="${beanNamePrefix}serviceDecisionVoter" class="$serviceDecisionVoter">
+        <property name="rolePrefix" value="$securityRolePrefix"/>
     </bean>
 
-    <!-- ================== End of ACEGI SERVICE SECURITY DEFINITIONS ================= -->
+    <!-- ================== End of SERVICE SPRING SECURITY DEFINITIONS ================= -->
 
 #end
-
 </beans>

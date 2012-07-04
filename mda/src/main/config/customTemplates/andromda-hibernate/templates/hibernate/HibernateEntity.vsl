@@ -1,4 +1,4 @@
-## AlgoTrader: 15180
+## AlgoTrader: 15249
 ## line 96 - 98: add implements $entity.implementedInterfaceList in case of generalization
 #set ($generatedFile = "${entity.packagePath}/${entity.entityName}.java")
 // license-header java merge-point
@@ -42,7 +42,7 @@ $entity.getDocumentation(" * ")
 ## in the hierarchy, regardless of the number of levels in the hierarchy.
 ##
 #if ($entity.specializations.empty && !$entity.generalizations.empty)
-@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.${entity.hibernateInheritanceStrategy})
+@javax.persistence.Inheritance(strategy = javax.persistence.InheritanceType.$hibernateUtils.getInheritanceTypeEnum(${entity.hibernateInheritanceStrategy}))
 ##
 ## Discriminator components only apply to single table mapping strategy
 ##
@@ -291,8 +291,10 @@ ${comma}${property.getterSetterTypeName} ${property.name}## no newline
         {
             final ${entity.fullyQualifiedName} entity = new ${entity.fullyQualifiedEntityImplementationName}();
 #foreach ($property in $entity.allRequiredConstructorParameters)
-#if ($entity.usingForeignIdentifier || !$property.identifier)
+#if (!$property.identifier || $entity.usingForeignIdentifier)
+#if ($property.hibernateEntityAttributeMetaType || ($property.navigable && $property.otherEnd))
             entity.${property.setterName}(${property.name});
+#end
 #end
 #end
             return entity;
@@ -319,7 +321,7 @@ ${comma}${property.getterSetterTypeName} ${property.name}## no newline
         public static $entity.fullyQualifiedName newInstance(## no newline
 #set ($comma = "")
 #foreach ($property in $entity.allProperties)
-#if ($entity.usingForeignIdentifier || !$property.identifier)
+#if (!$property.identifier || $entity.usingForeignIdentifier)
 ${comma}${property.getterSetterTypeName} ${property.name}## no newline
 #set ($comma = ", ")
 #end
@@ -328,8 +330,10 @@ ${comma}${property.getterSetterTypeName} ${property.name}## no newline
         {
             final ${entity.fullyQualifiedName} entity = new ${entity.fullyQualifiedEntityImplementationName}();
 #foreach ($property in $entity.allProperties)
-#if ($entity.usingForeignIdentifier || !$property.identifier)
+#if (!$property.identifier || $entity.usingForeignIdentifier)
+#if ($property.hibernateEntityAttributeMetaType || ($property.navigable && $property.otherEnd))
             entity.${property.setterName}(${property.name});
+#end
 #end
 #end
             return entity;

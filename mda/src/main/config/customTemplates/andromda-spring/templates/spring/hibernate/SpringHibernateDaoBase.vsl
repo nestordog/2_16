@@ -1,4 +1,4 @@
-## AlgoTraderRevision: 15100
+## AlgoTraderRevision: 15245
 ## line 249: criteria.setCacheable(true)
 ## line 858 - 864: handle algoTrader.entity.query.native
 ## line 866 - 868: if taggedValue andromda_hibernate_query_useCache is set add queryObject.setCacheable(true);
@@ -32,7 +32,7 @@ package $entity.packageName;
 #set ($entityCollectionType = "java.util.Collection")
 #end
 ##check for spring version regarding the execute method to use
-#if($springVersion.compareTo("2.5") >= 0 || $springVersion.compareTo("3.0") >= 0)
+#if($springVersion.compareTo("2.5") >= 0 || $springVersion.compareTo("3.0") >= 0 || $springVersion.compareTo("3.1") >= 0)
 #set ($executeWithNativeSessionMethodname = "executeWithNativeSession")
 #set ($executeWithNativeSessionParameter = "")
 #else
@@ -43,9 +43,11 @@ package $entity.packageName;
 ##
 #set($identifierTypeName="${entity.fullyQualifiedIdentifierTypeName}")
 #set($identifierName="${entity.identifierName}")
+#if (!$entity.identifiers.empty)
 #set($identifierTypePrimitive = $entity.identifiers.iterator().next().type.primitive)
 #if($identifierTypePrimitive)
 #set($identifierTypeWrapperName = $entity.identifiers.iterator().next().type.wrapperName)
+#end
 #end
 
 /**
@@ -110,7 +112,7 @@ public abstract class $entity.daoBaseName
         if (transform == TRANSFORM_XML)
         {
             final Object entity = this.getHibernateTemplate().${executeWithNativeSessionMethodname}(
-                    new org.springframework.orm.hibernate3.HibernateCallback()
+                    new org.springframework.orm.hibernate#if($hibernateVersion.startsWith("4"))4#else3#end.HibernateCallback()
                     {
                         public Object doInHibernate(${hibernateUtils.basePackage}.Session hibernateSession)
                             throws ${hibernateUtils.basePackage}.HibernateException
@@ -166,7 +168,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
         if (transform == TRANSFORM_XML)
         {
             final Object entity = this.getHibernateTemplate().${executeWithNativeSessionMethodname}(
-                    new org.springframework.orm.hibernate3.HibernateCallback()
+                    new org.springframework.orm.hibernate#if($hibernateVersion.startsWith("4"))4#else3#end.HibernateCallback()
                     {
                         public Object doInHibernate(${hibernateUtils.basePackage}.Session hibernateSession)
                             throws ${hibernateUtils.basePackage}.HibernateException
@@ -321,7 +323,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
                 "${entity.name}.create - '$argumentName' can not be null");
         }
         Object newID = this.getHibernateTemplate().${executeWithNativeSessionMethodname}((
-                new org.springframework.orm.hibernate3.HibernateCallback()
+                new org.springframework.orm.hibernate#if($hibernateVersion.startsWith("4"))4#else3#end.HibernateCallback()
                 {
                     public Object doInHibernate(${hibernateUtils.basePackage}.Session hibernateSession)
                         throws ${hibernateUtils.basePackage}.HibernateException
@@ -538,7 +540,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
                 "${entity.name}.update - '$argumentName' can not be null");
         }
         this.getHibernateTemplate().${executeWithNativeSessionMethodname}(
-                new org.springframework.orm.hibernate3.HibernateCallback()
+                new org.springframework.orm.hibernate#if($hibernateVersion.startsWith("4"))4#else3#end.HibernateCallback()
                 {
                     public Object doInHibernate(${hibernateUtils.basePackage}.Session hibernateSession)
                         throws ${hibernateUtils.basePackage}.HibernateException
@@ -617,7 +619,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
                 "${entity.name}.remove - '$argumentName' can not be null");
         }
         this.getHibernateTemplate().${executeWithNativeSessionMethodname}(
-                new org.springframework.orm.hibernate3.HibernateCallback()
+                new org.springframework.orm.hibernate#if($hibernateVersion.startsWith("4"))4#else3#end.HibernateCallback()
                 {
                     public Object doInHibernate(${hibernateUtils.basePackage}.Session hibernateSession)
                         throws ${hibernateUtils.basePackage}.HibernateException

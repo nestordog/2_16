@@ -1,4 +1,4 @@
-## AndroMDA: 15075
+## AndroMDA: 15250
 ## line 8 - 15: add schema definition
 ## line 18: remove propertyPlaceholderConfigurer
 ## line 35: do not output services with superclass services
@@ -156,14 +156,14 @@
     </bean>
 
 #end
-#if($acegiServiceSecurity)
+#if($serviceSecurity)
     <bean id="${serviceRemoteContext}RemoteAuthenticationManagerService"
         class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean">
         <property name="serviceUrl">
             <value>${${configPropertyPrefix}remoteHttpScheme}://${${configPropertyPrefix}remoteServer}:${${configPropertyPrefix}remotePort}/${${configPropertyPrefix}remoteContext}/RemoteAuthenticationManagerService</value>
         </property>
         <property name="serviceInterface">
-            <value>${acegiRemoteAuthenticationManagerServiceInterface}</value>
+            <value>${securityRemoteAuthenticationManagerServiceInterface}</value>
         </property>
     </bean>
 
