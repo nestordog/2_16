@@ -306,8 +306,14 @@ public class EsperManager {
 
     public static void deployAllModules(String strategyName) {
 
+        deployInitModules(strategyName);
+        deployRunModules(strategyName);
+    }
+
+    public static void deployInitModules(String strategyName) {
+
         Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(strategyName);
-        String[] modules = strategy.getModules().split(",");
+        String[] modules = strategy.getInitModules().split(",");
         for (String module : modules) {
             if (module != null && !module.equals("")) {
                 deployModule(strategyName, module);
@@ -315,6 +321,19 @@ public class EsperManager {
         }
     }
 
+    public static void deployRunModules(String strategyName) {
+
+        Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(strategyName);
+        String runModules = strategy.getRunModules();
+        if (runModules != null) {
+            String[] modules = runModules.split(",");
+            for (String module : modules) {
+                if (module != null && !module.equals("")) {
+                    deployModule(strategyName, module);
+                }
+            }
+        }
+    }
 
     /**
      * @param statementNameRegex statement name regular expression
