@@ -90,7 +90,7 @@ select
     ask,
     security
 from
-    CombinationTick,
+    CombinationTick(not parentSecurityId is null),
     method:LookupUtil.getSecurityInclComponentsInitialized(parentSecurityId) as security
 where
     countDiff = 0 // total count of non-ignored components must equal component count of the parent
