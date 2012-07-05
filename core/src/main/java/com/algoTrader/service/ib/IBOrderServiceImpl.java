@@ -107,7 +107,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
         Contract contract = IBUtil.getContract(order.getSecurity());
 
         com.ib.client.Order ibOrder = new com.ib.client.Order();
-        ibOrder.m_action = order.getSide().getValue();
+        ibOrder.m_action = order.getSide().toString();
         ibOrder.m_orderType = IBUtil.getIBOrderType(order);
         ibOrder.m_transmit = true;
 

@@ -169,16 +169,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
                     tickVO = getTickVO(tickVOs, security);
                     processedTickVOs.put(security.getId(), tickVO);
                 }
-
-                // add all properties from this subscription
-                Map<String, Property> properties = subscription.getPropertiesInitialized();
-                if (!properties.isEmpty()) {
-                    if (tickVO.getProperties() != null) {
-                        tickVO.getProperties().putAll(properties);
-                    } else {
-                        tickVO.setProperties(properties);
-                    }
-                }
             }
             return new ArrayList<TickVO>(processedTickVOs.values());
 
