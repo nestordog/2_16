@@ -74,7 +74,7 @@
                 <property name="enableAnnotations">true</property>
                 <property name="typeSafeEnumsEnabled">true</property>
                 <!-- Replaces default JavaMappings with customized mappings which extend Java, for PrimitiveTypes etc. -->
-                <property name="languageMappingsUri">file:${project.basedir}/src/main/config/mappings/JavaMappings.xml</property>
+                <property name="languageMappingsUri">Java</property>
                 <property name="wrapperMappingsUri">JavaWrapper</property>
                 <property name="sqlMappingsUri">file:${project.basedir}/src/main/config/mappings/MySQLMappings.xml</property>
                 <property name="jdbcMappingsUri">JDBC</property>

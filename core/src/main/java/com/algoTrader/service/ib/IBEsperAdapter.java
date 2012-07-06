@@ -1,5 +1,8 @@
 package com.algoTrader.service.ib;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.StrategyImpl;
@@ -46,6 +49,8 @@ import com.ib.client.UnderComp;
 public final class IBEsperAdapter extends IBDefaultAdapter {
 
     private static Logger logger = MyLogger.getLogger(IBEsperAdapter.class.getName());
+
+    private List<String> orderStati = Arrays.asList(new String[] { "Submitted", "PreSubmitted", "PendingSubmit", "PendingCancel", "Filled", "ApiCancelled", "Cancelled", "Inactive" });
 
     public IBEsperAdapter(int clientId) {
         super(clientId);
@@ -158,9 +163,13 @@ public final class IBEsperAdapter extends IBDefaultAdapter {
     @Override
     public void orderStatus(final int orderId, final String status, final int filled, final int remaining, final double avgFillPrice, final int permId,
             final int parentId, final double lastFillPrice, final int clientId, final String whyHeld) {
-        final OrderStatus o = new OrderStatus(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld);
-        EsperManager.sendEvent(StrategyImpl.BASE, o);
-        logger.debug(EWrapperMsgGenerator.orderStatus(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
+        if (this.orderStati.contains(status)) {
+            final OrderStatus o = new OrderStatus(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld);
+            EsperManager.sendEvent(StrategyImpl.BASE, o);
+            logger.debug(EWrapperMsgGenerator.orderStatus(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
+        } else {
+            throw new RuntimeException("unkown orderStatus: " + status);
+        }
     }
 
     @Override

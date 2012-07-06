@@ -6,6 +6,8 @@ select
 from
     Tick.std:groupwin(security.id).win:length(1) as tick
 where
+    tick.security is not null
+and
     tick.dateTime.time > (current_timestamp - Constants.ONE_WEEK)
 order by
     tick.security.id;

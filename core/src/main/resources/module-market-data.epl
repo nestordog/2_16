@@ -94,7 +94,9 @@ and
 select
     *
 from
-    MarketDataEvent;
+    MarketDataEvent
+where
+    security is not null;
 
 @Name('PROPAGATE_GENERIC_EVENTS')
 @Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PropagateGenericEventSubscriber')
