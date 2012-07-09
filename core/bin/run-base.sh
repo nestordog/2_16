@@ -7,7 +7,7 @@ nohup java \
 -DstrategyName=BASE \
 -Dcom.algoTrarder.rmi.registryPort=1099 \
 -Dcom.algoTrarder.rmi.serverPort=1098 \
--Djava.rmi.server.hostname=127.0.0.1 \
+-Djava.rmi.server.hostname=$HOSTNAME \
 -Dcom.sun.management.jmxremote.authenticate=false \
 -Dcom.sun.management.jmxremote.ssl=true \
 -Dcom.sun.management.jmxremote.ssl.need.client.auth=true \
