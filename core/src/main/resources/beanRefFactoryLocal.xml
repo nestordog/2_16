@@ -7,10 +7,9 @@
     <bean id="beanRefFactory" class="org.springframework.context.support.ClassPathXmlApplicationContext">
         <constructor-arg>
            <list>
-                <value>applicationContext-common.xml</value>
-                <value>applicationContext-server.xml</value>
-
-                <value>applicationContext.xml</value>
+                <value>classpath:/conf/applicationContext-common.xml</value>
+                <value>classpath:/conf/applicationContext-server.xml</value>
+                <value>classpath:/conf/applicationContext.xml</value>
            </list>
         </constructor-arg>
     </bean>

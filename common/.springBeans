@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beansProjectDescription>
 	<version>1</version>
-	<pluginVersion><![CDATA[2.8.1.201111220115-RELEASE]]></pluginVersion>
+	<pluginVersion><![CDATA[2.9.2.201205070117-RELEASE]]></pluginVersion>
 	<configSuffixes>
 		<configSuffix><![CDATA[xml]]></configSuffix>
 	</configSuffixes>
 	<enableImports><![CDATA[false]]></enableImports>
 	<configs>
-		<config>src/main/resources/applicationContext-common.xml</config>
-		<config>src/main/resources/applicationContext-remote.xml</config>
 		<config>src/main/resources/beanRefFactoryClient.xml</config>
-		<config>target/src/main/java/applicationContext-export-osgiServices.xml</config>
-		<config>target/src/main/java/applicationContext-import-osgiServices.xml</config>
-		<config>target/src/main/java/applicationContext-import-remoteServices.xml</config>
+		<config>src/main/resources/conf/applicationContext-common.xml</config>
+		<config>src/main/resources/conf/applicationContext-remote.xml</config>
+		<config>target/src/main/java/conf/applicationContext-import-remoteServices.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

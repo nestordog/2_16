@@ -140,8 +140,12 @@
                 <property name="serviceRemotingType">rmi</property>
                 <property name="serviceRemotePort">1199</property>
                 <property name="serviceLocatorName">ServiceLocator</property>
-                <property name="applicationContextOsgiExport">applicationContext-export-osgiServices.xml</property>
-                <property name="applicationContextOsgiImport">applicationContext-import-osgiServices.xml</property>
+
+                <property name="applicationContext">conf/applicationContext.xml</property>
+                <property name="applicationContextClient">conf/applicationContext-import-remoteServices.xml</property>
+                <property name="applicationContextServer">conf/applicationContext-export-remoteServices.xml</property>
+                <property name="applicationContextOsgiExport">conf/applicationContext-export-osgiServices.xml</property>
+                <property name="applicationContextOsgiImport">conf/applicationContext-import-osgiServices.xml</property>
 
             </properties>
         </namespace>

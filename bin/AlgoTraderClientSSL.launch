@@ -21,7 +21,7 @@
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="sun.tools.jconsole.JConsole"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-interval=60 -debug test.linardcapital.com:1099"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-interval=60 -debug test.linardcapital.com:1099 test.linardcapital.com:1097"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="algotrader-client"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djavax.net.ssl.keyStore=${env_var:ALGOTRADER_CLIENT_HOME}/bin/keystore&#13;&#10;-Djavax.net.ssl.keyStorePassword=Zermatt11&#13;&#10;-Djavax.net.ssl.trustStore=${env_var:ALGOTRADER_CLIENT_HOME}/bin/truststore&#13;&#10;-Djavax.net.ssl.trustStorePassword=Zermatt11"/>
