@@ -297,7 +297,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             SimulationResultVO resultVO = runByUnderlyings();
             resultLogger.info(parameter + "=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
 
-            double value = resultVO.getPerformanceKeysVO().getSharpRatio();
+            double value = resultVO.getPerformanceKeys().getSharpRatio();
             if (value > functionValue) {
                 functionValue = value;
                 result = i;
@@ -415,10 +415,10 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         resultVO.setMins(((double) (System.currentTimeMillis() - startTime)) / 60000);
         resultVO.setDataSet(getConfiguration().getDataSet());
         resultVO.setNetLiqValue(getPortfolioService().getNetLiqValueDouble());
-        resultVO.setMonthlyPerformanceVOs(monthlyPerformances);
-        resultVO.setYearlyPerformanceVOs(yearlyPerformances);
-        resultVO.setPerformanceKeysVO(performanceKeys);
-        resultVO.setMaxDrawDownVO(maxDrawDown);
+        resultVO.setMonthlyPerformances(monthlyPerformances);
+        resultVO.setYearlyPerformances(yearlyPerformances);
+        resultVO.setPerformanceKeys(performanceKeys);
+        resultVO.setMaxDrawDown(maxDrawDown);
         resultVO.setAllTrades(allTrades);
         resultVO.setWinningTrades(winningTrades);
         resultVO.setLoosingTrades(loosingTrades);
@@ -430,18 +430,18 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         StringBuffer buffer = new StringBuffer();
 
-        PerformanceKeysVO performanceKeys = resultVO.getPerformanceKeysVO();
-        MaxDrawDownVO maxDrawDownVO = resultVO.getMaxDrawDownVO();
+        PerformanceKeysVO performanceKeys = resultVO.getPerformanceKeys();
+        MaxDrawDownVO maxDrawDownVO = resultVO.getMaxDrawDown();
 
         if (resultVO.getAllTrades().getCount() == 0) {
             return ("no trades took place!");
         }
 
-        List<PeriodPerformanceVO> PeriodPerformanceVOs = resultVO.getMonthlyPerformanceVOs();
+        Collection<PeriodPerformanceVO> periodPerformanceVOs = resultVO.getMonthlyPerformances();
         double maxDrawDownM = 0d;
         double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
-        if ((PeriodPerformanceVOs != null)) {
-            for (PeriodPerformanceVO PeriodPerformanceVO : PeriodPerformanceVOs) {
+        if ((periodPerformanceVOs != null)) {
+            for (PeriodPerformanceVO PeriodPerformanceVO : periodPerformanceVOs) {
                 maxDrawDownM = Math.min(maxDrawDownM, PeriodPerformanceVO.getValue());
                 bestMonthlyPerformance = Math.max(bestMonthlyPerformance, PeriodPerformanceVO.getValue());
             }
@@ -474,7 +474,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         buffer.append("netLiqValue=" + twoDigitFormat.format(netLiqValue) + "\r\n");
 
         // monthlyPerformances
-        List<PeriodPerformanceVO> monthlyPerformances = resultVO.getMonthlyPerformanceVOs();
+        Collection<PeriodPerformanceVO> monthlyPerformances = resultVO.getMonthlyPerformances();
         double maxDrawDownM = 0d;
         double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
         int positiveMonths = 0;
@@ -500,7 +500,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         // yearlyPerformances
         int positiveYears = 0;
         int negativeYears = 0;
-        List<PeriodPerformanceVO> yearlyPerformances = resultVO.getYearlyPerformanceVOs();
+        Collection<PeriodPerformanceVO> yearlyPerformances = resultVO.getYearlyPerformances();
         if ((yearlyPerformances != null)) {
             StringBuffer dateBuffer = new StringBuffer("year:               ");
             StringBuffer performanceBuffer = new StringBuffer("yearlyPerformance:  ");
@@ -525,8 +525,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             buffer.append("\r\n");
         }
 
-        PerformanceKeysVO performanceKeys = resultVO.getPerformanceKeysVO();
-        MaxDrawDownVO maxDrawDownVO = resultVO.getMaxDrawDownVO();
+        PerformanceKeysVO performanceKeys = resultVO.getPerformanceKeys();
+        MaxDrawDownVO maxDrawDownVO = resultVO.getMaxDrawDown();
         if (performanceKeys != null && maxDrawDownVO != null) {
             buffer.append("avgM=" + twoDigitFormat.format(performanceKeys.getAvgM() * 100) + "%");
             buffer.append(" stdM=" + twoDigitFormat.format(performanceKeys.getStdM() * 100) + "%");
@@ -593,7 +593,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             ServiceLocator.instance().getConfiguration().setProperty(this.param, String.valueOf(input));
 
             SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
-            double result = resultVO.getPerformanceKeysVO().getSharpRatio();
+            double result = resultVO.getPerformanceKeys().getSharpRatio();
 
             resultLogger.info("optimize on " + this.param + "=" + SimulationServiceImpl.format.format(input) + " "
                     + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
@@ -626,7 +626,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             }
 
             SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
-            double result = resultVO.getPerformanceKeysVO().getSharpRatio();
+            double result = resultVO.getPerformanceKeys().getSharpRatio();
 
             resultLogger.info(buffer.toString() + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
 
