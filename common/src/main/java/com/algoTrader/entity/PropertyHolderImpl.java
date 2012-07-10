@@ -12,7 +12,11 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
 
         Property property = getPropertiesInitialized().get(name);
         if (property != null) {
-            return property.getIntValue();
+            if (property.getIntValue() != null) {
+                return property.getIntValue();
+            } else {
+                throw new RuntimeException("property " + name + " does not have a int value");
+            }
         } else {
             throw new RuntimeException("property " + name + " is not defined");
         }
@@ -23,7 +27,11 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
 
         Property property = getPropertiesInitialized().get(name);
         if (property != null) {
-            return property.getDoubleValue();
+            if (property.getDoubleValue() != null) {
+                return property.getDoubleValue();
+            } else {
+                throw new RuntimeException("property " + name + " does not have a double value");
+            }
         } else {
             throw new RuntimeException("property " + name + " is not defined");
         }
@@ -34,7 +42,11 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
 
         Property property = getPropertiesInitialized().get(name);
         if (property != null) {
-            return property.getMoneyValue();
+            if (property.getMoneyValue() != null) {
+                return property.getMoneyValue();
+            } else {
+                throw new RuntimeException("property " + name + " does not have a Money value");
+            }
         } else {
             throw new RuntimeException("property " + name + " is not defined");
         }
@@ -45,7 +57,11 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
 
         Property property = getPropertiesInitialized().get(name);
         if (property != null) {
-            return property.getTextValue();
+            if (property.getTextValue() != null) {
+                return property.getTextValue();
+            } else {
+                throw new RuntimeException("property " + name + " does not have a Text value");
+            }
         } else {
             throw new RuntimeException("property " + name + " is not defined");
         }
@@ -56,7 +72,11 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
 
         Property property = getPropertiesInitialized().get(name);
         if (property != null) {
-            return property.getDateValue();
+            if (property.getDateValue() != null) {
+                return property.getDateValue();
+            } else {
+                throw new RuntimeException("property " + name + " does not have a Date value");
+            }
         } else {
             throw new RuntimeException("property " + name + " is not defined");
         }
@@ -67,7 +87,11 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
 
         Property property = getPropertiesInitialized().get(name);
         if (property != null) {
-            return property.getBooleanValue();
+            if (property.getBooleanValue() != null) {
+                return property.getBooleanValue();
+            } else {
+                throw new RuntimeException("property " + name + " does not have a Boolean value");
+            }
         } else {
             throw new RuntimeException("property " + name + " is not defined");
         }
