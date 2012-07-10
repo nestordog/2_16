@@ -168,7 +168,7 @@ public final class IBEsperAdapter extends IBDefaultAdapter {
             EsperManager.sendEvent(StrategyImpl.BASE, o);
             logger.debug(EWrapperMsgGenerator.orderStatus(orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
         } else {
-            throw new RuntimeException("unkown orderStatus: " + status);
+            throw new IllegalArgumentException("unkown orderStatus: " + status);
         }
     }
 

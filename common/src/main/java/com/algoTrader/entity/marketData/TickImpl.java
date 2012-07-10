@@ -63,7 +63,7 @@ public class TickImpl extends Tick {
             if (family.isTradeable()) {
 
                 if (family.getSpreadSlope() == null || family.getSpreadConstant() == null) {
-                    throw new RuntimeException("SpreadSlope and SpreadConstant have to be defined for dummyBid " + getSecurity());
+                    throw new IllegalStateException("SpreadSlope and SpreadConstant have to be defined for dummyBid " + getSecurity());
                 }
 
                 // spread depends on the pricePerContract (i.e. spread should be the same
@@ -90,7 +90,7 @@ public class TickImpl extends Tick {
             if (family.isTradeable()) {
 
                 if (family.getSpreadSlope() == null || family.getSpreadConstant() == null) {
-                    throw new RuntimeException("SpreadSlope and SpreadConstant have to be defined for dummyAsk " + getSecurity());
+                    throw new IllegalStateException("SpreadSlope and SpreadConstant have to be defined for dummyAsk " + getSecurity());
                 }
 
                 // spread depends on the pricePerContract (i.e. spread should be the same
@@ -128,7 +128,7 @@ public class TickImpl extends Tick {
         } else {
 
             if (family.getMaxSpreadSlope() == null || family.getMaxSpreadConstant() == null) {
-                throw new RuntimeException("SpreadSlope and SpreadConstant have to be defined to validate a tradeable security");
+                throw new IllegalStateException("SpreadSlope and SpreadConstant have to be defined to validate a tradeable security");
             }
 
             int contractSize = family.getContractSize();

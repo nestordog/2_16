@@ -789,7 +789,7 @@ public class EsperManager {
 
         EPServiceProvider serviceProvider = serviceProviders.get(providerURI);
         if (serviceProvider == null) {
-            throw new RuntimeException("strategy " + providerURI + " is not initialized yet!");
+            throw new IllegalStateException("strategy " + providerURI + " is not initialized yet!");
         }
 
         return serviceProvider;

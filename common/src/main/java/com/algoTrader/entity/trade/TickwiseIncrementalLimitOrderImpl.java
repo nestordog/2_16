@@ -39,7 +39,7 @@ public class TickwiseIncrementalLimitOrderImpl extends TickwiseIncrementalLimitO
         }
 
         if (tick == null) {
-            throw new RuntimeException("no last tick available to initialize TickwiseIncrementalLimitOrder");
+            throw new IllegalStateException("no last tick available to initialize TickwiseIncrementalLimitOrder");
         }
 
         SecurityFamily family = getSecurity().getSecurityFamily();
@@ -50,7 +50,7 @@ public class TickwiseIncrementalLimitOrderImpl extends TickwiseIncrementalLimitO
         int adjustedEndOffsetTicks = endOffsetTicks;
         if (spreadTicks < 0) {
 
-            throw new RuntimeException("markets are crossed: bid " + tick.getBid() + " ask " + tick.getAsk());
+            throw new IllegalStateException("markets are crossed: bid " + tick.getBid() + " ask " + tick.getAsk());
 
         } else if (spreadTicks < (startOffsetTicks - endOffsetTicks)) {
 

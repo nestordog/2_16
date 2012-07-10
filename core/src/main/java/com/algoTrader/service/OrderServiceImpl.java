@@ -86,7 +86,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
         // set the commission
         if (security.getSecurityFamily().getCommission() == null) {
-            throw new RuntimeException("commission is undefined for " + security);
+            throw new IllegalStateException("commission is undefined for " + security);
         }
 
         fill.setParentOrder(order);

@@ -18,7 +18,7 @@ public class StrategyUtil {
             } else {
                 strategyName = ServiceLocator.instance().getConfiguration().getStrategyName();
                 if (strategyName == null) {
-                    throw new RuntimeException("no strategy defined on commandline");
+                    throw new IllegalStateException("no strategy defined on commandline");
                 }
             }
         }

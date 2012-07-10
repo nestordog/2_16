@@ -15,10 +15,10 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
             if (property.getIntValue() != null) {
                 return property.getIntValue();
             } else {
-                throw new RuntimeException("property " + name + " does not have a int value");
+                throw new IllegalArgumentException("property " + name + " does not have a int value");
             }
         } else {
-            throw new RuntimeException("property " + name + " is not defined");
+            throw new IllegalArgumentException("property " + name + " is not defined");
         }
     }
 
@@ -30,10 +30,10 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
             if (property.getDoubleValue() != null) {
                 return property.getDoubleValue();
             } else {
-                throw new RuntimeException("property " + name + " does not have a double value");
+                throw new IllegalArgumentException("property " + name + " does not have a double value");
             }
         } else {
-            throw new RuntimeException("property " + name + " is not defined");
+            throw new IllegalArgumentException("property " + name + " is not defined");
         }
     }
 
@@ -45,10 +45,10 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
             if (property.getMoneyValue() != null) {
                 return property.getMoneyValue();
             } else {
-                throw new RuntimeException("property " + name + " does not have a Money value");
+                throw new IllegalArgumentException("property " + name + " does not have a Money value");
             }
         } else {
-            throw new RuntimeException("property " + name + " is not defined");
+            throw new IllegalArgumentException("property " + name + " is not defined");
         }
     }
 
@@ -60,10 +60,10 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
             if (property.getTextValue() != null) {
                 return property.getTextValue();
             } else {
-                throw new RuntimeException("property " + name + " does not have a Text value");
+                throw new IllegalArgumentException("property " + name + " does not have a Text value");
             }
         } else {
-            throw new RuntimeException("property " + name + " is not defined");
+            throw new IllegalArgumentException("property " + name + " is not defined");
         }
     }
 
@@ -75,10 +75,10 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
             if (property.getDateValue() != null) {
                 return property.getDateValue();
             } else {
-                throw new RuntimeException("property " + name + " does not have a Date value");
+                throw new IllegalArgumentException("property " + name + " does not have a Date value");
             }
         } else {
-            throw new RuntimeException("property " + name + " is not defined");
+            throw new IllegalArgumentException("property " + name + " is not defined");
         }
     }
 
@@ -90,10 +90,10 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
             if (property.getBooleanValue() != null) {
                 return property.getBooleanValue();
             } else {
-                throw new RuntimeException("property " + name + " does not have a Boolean value");
+                throw new IllegalArgumentException("property " + name + " does not have a Boolean value");
             }
         } else {
-            throw new RuntimeException("property " + name + " is not defined");
+            throw new IllegalArgumentException("property " + name + " is not defined");
         }
     }
 
