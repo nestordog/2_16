@@ -15,4 +15,5 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+    <name>AlgoTrader Client Production</name>
 </project>
