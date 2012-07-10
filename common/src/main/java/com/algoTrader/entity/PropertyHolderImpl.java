@@ -10,37 +10,67 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public int getIntProperty(String name) {
 
-        return getProperties().get(name).getIntValue();
+        Property property = getPropertiesInitialized().get(name);
+        if (property != null) {
+            return property.getIntValue();
+        } else {
+            throw new RuntimeException("property " + name + " is not defined");
+        }
     }
 
     @Override
     public double getDoubleProperty(String name) {
 
-        return getProperties().get(name).getDoubleValue();
+        Property property = getPropertiesInitialized().get(name);
+        if (property != null) {
+            return property.getDoubleValue();
+        } else {
+            throw new RuntimeException("property " + name + " is not defined");
+        }
     }
 
     @Override
     public BigDecimal getMoneyProperty(String name) {
 
-        return getProperties().get(name).getMoneyValue();
+        Property property = getPropertiesInitialized().get(name);
+        if (property != null) {
+            return property.getMoneyValue();
+        } else {
+            throw new RuntimeException("property " + name + " is not defined");
+        }
     }
 
     @Override
     public String getTestProperty(String name) {
 
-        return getProperties().get(name).getTextValue();
+        Property property = getPropertiesInitialized().get(name);
+        if (property != null) {
+            return property.getTextValue();
+        } else {
+            throw new RuntimeException("property " + name + " is not defined");
+        }
     }
 
     @Override
     public Date getDateProperty(String name) {
 
-        return getProperties().get(name).getDateValue();
+        Property property = getPropertiesInitialized().get(name);
+        if (property != null) {
+            return property.getDateValue();
+        } else {
+            throw new RuntimeException("property " + name + " is not defined");
+        }
     }
 
     @Override
     public boolean getBooleanProperty(String name) {
 
-        return getProperties().get(name).getBooleanValue();
+        Property property = getPropertiesInitialized().get(name);
+        if (property != null) {
+            return property.getBooleanValue();
+        } else {
+            throw new RuntimeException("property " + name + " is not defined");
+        }
     }
 
     @Override
