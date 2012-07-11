@@ -8,9 +8,11 @@
 	<enableImports><![CDATA[false]]></enableImports>
 	<configs>
 		<config>src/main/resources/beanRefFactoryClient.xml</config>
-		<config>src/main/resources/conf/applicationContext-common.xml</config>
-		<config>src/main/resources/conf/applicationContext-remote.xml</config>
-		<config>target/src/main/java/conf/applicationContext-import-remoteServices.xml</config>
+		<config>target/src/main/java/META-INF/applicationContext-export-osgiServices.xml</config>
+		<config>target/src/main/java/META-INF/applicationContext-import-osgiServices.xml</config>
+		<config>target/src/main/java/META-INF/applicationContext-import-remoteServices.xml</config>
+		<config>src/main/resources/META-INF/applicationContext-common.xml</config>
+		<config>src/main/resources/META-INF/applicationContext-remote.xml</config>
 	</configs>
 	<configSets>
 	</configSets>

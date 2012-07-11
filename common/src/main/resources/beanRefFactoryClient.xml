@@ -7,10 +7,10 @@
     <bean id="beanRefFactory" class="org.springframework.context.support.ClassPathXmlApplicationContext">
         <constructor-arg>
            <list>
-                <value>classpath:/conf/applicationContext-common.xml</value>
-                <value>classpath:/conf/applicationContext-remote.xml</value>
-                <value>classpath*:/conf/applicationContext-client*.xml</value>
-                <value>classpath:/conf/applicationContext-import-remoteServices.xml</value>
+                <value>classpath:/META-INF/applicationContext-common.xml</value>
+                <value>classpath:/META-INF/applicationContext-remote.xml</value>
+                <value>classpath*:/META-INF/applicationContext-client*.xml</value>
+                <value>classpath:/META-INF/applicationContext-import-remoteServices.xml</value>
            </list>
         </constructor-arg>
     </bean>

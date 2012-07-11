@@ -141,11 +141,11 @@
                 <property name="serviceRemotePort">1199</property>
                 <property name="serviceLocatorName">ServiceLocator</property>
 
-                <property name="applicationContext">conf/applicationContext.xml</property>
-                <property name="applicationContextClient">conf/applicationContext-import-remoteServices.xml</property>
-                <property name="applicationContextServer">conf/applicationContext-export-remoteServices.xml</property>
-                <property name="applicationContextOsgiExport">conf/applicationContext-export-osgiServices.xml</property>
-                <property name="applicationContextOsgiImport">conf/applicationContext-import-osgiServices.xml</property>
+                <property name="applicationContext">META-INF/applicationContext.xml</property>
+                <property name="applicationContextClient">META-INF/applicationContext-import-remoteServices.xml</property>
+                <property name="applicationContextServer">META-INF/applicationContext-export-remoteServices.xml</property>
+                <property name="applicationContextOsgiExport">META-INF/applicationContext-export-osgiServices.xml</property>
+                <property name="applicationContextOsgiImport">META-INF/applicationContext-import-osgiServices.xml</property>
 
             </properties>
         </namespace>
