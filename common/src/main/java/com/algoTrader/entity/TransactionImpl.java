@@ -75,12 +75,25 @@ public class TransactionImpl extends Transaction {
     @Override
     public String toString() {
 
-        //@formatter:off
-        return getType() + " "
-            + getQuantity()
-            + (getSecurity() != null ? (" " + getSecurity()) : "") +
-            " price " + getPrice() + " " + getCurrency() +
-            " commission: " + getCommission();
-        //@formatter:on
+        if (TransactionType.BUY.equals(getType()) || TransactionType.SELL.equals(getType())) {
+
+            //@formatter:off
+            return getType()
+                + " " + getQuantity()
+                + " " + getSecurity()
+                + " price " + getPrice() + " " + getCurrency()
+                + " commission: " + getCommission()
+                + " strategy: " + getStrategy();
+            //@formatter:on
+
+        } else {
+
+            //@formatter:off
+            return getType()
+                + " amount " + getPrice() + " " + getCurrency()
+                + " strategy: " + getStrategy()
+                + (getDescription() != null ? " " + getDescription() : "");
+            //@formatter:on
+        }
     }
 }

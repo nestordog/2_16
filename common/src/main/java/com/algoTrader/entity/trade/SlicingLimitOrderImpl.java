@@ -3,7 +3,6 @@ package com.algoTrader.entity.trade;
 import java.math.BigDecimal;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.ClassUtils;
 
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.SecurityFamily;
@@ -64,9 +63,7 @@ public class SlicingLimitOrderImpl extends SlicingLimitOrder {
     public String toString() {
 
         //@formatter:off
-        return getSide() + " " + getQuantity() + " "
-            + ClassUtils.getShortClassName(this.getClass()) + " "
-            + getSecurity() +
+        return super.toString() +
             " totalQuantity " + getTotalQuantity() +
             " lotQuantity " + getLotQuantity() +
             " filledQuantity " + getFilledQuantity() +

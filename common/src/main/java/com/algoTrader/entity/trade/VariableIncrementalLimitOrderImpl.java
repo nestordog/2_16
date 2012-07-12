@@ -3,7 +3,6 @@ package com.algoTrader.entity.trade;
 import java.math.BigDecimal;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.ClassUtils;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.marketData.Tick;
@@ -23,9 +22,7 @@ public class VariableIncrementalLimitOrderImpl extends VariableIncrementalLimitO
     public String toString() {
 
         //@formatter:off
-        return getSide() + " " + getQuantity() + " "
-            + ClassUtils.getShortClassName(this.getClass()) + " "
-            + getSecurity() +
+        return super.toString() +
             " startLimit " + getStartLimit() +
             " endLimit " + getEndLimit() +
             " currentLimit " + getLimit() +

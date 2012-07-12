@@ -501,19 +501,11 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
         for (Transaction transaction : transactions) {
 
-            getTransactionDao().create(transaction);
 
             // add the amount to the balance
-            getCashBalanceService().processTransaction(transaction);
+            getTransactionService().persistTransaction(transaction);
 
-            // @formatter:off
-            logger.info("executed cash transaction" +
-                    " dateTime: " + cashDateTimeFormat.format(transaction.getDateTime()) +
-                    " price: " + transaction.getPrice() +
-                    " type: " + transaction.getType() +
-                    " description: " + transaction.getDescription());
-            // @formatter:on
-
+            // propagate the transaction to BASE
             if (EsperManager.isInitialized(StrategyImpl.BASE)) {
                 EsperManager.sendEvent(StrategyImpl.BASE, transaction);
             }

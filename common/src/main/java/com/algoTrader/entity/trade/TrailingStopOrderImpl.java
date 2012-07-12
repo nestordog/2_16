@@ -1,7 +1,5 @@
 package com.algoTrader.entity.trade;
 
-import org.apache.commons.lang.ClassUtils;
-
 public class TrailingStopOrderImpl extends TrailingStopOrder {
 
     private static final long serialVersionUID = -7260306708056150268L;
@@ -9,7 +7,6 @@ public class TrailingStopOrderImpl extends TrailingStopOrder {
     @Override
     public String toString() {
 
-        return getSide() + " " + getQuantity() + " " + ClassUtils.getShortClassName(this.getClass()) + " " + getSecurity() + " trailingAmount "
-                + getTrailingAmount();
+        return super.toString() + " trailingAmount " + getTrailingAmount();
     }
 }

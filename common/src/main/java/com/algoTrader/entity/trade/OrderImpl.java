@@ -10,10 +10,11 @@ public abstract class OrderImpl extends Order {
     public String toString() {
 
         //@formatter:off
-        return getSide() + " " +
-                getQuantity() + " " +
-                ClassUtils.getShortClassName(this.getClass()) + " " +
-                getSecurity();
+        return getSide() + " "
+            + getQuantity() + " "
+            + ClassUtils.getShortClassName(this.getClass()) + " "
+            + getSecurity() + " "
+            + getStrategy();
         //@formatter:on
     }
 

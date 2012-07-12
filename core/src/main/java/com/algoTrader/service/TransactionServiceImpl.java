@@ -1,6 +1,7 @@
 package com.algoTrader.service;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +18,7 @@ import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.trade.Fill;
+import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.TransactionType;
@@ -68,70 +70,133 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     }
 
     @Override
+    protected void handleCreateTransaction(int securityId, String strategyName, String extId, Date dateTime, long quantity, BigDecimal price, BigDecimal commission, Currency currency,
+            TransactionType transactionType) throws Exception {
+
+        // validations
+        Strategy strategy = getStrategyDao().findByName(strategyName);
+        if (strategy == null) {
+            throw new IllegalArgumentException("strategy " + strategyName + " was not found");
+        }
+
+        Security security = getSecurityDao().findById(securityId);
+        if (TransactionType.BUY.equals(transactionType) ||
+                TransactionType.SELL.equals(transactionType) ||
+                TransactionType.EXPIRATION.equals(transactionType)) {
+
+            if (security == null) {
+                throw new IllegalArgumentException("security " + securityId + " was not found");
+            }
+
+            currency = security.getSecurityFamily().getCurrency();
+
+            if (TransactionType.BUY.equals(transactionType)) {
+                quantity = Math.abs(quantity);
+            } else if (TransactionType.SELL.equals(transactionType)) {
+                quantity = -Math.abs(quantity);
+            } else if (TransactionType.EXPIRATION.equals(transactionType)) {
+                // actual quantity taken
+            }
+
+        } else if (TransactionType.CREDIT.equals(transactionType) ||
+                TransactionType.DEBIT.equals(transactionType) ||
+                TransactionType.INTREST_PAID.equals(transactionType) ||
+                TransactionType.INTREST_RECEIVED.equals(transactionType) ||
+                TransactionType.FEES.equals(transactionType) ||
+                TransactionType.REFUND.equals(transactionType)) {
+
+            if (currency == null) {
+                throw new IllegalArgumentException("need to define a currency for " + transactionType);
+            }
+
+            quantity = 1;
+
+        } else if (TransactionType.REBALANCE.equals(transactionType)) {
+            throw new IllegalArgumentException("transaction type REBALANCE not allowed");
+        }
+
+        // create the transaction
+        Transaction transaction = new TransactionImpl();
+        transaction.setDateTime(dateTime);
+        transaction.setExtId(extId);
+        transaction.setQuantity(quantity);
+        transaction.setPrice(price);
+        transaction.setType(transactionType);
+        transaction.setSecurity(security);
+        transaction.setStrategy(strategy);
+        transaction.setCurrency(currency);
+        transaction.setCommission(commission);
+
+        persistTransaction(transaction);
+        propagateTransaction(transaction);
+    }
+
+    @Override
     protected void handlePersistTransaction(Transaction transaction) throws Exception {
 
-        Strategy strategy = transaction.getStrategy();
-        Security security = transaction.getSecurity();
-
         // associate the strategy
-        strategy.addTransactions(transaction);
+        transaction.getStrategy().addTransactions(transaction);
 
         double profit = 0.0;
         double profitPct = 0.0;
         double avgAge = 0;
 
-        // create a new position if necessary
-        Position position = getPositionDao().findBySecurityAndStrategy(security.getId(), strategy.getName());
-        if (position == null) {
+        // position handling (incl ClosePositionVO and TradePerformanceVO)
+        if (transaction.getSecurity() != null) {
 
-            position = new PositionImpl();
-            position.setQuantity(transaction.getQuantity());
+            // create a new position if necessary
+            Position position = getPositionDao().findBySecurityAndStrategy(transaction.getSecurity().getId(), transaction.getStrategy().getName());
+            if (position == null) {
 
-            position.setExitValue(null);
-            position.setMaintenanceMargin(null);
+                position = new PositionImpl();
+                position.setQuantity(transaction.getQuantity());
 
-            // associate the security
-            security.addPositions(position);
-
-            // associate the transaction
-            position.addTransactions(transaction);
-
-            // associate the strategy
-            strategy.addPositions(position);
-
-            getPositionDao().create(position);
-
-        } else {
-
-            // get the closePositionVO
-            // must be done before closing the position
-            ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
-
-            // evaluate the profit in closing transactions
-            // must be done before attaching the new transaction
-            if (Long.signum(position.getQuantity()) * Long.signum(transaction.getQuantity()) == -1) {
-                double cost = position.getCostDouble() * Math.abs((double) transaction.getQuantity() / (double) position.getQuantity());
-                double value = transaction.getNetValueDouble();
-                profit = value - cost;
-                profitPct = Direction.LONG.equals(position.getDirection()) ? ((value - cost) / cost) : ((cost - value) / cost);
-                avgAge = position.getAverageAge();
-            }
-
-            position.setQuantity(position.getQuantity() + transaction.getQuantity());
-
-            // in case a position was closed do the following
-            if (!position.isOpen()) {
-
-                // set all values to null
                 position.setExitValue(null);
                 position.setMaintenanceMargin(null);
 
-                // propagate the ClosePosition event
-                EsperManager.sendEvent(position.getStrategy().getName(), closePositionVO);
-            }
+                // associate the security
+                transaction.getSecurity().addPositions(position);
 
-            // associate the position
-            position.addTransactions(transaction);
+                // associate the transaction
+                position.addTransactions(transaction);
+
+                // associate the strategy
+                transaction.getStrategy().addPositions(position);
+
+                getPositionDao().create(position);
+
+            } else {
+
+                // get the closePositionVO
+                // must be done before closing the position
+                ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
+
+                // evaluate the profit in closing transactions
+                // must be done before attaching the new transaction
+                if (Long.signum(position.getQuantity()) * Long.signum(transaction.getQuantity()) == -1) {
+                    double cost = position.getCostDouble() * Math.abs((double) transaction.getQuantity() / (double) position.getQuantity());
+                    double value = transaction.getNetValueDouble();
+                    profit = value - cost;
+                    profitPct = Direction.LONG.equals(position.getDirection()) ? ((value - cost) / cost) : ((cost - value) / cost);
+                    avgAge = position.getAverageAge();
+                }
+
+                position.setQuantity(position.getQuantity() + transaction.getQuantity());
+
+                // in case a position was closed do the following
+                if (!position.isOpen()) {
+
+                    // set all values to null
+                    position.setExitValue(null);
+                    position.setMaintenanceMargin(null);
+
+                    // propagate the ClosePosition event
+                    EsperManager.sendEvent(position.getStrategy().getName(), closePositionVO);
+                }
+
+                // associate the position
+                position.addTransactions(transaction);
+            }
         }
 
         // add the amount to the corresponding cashBalance
@@ -154,9 +219,9 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         //@formatter:off
         String logMessage = "executed transaction: " + transaction +
         ((profit != 0.0) ? (
-            " profit " + RoundUtil.getBigDecimal(profit) +
-            " profitPct " + RoundUtil.getBigDecimal(profitPct) +
-            " avgAge " + RoundUtil.getBigDecimal(avgAge))
+            " profit: " + RoundUtil.getBigDecimal(profit) +
+            " profitPct: " + RoundUtil.getBigDecimal(profitPct) +
+            " avgAge: " + RoundUtil.getBigDecimal(avgAge))
             : "");
         //@formatter:on
 

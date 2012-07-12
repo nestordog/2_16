@@ -81,6 +81,19 @@
         </layout>
     </appender>
 
+    <appender name="ORDER_EMAIL" class="org.apache.log4j.net.SMTPAppender">
+        <param name="EvaluatorClass" value="com.algoTrader.util.CustomEvaluator" />
+        <param name="SMTPHost" value="mail.linardcapital.com" />
+        <param name="SMTPUsername" value="aws" />
+        <param name="SMTPPassword" value="Zermatt11" />
+        <param name="From" value="aws@linardcapital.com" />
+        <param name="To" value="trading@linardcapital.com" />
+        <param name="Subject" value="AlgoTrader Order ${environment}" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d%n%n%-5p%n%n%c%n%n%m%n%n" />
+        </layout>
+    </appender>
+
     <logger name="org.springframework">
         <level value="warn" />
     </logger>
@@ -146,6 +159,11 @@
     <logger name="com.algoTrader.service.TransactionServiceImpl.MAIL" additivity="false">
         <appender-ref ref="TRANSACTION_EMAIL" />
     </logger>
+
+    <logger name="com.algoTrader.service.OrderServiceImpl.MAIL" additivity="false">
+        <appender-ref ref="ORDER_EMAIL" />
+    </logger>
+
 
     <logger name="com.algoTrader.util.spring">
         <level value="warn" />

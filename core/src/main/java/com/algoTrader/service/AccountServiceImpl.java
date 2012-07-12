@@ -75,16 +75,8 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
 
         for (Transaction transaction : transactions) {
 
-            // add the amount to the balance
-            getCashBalanceService().processTransaction(transaction);
-
-            // save the transaction to the db
-            getTransactionDao().create(transaction);
-
-            // associate the strategy
-            transaction.getStrategy().addTransactions(transaction);
-
-            logger.info("rebalanced strategy " + transaction.getStrategy().getName() + " " + transaction.getNetValue());
+            // persist the transaction
+            getTransactionService().persistTransaction(transaction);
         }
     }
 }

@@ -2,10 +2,14 @@ package com.algoTrader.service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 import com.algoTrader.enumeration.ConnectionState;
+import com.algoTrader.enumeration.Currency;
+import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.service.ib.IBServiceManager;
+import com.algoTrader.util.RoundUtil;
 
 public class BaseManagementServiceImpl extends BaseManagementServiceBase {
 
@@ -31,6 +35,20 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     protected void handleSetExitValue(int positionId, double exitValue) throws Exception {
 
         getPositionService().setExitValue(positionId, exitValue, true);
+    }
+
+    @Override
+    protected void handleRecordTransaction(int securityId, String strategyName, String extIdString, String dateTimeString, long quantity, double priceDouble, double commissionDouble,
+            String currencyString, String transactionTypeString) throws Exception {
+
+        String extId = !"".equals(extIdString) ? extIdString : null;
+        Date dateTime = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(dateTimeString);
+        BigDecimal price = RoundUtil.getBigDecimal(priceDouble);
+        BigDecimal commission = RoundUtil.getBigDecimal(commissionDouble);
+        Currency currency = currencyString != null && !"".equals(currencyString) ? Currency.fromValue(currencyString) : null;
+        TransactionType transactionType = TransactionType.fromValue(transactionTypeString);
+
+        getTransactionService().createTransaction(securityId, strategyName, extId, dateTime, quantity, price, commission, currency, transactionType);
     }
 
     @Override

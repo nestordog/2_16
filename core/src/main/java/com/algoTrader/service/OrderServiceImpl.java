@@ -24,6 +24,7 @@ import com.algoTrader.util.RoundUtil;
 public abstract class OrderServiceImpl extends OrderServiceBase {
 
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
+    private static Logger mailLogger = MyLogger.getLogger(OrderServiceImpl.class.getName() + ".MAIL");
 
     private @Value("${simulation}") boolean simulation;
 
@@ -131,6 +132,12 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     protected void handleModifyOrder(Order order) throws Exception {
 
         modifyExternalOrder(order);
+    }
+
+    @Override
+    protected void handleSuggestOrder(Order order) throws Exception {
+
+        mailLogger.info("order " + order);
     }
 
     @Override
