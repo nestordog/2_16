@@ -510,9 +510,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<TransactionVO> handleGetTransactionsVO(String strategyName) throws Exception {
 
         if (strategyName.equals(StrategyImpl.BASE)) {
-            return (List<TransactionVO>) getTransactionDao().findTransactionsDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 0, this.transactionDisplayCount);
+            return (List<TransactionVO>) getTransactionDao().findTransactionsDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, this.transactionDisplayCount);
         } else {
-            return (List<TransactionVO>) getTransactionDao().findTransactionsByStrategyDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 0, this.transactionDisplayCount, strategyName);
+            return (List<TransactionVO>) getTransactionDao().findTransactionsByStrategyDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, this.transactionDisplayCount, strategyName);
         }
     }
 
