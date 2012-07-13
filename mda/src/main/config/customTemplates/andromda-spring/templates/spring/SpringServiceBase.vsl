@@ -167,9 +167,11 @@ $attribute.getDocumentation("     * ")
 #end	
 #if($stringUtils.isNotBlank($operation.findTaggedValue('algoTrader_service_method_manageable')))
 	@org.springframework.jmx.export.annotation.ManagedOperation#if($stringUtils.isNotBlank($operation.getDocumentation('')))(description="$stringUtils.toSingleLine($operation.getDocumentation(''))")#end
-	@org.springframework.jmx.export.annotation.ManagedOperationParameters({ 
+	@org.springframework.jmx.export.annotation.ManagedOperationParameters({
+#set ($index = 0)	
 #foreach ($argument in $operation.arguments)	
-			@org.springframework.jmx.export.annotation.ManagedOperationParameter(name = "$argument.name", description = "#if($stringUtils.isNotBlank($argument.getDocumentation('')))$stringUtils.toSingleLine($argument.getDocumentation(''))#else$argument.name#end"), 
+#set ($index = $index + 1) 	
+	@org.springframework.jmx.export.annotation.ManagedOperationParameter(name = "$argument.name", description = "#if($stringUtils.isNotBlank($argument.getDocumentation('')))$stringUtils.toSingleLine($argument.getDocumentation(''))#else$argument.name#end")#if($index<$operation.arguments.size()),#end
 #end			
 	})	
 #end	
