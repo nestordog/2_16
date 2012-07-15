@@ -1,6 +1,7 @@
 package com.algoTrader.service;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -296,7 +297,7 @@ public class PositionServiceImpl extends PositionServiceBase {
     protected void handleExpirePositions() throws Exception {
 
         Date date = DateUtil.getCurrentEPTime();
-        List<Position> positions = getPositionDao().findExpirablePositions(date);
+        Collection<Position> positions = getPositionDao().findExpirablePositions(date);
 
         for (Position position : positions) {
             expirePosition(position);

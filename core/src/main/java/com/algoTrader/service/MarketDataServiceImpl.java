@@ -2,6 +2,7 @@ package com.algoTrader.service;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -135,7 +136,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
     @Override
     protected void handleRemoveNonPositionSubscriptions(String strategyName) throws Exception {
 
-        List<Subscription> subscriptions = getSubscriptionDao().findNonPositionSubscriptions(strategyName);
+        Collection<Subscription> subscriptions = getSubscriptionDao().findNonPositionSubscriptions(strategyName);
 
         for (Subscription subscription : subscriptions) {
             unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
@@ -147,7 +148,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
     protected void handleRemoveNonPositionSubscriptionsByType(String strategyName, Class type) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        List<Subscription> subscriptions = getSubscriptionDao().findNonPositionSubscriptionsByType(strategyName, discriminator);
+        Collection<Subscription> subscriptions = getSubscriptionDao().findNonPositionSubscriptionsByType(strategyName, discriminator);
 
         for (Subscription subscription : subscriptions) {
             unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());

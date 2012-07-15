@@ -1,6 +1,6 @@
 package com.algoTrader.service;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
@@ -200,7 +200,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     protected void handleDeleteCombinationsWithZeroQty(String strategyName, Class type) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        List<Security> combinations = getSecurityDao().findSubscribedByStrategyAndComponentClassWithZeroQty(strategyName, discriminator);
+        Collection<Security> combinations = getSecurityDao().findSubscribedByStrategyAndComponentClassWithZeroQty(strategyName, discriminator);
 
         if (combinations.size() > 0) {
 

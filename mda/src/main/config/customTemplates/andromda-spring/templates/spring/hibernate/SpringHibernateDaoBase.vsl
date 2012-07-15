@@ -1,4 +1,4 @@
-## AlgoTraderRevision: 15245
+## AlgoTraderRevision: 15256
 ## line 249: criteria.setCacheable(true)
 ## line 858 - 864: handle algoTrader.entity.query.native
 ## line 866 - 868: if taggedValue andromda_hibernate_query_useCache is set add queryObject.setCacheable(true);
@@ -698,7 +698,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
 #if ($enableAnnotations)
     @Override
 #end
-#if ($enableTemplating)
+#if ($enableTemplating && ($finder.returnType.collectionType || $finder.many))
     @SuppressWarnings({"unchecked"})
 #end
     $finder.visibility $returnType $finder.signature
@@ -713,7 +713,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
         #if ($finder.returnTypePresent)return#end $finderCall
     }
 
-#if ($finder.returnType.collectionType || !$finder.criteriaFinder)
+#if ($finder.returnType.collectionType|| $finder.many || !$finder.criteriaFinder)
     /**
 #if (!$finder.returnTypePresent)
      * **** MODEL ERROR: Entity finder method must return a type other than 'void' *****
@@ -727,6 +727,8 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
 #if($enableTemplating)
 #set ($returnType = "${finder.getterSetterReturnTypeName}<?>")
 #end
+#elseif ($finder.many)
+#set ($returnType = "$finder.getterSetterReturnTypeName.substring(0,$finder.getterSetterReturnTypeName.indexOf('<'))<?>")
 #elseif ($finder.returnTypePresent)
 #set ($returnType = "Object")
 #else
@@ -737,7 +739,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
         throws $finder.exceptionList
 #end
     {
-#if ($finder.returnType.collectionType)
+#if ($finder.returnType.collectionType|| $finder.many)
         #if ($finder.returnTypePresent)return#end this.${finder.name}(transform, -1, -1#if(!$finder.arguments.empty), ${finder.argumentNames}#end);
 #else
         #if ($finder.returnTypePresent)return#end this.${finder.name}(transform, "$finder.getQuery($entity)"#if(!$finder.arguments.empty), ${finder.argumentNames}#end);
@@ -753,7 +755,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
 #if ($enableAnnotations)
     @Override
 #end
-#if ($enableTemplating && $finder.returnType.collectionType)
+#if ($enableTemplating && ($finder.returnType.collectionType || $finder.many))
     @SuppressWarnings({"unchecked"})
 #end
     $finder.visibility $returnType ${finder.name}(final String queryString#if(!$finder.arguments.empty), ${finder.getTypedArgumentList('final')}#end)
@@ -768,14 +770,14 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
         #if ($finder.returnTypePresent)return#end $finderCall
     }
 
-#if ($finder.returnType.collectionType)
+#if ($finder.returnType.collectionType || $finder.many)
     /**
      * {@inheritDoc}
      */
 #if ($enableAnnotations)
     @Override
 #end
-#if ($enableTemplating)
+#if ($enableTemplating && ($finder.returnType.collectionType || $finder.many))
     @SuppressWarnings({"unchecked"})
 #end
     $finder.visibility $returnType ${finder.name}(final int pageNumber, final int pageSize#if(!$finder.arguments.empty), ${finder.getTypedArgumentList('final')}#end)
@@ -792,7 +794,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
 #if ($enableAnnotations)
     @Override
 #end
-#if ($enableTemplating)
+#if ($enableTemplating && ($finder.returnType.collectionType || $finder.many))
     @SuppressWarnings({"unchecked"})
 #end
     $finder.visibility $returnType ${finder.name}(final String queryString, final int pageNumber, final int pageSize#if(!$finder.arguments.empty), ${finder.getTypedArgumentList('final')}#end)
@@ -803,8 +805,12 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
         #if ($finder.returnTypePresent)return#end#if($enableTemplating) ($returnType)#end this.${finder.name}(${entity.fullyQualifiedDaoName}.$entity.daoNoTransformationConstantName, queryString, pageNumber, pageSize#if(!$finder.arguments.empty), ${finder.argumentNames}#end);
     }
 
+#if ($finder.returnType.collectionType)
 #if($enableTemplating)
 #set ($returnType = "${finder.getterSetterReturnTypeName}<?>")
+#end
+#elseif ($finder.many)
+#set ($returnType = "$finder.getterSetterReturnTypeName.substring(0,$finder.getterSetterReturnTypeName.indexOf('<'))<?>")
 #end
     /**
      * {@inheritDoc}
@@ -848,10 +854,10 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
 #if ($enableAnnotations)
     @Override
 #end
-#if ($enableTemplating)
+#if ($enableTemplating && ($finder.returnType.collectionType || $finder.many))
     @SuppressWarnings("unchecked")
 #end
-    $finder.visibility $returnType ${finder.name}(final int transform, final String queryString#if ($finder.returnType.collectionType), int pageNumber, int pageSize#end#if(!$finder.arguments.empty), ${finder.getTypedArgumentList('final')}#end)
+    $finder.visibility $returnType ${finder.name}(final int transform, final String queryString#if ($finder.returnType.collectionType || $finder.many), int pageNumber, int pageSize#end#if(!$finder.arguments.empty), ${finder.getTypedArgumentList('final')}#end)
 #if ($finder.exceptionsPresent)
 ## TODO: Exception is not actually thrown by this method
         throws $finder.exceptionList
@@ -897,19 +903,19 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
 #end
 #end
 #end
-#if ($finder.returnType.collectionType)
+#if ($finder.returnType.collectionType || $finder.many)
             if (pageNumber > 0 && pageSize > 0)
             {
                 queryObject.setFirstResult(this.calculateFirstResult(pageNumber, pageSize));
                 queryObject.setMaxResults(pageSize);
             }
 #end
-#if ($finder.returnType.setType || !$finder.returnType.collectionType)
+#if ($finder.returnType.setType || !($finder.returnType.collectionType || $finder.many))
             java.util.Set results = new java.util.LinkedHashSet(queryObject.list());
 #else
             java.util.List results = queryObject.list();
 #end
-#if (!$finder.returnType.collectionType)
+#if (!($finder.returnType.collectionType || $finder.many))
             Object result = null;
             if (results.size() > 1)
             {
@@ -939,8 +945,10 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
         }
     }
 #else
-#if($finder.returnType.collectionType)
+#if ($finder.returnType.collectionType)
 #set ($returnType = "${finder.getterSetterReturnTypeName}#if($enableTemplating)<?>#end")
+#elseif ($finder.many)
+#set ($returnType = "$finder.getterSetterReturnTypeName.substring(0,$finder.getterSetterReturnTypeName.indexOf('<'))<?>")
 #else
 #set ($returnType = "Object")
 #end
@@ -950,10 +958,10 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
 #if ($enableAnnotations)
     @Override
 #end
-#if ($enableTemplating)
+#if ($enableTemplating && ($finder.returnType.collectionType || $finder.many))
     @SuppressWarnings("unchecked")
 #end
-    $finder.visibility $returnType ${finder.name}(final int transform#if ($finder.returnType.collectionType), final int pageNumber, final int pageSize#end#if(!$finder.arguments.empty), ${finder.getTypedArgumentList('final')}#end)
+    $finder.visibility $returnType ${finder.name}(final int transform#if ($finder.returnType.collectionType || $finder.many), final int pageNumber, final int pageSize#end#if(!$finder.arguments.empty), ${finder.getTypedArgumentList('final')}#end)
 #if ($finder.exceptionsPresent)
         throws $finder.exceptionList
 #end
@@ -966,7 +974,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
             criteriaSearch.getConfiguration().setFirstResult(${criteriaArgumentName}.getFirstResult());
             criteriaSearch.getConfiguration().setFetchSize(${criteriaArgumentName}.getFetchSize());
             criteriaSearch.getConfiguration().setMaximumResultSize(${criteriaArgumentName}.getMaximumResultSize());
-#if ($finder.returnType.collectionType)
+#if ($finder.returnType.collectionType || $finder.many)
             if (pageNumber > 0 && pageSize > 0)
             {
                 criteriaSearch.getConfiguration().setFirstResult(new Integer(calculateFirstResult(pageNumber, pageSize)));
@@ -1011,7 +1019,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
 #else
             java.util.List results = criteriaSearch.executeAsList();
 #end
-#if($finder.returnType.collectionType)
+#if($finder.returnType.collectionType || $finder.many)
             transformEntities(transform, results);
             #if ($finder.returnTypePresent)return#end results;
 #else

@@ -3,7 +3,6 @@ package com.algoTrader.service;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -74,7 +73,7 @@ public class ResetServiceImpl extends ResetServiceBase {
         }
 
         // delete all non-presistent subscriptions and references to them
-        List<Subscription> nonPersistentSubscriptions = getSubscriptionDao().findNonPersistent();
+        Collection<Subscription> nonPersistentSubscriptions = getSubscriptionDao().findNonPersistent();
         getSubscriptionDao().remove(nonPersistentSubscriptions);
         for (Subscription subscription : nonPersistentSubscriptions) {
             subscription.getSecurity().getSubscriptions().remove(subscription);
@@ -85,14 +84,14 @@ public class ResetServiceImpl extends ResetServiceBase {
         getCombinationDao().remove(getCombinationDao().findNonPersistent());
 
         // delete all non-persistent components and references to them
-        List<Component> nonPersistentComponents = getComponentDao().findNonPersistent();
+        Collection<Component> nonPersistentComponents = getComponentDao().findNonPersistent();
         getComponentDao().remove(nonPersistentComponents);
         for (Component component : nonPersistentComponents) {
             component.getParentSecurity().getComponents().remove(component);
         }
 
         // delete all non-persistent properties
-        List<Property> nonPersistentProperties = getPropertyDao().findNonPersistent();
+        Collection<Property> nonPersistentProperties = getPropertyDao().findNonPersistent();
         getPropertyDao().remove(nonPersistentProperties);
         for (Property property : nonPersistentProperties) {
             property.getPropertyHolder().removeProperties(property.getName());

@@ -1,7 +1,7 @@
 package com.algoTrader.service;
 
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -23,7 +23,7 @@ public class FutureServiceImpl extends FutureServiceBase {
         FutureFamily family = getFutureFamilyDao().get(futureFamilyId);
         Security underlying = family.getUnderlying();
 
-        List<Future> futures = getFutureDao().findFuturesByMinExpiration(family.getId(), DateUtil.getCurrentEPTime());
+        Collection<Future> futures = getFutureDao().findByMinExpiration(family.getId(), DateUtil.getCurrentEPTime());
 
         // create the missing part of the futures chain
         for (int i = futures.size() + 1; i <= family.getLength(); i++) {

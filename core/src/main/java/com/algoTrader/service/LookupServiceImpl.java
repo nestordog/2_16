@@ -109,14 +109,14 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Security> handleGetSubscribedSecuritiesByStrategyAndComponent(String strategyName, int securityId) throws Exception {
+    protected Collection<Security> handleGetSubscribedSecuritiesByStrategyAndComponent(String strategyName, int securityId) throws Exception {
 
         return getSecurityDao().findSubscribedByStrategyAndComponent(strategyName, securityId);
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    protected List<Security> handleGetSubscribedSecuritiesByStrategyAndComponentClass(String strategyName, final Class type) throws Exception {
+    protected Collection<Security> handleGetSubscribedSecuritiesByStrategyAndComponentClass(String strategyName, final Class type) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
         return getSecurityDao().findSubscribedByStrategyAndComponentClass(strategyName, discriminator);
@@ -124,7 +124,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
     @SuppressWarnings("rawtypes")
     @Override
-    protected List<Security> handleGetSubscribedSecuritiesByStrategyAndComponentClassWithZeroQty(String strategyName, final Class type) throws Exception {
+    protected Collection<Security> handleGetSubscribedSecuritiesByStrategyAndComponentClassWithZeroQty(String strategyName, final Class type) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
         return getSecurityDao().findSubscribedByStrategyAndComponentClassWithZeroQty(strategyName, discriminator);
@@ -303,7 +303,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<Future> handleGetFuturesByMinExpiration(int futureFamilyId, Date minExpirationDate) throws Exception {
 
-        return getFutureDao().findFuturesByMinExpiration(futureFamilyId, minExpirationDate);
+        return getFutureDao().findByMinExpiration(futureFamilyId, minExpirationDate);
     }
 
     @Override
@@ -345,7 +345,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Subscription> handleGetNonPositionSubscriptions(String strategyName) throws Exception {
+    protected Collection<Subscription> handleGetNonPositionSubscriptions(String strategyName) throws Exception {
 
         return getSubscriptionDao().findNonPositionSubscriptions(strategyName);
     }
@@ -608,7 +608,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<CashBalance> handleGetCashBalancesByStrategy(String strategyName) throws Exception {
+    protected Collection<CashBalance> handleGetCashBalancesByStrategy(String strategyName) throws Exception {
 
         return getCashBalanceDao().findCashBalancesByStrategy(strategyName);
     }
@@ -632,7 +632,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Component> handleGetSubscribedComponentsByStrategy(String strategyName) throws Exception {
+    protected Collection<Component> handleGetSubscribedComponentsByStrategy(String strategyName) throws Exception {
 
         return getComponentDao().findSubscribedByStrategyInclSecurity(strategyName);
     }
@@ -644,7 +644,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Component> handleGetSubscribedComponentsByStrategyAndSecurity(String strategyName, int securityId) throws Exception {
+    protected Collection<Component> handleGetSubscribedComponentsByStrategyAndSecurity(String strategyName, int securityId) throws Exception {
 
         return getComponentDao().findSubscribedByStrategyAndSecurityInclSecurity(strategyName, securityId);
     }
