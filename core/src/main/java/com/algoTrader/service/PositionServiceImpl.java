@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Predicate;
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
@@ -35,6 +37,7 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.ClosePositionVO;
 import com.algoTrader.vo.ExpirePositionVO;
+import com.algoTrader.vo.TransactionSummaryVO;
 
 public class PositionServiceImpl extends PositionServiceBase {
 
@@ -271,6 +274,44 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         for (Position position : positions) {
             setMargin(position);
+        }
+    }
+
+    @Override
+    protected void handleResetPositions() throws Exception {
+
+        Collection<TransactionSummaryVO> transactionSummaries = getTransactionDao().findTransactionSummaries();
+
+        for (TransactionSummaryVO summary : transactionSummaries) {
+
+            Position position = getPositionDao().findBySecurityAndStrategy(summary.getSecurityId(), summary.getStrategyName());
+            if (position == null) {
+
+                logger.error("position on security " + summary.getSecurityId() + " strategy " + summary.getStrategyName() + " quantity " + summary.getQuantity() + " does not exist");
+
+            } else if (position.getQuantity() != summary.getQuantity()) {
+
+                long existingQty = position.getQuantity();
+                position.setQuantity(summary.getQuantity());
+
+                logger.error("adjusted quantity of position " + position.getId() + " from " + existingQty + " to " + summary.getQuantity());
+            }
+        }
+
+        List<Position> openPositions = getPositionDao().findOpenTradeablePositions();
+
+        for (final Position position : openPositions) {
+
+            TransactionSummaryVO summary = CollectionUtils.find(transactionSummaries, new Predicate<TransactionSummaryVO>() {
+                @Override
+                public boolean evaluate(TransactionSummaryVO summary) {
+                    return position.getSecurity().getId() == summary.getSecurityId() && position.getStrategy().getName().equals(summary.getStrategyName());
+                }
+            });
+
+            if (summary == null) {
+                logger.error("position " + position.getId() + " not found in transactions");
+            }
         }
     }
 

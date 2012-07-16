@@ -76,7 +76,9 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     }
 
     @Override
-    protected void handleResetCashBalances() throws Exception {
+    protected void handleResetPositionsAndCashBalances() throws Exception {
+
+        getPositionService().resetPositions();
 
         getCashBalanceService().resetCashBalances();
     }

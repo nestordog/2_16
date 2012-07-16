@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -13,11 +14,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.marketData.TickDao;
 import com.algoTrader.entity.security.ImpliedVolatility;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
-import com.algoTrader.entity.security.StockOptionDao;
 import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.entity.security.StockOptionImpl;
 import com.algoTrader.enumeration.OptionType;
@@ -74,16 +73,15 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected void handleCalculateSabr(String isin) throws Exception {
 
         Security underlying = getSecurityDao().findByIsin(isin);
 
-        List<Date> dates = (List<Date>) getTickDao().findUniqueDates(TickDao.TRANSFORM_NONE);
+        Collection<Date> dates = getTickDao().findUniqueDates();
 
         for (Date date : dates) {
 
-            List<Date> expirationDates = (List<Date>) getStockOptionDao().findExpirationsByUnderlyingAndDate(StockOptionDao.TRANSFORM_NONE, underlying.getId(), date);
+            List<Date> expirationDates = getStockOptionDao().findExpirationsByUnderlyingAndDate(underlying.getId(), date);
 
             // only consider the next two expiration dates
             if (expirationDates.size() > 2) {

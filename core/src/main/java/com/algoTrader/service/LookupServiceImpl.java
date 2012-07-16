@@ -17,8 +17,6 @@ import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionDao;
 import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.marketData.TickDao;
-import com.algoTrader.entity.marketData.TickDaoBase;
 import com.algoTrader.entity.security.Combination;
 import com.algoTrader.entity.security.Component;
 import com.algoTrader.entity.security.Future;
@@ -28,7 +26,6 @@ import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.entity.strategy.CashBalance;
-import com.algoTrader.entity.strategy.CashBalanceDao;
 import com.algoTrader.entity.strategy.Measurement;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
@@ -533,7 +530,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<Tick> handleGetDailyTicksBeforeTime(int securityId, Date maxDate, Date time) {
 
-        List<Integer> ids = (List<Integer>) getTickDao().findDailyTickIdsBeforeTime(TickDao.TRANSFORM_NONE, securityId, maxDate, time);
+        List<Integer> ids = getTickDao().findDailyTickIdsBeforeTime(securityId, maxDate, time);
         if (ids.size() > 0) {
             return getTickDao().findByIdsInclSecurityAndUnderlying(ids);
         } else {
@@ -544,7 +541,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<Tick> handleGetDailyTicksAfterTime(int securityId, Date maxDate, Date time) {
 
-        List<Integer> ids = (List<Integer>) getTickDao().findDailyTickIdsAfterTime(TickDao.TRANSFORM_NONE, securityId, maxDate, time);
+        List<Integer> ids = getTickDao().findDailyTickIdsAfterTime(securityId, maxDate, time);
         if (ids.size() > 0) {
             return getTickDao().findByIdsInclSecurityAndUnderlying(ids);
         } else {
@@ -555,7 +552,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<Bar> handleGetDailyBarsFromTicks(int securityId, Date fromDate, Date toDate) {
 
-        return (List<Bar>) getTickDao().findDailyBars(TickDaoBase.TRANSFORM_NONE, securityId, fromDate, toDate);
+        return getTickDao().findDailyBars(securityId, fromDate, toDate);
     }
 
     @Override
@@ -602,9 +599,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Currency> handleGetHeldCurrencies() throws Exception {
+    protected Collection<Currency> handleGetHeldCurrencies() throws Exception {
 
-        return (List<Currency>) getCashBalanceDao().findHeldCurrencies(CashBalanceDao.TRANSFORM_NONE);
+        return getCashBalanceDao().findHeldCurrencies();
     }
 
     @Override
