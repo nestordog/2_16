@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/algotrader-client"/>
+<listEntry value="/algotrader-client/src/main/java/sun/tools/jconsole/JConsole.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="4"/>
+<listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_DATA_COLLECTOR" value="org.eclipse.tptp.trace.jvmti.jvmtiMechanism:org.eclipse.tptp.analysisType.jvmti.execution"/>
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_DESTINATION_FILE" value=""/>

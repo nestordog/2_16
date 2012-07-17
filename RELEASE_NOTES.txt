@@ -58,7 +58,7 @@ MBean Annotations
 SecurityFamily TickSizePattern
 Measurement & MeasurementService
 
-1.9 (R4883)
+1.9 (R4913)
 SyntheticSecurities (Combinations / SyntheticIndices)
 AlgoTraderSSHClient
 PropertyService / PropertyHolder / Property
@@ -66,4 +66,9 @@ improve Hibernate Sessions Handling / Caching
 Metrics Logging
 PortfolioService
 General performance optimizations
+
+1.10 (R5139)
+GenericEvents
+update Charting Functionality (add Indicators & Bars)
+JMX over SSL
 
