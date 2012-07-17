@@ -287,14 +287,14 @@ public class PositionServiceImpl extends PositionServiceBase {
             Position position = getPositionDao().findBySecurityAndStrategy(summary.getSecurityId(), summary.getStrategyName());
             if (position == null) {
 
-                logger.error("position on security " + summary.getSecurityId() + " strategy " + summary.getStrategyName() + " quantity " + summary.getQuantity() + " does not exist");
+                logger.warn("position on security " + summary.getSecurityId() + " strategy " + summary.getStrategyName() + " quantity " + summary.getQuantity() + " does not exist");
 
             } else if (position.getQuantity() != summary.getQuantity()) {
 
                 long existingQty = position.getQuantity();
                 position.setQuantity(summary.getQuantity());
 
-                logger.error("adjusted quantity of position " + position.getId() + " from " + existingQty + " to " + summary.getQuantity());
+                logger.warn("adjusted quantity of position " + position.getId() + " from " + existingQty + " to " + summary.getQuantity());
             }
         }
 
@@ -310,7 +310,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             });
 
             if (summary == null) {
-                logger.error("position " + position.getId() + " not found in transactions");
+                logger.warn("position " + position.getId() + " not found in transactions");
             }
         }
     }

@@ -108,9 +108,6 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
                     cashBalance.setAmount(amount);
 
                     logger.info("adjusted cashBalance: " + cashBalance + " from: " + oldAmount);
-                } else {
-
-                    logger.info("no change on cashBalance: " + cashBalance);
                 }
 
             } else {
