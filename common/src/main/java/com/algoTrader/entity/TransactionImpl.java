@@ -81,7 +81,7 @@ public class TransactionImpl extends Transaction {
             return getType()
                 + " " + getQuantity()
                 + " " + getSecurity()
-                + " price " + getPrice() + " " + getCurrency()
+                + " price: " + getPrice() + " " + getCurrency()
                 + " commission: " + getCommission()
                 + " strategy: " + getStrategy();
             //@formatter:on
