@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <mappings name="SpringMerge">
 
+        <!--  generate Hibernate.hbm.xml into applicationContext.xml -->
+        <mapping>
+            <from><![CDATA[<!-- applicationContext hibernateMappingLocations merge-point -->]]></from>
+            <to><![CDATA[<value>classpath:META-INF/Hibernate.hbm.xml</value>]]></to>
+        </mapping>
+
         <!--  generate SpringServiceLocator into outlet service-interfaces -->
         <mapping>
             <from><![CDATA[<template
