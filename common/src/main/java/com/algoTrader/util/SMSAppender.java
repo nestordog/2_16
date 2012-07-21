@@ -79,11 +79,6 @@ public class SMSAppender extends SMTPAppender {
             try {
                 StringBuffer sbuf = new StringBuffer();
 
-                String header = this.layout.getHeader();
-                if (header != null) {
-                    sbuf.append(header);
-                }
-
                 LoggingEvent event = this.cb.get();
 
                 String ex = null;
@@ -95,11 +90,13 @@ public class SMSAppender extends SMTPAppender {
                 }
 
                 String m = this.layout.format(event).trim();
-                sbuf.append(ex != null & !"".equals(ex) && m != null && !"".equals(m) ? ex + " / " + m : ex + m);
 
-                String footer = this.layout.getFooter();
-                if (footer != null) {
-                    sbuf.append(footer);
+                if (ex != null & !"".equals(ex) && m != null && !"".equals(m)) {
+                    sbuf.append(ex + " / " + m);
+                } else if (ex != null & !"".equals(ex)) {
+                    sbuf.append(ex);
+                } else if (m != null & !"".equals(m)) {
+                    sbuf.append(m);
                 }
 
                 String content = sbuf.toString();

@@ -64,7 +64,7 @@
         <param name="TimeFrame" value="60" />
         <param name="MaxEMails" value="3" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value=" " />
+            <param name="ConversionPattern" value="%m" />
         </layout>
     </appender>
 
@@ -156,11 +156,11 @@
         <level value="error" />
     </logger>
 
-    <logger name="com.algoTrader.service.TransactionServiceImpl.MAIL" additivity="false">
+    <logger name="com.algoTrader.service.TransactionServiceImpl.MAIL">
         <appender-ref ref="TRANSACTION_EMAIL" />
     </logger>
 
-    <logger name="com.algoTrader.service.OrderServiceImpl.MAIL" additivity="false">
+    <logger name="com.algoTrader.service.OrderServiceImpl.MAIL">
         <appender-ref ref="ORDER_EMAIL" />
     </logger>
 
