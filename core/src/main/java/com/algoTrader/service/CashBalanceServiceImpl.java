@@ -21,6 +21,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
     private static Logger logger = MyLogger.getLogger(CashBalanceServiceImpl.class.getName());
 
     private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private @Value("${misc.portfolioDigits}") int portfolioDigits;
 
     @Override
     protected void handleProcessTransaction(Transaction transaction) throws Exception {
@@ -94,7 +95,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
             Strategy strategy = entry.getKey().getFirst();
             Currency currency = entry.getKey().getSecond();
-            BigDecimal amount = entry.getValue();
+            BigDecimal amount = entry.getValue().setScale(this.portfolioDigits, BigDecimal.ROUND_HALF_UP);
 
             CashBalance cashBalance = getCashBalanceDao().findByStrategyAndCurrency(strategy, currency);
 
