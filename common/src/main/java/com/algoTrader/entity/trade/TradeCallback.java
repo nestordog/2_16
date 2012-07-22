@@ -28,19 +28,21 @@ public abstract class TradeCallback {
             }
         }));
 
+        String owningStrategyName = orderStati[0].getParentOrder().getStrategy().getName();
+
         // get the statement alias based on all security ids
-        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_");
+        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_") + "_" + owningStrategyName;
 
         // undeploy the statement
         EsperManager.undeployStatement(strategyName, alias);
 
         long startTime = System.currentTimeMillis();
-        logger.debug("onTradeCompleted start " + sortedSecurityIds);
+        logger.debug("onTradeCompleted start " + sortedSecurityIds + " " + owningStrategyName);
 
         // call orderCompleted
         onTradeCompleted(orderStatusList);
 
-        logger.debug("onTradeCompleted end " + sortedSecurityIds + " (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+        logger.debug("onTradeCompleted end " + sortedSecurityIds + " " + owningStrategyName + " (" + (System.currentTimeMillis() - startTime) + "ms execution)");
     }
 
     public abstract void onTradeCompleted(List<OrderStatus> orderStatus) throws Exception;

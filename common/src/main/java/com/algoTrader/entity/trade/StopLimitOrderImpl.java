@@ -7,6 +7,6 @@ public class StopLimitOrderImpl extends StopLimitOrder {
     @Override
     public String toString() {
 
-        return super.toString() + " stop " + getStop() + " limit " + getLimit();
+        return super.toString() + " stop: " + getStop() + " limit: " + getLimit();
     }
 }

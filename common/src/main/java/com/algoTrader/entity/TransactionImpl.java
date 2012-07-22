@@ -75,7 +75,7 @@ public class TransactionImpl extends Transaction {
     @Override
     public String toString() {
 
-        if (TransactionType.BUY.equals(getType()) || TransactionType.SELL.equals(getType())) {
+        if (TransactionType.BUY.equals(getType()) || TransactionType.SELL.equals(getType()) || TransactionType.EXPIRATION.equals(getType()) ) {
 
             //@formatter:off
             return getType()
@@ -90,7 +90,7 @@ public class TransactionImpl extends Transaction {
 
             //@formatter:off
             return getType()
-                + " amount " + getPrice() + " " + getCurrency()
+                + " amount: " + (getQuantity() < 0 ? "-" : "") + getPrice()+ " " + getCurrency()
                 + " strategy: " + getStrategy()
                 + (getDescription() != null ? " " + getDescription() : "");
             //@formatter:on

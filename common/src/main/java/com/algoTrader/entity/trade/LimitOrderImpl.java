@@ -7,6 +7,6 @@ public class LimitOrderImpl extends LimitOrder {
     @Override
     public String toString() {
 
-        return super.toString() + " limit " + getLimit();
+        return super.toString() + " limit: " + getLimit();
     }
 }

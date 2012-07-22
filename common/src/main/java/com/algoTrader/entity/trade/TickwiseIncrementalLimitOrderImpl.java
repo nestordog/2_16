@@ -21,9 +21,9 @@ public class TickwiseIncrementalLimitOrderImpl extends TickwiseIncrementalLimitO
 
         //@formatter:off
         return super.toString() +
-            " startLimit " + getStartLimit() +
-            " endLimit " + getEndLimit() +
-            " currentLimit " + getLimit();
+            " startLimit: " + getStartLimit() +
+            " endLimit: " + getEndLimit() +
+            " currentLimit: " + getLimit();
         //@formatter:on
     }
 

@@ -23,10 +23,10 @@ public class VariableIncrementalLimitOrderImpl extends VariableIncrementalLimitO
 
         //@formatter:off
         return super.toString() +
-            " startLimit " + getStartLimit() +
-            " endLimit " + getEndLimit() +
-            " currentLimit " + getLimit() +
-            " increment " + RoundUtil.getBigDecimal(getIncrement(), getSecurity().getSecurityFamily().getScale() + 1);
+            " startLimit: " + getStartLimit() +
+            " endLimit: " + getEndLimit() +
+            " currentLimit: " + getLimit() +
+            " increment: " + RoundUtil.getBigDecimal(getIncrement(), getSecurity().getSecurityFamily().getScale() + 1);
         //@formatter:on
     }
 

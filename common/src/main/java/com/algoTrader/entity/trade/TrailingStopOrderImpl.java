@@ -7,6 +7,6 @@ public class TrailingStopOrderImpl extends TrailingStopOrder {
     @Override
     public String toString() {
 
-        return super.toString() + " trailingAmount " + getTrailingAmount();
+        return super.toString() + " trailingAmount: " + getTrailingAmount();
     }
 }

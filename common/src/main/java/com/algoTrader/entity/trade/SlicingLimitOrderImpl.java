@@ -64,11 +64,11 @@ public class SlicingLimitOrderImpl extends SlicingLimitOrder {
 
         //@formatter:off
         return super.toString() +
-            " totalQuantity " + getTotalQuantity() +
-            " lotQuantity " + getLotQuantity() +
-            " filledQuantity " + getFilledQuantity() +
-            " currentOffsetTicks " + getCurrentOffsetTicks() +
-            " currentLimit " + getLimit();
+            " totalQuantity: " + getTotalQuantity() +
+            " lotQuantity: " + getLotQuantity() +
+            " filledQuantity: " + getFilledQuantity() +
+            " currentOffsetTicks: " + getCurrentOffsetTicks() +
+            " currentLimit: " + getLimit();
         //@formatter:on
     }
 }

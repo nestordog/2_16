@@ -106,7 +106,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         orderStatus.setParentOrder(order);
 
         // send the orderStatus to base
-        EsperManager.routeEvent(StrategyImpl.BASE, orderStatus);
+        EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
 
         // propagate the OrderStatus to the strategy
         propagateOrderStatus(orderStatus);
@@ -148,7 +148,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
         // also send the order to the strategy that placed the order
         if (!StrategyImpl.BASE.equals(order.getStrategy().getName())) {
-            EsperManager.routeEvent(order.getStrategy().getName(), order);
+            EsperManager.sendEvent(order.getStrategy().getName(), order);
         }
     }
 
@@ -157,7 +157,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
         // send the fill to the strategy that placed the corresponding order
         if (!StrategyImpl.BASE.equals(orderStatus.getParentOrder().getStrategy().getName())) {
-            EsperManager.routeEvent(orderStatus.getParentOrder().getStrategy().getName(), orderStatus);
+            EsperManager.sendEvent(orderStatus.getParentOrder().getStrategy().getName(), orderStatus);
         }
 
         if (!this.simulation) {

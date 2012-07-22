@@ -11,12 +11,13 @@ public class FillImpl extends Fill {
     public String toString() {
 
         //@formatter:off
-        return format.format(getDateTime()) + " " +
-            getSide() + " " +
-            getQuantity() + " " +
-            getParentOrder().getSecurity() +
-            " price " + getPrice() + " " + getParentOrder().getSecurity().getSecurityFamily().getCurrency() +
-            " extId " + getExtId();
+        return format.format(getDateTime())
+            + " " + getSide()
+            + " " + getQuantity()
+            + " " + getParentOrder().getSecurity()
+            + " " + getParentOrder().getStrategy()
+            + " price: " + getPrice() + " " + getParentOrder().getSecurity().getSecurityFamily().getCurrency()
+            + " extId: " + getExtId();
         //@formatter:on
     }
 }

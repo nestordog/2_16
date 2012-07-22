@@ -213,7 +213,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             tradePerformance.setAvgAge(avgAge);
             tradePerformance.setWinning(profit > 0);
 
-            EsperManager.routeEvent(StrategyImpl.BASE, tradePerformance);
+            EsperManager.sendEvent(StrategyImpl.BASE, tradePerformance);
         }
 
         //@formatter:off
@@ -238,7 +238,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         // propagate the transaction to the corresponding strategy
         if (!StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
-            EsperManager.routeEvent(transaction.getStrategy().getName(), transaction);
+            EsperManager.sendEvent(transaction.getStrategy().getName(), transaction);
         }
     }
 
@@ -247,7 +247,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         // send the fill to the strategy that placed the corresponding order
         if (!StrategyImpl.BASE.equals(fill.getParentOrder().getStrategy().getName())) {
-            EsperManager.routeEvent(fill.getParentOrder().getStrategy().getName(), fill);
+            EsperManager.sendEvent(fill.getParentOrder().getStrategy().getName(), fill);
         }
 
         if (!this.simulation) {
@@ -278,9 +278,10 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             security = (Security) HibernateUtil.reattach(this.getSessionFactory(), security);
 
             //@formatter:off
-            mailLogger.info("executed transaction: " + transaction.getType() + " " +
-                    totalQuantity + " " +
-                    security +
+            mailLogger.info("executed transaction: " +
+                    transaction.getType() +
+                    " " + totalQuantity +
+                    " " + security +
                     " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) + " " + security.getSecurityFamily().getCurrency() +
                     " commission: " + totalCommission +
                     " strategy: " + transaction.getStrategy());

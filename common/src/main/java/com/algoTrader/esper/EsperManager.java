@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -102,6 +103,12 @@ public class EsperManager {
     private static Map<String, AdapterCoordinator> coordinators = new HashMap<String, AdapterCoordinator>();
     private static Map<String, Boolean> internalClock = new HashMap<String, Boolean>();
     private static Map<String, EPServiceProvider> serviceProviders = new HashMap<String, EPServiceProvider>();
+    private static ThreadLocal<Set<String>> processing = new ThreadLocal<Set<String>>() {
+        @Override
+        protected Set<String> initialValue() {
+            return new HashSet<String>();
+        }
+    };
 
     private static Map<String, JmsTemplate> templates = new HashMap<String, JmsTemplate>();
 
@@ -121,11 +128,12 @@ public class EsperManager {
 
         // must send time event before first schedule pattern
         serviceProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
+
+        serviceProviders.put(providerURI, serviceProvider);
+
         internalClock.put(strategyName, false);
 
         logger.debug("initialized service provider: " + strategyName);
-
-        serviceProviders.put(providerURI, serviceProvider);
     }
 
     public static boolean isInitialized(String strategyName) {
@@ -137,6 +145,7 @@ public class EsperManager {
 
         getServiceProvider(strategyName).destroy();
         serviceProviders.remove(getProviderURI(strategyName));
+        internalClock.remove(strategyName);
 
         logger.debug("destroyed service provider: " + strategyName);
     }
@@ -433,7 +442,7 @@ public class EsperManager {
 
                 long startTime = System.nanoTime();
 
-                getServiceProvider(strategyName).getEPRuntime().sendEvent(obj);
+                internalSendEvent(strategyName, obj);
 
                 MetricsUtil.accountEnd("EsperManager." + strategyName + "." + ClassUtils.getShortClassName(obj.getClass()), startTime);
             }
@@ -441,31 +450,26 @@ public class EsperManager {
 
             // check if it is the localStrategy
             if (StrategyUtil.getStartedStrategyName().equals(strategyName)) {
-                getServiceProvider(strategyName).getEPRuntime().sendEvent(obj);
+                internalSendEvent(strategyName, obj);
             } else {
-                sendExternalEvent(strategyName, obj);
+                externalSendEvent(strategyName, obj);
             }
         }
     }
 
-    public static void routeEvent(String strategyName, Object obj) {
+    private static void internalSendEvent(String strategyName, Object obj) {
 
-        if (simulation) {
-            if (isInitialized(strategyName)) {
-                getServiceProvider(strategyName).getEPRuntime().route(obj);
-            }
+        // if the engine is currently processing and event route the new event
+        if (processing.get().contains(strategyName)) {
+            getServiceProvider(strategyName).getEPRuntime().route(obj);
         } else {
-
-            // check if it is the localStrategy
-            if (StrategyUtil.getStartedStrategyName().equals(strategyName)) {
-                getServiceProvider(strategyName).getEPRuntime().route(obj);
-            } else {
-                sendExternalEvent(strategyName, obj);
-            }
+            processing.get().add(strategyName);
+            getServiceProvider(strategyName).getEPRuntime().sendEvent(obj);
+            processing.get().remove(strategyName);
         }
     }
 
-    private static void sendExternalEvent(String strategyName, Object obj) {
+    private static void externalSendEvent(String strategyName, Object obj) {
 
         // sent to the strateyg queue
         getTemplate("strategyTemplate").convertAndSend(strategyName + ".QUEUE", obj);
@@ -719,28 +723,32 @@ public class EsperManager {
             throw new IllegalArgumentException("at least 1 order has to be specified");
         }
 
-        // get the securityIds sorted asscending
+        // get the securityIds sorted asscending and check that all orders are from the same strategy
+        final Strategy strategy = orders.iterator().next().getStrategy();
         Set<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(orders, new Transformer<Order, Integer>() {
 
             @Override
             public Integer transform(Order order) {
+                if (!order.getStrategy().equals(strategy)) {
+                    throw new IllegalArgumentException("cannot addTradeCallback for orders of different strategies");
+                }
                 return order.getSecurity().getId();
             }
         }));
 
         if (sortedSecurityIds.size() < orders.size()) {
-            throw new IllegalArgumentException("cannot place multiple orders for the same security at the same time");
+            throw new IllegalArgumentException("cannot addTradeCallback for multiple orders on the same security");
         }
 
         // get the statement alias based on all security ids
-        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_");
+        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_") + "_" + strategy.getName();
 
         if (isDeployed(strategyName, alias)) {
 
             logger.warn(alias + " is already deployed");
         } else {
 
-            deployStatement(strategyName, "prepared", "ON_TRADE_COMPLETED", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds }, callback);
+            deployStatement(strategyName, "prepared", "ON_TRADE_COMPLETED", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds, strategy.getName() }, callback);
         }
     }
 

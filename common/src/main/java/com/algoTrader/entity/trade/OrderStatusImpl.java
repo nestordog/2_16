@@ -8,10 +8,10 @@ public class OrderStatusImpl extends OrderStatus {
     public String toString() {
 
         //@formatter:off
-        return getStatus() + " " +
-            getParentOrder().getSecurity() +
-            " filledQuantity " + getFilledQuantity() +
-            " remainingQuantity " + getRemainingQuantity();
+        return getStatus()
+            + " " + getParentOrder()
+            + " filledQuantity: " + getFilledQuantity()
+            + " remainingQuantity: " + getRemainingQuantity();
         //@formatter:on
     }
 }

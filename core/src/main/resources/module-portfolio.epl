@@ -41,7 +41,7 @@ from
 @Condition(key='statement.closePosition')
 @Priority(2)
 select
-    position.id,
+    position.id as positionId,
     false as unsubscribe
 from
     Tick as tick,
@@ -73,7 +73,11 @@ and
         from
             OpenOrderWindow
         where
-            strategy.id = position.strategy.id));
+            strategy.id = position.strategy.id))
+group by
+    position.id
+output
+    first every 5 seconds;
 
 @Name('RECONCILE')
 @Subscriber(className='com.algoTrader.service.AccountService.reconcile')

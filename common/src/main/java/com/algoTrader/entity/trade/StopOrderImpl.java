@@ -7,6 +7,6 @@ public class StopOrderImpl extends StopOrder {
     @Override
     public String toString() {
 
-        return super.toString() + " stop " + getStop();
+        return super.toString() + " stop: " + getStop();
     }
 }

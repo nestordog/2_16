@@ -120,8 +120,9 @@ public class PositionServiceImpl extends PositionServiceBase {
                             marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
                         }
                     } else {
-                        logger.error("reduction / closing of position  " + position.getId() + " did not executed fully, " + "filledQty: " + orderStatus.getFilledQuantity() + " remainingQty: "
-                                + orderStatus.getRemainingQuantity());
+                        logger.error("reduction / closing of position " + position.getId() +
+                                " did not executed fully, filledQty: " + orderStatus.getFilledQuantity() +
+                                " remainingQty: " + orderStatus.getRemainingQuantity());
                     }
                 }
             }
@@ -193,7 +194,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         getPositionDao().remove(position);
 
-        logger.info("deleted non-tradeable position on " + security + " for strategy " + position.getStrategy().getName());
+        logger.info("deleted non-tradeable position " + position.getId() + " on " + security + " for strategy " + position.getStrategy().getName());
 
         // unsubscribe if necessary
         if (unsubscribe) {
@@ -237,7 +238,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         position.setExitValue(exitValue);
 
         int scale = position.getSecurity().getSecurityFamily().getScale();
-        logger.info("set exit value " + position.getSecurity() + " to " + RoundUtil.getBigDecimal(exitValue, scale));
+        logger.info("set exit value of position " + position.getId() + " to " + RoundUtil.getBigDecimal(exitValue, scale));
 
         return position;
     }
@@ -251,7 +252,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             position.setExitValue(null);
 
-            logger.info("removed exit value of " + position.getSecurity());
+            logger.info("removed exit value of position " + positionId);
         }
 
         return position;
@@ -310,7 +311,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             });
 
             if (summary == null) {
-                logger.warn("position " + position.getId() + " not found in transactions");
+                logger.warn("position " + position.getId() + " should have qty=0");
             }
         }
     }
@@ -329,8 +330,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             double maintenanceMargin = getPortfolioService().getMaintenanceMarginDouble(position.getStrategy().getName());
 
-            logger.debug("set margin for " + security + " to " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: "
-                    + RoundUtil.getBigDecimal(maintenanceMargin));
+            logger.debug("set margin of position " + position.getId() + " to: " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + RoundUtil.getBigDecimal(maintenanceMargin));
         }
     }
 
