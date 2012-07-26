@@ -1,5 +1,5 @@
 cd %ALGOTRADER_CLIENT_HOME%
 
-mvn -U -f bin/pom.xml ^
-dependency:build-classpath ^
--Dmdep.outputFile=cp.txt
+rmdir target /s /q
+
+mvn -U -f bin/pom.xml dependency:copy-dependencies -DoutputDirectory=..\target

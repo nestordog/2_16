@@ -1,9 +1,7 @@
 cd %ALGOTRADER_CLIENT_HOME%
 
-for /f %%x in (bin\cp.txt) do (set cp=%%x)
-
 start javaw.exe ^
--classpath %cp%;^
+-classpath target\*;^
 %ALGOTRADER_CLIENT_HOME%\lib\indicator-plugin.jar;^
 %JAVA_HOME%\lib\jconsole.jar;^
 %JAVA_HOME%\lib\tools.jar ^
