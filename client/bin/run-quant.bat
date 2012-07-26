@@ -14,7 +14,9 @@ start javaw.exe ^
 sun.tools.jconsole.JConsole ^
 -interval=60 ^
 -debug ^
-quant.linardcapital.com:1099 ^
-quant.linardcapital.com:1097 ^
-vola.linardcapital.com:1099 ^
-vola.linardcapital.com:1097
+base.quant.linardcapital.com:1099 ^
+macro.quant.linardcapital.com:1097 ^
+static.quant.linardcapital.com:1095 ^
+fixed.quant.linardcapital.com:1093 ^
+atr.quant.linardcapital.com:1091 ^
+tailhedge.quant.linardcapital.com:1089
