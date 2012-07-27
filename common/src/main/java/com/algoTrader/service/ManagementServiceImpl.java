@@ -33,6 +33,7 @@ import com.algoTrader.enumeration.Side;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
+import com.algoTrader.vo.OrderVO;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.TickVO;
 import com.algoTrader.vo.TransactionVO;
@@ -217,6 +218,12 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
+    protected Collection<OrderVO> handleGetDataOrders() throws Exception {
+
+        return getLookupService().getOpenOrdersVO(StrategyUtil.getStartedStrategyName());
+    }
+
+    @Override
     protected Map<Object, Object> handleGetProperties() throws Exception {
 
         return new TreeMap<Object, Object>(getConfiguration().getProperties());
@@ -284,6 +291,12 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
         // send orders
         getOrderService().sendOrder(order);
+    }
+
+    @Override
+    protected void handleCancelOrder(long orderNumber) throws Exception {
+
+        getOrderService().cancelOrder(orderNumber);
     }
 
     @Override

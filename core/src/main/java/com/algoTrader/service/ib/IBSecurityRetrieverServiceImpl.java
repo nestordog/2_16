@@ -46,7 +46,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
     private @Value("${ib.securityRetrieverServiceEnabled}") boolean securityRetrieverServiceEnabled;
 
     private IBClient client;
-    private IBDefaultAdapter wrapper;
+    private IBDefaultMessageHandler messageHandler;
 
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
@@ -214,7 +214,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             return;
         }
 
-        this.wrapper = new IBDefaultAdapter(clientId) {
+        this.messageHandler = new IBDefaultMessageHandler(clientId) {
 
             @Override
             public void contractDetails(int reqId, ContractDetails contractDetails) {
@@ -243,7 +243,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             }
         };
 
-        this.client = new IBClient(clientId, this.wrapper);
+        this.client = new IBClient(clientId, this.messageHandler);
 
         connect();
     }
@@ -261,10 +261,10 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
     @Override
     protected ConnectionState handleGetConnectionState() {
 
-        if (this.wrapper == null) {
+        if (this.messageHandler == null) {
             return ConnectionState.DISCONNECTED;
         } else {
-            return this.wrapper.getState();
+            return this.messageHandler.getState();
         }
     }
 }

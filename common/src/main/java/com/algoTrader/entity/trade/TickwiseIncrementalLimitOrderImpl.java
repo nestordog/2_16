@@ -17,11 +17,9 @@ public class TickwiseIncrementalLimitOrderImpl extends TickwiseIncrementalLimitO
     private static @Value("${order.tickwiseIncrementalLimitOrder.endOffsetTicks}") int endOffsetTicks;
 
     @Override
-    public String toString() {
-
+    public String getDescription() {
         //@formatter:off
-        return super.toString() +
-            " startLimit: " + getStartLimit() +
+        return "startLimit: " + getStartLimit() +
             " endLimit: " + getEndLimit() +
             " currentLimit: " + getLimit();
         //@formatter:on

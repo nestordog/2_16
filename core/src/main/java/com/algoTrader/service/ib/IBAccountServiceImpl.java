@@ -70,7 +70,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     private @Value("${ib.timeDifferenceHours}") int timeDifferenceHours;
 
     private IBClient client;
-    private IBDefaultAdapter wrapper;
+    private IBDefaultMessageHandler messageHandler;
 
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
@@ -96,7 +96,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
             return;
         }
 
-        this.wrapper = new IBDefaultAdapter(clientId) {
+        this.messageHandler = new IBDefaultMessageHandler(clientId) {
 
             @Override
             public void updateAccountValue(String key, String value, String currency, String accountName) {
@@ -179,7 +179,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
             }
         };
 
-        this.client = new IBClient(clientId, this.wrapper);
+        this.client = new IBClient(clientId, this.messageHandler);
 
         connect();
     }
@@ -201,10 +201,10 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     @Override
     protected ConnectionState handleGetConnectionState() {
 
-        if (this.wrapper == null) {
+        if (this.messageHandler == null) {
             return ConnectionState.DISCONNECTED;
         } else {
-            return this.wrapper.getState();
+            return this.messageHandler.getState();
         }
     }
 

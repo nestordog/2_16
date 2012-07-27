@@ -6,9 +6,9 @@ import java.util.Date;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import com.algoTrader.entity.security.NaturalIndex;
 import com.algoTrader.entity.security.Forex;
 import com.algoTrader.entity.security.Future;
+import com.algoTrader.entity.security.NaturalIndex;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.Stock;
 import com.algoTrader.entity.security.StockOption;
@@ -18,6 +18,9 @@ import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.StopOrder;
 import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.Side;
+import com.algoTrader.enumeration.Status;
+import com.algoTrader.vo.ib.ExecDetails;
+import com.algoTrader.vo.ib.OrderStatus;
 import com.ib.client.Contract;
 
 public class IBUtil {
@@ -90,20 +93,18 @@ public class IBUtil {
 
         if (order instanceof MarketOrder) {
             return "MKT";
-        }
-        if (order instanceof StopOrder) {
-            return "STP";
-        }
-        if (order instanceof LimitOrder) {
+        } else if (order instanceof LimitOrder) {
             return "LMT";
+        } else if (order instanceof StopOrder) {
+            return "STP";
         } else {
-            return "";
+            throw new IllegalArgumentException("unsupported order type " + order.getClass().getName());
         }
     }
 
-    public static Date getExecutionDateTime(String input) throws ParseException {
+    public static Date getExecutionDateTime(ExecDetails execDetails) throws ParseException {
 
-        return executionFormat.parse(input);
+        return executionFormat.parse(execDetails.getExecution().m_time);
     }
 
     public static Date getLastDateTime(String input) {
@@ -111,14 +112,37 @@ public class IBUtil {
         return new Date(Long.parseLong(input + "000"));
     }
 
-    public static Side getSide(String sideString) {
+    public static Side getSide(ExecDetails execDetails) {
 
+        String sideString = execDetails.getExecution().m_side;
         if ("BOT".equals(sideString)) {
             return Side.BUY;
         } else if ("SLD".equals(sideString)) {
             return Side.SELL;
         } else {
             throw new IllegalArgumentException("unknow side " + sideString);
+        }
+    }
+
+    public static Status getStatus(OrderStatus orderStatus) {
+
+        if ("Submitted".equals(orderStatus.getStatus()) ||
+                "PreSubmitted".equals(orderStatus.getStatus()) ||
+                "PendingSubmit".equals(orderStatus.getStatus()) ||
+                "PendingCancel".equals(orderStatus.getStatus())) {
+            if (orderStatus.getFilled() == 0) {
+                return Status.SUBMITTED;
+            } else {
+                return Status.PARTIALLY_EXECUTED;
+            }
+        } else if ("Filled".equals(orderStatus.getStatus())) {
+            return Status.EXECUTED;
+        } else if ("ApiCancelled".equals(orderStatus.getStatus()) ||
+                "Cancelled".equals(orderStatus.getStatus()) ||
+                "Inactive".equals(orderStatus.getStatus())) {
+            return Status.CANCELED;
+        } else {
+            throw new IllegalArgumentException("unknown orderStatus " + orderStatus);
         }
     }
 }

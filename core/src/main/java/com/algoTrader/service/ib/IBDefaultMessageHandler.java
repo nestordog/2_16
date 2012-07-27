@@ -17,15 +17,15 @@ import com.ib.client.Order;
 import com.ib.client.OrderState;
 import com.ib.client.UnderComp;
 
-public class IBDefaultAdapter implements EWrapper {
+public class IBDefaultMessageHandler implements EWrapper {
 
-    private static Logger logger = MyLogger.getLogger(IBDefaultAdapter.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBDefaultMessageHandler.class.getName());
 
     private ConnectionState state = ConnectionState.DISCONNECTED;
     private boolean requested;
     private int clientId;
 
-    public IBDefaultAdapter(int clientId) {
+    public IBDefaultMessageHandler(int clientId) {
 
         this.clientId = clientId;
     }

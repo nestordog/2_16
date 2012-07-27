@@ -7,8 +7,6 @@
     </parent>
     <artifactId>algotrader-core</artifactId>
     <name>AlgoTrader Program Core</name>
-    <repositories>
-    </repositories>
     <scm>
         <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</developerConnection>
     </scm>
@@ -116,9 +114,21 @@
             <version>2.0.11</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.mina</groupId>
+            <artifactId>mina-core</artifactId>
+            <version>1.1.0</version>
+        </dependency><dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.18</version>
+        </dependency><dependency>
+            <groupId>quickfixj</groupId>
+            <artifactId>quickfixj-core</artifactId>
+            <version>1.5.2</version>
+        </dependency><dependency>
+            <groupId>quickfixj</groupId>
+            <artifactId>quickfixj-msg-fix42</artifactId>
+            <version>1.5.2</version>
         </dependency>
         <dependency>
             <groupId>org.supercsv</groupId>
@@ -153,6 +163,9 @@
             <artifactId>xmlbeans</artifactId>
             <version>2.4.0</version>
         </dependency>
+
+
+
     </dependencies>
     <properties>
         <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>

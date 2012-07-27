@@ -27,11 +27,15 @@ import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.entity.strategy.CashBalance;
 import com.algoTrader.entity.strategy.Measurement;
+import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
+import com.algoTrader.util.OrderUtil;
 import com.algoTrader.util.metric.MetricsUtil;
+import com.algoTrader.vo.OrderVO;
 import com.algoTrader.vo.PortfolioValueVO;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.RawBarVO;
@@ -511,6 +515,19 @@ public class LookupServiceImpl extends LookupServiceBase {
         } else {
             return (List<TransactionVO>) getTransactionDao().findTransactionsByStrategyDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, this.transactionDisplayCount, strategyName);
         }
+    }
+
+    @Override
+    protected Collection<OrderVO> handleGetOpenOrdersVO(String strategyName) throws Exception {
+
+        List<Order> orders;
+        if (strategyName.equals(StrategyImpl.BASE)) {
+            orders = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow");
+        } else {
+            orders = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
+        }
+
+        return OrderUtil.toOrderVOCollection(orders);
     }
 
     @Override

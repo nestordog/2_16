@@ -119,6 +119,10 @@
         <level value="warn" />
     </logger>
 
+    <logger name="quickfix">
+        <level value="warn" />
+    </logger>
+
     <logger name="com.algoTrader.esper.subscriber.PrintPortfolioValueSubscriber" additivity="false">
         <level value="info" />
         <appender-ref ref="PORTFOLIO" />

@@ -15,6 +15,7 @@ public final class IBClient extends EClientSocket {
 
     private static Logger logger = MyLogger.getLogger(IBClient.class.getName());
 
+    private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
     private static int defaultClientId = ServiceLocator.instance().getConfiguration().getInt("ib.defaultClientId"); //0
     private static int port = ServiceLocator.instance().getConfiguration().getInt("ib.port"); //7496;//
     private static String host = ServiceLocator.instance().getConfiguration().getString("ib.host"); // "127.0.0.1";
@@ -24,28 +25,37 @@ public final class IBClient extends EClientSocket {
 
     private int clientId;
 
-    public IBClient(int clientId, IBDefaultAdapter wrapper) {
+    public IBClient(int clientId, IBDefaultMessageHandler messagenHandler) {
 
-        super(wrapper);
+        super(messagenHandler);
         this.clientId = clientId;
     }
 
     public static IBClient getDefaultInstance() {
 
+        if (simulation) {
+            return null;
+        }
+
         if (instance == null) {
 
-            instance = new IBClient(defaultClientId, new IBEsperAdapter(defaultClientId));
+            instance = new IBClient(defaultClientId, new IBEsperMessageHandler(defaultClientId));
 
             instance.connect();
         }
         return instance;
     }
 
-    public IBDefaultAdapter getIbAdapter() {
-        return (IBDefaultAdapter) super.wrapper();
+    public IBDefaultMessageHandler getMessageHandler() {
+
+        return (IBDefaultMessageHandler) super.wrapper();
     }
 
     public void connect() {
+
+        if (simulation) {
+            return;
+        }
 
         if (isConnected()) {
             eDisconnect();
@@ -53,7 +63,7 @@ public final class IBClient extends EClientSocket {
             sleep();
         }
 
-        this.getIbAdapter().setRequested(false);
+        this.getMessageHandler().setRequested(false);
 
         while (!connectionAvailable()) {
             sleep();
@@ -62,7 +72,7 @@ public final class IBClient extends EClientSocket {
         eConnect(host, port, this.clientId);
 
         if (isConnected()) {
-            this.getIbAdapter().setState(ConnectionState.READY);
+            this.getMessageHandler().setState(ConnectionState.READY);
 
             // in case there is no 2104 message from the IB Gateway (Market data farm connection is OK)
             // manually invoke initSubscriptions after some time

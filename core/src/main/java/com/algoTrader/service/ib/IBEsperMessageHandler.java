@@ -46,13 +46,13 @@ import com.ib.client.Order;
 import com.ib.client.OrderState;
 import com.ib.client.UnderComp;
 
-public final class IBEsperAdapter extends IBDefaultAdapter {
+public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(IBEsperAdapter.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBEsperMessageHandler.class.getName());
 
     private List<String> orderStati = Arrays.asList(new String[] { "Submitted", "PreSubmitted", "PendingSubmit", "PendingCancel", "Filled", "ApiCancelled", "Cancelled", "Inactive" });
 
-    public IBEsperAdapter(int clientId) {
+    public IBEsperMessageHandler(int clientId) {
         super(clientId);
     }
 

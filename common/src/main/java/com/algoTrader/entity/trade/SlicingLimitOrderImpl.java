@@ -60,11 +60,9 @@ public class SlicingLimitOrderImpl extends SlicingLimitOrder {
     }
 
     @Override
-    public String toString() {
-
+    public String getDescription() {
         //@formatter:off
-        return super.toString() +
-            " totalQuantity: " + getTotalQuantity() +
+            return "totalQuantity: " + getTotalQuantity() +
             " lotQuantity: " + getLotQuantity() +
             " filledQuantity: " + getFilledQuantity() +
             " currentOffsetTicks: " + getCurrentOffsetTicks() +

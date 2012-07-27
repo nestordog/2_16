@@ -32,6 +32,7 @@ public class PositionDaoImpl extends PositionDaoBase {
 
         int scale = position.getSecurity().getSecurityFamily().getScale();
         positionVO.setName(position.getSecurity().toString());
+        positionVO.setStrategyName(position.getStrategy().getName());
         positionVO.setCurrency(position.getSecurity().getSecurityFamily().getCurrency());
         positionVO.setMarketPrice(RoundUtil.getBigDecimal(position.getMarketPriceDouble(), scale));
         positionVO.setMarketValue(RoundUtil.getBigDecimal(position.getMarketValueDouble()));

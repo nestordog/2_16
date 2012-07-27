@@ -27,19 +27,15 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
     private @Value("${ib.genericTickList}") String genericTickList;
 
     @Override
-    public void handleInit() throws Exception {
+    protected void handleInit() throws Exception {
 
-        if (!this.simulation) {
-            client = IBClient.getDefaultInstance();
-        }
+        client = IBClient.getDefaultInstance();
     }
 
     @Override
     protected void handleConnect() {
 
-        if (!this.simulation) {
-            client.connect();
-        }
+        client.connect();
     }
 
     @Override
@@ -48,7 +44,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
         if (client == null) {
             return ConnectionState.DISCONNECTED;
         } else {
-            return client.getIbAdapter().getState();
+            return client.getMessageHandler().getState();
         }
     }
 
@@ -56,11 +52,11 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
     protected void handleInitSubscriptions() {
 
         if (client != null
-                && (client.getIbAdapter().getState().equals(ConnectionState.READY) || client.getIbAdapter().getState().equals(ConnectionState.SUBSCRIBED))
-                && !client.getIbAdapter().isRequested() && !this.simulation) {
+                && (client.getMessageHandler().getState().equals(ConnectionState.READY) || client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED))
+                && !client.getMessageHandler().isRequested() && !this.simulation) {
 
-            client.getIbAdapter().setRequested(true);
-            client.getIbAdapter().setState(ConnectionState.SUBSCRIBED);
+            client.getMessageHandler().setRequested(true);
+            client.getMessageHandler().setState(ConnectionState.SUBSCRIBED);
 
             super.handleInitSubscriptions();
         }
@@ -69,7 +65,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
     @Override
     protected void handleExternalSubscribe(Security security) throws Exception {
 
-        if (!client.getIbAdapter().getState().equals(ConnectionState.READY) && !client.getIbAdapter().getState().equals(ConnectionState.SUBSCRIBED)) {
+        if (!client.getMessageHandler().getState().equals(ConnectionState.READY) && !client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED)) {
             throw new IBMarketDataServiceException("IB is not ready for market data subscription on " + security);
         }
 
@@ -96,7 +92,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
     @Override
     protected void handleExternalUnsubscribe(Security security) throws Exception {
 
-        if (!client.getIbAdapter().getState().equals(ConnectionState.SUBSCRIBED)) {
+        if (!client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED)) {
             throw new IBMarketDataServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
         }
 

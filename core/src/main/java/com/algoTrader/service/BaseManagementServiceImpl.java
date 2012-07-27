@@ -5,9 +5,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Currency;
+import com.algoTrader.enumeration.Status;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.service.ib.IBServiceManager;
 import com.algoTrader.util.RoundUtil;
 
@@ -20,15 +24,15 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     }
 
     @Override
-    protected void handleCloseCombination(int combinationId, String strategyName) throws Exception {
-
-        getCombinationService().closeCombination(combinationId, strategyName);
-    }
-
-    @Override
     protected void handleReducePosition(int positionId, int quantity) throws Exception {
 
         getPositionService().reducePosition(positionId, quantity);
+    }
+
+    @Override
+    protected void handleCancelAllOrders() throws Exception {
+
+        getOrderService().cancelAllOrders();
     }
 
     @Override
@@ -99,6 +103,15 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     protected void handleResetComponentWindow() throws Exception {
 
         getCombinationService().resetComponentWindow();
+    }
+
+    @Override
+    protected void handleEmptyOpenOrderWindow() throws Exception {
+
+        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+        orderStatus.setStatus(Status.CANCELED);
+
+        EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
     }
 
     @Override

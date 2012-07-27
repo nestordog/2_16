@@ -1,6 +1,6 @@
 @Name('OPEN_ORDER_WINDOW')
 create
-    window OpenOrderWindow.win:keepall()
+    window OpenOrderWindow.std:groupwin(security.id, strategy.id).std:lastevent()
 as
     GenericOrder;
 
@@ -20,6 +20,8 @@ on
 delete from
     OpenOrderWindow as openOrderWindow
 where
+    orderStatus.parentOrder is null
+or
     orderStatus.parentOrder.number = openOrderWindow.number;
 
 @Name('LOG_TRANSACTION_SUMMARY')

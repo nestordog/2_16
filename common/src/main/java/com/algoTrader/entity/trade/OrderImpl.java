@@ -15,7 +15,8 @@ public abstract class OrderImpl extends Order {
             + " " + ClassUtils.getShortClassName(this.getClass())
             + " " + getSecurity()
             + " " + getStrategy()
-            + " number: " + getNumber();
+            + " number: " + getNumber()
+            + (!"".equals(getDescription()) ? " " + getDescription() : "");
         //@formatter:on
     }
 

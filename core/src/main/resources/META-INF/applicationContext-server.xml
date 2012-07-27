@@ -25,12 +25,16 @@
 
     <!-- =================================== Broker Interfaces  ========================================= -->
 
-    <!-- Interactive Broker Aliases -->
-    <alias name="iBMarketDataService" alias="marketDataService"/>
+    <!-- Interactive Broker -->
     <alias name="iBOrderService" alias="orderService"/>
-    <alias name="iBStockOptionRetrieverService" alias="stockOptionRetrieverService"/>
+    <alias name="iBMarketDataService" alias="marketDataService"/>
+    <alias name="iBSecurityRetrieverService" alias="securityRetrieverService"/>
     <alias name="iBAccountService" alias="accountService"/>
     <alias name="iBHistoricalDataService" alias="historicalDataService"/>
+
+    <!-- FIX -->
+<!--     <alias name="fixOrderService" alias="orderService"/> -->
+<!--     <bean id="fixClient" class="com.algoTrader.service.fix.FixClient"/> -->
 
     <!-- =========================================== JMX ================================================ -->
 

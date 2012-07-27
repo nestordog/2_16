@@ -539,6 +539,19 @@ public class EsperManager {
         return objects;
     }
 
+    @SuppressWarnings("unchecked")
+    public static Object executeSingelObjectQuery(String strategyName, String query) {
+
+        List<Order> events = executeQuery(StrategyImpl.BASE, query);
+        if (events.size() == 0) {
+            return null;
+        } else if (events.size() == 1) {
+            return events.get(0);
+        } else {
+            throw new IllegalArgumentException("query returned more than one object");
+        }
+    }
+
     public static Object getLastEvent(String strategyName, String statementName) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);

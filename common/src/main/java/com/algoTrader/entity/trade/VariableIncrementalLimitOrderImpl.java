@@ -19,11 +19,9 @@ public class VariableIncrementalLimitOrderImpl extends VariableIncrementalLimitO
     private static @Value("${order.variableIncrementalLimitOrder.spreadPositionIncrement}") double spreadPositionIncrement;
 
     @Override
-    public String toString() {
-
+    public String getDescription() {
         //@formatter:off
-        return super.toString() +
-            " startLimit: " + getStartLimit() +
+            return "startLimit: " + getStartLimit() +
             " endLimit: " + getEndLimit() +
             " currentLimit: " + getLimit() +
             " increment: " + RoundUtil.getBigDecimal(getIncrement(), getSecurity().getSecurityFamily().getScale() + 1);

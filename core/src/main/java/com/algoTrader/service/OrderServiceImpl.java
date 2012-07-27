@@ -47,6 +47,14 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         order.setSecurity((Security) HibernateUtil.reattach(this.getSessionFactory(), order.getSecurity()));
         order.setStrategy((Strategy) HibernateUtil.reattach(this.getSessionFactory(), order.getStrategy()));
 
+        // make sure there is no order for the same security / strategy
+        if (EsperManager.executeQuery(StrategyImpl.BASE,
+                "select * from OpenOrderWindow " +
+                "where security.id = " + order.getSecurity().getId() +
+                " and strategy.id = " + order.getStrategy().getId()).size() > 0) {
+            throw new OrderServiceException("existing order for " + order.getSecurity() + " strategy " + order.getStrategy());
+        }
+
         // validate the order before sending it
         validateOrder(order);
 
@@ -118,11 +126,22 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         cancelExternalOrder(order);
     }
 
+    @Override
+    protected void handleCancelOrder(long orderNumber) throws Exception {
+
+        Order order = (Order) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where number = " + orderNumber);
+        if (order != null) {
+            cancelExternalOrder(order);
+        } else {
+            throw new IllegalArgumentException("order does not exist " + orderNumber);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     protected void handleCancelAllOrders() throws Exception {
 
-        List<Order> orders = EsperManager.getAllEvents(StrategyImpl.BASE, "OPEN_ORDER_WINDOW");
+        List<Order> orders = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow");
         for (Order order : orders) {
             cancelExternalOrder(order);
         }
@@ -156,12 +175,11 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     protected void handlePropagateOrderStatus(OrderStatus orderStatus) throws Exception {
 
         // send the fill to the strategy that placed the corresponding order
-        if (!StrategyImpl.BASE.equals(orderStatus.getParentOrder().getStrategy().getName())) {
+        if (orderStatus.getParentOrder() != null && !StrategyImpl.BASE.equals(orderStatus.getParentOrder().getStrategy().getName())) {
             EsperManager.sendEvent(orderStatus.getParentOrder().getStrategy().getName(), orderStatus);
-        }
-
-        if (!this.simulation) {
-            logger.debug("propagated orderStatus: " + orderStatus);
+            if (!this.simulation) {
+                logger.debug("propagated orderStatus: " + orderStatus);
+            }
         }
     }
 }

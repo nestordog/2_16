@@ -36,7 +36,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
     private @Value("${ib.historicalDataTimeout}") int historicalDataTimeout;
 
     private IBClient client;
-    private IBDefaultAdapter wrapper;
+    private IBDefaultMessageHandler messageHandler;
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
 
@@ -52,7 +52,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
             return;
         }
 
-        this.wrapper = new IBDefaultAdapter(clientId) {
+        this.messageHandler = new IBDefaultMessageHandler(clientId) {
 
             @Override
             public void historicalData(int requestId, String dateString, double open, double high, double low, double close, int volume, int count, double WAP,
@@ -153,7 +153,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
             }
         };
 
-        this.client = new IBClient(clientId, this.wrapper);
+        this.client = new IBClient(clientId, this.messageHandler);
 
         connect();
     }
@@ -258,10 +258,10 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
     @Override
     protected ConnectionState handleGetConnectionState() {
 
-        if (this.wrapper == null) {
+        if (this.messageHandler == null) {
             return ConnectionState.DISCONNECTED;
         } else {
-            return this.wrapper.getState();
+            return this.messageHandler.getState();
         }
     }
 
