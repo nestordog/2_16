@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.BarType;
-import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Period;
 import com.algoTrader.service.HistoricalDataServiceException;
 import com.algoTrader.util.MyLogger;
@@ -115,7 +114,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
 
                 super.connectionClosed();
 
-                connect();
+                IBHistoricalDataServiceImpl.this.client.connect();
             }
 
             @Override
@@ -153,17 +152,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
             }
         };
 
-        this.client = new IBClient(clientId, this.messageHandler);
-
-        connect();
-    }
-
-    @Override
-    protected void handleConnect() {
-
-        if (!this.ibEnabled || this.simulation || !this.historicalDataServiceEnabled) {
-            return;
-        }
+        this.client = getIBClientFactory().getClient(clientId, this.messageHandler);
 
         this.success = false;
 
@@ -184,7 +173,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
         try {
 
             Contract contract = IBUtil.getContract(security);
-            int requestId = RequestIDGenerator.singleton().getNextRequestId();
+            int requestId = IBIdGenerator.getInstance().getNextRequestId();
             String dateString = dateTimeFormat.format(endDate);
 
             String durationString = duration + " ";
@@ -253,16 +242,6 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
         }
 
         return this.barList;
-    }
-
-    @Override
-    protected ConnectionState handleGetConnectionState() {
-
-        if (this.messageHandler == null) {
-            return ConnectionState.DISCONNECTED;
-        } else {
-            return this.messageHandler.getState();
-        }
     }
 
     @Override

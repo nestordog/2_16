@@ -2,6 +2,7 @@ package com.algoTrader.service.ib;
 
 import org.apache.log4j.Logger;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.MyLogger;
@@ -57,7 +58,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
         super.connectionClosed();
 
         //if connection gets closed, try to reconnect
-        IBClient.getDefaultInstance().connect();
+        ServiceLocator.instance().getService("iBClientFactory", IBClientFactory.class).getDefaultClient().connect();
         logger.debug(EWrapperMsgGenerator.connectionClosed());
     }
 

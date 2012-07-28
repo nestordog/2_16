@@ -3,16 +3,13 @@ package com.algoTrader.service;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.trade.OrderStatus;
-import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.esper.EsperManager;
-import com.algoTrader.service.ib.IBServiceManager;
 import com.algoTrader.util.RoundUtil;
 
 public class BaseManagementServiceImpl extends BaseManagementServiceBase {
@@ -85,18 +82,6 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
         getPositionService().resetPositions();
 
         getCashBalanceService().resetCashBalances();
-    }
-
-    @Override
-    protected void handleReconnectIB() throws Exception {
-
-        IBServiceManager.connect();
-    }
-
-    @Override
-    protected Map<String, ConnectionState> handleGetAllConnectionStates() {
-
-        return IBServiceManager.getAllConnectionStates();
     }
 
     @Override

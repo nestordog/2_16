@@ -29,30 +29,14 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
     @Override
     protected void handleInit() throws Exception {
 
-        client = IBClient.getDefaultInstance();
-    }
-
-    @Override
-    protected void handleConnect() {
-
-        client.connect();
-    }
-
-    @Override
-    protected ConnectionState handleGetConnectionState() {
-
-        if (client == null) {
-            return ConnectionState.DISCONNECTED;
-        } else {
-            return client.getMessageHandler().getState();
-        }
+        client = getIBClientFactory().getDefaultClient();
     }
 
     @Override
     protected void handleInitSubscriptions() {
 
         if (client != null
-                && (client.getMessageHandler().getState().equals(ConnectionState.READY) || client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED))
+                && (client.getMessageHandler().getState().equals(ConnectionState.LOGGED_ON) || client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED))
                 && !client.getMessageHandler().isRequested() && !this.simulation) {
 
             client.getMessageHandler().setRequested(true);
@@ -65,12 +49,12 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
     @Override
     protected void handleExternalSubscribe(Security security) throws Exception {
 
-        if (!client.getMessageHandler().getState().equals(ConnectionState.READY) && !client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED)) {
+        if (!client.getMessageHandler().getState().equals(ConnectionState.LOGGED_ON) && !client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED)) {
             throw new IBMarketDataServiceException("IB is not ready for market data subscription on " + security);
         }
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
-        int tickerId = RequestIDGenerator.singleton().getNextRequestId();
+        int tickerId = IBIdGenerator.getInstance().getNextRequestId();
         Tick tick = Tick.Factory.newInstance();
         tick.setSecurity(security);
 

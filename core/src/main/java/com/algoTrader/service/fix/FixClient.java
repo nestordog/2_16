@@ -1,11 +1,17 @@
 package com.algoTrader.service.fix;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.quickfixj.jmx.JmxExporter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
+import org.springframework.jmx.export.annotation.ManagedResource;
 
 import quickfix.CompositeLogFactory;
 import quickfix.DefaultMessageFactory;
@@ -24,8 +30,10 @@ import quickfix.SessionNotFound;
 import quickfix.SessionSettings;
 import quickfix.SocketInitiator;
 
+import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.util.MyLogger;
 
+@ManagedResource(objectName = "com.algoTrader.fix:name=FixClient")
 public class FixClient implements InitializingBean {
 
     private static Logger logger = MyLogger.getLogger(FixClient.class.getName());
@@ -66,6 +74,8 @@ public class FixClient implements InitializingBean {
         }
     }
 
+    @ManagedOperation
+    @ManagedOperationParameters({})
     public synchronized void logon() {
 
         if (!this.initiatorStarted) {
@@ -82,6 +92,8 @@ public class FixClient implements InitializingBean {
         }
     }
 
+    @ManagedOperation
+    @ManagedOperationParameters({})
     public void logout() {
 
         for (SessionID sessionId : this.initiator.getSessions()) {
@@ -89,6 +101,20 @@ public class FixClient implements InitializingBean {
         }
     }
 
+    @ManagedAttribute
+    public Map<String, ConnectionState> getConnectionStates() {
+
+        Map<String, ConnectionState> connectionStates = new HashMap<String, ConnectionState>();
+        for (SessionID sessionId : this.initiator.getSessions()) {
+            Session session = Session.lookupSession(sessionId);
+            if (session.isLoggedOn()) {
+                connectionStates.put(sessionId.getSessionQualifier(), ConnectionState.LOGGED_ON);
+            } else {
+                connectionStates.put(sessionId.getSessionQualifier(), ConnectionState.DISCONNECTED);
+            }
+        }
+        return connectionStates;
+    }
 
     public void sendMessage(Message message, String qualifier) throws SessionNotFound {
 

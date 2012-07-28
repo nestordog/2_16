@@ -49,7 +49,7 @@ public class FixOrderServiceImpl extends FixOrderServiceBase {
     protected void handleSendExternalOrder(Order order) throws Exception {
 
         // use system time for orderNumber
-        order.setNumber(System.currentTimeMillis());
+        order.setNumber(FixIdGenerator.getInstance().getNextOrderId());
 
         NewOrderSingle newOrder = new NewOrderSingle();
         Security security = order.getSecurity();
@@ -123,7 +123,7 @@ public class FixOrderServiceImpl extends FixOrderServiceBase {
 
         // assign a new order number
         long origNumber = order.getNumber();
-        order.setNumber(System.currentTimeMillis());
+        order.setNumber(FixIdGenerator.getInstance().getNextOrderId());
 
         OrderCancelReplaceRequest replaceRequest = new OrderCancelReplaceRequest();
 
@@ -162,7 +162,7 @@ public class FixOrderServiceImpl extends FixOrderServiceBase {
         OrderCancelRequest cancelRequest = new OrderCancelRequest();
 
         // common info
-        cancelRequest.set(new ClOrdID(String.valueOf(System.currentTimeMillis())));
+        cancelRequest.set(new ClOrdID(String.valueOf(FixIdGenerator.getInstance().getNextOrderId())));
         cancelRequest.set(new OrigClOrdID(String.valueOf(order.getNumber())));
 
         cancelRequest.set(FixUtil.getFixSymbol(order.getSecurity()));

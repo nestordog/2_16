@@ -16,8 +16,10 @@ import com.ib.client.Contract;
 public class IBOrderServiceImpl extends IBOrderServiceBase {
 
     private static final long serialVersionUID = -7426452967133280762L;
-    private static IBClient client;
+
     private static Logger logger = MyLogger.getLogger(IBOrderServiceImpl.class.getName());
+
+    private static IBClient client;
 
     private @Value("${ib.faEnabled}") boolean faEnabled;
     private @Value("${ib.faAccount}") String faAccount;
@@ -28,23 +30,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     @Override
     protected void handleInit() throws Exception {
 
-        client = IBClient.getDefaultInstance();
-    }
-
-    @Override
-    protected void handleConnect() {
-
-        client.connect();
-    }
-
-    @Override
-    protected ConnectionState handleGetConnectionState() {
-
-        if (client == null) {
-            return ConnectionState.DISCONNECTED;
-        } else {
-            return client.getMessageHandler().getState();
-        }
+        client = getIBClientFactory().getDefaultClient();
     }
 
     @Override
@@ -64,7 +50,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     @Override
     protected void handleSendExternalOrder(Order order) throws Exception {
 
-        int orderNumber = RequestIDGenerator.singleton().getNextOrderId();
+        int orderNumber = IBIdGenerator.getInstance().getNextOrderId();
         order.setNumber(orderNumber);
         sendOrModifyOrder(order);
     }
@@ -78,7 +64,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     @Override
     protected void handleCancelExternalOrder(Order order) throws Exception {
 
-        if (!(client.getMessageHandler().getState().equals(ConnectionState.READY) || client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED))) {
+        if (!(client.getMessageHandler().getState().equals(ConnectionState.LOGGED_ON) || client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED))) {
             logger.error("transaction cannot be executed, because IB is not connected");
             return;
         }
@@ -94,7 +80,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
      */
     private void sendOrModifyOrder(Order order) throws Exception {
 
-        if (!(client.getMessageHandler().getState().equals(ConnectionState.READY) || client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED))) {
+        if (!(client.getMessageHandler().getState().equals(ConnectionState.LOGGED_ON) || client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED))) {
             logger.error("transaction cannot be executed, because IB is not connected");
             return;
         }

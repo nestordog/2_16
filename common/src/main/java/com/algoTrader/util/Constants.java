@@ -19,4 +19,6 @@ public class Constants {
     public static final long SIXTY_DAYS = 5184000000l;
 
     public static final long NINETY_DAYS = 7776000000l;
+
+    public static final long MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
 }

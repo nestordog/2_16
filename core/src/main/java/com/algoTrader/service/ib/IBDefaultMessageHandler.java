@@ -103,7 +103,7 @@ public class IBDefaultMessageHandler implements EWrapper {
 
                 // Connectivity between IB and TWS has been restored data lost.
                 setRequested(false);
-                setState(ConnectionState.READY);
+                setState(ConnectionState.LOGGED_ON);
                 ServiceLocator.instance().getMarketDataService().initSubscriptions();
                 logger.debug(message);
                 break;
@@ -114,7 +114,7 @@ public class IBDefaultMessageHandler implements EWrapper {
                 if (isRequested()) {
                     setState(ConnectionState.SUBSCRIBED);
                 } else {
-                    setState(ConnectionState.READY);
+                    setState(ConnectionState.LOGGED_ON);
                     ServiceLocator.instance().getMarketDataService().initSubscriptions();
                 }
                 logger.debug(message);
@@ -133,7 +133,7 @@ public class IBDefaultMessageHandler implements EWrapper {
                 if (isRequested()) {
                     setState(ConnectionState.SUBSCRIBED);
                 } else {
-                    setState(ConnectionState.READY);
+                    setState(ConnectionState.LOGGED_ON);
                     ServiceLocator.instance().getMarketDataService().initSubscriptions();
                 }
                 logger.debug(message);
@@ -183,7 +183,7 @@ public class IBDefaultMessageHandler implements EWrapper {
     public synchronized void nextValidId(final int orderId) {
 
         if (this.clientId == 0) {
-            RequestIDGenerator.singleton().initializeOrderId(orderId);
+            IBIdGenerator.getInstance().initializeOrderId(orderId);
             logger.debug("client: " + this.clientId + " " + EWrapperMsgGenerator.nextValidId(orderId));
         }
     }

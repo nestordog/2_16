@@ -24,7 +24,6 @@ import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.entity.security.StockOptionImpl;
-import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.future.FutureSymbol;
@@ -175,7 +174,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
 
         try {
 
-            int requestId = RequestIDGenerator.singleton().getNextRequestId();
+            int requestId = IBIdGenerator.getInstance().getNextRequestId();
             Contract contract = new Contract();
             contract.m_currency = family.getCurrency().toString();
             contract.m_symbol = family.getUnderlying().getSymbol();
@@ -197,6 +196,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
     }
 
     private Comparator<Security> getComparator() {
+
         // comparator based on isin
         Comparator<Security> comparator = new Comparator<Security>() {
             @Override
@@ -239,32 +239,12 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
 
                 super.connectionClosed();
 
-                connect();
+                IBSecurityRetrieverServiceImpl.this.client.connect();
             }
         };
 
-        this.client = new IBClient(clientId, this.messageHandler);
-
-        connect();
-    }
-
-    @Override
-    protected void handleConnect() {
-
-        if (!this.ibEnabled || this.simulation || !this.securityRetrieverServiceEnabled) {
-            return;
-        }
+        this.client = getIBClientFactory().getClient(clientId, this.messageHandler);
 
         this.client.connect();
-    }
-
-    @Override
-    protected ConnectionState handleGetConnectionState() {
-
-        if (this.messageHandler == null) {
-            return ConnectionState.DISCONNECTED;
-        } else {
-            return this.messageHandler.getState();
-        }
     }
 }

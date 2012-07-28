@@ -32,6 +32,8 @@
     <alias name="iBAccountService" alias="accountService"/>
     <alias name="iBHistoricalDataService" alias="historicalDataService"/>
 
+    <bean id="iBClientFactory" class="com.algoTrader.service.ib.IBClientFactory"/>
+
     <!-- FIX -->
 <!--     <alias name="fixOrderService" alias="orderService"/> -->
 <!--     <bean id="fixClient" class="com.algoTrader.service.fix.FixClient"/> -->

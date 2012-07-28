@@ -16,34 +16,16 @@ public final class IBClient extends EClientSocket {
     private static Logger logger = MyLogger.getLogger(IBClient.class.getName());
 
     private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
-    private static int defaultClientId = ServiceLocator.instance().getConfiguration().getInt("ib.defaultClientId"); //0
     private static int port = ServiceLocator.instance().getConfiguration().getInt("ib.port"); //7496;//
     private static String host = ServiceLocator.instance().getConfiguration().getString("ib.host"); // "127.0.0.1";
     private static long connectionTimeout = ServiceLocator.instance().getConfiguration().getInt("ib.connectionTimeout"); //10000;//
 
-    private static IBClient instance;
-
     private int clientId;
 
-    public IBClient(int clientId, IBDefaultMessageHandler messagenHandler) {
+    public IBClient(int clientId, IBDefaultMessageHandler messageHandler) {
 
-        super(messagenHandler);
+        super(messageHandler);
         this.clientId = clientId;
-    }
-
-    public static IBClient getDefaultInstance() {
-
-        if (simulation) {
-            return null;
-        }
-
-        if (instance == null) {
-
-            instance = new IBClient(defaultClientId, new IBEsperMessageHandler(defaultClientId));
-
-            instance.connect();
-        }
-        return instance;
     }
 
     public IBDefaultMessageHandler getMessageHandler() {
@@ -72,12 +54,20 @@ public final class IBClient extends EClientSocket {
         eConnect(host, port, this.clientId);
 
         if (isConnected()) {
-            this.getMessageHandler().setState(ConnectionState.READY);
+            this.getMessageHandler().setState(ConnectionState.LOGGED_ON);
 
             // in case there is no 2104 message from the IB Gateway (Market data farm connection is OK)
             // manually invoke initSubscriptions after some time
             sleep();
             ServiceLocator.instance().getMarketDataService().initSubscriptions();
+        }
+    }
+
+    public void disconnect() {
+
+        if (isConnected()) {
+            eDisconnect();
+            getMessageHandler().setState(ConnectionState.DISCONNECTED);
         }
     }
 
@@ -95,14 +85,8 @@ public final class IBClient extends EClientSocket {
         }
     }
 
-    public void disconnect() {
+    private synchronized boolean connectionAvailable() {
 
-        if (isConnected()) {
-            eDisconnect();
-        }
-    }
-
-    private static synchronized boolean connectionAvailable() {
         try {
             Socket socket = new Socket(host, port);
             socket.close();

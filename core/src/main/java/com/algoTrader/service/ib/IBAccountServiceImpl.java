@@ -42,7 +42,6 @@ import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.security.Security;
-import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.esper.EsperManager;
@@ -175,37 +174,17 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
                 super.connectionClosed();
 
-                connect();
+                IBAccountServiceImpl.this.client.connect();
             }
         };
 
-        this.client = new IBClient(clientId, this.messageHandler);
-
-        connect();
-    }
-
-    @Override
-    protected void handleConnect() {
-
-        if (!this.ibEnabled || this.simulation || !this.accountServiceEnabled) {
-            return;
-        }
+        this.client = getIBClientFactory().getClient(clientId, this.messageHandler);
 
         this.allAccountValues = new HashMap<String, Map<String, String>>();
         this.accounts = new HashSet<String>();
         this.profiles = new HashMap<String, Map<String, Double>>();
 
         this.client.connect();
-    }
-
-    @Override
-    protected ConnectionState handleGetConnectionState() {
-
-        if (this.messageHandler == null) {
-            return ConnectionState.DISCONNECTED;
-        } else {
-            return this.messageHandler.getState();
-        }
     }
 
     private String retrieveAccountValue(String accountName, String currency, String key) throws InterruptedException {

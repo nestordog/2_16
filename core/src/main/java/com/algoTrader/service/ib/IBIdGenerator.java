@@ -1,22 +1,18 @@
 package com.algoTrader.service.ib;
 
 
-public final class RequestIDGenerator {
+public final class IBIdGenerator {
 
-    private static RequestIDGenerator singleton;
+    private static IBIdGenerator instance;
     private int requestId = 1;
     private int orderId = 1;
 
-    private RequestIDGenerator() {
-        super();
-    }
+    public static synchronized IBIdGenerator getInstance() {
 
-    public static synchronized RequestIDGenerator singleton() {
-
-        if (singleton == null) {
-            singleton = new RequestIDGenerator();
+        if (instance == null) {
+            instance = new IBIdGenerator();
         }
-        return singleton;
+        return instance;
     }
 
     public int getNextOrderId() {
