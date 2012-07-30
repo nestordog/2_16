@@ -298,6 +298,10 @@ public class IBDefaultMessageHandler implements EWrapper {
     }
 
     @Override
+    public void marketDataType(int arg0, int arg1) {
+    }
+
+    @Override
     public void updateAccountTime(String timeStamp) {
     }
 

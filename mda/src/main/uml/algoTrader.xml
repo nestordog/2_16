@@ -11396,6 +11396,22 @@
                                 </type>
                             </ownedAttribute>
                         </packagedElement>
+                        <packagedElement xmi:type='uml:Class' xmi:id='_16_5_4_8b60294_1343653316131_619731_2953' name='MarketDataType' visibility='public'>
+                            <ownedAttribute xmi:type='uml:Property' xmi:id='_16_5_4_8b60294_1343653316133_272715_2955' name='reqId' visibility='public'>
+                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                                    <xmi:Extension extender='MagicDraw UML 16.5'>
+                                        <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                    </xmi:Extension>
+                                </type>
+                            </ownedAttribute>
+                            <ownedAttribute xmi:type='uml:Property' xmi:id='_16_5_4_8b60294_1343653358417_610240_2979' name='type' visibility='public'>
+                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4-SNAPSHOT.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                                    <xmi:Extension extender='MagicDraw UML 16.5'>
+                                        <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                    </xmi:Extension>
+                                </type>
+                            </ownedAttribute>
+                        </packagedElement>
                     </packagedElement>
                     <packagedElement xmi:type='uml:Class' xmi:id='_16_5_4_8b60294_1334059606420_452674_4943' name='RemoveComponentEventVO' visibility='public'>
                         <ownedAttribute xmi:type='uml:Property' xmi:id='_16_5_4_8b60294_1334059641102_924006_4965' name='componentId' visibility='public'>
@@ -12063,10 +12079,10 @@
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='false'/>
                     <diagramWindowBounds>2, 24, 1434, 887</diagramWindowBounds>
-                    <diagramScrollPositionX xmi:value='0'/>
+                    <diagramScrollPositionX xmi:value='833'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
-                    <active xmi:value='false'/>
+                    <active xmi:value='true'/>
                     <mdOwnedViews>
                         <mdElement elementClass='DiagramFrame' xmi:id='_16_5_4_8b60294_1322591618525_313247_4613'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371294_978474_6255'/>
@@ -12075,482 +12091,122 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376778_187695_6417'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_904603_6348'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>190, 960, 194, 127</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376778_682770_6418'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_103586_6285'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>590, 390, 194, 97</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376778_430758_6419'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371294_67054_6262'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>390, 390, 194, 142</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376778_106145_6420'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_544499_6297'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>390, 20, 194, 83</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376778_390486_6421'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_974931_6351'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>190, 840, 194, 112</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376778_458743_6422'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371296_549590_6401'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>390, 840, 194, 97</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376778_302173_6423'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_942576_6342'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>390, 960, 194, 97</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376778_946190_6424'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_242817_6273'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>190, 390, 194, 232</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376778_621831_6425'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_19984_6279'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>190, 20, 194, 97</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376778_473993_6426'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_790739_6315'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>190, 2240, 194, 112</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376778_241983_6427'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_898436_6296'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>190, 1570, 194, 232</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376778_464629_6428'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_510650_6362'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>190, 1450, 194, 97</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376778_102704_6429'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_388235_6340'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>190, 2010, 194, 217</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376778_93999_6430'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_158073_6305'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>390, 1450, 194, 112</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_277172_6431'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371296_738534_6409'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>390, 1810, 194, 187</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_711035_6432'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_404696_6299'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>590, 1810, 194, 97</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_497501_6433'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371294_164815_6257'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>190, 1810, 194, 97</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_669237_6434'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371296_251069_6373'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>1190, 150, 194, 217</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_311991_6435'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_575756_6328'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>790, 150, 194, 127</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_507628_6436'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371296_432904_6384'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>590, 150, 194, 232</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_786527_6437'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371296_630556_6414'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>190, 150, 194, 142</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_379828_6438'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_206595_6283'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>390, 150, 194, 127</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_303423_6439'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_206664_6330'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>1390, 150, 194, 97</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_743105_6440'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_877138_6277'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>990, 150, 194, 127</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_509028_6441'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_257938_6344'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>590, 630, 194, 97</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_624304_6442'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371296_266524_6389'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>190, 630, 194, 142</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_521089_6443'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_238150_6312'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>190, 1100, 194, 172</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_707311_6444'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371296_510161_6397'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>390, 1100, 194, 187</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_847774_6445'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_744944_6324'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>190, 1300, 194, 142</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376779_108295_6446'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_819946_6360'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>390, 630, 194, 202</geometry>
                         </mdElement>
                         <mdElement elementClass='TextBox' xmi:id='_9_5_1_8b60294_1314818376779_77902_6447'>
@@ -12607,52 +12263,23 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376780_494280_6460'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_954326_6319'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                                <mdElement elementClass='BooleanProperty'>
-                                    <propertyID>AUTOSIZE</propertyID>
-                                    <propertyDescriptionID>AUTOSIZE_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='true'/>
-                                </mdElement>
-                            </properties>
                             <geometry>590, 20, 194, 127</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376780_366756_6461'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371296_330710_6399'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                            </properties>
                             <geometry>790, 630, 194, 97</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376780_642309_6462'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_94949_6363'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                            </properties>
                             <geometry>790, 390, 194, 83</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1314818376780_995521_6463'>
                             <elementID xmi:idref='_9_5_1_8b60294_1314818371295_651065_6302'/>
-                            <properties>
-                                <mdElement elementClass='ColorProperty'>
-                                    <propertyID>FILL_COLOR</propertyID>
-                                    <propertyDescriptionID>FILL_COLOR_DESCRIPTION</propertyDescriptionID>
-                                    <value xmi:value='-13159'/>
-                                </mdElement>
-                            </properties>
                             <geometry>190, 2360, 194, 112</geometry>
+                        </mdElement>
+                        <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1343653320246_860930_2958'>
+                            <elementID xmi:idref='_16_5_4_8b60294_1343653316131_619731_2953'/>
+                            <geometry>1590, 150, 194, 112</geometry>
                         </mdElement>
                     </mdOwnedViews>
                 </mdElement>
@@ -13514,10 +13141,10 @@
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='true'/>
                     <diagramWindowBounds>2, 24, 1434, 887</diagramWindowBounds>
-                    <diagramScrollPositionX xmi:value='546'/>
+                    <diagramScrollPositionX xmi:value='481'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
-                    <active xmi:value='true'/>
+                    <active xmi:value='false'/>
                     <mdOwnedViews>
                         <mdElement elementClass='DiagramFrame' xmi:id='_16_5_4_8b60294_1325609020638_374428_4613'>
                             <elementID xmi:idref='_16_5_4_8b60294_1325609020631_338429_4600'/>
@@ -24723,7 +24350,7 @@
                         <mdElement elementClass='StringProperty'>
                             <propertyID>DIAGRAMS_LAYOUT</propertyID>
                             <propertyDescriptionID>DIAGRAMS_LAYOUT_DESCRIPTION</propertyDescriptionID>
-                            <value>0 0 0 14 0 0 0 1 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 35 0 36 0 30 0 39 0 30 0 32 0 30 0 36 0 33 0 31 0 5f 0 33 0 33 0 38 0 34 0 32 0 39 0 5f 0 34 0 36 0 30 0 30 0 0 0 1 0 0 0 cc 0 0 0 e2 0 0 0 e 0 0 0 12 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 31 0 31 0 33 0 38 0 38 0 36 0 5f 0 39 0 35 0 35 0 32 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 30 0 34 0 32 0 34 0 39 0 31 0 39 0 37 0 38 0 35 0 5f 0 33 0 31 0 36 0 37 0 30 0 38 0 5f 0 34 0 36 0 31 0 33 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 33 0 33 0 38 0 39 0 36 0 38 0 31 0 35 0 33 0 36 0 5f 0 33 0 39 0 32 0 33 0 31 0 35 0 5f 0 35 0 31 0 39 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 35 0 35 0 35 0 32 0 36 0 38 0 34 0 32 0 33 0 38 0 5f 0 34 0 33 0 36 0 37 0 37 0 39 0 5f 0 38 0 37 0 30 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 31 0 36 0 35 0 35 0 37 0 34 0 5f 0 34 0 37 0 38 0 33 0 31 0 30 0 5f 0 36 0 34 0 35 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 32 0 36 0 39 0 35 0 31 0 36 0 30 0 31 0 33 0 34 0 5f 0 36 0 33 0 35 0 36 0 32 0 34 0 5f 0 34 0 39 0 35 0 35 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 32 0 37 0 38 0 35 0 34 0 34 0 5f 0 39 0 35 0 34 0 38 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 37 0 35 0 36 0 31 0 31 0 37 0 5f 0 32 0 39 0 34 0 30 0 32 0 31 0 5f 0 34 0 39 0 30 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 36 0 36 0 37 0 35 0 35 0 34 0 5f 0 39 0 37 0 35 0 38 0 38 0 33 0 5f 0 34 0 35 0 33 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 35 0 38 0 38 0 38 0 32 0 31 0 5f 0 31 0 37 0 31 0 31 0 31 0 36 0 5f 0 31 0 37 0 38 0 34 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 39 0 34 0 37 0 39 0 32 0 35 0 5f 0 39 0 35 0 34 0 35 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 34 0 32 0 37 0 30 0 37 0 33 0 35 0 35 0 31 0 35 0 39 0 5f 0 39 0 33 0 35 0 31 0 35 0 38 0 5f 0 32 0 38 0 35 0 33 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 32 0 31 0 37 0 37 0 37 0 39 0 5f 0 39 0 35 0 34 0 39 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 37 0 33 0 37 0 33 0 38 0 30 0 5f 0 39 0 35 0 35 0 31 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 35 0 36 0 30 0 39 0 30 0 32 0 30 0 36 0 33 0 31 0 5f 0 33 0 33 0 38 0 34 0 32 0 39 0 5f 0 34 0 36 0 30 0 30 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 31 0 34 0 36 0 38 0 30 0 39 0 5f 0 39 0 35 0 34 0 37 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 38 0 33 0 37 0 31 0 32 0 39 0 34 0 5f 0 39 0 37 0 38 0 34 0 37 0 34 0 5f 0 36 0 32 0 35 0 35 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 39 0 36 0 30 0 39 0 34 0 35 0 31 0 32 0 31 0 39 0 5f 0 39 0 31 0 34 0 36 0 33 0 36 0 5f 0 32 0 39 0 30 0 38 0 0 0 0 </value>
+                            <value>0 0 0 14 0 0 0 1 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 38 0 33 0 37 0 31 0 32 0 39 0 34 0 5f 0 39 0 37 0 38 0 34 0 37 0 34 0 5f 0 36 0 32 0 35 0 35 0 0 0 1 0 0 0 cc 0 0 0 e2 0 0 0 10 0 0 0 12 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 31 0 31 0 33 0 38 0 38 0 36 0 5f 0 39 0 35 0 35 0 32 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 30 0 34 0 32 0 34 0 39 0 31 0 39 0 37 0 38 0 35 0 5f 0 33 0 31 0 36 0 37 0 30 0 38 0 5f 0 34 0 36 0 31 0 33 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 33 0 33 0 38 0 39 0 36 0 38 0 31 0 35 0 33 0 36 0 5f 0 33 0 39 0 32 0 33 0 31 0 35 0 5f 0 35 0 31 0 39 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 35 0 35 0 35 0 32 0 36 0 38 0 34 0 32 0 33 0 38 0 5f 0 34 0 33 0 36 0 37 0 37 0 39 0 5f 0 38 0 37 0 30 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 31 0 36 0 35 0 35 0 37 0 34 0 5f 0 34 0 37 0 38 0 33 0 31 0 30 0 5f 0 36 0 34 0 35 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 32 0 36 0 39 0 35 0 31 0 36 0 30 0 31 0 33 0 34 0 5f 0 36 0 33 0 35 0 36 0 32 0 34 0 5f 0 34 0 39 0 35 0 35 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 32 0 37 0 38 0 35 0 34 0 34 0 5f 0 39 0 35 0 34 0 38 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 37 0 35 0 36 0 31 0 31 0 37 0 5f 0 32 0 39 0 34 0 30 0 32 0 31 0 5f 0 34 0 39 0 30 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 36 0 36 0 37 0 35 0 35 0 34 0 5f 0 39 0 37 0 35 0 38 0 38 0 33 0 5f 0 34 0 35 0 33 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 35 0 38 0 38 0 38 0 32 0 31 0 5f 0 31 0 37 0 31 0 31 0 31 0 36 0 5f 0 31 0 37 0 38 0 34 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 39 0 34 0 37 0 39 0 32 0 35 0 5f 0 39 0 35 0 34 0 35 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 34 0 32 0 37 0 30 0 37 0 33 0 35 0 35 0 31 0 35 0 39 0 5f 0 39 0 33 0 35 0 31 0 35 0 38 0 5f 0 32 0 38 0 35 0 33 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 32 0 31 0 37 0 37 0 37 0 39 0 5f 0 39 0 35 0 34 0 39 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 37 0 33 0 37 0 33 0 38 0 30 0 5f 0 39 0 35 0 35 0 31 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 35 0 36 0 30 0 39 0 30 0 32 0 30 0 36 0 33 0 31 0 5f 0 33 0 33 0 38 0 34 0 32 0 39 0 5f 0 34 0 36 0 30 0 30 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 31 0 34 0 36 0 38 0 30 0 39 0 5f 0 39 0 35 0 34 0 37 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 38 0 33 0 37 0 31 0 32 0 39 0 34 0 5f 0 39 0 37 0 38 0 34 0 37 0 34 0 5f 0 36 0 32 0 35 0 35 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 39 0 36 0 30 0 39 0 34 0 35 0 31 0 32 0 31 0 39 0 5f 0 39 0 31 0 34 0 36 0 33 0 36 0 5f 0 32 0 39 0 30 0 38 0 0 0 0 </value>
                         </mdElement>
                         <mdElement elementClass='StringProperty'>
                             <propertyID>MT_LAST_SELECTED_TRANSFORMATION</propertyID>
@@ -24799,7 +24426,7 @@
                         <mdElement elementClass='StringProperty'>
                             <propertyID>INFO_PROPERTY</propertyID>
                             <propertyDescriptionID>INFO_PROPERTY_DESCRIPTION</propertyDescriptionID>
-                            <value>61 1 30 5a 6a b 64 14 60 11 4e 80 af 75 13 bd 37 1c f1 ad 9c e9 7f 8d b8 2f 77 f7 7c 12 18 e8 14 56 19 c6 aa 2f 9a 45 ea fb e9 8f 8e 81 d9 4a e3 de 6d 60 21 c4 5b fa 5b b3 e5 b9 5c 32 b a6 ee 7e ac 9d 73 38 3e 29 </value>
+                            <value>61 1 30 5a 6a b 64 14 60 11 4e 80 af 75 13 bd 37 1c f1 ad 9c e9 7f 88 b8 2b 7a f7 7d 1f 18 e8 14 56 19 c6 aa 2f 9a 45 ea fb e9 8f 8e 81 d9 4a e3 de 6d 60 21 c4 5b fa 5b b3 e5 b9 5c 32 b a6 ee 7e ac 9d 73 38 3e 29 </value>
                         </mdElement>
                         <mdElement elementClass='LIST_PROPERTY'>
                             <propertyID>ADDITIONAL_CONTAINMENT_TREES</propertyID>
@@ -32881,6 +32508,8 @@
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463583_312200_3496application1' base_Class='_9_5_1_8b60294_1314818371296_330710_6399' algoTrader_value_object_private='true'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463563_776689_3462' base_Class='_9_5_1_8b60294_1314818371294_67054_6262'/>
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463563_776689_3462application1' base_Class='_9_5_1_8b60294_1314818371294_67054_6262' algoTrader_value_object_private='true'/>
+    <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1343653316133_433820_2954' base_Class='_16_5_4_8b60294_1343653316131_619731_2953'/>
+    <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1343653316133_433820_2954application1' base_Class='_16_5_4_8b60294_1343653316131_619731_2953' algoTrader_value_object_private='true'/>
     <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1332441233950_756840_4633' base_Operation='_16_5_4_8b60294_1332440696677_661541_4150' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
     <andromda_persistence:Entity xmi:id='_16_5_4_8b60294_1322591463669_483646_3566' base_Class='_9_5_1_8b60294_1303389959269_403560_1584'/>
     <algoTrader_profile:AlgoTraderService xmi:id='_16_5_4_8b60294_1322591463577_956704_3485' base_Class='_9_5_1_8b60294_1302789146213_357367_10283' algoTrader_service_manageable='true' algoTrader_service_client='true'/>

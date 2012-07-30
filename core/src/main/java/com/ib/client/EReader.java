@@ -46,6 +46,7 @@ public class EReader extends Thread {
     static final int EXECUTION_DATA_END = 55;
     static final int DELTA_NEUTRAL_VALIDATION = 56;
     static final int TICK_SNAPSHOT_END = 57;
+    static final int MARKET_DATA_TYPE = 58;
 
     private EClientSocket     m_parent;
     private DataInputStream m_dis;
@@ -455,6 +456,13 @@ public class EReader extends Thread {
                     } else { // version 12 and up
                         order.m_deltaNeutralOrderType = readStr();
                         order.m_deltaNeutralAuxPrice = readDouble();
+
+                        if (version >= 27 && !Util.StringIsEmpty(order.m_deltaNeutralOrderType)) {
+                            order.m_deltaNeutralConId = readInt();
+                            order.m_deltaNeutralSettlingFirm = readStr();
+                            order.m_deltaNeutralClearingAccount = readStr();
+                            order.m_deltaNeutralClearingIntent = readStr();
+                        }
                     }
                     order.m_continuousUpdate = readInt();
                     if (m_parent.serverVersion() == 26) {
@@ -474,6 +482,19 @@ public class EReader extends Thread {
                     contract.m_comboLegsDescrip = readStr();
                 }
 
+                if (version >= 26) {
+                    int smartComboRoutingParamsCount = readInt();
+                    if (smartComboRoutingParamsCount > 0) {
+                        order.m_smartComboRoutingParams = new Vector(smartComboRoutingParamsCount);
+                        for (int i = 0; i < smartComboRoutingParamsCount; ++i) {
+                            TagValue tagValue = new TagValue();
+                            tagValue.m_tag = readStr();
+                            tagValue.m_value = readStr();
+                            order.m_smartComboRoutingParams.add(tagValue);
+                        }
+                    }
+                }
+
                 if (version >= 15) {
                     if (version >= 20) {
                         order.m_scaleInitLevelSize = readIntMax();
@@ -484,6 +505,17 @@ public class EReader extends Thread {
                         order.m_scaleInitLevelSize = readIntMax();
                     }
                     order.m_scalePriceIncrement = readDoubleMax();
+                }
+
+                if (version >= 24) {
+                    order.m_hedgeType = readStr();
+                    if (!Util.StringIsEmpty(order.m_hedgeType)) {
+                        order.m_hedgeParam = readStr();
+                    }
+                }
+
+                if (version >= 25) {
+                    order.m_optOutSmartRouting = readBoolFromInt();
                 }
 
                 if (version >= 19) {
@@ -718,7 +750,9 @@ public class EReader extends Thread {
                     exec.m_cumQty = readInt();
                     exec.m_avgPrice = readDouble();
                 }
-
+                if (version >= 8) {
+                    exec.m_orderRef = readStr();
+                }
                 eWrapper().execDetails( reqId, contract, exec);
                 break;
             }
@@ -882,6 +916,14 @@ public class EReader extends Thread {
                 int reqId = readInt();
 
                 eWrapper().tickSnapshotEnd( reqId);
+                break;
+            }
+            case MARKET_DATA_TYPE: {
+                /*int version =*/ readInt();
+                int reqId = readInt();
+                int marketDataType = readInt();
+
+                eWrapper().marketDataType( reqId, marketDataType);
                 break;
             }
 

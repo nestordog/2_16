@@ -9,8 +9,8 @@
 @Name('TICK_WINDOW')
 create window
     TickWindow.std:groupwin(security.id).std:lastevent()
-as
-    select *,
+as select
+    *,
     0 as tickerId,
     true as refresh
 from

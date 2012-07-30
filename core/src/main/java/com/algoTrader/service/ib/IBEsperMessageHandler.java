@@ -16,6 +16,7 @@ import com.algoTrader.vo.ib.ExecDetailsEnd;
 import com.algoTrader.vo.ib.FundamentalData;
 import com.algoTrader.vo.ib.HistoricalData;
 import com.algoTrader.vo.ib.ManagedAccounts;
+import com.algoTrader.vo.ib.MarketDataType;
 import com.algoTrader.vo.ib.OpenOrder;
 import com.algoTrader.vo.ib.OrderStatus;
 import com.algoTrader.vo.ib.RealtimeBar;
@@ -252,6 +253,13 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
         final TickString o = new TickString(tickerId, tickType, value);
         EsperManager.sendEvent(StrategyImpl.BASE, o);
         logger.trace(EWrapperMsgGenerator.tickString(tickerId, tickType, value));
+    }
+
+    @Override
+    public void marketDataType(final int reqId, final int type) {
+        final MarketDataType o = new MarketDataType(reqId, type);
+        EsperManager.sendEvent(StrategyImpl.BASE, o);
+        logger.trace(EWrapperMsgGenerator.marketDataType(reqId, type));
     }
 
     @Override
