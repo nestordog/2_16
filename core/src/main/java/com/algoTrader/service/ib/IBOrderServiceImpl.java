@@ -64,8 +64,8 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     @Override
     protected void handleCancelExternalOrder(Order order) throws Exception {
 
-        if (!(client.getMessageHandler().getState().equals(ConnectionState.LOGGED_ON) || client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED))) {
-            logger.error("transaction cannot be executed, because IB is not connected");
+        if (client.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
+            logger.error("transaction cannot be executed, because IB is not logged on");
             return;
         }
 
@@ -80,8 +80,8 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
      */
     private void sendOrModifyOrder(Order order) throws Exception {
 
-        if (!(client.getMessageHandler().getState().equals(ConnectionState.LOGGED_ON) || client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED))) {
-            logger.error("transaction cannot be executed, because IB is not connected");
+        if (client.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
+            logger.error("transaction cannot be executed, because IB is not logged on");
             return;
         }
 

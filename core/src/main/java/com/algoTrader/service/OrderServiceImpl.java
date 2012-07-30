@@ -1,6 +1,7 @@
 package com.algoTrader.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,7 @@ import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
+import com.espertech.esper.collection.Pair;
 
 public abstract class OrderServiceImpl extends OrderServiceBase {
 
@@ -49,7 +51,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
         // make sure there is no order for the same security / strategy
         if (EsperManager.executeQuery(StrategyImpl.BASE,
-                "select * from OpenOrderWindow " +
+                "select number from OpenOrderWindow " +
                 "where security.id = " + order.getSecurity().getId() +
                 " and strategy.id = " + order.getStrategy().getId()).size() > 0) {
             throw new OrderServiceException("existing order for " + order.getSecurity() + " strategy " + order.getStrategy());
@@ -126,10 +128,11 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         cancelExternalOrder(order);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void handleCancelOrder(long orderNumber) throws Exception {
 
-        Order order = (Order) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where number = " + orderNumber);
+        Order order = ((Pair<Order, Map<?, ?>>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where number = " + orderNumber)).getFirst();
         if (order != null) {
             cancelExternalOrder(order);
         } else {
@@ -141,9 +144,9 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     @Override
     protected void handleCancelAllOrders() throws Exception {
 
-        List<Order> orders = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow");
-        for (Order order : orders) {
-            cancelExternalOrder(order);
+        List<Pair<Order, Map<?, ?>>> pairs = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow");
+        for (Pair<Order, Map<?, ?>> pair : pairs) {
+            cancelExternalOrder(pair.getFirst());
         }
     }
 

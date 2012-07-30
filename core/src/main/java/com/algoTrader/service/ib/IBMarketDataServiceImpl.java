@@ -36,7 +36,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
     protected void handleInitSubscriptions() {
 
         if (client != null
-                && (client.getMessageHandler().getState().equals(ConnectionState.LOGGED_ON) || client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED))
+                && (client.getMessageHandler().getState().getValue() >= ConnectionState.LOGGED_ON.getValue())
                 && !client.getMessageHandler().isRequested() && !this.simulation) {
 
             client.getMessageHandler().setRequested(true);
@@ -49,8 +49,8 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
     @Override
     protected void handleExternalSubscribe(Security security) throws Exception {
 
-        if (!client.getMessageHandler().getState().equals(ConnectionState.LOGGED_ON) && !client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED)) {
-            throw new IBMarketDataServiceException("IB is not ready for market data subscription on " + security);
+        if (client.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
+            throw new IBMarketDataServiceException("IB is not logged on to subscribe " + security);
         }
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)

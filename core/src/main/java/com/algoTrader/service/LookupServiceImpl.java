@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 
@@ -41,6 +42,7 @@ import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.RawBarVO;
 import com.algoTrader.vo.RawTickVO;
 import com.algoTrader.vo.TransactionVO;
+import com.espertech.esper.collection.Pair;
 
 @SuppressWarnings("unchecked")
 public class LookupServiceImpl extends LookupServiceBase {
@@ -520,14 +522,14 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Collection<OrderVO> handleGetOpenOrdersVO(String strategyName) throws Exception {
 
-        List<Order> orders;
+        List<Pair<Order, Map<String, ?>>> pairs;
         if (strategyName.equals(StrategyImpl.BASE)) {
-            orders = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow");
+            pairs = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow");
         } else {
-            orders = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
+            pairs = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
         }
 
-        return OrderUtil.toOrderVOCollection(orders);
+        return OrderUtil.toOrderVOCollection(pairs);
     }
 
     @Override

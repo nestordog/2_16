@@ -2,6 +2,7 @@ package com.algoTrader.service.fix;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -20,11 +21,13 @@ import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
+import com.espertech.esper.collection.Pair;
 
 public class FixMessageHandler {
 
     private static Logger logger = MyLogger.getLogger(FixMessageHandler.class.getName());
 
+    @SuppressWarnings("unchecked")
     public void onMessage(ExecutionReport executionReport, SessionID sessionID) throws FieldNotFound {
 
         long number = Long.parseLong(executionReport.getClOrdID().getValue());
@@ -45,7 +48,7 @@ public class FixMessageHandler {
         }
 
         // get the order from the OpenOrderWindow
-        Order order = (Order) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where number = " + number);
+        Order order = ((Pair<Order, Map<?, ?>>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where number = " + number)).getFirst();
         if (order == null) {
             logger.error("order could not be found " + number + " for execution " + executionReport);
             return;

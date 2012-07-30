@@ -542,7 +542,7 @@ public class EsperManager {
     @SuppressWarnings("unchecked")
     public static Object executeSingelObjectQuery(String strategyName, String query) {
 
-        List<Order> events = executeQuery(StrategyImpl.BASE, query);
+        List<Object> events = executeQuery(StrategyImpl.BASE, query);
         if (events.size() == 0) {
             return null;
         } else if (events.size() == 1) {

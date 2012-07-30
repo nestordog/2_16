@@ -1,7 +1,12 @@
 @Name('OPEN_ORDER_WINDOW')
 create
     window OpenOrderWindow.std:groupwin(security.id, strategy.id).std:lastevent()
-as
+as select
+    *,
+    Status.OPEN as status,
+    0L as filledQuantity,
+    0L as remainingQuantity
+from
     GenericOrder;
 
 @Name('INSERT_INTO_OPEN_ORDER_WINDOW')
@@ -9,9 +14,25 @@ as
 insert into
     OpenOrderWindow
 select
-    *
+    *,
+    Status.OPEN as status,
+    0L as filledQuantity,
+    quantity as remainingQuantity
 from
     GenericOrder;
+
+@Name('UPDATE_OPEN_ORDER_WINDOW')
+@RunTimeOnly()
+on
+    OrderStatus(status != Status.EXECUTED and status != Status.CANCELED) as orderStatus
+update
+    OpenOrderWindow
+set
+    status = orderStatus.status,
+    filledQuantity = orderStatus.filledQuantity,
+    remainingQuantity = orderStatus.remainingQuantity
+where
+    number = orderStatus.parentOrder.number;
 
 @Name('DELETE_FROM_OPEN_ORDER_WINDOW')
 @RunTimeOnly()
