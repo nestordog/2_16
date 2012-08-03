@@ -49,7 +49,7 @@ public class OrderUtil {
 
         orderVO.setSide(order.getSide());
         orderVO.setQuantity(order.getQuantity());
-        orderVO.setType(StringUtils.substringBefore(ClassUtils.getShortClassName(order.getClass()), "Impl"));
+        orderVO.setType(StringUtils.substringBefore(ClassUtils.getShortClassName(order.getClass()), "OrderImpl"));
         orderVO.setName(security.toString());
         orderVO.setNumber(order.getNumber());
         orderVO.setStatus((Status) map.get("status"));

@@ -28,7 +28,7 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.Stock;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.trade.LimitOrderI;
-import com.algoTrader.entity.trade.Order;
+import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.entity.trade.StopOrderI;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.MyLogger;
@@ -41,12 +41,12 @@ public class FixOrderServiceImpl extends FixOrderServiceBase {
     private String sessionName = "FIXIB";
 
     @Override
-    protected void handleValidateExternalOrder(Order order) throws Exception {
+    protected void handleValidateExternalOrder(SimpleOrder order) throws Exception {
         // to be implememented
     }
 
     @Override
-    protected void handleSendExternalOrder(Order order) throws Exception {
+    protected void handleSendExternalOrder(SimpleOrder order) throws Exception {
 
         // use system time for orderNumber
         order.setNumber(FixIdGenerator.getInstance().getNextOrderId());
@@ -119,7 +119,7 @@ public class FixOrderServiceImpl extends FixOrderServiceBase {
     }
 
     @Override
-    protected void handleModifyExternalOrder(Order order) throws Exception {
+    protected void handleModifyExternalOrder(SimpleOrder order) throws Exception {
 
         // assign a new order number
         long origNumber = order.getNumber();
@@ -157,7 +157,7 @@ public class FixOrderServiceImpl extends FixOrderServiceBase {
     }
 
     @Override
-    protected void handleCancelExternalOrder(Order order) throws Exception {
+    protected void handleCancelExternalOrder(SimpleOrder order) throws Exception {
 
         OrderCancelRequest cancelRequest = new OrderCancelRequest();
 

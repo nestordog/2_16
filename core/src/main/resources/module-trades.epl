@@ -1,6 +1,8 @@
+// ------------------------------OPEN_ORDER_WINDOW--------------------------------
+
 @Name('OPEN_ORDER_WINDOW')
 create
-    window OpenOrderWindow.std:groupwin(security.id, strategy.id).std:lastevent()
+    window OpenOrderWindow.std:groupwin(security.id, strategy.id, algoOrder).std:lastevent()
 as select
     *,
     Status.OPEN as status,
@@ -32,7 +34,7 @@ set
     filledQuantity = orderStatus.filledQuantity,
     remainingQuantity = orderStatus.remainingQuantity
 where
-    number = orderStatus.parentOrder.number;
+    number = orderStatus.ord.number;
 
 @Name('DELETE_FROM_OPEN_ORDER_WINDOW')
 @RunTimeOnly()
@@ -41,9 +43,51 @@ on
 delete from
     OpenOrderWindow as openOrderWindow
 where
-    orderStatus.parentOrder is null
+    orderStatus.ord is null
 or
-    orderStatus.parentOrder.number = openOrderWindow.number;
+    orderStatus.ord.number = openOrderWindow.number;
+
+// ------------------------------ALGO ORDERS--------------------------------
+
+@Name('INSERT_INTO_ALGO_ORDER_STATUS_SUBMITTED')
+@RunTimeOnly()
+insert into
+    OrderStatus
+select
+    Status.SUBMITTED as status,
+    0 as filledQuantity,
+    openOrderWindow.remainingQuantity as remainingQuantity,
+    ord.parentOrder as ord
+from
+    OrderStatus(status = Status.SUBMITTED, ord.parentOrder.algoOrder) as orderStatus unidirectional,
+    OpenOrderWindow(status = Status.OPEN) as openOrderWindow
+where
+    openOrderWindow.number = orderStatus.ord.parentOrder.number;
+
+@Name('INSERT_INTO_ALGO_ORDER_STATUS_FROM_FILL')
+@RunTimeOnly()
+insert into
+    OrderStatus
+select
+    case when openOrderWindow.remainingQuantity - fill.quantity > 0 then Status.PARTIALLY_EXECUTED else Status.EXECUTED end as status,
+    openOrderWindow.filledQuantity + fill.quantity as filledQuantity,
+    openOrderWindow.remainingQuantity - fill.quantity as remainingQuantity,
+    ord.parentOrder as ord
+from
+    Fill(ord.parentOrder.algoOrder) as fill unidirectional,
+    OpenOrderWindow() as openOrderWindow
+where
+    openOrderWindow.number = fill.ord.parentOrder.number;
+
+@Name('ALGO_ORDER_DONE')
+@Subscriber(className='com.algoTrader.esper.subscriber.VoidSubscriber')
+@RunTimeOnly
+select
+    cast(ord, com.algoTrader.entity.trade.AlgoOrder).done()
+from
+    OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.algoOrder);
+
+// ------------------------------LOGGING / PROPAGATION--------------------------------
 
 @Name('LOG_TRANSACTION_SUMMARY')
 @Subscriber(className='com.algoTrader.service.TransactionServiceImpl$LogTransactionSummarySubscriber')
@@ -52,7 +96,10 @@ select
     fill,
     orderStatus
 from
-    pattern [every fill=Fill -> orderStatus=OrderStatus(parentOrder.number = fill.parentOrder.number, status = Status.EXECUTED or status = Status.CANCELED)];
+    pattern [every fill=Fill -> orderStatus=OrderStatus(
+        status = Status.EXECUTED or status = Status.CANCELED,
+        (fill.ord.parentOrder.algoOrder and ord.number = fill.ord.parentOrder.number) or
+        (not fill.ord.parentOrder.algoOrder and ord.number = fill.ord.number))];
 
 @Name('PROPAGATE_ORDER_STATUS')
 @Subscriber(className='com.algoTrader.service.OrderService.propagateOrderStatus')

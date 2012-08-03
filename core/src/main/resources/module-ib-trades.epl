@@ -3,13 +3,15 @@
 insert into
     Fill
 select
-    IBUtil.getExecutionDateTime(execDetails) as dateTime,
+    current_timestamp.toDate() as dateTime,
+    IBUtil.getExecutionDateTime(execDetails) as extDateTime,
     IBUtil.getSide(execDetails) as side,
     execDetails.execution.m_shares as quantity,
     RoundUtil.getBigDecimal(execDetails.execution.m_price, genericOrder.security.securityFamily.scale) as price,
     execDetails.execution.m_execId as extId,
-    genericOrder as parentOrder
+    genericOrder as ord
 from
+    // every GenericOrder -> (every execDetails=IBExecDetails and not IBOrderStatusFoCoI and not GenericOrder)
     pattern[every genericOrder=GenericOrder
             -> (every execDetails=IBExecDetails(execution.m_orderId = genericOrder.number, not execution.m_execId.startsWith('F-'), not execution.m_execId.startsWith('U+'))
                 and not IBOrderStatus(orderId = genericOrder.number, status = 'Filled' or status = 'Cancelled' or status = 'Inactive')
@@ -23,16 +25,9 @@ select
     IBUtil.getStatus(orderStatus) as status,
     orderStatus.filled as filledQuantity,
     orderStatus.remaining as remainingQuantity,
-    genericOrder as parentOrder
+    genericOrder as ord
 from
+    // every GenericOrder -> (every IBOrderStatus and not GenericOrder)
     pattern[every genericOrder=GenericOrder
-            -> (every (orderStatus=IBOrderStatus(orderId = genericOrder.number))
-                and not GenericOrder(number = genericOrder.number))]
-where
-    prior(1, orderStatus) is null
-or
-    orderStatus.orderId != prior(1, orderStatus.orderId)
-or
-    orderStatus.status != prior(1, orderStatus.status)
-or
-    orderStatus.filled != prior(1, orderStatus.filled);
+            -> (every orderStatus=IBOrderStatus(orderId = genericOrder.number)
+                and not GenericOrder(number = genericOrder.number))];

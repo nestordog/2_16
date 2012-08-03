@@ -11,14 +11,24 @@ public class FillImpl extends Fill {
     public String toString() {
 
         //@formatter:off
-        return format.format(getDateTime())
+        return format.format(getExtDateTime())
             + " " + getSide()
             + " " + getQuantity()
-            + (getParentOrder() != null ? " " + getParentOrder().getSecurity() : "")
-            + (getParentOrder() != null ? " " + getParentOrder().getStrategy() : "")
+            + (getOrd() != null ? " " + getOrd().getSecurity() : "")
+            + (getOrd() != null ? " " + getOrd().getStrategy() : "")
             + " price: " + getPrice()
-            + (getParentOrder() != null ? " " + getParentOrder().getSecurity().getSecurityFamily().getCurrency() : "")
+            + (getOrd() != null ? " " + getOrd().getSecurity().getSecurityFamily().getCurrency() : "")
             + " extId: " + getExtId();
         //@formatter:on
+    }
+
+    @Override
+    /**
+     * make sure this is also associated with the order (in case a Fill is created from an esper statement)
+     */
+    public void setOrd(Order order) {
+
+        super.setOrd(order);
+        order.getFills().add(this);
     }
 }

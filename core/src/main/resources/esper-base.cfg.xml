@@ -74,8 +74,11 @@
     <auto-import import-name="com.algoTrader.enumeration.Period"/>
     <auto-import import-name="com.algoTrader.enumeration.OptionType"/>
 
+    <auto-import import-name="com.algoTrader.entity.trade.AlgoOrder"/>
+
     <auto-import import-name="com.algoTrader.stockOption.StockOptionUtil"/>
     <auto-import import-name="com.algoTrader.future.FutureUtil"/>
+
     <auto-import import-name="com.algoTrader.util.LookupUtil"/>
     <auto-import import-name="com.algoTrader.util.RoundUtil"/>
     <auto-import import-name="com.algoTrader.util.MathUtil"/>
@@ -83,6 +86,7 @@
     <auto-import import-name="com.algoTrader.util.DateUtil"/>
     <auto-import import-name="com.algoTrader.util.OrderUtil"/>
     <auto-import import-name="com.algoTrader.util.Constants"/>
+
     <auto-import import-name="com.algoTrader.esper.annotation.*"/>
 
     <auto-import import-name="com.algoTrader.service.ib.IBUtil"/>

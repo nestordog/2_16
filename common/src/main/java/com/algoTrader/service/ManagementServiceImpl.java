@@ -5,10 +5,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 
@@ -21,14 +23,13 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.trade.InitializingOrderI;
 import com.algoTrader.entity.trade.LimitOrder;
-import com.algoTrader.entity.trade.LimitOrderI;
 import com.algoTrader.entity.trade.MarketOrder;
 import com.algoTrader.entity.trade.Order;
+import com.algoTrader.entity.trade.SlicingOrder;
 import com.algoTrader.entity.trade.StopLimitOrder;
 import com.algoTrader.entity.trade.StopOrder;
-import com.algoTrader.entity.trade.StopOrderI;
-import com.algoTrader.entity.trade.TickwiseIncrementalLimitOrder;
-import com.algoTrader.entity.trade.VariableIncrementalLimitOrder;
+import com.algoTrader.entity.trade.TickwiseIncrementalOrder;
+import com.algoTrader.entity.trade.VariableIncrementalOrder;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.StrategyUtil;
@@ -242,7 +243,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected void handleSendOrder(int securityId, long quantity, String sideString, String type, Double limit, Double stop) throws Exception {
+    protected void handleSendOrder(int securityId, long quantity, String sideString, String type, String nameValues) throws Exception {
 
         Side side = Side.fromValue(sideString);
         String strategyName = StrategyUtil.getStartedStrategyName();
@@ -260,10 +261,12 @@ public class ManagementServiceImpl extends ManagementServiceBase {
             order = StopOrder.Factory.newInstance();
         } else if ("SL".equals(type)) {
             order = StopLimitOrder.Factory.newInstance();
-        } else if ("TIL".equals(type)) {
-            order = TickwiseIncrementalLimitOrder.Factory.newInstance();
-        } else if ("VIL".equals(type)) {
-            order = VariableIncrementalLimitOrder.Factory.newInstance();
+        } else if ("TI".equals(type)) {
+            order = TickwiseIncrementalOrder.Factory.newInstance();
+        } else if ("VI".equals(type)) {
+            order = VariableIncrementalOrder.Factory.newInstance();
+        } else if ("SLI".equals(type)) {
+            order = SlicingOrder.Factory.newInstance();
         } else {
             throw new IllegalArgumentException("unkown order type " + type);
         }
@@ -274,15 +277,16 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         order.setQuantity(Math.abs(quantity));
         order.setSide(side);
 
-        // set the limit if applicable
-        if (order instanceof LimitOrderI && limit != null) {
-            ((LimitOrderI) order).setLimit(new BigDecimal(limit));
+        // set additional properties
+        Map<String, String> properties = new HashMap<String, String>();
+        if (!"".equals(nameValues)) {
+            for (String nameValue : nameValues.split(",")) {
+                properties.put(nameValue.split("=")[0], nameValue.split("=")[1]);
+            }
         }
 
-        // set the stop if applicable
-        if (order instanceof StopOrderI && stop != null) {
-            ((StopOrderI) order).setStop(new BigDecimal(stop));
-        }
+        // populate the order with the additinal properities
+        BeanUtils.populate(order, properties);
 
         // init the order if applicable
         if (order instanceof InitializingOrderI) {

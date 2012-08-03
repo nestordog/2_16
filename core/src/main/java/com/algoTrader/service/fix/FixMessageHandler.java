@@ -14,11 +14,12 @@ import quickfix.fix42.OrderCancelReject;
 
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.trade.Fill;
-import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;
+import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.EsperManager;
+import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.espertech.esper.collection.Pair;
@@ -48,7 +49,7 @@ public class FixMessageHandler {
         }
 
         // get the order from the OpenOrderWindow
-        Order order = ((Pair<Order, Map<?, ?>>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where number = " + number)).getFirst();
+        SimpleOrder order = ((Pair<SimpleOrder, Map<?, ?>>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where number = " + number)).getFirst();
         if (order == null) {
             logger.error("order could not be found " + number + " for execution " + executionReport);
             return;
@@ -64,7 +65,7 @@ public class FixMessageHandler {
         orderStatus.setStatus(status);
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
-        orderStatus.setParentOrder(order);
+        orderStatus.setOrd(order);
 
         EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
 
@@ -72,7 +73,8 @@ public class FixMessageHandler {
         if (executionReport.getOrdStatus().getValue() == OrdStatus.PARTIALLY_FILLED || executionReport.getOrdStatus().getValue() == OrdStatus.FILLED) {
 
             // get the fields
-            Date dateTime = executionReport.getTransactTime().getValue();
+            Date dateTime = DateUtil.getCurrentEPTime();
+            Date extDateTime = executionReport.getTransactTime().getValue();
             Side side = FixUtil.getSide(executionReport.getSide());
             long quantity = (long) executionReport.getLastShares().getValue();
             BigDecimal price = RoundUtil.getBigDecimal(executionReport.getLastPx().getValue(), order.getSecurity().getSecurityFamily().getScale());
@@ -81,11 +83,12 @@ public class FixMessageHandler {
             // assemble the fill
             Fill fill = Fill.Factory.newInstance();
             fill.setDateTime(dateTime);
+            fill.setExtDateTime(extDateTime);
             fill.setSide(side);
             fill.setQuantity(quantity);
             fill.setPrice(price);
             fill.setExtId(extId);
-            fill.setParentOrder(order);
+            fill.setOrd(order);
 
             EsperManager.sendEvent(StrategyImpl.BASE, fill);
         }

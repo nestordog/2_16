@@ -7,6 +7,7 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.trade.LimitOrderI;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderQuantityValidationException;
+import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.entity.trade.StopOrderI;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.Side;
@@ -34,7 +35,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     }
 
     @Override
-    protected void handleValidateExternalOrder(Order order) throws Exception {
+    protected void handleValidateExternalOrder(SimpleOrder order) throws Exception {
 
         // validate quantity by allocations (if fa is enabled and no account has been specified)
         if (this.faEnabled && (order.getAccount() == null || "".equals(order.getAccount()))) {
@@ -48,7 +49,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     }
 
     @Override
-    protected void handleSendExternalOrder(Order order) throws Exception {
+    protected void handleSendExternalOrder(SimpleOrder order) throws Exception {
 
         int orderNumber = IBIdGenerator.getInstance().getNextOrderId();
         order.setNumber(orderNumber);
@@ -56,22 +57,22 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     }
 
     @Override
-    protected void handleModifyExternalOrder(Order order) throws Exception {
+    protected void handleModifyExternalOrder(SimpleOrder order) throws Exception {
 
         sendOrModifyOrder(order);
     }
 
     @Override
-    protected void handleCancelExternalOrder(Order order) throws Exception {
+    protected void handleCancelExternalOrder(SimpleOrder order) throws Exception {
 
         if (client.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
             logger.error("transaction cannot be executed, because IB is not logged on");
             return;
         }
 
-        client.cancelOrder((int) order.getNumber());
+        client.cancelOrder(order.getNumber());
 
-        logger.info("requested order cancallation for order: " + order);
+        logger.info("requested order cancellation for order: " + order);
     }
 
     /**
@@ -168,7 +169,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
         propagateOrder(order);
 
         // place the order through IBClient
-        client.placeOrder((int) order.getNumber(), contract, ibOrder);
+        client.placeOrder(order.getNumber(), contract, ibOrder);
 
         logger.info("placed or modified order: " + order);
     }

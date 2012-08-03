@@ -113,7 +113,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             @Override
             public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
                 for (OrderStatus orderStatus : orderStati) {
-                    Order order = orderStatus.getParentOrder();
+                    Order order = orderStatus.getOrd();
                     if (Status.EXECUTED.equals(orderStatus.getStatus())) {
                         if (unsubscribe) {
                             MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();

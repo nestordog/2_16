@@ -41,8 +41,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     @Override
     protected void handleCreateTransaction(Fill fill) throws Exception {
 
-        Strategy strategy = fill.getParentOrder().getStrategy();
-        Security security = fill.getParentOrder().getSecurity();
+        Strategy strategy = fill.getOrd().getStrategy();
+        Security security = fill.getOrd().getSecurity();
 
         // reattach the security & strategy
         HibernateUtil.reattach(this.getSessionFactory(), security);
@@ -53,7 +53,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         BigDecimal commission = RoundUtil.getBigDecimal(Math.abs(quantity * security.getSecurityFamily().getCommission().doubleValue()));
 
         Transaction transaction = new TransactionImpl();
-        transaction.setDateTime(fill.getDateTime());
+        transaction.setDateTime(fill.getExtDateTime());
         transaction.setExtId(fill.getExtId());
         transaction.setQuantity(quantity);
         transaction.setPrice(fill.getPrice());
@@ -246,12 +246,12 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     protected void handlePropagateFill(Fill fill) throws Exception {
 
         // send the fill to the strategy that placed the corresponding order
-        if (!StrategyImpl.BASE.equals(fill.getParentOrder().getStrategy().getName())) {
-            EsperManager.sendEvent(fill.getParentOrder().getStrategy().getName(), fill);
+        if (!StrategyImpl.BASE.equals(fill.getOrd().getStrategy().getName())) {
+            EsperManager.sendEvent(fill.getOrd().getStrategy().getName(), fill);
         }
 
         if (!this.simulation) {
-            logger.info("received fill: " + fill + " for order: " + fill.getParentOrder());
+            logger.info("received fill: " + fill + " for order: " + fill.getOrd());
         }
     }
 

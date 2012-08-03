@@ -12,7 +12,7 @@ select
     engineStrategy.name as strategyName,
     orderStatus
 from
-    pattern[[?] (every-distinct(parentOrder.security.id)
+    pattern[[?] (every-distinct(ord.security.id)
         (orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED,
-            parentOrder.security.id in (?),
-            parentOrder.strategy.name = ?)))];
+            ord.security.id in (?),
+            ord.strategy.name = ?)))];

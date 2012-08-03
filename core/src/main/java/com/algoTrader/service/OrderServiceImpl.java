@@ -9,11 +9,13 @@ import org.springframework.beans.factory.annotation.Value;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.trade.AlgoOrder;
 import com.algoTrader.entity.trade.Fill;
 import com.algoTrader.entity.trade.FillImpl;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.entity.trade.OrderValidationException;
+import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.EsperManager;
@@ -37,7 +39,9 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
             throw new OrderValidationException(order.getSecurity() + " is not tradeable");
         }
 
-        validateExternalOrder(order);
+        if (order instanceof SimpleOrder) {
+            validateExternalOrder((SimpleOrder) order);
+        }
 
         // TODO add internal validations (i.e. limit, amount, etc.)
     }
@@ -50,28 +54,33 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         order.setStrategy((Strategy) HibernateUtil.reattach(this.getSessionFactory(), order.getStrategy()));
 
         // make sure there is no order for the same security / strategy
+        //@formatter:off
         if (EsperManager.executeQuery(StrategyImpl.BASE,
-                "select number from OpenOrderWindow " +
-                "where security.id = " + order.getSecurity().getId() +
-                " and strategy.id = " + order.getStrategy().getId()).size() > 0) {
-            throw new OrderServiceException("existing order for " + order.getSecurity() + " strategy " + order.getStrategy());
+                "select number from OpenOrderWindow as openOrderWindow" +
+                " where openOrderWindow.security.id = " + order.getSecurity().getId() +
+                " and openOrderWindow.strategy.id = " + order.getStrategy().getId() +
+                " and openOrderWindow.algoOrder = " + order.isAlgoOrder()
+            ).size() > 0) {
+                throw new OrderServiceException("existing " + (order instanceof AlgoOrder ? "AlgoOrder" : "SimpleOrder") + " for " + order.getSecurity() + " strategy " + order.getStrategy());
         }
+        //@formatter:on
 
         // validate the order before sending it
         validateOrder(order);
 
+        // set the dateTime property
+        order.setDateTime(DateUtil.getCurrentEPTime());
+
         if (this.simulation) {
-
-            // process the order internally
-            sendInternalOrder(order);
+            sendSimulatedOrder(order);
+        } else if (order instanceof AlgoOrder) {
+            sendAlgoOrder((AlgoOrder) order);
         } else {
-
-            // use broker specific functionality to execute the order
-            sendExternalOrder(order);
+            sendExternalOrder((SimpleOrder) order);
         }
     }
 
-    private void sendInternalOrder(Order order) {
+    private void sendSimulatedOrder(Order order) {
 
         if (order.getQuantity() < 0) {
             throw new IllegalArgumentException("quantity has to be positive");
@@ -82,6 +91,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         // create one fill per order
         Fill fill = new FillImpl();
         fill.setDateTime(DateUtil.getCurrentEPTime());
+        fill.setExtDateTime(DateUtil.getCurrentEPTime());
         fill.setSide(order.getSide());
         fill.setQuantity(order.getQuantity());
 
@@ -100,7 +110,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
             throw new IllegalStateException("commission is undefined for " + security);
         }
 
-        fill.setParentOrder(order);
+        fill.setOrd(order);
 
         // propagate the fill
         getTransactionService().propagateFill(fill);
@@ -113,7 +123,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         orderStatus.setStatus(Status.EXECUTED);
         orderStatus.setFilledQuantity(order.getQuantity());
         orderStatus.setRemainingQuantity(0);
-        orderStatus.setParentOrder(order);
+        orderStatus.setOrd(order);
 
         // send the orderStatus to base
         EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
@@ -122,22 +132,14 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         propagateOrderStatus(orderStatus);
     }
 
-    @Override
-    protected void handleCancelOrder(Order order) throws Exception {
+    private void sendAlgoOrder(AlgoOrder order) {
 
-        cancelExternalOrder(order);
-    }
+        order.setNumber(AlgoIdGenerator.getInstance().getNextOrderId());
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected void handleCancelOrder(long orderNumber) throws Exception {
+        logger.info("send algo order: " + order);
 
-        Order order = ((Pair<Order, Map<?, ?>>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where number = " + orderNumber)).getFirst();
-        if (order != null) {
-            cancelExternalOrder(order);
-        } else {
-            throw new IllegalArgumentException("order does not exist " + orderNumber);
-        }
+        // progapate the order to all corresponding esper engines
+        propagateOrder(order);
     }
 
     @SuppressWarnings("unchecked")
@@ -146,14 +148,66 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
         List<Pair<Order, Map<?, ?>>> pairs = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow");
         for (Pair<Order, Map<?, ?>> pair : pairs) {
-            cancelExternalOrder(pair.getFirst());
+            cancelOrder(pair.getFirst());
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void handleCancelOrder(long orderNumber) throws Exception {
+
+        Order order = ((Pair<Order, Map<?, ?>>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where number = " + orderNumber)).getFirst();
+        if (order != null) {
+            cancelOrder(order);
+        } else {
+            throw new IllegalArgumentException("order does not exist " + orderNumber);
+        }
+    }
+
+    @Override
+    protected void handleCancelOrder(Order order) throws Exception {
+
+        if (order instanceof AlgoOrder) {
+            cancelAlgoOrder((AlgoOrder) order);
+        } else {
+            cancelExternalOrder((SimpleOrder) order);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void cancelAlgoOrder(AlgoOrder order) {
+
+        // cancel existing child orders
+        List<Pair<Order, Map<?, ?>>> pairs = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where not algoOrder and parentOrder.number = " + order.getNumber());
+        for (Pair<Order, Map<?, ?>> pair : pairs) {
+            cancelExternalOrder((SimpleOrder) pair.getFirst());
+        }
+
+        // get filledQuantity and remainingQuantity
+        Map<String, ?> map = (Map<String, ?>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE,
+                "select filledQuantity, remainingQuantity from OpenOrderWindow where number = " + order.getNumber());
+
+        // assemble the orderStatus
+        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+        orderStatus.setStatus(Status.CANCELED);
+        orderStatus.setFilledQuantity((Long) map.get("filledQuantity"));
+        orderStatus.setRemainingQuantity((Long) map.get("remainingQuantity"));
+        orderStatus.setOrd(order);
+
+        // send the orderStatus
+        EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
+
+        logger.info("cancelled algo order: " + order);
     }
 
     @Override
     protected void handleModifyOrder(Order order) throws Exception {
 
-        modifyExternalOrder(order);
+        if (order instanceof AlgoOrder) {
+            throw new UnsupportedOperationException("modification of AlgoOrders are not permitted");
+        } else {
+            modifyExternalOrder((SimpleOrder) order);
+        }
     }
 
     @Override
@@ -178,11 +232,12 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     protected void handlePropagateOrderStatus(OrderStatus orderStatus) throws Exception {
 
         // send the fill to the strategy that placed the corresponding order
-        if (orderStatus.getParentOrder() != null && !StrategyImpl.BASE.equals(orderStatus.getParentOrder().getStrategy().getName())) {
-            EsperManager.sendEvent(orderStatus.getParentOrder().getStrategy().getName(), orderStatus);
-            if (!this.simulation) {
-                logger.debug("propagated orderStatus: " + orderStatus);
-            }
+        if (orderStatus.getOrd() != null && !StrategyImpl.BASE.equals(orderStatus.getOrd().getStrategy().getName())) {
+            EsperManager.sendEvent(orderStatus.getOrd().getStrategy().getName(), orderStatus);
+        }
+
+        if (!this.simulation) {
+            logger.debug("propagated orderStatus: " + orderStatus);
         }
     }
 }

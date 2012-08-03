@@ -9,7 +9,7 @@ public class OrderStatusImpl extends OrderStatus {
 
         //@formatter:off
         return getStatus()
-            + (getParentOrder() != null ? " " + getParentOrder() : "")
+            + (getOrd() != null ? " " + getOrd() : "")
             + " filledQuantity: " + getFilledQuantity()
             + " remainingQuantity: " + getRemainingQuantity();
         //@formatter:on

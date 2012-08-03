@@ -24,11 +24,11 @@ public abstract class TradeCallback {
         TreeSet<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(orderStatusList, new Transformer<OrderStatus, Integer>() {
             @Override
             public Integer transform(OrderStatus order) {
-                return order.getParentOrder().getSecurity().getId();
+                return order.getOrd().getSecurity().getId();
             }
         }));
 
-        String owningStrategyName = orderStati[0].getParentOrder().getStrategy().getName();
+        String owningStrategyName = orderStati[0].getOrd().getStrategy().getName();
 
         // get the statement alias based on all security ids
         String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_") + "_" + owningStrategyName;
