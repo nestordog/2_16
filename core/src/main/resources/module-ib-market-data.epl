@@ -1,112 +1,112 @@
 @Name('UPDATE_TICK_WINDOW_BID')
 @RunTimeOnly()
 on
-    IBTickPrice as tickPrice
+    com.algoTrader.service.ib.TickPrice as tickPrice
 update
     TickWindow as tickWindow
 set
     tickWindow.bid = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
     tickWindow.refresh = true
 where
-    tickPrice.field = TickType.BID
+    tickPrice.field = com.ib.client.TickType.BID
 and
     tickWindow.tickerId = tickPrice.tickerId;
 
 @Name('UPDATE_TICK_WINDOW_ASK')
 @RunTimeOnly()
 on
-    IBTickPrice as tickPrice
+    com.algoTrader.service.ib.TickPrice as tickPrice
 update
     TickWindow as tickWindow
 set
     tickWindow.ask = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
     tickWindow.refresh = true
 where
-    tickPrice.field = TickType.ASK
+    tickPrice.field = com.ib.client.TickType.ASK
 and
     tickWindow.tickerId = tickPrice.tickerId;
 
 @Name('UPDATE_TICK_WINDOW_LAST')
 @RunTimeOnly()
 on
-    IBTickPrice as tickPrice
+    com.algoTrader.service.ib.TickPrice as tickPrice
 update
     TickWindow as tickWindow
 set
     tickWindow.last = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
     tickWindow.refresh = true
 where
-    tickPrice.field = TickType.`LAST`
+    tickPrice.field = com.ib.client.TickType.`LAST`
 and
     tickWindow.tickerId = tickPrice.tickerId;
 
 @Name('UPDATE_TICK_WINDOW_CLOSE')
 @RunTimeOnly()
 on
-    IBTickPrice as tickPrice
+    com.algoTrader.service.ib.TickPrice as tickPrice
 update
     TickWindow as tickWindow
 set
     tickWindow.settlement = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
     tickWindow.refresh = true
 where
-    tickPrice.field = TickType.CLOSE
+    tickPrice.field = com.ib.client.TickType.CLOSE
 and
     tickWindow.tickerId = tickPrice.tickerId;
 
 @Name('UPDATE_TICK_WINDOW_VOL_ASK')
 @RunTimeOnly()
 on
-    IBTickSize as tickSize
+    com.algoTrader.service.ib.TickSize as tickSize
 update
     TickWindow as tickWindow
 set
     tickWindow.volAsk = tickSize.size,
     tickWindow.refresh = false
 where
-    tickSize.field = TickType.ASK_SIZE
+    tickSize.field = com.ib.client.TickType.ASK_SIZE
 and
     tickWindow.tickerId = tickSize.tickerId;
 
 @Name('UPDATE_TICK_WINDOW_VOL_BID')
 @RunTimeOnly()
 on
-    IBTickSize as tickSize
+    com.algoTrader.service.ib.TickSize as tickSize
 update
     TickWindow as tickWindow
 set
     tickWindow.volBid = tickSize.size,
     tickWindow.refresh = false
 where
-    tickSize.field = TickType.BID_SIZE
+    tickSize.field = com.ib.client.TickType.BID_SIZE
 and
     tickWindow.tickerId = tickSize.tickerId;
 
 @Name('UPDATE_TICK_WINDOW_VOL')
 @RunTimeOnly()
 on
-    IBTickSize as tickSize
+    com.algoTrader.service.ib.TickSize as tickSize
 update
     TickWindow as tickWindow
 set
     tickWindow.vol = tickSize.size,
     tickWindow.refresh = false
 where
-    tickSize.field = TickType.VOLUME
+    tickSize.field = com.ib.client.TickType.VOLUME
 and
     tickWindow.tickerId = tickSize.tickerId;
 
 @Name('UPDATE_TICK_WINDOW_CALL_OPEN_INTEREST')
 @RunTimeOnly()
 on
-    IBTickSize as tickSize
+    com.algoTrader.service.ib.TickSize as tickSize
 update
     TickWindow as tickWindow
 set
     tickWindow.openIntrest = tickSize.size,
     tickWindow.refresh = false
 where
-    tickSize.field = TickType.OPTION_CALL_OPEN_INTEREST
+    tickSize.field = com.ib.client.TickType.OPTION_CALL_OPEN_INTEREST
 and
     cast(tickWindow.security.type?, com.algoTrader.enumeration.OptionType) = OptionType.CALL
 and
@@ -115,14 +115,14 @@ and
 @Name('UPDATE_TICK_WINDOW_PUT_OPEN_INTEREST')
 @RunTimeOnly()
 on
-    IBTickSize as tickSize
+    com.algoTrader.service.ib.TickSize as tickSize
 update
     TickWindow as tickWindow
 set
     tickWindow.openIntrest = tickSize.size,
     tickWindow.refresh = false
 where
-    tickSize.field = TickType.OPTION_PUT_OPEN_INTEREST
+    tickSize.field = com.ib.client.TickType.OPTION_PUT_OPEN_INTEREST
 and
     cast(tickWindow.security.type?, com.algoTrader.enumeration.OptionType) = OptionType.PUT
 and
@@ -131,13 +131,13 @@ and
 @Name('UPDATE_TICK_LAST_TIMESTAMP')
 @RunTimeOnly()
 on
-    IBTickString as tickString
+    com.algoTrader.service.ib.TickString as tickString
 update
     TickWindow as tickWindow
 set
-    tickWindow.lastDateTime = IBUtil.getLastDateTime(tickString.value),
+    tickWindow.lastDateTime = com.algoTrader.service.ib.IBUtil.getLastDateTime(tickString.value),
     tickWindow.refresh = true
 where
-    tickString.field = TickType.LAST_TIMESTAMP
+    tickString.field = com.ib.client.TickType.LAST_TIMESTAMP
 and
     tickWindow.tickerId = tickString.tickerId;

@@ -507,7 +507,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `strategy` WRITE;
 /*!40000 ALTER TABLE `strategy` DISABLE KEYS */;
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `BENCHMARK`) VALUES (1,'BASE','',0,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,ib,algo',NULL,NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `BENCHMARK`) VALUES (1,'BASE','',0,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,algo,ib-market-data',NULL,NULL);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `BENCHMARK`) VALUES (2,'SMI','\0',0,'theta-init,theta-main',NULL,NULL);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `BENCHMARK`) VALUES (3,'ESTX50','\0',0,'theta-init,theta-main',NULL,NULL);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `BENCHMARK`) VALUES (4,'MULTIIND','\0',0,'multiind-movavcross,multiind-main',NULL,NULL);

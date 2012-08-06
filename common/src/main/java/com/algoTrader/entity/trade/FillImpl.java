@@ -21,14 +21,4 @@ public class FillImpl extends Fill {
             + " extId: " + getExtId();
         //@formatter:on
     }
-
-    @Override
-    /**
-     * make sure this is also associated with the order (in case a Fill is created from an esper statement)
-     */
-    public void setOrd(Order order) {
-
-        super.setOrd(order);
-        order.getFills().add(this);
-    }
 }

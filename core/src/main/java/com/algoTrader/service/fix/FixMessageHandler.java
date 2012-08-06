@@ -88,7 +88,9 @@ public class FixMessageHandler {
             fill.setQuantity(quantity);
             fill.setPrice(price);
             fill.setExtId(extId);
-            fill.setOrd(order);
+
+            // associate the fill with the order
+            order.addFills(fill);
 
             EsperManager.sendEvent(StrategyImpl.BASE, fill);
         }

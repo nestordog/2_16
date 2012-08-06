@@ -19,9 +19,8 @@ import com.algoTrader.entity.trade.StopOrder;
 import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
-import com.algoTrader.vo.ib.ExecDetails;
-import com.algoTrader.vo.ib.OrderStatus;
 import com.ib.client.Contract;
+import com.ib.client.Execution;
 
 public class IBUtil {
 
@@ -102,9 +101,13 @@ public class IBUtil {
         }
     }
 
-    public static Date getExecutionDateTime(ExecDetails execDetails) throws ParseException {
+    public static Date getExecutionDateTime(Execution execution) {
 
-        return executionFormat.parse(execDetails.getExecution().m_time);
+        try {
+            return executionFormat.parse(execution.m_time);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static Date getLastDateTime(String input) {
@@ -112,9 +115,9 @@ public class IBUtil {
         return new Date(Long.parseLong(input + "000"));
     }
 
-    public static Side getSide(ExecDetails execDetails) {
+    public static Side getSide(Execution execution) {
 
-        String sideString = execDetails.getExecution().m_side;
+        String sideString = execution.m_side;
         if ("BOT".equals(sideString)) {
             return Side.BUY;
         } else if ("SLD".equals(sideString)) {
@@ -124,25 +127,25 @@ public class IBUtil {
         }
     }
 
-    public static Status getStatus(OrderStatus orderStatus) {
+    public static Status getStatus(String status, int filled) {
 
-        if ("Submitted".equals(orderStatus.getStatus()) ||
-                "PreSubmitted".equals(orderStatus.getStatus()) ||
-                "PendingSubmit".equals(orderStatus.getStatus()) ||
-                "PendingCancel".equals(orderStatus.getStatus())) {
-            if (orderStatus.getFilled() == 0) {
+        if ("Submitted".equals(status) ||
+                "PreSubmitted".equals(status) ||
+                "PendingSubmit".equals(status) ||
+                "PendingCancel".equals(status)) {
+            if (filled == 0) {
                 return Status.SUBMITTED;
             } else {
                 return Status.PARTIALLY_EXECUTED;
             }
-        } else if ("Filled".equals(orderStatus.getStatus())) {
+        } else if ("Filled".equals(status)) {
             return Status.EXECUTED;
-        } else if ("ApiCancelled".equals(orderStatus.getStatus()) ||
-                "Cancelled".equals(orderStatus.getStatus()) ||
-                "Inactive".equals(orderStatus.getStatus())) {
+        } else if ("ApiCancelled".equals(status) ||
+                "Cancelled".equals(status) ||
+                "Inactive".equals(status)) {
             return Status.CANCELED;
         } else {
-            throw new IllegalArgumentException("unknown orderStatus " + orderStatus);
+            throw new IllegalArgumentException("unknown orderStatus " + status);
         }
     }
 }
