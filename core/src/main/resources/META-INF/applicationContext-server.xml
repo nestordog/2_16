@@ -25,18 +25,27 @@
 
     <!-- =================================== Broker Interfaces  ========================================= -->
 
-    <!-- Interactive Broker -->
-    <alias name="iBOrderService" alias="orderService"/>
+    <!-- Aliases -->
+    <alias name="iBOrderService" alias="externalOrderService"/>
+    <!-- <alias name="fixOrderService" alias="orderService"/> -->
     <alias name="iBMarketDataService" alias="marketDataService"/>
     <alias name="iBSecurityRetrieverService" alias="securityRetrieverService"/>
     <alias name="iBAccountService" alias="accountService"/>
     <alias name="iBHistoricalDataService" alias="historicalDataService"/>
 
+    <!-- Broker Clients -->
     <bean id="iBClientFactory" class="com.algoTrader.service.ib.IBClientFactory"/>
+    <bean id="fixClient" class="com.algoTrader.service.fix.FixClient"/>
 
-    <!-- FIX -->
-<!--     <alias name="fixOrderService" alias="orderService"/> -->
-<!--     <bean id="fixClient" class="com.algoTrader.service.fix.FixClient"/> -->
+    <!-- External Order Services -->
+    <bean id="externalOrderServices" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+                <entry key="IB" value-ref="iBOrderService"/>
+                <entry key="FIXIB" value-ref="fixOrderService"/>
+            </map>
+        </property>
+    </bean>
 
     <!-- =========================================== JMX ================================================ -->
 

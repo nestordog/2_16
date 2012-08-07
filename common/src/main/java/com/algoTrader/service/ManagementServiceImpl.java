@@ -30,6 +30,7 @@ import com.algoTrader.entity.trade.StopLimitOrder;
 import com.algoTrader.entity.trade.StopOrder;
 import com.algoTrader.entity.trade.TickwiseIncrementalOrder;
 import com.algoTrader.entity.trade.VariableIncrementalOrder;
+import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.StrategyUtil;
@@ -243,7 +244,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected void handleSendOrder(int securityId, long quantity, String sideString, String type, String nameValues) throws Exception {
+    protected void handleSendOrder(int securityId, long quantity, String sideString, String type, String brokerString, String nameValues) throws Exception {
 
         Side side = Side.fromValue(sideString);
         String strategyName = StrategyUtil.getStartedStrategyName();
@@ -276,6 +277,11 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         order.setSecurity(security);
         order.setQuantity(Math.abs(quantity));
         order.setSide(side);
+
+        // set the broker (if defined)
+        if (!"".equals(brokerString)) {
+            order.setBroker(MarketChannel.fromString(brokerString));
+        }
 
         // set additional properties
         Map<String, String> properties = new HashMap<String, String>();

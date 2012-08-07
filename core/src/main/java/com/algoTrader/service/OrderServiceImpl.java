@@ -1,5 +1,6 @@
 package com.algoTrader.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,17 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     private static Logger mailLogger = MyLogger.getLogger(OrderServiceImpl.class.getName() + ".MAIL");
 
     private @Value("${simulation}") boolean simulation;
+    private @Value("${defaultBroker}") String defaultBroker;
+
+    private Map<String, ExternalOrderService> externalOrderServices = new HashMap<String, ExternalOrderService>();
+
+    public Map<String, ExternalOrderService> getExternalOrderServices() {
+        return this.externalOrderServices;
+    }
+
+    public void setExternalOrderServices(Map<String, ExternalOrderService> externalOrderServices) {
+        this.externalOrderServices = externalOrderServices;
+    }
 
     @Override
     protected void handleValidateOrder(Order order) throws Exception {
@@ -40,7 +52,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         }
 
         if (order instanceof SimpleOrder) {
-            validateExternalOrder((SimpleOrder) order);
+            getExternalOrderService(order).validateOrder((SimpleOrder) order);
         }
 
         // TODO add internal validations (i.e. limit, amount, etc.)
@@ -76,7 +88,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         } else if (order instanceof AlgoOrder) {
             sendAlgoOrder((AlgoOrder) order);
         } else {
-            sendExternalOrder((SimpleOrder) order);
+            getExternalOrderService(order).sendOrder((SimpleOrder) order);
         }
     }
 
@@ -170,7 +182,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         if (order instanceof AlgoOrder) {
             cancelAlgoOrder((AlgoOrder) order);
         } else {
-            cancelExternalOrder((SimpleOrder) order);
+            getExternalOrderService(order).cancelOrder((SimpleOrder) order);
         }
     }
 
@@ -180,7 +192,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         // cancel existing child orders
         List<Pair<Order, Map<?, ?>>> pairs = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where not algoOrder and parentOrder.number = " + order.getNumber());
         for (Pair<Order, Map<?, ?>> pair : pairs) {
-            cancelExternalOrder((SimpleOrder) pair.getFirst());
+            getExternalOrderService(order).cancelOrder((SimpleOrder) pair.getFirst());
         }
 
         // get filledQuantity and remainingQuantity
@@ -206,7 +218,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         if (order instanceof AlgoOrder) {
             throw new UnsupportedOperationException("modification of AlgoOrders are not permitted");
         } else {
-            modifyExternalOrder((SimpleOrder) order);
+            getExternalOrderService(order).modifyOrder((SimpleOrder) order);
         }
     }
 
@@ -238,6 +250,18 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
         if (!this.simulation) {
             logger.debug("propagated orderStatus: " + orderStatus);
+        }
+    }
+
+    /**
+     * if a broker is defined, return the corresponding orderService otherwise return the defaultExternalOrderService
+     */
+    private ExternalOrderService getExternalOrderService(Order order) {
+
+        if (order.getBroker() != null) {
+            return getExternalOrderServices().get(order.getBroker().getValue());
+        } else {
+            return getExternalOrderServices().get(this.defaultBroker);
         }
     }
 }

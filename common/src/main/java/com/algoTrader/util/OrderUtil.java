@@ -51,6 +51,7 @@ public class OrderUtil {
         orderVO.setQuantity(order.getQuantity());
         orderVO.setType(StringUtils.substringBefore(ClassUtils.getShortClassName(order.getClass()), "OrderImpl"));
         orderVO.setName(security.toString());
+        orderVO.setBroker(order.getBroker() != null ? order.getBroker().getValue() : "");
         orderVO.setNumber(order.getNumber());
         orderVO.setStatus((Status) map.get("status"));
         orderVO.setFilledQuantity((Long) map.get("filledQuantity"));

@@ -41,7 +41,6 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMddkkmmss");
 
     private @Value("${simulation}") boolean simulation;
-    private @Value("#{'${marketChannel}' == 'IB'}") boolean ibEnabled;
     private @Value("${ib.securityRetrieverServiceEnabled}") boolean securityRetrieverServiceEnabled;
 
     private IBClient client;
@@ -210,7 +209,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
     @Override
     protected void handleInit() throws java.lang.Exception {
 
-        if (!this.ibEnabled || this.simulation || !this.securityRetrieverServiceEnabled) {
+        if (this.simulation || !this.securityRetrieverServiceEnabled) {
             return;
         }
 

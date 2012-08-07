@@ -137,6 +137,12 @@
         <property name="genericMessageListenerContainer" ref="genericMessageListenerContainer"/>]]></to>
         </mapping>
 
+        <!-- add externalOrderServices ref -->
+        <mapping>
+            <from><![CDATA[<!-- OrderService service property merge-point -->]]></from>
+            <to><![CDATA[<lookup-method name="getExternalOrderServices" bean="externalOrderServices"/>]]></to>
+        </mapping>
+
         <!-- remove condition remotable for SpringClientServiceLocator.vsl -->
         <mapping>
             <from><![CDATA[<template

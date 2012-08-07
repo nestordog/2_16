@@ -57,7 +57,6 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     private static Logger logger = MyLogger.getLogger(IBAccountServiceImpl.class.getName());
 
     private @Value("${simulation}") boolean simulation;
-    private @Value("#{'${marketChannel}' == 'IB'}") boolean ibEnabled;
     private @Value("${misc.portfolioDigits}") int portfolioDigits;
     private @Value("${ib.faEnabled}") boolean faEnabled;
     private @Value("${ib.accountServiceEnabled}") boolean accountServiceEnabled;
@@ -91,7 +90,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     @Override
     protected void handleInit() throws java.lang.Exception {
 
-        if (!this.ibEnabled || this.simulation || !this.accountServiceEnabled) {
+        if (this.simulation || !this.accountServiceEnabled) {
             return;
         }
 
@@ -259,59 +258,52 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     @Override
     protected long handleGetQuantityByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception {
 
-        if (this.ibEnabled && this.faEnabled && !this.simulation) {
-
-            // if financial advisor is enabled, we have to get the number of Contracts per account
-            // in order to avoid fractions
-            long quantityByMargin = 0;
-            StringBuffer buffer = new StringBuffer("quantityByMargin:");
-            for (String account : getAccounts()) {
-                double availableAmount = Double.parseDouble(retrieveAccountValue(account, "CHF", "AvailableFunds"));
-                long quantity = (long) (availableAmount / initialMarginPerContractInBase);
-                quantityByMargin += quantity;
-
-                buffer.append(" " + account + "=" + quantity);
-            }
-            logger.debug(buffer.toString());
-
-            return quantityByMargin;
-
-        } else {
-
-            double availableFunds = getPortfolioService().getAvailableFundsDouble(strategyName);
-            return (long) (availableFunds / initialMarginPerContractInBase);
+        if (!this.faEnabled || this.simulation) {
+            return (long) (getPortfolioService().getAvailableFundsDouble(strategyName) / initialMarginPerContractInBase);
         }
+
+        // if financial advisor is enabled, we have to get the number of Contracts per account
+        // in order to avoid fractions
+        long quantityByMargin = 0;
+        StringBuffer buffer = new StringBuffer("quantityByMargin:");
+        for (String account : getAccounts()) {
+            double availableAmount = Double.parseDouble(retrieveAccountValue(account, "CHF", "AvailableFunds"));
+            long quantity = (long) (availableAmount / initialMarginPerContractInBase);
+            quantityByMargin += quantity;
+
+            buffer.append(" " + account + "=" + quantity);
+        }
+        logger.debug(buffer.toString());
+
+        return quantityByMargin;
     }
 
     @Override
     protected long handleGetQuantityByAllocation(String strategyName, long requestedQuantity) throws Exception {
 
-        if (this.ibEnabled && this.faEnabled && !this.simulation) {
-
-            // if financial advisor is enabled, we have to get the number of Contracts per account
-            // in order to avoid fractions
-            long quantityByAllocation = 0;
-            StringBuffer buffer = new StringBuffer("quantityByAllocation:");
-            for (Map.Entry<String, Double> entry : getAllocations(strategyName).entrySet()) {
-                long quantity = (long) (entry.getValue() / 100.0 * requestedQuantity);
-                quantityByAllocation += quantity;
-
-                buffer.append(" " + entry.getKey() + "=" + quantity);
-            }
-            logger.debug(buffer.toString());
-
-            return quantityByAllocation;
-
-        } else {
-
+        if (!this.faEnabled || this.simulation) {
             return requestedQuantity;
         }
+
+        // if financial advisor is enabled, we have to get the number of Contracts per account
+        // in order to avoid fractions
+        long quantityByAllocation = 0;
+        StringBuffer buffer = new StringBuffer("quantityByAllocation:");
+        for (Map.Entry<String, Double> entry : getAllocations(strategyName).entrySet()) {
+            long quantity = (long) (entry.getValue() / 100.0 * requestedQuantity);
+            quantityByAllocation += quantity;
+
+            buffer.append(" " + entry.getKey() + "=" + quantity);
+        }
+        logger.debug(buffer.toString());
+
+        return quantityByAllocation;
     }
 
     @Override
     protected void handleReconcile() throws Exception {
 
-        if (!this.ibEnabled || this.simulation) {
+        if (this.simulation) {
             return;
         }
 

@@ -30,7 +30,6 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 
     private @Value("${simulation}") boolean simulation;
-    private @Value("#{'${marketChannel}' == 'IB'}") boolean ibEnabled;
     private @Value("${ib.historicalDataServiceEnabled}") boolean historicalDataServiceEnabled;
     private @Value("${ib.historicalDataTimeout}") int historicalDataTimeout;
 
@@ -47,7 +46,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
     @Override
     protected void handleInit() throws Exception {
 
-        if (!this.ibEnabled || this.simulation || !this.historicalDataServiceEnabled) {
+        if (this.simulation || !this.historicalDataServiceEnabled) {
             return;
         }
 

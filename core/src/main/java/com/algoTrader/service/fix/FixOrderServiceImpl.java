@@ -41,12 +41,12 @@ public class FixOrderServiceImpl extends FixOrderServiceBase {
     private String sessionName = "FIXIB";
 
     @Override
-    protected void handleValidateExternalOrder(SimpleOrder order) throws Exception {
+    protected void handleValidateOrder(SimpleOrder order) throws Exception {
         // to be implememented
     }
 
     @Override
-    protected void handleSendExternalOrder(SimpleOrder order) throws Exception {
+    protected void handleSendOrder(SimpleOrder order) throws Exception {
 
         // use system time for orderNumber
         order.setNumber(FixIdGenerator.getInstance().getNextOrderId());
@@ -110,7 +110,7 @@ public class FixOrderServiceImpl extends FixOrderServiceBase {
         }
 
         // progapate the order to all corresponding esper engines
-        propagateOrder(order);
+        getOrderService().propagateOrder(order);
 
         // send the message to the FixClient
         getFixClient().sendMessage(newOrder, this.sessionName);
@@ -119,7 +119,7 @@ public class FixOrderServiceImpl extends FixOrderServiceBase {
     }
 
     @Override
-    protected void handleModifyExternalOrder(SimpleOrder order) throws Exception {
+    protected void handleModifyOrder(SimpleOrder order) throws Exception {
 
         // assign a new order number
         long origNumber = order.getNumber();
@@ -148,7 +148,7 @@ public class FixOrderServiceImpl extends FixOrderServiceBase {
             replaceRequest.set(new StopPx(((StopOrderI) order).getStop().doubleValue()));
         }
         // progapate the order to all corresponding esper engines
-        propagateOrder(order);
+        getOrderService().propagateOrder(order);
 
         // send the message to the FixClient
         getFixClient().sendMessage(replaceRequest, this.sessionName);
@@ -157,7 +157,7 @@ public class FixOrderServiceImpl extends FixOrderServiceBase {
     }
 
     @Override
-    protected void handleCancelExternalOrder(SimpleOrder order) throws Exception {
+    protected void handleCancelOrder(SimpleOrder order) throws Exception {
 
         OrderCancelRequest cancelRequest = new OrderCancelRequest();
 

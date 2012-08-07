@@ -35,7 +35,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     }
 
     @Override
-    protected void handleValidateExternalOrder(SimpleOrder order) throws Exception {
+    protected void handleValidateOrder(SimpleOrder order) throws Exception {
 
         // validate quantity by allocations (if fa is enabled and no account has been specified)
         if (this.faEnabled && (order.getAccount() == null || "".equals(order.getAccount()))) {
@@ -49,7 +49,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     }
 
     @Override
-    protected void handleSendExternalOrder(SimpleOrder order) throws Exception {
+    protected void handleSendOrder(SimpleOrder order) throws Exception {
 
         int orderNumber = IBIdGenerator.getInstance().getNextOrderId();
         order.setNumber(orderNumber);
@@ -57,16 +57,16 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     }
 
     @Override
-    protected void handleModifyExternalOrder(SimpleOrder order) throws Exception {
+    protected void handleModifyOrder(SimpleOrder order) throws Exception {
 
         sendOrModifyOrder(order);
     }
 
     @Override
-    protected void handleCancelExternalOrder(SimpleOrder order) throws Exception {
+    protected void handleCancelOrder(SimpleOrder order) throws Exception {
 
-        if (client.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
-            logger.error("transaction cannot be executed, because IB is not logged on");
+        if (client == null || client.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
+            logger.error("order cannot be cancelled, because IB is not logged on");
             return;
         }
 
@@ -81,8 +81,8 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
      */
     private void sendOrModifyOrder(Order order) throws Exception {
 
-        if (client.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
-            logger.error("transaction cannot be executed, because IB is not logged on");
+        if (client == null || client.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
+            logger.error("order cannot be sent / modified, because IB is not logged on");
             return;
         }
 
@@ -166,7 +166,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
         }
 
         // progapate the order to all corresponding esper engines
-        propagateOrder(order);
+        getOrderService().propagateOrder(order);
 
         // place the order through IBClient
         client.placeOrder(order.getNumber(), contract, ibOrder);

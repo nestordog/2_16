@@ -19,6 +19,7 @@ public abstract class OrderImpl extends Order {
             + " " + getSecurity()
             + " " + getStrategy()
             + " number: " + getNumber()
+            + (getBroker() != null ? " broker: " + getBroker() : "")
             + (!"".equals(getDescription()) ? " " + getDescription() : "");
         //@formatter:on
     }
