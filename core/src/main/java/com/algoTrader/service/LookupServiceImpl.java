@@ -540,6 +540,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected OrderPreference handleGetOrderPreferenceByStrategyAndSecurityFamily(String strategyName, int securityFamilyId) throws Exception {
+
+        return getDefaultOrderPreferenceDao().findByStrategyAndSecurityFamily(strategyName, securityFamilyId).getOrderPreference();
+    }
+
+    @Override
     protected Tick handleGetLastTick(int securityId) throws Exception {
 
         List<Tick> list = getTickDao().findTicksForSecurityAndMaxDate(1, 1, securityId, DateUtil.getCurrentEPTime());
