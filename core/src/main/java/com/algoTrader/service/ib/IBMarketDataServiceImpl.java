@@ -1,8 +1,5 @@
 package com.algoTrader.service.ib;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,7 +69,6 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
         logger.debug("request " + tickerId + " for : " + security);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     protected void handleExternalUnsubscribe(Security security) throws Exception {
 
@@ -81,21 +77,18 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
         }
 
         // get the tickerId by querying the TickWindow
-        List<Map> events = EsperManager.executeQuery(StrategyImpl.BASE, "select tickerId from TickWindow where security.id = " + security.getId());
-
-        if (events.size() == 1) {
-
-            Integer tickerId = (Integer) events.get(0).get("tickerId");
-            client.cancelMktData(tickerId);
-
-            UnsubscribeTickVO unsubscribeTickEvent = new UnsubscribeTickVO();
-            unsubscribeTickEvent.setSecurityId(security.getId());
-            EsperManager.sendEvent(StrategyImpl.BASE, unsubscribeTickEvent);
-
-            logger.debug("cancelled market data for : " + security);
-        } else {
+        Integer tickerId = getTickDao().findTickerIdBySecurity(security.getId());
+        if (tickerId == null) {
             throw new IBMarketDataServiceException("tickerId for security " + security + " was not found");
         }
+
+        client.cancelMktData(tickerId);
+
+        UnsubscribeTickVO unsubscribeTickEvent = new UnsubscribeTickVO();
+        unsubscribeTickEvent.setSecurityId(security.getId());
+        EsperManager.sendEvent(StrategyImpl.BASE, unsubscribeTickEvent);
+
+        logger.debug("cancelled market data for : " + security);
     }
 
     @Override

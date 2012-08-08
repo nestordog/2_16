@@ -1,7 +1,6 @@
 package com.algoTrader.service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -24,7 +23,7 @@ import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
-import com.espertech.esper.collection.Pair;
+import com.algoTrader.vo.OrderStatusVO;
 
 public abstract class OrderServiceImpl extends OrderServiceBase {
 
@@ -66,16 +65,9 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         order.setStrategy((Strategy) HibernateUtil.reattach(this.getSessionFactory(), order.getStrategy()));
 
         // make sure there is no order for the same security / strategy
-        //@formatter:off
-        if (EsperManager.executeQuery(StrategyImpl.BASE,
-                "select number from OpenOrderWindow as openOrderWindow" +
-                " where openOrderWindow.security.id = " + order.getSecurity().getId() +
-                " and openOrderWindow.strategy.id = " + order.getStrategy().getId() +
-                " and openOrderWindow.algoOrder = " + order.isAlgoOrder()
-            ).size() > 0) {
+        if (getOrderDao().findOpenOrderCountByStrategySecurityAndAlgoOrder(order.getStrategy().getName(), order.getSecurity().getId(), order.isAlgoOrder()) > 0) {
                 throw new OrderServiceException("existing " + (order instanceof AlgoOrder ? "AlgoOrder" : "SimpleOrder") + " for " + order.getSecurity() + " strategy " + order.getStrategy());
         }
-        //@formatter:on
 
         // validate the order before sending it
         validateOrder(order);
@@ -154,21 +146,18 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         propagateOrder(order);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void handleCancelAllOrders() throws Exception {
 
-        List<Pair<Order, Map<?, ?>>> pairs = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow");
-        for (Pair<Order, Map<?, ?>> pair : pairs) {
-            cancelOrder(pair.getFirst());
+        for (Order order : getOrderDao().findAllOpenOrders()) {
+            cancelOrder(order);
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected void handleCancelOrder(long orderNumber) throws Exception {
+    protected void handleCancelOrder(int orderNumber) throws Exception {
 
-        Order order = ((Pair<Order, Map<?, ?>>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where number = " + orderNumber)).getFirst();
+        Order order = getOrderDao().findOpenOrderByNumber(orderNumber);
         if (order != null) {
             cancelOrder(order);
         } else {
@@ -186,24 +175,21 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void cancelAlgoOrder(AlgoOrder order) {
 
         // cancel existing child orders
-        List<Pair<Order, Map<?, ?>>> pairs = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where not algoOrder and parentOrder.number = " + order.getNumber());
-        for (Pair<Order, Map<?, ?>> pair : pairs) {
-            getExternalOrderService(order).cancelOrder((SimpleOrder) pair.getFirst());
+        for (Order childOrder : getOrderDao().findOpenOrdersByParentNumber(order.getNumber())) {
+            getExternalOrderService(order).cancelOrder((SimpleOrder) childOrder);
         }
 
-        // get filledQuantity and remainingQuantity
-        Map<String, ?> map = (Map<String, ?>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE,
-                "select filledQuantity, remainingQuantity from OpenOrderWindow where number = " + order.getNumber());
+        // get the current OrderStatusVO
+        OrderStatusVO orderStatusVO = getOrderStatusDao().findOrderStatusByNumber(order.getNumber());
 
-        // assemble the orderStatus
+        // assemble a new OrderStatus Entity
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(Status.CANCELED);
-        orderStatus.setFilledQuantity((Long) map.get("filledQuantity"));
-        orderStatus.setRemainingQuantity((Long) map.get("remainingQuantity"));
+        orderStatus.setFilledQuantity(orderStatusVO.getFilledQuantity());
+        orderStatus.setRemainingQuantity(orderStatusVO.getRemainingQuantity());
         orderStatus.setOrd(order);
 
         // send the orderStatus

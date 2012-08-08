@@ -2,22 +2,20 @@ package com.algoTrader.service.ib;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.trade.Fill;
+import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;
-import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
-import com.espertech.esper.collection.Pair;
 import com.ib.client.Contract;
 import com.ib.client.EWrapperMsgGenerator;
 import com.ib.client.Execution;
@@ -42,7 +40,6 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
 
     // Override EWrapper methods (create events, send them into esper and log them)
 
-    @SuppressWarnings("unchecked")
     @Override
     public void execDetails(final int reqId, final Contract contract, final Execution execution) {
 
@@ -51,7 +48,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
             int number = execution.m_orderId;
 
             // get the order from the OpenOrderWindow
-            SimpleOrder order = ((Pair<SimpleOrder, Map<?, ?>>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where number = " + number)).getFirst();
+            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByNumber(number);
             if (order == null) {
                 logger.error("order could not be found " + number + " for execution " + contract + " " + execution);
                 return;
@@ -83,18 +80,16 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void orderStatus(final int orderId, final String statusString, final int filled, final int remaining, final double avgFillPrice, final int permId,
             final int parentId, final double lastFillPrice, final int clientId, final String whyHeld) {
 
         // get the order from the OpenOrderWindow
-        Object object = EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where number = " + orderId);
+        Order order = ServiceLocator.instance().getLookupService().getOpenOrderByNumber(orderId);
 
-        if (object != null) {
+        if (order != null) {
 
             // get the fields
-            SimpleOrder order = ((Pair<SimpleOrder, Map<?, ?>>) object).getFirst();
             Status status = IBUtil.getStatus(statusString, filled);
             long filledQuantity = filled;
             long remainingQuantity = remaining;

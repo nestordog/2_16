@@ -2,7 +2,6 @@ package com.algoTrader.service.fix;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -12,26 +11,25 @@ import quickfix.field.OrdStatus;
 import quickfix.fix42.ExecutionReport;
 import quickfix.fix42.OrderCancelReject;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.trade.Fill;
+import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;
-import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
-import com.espertech.esper.collection.Pair;
 
 public class FixMessageHandler {
 
     private static Logger logger = MyLogger.getLogger(FixMessageHandler.class.getName());
 
-    @SuppressWarnings("unchecked")
     public void onMessage(ExecutionReport executionReport, SessionID sessionID) throws FieldNotFound {
 
-        long number = Long.parseLong(executionReport.getClOrdID().getValue());
+        Integer number = Integer.parseInt(executionReport.getClOrdID().getValue());
 
         if (executionReport.getOrdStatus().getValue() == OrdStatus.REJECTED) {
             logger.error("order " + number + " has been rejected, reason: " + executionReport.getText().getValue());
@@ -40,7 +38,7 @@ public class FixMessageHandler {
         // for orders that have been cancelled by the system get the number from OrigClOrdID
         if (executionReport.getOrdStatus().getValue() == OrdStatus.CANCELED) {
             if (!executionReport.isSetExecRestatementReason()) {
-                number = Long.parseLong(executionReport.getOrigClOrdID().getValue());
+                number = Integer.parseInt(executionReport.getOrigClOrdID().getValue());
 
                 // if the field ExecRestatementReason exists, there is something wrong
             } else {
@@ -49,7 +47,7 @@ public class FixMessageHandler {
         }
 
         // get the order from the OpenOrderWindow
-        SimpleOrder order = ((Pair<SimpleOrder, Map<?, ?>>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where number = " + number)).getFirst();
+        Order order = ServiceLocator.instance().getLookupService().getOpenOrderByNumber(number);
         if (order == null) {
             logger.error("order could not be found " + number + " for execution " + executionReport);
             return;

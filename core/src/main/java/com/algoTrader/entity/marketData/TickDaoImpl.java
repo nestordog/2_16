@@ -3,7 +3,9 @@ package com.algoTrader.entity.marketData;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.RawTickVO;
 import com.algoTrader.vo.TickVO;
@@ -101,5 +103,11 @@ public class TickDaoImpl extends TickDaoBase {
         tick.setSecurity(security);
 
         return tick;
+    }
+
+    @Override
+    protected Integer handleFindTickerIdBySecurity(int securityId) throws Exception {
+
+        return (Integer) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select tickerId from TickWindow where security.id = " + securityId);
     }
 }

@@ -1,6 +1,6 @@
 ## AlgoTrader: 15250
 ## line 32: only output hbm.xml if tag algoTrader_entity_nonPersistent is not set
-## line 141 + 181 : only output EntityDao if tag algoTrader_entity_nonPersistent is not set
+## line 165 + 167 : only output EntityDao if tag algoTrader_entity_nonPersistent is not set
 ## line 149: set service name instead of fqdn className
 ## line 170 - 180: outcomment generation of DAO Proxies
 ## line 194 - 196: only assign a transaction if specified using tagged-value
@@ -155,7 +155,6 @@
 #end
 
 #foreach($entity in $entities)
-#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent')))
 #if($implementationLanguage == "groovy" && $entity.daoImplementationRequired)
 #set($propertyPrefix="lang:")
     <lang:groovy id="$entity.fullyQualifiedDaoImplementationName" script-source="classpath:${entity.packagePath}/${entity.daoImplementationName}.groovy">
@@ -163,7 +162,9 @@
 #set($propertyPrefix="")
     <bean id="$entity.getBeanName(false)" class="$entity.fullyQualifiedDaoImplementationName">
 #end
+#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent')))
         <${propertyPrefix}property name="sessionFactory" ref="${beanNamePrefix}sessionFactory"/>
+#end		
 ## Because of a bug in Spring with circular references (and using AOP proxies),
 ## we need to use the lookup-method as a work-a-round for dependencies
 #if(!$daoInheritanceEnabled)
@@ -195,7 +196,6 @@
 ##end
 ##    </bean>
 ##
-#end
 #end
 #end
     <!-- ========================= Start of SERVICE DEFINITIONS ========================= -->

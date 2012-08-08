@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 
@@ -31,18 +30,15 @@ import com.algoTrader.entity.strategy.Measurement;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
-import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
-import com.algoTrader.util.OrderUtil;
 import com.algoTrader.util.metric.MetricsUtil;
-import com.algoTrader.vo.OrderVO;
+import com.algoTrader.vo.OrderStatusVO;
 import com.algoTrader.vo.PortfolioValueVO;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.RawBarVO;
 import com.algoTrader.vo.RawTickVO;
 import com.algoTrader.vo.TransactionVO;
-import com.espertech.esper.collection.Pair;
 
 @SuppressWarnings("unchecked")
 public class LookupServiceImpl extends LookupServiceBase {
@@ -520,16 +516,20 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Collection<OrderVO> handleGetOpenOrdersVO(String strategyName) throws Exception {
+    protected Order handleGetOpenOrderByNumber(int number) throws Exception {
 
-        List<Pair<Order, Map<String, ?>>> pairs;
+        return getOrderDao().findOpenOrderByNumber(number);
+    }
+
+    @Override
+    protected Collection<OrderStatusVO> handleGetOpenOrdersVO(String strategyName) throws Exception {
+
         if (strategyName.equals(StrategyImpl.BASE)) {
-            pairs = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow");
+            return getOrderStatusDao().findAllOrderStati();
         } else {
-            pairs = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
+            return getOrderStatusDao().findOrderStatiByStrategy(strategyName);
         }
 
-        return OrderUtil.toOrderVOCollection(pairs);
     }
 
     @Override

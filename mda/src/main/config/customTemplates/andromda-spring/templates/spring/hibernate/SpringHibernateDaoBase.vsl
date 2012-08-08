@@ -1,7 +1,8 @@
 ## AlgoTraderRevision: 15256
-## line 249: criteria.setCacheable(true)
-## line 858 - 864: handle algoTrader.entity.query.native
-## line 866 - 868: if taggedValue andromda_hibernate_query_useCache is set add queryObject.setCacheable(true);
+## line 65 92 683 1466 1624:  algoTrader_entity_nonPersistent
+## line 254: criteria.setCacheable(true)
+## line 871 - 875: handle algoTrader_entity_query_native
+## line 879 - 881: if taggedValue andromda_hibernate_query_useCache is set add queryObject.setCacheable(true);
 ## line 777: Enumerations do not use SpringUtils (it will output param.getValue() for Enumerations, which is wrong)
 ## line 1432 - 1452: remove getPrincipal
 #set ($generatedFile = "${entity.packagePath}/${entity.daoBaseName}.java")
@@ -61,7 +62,7 @@ package $entity.packageName;
 public abstract class $entity.daoBaseName
 #if ($daoInheritance)
     extends $entity.generalization.fullyQualifiedDaoImplementationName
-#else
+#elseif ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent')))
     extends ${hibernateUtils.springHibernatePackage}.support.HibernateDaoSupport
 #end
     implements $entity.fullyQualifiedDaoName
@@ -88,6 +89,7 @@ public abstract class $entity.daoBaseName
     }
 
 #end
+#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent')))
 #set ($argumentName = $stringUtils.uncapitalize($entity.name))
     /**
      * {@inheritDoc}
@@ -676,6 +678,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
         }
         this.getHibernateTemplate().deleteAll(entities);
     }
+#end	
 ##
 ## With daoInheritance disabled, only generate the finder methods defined on this entity; do NOT
 ## include those defined on any of the super-entities.
@@ -1460,6 +1463,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
         return $principalStoreCall
     }
 *#
+#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent')))
 #set ($fullyQualifiedPagingResultName = $springUtils.getFullyQualifiedClassName($springCommonTypesPackage, "PaginationResult"))
 #set ($fullyQualifiedSearchClassName = $springUtils.getFullyQualifiedClassName($springTypesPackage, "Search"))
 #set ($fullyQualifiedPropertySearchClassName = $springUtils.getFullyQualifiedClassName($springTypesPackage, "PropertySearch"))
@@ -1617,6 +1621,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
         return transformEntity(transform, entity);
     }
 
+#end
 #end
 #end
     // spring-hibernate-dao-base merge-point
