@@ -28,11 +28,12 @@ import com.algoTrader.vo.OrderStatusVO;
 public abstract class OrderServiceImpl extends OrderServiceBase {
 
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
-    private static Logger mailLogger = MyLogger.getLogger(OrderServiceImpl.class.getName() + ".MAIL");
+    private static Logger mailLogger = MyLogger.getLogger("com.algoTrader.service.NOTIFICATION_EMAIL");
 
     private @Value("${simulation}") boolean simulation;
     private @Value("${defaultBroker}") String defaultBroker;
 
+    // injected by Spring
     private Map<String, ExternalOrderService> externalOrderServices = new HashMap<String, ExternalOrderService>();
 
     public Map<String, ExternalOrderService> getExternalOrderServices() {
