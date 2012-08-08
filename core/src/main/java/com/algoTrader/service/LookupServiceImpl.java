@@ -27,6 +27,7 @@ import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.entity.strategy.CashBalance;
 import com.algoTrader.entity.strategy.Measurement;
+import com.algoTrader.entity.strategy.OrderPreference;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
@@ -530,6 +531,12 @@ public class LookupServiceImpl extends LookupServiceBase {
             return getOrderStatusDao().findOrderStatiByStrategy(strategyName);
         }
 
+    }
+
+    @Override
+    protected OrderPreference handleGetOrderPreferenceByName(String name) throws Exception {
+
+        return getOrderPreferenceDao().findByName(name);
     }
 
     @Override

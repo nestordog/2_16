@@ -22,7 +22,7 @@ import com.algoTrader.entity.security.Combination;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
-import com.algoTrader.entity.trade.InitializingOrderI;
+import com.algoTrader.entity.strategy.DefaultOrderPreference;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.entity.trade.TradeCallback;
@@ -96,17 +96,13 @@ public class PositionServiceImpl extends PositionServiceBase {
         Side side = (position.getQuantity() > 0) ? Side.SELL : Side.BUY;
 
         // prepare the order
-        Order order = getOrderPreferenceDao().createOrder(strategy.getName(), security.getClass());
+        DefaultOrderPreference defaultOrderPreference = getDefaultOrderPreferenceDao().findByStrategyAndSecurityFamily(strategy.getName(), security.getSecurityFamily().getId());
+        Order order = defaultOrderPreference.getOrderPreference().createOrder();
 
         order.setStrategy(strategy);
         order.setSecurity(security);
         order.setQuantity(Math.abs(quantity));
         order.setSide(side);
-
-        // initialize the order if necessary
-        if (order instanceof InitializingOrderI) {
-            ((InitializingOrderI) order).init(null);
-        }
 
         // unsubscribe is requested / notify non-full executions
         EsperManager.addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback() {

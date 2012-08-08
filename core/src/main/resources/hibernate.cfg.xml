@@ -32,6 +32,6 @@
     <mapping resource="com/algoTrader/entity/security/Component.hbm.xml" />
     <mapping resource="com/algoTrader/entity/strategy/CashBalance.hbm.xml" />
     <mapping resource="com/algoTrader/entity/strategy/Measurement.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/strategy/OrderPreference.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/strategy/DefaultOrderPreference.hbm.xml" />
 </session-factory>
 </hibernate-configuration>

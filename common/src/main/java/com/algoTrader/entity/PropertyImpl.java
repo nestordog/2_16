@@ -10,20 +10,26 @@ public class PropertyImpl extends Property {
     @Override
     public String toString() {
 
+        return getValue().toString();
+    }
+
+    @Override
+    public Object getValue() {
+
         if (getIntValue() != null) {
-            return getIntValue().toString();
+            return getIntValue();
         } else if (getDoubleValue() != null) {
-            return getDoubleValue().toString();
+            return getDoubleValue();
         } else if (getMoneyValue() != null) {
-            return getMoneyValue().toString();
+            return getMoneyValue();
         } else if (getTextValue() != null) {
-            return getTextValue().toString();
+            return getTextValue();
         } else if (getDateValue() != null) {
-            return getDateValue().toString();
+            return getDateValue();
         } else if (getBooleanValue() != null) {
-            return getBooleanValue().toString();
+            return getBooleanValue();
         } else {
-            return "";
+            return null;
         }
     }
 

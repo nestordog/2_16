@@ -2,6 +2,8 @@ package com.algoTrader.entity;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class PropertyHolderImpl extends PropertyHolder {
 
@@ -101,5 +103,15 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     public Boolean hasProperty(String name) {
 
         return getProperties().containsKey(name);
+    }
+
+    @Override
+    public Map<String, Object> getPropertyValueMap() {
+
+        Map<String, Object> values = new HashMap<String, Object>();
+        for (Property property : getProperties().values()) {
+            values.put(property.getName(), property.getValue());
+        }
+        return values;
     }
 }

@@ -21,7 +21,7 @@ import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.trade.InitializingOrderI;
+import com.algoTrader.entity.strategy.OrderPreference;
 import com.algoTrader.entity.trade.LimitOrder;
 import com.algoTrader.entity.trade.MarketOrder;
 import com.algoTrader.entity.trade.Order;
@@ -244,7 +244,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected void handleSendOrder(int securityId, long quantity, String sideString, String type, String brokerString, String nameValues) throws Exception {
+    protected void handleSendOrder(int securityId, long quantity, String sideString, String type, String brokerString, String propertiesString) throws Exception {
 
         Side side = Side.fromValue(sideString);
         String strategyName = StrategyUtil.getStartedStrategyName();
@@ -269,7 +269,14 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         } else if ("SLI".equals(type)) {
             order = SlicingOrder.Factory.newInstance();
         } else {
-            throw new IllegalArgumentException("unkown order type " + type);
+
+            // create the order from an OrderPreference
+            OrderPreference orderPreference = getLookupService().getOrderPreferenceByName(propertiesString);
+            if (orderPreference != null) {
+                order = orderPreference.createOrder();
+            } else {
+                throw new IllegalArgumentException("unknown OrderType or OrderPreference");
+            }
         }
 
         // set common values
@@ -284,19 +291,16 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         }
 
         // set additional properties
-        Map<String, String> properties = new HashMap<String, String>();
-        if (!"".equals(nameValues)) {
-            for (String nameValue : nameValues.split(",")) {
+        if (!"".equals(propertiesString)) {
+
+            // get the properties
+            Map<String, String> properties = new HashMap<String, String>();
+            for (String nameValue : propertiesString.split(",")) {
                 properties.put(nameValue.split("=")[0], nameValue.split("=")[1]);
             }
-        }
 
-        // populate the order with the additinal properities
-        BeanUtils.populate(order, properties);
-
-        // init the order if applicable
-        if (order instanceof InitializingOrderI) {
-            ((InitializingOrderI) order).init(null);
+            // populte the properties
+            BeanUtils.populate(order, properties);
         }
 
         // send orders

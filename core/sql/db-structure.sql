@@ -137,6 +137,28 @@ CREATE TABLE `component` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `default_order_preference`
+--
+
+DROP TABLE IF EXISTS `default_order_preference`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `default_order_preference` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `ORDER_PREFERENCE_FK` int(11) NOT NULL,
+  `STRATEGY_FK` int(11) NOT NULL,
+  `SECURITY_FAMILY_FK` int(11) NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `DEFAULT_ORDER_PREFERENCE_SECUC` (`SECURITY_FAMILY_FK`),
+  KEY `DEFAULT_ORDER_PREFERENCE_ORDEC` (`ORDER_PREFERENCE_FK`),
+  KEY `DEFAULT_ORDER_PREFERENCE_STRAC` (`STRATEGY_FK`),
+  CONSTRAINT `DEFAULT_ORDER_PREFERENCE_SECURITY_FAMILY_FKC` FOREIGN KEY (`SECURITY_FAMILY_FK`) REFERENCES `security_family` (`id`),
+  CONSTRAINT `DEFAULT_ORDER_PREFERENCE_ORDER_PREFERENCE_FKC` FOREIGN KEY (`ORDER_PREFERENCE_FK`) REFERENCES `order_preference` (`ID`),
+  CONSTRAINT `DEFAULT_ORDER_PREFERENCE_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `forex`
 --
 
@@ -324,13 +346,11 @@ DROP TABLE IF EXISTS `order_preference`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `order_preference` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `SECURITY_TYPE` varchar(255) NOT NULL,
-  `ORDER_TYPE` varchar(255) NOT NULL,
-  `STRATEGY_FK` int(11) NOT NULL,
+  `ID` int(11) NOT NULL,
+  `NAME` varchar(50) NOT NULL,
+  `ORDER_TYPE` varchar(30) NOT NULL,
   PRIMARY KEY (`ID`),
-  KEY `ORDER_PREFERENCE_STRATEGY_FKC` (`STRATEGY_FK`),
-  CONSTRAINT `ORDER_PREFERENCE_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`)
+  UNIQUE KEY `NAME_UNIQUE` (`NAME`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -642,4 +662,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-07-04 12:25:34
+-- Dump completed on 2012-08-08 20:04:29
