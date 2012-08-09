@@ -24,4 +24,10 @@ public class OrderPreferenceImpl extends OrderPreference {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public String toString() {
+
+        return getName() + " " + getOrderType() + " " + getPropertyValueMap();
+    }
 }

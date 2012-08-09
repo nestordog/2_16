@@ -12,6 +12,14 @@ public class LimitOrderImpl extends LimitOrder {
     }
 
     @Override
+    public void validate() throws OrderValidationException {
+
+        if (getLimit() == null) {
+            throw new OrderValidationException("no limit defined for " + this);
+        }
+    }
+
+    @Override
     public Order modifyLimit(BigDecimal limit) {
 
         LimitOrder order = (LimitOrder) cloneOrder();

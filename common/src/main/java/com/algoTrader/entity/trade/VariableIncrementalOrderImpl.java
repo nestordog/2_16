@@ -32,6 +32,14 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
     }
 
     @Override
+    public void validate() throws OrderValidationException {
+
+        if (getIncrement() == 0.0) {
+            throw new OrderValidationException("increment cannot be 0 for " + this);
+        }
+    }
+
+    @Override
     public LimitOrder firstOrder() {
 
         // make sure there is a tick

@@ -47,10 +47,15 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     @Override
     protected void handleValidateOrder(Order order) throws Exception {
 
+        // validate order specific properties
+        order.validate();
+
+        // check that the security is tradeable
         if (!order.getSecurity().getSecurityFamily().isTradeable()) {
             throw new OrderValidationException(order.getSecurity() + " is not tradeable");
         }
 
+        // external validation of the order
         if (order instanceof SimpleOrder) {
             getExternalOrderService(order).validateOrder((SimpleOrder) order);
         }

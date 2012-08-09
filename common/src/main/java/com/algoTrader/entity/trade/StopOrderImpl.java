@@ -12,6 +12,14 @@ public class StopOrderImpl extends StopOrder {
     }
 
     @Override
+    public void validate() throws OrderValidationException {
+
+        if (getStop() == null) {
+            throw new OrderValidationException("no stop defined for " + this);
+        }
+    }
+
+    @Override
     public Order modifyStop(BigDecimal stop) {
 
         StopOrder order = (StopOrder) cloneOrder();

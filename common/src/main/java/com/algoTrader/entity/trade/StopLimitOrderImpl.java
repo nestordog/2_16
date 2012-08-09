@@ -12,6 +12,16 @@ public class StopLimitOrderImpl extends StopLimitOrder {
     }
 
     @Override
+    public void validate() throws OrderValidationException {
+
+        if (getLimit() == null) {
+            throw new OrderValidationException("no limit defined for " + this);
+        } else if (getStop() == null) {
+            throw new OrderValidationException("no stop defined for " + this);
+        }
+    }
+
+    @Override
     public Order modifyLimit(BigDecimal limit) {
 
         LimitOrder order = (LimitOrder) cloneOrder();
@@ -26,4 +36,5 @@ public class StopLimitOrderImpl extends StopLimitOrder {
         order.setStop(stop);
         return order;
     }
+
 }

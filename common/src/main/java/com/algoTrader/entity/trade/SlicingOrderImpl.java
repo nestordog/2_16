@@ -35,6 +35,22 @@ public class SlicingOrderImpl extends SlicingOrder {
     }
 
     @Override
+    public void validate() throws OrderValidationException {
+
+        if (getMaxVolPct() == 0.0) {
+            throw new OrderValidationException("maxVolPct cannot be 0 for " + this);
+        } else if (getMaxQuantity() == 0) {
+            throw new OrderValidationException("maxQuantity cannot be 0 for " + this);
+        } else if (getMaxDuration() == 0.0) {
+            throw new OrderValidationException("maxDuration cannot be 0 for " + this);
+        } else if (getMinDelay() == 0.0) {
+            throw new OrderValidationException("minDelay cannot be 0 for " + this);
+        } else if (getMaxDelay() == 0.0) {
+            throw new OrderValidationException("maxDelay cannot be 0 for " + this);
+        }
+    }
+
+    @Override
     public void increaseOffsetTicks() {
         this.currentOffsetTicks = this.currentOffsetTicks + 1;
         logger.debug("increaseOffsetTicks of " + toString() + " to " + this.currentOffsetTicks);

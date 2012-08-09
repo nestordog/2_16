@@ -31,6 +31,12 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
     }
 
     @Override
+    public void validate() throws OrderValidationException {
+
+        // do nothing
+    }
+
+    @Override
     public LimitOrder firstOrder() {
 
         // make sure there is a tick
