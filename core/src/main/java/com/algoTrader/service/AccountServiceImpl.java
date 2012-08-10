@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
+import com.algoTrader.entity.strategy.PortfolioValue;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.DateUtil;
@@ -78,5 +79,62 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
             // persist the transaction
             getTransactionService().persistTransaction(transaction);
         }
+    }
+
+    @Override
+    protected void handleSavePortfolioValues() throws Exception {
+
+        for (Strategy strategy : getStrategyDao().findAutoActivateStrategies()) {
+
+            getPortfolioValueDao().create(createPortfolioValue(strategy));
+        }
+    }
+
+    @Override
+    protected void handleSavePortfolioValue(Strategy strategy, Transaction transaction) throws Exception {
+
+        if (TransactionType.BUY.equals(transaction.getType()) || TransactionType.SELL.equals(transaction.getType()) || TransactionType.EXPIRATION.equals(transaction.getType())) {
+            return; // nothing to do in case of BUY, SELL or EXPIRATION
+        }
+
+        PortfolioValue portfolioValue = createPortfolioValue(strategy);
+
+        portfolioValue.setCashFlow(transaction.getGrossValue());
+
+        getPortfolioValueDao().create(portfolioValue);
+    }
+
+    @Override
+    protected PortfolioValue handleCreatePortfolioValue(Strategy strategy) {
+
+        BigDecimal cashBalance;
+        BigDecimal securitiesCurrentValue;
+        BigDecimal maintenanceMargin;
+        double leverage;
+        if (strategy.isBase()) {
+            cashBalance = getPortfolioService().getCashBalance();
+            securitiesCurrentValue = getPortfolioService().getSecuritiesCurrentValue();
+            maintenanceMargin = getPortfolioService().getMaintenanceMargin();
+            leverage = getPortfolioService().getLeverage();
+
+        } else {
+            cashBalance = getPortfolioService().getCashBalance(strategy.getName());
+            securitiesCurrentValue = getPortfolioService().getSecuritiesCurrentValue(strategy.getName());
+            maintenanceMargin = getPortfolioService().getMaintenanceMargin(strategy.getName());
+            leverage = getPortfolioService().getLeverage(strategy.getName());
+        }
+
+        PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
+
+        portfolioValue.setStrategy(strategy);
+        portfolioValue.setDateTime(DateUtil.getCurrentEPTime());
+        portfolioValue.setCashBalance(cashBalance);
+        portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue);
+        portfolioValue.setMaintenanceMargin(maintenanceMargin);
+        portfolioValue.setNetLiqValue(cashBalance.add(securitiesCurrentValue)); // add here to prevent another lookup
+        portfolioValue.setLeverage(Double.isNaN(leverage) ? 0 : leverage);
+        portfolioValue.setAllocation(strategy.getAllocation());
+
+        return portfolioValue;
     }
 }

@@ -28,6 +28,7 @@ import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.entity.strategy.CashBalance;
 import com.algoTrader.entity.strategy.Measurement;
 import com.algoTrader.entity.strategy.OrderPreference;
+import com.algoTrader.entity.strategy.PortfolioValue;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
@@ -35,7 +36,6 @@ import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.OrderStatusVO;
-import com.algoTrader.vo.PortfolioValueVO;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.RawBarVO;
 import com.algoTrader.vo.RawTickVO;
@@ -607,24 +607,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected PortfolioValueVO handleGetPortfolioValue() throws Exception {
-
-        double cashBalance = getPortfolioService().getCashBalanceDouble();
-        double securitiesCurrentValue = getPortfolioService().getSecuritiesCurrentValueDouble();
-        double maintenanceMargin = getPortfolioService().getMaintenanceMarginDouble();
-        double leverage = getPortfolioService().getLeverage();
-
-        PortfolioValueVO portfolioValueVO = new PortfolioValueVO();
-        portfolioValueVO.setCashBalance(cashBalance);
-        portfolioValueVO.setSecuritiesCurrentValue(securitiesCurrentValue);
-        portfolioValueVO.setMaintenanceMargin(maintenanceMargin);
-        portfolioValueVO.setNetLiqValue(cashBalance + securitiesCurrentValue);
-        portfolioValueVO.setLeverage(leverage);
-
-        return portfolioValueVO;
-    }
-
-    @Override
     protected double handleGetForexRateDouble(Currency baseCurrency, Currency transactionCurrency) throws Exception {
 
         return getForexDao().getRateDouble(baseCurrency, transactionCurrency);
@@ -694,6 +676,18 @@ public class LookupServiceImpl extends LookupServiceBase {
         } else {
             return null;
         }
+    }
+
+    @Override
+    protected PortfolioValue handleGetBasePortfolioValue() throws Exception {
+
+        return getAccountService().createPortfolioValue(getStrategyDao().findByName(StrategyImpl.BASE));
+    }
+
+    @Override
+    protected Collection<PortfolioValue> handleGetPortfolioValuesByStrategyAndMinDate(String strategyName, Date minDate) throws Exception {
+
+        return getPortfolioValueDao().findByStrategyAndMinDate(strategyName, minDate);
     }
 
     @Override

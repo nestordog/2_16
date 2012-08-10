@@ -10,6 +10,8 @@ import javax.management.ObjectInstance;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.sun.tools.jconsole.JConsolePlugin;
 
 public class ChartPlugin extends JConsolePlugin {
@@ -56,11 +58,13 @@ public class ChartPlugin extends JConsolePlugin {
 
         for (ObjectInstance instance : beans) {
 
-            String className = instance.getClassName();
             String instanceName = instance.getObjectName().toString();
-            if (className.endsWith("ChartService")) {
+            if (instanceName.endsWith("ChartService")) {
 
-                String chartName = className.substring(className.lastIndexOf(".") + 1);
+                String className = instance.getClassName();
+                String chartName = StringUtils.substringAfterLast(className, ".");
+                chartName = StringUtils.substringBefore(chartName, "Impl");
+
                 ChartTab chartTab = new ChartTab(this);
                 tabs.put(chartName, chartTab);
                 this.chartTabs.put(instanceName, chartTab);

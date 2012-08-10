@@ -1,22 +1,22 @@
-@Name('INSERT_INTO_PORTFOLIO')
-@Subscriber(className='com.algoTrader.esper.subscriber.PrintPortfolioValueSubscriber')
-insert into
-    Portfolio
+@Name('SAVE_PORTFOLIO_VALUE')
+@Subscriber(className='com.algoTrader.service.AccountService.savePortfolioValues')
+@RunTimeOnly()
 select
-    current_timestamp() as timestamp,
-    LookupUtil.getPortfolioValue() as value,
-    cashTransaction
+    null
 from
-    pattern[
-        every(timer:at (0, 10:23, *, *, 1:5)
-        or cashTransaction=Transaction(
-            type=TransactionType.CREDIT
-            or type=TransactionType.DEBIT
-            or type=TransactionType.INTREST_PAID
-            or type=TransactionType.INTREST_RECEIVED
-            or type=TransactionType.FEES
-            or type=TransactionType.REFUND)
-        or EndOfSimulation)]
+    pattern[every timer:at(0, 14:23, *, *, 1:5)]
+where
+    LookupUtil.hasLastTicks();
+
+@Name('INSERT_INTO_PORTFOLIO_VALUE')
+@Subscriber(className='com.algoTrader.esper.subscriber.LogPortfolioValueSubscriber')
+@SimulationOnly
+insert into
+    PortfolioValue
+select
+    transpose(LookupUtil.getPortfolioValue())
+from
+    pattern[every (timer:at (0, 23, *, *, 1:5) or EndOfSimulation)]
 where
     LookupUtil.hasLastTicks();
 

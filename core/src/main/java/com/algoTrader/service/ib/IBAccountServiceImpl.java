@@ -44,7 +44,6 @@ import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.HttpClientUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -472,14 +471,8 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
         for (Transaction transaction : transactions) {
 
-
-            // add the amount to the balance
+            // persist the transaction
             getTransactionService().persistTransaction(transaction);
-
-            // propagate the transaction to BASE
-            if (EsperManager.isInitialized(StrategyImpl.BASE)) {
-                EsperManager.sendEvent(StrategyImpl.BASE, transaction);
-            }
         }
 
         // rebalance portfolio if necessary

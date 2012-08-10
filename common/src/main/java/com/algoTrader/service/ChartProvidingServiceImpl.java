@@ -8,7 +8,7 @@ import com.algoTrader.vo.ChartDefinitionVO;
 import com.algoTrader.vo.IndicatorVO;
 import com.algoTrader.vo.MarkerVO;
 
-public class ChartProvidingStrategyServiceImpl extends ChartProvidingStrategyServiceBase {
+public class ChartProvidingServiceImpl extends ChartProvidingServiceBase {
 
     private ChartDefinitionVO diagramDefinition;
 

@@ -11,8 +11,8 @@ import com.algoTrader.entity.security.Component;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
+import com.algoTrader.entity.strategy.PortfolioValue;
 import com.algoTrader.esper.EsperManager;
-import com.algoTrader.vo.PortfolioValueVO;
 
 public class LookupUtil {
 
@@ -87,9 +87,9 @@ public class LookupUtil {
         return ServiceLocator.instance().getLookupService().getPositionBySecurityAndStrategy(securityId, strategyName);
     }
 
-    public static PortfolioValueVO getPortfolioValue() {
+    public static PortfolioValue getPortfolioValue() {
 
-        return ServiceLocator.instance().getLookupService().getPortfolioValue();
+        return ServiceLocator.instance().getLookupService().getBasePortfolioValue();
     }
 
     public static boolean hasLastTicks() {

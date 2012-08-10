@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <mappings name="SpringMerge">
 
+        <!--  portfolioChartDefinition into applicationContext.xml -->
+        <mapping>
+            <from><![CDATA[<!-- PortfolioChartService service property merge-point -->]]></from>
+            <to><![CDATA[<property name="chartDefinition" ref="portfolioChartDefinition"/>]]></to>
+        </mapping>
+
+        <!--  portfolioChartDefinition into applicationContext-import-remoteServices.xml -->
+        <mapping>
+            <from><![CDATA[<!-- PortfolioChartService service client property merge-point -->]]></from>
+            <to><![CDATA[<property name="chartDefinition" ref="portfolioChartDefinition"/>]]></to>
+        </mapping>
+
         <!--  generate Hibernate.hbm.xml into applicationContext.xml -->
         <mapping>
             <from><![CDATA[<!-- applicationContext hibernateMappingLocations merge-point -->]]></from>

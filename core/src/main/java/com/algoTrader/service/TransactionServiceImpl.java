@@ -202,6 +202,9 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         // add the amount to the corresponding cashBalance
         getCashBalanceService().processTransaction(transaction);
 
+        // save a portfolioValue (if necessary)
+        getAccountService().savePortfolioValue(transaction.getStrategy(), transaction);
+
         // update all entities
         getTransactionDao().create(transaction);
 
@@ -230,7 +233,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         } else {
             logger.info(logMessage);
         }
-
     }
 
     @Override

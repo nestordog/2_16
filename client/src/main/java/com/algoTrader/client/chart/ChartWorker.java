@@ -7,7 +7,7 @@ import javax.management.JMX;
 import javax.management.ObjectName;
 import javax.swing.SwingWorker;
 
-import com.algoTrader.service.ChartProvidingStrategyService;
+import com.algoTrader.service.ChartProvidingService;
 
 public class ChartWorker extends SwingWorker<Map<String, ChartData>, Object> {
 
@@ -67,7 +67,7 @@ public class ChartWorker extends SwingWorker<Map<String, ChartData>, Object> {
             }
 
             // get the managementService
-            ChartProvidingStrategyService chartProvidingService = JMX.newMBeanProxy(this.chartPlugin.getMBeanServerConnection(), mbeanName, ChartProvidingStrategyService.class);
+            ChartProvidingService chartProvidingService = JMX.newMBeanProxy(this.chartPlugin.getMBeanServerConnection(), mbeanName, ChartProvidingService.class);
 
             // retrieve the charts if necessary
             long startDateTime = entry.getValue().getMaxDate();
