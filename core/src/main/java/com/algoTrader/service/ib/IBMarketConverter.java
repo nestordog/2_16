@@ -6,6 +6,6 @@ public class IBMarketConverter {
 
     public static String marketToString(Market market) {
 
-        return Market.SMART.getValue();
+        return market.toString();
     }
 }
