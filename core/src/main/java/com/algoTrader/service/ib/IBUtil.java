@@ -38,7 +38,8 @@ public class IBUtil {
 
             contract.m_symbol = stockOption.getUnderlying().getSymbol();
             contract.m_secType = "OPT";
-            contract.m_exchange = IBMarketConverter.marketToString(stockOption.getSecurityFamily().getMarket());
+            contract.m_exchange = "SMART";
+            contract.m_primaryExch = IBMarketConverter.marketToString(stockOption.getSecurityFamily().getMarket());
             contract.m_currency = stockOption.getSecurityFamily().getCurrency().toString();
             contract.m_strike = stockOption.getStrike().doubleValue();
             contract.m_right = stockOption.getType().toString();
@@ -74,7 +75,8 @@ public class IBUtil {
             contract.m_currency = security.getSecurityFamily().getCurrency().toString();
             contract.m_symbol = security.getSymbol();
             contract.m_secType = "STK";
-            contract.m_exchange = IBMarketConverter.marketToString(security.getSecurityFamily().getMarket());
+            contract.m_exchange = "SMART";
+            contract.m_primaryExch = IBMarketConverter.marketToString(security.getSecurityFamily().getMarket());
 
         } else if (security instanceof NaturalIndex) {
 
