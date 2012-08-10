@@ -15,4 +15,5 @@ from
     pattern[[?] (every-distinct(ord.security.id)
         (orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED,
             ord.security.id in (?),
-            ord.strategy.name = ?)))];
+            ord.strategy.name = ?,
+            ord.algoOrder = ?)))];

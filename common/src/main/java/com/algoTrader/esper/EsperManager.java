@@ -737,12 +737,12 @@ public class EsperManager {
         }
 
         // get the securityIds sorted asscending and check that all orders are from the same strategy
-        final Strategy strategy = orders.iterator().next().getStrategy();
+        final Order firstOrder = orders.iterator().next();
         Set<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(orders, new Transformer<Order, Integer>() {
 
             @Override
             public Integer transform(Order order) {
-                if (!order.getStrategy().equals(strategy)) {
+                if (!order.getStrategy().equals(firstOrder.getStrategy())) {
                     throw new IllegalArgumentException("cannot addTradeCallback for orders of different strategies");
                 }
                 return order.getSecurity().getId();
@@ -754,14 +754,15 @@ public class EsperManager {
         }
 
         // get the statement alias based on all security ids
-        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_") + "_" + strategy.getName();
+        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_") + "_" + firstOrder.getStrategy().getName();
 
         if (isDeployed(strategyName, alias)) {
 
             logger.warn(alias + " is already deployed");
         } else {
 
-            deployStatement(strategyName, "prepared", "ON_TRADE_COMPLETED", alias, new Object[] { sortedSecurityIds.size(), sortedSecurityIds, strategy.getName() }, callback);
+            Object[] params = new Object[] { sortedSecurityIds.size(), sortedSecurityIds, firstOrder.getStrategy().getName(), firstOrder.isAlgoOrder() };
+            deployStatement(strategyName, "prepared", "ON_TRADE_COMPLETED", alias, params, callback);
         }
     }
 

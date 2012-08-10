@@ -271,7 +271,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         } else {
 
             // create the order from an OrderPreference
-            OrderPreference orderPreference = getLookupService().getOrderPreferenceByName(propertiesString);
+            OrderPreference orderPreference = getLookupService().getOrderPreferenceByName(type);
             if (orderPreference != null) {
                 order = orderPreference.createOrder();
             } else {
