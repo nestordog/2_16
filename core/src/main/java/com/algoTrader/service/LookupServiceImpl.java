@@ -542,7 +542,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected OrderPreference handleGetOrderPreferenceByStrategyAndSecurityFamily(String strategyName, int securityFamilyId) throws Exception {
 
-        return getDefaultOrderPreferenceDao().findByStrategyAndSecurityFamily(strategyName, securityFamilyId).getOrderPreference();
+        return getDefaultOrderPreferenceDao().findByStrategyAndSecurityFamily(strategyName, securityFamilyId).getOrderPreferenceInitialized();
     }
 
     @Override
