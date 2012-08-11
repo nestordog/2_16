@@ -4,10 +4,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.jmx.export.annotation.ManagedResource;
+
 import com.algoTrader.entity.strategy.PortfolioValue;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.IndicatorVO;
 
+@ManagedResource(objectName = "com.algoTrader.service:name=PortfolioChart,type=chart")
 public class PortfolioChartServiceImpl extends PortfolioChartServiceBase {
 
     @Override

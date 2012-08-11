@@ -9,7 +9,7 @@ import javax.swing.SwingWorker;
 
 import com.algoTrader.service.ChartProvidingService;
 
-public class ChartWorker extends SwingWorker<Map<String, ChartData>, Object> {
+public class ChartWorker extends SwingWorker<Map<ObjectName, ChartData>, Object> {
 
     private ChartPlugin chartPlugin;
 
@@ -20,7 +20,7 @@ public class ChartWorker extends SwingWorker<Map<String, ChartData>, Object> {
     @Override
     protected void done() {
 
-        Map<String, ChartData> result;
+        Map<ObjectName, ChartData> result;
         try {
             result = get();
         } catch (Exception e) {
@@ -29,7 +29,7 @@ public class ChartWorker extends SwingWorker<Map<String, ChartData>, Object> {
         }
 
         // process all ChartData
-        for (Map.Entry<String, ChartData> entry : result.entrySet()) {
+        for (Map.Entry<ObjectName, ChartData> entry : result.entrySet()) {
 
             // get the chartTab by its name
             ChartTab chartTab = this.chartPlugin.getChartTabs().get(entry.getKey());
@@ -48,26 +48,23 @@ public class ChartWorker extends SwingWorker<Map<String, ChartData>, Object> {
     }
 
     @Override
-    public Map<String, ChartData> doInBackground() {
+    public Map<ObjectName, ChartData> doInBackground() {
 
-        Map<String, ChartData> chartDataMap = new HashMap<String, ChartData>();
-        for (Map.Entry<String, ChartTab> entry : this.chartPlugin.getChartTabs().entrySet()) {
+        Map<ObjectName, ChartData> chartDataMap = new HashMap<ObjectName, ChartData>();
+        for (Map.Entry<ObjectName, ChartTab> entry : this.chartPlugin.getChartTabs().entrySet()) {
 
             ChartData chartData = new ChartData();
 
-            ObjectName mbeanName = null;
-
             // see if the service is available
             try {
-                mbeanName = new ObjectName(entry.getKey());
-                this.chartPlugin.getMBeanServerConnection().getObjectInstance(mbeanName);
+                this.chartPlugin.getMBeanServerConnection().getObjectInstance(entry.getKey());
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
             }
 
             // get the managementService
-            ChartProvidingService chartProvidingService = JMX.newMBeanProxy(this.chartPlugin.getMBeanServerConnection(), mbeanName, ChartProvidingService.class);
+            ChartProvidingService chartProvidingService = JMX.newMBeanProxy(this.chartPlugin.getMBeanServerConnection(), entry.getKey(), ChartProvidingService.class);
 
             // retrieve the charts if necessary
             long startDateTime = entry.getValue().getMaxDate();

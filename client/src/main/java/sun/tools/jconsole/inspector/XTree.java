@@ -321,6 +321,9 @@ public class XTree extends JTree {
         DefaultMutableTreeNode childNode = null;
         DefaultMutableTreeNode parentNode = null;
 
+        if ("chart".equals(mbean.getKeyProperty("type")))
+            return;
+
         // Add the node or replace its user object if already added
         //
         Token token = dn.getToken(0);

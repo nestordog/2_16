@@ -1,28 +1,26 @@
 package com.algoTrader.client.chart;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
+import javax.management.ObjectName;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
-
-import org.apache.commons.lang.StringUtils;
 
 import com.sun.tools.jconsole.JConsolePlugin;
 
 public class ChartPlugin extends JConsolePlugin {
 
-    private Map<String, ChartTab> chartTabs = null;
+    private Map<ObjectName, ChartTab> chartTabs = null;
     private boolean initialized = false;
 
     public ChartPlugin() {
     }
 
-    public Map<String, ChartTab> getChartTabs() {
+    public Map<ObjectName, ChartTab> getChartTabs() {
 
         return this.chartTabs;
     }
@@ -46,36 +44,30 @@ public class ChartPlugin extends JConsolePlugin {
     public synchronized Map<String, JPanel> getTabs() {
 
         Map<String, JPanel> tabs = new LinkedHashMap<String, JPanel>();
-        this.chartTabs = new LinkedHashMap<String, ChartTab>();
+        this.chartTabs = new LinkedHashMap<ObjectName, ChartTab>();
 
         Set<ObjectInstance> beans = null;
         try {
-            beans = getContext().getMBeanServerConnection().queryMBeans(null, null);
-        } catch (IOException e) {
+            ObjectName objectName = new ObjectName("com.algoTrader.*:name=*,type=chart");
+            beans = getContext().getMBeanServerConnection().queryMBeans(objectName, null);
+        } catch (Exception e) {
             e.printStackTrace();
             return tabs;
         }
 
         for (ObjectInstance instance : beans) {
 
-            String instanceName = instance.getObjectName().toString();
-            if (instanceName.endsWith("ChartService")) {
-
-                String className = instance.getClassName();
-                String chartName = StringUtils.substringAfterLast(className, ".");
-                chartName = StringUtils.substringBefore(chartName, "Impl");
-
-                ChartTab chartTab = new ChartTab(this);
-                tabs.put(chartName, chartTab);
-                this.chartTabs.put(instanceName, chartTab);
-            }
+            String chartName = instance.getObjectName().getKeyProperty("name");
+            ChartTab chartTab = new ChartTab(this);
+            tabs.put(chartName, chartTab);
+            this.chartTabs.put(instance.getObjectName(), chartTab);
         }
 
         return tabs;
     }
 
     @Override
-    public SwingWorker<Map<String, ChartData>, Object> newSwingWorker() {
+    public SwingWorker<Map<ObjectName, ChartData>, Object> newSwingWorker() {
         return new ChartWorker(this);
     }
 }
