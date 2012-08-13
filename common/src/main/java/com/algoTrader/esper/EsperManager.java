@@ -229,9 +229,18 @@ public class EsperManager {
                             // process annotations
                             processAnnotations(newStatement);
 
-                            // attach the callback if supplied (will override the Subscriber defined in Annotations)
+                            // attach the callback if supplied
+                            // will override the Subscriber defined in Annotations
+                            // in simulation stop the statement before attaching (and restart afterwards)
+                            // to make sure that the subscriber receives the first event
                             if (callback != null) {
-                                newStatement.setSubscriber(callback);
+                                if (simulation) {
+                                    newStatement.setSubscriber(callback);
+                                } else {
+                                    newStatement.stop();
+                                    newStatement.setSubscriber(callback);
+                                    newStatement.start();
+                                }
                             }
 
                             // break iterating over the statements

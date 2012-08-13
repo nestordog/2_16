@@ -13,7 +13,7 @@ public class OrderPreferenceImpl extends OrderPreference {
         try {
 
             // create an order instance
-            Class<?> orderClazz = Class.forName("com.algoTrader.entity.trade." + getOrderType() + "OrderImpl");
+            Class<?> orderClazz = Class.forName(getOrderType().getValue());
             Order order = (Order) orderClazz.newInstance();
 
             // populate the order with the properities
