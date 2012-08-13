@@ -89,7 +89,7 @@ public class LookupUtil {
 
     public static PortfolioValue getPortfolioValue() {
 
-        return ServiceLocator.instance().getLookupService().getBasePortfolioValue();
+        return ServiceLocator.instance().getPortfolioService().getPortfolioValue();
     }
 
     public static boolean hasLastTicks() {

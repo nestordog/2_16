@@ -28,7 +28,6 @@ import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.entity.strategy.CashBalance;
 import com.algoTrader.entity.strategy.Measurement;
 import com.algoTrader.entity.strategy.OrderPreference;
-import com.algoTrader.entity.strategy.PortfolioValue;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
@@ -676,18 +675,6 @@ public class LookupServiceImpl extends LookupServiceBase {
         } else {
             return null;
         }
-    }
-
-    @Override
-    protected PortfolioValue handleGetBasePortfolioValue() throws Exception {
-
-        return getAccountService().createPortfolioValue(getStrategyDao().findByName(StrategyImpl.BASE));
-    }
-
-    @Override
-    protected Collection<PortfolioValue> handleGetPortfolioValuesByStrategyAndMinDate(String strategyName, Date minDate) throws Exception {
-
-        return getPortfolioValueDao().findByStrategyAndMinDate(strategyName, minDate);
     }
 
     @Override

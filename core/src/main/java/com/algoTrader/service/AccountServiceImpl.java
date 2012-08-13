@@ -86,7 +86,7 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
 
         for (Strategy strategy : getStrategyDao().findAutoActivateStrategies()) {
 
-            getPortfolioValueDao().create(createPortfolioValue(strategy));
+            getPortfolioValueDao().create(getPortfolioService().getPortfolioValue(strategy.getName()));
         }
     }
 
@@ -97,44 +97,10 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
             return; // nothing to do in case of BUY, SELL or EXPIRATION
         }
 
-        PortfolioValue portfolioValue = createPortfolioValue(strategy);
+        PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName());
 
         portfolioValue.setCashFlow(transaction.getGrossValue());
 
         getPortfolioValueDao().create(portfolioValue);
-    }
-
-    @Override
-    protected PortfolioValue handleCreatePortfolioValue(Strategy strategy) {
-
-        BigDecimal cashBalance;
-        BigDecimal securitiesCurrentValue;
-        BigDecimal maintenanceMargin;
-        double leverage;
-        if (strategy.isBase()) {
-            cashBalance = getPortfolioService().getCashBalance();
-            securitiesCurrentValue = getPortfolioService().getSecuritiesCurrentValue();
-            maintenanceMargin = getPortfolioService().getMaintenanceMargin();
-            leverage = getPortfolioService().getLeverage();
-
-        } else {
-            cashBalance = getPortfolioService().getCashBalance(strategy.getName());
-            securitiesCurrentValue = getPortfolioService().getSecuritiesCurrentValue(strategy.getName());
-            maintenanceMargin = getPortfolioService().getMaintenanceMargin(strategy.getName());
-            leverage = getPortfolioService().getLeverage(strategy.getName());
-        }
-
-        PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
-
-        portfolioValue.setStrategy(strategy);
-        portfolioValue.setDateTime(DateUtil.getCurrentEPTime());
-        portfolioValue.setCashBalance(cashBalance);
-        portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue);
-        portfolioValue.setMaintenanceMargin(maintenanceMargin);
-        portfolioValue.setNetLiqValue(cashBalance.add(securitiesCurrentValue)); // add here to prevent another lookup
-        portfolioValue.setLeverage(Double.isNaN(leverage) ? 0 : leverage);
-        portfolioValue.setAllocation(strategy.getAllocation());
-
-        return portfolioValue;
     }
 }

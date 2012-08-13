@@ -2,9 +2,12 @@ package com.algoTrader.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
@@ -13,10 +16,14 @@ import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Forex;
 import com.algoTrader.entity.strategy.CashBalance;
+import com.algoTrader.entity.strategy.PortfolioValue;
+import com.algoTrader.entity.strategy.PortfolioValueDao;
 import com.algoTrader.enumeration.Currency;
+import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.DoubleMap;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.BalanceVO;
+import com.algoTrader.vo.PortfolioValueVO;
 
 public class PortfolioServiceImpl extends PortfolioServiceBase {
 
@@ -241,23 +248,84 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
     @Override
     protected double handleGetPerformance() throws Exception {
 
-        Strategy base = getStrategyDao().findByName(StrategyImpl.BASE);
-        if (base.getBenchmark() != null) {
-            return getNetLiqValueDouble() / base.getBenchmark().doubleValue() - 1.0;
-        } else {
-            return Double.NaN;
-        }
+        return getPerformance(StrategyImpl.BASE);
     }
 
     @Override
     protected double handleGetPerformance(String strategyName) {
 
+        Date date = DateUtils.truncate(new Date(), Calendar.MONTH);
+        List<PortfolioValueVO> portfolioValues = (List<PortfolioValueVO>) getPortfolioValuesSinceDate(strategyName, date);
+
+        // the performance of the last portfolioValue represents the performance of the entire timeperiod
+        return portfolioValues.get(portfolioValues.size() - 1).getPerformance();
+    }
+
+    @Override
+    protected PortfolioValue handleGetPortfolioValue() {
+
+        return getPortfolioValue(StrategyImpl.BASE);
+    }
+
+    @Override
+    protected PortfolioValue handleGetPortfolioValue(String strategyName) {
+
         Strategy strategy = getStrategyDao().findByName(strategyName);
-        if (strategy.getBenchmark() != null) {
-            return getNetLiqValueDouble(strategyName) / strategy.getBenchmark().doubleValue() - 1.0;
+
+        BigDecimal cashBalance;
+        BigDecimal securitiesCurrentValue;
+        BigDecimal maintenanceMargin;
+        double leverage;
+        if (strategy.isBase()) {
+            cashBalance = getCashBalance();
+            securitiesCurrentValue = getSecuritiesCurrentValue();
+            maintenanceMargin = getMaintenanceMargin();
+            leverage = getLeverage();
+
         } else {
-            return Double.NaN;
+            cashBalance = getCashBalance(strategy.getName());
+            securitiesCurrentValue = getSecuritiesCurrentValue(strategy.getName());
+            maintenanceMargin = getMaintenanceMargin(strategy.getName());
+            leverage = getLeverage(strategy.getName());
         }
+
+        PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
+
+        portfolioValue.setStrategy(strategy);
+        portfolioValue.setDateTime(DateUtil.getCurrentEPTime());
+        portfolioValue.setCashBalance(cashBalance);
+        portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue);
+        portfolioValue.setMaintenanceMargin(maintenanceMargin);
+        portfolioValue.setNetLiqValue(cashBalance.add(securitiesCurrentValue)); // add here to prevent another lookup
+        portfolioValue.setLeverage(Double.isNaN(leverage) ? 0 : leverage);
+        portfolioValue.setAllocation(strategy.getAllocation());
+
+        return portfolioValue;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected Collection<PortfolioValueVO> handleGetPortfolioValuesSinceDate(String strategyName, Date minDate) throws Exception {
+
+        Collection<PortfolioValueVO> portfolioValues = (Collection<PortfolioValueVO>) getPortfolioValueDao().findByStrategyAndMinDate(PortfolioValueDao.TRANSFORM_PORTFOLIOVALUEVO, strategyName, minDate);
+
+        // calculate the performance
+        double lastNetLiqValue = 0;
+        double performance = 1.0;
+        for (PortfolioValueVO portfolioValue : portfolioValues) {
+
+            if (lastNetLiqValue != 0) {
+                double adjustedNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
+                if (portfolioValue.getCashFlow() != null) {
+                    adjustedNetLiqValue -= portfolioValue.getCashFlow().doubleValue();
+                }
+                performance = performance * (adjustedNetLiqValue / lastNetLiqValue);
+                portfolioValue.setPerformance(performance - 1.0);
+            }
+            lastNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
+        }
+
+        return portfolioValues;
     }
 
     @Override

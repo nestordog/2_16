@@ -130,13 +130,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected BigDecimal handleGetStrategyBenchmark() throws Exception {
-
-        String strategyName = StrategyUtil.getStartedStrategyName();
-        return getLookupService().getStrategyByName(strategyName).getBenchmark();
-    }
-
-    @Override
     protected double handleGetStrategyPerformance() throws Exception {
 
         String strategyName = StrategyUtil.getStartedStrategyName();
