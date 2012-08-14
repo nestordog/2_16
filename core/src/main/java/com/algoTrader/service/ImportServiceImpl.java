@@ -127,7 +127,22 @@ public class ImportServiceImpl extends ImportServiceBase {
             CsvIVolReader csvReader = new CsvIVolReader(fileName + "/" + file.getName());
 
             IVolVO iVol;
-            List<Tick> ticks = new ArrayList<Tick>();
+            Set<Tick> ticks = new TreeSet<Tick>(new Comparator<Tick>() {
+                @Override
+                public int compare(Tick t1, Tick t2) {
+                    if (t1.getSecurity().getId() > t2.getSecurity().getId()) {
+                        return 1;
+                    } else if (t1.getSecurity().getId() < t2.getSecurity().getId()) {
+                        return -1;
+                    } else if (t1.getDateTime().getTime() > t2.getDateTime().getTime()) {
+                        return 1;
+                    } else if (t1.getDateTime().getTime() < t2.getDateTime().getTime()) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }
+            });
             while ((iVol = csvReader.readHloc()) != null) {
 
                 // prevent overlap
@@ -205,12 +220,24 @@ public class ImportServiceImpl extends ImportServiceBase {
                 ticks.add(tick);
             }
 
-            getTickDao().create(ticks);
+            logger.info("importing " + ticks.size() + " ticks");
 
-            // perform memory release
-            Session session = getSessionFactory().getCurrentSession();
-            session.flush();
-            session.clear();
+            // divide into chuncks of 10000
+            List<Tick> list = new ArrayList<Tick>(ticks);
+            for (int i = 0; i < ticks.size(); i = i + 10000) {
+
+                int j = Math.min(i + 10000, ticks.size());
+                List<Tick> subList = list.subList(i, j);
+
+                getTickDao().create(subList);
+
+                // perform memory release
+                Session session = getSessionFactory().getCurrentSession();
+                session.flush();
+                session.clear();
+
+                logger.info("importing chunk " + i + " - " + j);
+            }
 
             // gc
             System.gc();
