@@ -24,6 +24,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
 
     private @Value("${ib.faEnabled}") boolean faEnabled;
     private @Value("${ib.faAccount}") String faAccount;
+    private @Value("${ib.faClearingAccount}") String faClearingAccount;
     private @Value("${ib.faGroup}") String faGroup;
     private @Value("${ib.faOpenMethod}") String faOpenMethod;
     private @Value("${ib.faCloseMethod}") String faCloseMethod;
@@ -153,6 +154,12 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
             if (this.faAccount != null) {
                 ibOrder.m_account = this.faAccount;
             }
+        }
+
+        // add clearing information
+        if (this.faClearingAccount != null) {
+            ibOrder.m_clearingAccount = this.faClearingAccount;
+            ibOrder.m_clearingIntent = "Away";
         }
 
         //set the limit price if order is a limit order or stop limit order
