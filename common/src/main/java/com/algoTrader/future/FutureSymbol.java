@@ -6,29 +6,31 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import com.algoTrader.entity.security.FutureFamily;
+import com.algoTrader.entity.security.SecurityFamily;
 
 public class FutureSymbol {
 
     private static final String[] monthEnc = { "F", "G", "H", "J", "K", "M", "N", "Q", "U", "V", "X", "Z" };
     private static final String[] yearEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
 
-    public static String getSymbol(FutureFamily family, Date expiration) {
+    public static String getSymbol(SecurityFamily family, Date expiration) {
 
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(expiration);
 
-        //@formatter:off
-        String symbol = family.getName() + " " +
-        new SimpleDateFormat("MMM").format(cal.getTime()).toUpperCase() + "/" +
-        (cal.get(Calendar.YEAR) + "").substring(2) + " " +
-        family.getContractSize();
-        //@formatter:on
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(family.getName());
+        buffer.append(" ");
+        buffer.append(new SimpleDateFormat("MMM").format(cal.getTime()).toUpperCase());
+        buffer.append("/");
+        buffer.append(String.valueOf(cal.get(Calendar.YEAR))).substring(2);
+        buffer.append(" ");
+        buffer.append(family.getContractSize());
 
-        return symbol;
+        return buffer.toString();
     }
 
-    public static String getIsin(FutureFamily family, Date expiration) {
+    public static String getIsin(SecurityFamily family, Date expiration) {
 
         int week = 0;
 
@@ -46,6 +48,20 @@ public class FutureSymbol {
         buffer.append(month);
         buffer.append(year);
         buffer.append("00000");
+
+        return buffer.toString();
+    }
+
+    public static String getRic(SecurityFamily family, Date expiration) {
+
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(expiration);
+
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(family.getRicRoot());
+        buffer.append(monthEnc[cal.get(Calendar.MONTH)]);
+        buffer.append(String.valueOf(cal.get(Calendar.YEAR)).substring(3));
+        buffer.append(":VE");
 
         return buffer.toString();
     }

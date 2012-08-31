@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
        xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
@@ -27,7 +28,7 @@
 
     <!-- Aliases -->
     <alias name="iBOrderService" alias="externalOrderService"/>
-    <!-- <alias name="fixOrderService" alias="orderService"/> -->
+    <!-- <alias name="fixOrderService" alias="externalOrderService"/> -->
     <alias name="iBMarketDataService" alias="marketDataService"/>
     <alias name="iBSecurityRetrieverService" alias="securityRetrieverService"/>
     <alias name="iBAccountService" alias="accountService"/>
@@ -35,15 +36,31 @@
 
     <!-- Broker Clients -->
     <bean id="iBClientFactory" class="com.algoTrader.service.ib.IBClientFactory"/>
-    <bean id="fixClient" class="com.algoTrader.service.fix.FixClient"/>
+<!--     <bean id="fixClient" class="com.algoTrader.service.fix.FixClient"/> -->
 
     <!-- External Order Services -->
     <bean id="externalOrderServices" class="org.springframework.beans.factory.config.MapFactoryBean">
         <property name="sourceMap">
             <map>
                 <entry key="IB" value-ref="iBOrderService"/>
-                <entry key="FIXIB" value-ref="fixOrderService"/>
+<!--                 <entry key="FIXIB" value-ref="fixOrderService"/> -->
             </map>
+        </property>
+    </bean>
+
+
+    <!-- =========================================== MAIL ================================================ -->
+
+    <bean id="messagingReceiver" class="org.springframework.ws.transport.mail.MailMessageReceiver">
+        <property name="storeUri" value="imap://aws:Zermatt11@mail.linardcapital.com/INBOX"/>
+        <property name="disposition">
+            <set>
+                <bean class="org.springframework.ws.transport.mail.Disposition" p:name="ib" p:from="donotreply@interactivebrokers.com" p:subject="Activity Flex" p:service-ref="iBReconciliationService"/>
+                <bean class="org.springframework.ws.transport.mail.Disposition" p:name="ui" p:from="listenversand-lux@universal-investment.com" p:subject="Bewertungsdaten" p:service-ref="uIReconciliationService"/>
+            </set>
+        </property>
+        <property name="monitoringStrategy">
+            <bean class="org.springframework.ws.transport.mail.monitor.ImapIdleMonitoringStrategy"/>
         </property>
     </bean>
 

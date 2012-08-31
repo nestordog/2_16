@@ -34,10 +34,12 @@ public class FutureServiceImpl extends FutureServiceBase {
 
             String symbol = FutureSymbol.getSymbol(family, expirationDate);
             String isin = FutureSymbol.getIsin(family, expirationDate);
+            String ric = FutureSymbol.getRic(family, expirationDate);
 
             Future future = new FutureImpl();
-            future.setIsin(isin);
             future.setSymbol(symbol);
+            future.setIsin(isin);
+            future.setRic(ric);
             future.setExpiration(expirationDate);
             future.setUnderlying(underlying);
             future.setSecurityFamily(family);

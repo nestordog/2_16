@@ -187,6 +187,7 @@ public class ImportServiceImpl extends ImportServiceBase {
                 OptionType type = "C".equals(iVol.getType()) ? OptionType.CALL : OptionType.PUT;
                 String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike);
                 String isin = StockOptionSymbol.getIsin(family, expiration, type, strike);
+                String ric = StockOptionSymbol.getRic(family, expiration, type, strike);
 
                 // check if we have the stockOption already
                 StockOption stockOption = stockOptions.get(symbol);
@@ -200,6 +201,7 @@ public class ImportServiceImpl extends ImportServiceBase {
                     stockOption.setType(type);
                     stockOption.setSymbol(symbol);
                     stockOption.setIsin(isin);
+                    stockOption.setRic(ric);
                     stockOption.setSecurityFamily(family);
                     stockOption.setUnderlying(family.getUnderlying());
 

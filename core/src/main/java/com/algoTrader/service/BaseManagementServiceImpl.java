@@ -61,7 +61,7 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     @Override
     protected void handleReconcile() throws Exception {
 
-        getAccountService().reconcile();
+        getReconciliationService().reconcile();
     }
 
     @Override

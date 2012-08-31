@@ -9,7 +9,7 @@ import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.algoTrader.entity.security.StockOptionFamily;
+import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.BaseConverterUtil;
 
@@ -18,25 +18,30 @@ public class StockOptionSymbol {
     private static final String[] monthCallEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
     private static final String[] monthPutEnc = { "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X" };
     private static final String[] yearEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
+    private static SimpleDateFormat monthFormat = new SimpleDateFormat("MMM");
+    private static SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
 
-    public static String getSymbol(StockOptionFamily family, Date expiration, OptionType type, BigDecimal strike) {
+    public static String getSymbol(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike) {
 
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(expiration);
 
-        //@formatter:off
-        String symbol = family.getName() + " " +
-            new SimpleDateFormat("MMM").format(cal.getTime()).toUpperCase() + "/" +
-            (cal.get(Calendar.YEAR) + "-").substring(2) +
-            type.toString().substring(0, 1) + " " +
-            strike + " " +
-            family.getContractSize();
-        //@formatter:on
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(family.getName());
+        buffer.append(" ");
+        buffer.append(monthFormat.format(cal.getTime()).toUpperCase());
+        buffer.append("/");
+        buffer.append((cal.get(Calendar.YEAR) + "-").substring(2));
+        buffer.append(type.toString().substring(0, 1));
+        buffer.append(" ");
+        buffer.append(strike);
+        buffer.append(" ");
+        buffer.append(family.getContractSize());
 
-        return symbol;
+        return buffer.toString();
     }
 
-    public static String getIsin(StockOptionFamily family, Date expiration, OptionType type, BigDecimal strike) {
+    public static String getIsin(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike) {
 
         int week = 1;
 
@@ -61,6 +66,26 @@ public class StockOptionSymbol {
         buffer.append(month);
         buffer.append(year);
         buffer.append(strikeVal);
+
+        return buffer.toString();
+    }
+
+    public static String getRic(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike) {
+
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(expiration);
+
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(family.getRicRoot());
+        if (OptionType.CALL.equals(type)) {
+            buffer.append(monthCallEnc[cal.get(Calendar.MONTH)]);
+        } else {
+            buffer.append(monthPutEnc[cal.get(Calendar.MONTH)]);
+        }
+        buffer.append(dayFormat.format(cal.getTime()));
+        buffer.append((cal.get(Calendar.YEAR) + "").substring(2));
+        buffer.append(StringUtils.leftPad(String.valueOf((int) (strike.doubleValue() * 100)), 5, "0"));
+        buffer.append(".U");
 
         return buffer.toString();
     }

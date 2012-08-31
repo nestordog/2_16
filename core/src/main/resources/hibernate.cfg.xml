@@ -33,5 +33,7 @@
     <mapping resource="com/algoTrader/entity/strategy/CashBalance.hbm.xml" />
     <mapping resource="com/algoTrader/entity/strategy/Measurement.hbm.xml" />
     <mapping resource="com/algoTrader/entity/strategy/DefaultOrderPreference.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/strategy/PortfolioValue.hbm.xml" />
+
 </session-factory>
 </hibernate-configuration>

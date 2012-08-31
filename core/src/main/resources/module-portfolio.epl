@@ -79,8 +79,8 @@ group by
 output
     first every 5 seconds;
 
-@Name('RECONCILE')
-@Subscriber(className='com.algoTrader.service.AccountService.reconcile')
+@Name('RECONCILE_IB')
+@Subscriber(className='com.algoTrader.service.ib.IBReconciliationService.reconcile')
 @Condition(key='statement.reconcile')
 @RunTimeOnly
 select

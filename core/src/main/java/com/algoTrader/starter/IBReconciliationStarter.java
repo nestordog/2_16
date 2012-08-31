@@ -11,16 +11,16 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.service.ib.IBAccountService;
+import com.algoTrader.service.ib.IBReconciliationService;
 
-public class ReconciliationStarter {
+public class IBReconciliationStarter {
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
 
         String fileName = args[0];
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        IBAccountService service = ServiceLocator.instance().getService("iBAccountService", IBAccountService.class);
+        IBReconciliationService service = ServiceLocator.instance().getService("iBReconciliationService", IBReconciliationService.class);
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();

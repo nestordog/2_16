@@ -55,10 +55,12 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         // symbol / isin
         String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike);
         String isin = StockOptionSymbol.getIsin(family, expiration, type, strike);
+        String ric = StockOptionSymbol.getRic(family, expiration, type, strike);
 
         StockOption stockOption = new StockOptionImpl();
-        stockOption.setIsin(isin);
         stockOption.setSymbol(symbol);
+        stockOption.setIsin(isin);
+        stockOption.setRic(ric);
         stockOption.setStrike(strike);
         stockOption.setExpiration(expiration);
         stockOption.setType(type);
