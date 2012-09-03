@@ -76,12 +76,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
 
         EsperManager.initCoordination(StrategyImpl.BASE);
 
-        String baseDir = this.dataSetLocation.equals("") ? "results/" : this.dataSetLocation;
+        String baseDir = this.dataSetLocation.equals("") ? "files" + File.separator : this.dataSetLocation;
         String dataSet = getConfiguration().getDataSet();
 
         if (this.feedGenericEvents) {
 
-            File dir = new File(baseDir + "genericdata/" + dataSet);
+            File dir = new File(baseDir + "genericdata" + File.separator + dataSet);
             if (dir == null || !dir.exists() || !dir.isDirectory()) {
                 logger.warn("no generic events available");
             } else {
@@ -124,7 +124,8 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             }
 
             MarketDataType marketDataType = getConfiguration().getDataSetType();
-            File file = new File(baseDir + marketDataType.toString().toLowerCase() + "data/" + dataSet + "/" + security.getIsin() + ".csv");
+            String fileName = security.getIsin() != null ? security.getIsin() : String.valueOf(security.getId());
+            File file = new File(baseDir + marketDataType.toString().toLowerCase() + "data" + File.separator + dataSet + File.separator + fileName + ".csv");
 
             if (file == null || !file.exists()) {
                 logger.warn("no data available for " + security.getSymbol());

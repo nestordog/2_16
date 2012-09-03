@@ -1,5 +1,6 @@
 package com.algoTrader.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -9,7 +10,7 @@ import java.util.Properties;
 public class ConfigurationUtil {
 
     private static Properties props;
-    private static String fileName = "/conf.properties";
+    private static String fileName = File.separator + "conf.properties";
 
     static {
         try {

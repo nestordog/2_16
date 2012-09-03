@@ -44,7 +44,7 @@ public class ImportServiceImpl extends ImportServiceBase {
     @Override
     protected void handleImportTicks(String isin) throws Exception {
 
-        File file = new File("results/tickdata/" + this.dataSet + "/" + isin + ".csv");
+        File file = new File("files" + File.separator + "tickdata" + File.separator + this.dataSet + File.separator + isin + ".csv");
 
         if (file.exists()) {
 
@@ -118,13 +118,13 @@ public class ImportServiceImpl extends ImportServiceBase {
 
         Date date = null;
 
-        File dir = new File("results/iVol/" + fileName);
+        File dir = new File("files" + File.separator + "iVol" + File.separator + fileName);
 
         for (File file : dir.listFiles()) {
 
             //            String dateString = file.getName().substring(5, 15);
             //            Date fileDate = fileFormat.parse(dateString);
-            CsvIVolReader csvReader = new CsvIVolReader(fileName + "/" + file.getName());
+            CsvIVolReader csvReader = new CsvIVolReader(fileName + File.separator + file.getName());
 
             IVolVO iVol;
             Set<Tick> ticks = new TreeSet<Tick>(new Comparator<Tick>() {

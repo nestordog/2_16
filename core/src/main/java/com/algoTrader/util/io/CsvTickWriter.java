@@ -62,9 +62,9 @@ public class CsvTickWriter {
         }
     }
 
-    public CsvTickWriter(String symbol) throws SuperCSVException, IOException {
+    public CsvTickWriter(String fileName) throws SuperCSVException, IOException {
 
-        this(new File("results/tickdata/" + dataSet + "/" + symbol + ".csv"));
+        this(new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + fileName + ".csv"));
     }
 
     private static class DateConverter extends CellProcessorAdaptor {

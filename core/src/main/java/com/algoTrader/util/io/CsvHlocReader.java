@@ -35,7 +35,7 @@ public class CsvHlocReader {
 
     public CsvHlocReader(String symbol) throws SuperCSVException, IOException {
 
-        File file = new File("results/tickdata/" + dataSet + "/" + symbol + ".csv");
+        File file = new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + symbol + ".csv");
         Reader inFile = new FileReader(file);
         this.reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
         this.header = this.reader.getCSVHeader(true);

@@ -213,34 +213,6 @@
             <version>1.1.2</version>
         </dependency>
         <!-- Grails defaults to Ehache for the second-level Hibernate cache. -->
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
-            <version>3.3.1.GA</version>
-            <exclusions>
-                <!-- See http://www.slf4j.org/faq.html#IllegalAccessError -->
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-                <!-- We are pulling in ehcache-core below -->
-                <exclusion>
-                    <groupId>net.sf.ehcache</groupId>
-                    <artifactId>ehcache</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
-            <version>1.7.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <!-- For ease of development and testing, we include the HSQLDB database. -->
         <!-- Use Log4J for logging. This artifact also pulls in the Log4J JAR. -->
         <dependency>

@@ -1,5 +1,6 @@
 package com.algoTrader.util;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
@@ -33,7 +34,7 @@ public class XmlUtil {
             transformer.setOutputProperty(OutputKeys.METHOD, "xml");
             transformer.setOutputProperty(OutputKeys.MEDIA_TYPE, "text/xml");
             DOMSource source = new DOMSource(node);
-            OutputStream out = new FileOutputStream(directory + fileName);
+            OutputStream out = new FileOutputStream("files" + File.separator + directory + File.separator + fileName);
             StreamResult result = new StreamResult(out);
             transformer.transform(source, result);
             out.close();

@@ -24,7 +24,7 @@ public class IBReconciliationStarter {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        Document document = builder.parse(new File("results/flex/" + fileName));
+        Document document = builder.parse(new File("files" + File.separator + "flex" + File.separator + fileName));
 
         for (int i = 1; i < args.length; i++) {
 

@@ -1,6 +1,7 @@
 package com.algoTrader.starter;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -83,7 +84,7 @@ public class IVolatilityDownloader {
             httpclient.executeMethod(post);
 
             Document document = TidyUtil.parse(post.getResponseBodyAsStream());
-            XmlUtil.saveDocumentToFile(document, "login.xml", "results/ivol/");
+            XmlUtil.saveDocumentToFile(document, "login.xml", "ivol");
 
         } finally {
             post.releaseConnection();
@@ -156,7 +157,7 @@ public class IVolatilityDownloader {
             httpclient.executeMethod(logoutGet);
 
             Document document = TidyUtil.parse(logoutGet.getResponseBodyAsStream());
-            XmlUtil.saveDocumentToFile(document, "logout.xml", "results/ivol/");
+            XmlUtil.saveDocumentToFile(document, "logout.xml", "ivol");
         } finally {
             logoutGet.releaseConnection();
         }
@@ -176,7 +177,7 @@ public class IVolatilityDownloader {
             if (status == HttpStatus.SC_OK) {
 
                 BufferedInputStream inputStream = new BufferedInputStream(fileGet.getResponseBodyAsStream());
-                FileOutputStream outputStream = new FileOutputStream("results/ivol/file-" + fileFormat.format(date) + ".csv");
+                FileOutputStream outputStream = new FileOutputStream("files" + File.separator + "ivol" + File.separator + "file-" + fileFormat.format(date) + ".csv");
 
                 int input;
                 while ((input = inputStream.read()) != -1) {
@@ -205,7 +206,7 @@ public class IVolatilityDownloader {
             httpclient.executeMethod(post);
 
             Document document = TidyUtil.parse(post.getResponseBodyAsStream());
-            XmlUtil.saveDocumentToFile(document, name + ".xml", "results/ivol/");
+            XmlUtil.saveDocumentToFile(document, name + ".xml", "ivol");
 
             if (xpath != null) {
                 Node node = XPathAPI.selectSingleNode(document, xpath);

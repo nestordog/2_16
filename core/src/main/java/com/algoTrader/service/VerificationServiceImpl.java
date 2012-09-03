@@ -104,7 +104,7 @@ public class VerificationServiceImpl extends VerificationServiceBase {
             volaTicks.add(tick);
         }
 
-        File directory = new File("results/tickdata/current/");
+        File directory = new File("files" + File.separator + "tickdata" + File.separator + "current" + File.separator);
         File[] files = directory.listFiles();
         List<Tick> optionTicks = new ArrayList<Tick>();
         for (File file : files) {

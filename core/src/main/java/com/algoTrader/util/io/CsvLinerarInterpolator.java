@@ -23,7 +23,7 @@ public class CsvLinerarInterpolator {
 
     public static void main(String[] args) throws SuperCSVException, IOException, ParseException {
 
-        (new File("results/tickdata/" + dataSet + "/" + args[1] + ".csv")).delete();
+        (new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + args[1] + ".csv")).delete();
 
         CsvTickReader csvReader = new CsvTickReader(args[0]);
         CsvTickWriter csvWriter = new CsvTickWriter(args[1]);

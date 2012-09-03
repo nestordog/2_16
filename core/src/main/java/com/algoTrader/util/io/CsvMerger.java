@@ -22,9 +22,9 @@ public class CsvMerger {
 
     public static void main(String[] args) throws SuperCSVException, IOException {
 
-        File aDir = new File("results/tickdata/" + args[0] + "/");
-        File bDir = new File("results/tickdata/" + args[1] + "/");
-        File cDir = new File("results/tickdata/" + args[2] + "/");
+        File aDir = new File("files" + File.separator + "tickdata" + File.separator + args[0] + File.separator);
+        File bDir = new File("files" + File.separator + "tickdata" + File.separator + args[1] + File.separator);
+        File cDir = new File("files" + File.separator + "tickdata" + File.separator + args[2] + File.separator);
 
         if (!cDir.exists()) {
             cDir.mkdir();
@@ -45,9 +45,9 @@ public class CsvMerger {
         for (String fileName : new HashSet<String>(CollectionUtils.union(aNames, bNames))) {
             if (aNames.contains(fileName) && bNames.contains(fileName)) {
 
-                CsvTickReader aReader = new CsvTickReader(new File(aDir.getPath() + "/" + fileName));
-                CsvTickReader bReader = new CsvTickReader(new File(bDir.getPath() + "/" + fileName));
-                CsvTickWriter csvWriter = new CsvTickWriter(new File(cDir.getPath() + "/" + fileName));
+                CsvTickReader aReader = new CsvTickReader(new File(aDir.getPath() + File.separator + fileName));
+                CsvTickReader bReader = new CsvTickReader(new File(bDir.getPath() + File.separator + fileName));
+                CsvTickWriter csvWriter = new CsvTickWriter(new File(cDir.getPath() + File.separator + fileName));
 
                 Tick aTick = aReader.readTick();
                 Tick bTick = bReader.readTick();
@@ -99,9 +99,9 @@ public class CsvMerger {
                 csvWriter.close();
 
             } else if (aNames.contains(fileName)) {
-                FileUtils.copyFileToDirectory(new File(aDir.getPath() + "/" + fileName), cDir);
+                FileUtils.copyFileToDirectory(new File(aDir.getPath() + File.separator + fileName), cDir);
             } else if (bNames.contains(fileName)) {
-                FileUtils.copyFileToDirectory(new File(bDir.getPath() + "/" + fileName), cDir);
+                FileUtils.copyFileToDirectory(new File(bDir.getPath() + File.separator + fileName), cDir);
             }
         }
     }

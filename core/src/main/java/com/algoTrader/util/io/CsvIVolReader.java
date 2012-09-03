@@ -56,7 +56,7 @@ public class CsvIVolReader {
 
     public CsvIVolReader(String fileName) throws SuperCSVException, IOException {
 
-        File file = new File("results/iVol/" + fileName);
+        File file = new File("files" + File.separator + "iVol" + File.separator + fileName);
         Reader inFile = new FileReader(file);
         this.reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
         this.reader.getCSVHeader(true);

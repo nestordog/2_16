@@ -30,7 +30,7 @@ public class CsvHlocInterpolator {
 
     public static void main(String[] args) throws SuperCSVException, IOException {
 
-        (new File("results/tickdata/" + dataSet + "/" + args[1] + ".csv")).delete();
+        (new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + args[1] + ".csv")).delete();
 
         CsvHlocReader csvReader = new CsvHlocReader(args[0]);
         CsvTickWriter csvWriter = new CsvTickWriter(args[1]);

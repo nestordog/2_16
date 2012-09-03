@@ -49,7 +49,8 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         Security security = tick.getSecurity();
         CsvTickWriter csvWriter = this.csvWriters.get(security);
         if (csvWriter == null) {
-            csvWriter = new CsvTickWriter(security.getIsin());
+            String fileName = security.getIsin() != null ? security.getIsin() : String.valueOf(security.getId());
+            csvWriter = new CsvTickWriter(fileName);
             this.csvWriters.put(security, csvWriter);
         }
         csvWriter.write(tick);

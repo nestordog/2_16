@@ -123,7 +123,7 @@
         <level value="warn" />
     </logger>
 
-    <logger name="com.algoTrader.esper.subscriber.PrintPortfolioValueSubscriber" additivity="false">
+    <logger name="com.algoTrader.esper.subscriber.LogPortfolioValueSubscriber" additivity="false">
         <level value="info" />
         <appender-ref ref="PORTFOLIO" />
     </logger>

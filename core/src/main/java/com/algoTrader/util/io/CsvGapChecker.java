@@ -23,7 +23,7 @@ public class CsvGapChecker {
 
     public static void main(String[] args) throws SuperCSVException, IOException, ParseException {
 
-        File dir = new File("results/tickdata/" + args[0] + "/");
+        File dir = new File("files" + File.separator + "tickdata" + File.separator + args[0] + File.separator);
 
         for (File file : dir.listFiles()) {
 

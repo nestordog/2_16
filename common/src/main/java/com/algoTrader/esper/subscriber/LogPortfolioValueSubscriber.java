@@ -33,6 +33,6 @@ public class LogPortfolioValueSubscriber {
             //@formatter:on
         }
 
-        MetricsUtil.accountEnd("PrintPortfolioValueSubscriber", startTime);
+        MetricsUtil.accountEnd("LogPortfolioValueSubscriber", startTime);
     }
 }

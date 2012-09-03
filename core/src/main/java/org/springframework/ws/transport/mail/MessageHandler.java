@@ -68,7 +68,7 @@ class MessageHandler implements SchedulingAwareRunnable {
 
             this.logger.debug("saving attachment: " + part.getFileName() + " : " + part.getContentType());
 
-            File file = new File("results" + File.separator + this.name + File.separator + part.getFileName());
+            File file = new File("files" + File.separator + this.name + File.separator + part.getFileName());
             FileOutputStream fos = new FileOutputStream(file);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
 

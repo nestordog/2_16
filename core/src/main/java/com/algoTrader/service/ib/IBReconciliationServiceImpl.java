@@ -91,7 +91,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
             // get the xml-document
             document = builder.parse(new InputSource(get.getResponseBodyAsStream()));
 
-            XmlUtil.saveDocumentToFile(document, fileFormat.format(new Date()) + "_flexReferenceCode.xml", "results/flex/");
+            XmlUtil.saveDocumentToFile(document, fileFormat.format(new Date()) + "_flexReferenceCode.xml", "flex");
 
         } finally {
             get.releaseConnection();
@@ -121,7 +121,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
                 // get the xml-document
                 document = builder.parse(new InputSource(get.getResponseBodyAsStream()));
 
-                XmlUtil.saveDocumentToFile(document, fileFormat.format(new Date()) + "_flexStatement.xml", "results/flex/");
+                XmlUtil.saveDocumentToFile(document, fileFormat.format(new Date()) + "_flexStatement.xml", "flex");
 
             } finally {
                 get.releaseConnection();
