@@ -157,7 +157,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
         }
 
         // add clearing information
-        if (this.faClearingAccount != null) {
+        if (this.faClearingAccount != null && !"".equals(this.faClearingAccount)) {
             ibOrder.m_clearingAccount = this.faClearingAccount;
             ibOrder.m_clearingIntent = "Away";
         }
