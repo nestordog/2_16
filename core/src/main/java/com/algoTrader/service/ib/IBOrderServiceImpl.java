@@ -23,11 +23,11 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     private static IBClient client;
 
     private @Value("${ib.faEnabled}") boolean faEnabled;
-    private @Value("${ib.faAccount}") String faAccount;
-    private @Value("${ib.faClearingAccount}") String faClearingAccount;
     private @Value("${ib.faGroup}") String faGroup;
     private @Value("${ib.faOpenMethod}") String faOpenMethod;
     private @Value("${ib.faCloseMethod}") String faCloseMethod;
+    private @Value("${ib.account}") String account;
+    private @Value("${ib.clearingAccount}") String clearingAccount;
 
     @Override
     protected void handleInit() throws Exception {
@@ -151,14 +151,14 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
             ibOrder.m_totalQuantity = (int) order.getQuantity();
 
             // if fa is disabled, it is still possible to work with an IB FA setup if a single client account is specified
-            if (this.faAccount != null) {
-                ibOrder.m_account = this.faAccount;
+            if (this.account != null) {
+                ibOrder.m_account = this.account;
             }
         }
 
         // add clearing information
-        if (this.faClearingAccount != null && !"".equals(this.faClearingAccount)) {
-            ibOrder.m_clearingAccount = this.faClearingAccount;
+        if (this.clearingAccount != null && !"".equals(this.clearingAccount)) {
+            ibOrder.m_clearingAccount = this.clearingAccount;
             ibOrder.m_clearingIntent = "Away";
         }
 

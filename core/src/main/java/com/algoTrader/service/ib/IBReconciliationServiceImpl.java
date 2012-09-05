@@ -47,7 +47,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
     private @Value("${misc.portfolioDigits}") int portfolioDigits;
     private @Value("${ib.faEnabled}") boolean faEnabled;
 
-    private @Value("${ib.faMasterAccount}") String faMasterAccount;
+    private @Value("${ib.masterAccount}") String masterAccount;
     private @Value("${ib.flexToken}") String flexToken;
     private @Value("${ib.flexQueryId}") String flexQueryId;
     private @Value("${ib.timeDifferenceHours}") int timeDifferenceHours;
@@ -297,7 +297,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
 
         NodeIterator iterator;
         if (this.faEnabled) {
-            iterator = XPathAPI.selectNodeIterator(document, "//Trade[@accountId='" + this.faMasterAccount + "' and @transactionType='ExchTrade']");
+            iterator = XPathAPI.selectNodeIterator(document, "//Trade[@accountId='" + this.masterAccount + "' and @transactionType='ExchTrade']");
         } else {
             iterator = XPathAPI.selectNodeIterator(document, "//Trade[@transactionType='ExchTrade']");
         }
