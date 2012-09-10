@@ -57,18 +57,26 @@
         <level value="warn" />
     </logger>
 
+    <logger name="org.springframework.beans.factory.support.DisposableBeanAdapter">
+        <level value="error" />
+    </logger>
+
     <logger name="org.hibernate">
         <level value="warn" />
     </logger>
 
     <!-- logs error messages that are also logged by HibernateInterceptor -->
     <logger name="org.hibernate.event.def.AbstractFlushingEventListener">
-        <level value="FATAL"/>
+        <level value="fatal"/>
     </logger>
 
     <!-- logs error messages that are also logged by HibernateInterceptor -->
     <logger name="org.hibernate.util.JDBCExceptionReporter">
-        <level value="FATAL"/>
+        <level value="fatal"/>
+    </logger>
+
+    <logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog">
+        <level value="error" />
     </logger>
 
     <logger name="org.apache.commons">
@@ -81,6 +89,10 @@
 
     <logger name="com.espertech">
         <level value="warn" />
+    </logger>
+
+    <logger name="com.espertech.esper.util.MethodResolver">
+        <level value="error" />
     </logger>
 
     <logger name="httpclient">
@@ -103,23 +115,11 @@
         <level value="warn" />
     </logger>
 
-    <logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog">
-        <level value="error" />
-    </logger>
-
-    <logger name="org.springframework.beans.factory.support.DisposableBeanAdapter">
-        <level value="error" />
-    </logger>
-
-    <logger name="com.espertech.esper.util.MethodResolver">
-        <level value="error" />
-    </logger>
-
-    <logger name="com.algoTrader.util.spring">
+    <logger name="quickfix">
         <level value="warn" />
     </logger>
 
-    <logger name="quickfix">
+    <logger name="com.algoTrader.util.spring">
         <level value="warn" />
     </logger>
 

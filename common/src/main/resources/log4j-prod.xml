@@ -41,6 +41,11 @@
         </layout>
     </appender>
 
+    <appender name="ASYNC_EMAIL_AND_SMS" class="org.apache.log4j.AsyncAppender">
+        <appender-ref ref="EMAIL" />
+        <appender-ref ref="SMS" />
+    </appender>
+
     <appender name="EMAIL" class="org.apache.log4j.net.SMTPAppender">
         <param name="SMTPHost" value="mail.linardcapital.com" />
         <param name="SMTPUsername" value="aws" />
@@ -68,6 +73,10 @@
         </layout>
     </appender>
 
+    <appender name="ASYNC_TRANSACTION_EMAIL" class="org.apache.log4j.AsyncAppender">
+        <appender-ref ref="TRANSACTION_EMAIL" />
+    </appender>
+
     <appender name="TRANSACTION_EMAIL" class="org.apache.log4j.net.SMTPAppender">
         <param name="EvaluatorClass" value="com.algoTrader.util.CustomEvaluator" />
         <param name="SMTPHost" value="mail.linardcapital.com" />
@@ -79,6 +88,10 @@
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d%n%n%-5p%n%n%c%n%n%m%n%n" />
         </layout>
+    </appender>
+
+    <appender name="ASYNC_NOTIFICATION_EMAIL" class="org.apache.log4j.AsyncAppender">
+        <appender-ref ref="NOTIFICATION_EMAIL" />
     </appender>
 
     <appender name="NOTIFICATION_EMAIL" class="org.apache.log4j.net.SMTPAppender">
@@ -98,18 +111,26 @@
         <level value="warn" />
     </logger>
 
+    <logger name="org.springframework.beans.factory.support.DisposableBeanAdapter">
+        <level value="error" />
+    </logger>
+
     <logger name="org.hibernate">
         <level value="warn" />
     </logger>
 
     <!-- logs error messages that are also logged by HibernateInterceptor -->
     <logger name="org.hibernate.event.def.AbstractFlushingEventListener">
-        <level value="FATAL"/>
+        <level value="fatal"/>
     </logger>
 
     <!-- logs error messages that are also logged by HibernateInterceptor -->
     <logger name="org.hibernate.util.JDBCExceptionReporter">
-        <level value="FATAL"/>
+        <level value="fatal"/>
+    </logger>
+
+    <logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog">
+        <level value="error" />
     </logger>
 
     <logger name="org.apache.commons">
@@ -122,6 +143,10 @@
 
     <logger name="com.espertech">
         <level value="warn" />
+    </logger>
+
+    <logger name="com.espertech.esper.util.MethodResolver">
+        <level value="error" />
     </logger>
 
     <logger name="httpclient">
@@ -144,37 +169,20 @@
         <level value="warn" />
     </logger>
 
-    <logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog">
-        <level value="error" />
-    </logger>
-
-    <logger name="org.springframework.beans.factory.support.DisposableBeanAdapter">
-        <level value="error" />
-    </logger>
-
-    <logger name="com.espertech.esper.util.MethodResolver">
-        <level value="error" />
-    </logger>
-
-    <logger name="com.algoTrader.service.TransactionServiceImpl.MAIL">
-        <appender-ref ref="TRANSACTION_EMAIL" />
-    </logger>
-
-    <logger name="com.algoTrader.service.NOTIFICATION_EMAIL">
-        <appender-ref ref="NOTIFICATION_EMAIL" />
+    <logger name="quickfix">
+        <level value="warn" />
     </logger>
 
     <logger name="com.algoTrader.util.spring">
         <level value="warn" />
     </logger>
 
-    <logger name="quickfix">
-        <level value="info" />
+    <logger name="com.algoTrader.service.TransactionServiceImpl.MAIL">
+        <appender-ref ref="ASYNC_TRANSACTION_EMAIL" />
     </logger>
 
-    <logger name="com.algoTrader.esper.subscriber.PrintPortfolioValueSubscriber" additivity="false">
-        <level value="info" />
-        <appender-ref ref="PORTFOLIO" />
+    <logger name="com.algoTrader.service.NOTIFICATION_EMAIL">
+        <appender-ref ref="ASYNC_NOTIFICATION_EMAIL" />
     </logger>
 
     <logger name="com.algoTrader.esper.listener.IndicatorListener" additivity="false">
@@ -186,8 +194,7 @@
         <level value="debug" />
         <appender-ref ref="DEBUG" />
         <appender-ref ref="FILE" />
-        <appender-ref ref="EMAIL" />
-        <appender-ref ref="SMS" />
+        <appender-ref ref="ASYNC_EMAIL_AND_SMS" />
     </root>
 
     <categoryFactory class="com.algoTrader.util.MyLoggerFactory" />
