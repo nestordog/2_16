@@ -19,13 +19,11 @@ public class FutureSymbol {
         cal.setTime(expiration);
 
         StringBuffer buffer = new StringBuffer();
-        buffer.append(family.getName());
+        buffer.append(family.getBaseSymbol());
         buffer.append(" ");
         buffer.append(new SimpleDateFormat("MMM").format(cal.getTime()).toUpperCase());
         buffer.append("/");
-        buffer.append(String.valueOf(cal.get(Calendar.YEAR))).substring(2);
-        buffer.append(" ");
-        buffer.append(family.getContractSize());
+        buffer.append(String.valueOf(cal.get(Calendar.YEAR)).substring(2));
 
         return buffer.toString();
     }
@@ -44,7 +42,8 @@ public class FutureSymbol {
 
         StringBuffer buffer = new StringBuffer();
         buffer.append(week);
-        buffer.append(family.getName());
+        buffer.append("F");
+        buffer.append(family.getBaseSymbol());
         buffer.append(month);
         buffer.append(year);
         buffer.append("00000");

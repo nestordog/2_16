@@ -27,7 +27,7 @@ public class StockOptionSymbol {
         cal.setTime(expiration);
 
         StringBuffer buffer = new StringBuffer();
-        buffer.append(family.getName());
+        buffer.append(family.getBaseSymbol());
         buffer.append(" ");
         buffer.append(monthFormat.format(cal.getTime()).toUpperCase());
         buffer.append("/");
@@ -35,8 +35,6 @@ public class StockOptionSymbol {
         buffer.append(type.toString().substring(0, 1));
         buffer.append(" ");
         buffer.append(strike);
-        buffer.append(" ");
-        buffer.append(family.getContractSize());
 
         return buffer.toString();
     }
@@ -62,6 +60,7 @@ public class StockOptionSymbol {
 
         StringBuffer buffer = new StringBuffer();
         buffer.append(week);
+        buffer.append("O");
         buffer.append(family.getName());
         buffer.append(month);
         buffer.append(year);

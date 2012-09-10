@@ -15,6 +15,8 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Forex;
+import com.algoTrader.entity.security.ForexFuture;
+import com.algoTrader.entity.security.ForexI;
 import com.algoTrader.entity.strategy.CashBalance;
 import com.algoTrader.entity.strategy.PortfolioValue;
 import com.algoTrader.entity.strategy.PortfolioValueDao;
@@ -93,7 +95,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
     @Override
     protected double handleGetSecuritiesCurrentValueDouble() throws Exception {
 
-        // sum of all non-FX positions
+        // sum of all non-FX positions (FX counts as cash)
         double amount = 0.0;
         Collection<Position> positions = getPositionDao().findOpenTradeablePositions();
         for (Position position : positions) {
@@ -108,7 +110,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
     @Override
     protected double handleGetSecuritiesCurrentValueDouble(String strategyName) {
 
-        // sum of all non-FX positions
+        // sum of all non-FX positions (FX counts as cash)
         double amount = 0.0;
         List<Position> positions = getPositionDao().findOpenTradeablePositionsByStrategy(strategyName);
         for (Position position : positions) {
@@ -351,10 +353,19 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
         Collection<Position> positions = getPositionDao().findOpenTradeablePositions();
         for (Position position : positions) {
 
-            // Forex positions are considered cash
-            if (position.getSecurity() instanceof Forex) {
-                Currency currency = ((Forex) position.getSecurity()).getBaseCurrency();
-                cashMap.increment(currency, position.getQuantity());
+            // Forex and ForexFutures are attributed in their baseCurrency
+            if (position.getSecurity() instanceof ForexI) {
+                Currency currency = ((ForexI) position.getSecurity()).getBaseCurrency();
+
+                // Forex positions are considered cash
+                if (position.getSecurity() instanceof Forex) {
+                    cashMap.increment(currency, position.getQuantity());
+
+                    // ForexFuture positions are considered securities
+                } else if (position.getSecurity() instanceof ForexFuture) {
+                    securitiesMap.increment(currency, position.getQuantity() * position.getSecurity().getSecurityFamily().getContractSize());
+                }
+
             } else {
                 Currency currency = position.getSecurity().getSecurityFamily().getCurrency();
                 securitiesMap.increment(currency, position.getMarketValueDouble());

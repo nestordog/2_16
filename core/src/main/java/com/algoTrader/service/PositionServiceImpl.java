@@ -97,6 +97,11 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         // prepare the order
         DefaultOrderPreference defaultOrderPreference = getDefaultOrderPreferenceDao().findByStrategyAndSecurityFamily(strategy.getName(), security.getSecurityFamily().getId());
+
+        if (defaultOrderPreference == null) {
+            throw new IllegalStateException("no defaultOrderPreference defined for " + security.getSecurityFamily() + " and " + strategy);
+        }
+
         Order order = defaultOrderPreference.getOrderPreference().createOrder();
 
         order.setStrategy(strategy);

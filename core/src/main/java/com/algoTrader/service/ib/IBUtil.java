@@ -36,7 +36,7 @@ public class IBUtil {
 
             StockOption stockOption = (StockOption) security;
 
-            contract.m_symbol = stockOption.getUnderlying().getSymbol();
+            contract.m_symbol = stockOption.getSecurityFamily().getBaseSymbol();
             contract.m_secType = "OPT";
             contract.m_exchange = "SMART";
             contract.m_primaryExch = IBMarketConverter.marketToString(stockOption.getSecurityFamily().getMarket());
@@ -55,7 +55,7 @@ public class IBUtil {
 
             Future future = (Future) security;
 
-            contract.m_symbol = future.getUnderlying().getSymbol();
+            contract.m_symbol = future.getSecurityFamily().getBaseSymbol();
             contract.m_secType = "FUT";
             contract.m_exchange = IBMarketConverter.marketToString(future.getSecurityFamily().getMarket());
             contract.m_currency = future.getSecurityFamily().getCurrency().toString();

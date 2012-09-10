@@ -88,7 +88,7 @@ public class DateUtil {
         return cal.getTime();
     }
 
-    private static Date getNext3rdFridayNMonths(Date input, int months) {
+    private static Date getNext3rdFriday(Date input, int months) {
 
         // get the next third friday
         Date nextThirdFriday = getNext3rdFriday(input);
@@ -102,6 +102,33 @@ public class DateUtil {
         cal.add(Calendar.MONTH, (months - 1));
         cal.set(Calendar.WEEK_OF_MONTH, 3);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+
+        return cal.getTime();
+    }
+
+    private static Date getNext3rdMonday3Months(Date input) {
+
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(input);
+        cal.setFirstDayOfWeek(Calendar.SUNDAY);
+        cal.setMinimalDaysInFirstWeek(2);
+
+        // round to 3-month cycle
+        int month = (cal.get(Calendar.MONTH) + 1) / 3 * 3 - 1;
+
+        cal.set(Calendar.MONTH, month);
+        cal.set(Calendar.WEEK_OF_MONTH, 3);
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+        cal.set(Calendar.HOUR_OF_DAY, 13);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        if (cal.getTimeInMillis() < input.getTime()) {
+            cal.add(Calendar.MONTH, 3);
+            cal.set(Calendar.WEEK_OF_MONTH, 3);
+            cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        }
 
         return cal.getTime();
     }
@@ -135,10 +162,10 @@ public class DateUtil {
 
     private static Date get30DaysPriorNext3rdFriday(Date input) {
 
-        return get30DaysPriorNext3rdFridayNMonths(input, 1);
+        return get30DaysPriorNext3rdFriday(input, 1);
     }
 
-    private static Date get30DaysPriorNext3rdFridayNMonths(Date input, int months) {
+    private static Date get30DaysPriorNext3rdFriday(Date input, int months) {
 
         // add 30 days to the input
         Calendar cal1 = new GregorianCalendar();
@@ -169,6 +196,8 @@ public class DateUtil {
 
         if (ExpirationType.NEXT_3_RD_FRIDAY.equals(type)) {
             return getNext3rdFriday(input);
+        } else if (ExpirationType.NEXT_3_RD_MONDAY_3_MONTHS.equals(type)) {
+            return getNext3rdMonday3Months(input);
         } else if (ExpirationType.NEXT_3_RD_FRIDAY_3_MONTHS.equals(type)) {
             return getNext3rdFriday3Months(input);
         } else if (ExpirationType.THIRTY_DAYS_BEFORE_NEXT_3_RD_FRIDAY.equals(type)) {
@@ -181,11 +210,13 @@ public class DateUtil {
     public static Date getExpirationDateNMonths(ExpirationType type, Date input, int months) {
 
         if (ExpirationType.NEXT_3_RD_FRIDAY.equals(type)) {
-            return getNext3rdFridayNMonths(input, months);
+            return getNext3rdFriday(input, months);
+        } else if (ExpirationType.NEXT_3_RD_MONDAY_3_MONTHS.equals(type)) {
+            throw new UnsupportedOperationException();
         } else if (ExpirationType.NEXT_3_RD_FRIDAY_3_MONTHS.equals(type)) {
             throw new UnsupportedOperationException();
         } else if (ExpirationType.THIRTY_DAYS_BEFORE_NEXT_3_RD_FRIDAY.equals(type)) {
-            return get30DaysPriorNext3rdFridayNMonths(input, months);
+            return get30DaysPriorNext3rdFriday(input, months);
         } else {
             throw new IllegalArgumentException("unknown expiration type " + type);
         }

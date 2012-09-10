@@ -181,7 +181,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             int requestId = IBIdGenerator.getInstance().getNextRequestId();
             Contract contract = new Contract();
             contract.m_currency = family.getCurrency().toString();
-            contract.m_symbol = family.getUnderlying().getSymbol();
+            contract.m_symbol = family.getBaseSymbol();
             contract.m_exchange = IBMarketConverter.marketToString(family.getMarket());
 
             if (family instanceof StockOptionFamily) {

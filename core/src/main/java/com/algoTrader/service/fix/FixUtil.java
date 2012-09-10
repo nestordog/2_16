@@ -55,9 +55,9 @@ public class FixUtil {
     public static Symbol getFixSymbol(Security security) {
 
         if (security instanceof StockOption) {
-            return new Symbol(security.getUnderlying().getSymbol());
+            return new Symbol(security.getSecurityFamily().getBaseSymbol());
         } else if (security instanceof Future) {
-            return new Symbol(security.getUnderlying().getSymbol());
+            return new Symbol(security.getSecurityFamily().getBaseSymbol());
         } else if (security instanceof Forex) {
             String[] currencies = security.getSymbol().split("\\.");
             return new Symbol(currencies[0]);

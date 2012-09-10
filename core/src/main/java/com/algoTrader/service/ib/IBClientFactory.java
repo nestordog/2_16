@@ -69,7 +69,9 @@ public class IBClientFactory {
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "logLevel", description = "<html> <head> </head> <body> <p> logLevel: </p> <ul>     <li> 1 (SYSTEM) </li> <li> 2 (ERROR) </li> <li> 3 (WARNING) </li> <li> 4 (INFORMATION) </li> <li> 5 (DETAIL) </li> </ul> </body> </html>") })
     public void setLogLevel(int logLevel) {
 
-        getDefaultClient().setServerLogLevel(logLevel);
+        for (IBClient client : this.clients.values()) {
+            client.setServerLogLevel(logLevel);
+        }
     }
 
     @ManagedAttribute
