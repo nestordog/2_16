@@ -61,7 +61,7 @@ public class StockOptionSymbol {
         StringBuffer buffer = new StringBuffer();
         buffer.append(week);
         buffer.append("O");
-        buffer.append(family.getName());
+        buffer.append(family.getBaseSymbol());
         buffer.append(month);
         buffer.append(year);
         buffer.append(strikeVal);
