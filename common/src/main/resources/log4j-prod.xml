@@ -48,6 +48,7 @@
 
     <appender name="EMAIL" class="org.apache.log4j.net.SMTPAppender">
         <param name="SMTPHost" value="mail.linardcapital.com" />
+        <param name="SMTPPort" value="587" />
         <param name="SMTPUsername" value="aws" />
         <param name="SMTPPassword" value="Zermatt11" />
         <param name="From" value="aws@linardcapital.com" />
@@ -61,6 +62,7 @@
 
     <appender name="SMS" class="com.algoTrader.util.SMSAppender">
         <param name="SMTPHost" value="mail.linardcapital.com" />
+        <param name="SMTPPort" value="587" />
         <param name="SMTPUsername" value="aws" />
         <param name="SMTPPassword" value="Zermatt11" />
         <param name="From" value="aws@linardcapital.com" />
@@ -80,6 +82,7 @@
     <appender name="TRANSACTION_EMAIL" class="org.apache.log4j.net.SMTPAppender">
         <param name="EvaluatorClass" value="com.algoTrader.util.CustomEvaluator" />
         <param name="SMTPHost" value="mail.linardcapital.com" />
+        <param name="SMTPPort" value="587" />
         <param name="SMTPUsername" value="aws" />
         <param name="SMTPPassword" value="Zermatt11" />
         <param name="From" value="aws@linardcapital.com" />
@@ -97,6 +100,7 @@
     <appender name="NOTIFICATION_EMAIL" class="org.apache.log4j.net.SMTPAppender">
         <param name="EvaluatorClass" value="com.algoTrader.util.CustomEvaluator" />
         <param name="SMTPHost" value="mail.linardcapital.com" />
+        <param name="SMTPPort" value="587" />
         <param name="SMTPUsername" value="aws" />
         <param name="SMTPPassword" value="Zermatt11" />
         <param name="From" value="aws@linardcapital.com" />
