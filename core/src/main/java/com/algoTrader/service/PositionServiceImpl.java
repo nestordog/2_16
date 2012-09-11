@@ -366,7 +366,6 @@ public class PositionServiceImpl extends PositionServiceBase {
         transaction.setSecurity(security);
         transaction.setStrategy(position.getStrategy());
         transaction.setCurrency(security.getSecurityFamily().getCurrency());
-        transaction.setCommission(new BigDecimal(0));
 
         if (security instanceof StockOption) {
 

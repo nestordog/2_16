@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.mail.Address;
 import javax.mail.Folder;
 import javax.mail.FolderClosedException;
 import javax.mail.Message;
@@ -208,19 +209,15 @@ public class MailMessageReceiver extends AbstractAsyncStandaloneMessageReceiver 
                         Message[] messages = MailMessageReceiver.this.monitoringStrategy.monitor(MailMessageReceiver.this.folder);
                         for (Message message : messages) {
 
-                            String from = message.getFrom()[0].toString();
-                            String to = message.getAllRecipients()[0].toString();
-                            String subject = message.getSubject();
-
                             for (Disposition disposition : MailMessageReceiver.this.dispositions) {
 
-                                if (disposition.getFrom() != null && !from.contains(disposition.getFrom())) {
+                                if (disposition.getFrom() != null && !containsAddress(message.getFrom(), disposition.getFrom())) {
                                     continue;
                                 }
-                                if (disposition.getTo() != null && !to.contains(disposition.getTo())) {
+                                if (disposition.getTo() != null && !containsAddress(message.getAllRecipients(), disposition.getTo())) {
                                     continue;
                                 }
-                                if (disposition.getSubject() != null && !subject.contains(disposition.getSubject())) {
+                                if (disposition.getSubject() != null && !message.getSubject().contains(disposition.getSubject())) {
                                     continue;
                                 }
 
@@ -248,6 +245,16 @@ public class MailMessageReceiver extends AbstractAsyncStandaloneMessageReceiver 
             catch (MessagingException ex) {
                 MailMessageReceiver.this.logger.error(ex);
             }
+        }
+
+        private boolean containsAddress(Address[] addresses, String addressString) throws MessagingException {
+
+            for (Address address : addresses) {
+                if (address.toString().contains(addressString)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         @Override

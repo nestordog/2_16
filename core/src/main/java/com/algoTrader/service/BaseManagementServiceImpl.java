@@ -39,17 +39,18 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     }
 
     @Override
-    protected void handleRecordTransaction(int securityId, String strategyName, String extIdString, String dateTimeString, long quantity, double priceDouble, double commissionDouble,
-            String currencyString, String transactionTypeString) throws Exception {
+    protected void handleRecordTransaction(int securityId, String strategyName, String extIdString, String dateTimeString, long quantity, double priceDouble, double executionCommissionDouble,
+            double clearingCommissionDouble, String currencyString, String transactionTypeString) throws Exception {
 
         String extId = !"".equals(extIdString) ? extIdString : null;
         Date dateTime = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(dateTimeString);
         BigDecimal price = RoundUtil.getBigDecimal(priceDouble);
-        BigDecimal commission = RoundUtil.getBigDecimal(commissionDouble);
+        BigDecimal executionCommission = RoundUtil.getBigDecimal(executionCommissionDouble);
+        BigDecimal clearingCommission = RoundUtil.getBigDecimal(clearingCommissionDouble);
         Currency currency = currencyString != null && !"".equals(currencyString) ? Currency.fromValue(currencyString) : null;
         TransactionType transactionType = TransactionType.fromValue(transactionTypeString);
 
-        getTransactionService().createTransaction(securityId, strategyName, extId, dateTime, quantity, price, commission, currency, transactionType);
+        getTransactionService().createTransaction(securityId, strategyName, extId, dateTime, quantity, price, executionCommission, clearingCommission, currency, transactionType);
     }
 
     @Override

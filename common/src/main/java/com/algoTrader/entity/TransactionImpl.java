@@ -2,12 +2,16 @@ package com.algoTrader.entity;
 
 import java.math.BigDecimal;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.RoundUtil;
 
 public class TransactionImpl extends Transaction {
 
     private static final long serialVersionUID = -1528408715199422753L;
+
+    private static @Value("${misc.portfolioDigits}") int portfolioDigits;
 
     private Double value = null; // cache getValueDouble because getValue get's called very often
 
@@ -18,16 +22,11 @@ public class TransactionImpl extends Transaction {
             int scale = getSecurity().getSecurityFamily().getScale();
             return RoundUtil.getBigDecimal(getGrossValueDouble(), scale);
         } else {
-            return RoundUtil.getBigDecimal(getGrossValueDouble());
+            return RoundUtil.getBigDecimal(getGrossValueDouble(), portfolioDigits);
         }
 
     }
 
-    /**
-     * SELL / CREDIT / INTREST / REFUND: positive cashflow
-     * BUY / EXPIRATION / DEBIT / FEES: negative cashflow
-     * REBALANCE: positive or negative cashflow (depending on quantity equals 1 or -1)
-     */
     @Override
     public double getGrossValueDouble() {
 
@@ -62,14 +61,26 @@ public class TransactionImpl extends Transaction {
             int scale = getSecurity().getSecurityFamily().getScale();
             return RoundUtil.getBigDecimal(getNetValueDouble(), scale);
         } else {
-            return RoundUtil.getBigDecimal(getNetValueDouble());
+            return RoundUtil.getBigDecimal(getNetValueDouble(), portfolioDigits);
         }
     }
 
     @Override
     public double getNetValueDouble() {
 
-        return getGrossValueDouble() - getCommission().doubleValue();
+        return getGrossValueDouble() - getTotalCommissionDouble();
+    }
+
+    @Override
+    public double getTotalCommissionDouble() {
+
+        return getExecutionCommission().doubleValue() + getClearingCommission().doubleValue();
+    }
+
+    @Override
+    public BigDecimal getTotalCommission() {
+
+        return RoundUtil.getBigDecimal(getTotalCommissionDouble(), portfolioDigits);
     }
 
     @Override
@@ -82,7 +93,7 @@ public class TransactionImpl extends Transaction {
                 + " " + getQuantity()
                 + " " + getSecurity()
                 + " price: " + getPrice() + " " + getCurrency()
-                + " commission: " + getCommission()
+                + " commission: " + getTotalCommission()
                 + " strategy: " + getStrategy();
             //@formatter:on
 

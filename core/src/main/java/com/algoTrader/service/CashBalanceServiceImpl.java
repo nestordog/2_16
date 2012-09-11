@@ -31,8 +31,11 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
             // gross transaction value is booked in transaction currency
             processAmount(transaction.getStrategy().getName(), transaction.getCurrency(), transaction.getGrossValue());
 
-            // commission is booked in baseCurrency (commission is also stored in base currency in db)
-            processAmount(transaction.getStrategy().getName(), this.portfolioBaseCurrency, transaction.getCommission().negate());
+            // execution commission is booked in baseCurrency (this is IB specific!)
+            processAmount(transaction.getStrategy().getName(), this.portfolioBaseCurrency, transaction.getExecutionCommission().negate());
+
+            // clearing commission is booked in transaction currency
+            processAmount(transaction.getStrategy().getName(), transaction.getCurrency(), transaction.getClearingCommission().negate());
         } else {
 
             // the entire transaction (price + commission) is booked in transaction currency
@@ -81,8 +84,11 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
                 // gross transaction value is booked in transaction currency
                 addAmount(map, transaction.getStrategy(), transaction.getCurrency(), transaction.getGrossValue());
 
-                // commission is booked in baseCurrency (commission is also stored in base currency in db)
-                addAmount(map, transaction.getStrategy(), this.portfolioBaseCurrency, transaction.getCommission().negate());
+                // execution commission is booked in baseCurrency (this is IB specific!)
+                addAmount(map, transaction.getStrategy(), this.portfolioBaseCurrency, transaction.getExecutionCommission().negate());
+
+                // clearing commission is booked in transaction currency
+                addAmount(map, transaction.getStrategy(), transaction.getCurrency(), transaction.getClearingCommission().negate());
             } else {
 
                 // the entire transaction (price + commission) is booked in transaction currency

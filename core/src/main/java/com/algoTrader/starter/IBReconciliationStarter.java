@@ -24,7 +24,7 @@ public class IBReconciliationStarter {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        Document document = builder.parse(new File("files" + File.separator + "flex" + File.separator + fileName));
+        Document document = builder.parse(new File("files" + File.separator + "ib" + File.separator + fileName));
 
         for (int i = 1; i < args.length; i++) {
 
@@ -35,6 +35,8 @@ public class IBReconciliationStarter {
                 service.reconcilePositions(document);
             } else if ("TRADES".equals(type)) {
                 service.reconcileTrades(document);
+            } else if ("UNBOOKED_TRADES".equals(type)) {
+                service.reconcileUnbookedTrades(document);
             }
         }
 

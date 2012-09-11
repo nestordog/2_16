@@ -28,7 +28,7 @@ import com.algoTrader.vo.OrderStatusVO;
 public abstract class OrderServiceImpl extends OrderServiceBase {
 
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
-    private static Logger mailLogger = MyLogger.getLogger("com.algoTrader.service.NOTIFICATION_EMAIL");
+    private static Logger notificationLogger = MyLogger.getLogger("com.algoTrader.service.NOTIFICATION");
 
     private @Value("${simulation}") boolean simulation;
     private @Value("${defaultBroker}") String defaultBroker;
@@ -116,7 +116,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         fill.setPrice(RoundUtil.getBigDecimal(price));
 
         // set the commission
-        if (security.getSecurityFamily().getCommission() == null) {
+        if (security.getSecurityFamily().getExecutionCommission() == null) {
             throw new IllegalStateException("commission is undefined for " + security);
         }
 
@@ -217,7 +217,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     @Override
     protected void handleSuggestOrder(Order order) throws Exception {
 
-        mailLogger.info("order " + order);
+        notificationLogger.info("order " + order);
     }
 
     @Override

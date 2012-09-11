@@ -50,7 +50,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         TransactionType transactionType = Side.BUY.equals(fill.getSide()) ? TransactionType.BUY : TransactionType.SELL;
         long quantity = Side.BUY.equals(fill.getSide()) ? fill.getQuantity() : -fill.getQuantity();
-        BigDecimal commission = RoundUtil.getBigDecimal(Math.abs(quantity * security.getSecurityFamily().getCommission().doubleValue()));
+        BigDecimal executionCommission = RoundUtil.getBigDecimal(Math.abs(quantity * security.getSecurityFamily().getExecutionCommission().doubleValue()));
 
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(fill.getExtDateTime());
@@ -61,7 +61,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setSecurity(security);
         transaction.setStrategy(strategy);
         transaction.setCurrency(security.getSecurityFamily().getCurrency());
-        transaction.setCommission(commission);
+        transaction.setExecutionCommission(executionCommission);
 
         fill.setTransaction(transaction);
 
@@ -70,7 +70,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     }
 
     @Override
-    protected void handleCreateTransaction(int securityId, String strategyName, String extId, Date dateTime, long quantity, BigDecimal price, BigDecimal commission, Currency currency,
+    protected void handleCreateTransaction(int securityId, String strategyName, String extId, Date dateTime, long quantity, BigDecimal price, BigDecimal executionCommission,
+            BigDecimal clearingCommission, Currency currency,
             TransactionType transactionType) throws Exception {
 
         // validations
@@ -125,9 +126,14 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setSecurity(security);
         transaction.setStrategy(strategy);
         transaction.setCurrency(currency);
-        transaction.setCommission(commission);
+        transaction.setExecutionCommission(executionCommission);
+
+        if (clearingCommission.doubleValue() != 0) {
+            transaction.setClearingCommission(clearingCommission);
+        }
 
         persistTransaction(transaction);
+
         propagateTransaction(transaction);
     }
 
@@ -191,7 +197,9 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                     position.setMaintenanceMargin(null);
 
                     // propagate the ClosePosition event
-                    EsperManager.sendEvent(position.getStrategy().getName(), closePositionVO);
+                    if (EsperManager.isInitialized(StrategyImpl.BASE)) {
+                        EsperManager.sendEvent(position.getStrategy().getName(), closePositionVO);
+                    }
                 }
 
                 // associate the position
@@ -216,7 +224,9 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             tradePerformance.setAvgAge(avgAge);
             tradePerformance.setWinning(profit > 0);
 
-            EsperManager.sendEvent(StrategyImpl.BASE, tradePerformance);
+            if (EsperManager.isInitialized(StrategyImpl.BASE)) {
+                EsperManager.sendEvent(StrategyImpl.BASE, tradePerformance);
+            }
         }
 
         //@formatter:off
@@ -270,7 +280,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
                 totalQuantity += transaction.getQuantity();
                 totalPrice += transaction.getPrice().doubleValue() * transaction.getQuantity();
-                totalCommission += transaction.getCommission().doubleValue();
+                totalCommission += transaction.getTotalCommissionDouble();
             }
 
             Transaction transaction = transactions.iterator().next();
@@ -285,7 +295,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                     " " + totalQuantity +
                     " " + security +
                     " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) + " " + security.getSecurityFamily().getCurrency() +
-                    " commission: " + totalCommission +
+                    " commission: " + RoundUtil.getBigDecimal(totalCommission) +
                     " strategy: " + transaction.getStrategy());
             //@formatter:on
         }

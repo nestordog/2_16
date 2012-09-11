@@ -237,7 +237,6 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
                 transaction.setDateTime(dateTime);
                 transaction.setQuantity(1);
                 transaction.setPrice(price);
-                transaction.setCommission(new BigDecimal(0));
                 transaction.setCurrency(currency);
                 transaction.setType(transactionType);
                 transaction.setDescription(description);

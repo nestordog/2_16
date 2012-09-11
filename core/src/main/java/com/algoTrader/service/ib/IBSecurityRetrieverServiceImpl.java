@@ -97,13 +97,13 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             final String isin = StockOptionSymbol.getIsin(family, expiration, type, strike);
             String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike);
             String ric = StockOptionSymbol.getRic(family, expiration, type, strike);
-            String extId = String.valueOf(contract.m_conId);
+            String conid = String.valueOf(contract.m_conId);
 
 
             stockOption.setSymbol(symbol);
             stockOption.setIsin(isin);
             stockOption.setRic(ric);
-            stockOption.setExtId(extId);
+            stockOption.setConid(conid);
             stockOption.setType(type);
             stockOption.setStrike(strike);
             stockOption.setExpiration(expiration);
@@ -149,12 +149,12 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             String symbol = FutureSymbol.getSymbol(family, expiration);
             final String isin = FutureSymbol.getIsin(family, expiration);
             String ric = FutureSymbol.getRic(family, expiration);
-            String extId = String.valueOf(contract.m_conId);
+            String conid = String.valueOf(contract.m_conId);
 
             future.setSymbol(symbol);
             future.setIsin(isin);
             future.setRic(ric);
-            future.setExtId(extId);
+            future.setConid(conid);
             future.setExpiration(expiration);
             future.setUnderlying(underlying);
             future.setSecurityFamily(family);

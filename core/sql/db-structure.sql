@@ -262,28 +262,6 @@ CREATE TABLE `generic_future_family` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `history`
---
-
-DROP TABLE IF EXISTS `history`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `history` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `TIME` datetime NOT NULL,
-  `TBL` varchar(255) NOT NULL,
-  `REF_ID` int(11) NOT NULL,
-  `COL` varchar(255) DEFAULT NULL,
-  `VALUE` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `COL` (`COL`),
-  KEY `REF_ID` (`REF_ID`),
-  KEY `TBL` (`TBL`),
-  KEY `TIME` (`TIME`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `implied_volatility`
 --
 
@@ -452,7 +430,7 @@ CREATE TABLE `security` (
   `SYMBOL` varchar(30) DEFAULT NULL,
   `ISIN` varchar(20) DEFAULT NULL,
   `RIC` varchar(20) DEFAULT NULL,
-  `EXT_ID` varchar(30) DEFAULT NULL,
+  `CONID` varchar(30) DEFAULT NULL,
   `UNDERLYING_FK` int(11) DEFAULT NULL,
   `SECURITY_FAMILY_FK` int(11) NOT NULL,
   `INTREST_RATE_FAMILY_FK` int(11) DEFAULT NULL,
@@ -460,6 +438,7 @@ CREATE TABLE `security` (
   UNIQUE KEY `SYMBOL_UNIQUE` (`SYMBOL`),
   UNIQUE KEY `ISIN_UNIQUE` (`ISIN`),
   UNIQUE KEY `RIC_UNIQUE` (`RIC`),
+  UNIQUE KEY `CONID_UNIQUE` (`CONID`),
   KEY `SECURITY_SECURITY_FAMILY_FKC` (`SECURITY_FAMILY_FK`),
   KEY `SECURITY_UNDERLYING_FKC` (`UNDERLYING_FK`),
   KEY `SECURITY_INTREST_RATE_FAMILY_FKC` (`INTREST_RATE_FAMILY_FK`),
@@ -486,7 +465,8 @@ CREATE TABLE `security_family` (
   `CONTRACT_SIZE` int(11) NOT NULL,
   `SCALE` int(11) NOT NULL,
   `TICK_SIZE_PATTERN` varchar(20) NOT NULL,
-  `COMMISSION` decimal(12,5) DEFAULT NULL,
+  `EXECUTION_COMMISSION` decimal(12,5) DEFAULT NULL,
+  `CLEARING_COMMISSION` decimal(12,5) DEFAULT NULL,
   `MARKET_OPEN` time NOT NULL,
   `MARKET_CLOSE` time NOT NULL,
   `TRADEABLE` bit(1) NOT NULL,
@@ -675,7 +655,8 @@ CREATE TABLE `transaction` (
   `DATE_TIME` datetime NOT NULL,
   `QUANTITY` bigint(20) NOT NULL,
   `PRICE` decimal(15,5) NOT NULL,
-  `COMMISSION` decimal(15,2) DEFAULT NULL,
+  `EXECUTION_COMMISSION` decimal(15,2) DEFAULT NULL,
+  `CLEARING_COMMISSION` decimal(15,2) DEFAULT NULL,
   `CURRENCY` enum('CHF','EUR','USD','GBP') NOT NULL,
   `TYPE` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST_PAID','INTREST_RECEIVED','FEES','REFUND','REBALANCE') NOT NULL,
   `DESCRIPTION` varchar(255) DEFAULT NULL,
@@ -705,4 +686,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-09-10 12:44:32
+-- Dump completed on 2012-09-11 14:10:49

@@ -51,6 +51,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
     private @Value("${ib.flexToken}") String flexToken;
     private @Value("${ib.flexQueryId}") String flexQueryId;
     private @Value("${ib.timeDifferenceHours}") int timeDifferenceHours;
+    private @Value("${ib.recreateTransactions}") boolean recreateTransactions;
 
     private static final String requestUrl = "https://www.interactivebrokers.com/Universal/servlet/FlexStatementService.SendRequest";
     private static final String statementUrl = "https://www.interactivebrokers.com/Universal/servlet/FlexStatementService.GetStatement";
@@ -156,9 +157,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
             Document document = builder.parse(fileName);
 
             // do the actual reconciliation
-            processCashTransactions(document);
-            reconcilePositions(document);
-            reconcileTrades(document);
+            reconcileUnbookedTrades(document);
         }
     }
 
@@ -229,7 +228,6 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
                 transaction.setDateTime(dateTime);
                 transaction.setQuantity(1);
                 transaction.setPrice(price);
-                transaction.setCommission(new BigDecimal(0));
                 transaction.setCurrency(currency);
                 transaction.setType(transactionType);
                 transaction.setDescription(description);
@@ -267,12 +265,12 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
         Node node;
         while ((node = iterator.nextNode()) != null) {
 
-            String extId = XPathAPI.selectSingleNode(node, "@conid").getNodeValue();
+            String conid = XPathAPI.selectSingleNode(node, "@conid").getNodeValue();
 
-            Security security = getSecurityDao().findByExtId(extId);
+            Security security = getSecurityDao().findByConid(conid);
             if (security == null) {
 
-                logger.error("security: " + extId + " does not exist");
+                logger.error("security for conid: " + conid + " does not exist");
             } else {
 
                 long totalQuantity = 0;
@@ -284,9 +282,9 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
                 long quantity = Long.parseLong(quantityString);
 
                 if (totalQuantity != quantity) {
-                    logger.error("position(s) on security: " + extId + " totalQuantity does not match db: " + totalQuantity + " broker: " + quantity);
+                    logger.error("position(s) on security: " + conid + " totalQuantity does not match db: " + totalQuantity + " broker: " + quantity);
                 } else {
-                    logger.info("position(s) on security: " + extId + " ok");
+                    logger.info("position(s) on security: " + conid + " ok");
                 }
             }
         }
@@ -306,74 +304,134 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
         while ((node = iterator.nextNode()) != null) {
 
             String extId = XPathAPI.selectSingleNode(node, "@ibExecID").getNodeValue();
+            String conid = XPathAPI.selectSingleNode(node, "@conid").getNodeValue();
+            String dateString = XPathAPI.selectSingleNode(node, "@tradeDate").getNodeValue();
+            String timeString = XPathAPI.selectSingleNode(node, "@tradeTime").getNodeValue();
+            String quantityString = XPathAPI.selectSingleNode(node, "@quantity").getNodeValue();
+            String priceString = XPathAPI.selectSingleNode(node, "@tradePrice").getNodeValue();
+            String commissionString = XPathAPI.selectSingleNode(node, "@ibCommission").getNodeValue();
+            String currencyString = XPathAPI.selectSingleNode(node, "@currency").getNodeValue();
+            String typeString = XPathAPI.selectSingleNode(node, "@buySell").getNodeValue();
 
-            Transaction transaction = getTransactionDao().findByExtId(extId);
-            if (transaction == null) {
+            Date dateTime = DateUtils.addHours(tradeDateTimeFormat.parse(dateString + " " + timeString), this.timeDifferenceHours);
+            long quantity = Long.parseLong(quantityString);
+            double priceDouble = Double.parseDouble(priceString);
+            double commissionDouble = Math.abs(Double.parseDouble(commissionString));
+            Currency currency = Currency.fromString(currencyString);
+            TransactionType transactionType = TransactionType.valueOf(typeString);
 
-                logger.error("transaction: " + extId + " does not exist");
-            } else {
+            internalReconcileTrade(extId, conid, dateTime, quantity, priceDouble, commissionDouble, currency, transactionType);
+        }
+    }
 
-                String dateString = XPathAPI.selectSingleNode(node, "@tradeDate").getNodeValue();
-                String timeString = XPathAPI.selectSingleNode(node, "@tradeTime").getNodeValue();
-                String quantityString = XPathAPI.selectSingleNode(node, "@quantity").getNodeValue();
-                String priceString = XPathAPI.selectSingleNode(node, "@tradePrice").getNodeValue();
-                String commissionString = XPathAPI.selectSingleNode(node, "@ibCommission").getNodeValue();
-                String currencyString = XPathAPI.selectSingleNode(node, "@currency").getNodeValue();
-                String typeString = XPathAPI.selectSingleNode(node, "@buySell").getNodeValue();
+    @Override
+    protected void handleReconcileUnbookedTrades(Document document) throws Exception {
 
-                Date dateTime = DateUtils.addHours(tradeDateTimeFormat.parse(dateString + " " + timeString), this.timeDifferenceHours);
-                long quantity = Long.parseLong(quantityString);
-                double price = Double.parseDouble(priceString);
-                double commissionDouble = Math.abs(Double.parseDouble(commissionString));
-                Currency currency = Currency.fromString(currencyString);
-                TransactionType type = TransactionType.valueOf(typeString);
+        NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//UnbookedTrade");
 
-                boolean success = true;
-                if (!(new Date(transaction.getDateTime().getTime())).equals(dateTime)) {
-                    logger.warn("transaction: " + extId + " dateTime does not match db: " + transaction.getDateTime() + " broker: " + dateTime);
-                    success = false;
-                }
+        Node node;
+        while ((node = iterator.nextNode()) != null) {
 
-                if (transaction.getQuantity() != quantity) {
-                    logger.error("transaction: " + extId + " quantity does not match db: " + transaction.getQuantity() + " broker: " + quantity);
-                    success = false;
-                }
+            String extId = XPathAPI.selectSingleNode(node, "@ibExecID").getNodeValue();
+            String conid = XPathAPI.selectSingleNode(node, "@conid").getNodeValue();
+            String dateTimeString = XPathAPI.selectSingleNode(node, "@dateTime").getNodeValue();
+            String quantityString = XPathAPI.selectSingleNode(node, "@quantity").getNodeValue();
+            String priceString = XPathAPI.selectSingleNode(node, "@tradePrice").getNodeValue();
+            String commissionString = XPathAPI.selectSingleNode(node, "@commission").getNodeValue();
+            String currencyString = XPathAPI.selectSingleNode(node, "@currency").getNodeValue();
 
-                if (transaction.getPrice().doubleValue() != price) {
-                    logger.error("transaction: " + extId + " price does not match db: " + transaction.getPrice() + " broker: " + price);
-                    success = false;
-                }
+            Date dateTime = DateUtils.addHours(cashDateTimeFormat.parse(dateTimeString), this.timeDifferenceHours);
+            long quantity = Long.parseLong(quantityString);
+            double priceDouble = Double.parseDouble(priceString);
+            double commissionDouble = Math.abs(Double.parseDouble(commissionString));
+            Currency currency = Currency.fromString(currencyString);
+            TransactionType transactionType = quantity > 0 ? TransactionType.BUY : TransactionType.SELL;
 
-                if (!transaction.getCurrency().equals(currency)) {
-                    logger.error("transaction: " + extId + " currency does not match db: " + transaction.getCurrency() + " broker: " + currency);
-                    success = false;
-                }
+            internalReconcileTrade(extId, conid, dateTime, quantity, priceDouble, commissionDouble, currency, transactionType);
+        }
+    }
 
-                if (!transaction.getType().equals(type)) {
-                    logger.error("transaction: " + extId + " type does not match db: " + transaction.getType() + " broker: " + type);
-                    success = false;
-                }
+    private void internalReconcileTrade(String extId, String conid, Date dateTime, long quantity, double priceDouble, double commissionDouble, Currency currency, TransactionType transactionType) {
 
-                BigDecimal commission = RoundUtil.getBigDecimal(Math.abs(commissionDouble), this.portfolioDigits);
-                BigDecimal existingCommission = transaction.getCommission();
+        Transaction transaction = getTransactionDao().findByExtId(extId);
 
-                if (!existingCommission.equals(commission)) {
+        if (!this.recreateTransactions && transaction == null) {
 
-                    // update the transaction
-                    transaction.setCommission(commission);
+            throw new IllegalStateException("transaction: " + extId + " does not exist");
 
-                    // process the difference in commission
-                    BigDecimal commissionDiff = RoundUtil.getBigDecimal(existingCommission.doubleValue() - commission.doubleValue(), this.portfolioDigits);
+        } else if (transaction == null) {
 
-                    getCashBalanceService().processAmount(transaction.getStrategy().getName(), transaction.getCurrency(), commissionDiff);
+            Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
+            Security security = getSecurityDao().findByConid(conid);
 
-                    logger.info("transaction: " + extId + " adjusted commission from: " + existingCommission + " to: " + commission);
-                    success = false;
-                }
+            if (security == null) {
+                throw new IllegalStateException("unknown security for conid " + conid);
+            }
 
-                if (success) {
-                    logger.info("transaction: " + extId + " ok");
-                }
+            BigDecimal price = RoundUtil.getBigDecimal(priceDouble, security.getSecurityFamily().getScale());
+            BigDecimal commission = RoundUtil.getBigDecimal(commissionDouble, this.portfolioDigits);
+
+            transaction = new TransactionImpl();
+            transaction.setSecurity(security);
+            transaction.setStrategy(strategy);
+            transaction.setDateTime(dateTime);
+            transaction.setExtId(extId);
+            transaction.setQuantity(quantity);
+            transaction.setPrice(price);
+            transaction.setType(transactionType);
+            transaction.setCurrency(currency);
+            transaction.setExecutionCommission(commission);
+
+            getTransactionService().persistTransaction(transaction);
+
+        } else {
+
+
+            boolean success = true;
+            if (!(new Date(transaction.getDateTime().getTime())).equals(dateTime)) {
+                logger.warn("transaction: " + extId + " dateTime does not match db: " + transaction.getDateTime() + " broker: " + dateTime);
+                success = false;
+            }
+
+            if (transaction.getQuantity() != quantity) {
+                logger.error("transaction: " + extId + " quantity does not match db: " + transaction.getQuantity() + " broker: " + quantity);
+                success = false;
+            }
+
+            if (transaction.getPrice().doubleValue() != priceDouble) {
+                logger.error("transaction: " + extId + " price does not match db: " + transaction.getPrice() + " broker: " + priceDouble);
+                success = false;
+            }
+
+            if (!transaction.getCurrency().equals(currency)) {
+                logger.error("transaction: " + extId + " currency does not match db: " + transaction.getCurrency() + " broker: " + currency);
+                success = false;
+            }
+
+            if (!transaction.getType().equals(transactionType)) {
+                logger.error("transaction: " + extId + " type does not match db: " + transaction.getType() + " broker: " + transactionType);
+                success = false;
+            }
+
+            BigDecimal commission = RoundUtil.getBigDecimal(Math.abs(commissionDouble), this.portfolioDigits);
+            BigDecimal existingCommission = transaction.getExecutionCommission();
+
+            if (!existingCommission.equals(commission)) {
+
+                // update the transaction
+                transaction.setExecutionCommission(commission);
+
+                // process the difference in commission
+                BigDecimal commissionDiff = RoundUtil.getBigDecimal(existingCommission.doubleValue() - commission.doubleValue(), this.portfolioDigits);
+
+                getCashBalanceService().processAmount(transaction.getStrategy().getName(), transaction.getCurrency(), commissionDiff);
+
+                logger.info("transaction: " + extId + " adjusted commission from: " + existingCommission + " to: " + commission);
+                success = false;
+            }
+
+            if (success) {
+                logger.info("transaction: " + extId + " ok");
             }
         }
     }

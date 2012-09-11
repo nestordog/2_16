@@ -185,7 +185,7 @@
         <appender-ref ref="ASYNC_TRANSACTION_EMAIL" />
     </logger>
 
-    <logger name="com.algoTrader.service.NOTIFICATION_EMAIL">
+    <logger name="com.algoTrader.service.NOTIFICATION">
         <appender-ref ref="ASYNC_NOTIFICATION_EMAIL" />
     </logger>
 

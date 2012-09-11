@@ -1,6 +1,5 @@
 package com.algoTrader.service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -49,7 +48,6 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
                 transaction.setDateTime(DateUtil.getCurrentEPTime());
                 transaction.setQuantity(targetNetLiqValue > actualNetLiqValue ? +1 : -1);
                 transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(rebalanceAmount)));
-                transaction.setCommission(new BigDecimal(0.0));
                 transaction.setCurrency(this.portfolioBaseCurrency);
                 transaction.setType(TransactionType.REBALANCE);
                 transaction.setStrategy(strategy);
