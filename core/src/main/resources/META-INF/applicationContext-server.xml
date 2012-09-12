@@ -57,6 +57,7 @@
             <set>
                 <bean class="org.springframework.ws.transport.mail.Disposition" p:name="ib" p:from="donotreply@interactivebrokers.com" p:subject="Activity Flex" p:service-ref="iBReconciliationService"/>
                 <bean class="org.springframework.ws.transport.mail.Disposition" p:name="ui" p:from="listenversand-lux@universal-investment.com" p:subject="Bewertungsdaten" p:service-ref="uIReconciliationService"/>
+                <bean class="org.springframework.ws.transport.mail.Disposition" p:name="rbs" p:from="aflury@linardcapital.com" p:subject="Reports" p:service-ref="rBSReconciliationService"/>
             </set>
         </property>
         <property name="monitoringStrategy">

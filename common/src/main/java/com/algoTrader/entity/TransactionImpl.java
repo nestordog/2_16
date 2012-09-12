@@ -74,7 +74,8 @@ public class TransactionImpl extends Transaction {
     @Override
     public double getTotalCommissionDouble() {
 
-        return getExecutionCommission().doubleValue() + getClearingCommission().doubleValue();
+        return (getExecutionCommission() != null ? getExecutionCommission().doubleValue() : 0.0) +
+                (getClearingCommission() != null ? getClearingCommission().doubleValue() : 0.0);
     }
 
     @Override

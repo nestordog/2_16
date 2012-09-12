@@ -177,21 +177,20 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
     private void reconcilePosition(String ric, long quantity, Date date) {
 
         Security security = getSecurityDao().findByRic(ric);
-        if (security == null) {
-
-            logger.error("security: " + ric + " does not exist");
-        } else {
+        if (security != null) {
 
             // get the actual quantity of the position as of the specified date
             Long actualyQuantity = getTransactionDao().findQuantityBySecurityAndDate(security.getId(), date);
 
             if (actualyQuantity == null) {
-                logger.error("position(s) on security: " + ric + " does not exist");
+                logger.error("position(s) on security: " + security + " does not exist");
             } else if (actualyQuantity != quantity) {
-                logger.error("position(s) on security: " + ric + " quantity does not match db: " + actualyQuantity + " broker: " + quantity + " date: " + date);
+                logger.error("position(s) on security: " + security + " quantity does not match db: " + actualyQuantity + " broker: " + quantity);
             } else {
-                logger.info("position(s) on security: " + ric + " ok");
+                logger.info("position(s) on security: " + security + " ok");
             }
+        } else {
+            logger.error("security does not exist, ric: " + ric);
         }
     }
 
