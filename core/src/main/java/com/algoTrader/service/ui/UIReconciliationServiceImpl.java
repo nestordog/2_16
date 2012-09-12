@@ -1,24 +1,24 @@
 package com.algoTrader.service.ui;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
-import org.apache.xpath.XPathAPI;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.traversal.NodeIterator;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
@@ -27,7 +27,6 @@ import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.service.ib.IBAccountServiceException;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.ZipUtil;
@@ -36,15 +35,14 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(UIReconciliationServiceImpl.class.getName());
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-    NumberFormat numberFormat = NumberFormat.getInstance(Locale.GERMANY);
-    private static SimpleDateFormat cashDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd, kk:mm:ss");
-    private static SimpleDateFormat cashDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+    private static NumberFormat numberFormat = NumberFormat.getInstance(Locale.GERMANY);
+
+    private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
 
     @Override
     protected void handleReconcile() throws Exception {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
@@ -65,205 +63,115 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
             throw new IllegalStateException("expecting txt entry file");
         }
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(entryFileNames.get(0))));
+        // get the newFile
+        File file = new File(entryFileNames.get(0));
 
+        // create the cast transaction for todays fees
+        createCashTransaction(file);
+
+        // reconcile positions
+        reconcilePositions(file);
+    }
+
+    private void createCashTransaction(File newFile) throws FileNotFoundException, IOException, ParseException {
+
+
+        // compose a map of all files with their corresponding date as key
+        Map<Date, File> files = new HashMap<Date, File>();
+        for (File file : newFile.getParentFile().listFiles()) {
+
+            if (file.getName().startsWith("Bewertungsdaten")) {
+                String dateString = file.getName().substring(16, 25);
+                Date date = dateFormat.parse(dateString);
+                files.put(date, file);
+            }
+        }
+
+        // create a sorted set of all dates
+        TreeSet<Date> dateSet = (new TreeSet<Date>(files.keySet()));
+        Date newDate = dateSet.pollLast(); // remove the last file as it is the newFile
+        double newFees = getFees(newFile);
+
+        // get the old file (youngest file besides the newFile) if there is one
+        double oldFees = 0;
+        if (dateSet.size() > 0) {
+            Date oldDate = dateSet.last();
+            File oldFile = files.get(oldDate);
+            oldFees = getFees(oldFile);
+        }
+
+        // get the difference in fees
+        BigDecimal fees = RoundUtil.getBigDecimal(newFees - oldFees);
+
+        Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
+
+        // create the transaction
+        Transaction transaction = new TransactionImpl();
+        transaction.setDateTime(newDate);
+        transaction.setQuantity(1);
+        transaction.setPrice(fees);
+        transaction.setCurrency(this.portfolioBaseCurrency);
+        transaction.setType(TransactionType.FEES);
+        transaction.setStrategy(strategy);
+        transaction.setDescription("UI Fees");
+
+        // persist the transaction
+        getTransactionService().persistTransaction(transaction);
+    }
+
+    private double getFees(File newFile) throws FileNotFoundException, IOException, ParseException {
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(newFile)));
+
+        // add all items of type 090 (Verbindlichkeiten)
+        String line;
+        double totalAmount = 0;
+        while ((line = reader.readLine()) != null) {
+
+            String[] values = line.split(String.valueOf((char) 182));
+
+            if ("090".equals(values[0])) {
+
+                totalAmount += parseDouble(values, 11);
+            }
+        }
+        reader.close();
+
+        return totalAmount;
+    }
+
+    private void reconcilePositions(File newFile) throws FileNotFoundException, IOException, ParseException {
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(newFile)));
+
+        // reoncile all futures and option positions
         String line;
         while ((line = reader.readLine()) != null) {
 
             String[] values = line.split(String.valueOf((char) 182));
 
-            // Fondsschlüsseldaten
-            if ("010".equals(values[0])) {
+            // Futures
+            if ("050".equals(values[0])) {
 
-                String fondsNummer = values[1];
-                Date bewertungsDatum = parseDate(values, 2);
-                Date lieferDatum = parseDate(values, 3);
-                String lieferNummer = values[4];
-                String wkn = values[5];
-                String isin = values[6];
-                String fondsname = values[7];
-                Currency fondswaehrung = Currency.valueOf(values[8]);
-
-                // Vermögensdaten
-            } else if ("020".equals(values[0])) {
-
-                //                BigDecimal fondsVermoegen = parseBigDecimal(values, 11, 2);
-                //                BigDecimal ausgabePreis = parseBigDecimal(values, 12, 2);
-                //                BigDecimal ruecknahmePreis = parseBigDecimal(values, 13, 2);
-                //                long anteileImUmlauf = parseLong(values, 14);
-
-                // Kontensalden / Bankkonten
-            } else if ("030".equals(values[0])) {
-
-                //                String kontonummer = values[7];
-                //                String kontoBezeichnung = values[8];
-                //                Currency kontoWaehrung = Currency.valueOf(values[10]);
-                //                BigDecimal saldoInFondswaehrung = parseBigDecimal(values, 11, 2);
-                //                BigDecimal waehrungsBetrag = parseBigDecimal(values, 12, 2);
-                //                BigDecimal devisenkurs = parseBigDecimal(values, 28, 4);
-
-                // Futurebestände
-            } else if ("050".equals(values[0])) {
-
-                Date bewertungsDatum = parseDate(values, 2);
-                //                String wkn = values[5];
-                //                String isinBasis = values[6];
-                //                String geschaeftsBezeichnung = values[7];
-                //                String kurzbezeichnung = values[8];
-                //                String futureArt = values[9];
-                //                Currency waehrung = Currency.valueOf(values[10]);
-                //                BigDecimal kurswertInFondswaehrung = parseBigDecimal(values, 11, 2);
-                //                BigDecimal tageskurs = parseBigDecimal(values, 14, 2);
-                //                int kontraktgroesse = parseInt(values, 15);
-                //                String isin = values[18];
-                //                BigDecimal einstandpreis = parseBigDecimal(values, 22, 6);
-                long anzahlKontrakte = parseLong(values, 27);
-                //                BigDecimal devisenkurs = parseBigDecimal(values, 28, 4);
-                //                Date verfalldatum = parseDate(values, 36);
-                //                String bloombergUID = values[40];
-                //                Side kaufVerkauf = "K".equals(values[41]) ? Side.BUY : Side.SELL;
-                String reutersRIC = values[43];
-                //                String bloombergKuerzel = values[44];
+                Date date = parseDate(values, 2);
+                long quantity = parseLong(values, 27);
+                String ric = values[43];
 
                 // reconcile position
-                reconcilePosition(reutersRIC, anzahlKontrakte, bewertungsDatum);
+                reconcilePosition(ric, quantity, date);
 
-                // Optionsbestände
+                // Options
             } else if ("060".equals(values[0])) {
 
-                Date bewertungsDatum = parseDate(values, 2);
-                //                String wkn = values[5];
-                //                String isinBasis = values[6];
-                //                String geschaeftsBezeichnung = values[7];
-                //                OptionType putCall = OptionType.valueOf(values[8]);
-                //                String geschaeftsArt = values[9];
-                //                Currency waehrung = Currency.valueOf(values[10]);
-                //                BigDecimal kurswertInFondswaehrung = parseBigDecimal(values, 11, 2);
-                //                BigDecimal tageskurs = parseBigDecimal(values, 14, 2);
-                //                int kontraktgroesse = parseInt(values, 15);
-                //                String isin = values[18];
-                //                double delta = parseDouble(values, 20);
-                //                BigDecimal basisPreis = parseBigDecimal(values, 21, 2);
-                //                BigDecimal einstandPreis = parseBigDecimal(values, 22, 6);
-                //                BigDecimal einstandsWert = parseBigDecimal(values, 23, 5);
-                //                BigDecimal vorlaeufigesErgebnis = parseBigDecimal(values, 24, 6);
-                long anzahlKontrakte = parseLong(values, 27);
-                //                BigDecimal devisenkurs = parseBigDecimal(values, 28, 4);
-                //                Date verfalldatum = parseDate(values, 36);
-                //                String bloombergUID = values[40];
-                //                Side kaufVerkauf = "K".equals(values[41]) ? Side.BUY : Side.SELL;
-                String reutersRIC = values[43];
-                //                String bloombergKuerzel = values[44];
+                Date date = parseDate(values, 2);
+                long quantity = parseLong(values, 27);
+                String ric = values[43];
 
                 // reconcile position
-                reconcilePosition(reutersRIC, anzahlKontrakte, bewertungsDatum);
-
-                // Verbindlichkeiten
-            } else if ("090".equals(values[0])) {
-
-                String kontoNummer = values[7];
-                String bezeichnung = values[8];
-                Currency waehrung = Currency.valueOf(values[10]);
-                BigDecimal verbindlichkeitInFondswaehrung = parseBigDecimal(values, 11, 2);
-                BigDecimal waehrungsbetrag = parseBigDecimal(values, 14, 2);
-                BigDecimal devisenkurs = parseBigDecimal(values, 28, 4);
+                reconcilePosition(ric, quantity, date);
             }
         }
-    }
-
-    protected void handleProcessCashTransactions(Document document) throws Exception {
-
-        NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//CashTransaction");
-
-        Node node;
-        Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
-        List<Transaction> transactions = new ArrayList<Transaction>();
-        while ((node = iterator.nextNode()) != null) {
-
-            String accountId = XPathAPI.selectSingleNode(node, "@accountId").getNodeValue();
-            String desc = XPathAPI.selectSingleNode(node, "@description").getNodeValue();
-            String dateTimeString = XPathAPI.selectSingleNode(node, "@dateTime").getNodeValue();
-            String amountString = XPathAPI.selectSingleNode(node, "@amount").getNodeValue();
-            String currencyString = XPathAPI.selectSingleNode(node, "@currency").getNodeValue();
-            String typeString = XPathAPI.selectSingleNode(node, "@type").getNodeValue();
-
-            Date dateTime = null;
-            try {
-                dateTime = cashDateTimeFormat.parse(dateTimeString);
-            } catch (ParseException e) {
-                dateTime = cashDateFormat.parse(dateTimeString);
-            }
-
-            double amountDouble = Double.parseDouble(amountString);
-            Currency currency = Currency.fromString(currencyString);
-            String description = accountId + " " + desc;
-
-            TransactionType transactionType;
-            if (typeString.equals("Other Fees")) {
-                if (amountDouble < 0) {
-                    transactionType = TransactionType.FEES;
-                } else {
-                    transactionType = TransactionType.REFUND;
-                }
-            } else if (typeString.equals("Broker Interest Paid")) {
-                transactionType = TransactionType.INTREST_PAID;
-            } else if (typeString.equals("Broker Interest Received")) {
-                transactionType = TransactionType.INTREST_RECEIVED;
-            } else if (typeString.equals("Deposits & Withdrawals")) {
-                if (amountDouble > 0) {
-                    transactionType = TransactionType.CREDIT;
-                } else {
-                    transactionType = TransactionType.DEBIT;
-                }
-            } else {
-                throw new IBAccountServiceException("unknown cast transaction type " + typeString);
-            }
-
-            BigDecimal price = RoundUtil.getBigDecimal(Math.abs(amountDouble));
-
-            if (getTransactionDao().findByDateTimePriceTypeAndDescription(dateTime, price, transactionType, description) != null) {
-
-                // @formatter:off
-                logger.warn("cash transaction already exists" +
-                        " dateTime: " + cashDateTimeFormat.format(dateTime) +
-                        " price: " + price +
-                        " type: " + transactionType +
-                        " description: " + description);
-                // @formatter:on
-
-            } else {
-
-                Transaction transaction = new TransactionImpl();
-                transaction.setDateTime(dateTime);
-                transaction.setQuantity(1);
-                transaction.setPrice(price);
-                transaction.setCurrency(currency);
-                transaction.setType(transactionType);
-                transaction.setDescription(description);
-                transaction.setStrategy(strategy);
-
-                transactions.add(transaction);
-            }
-        }
-
-        // sort the transactions according to their dateTime
-        Collections.sort(transactions, new Comparator<Transaction>() {
-            @Override
-            public int compare(Transaction t1, Transaction t2) {
-                return t1.getDateTime().compareTo(t2.getDateTime());
-            }
-        });
-
-        for (Transaction transaction : transactions) {
-
-            // persist the transaction
-            getTransactionService().persistTransaction(transaction);
-        }
-
-        // rebalance portfolio if necessary
-        if (transactions.size() > 0) {
-            getAccountService().rebalancePortfolio();
-        }
+        reader.close();
     }
 
     private void reconcilePosition(String ric, long quantity, Date date) {
@@ -274,6 +182,7 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
             logger.error("security: " + ric + " does not exist");
         } else {
 
+            // get the actual quantity of the position as of the specified date
             Long actualyQuantity = getTransactionDao().findQuantityBySecurityAndDate(security.getId(), date);
 
             if (actualyQuantity == null) {
@@ -291,7 +200,7 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
         if ("".equals(values[idx])) {
             return 0.0;
         } else {
-            return this.numberFormat.parse(values[idx].trim()).doubleValue();
+            return numberFormat.parse(values[idx].trim()).doubleValue();
         }
     }
 
@@ -300,17 +209,12 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
         if ("".equals(values[idx])) {
             return 0;
         } else {
-            return this.numberFormat.parse(values[idx].trim()).longValue();
+            return numberFormat.parse(values[idx].trim()).longValue();
         }
-    }
-
-    private BigDecimal parseBigDecimal(String[] values, int idx, int scale) throws ParseException {
-
-        return RoundUtil.getBigDecimal(parseDouble(values, idx), scale);
     }
 
     private Date parseDate(String[] values, int idx) throws ParseException {
 
-        return this.dateFormat.parse(values[idx]);
+        return dateFormat.parse(values[idx]);
     }
 }
