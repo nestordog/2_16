@@ -7,11 +7,14 @@ mysqldump.exe ^
 --ignore-table=algotrader.ask ^
 --ignore-table=algotrader.bar ^
 --ignore-table=algotrader.bid ^
+--ignore-table=algotrader.cash_balance ^
 --ignore-table=algotrader.combination ^
 --ignore-table=algotrader.component ^
+--ignore-table=algotrader.forex_future ^
 --ignore-table=algotrader.future ^
 --ignore-table=algotrader.history ^
 --ignore-table=algotrader.measurement ^
+--ignore-table=algotrader.portfolio_value ^
 --ignore-table=algotrader.position ^
 --ignore-table=algotrader.stock_option ^
 --ignore-table=algotrader.synthetic_index ^
