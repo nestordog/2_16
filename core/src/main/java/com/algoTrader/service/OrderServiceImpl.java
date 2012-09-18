@@ -3,6 +3,7 @@ package com.algoTrader.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -202,6 +203,23 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
 
         logger.info("cancelled algo order: " + order);
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    protected void handleModifyOrder(int orderNumber, Map properties) throws Exception {
+
+        Order order = getOrderDao().findOpenOrderByNumber(orderNumber);
+        if (order != null) {
+
+            // populte the properties
+            BeanUtils.populate(order, properties);
+
+            modifyOrder(order);
+
+        } else {
+            throw new IllegalArgumentException("order does not exist " + orderNumber);
+        }
     }
 
     @Override

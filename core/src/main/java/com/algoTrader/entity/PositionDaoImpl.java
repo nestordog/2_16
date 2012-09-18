@@ -31,6 +31,7 @@ public class PositionDaoImpl extends PositionDaoBase {
     private void completePositionVO(Position position, PositionVO positionVO) {
 
         int scale = position.getSecurity().getSecurityFamily().getScale();
+        positionVO.setSecurityId(position.getSecurity().getId());
         positionVO.setName(position.getSecurity().toString());
         positionVO.setStrategyName(position.getStrategy().getName());
         positionVO.setCurrency(position.getSecurity().getSecurityFamily().getCurrency());
@@ -40,8 +41,8 @@ public class PositionDaoImpl extends PositionDaoBase {
         positionVO.setCost(RoundUtil.getBigDecimal(position.getCostDouble()));
         positionVO.setUnrealizedPL(RoundUtil.getBigDecimal(position.getUnrealizedPLDouble()));
         positionVO.setExitValue(position.getExitValue() != null ? RoundUtil.getBigDecimal(position.getExitValue(), scale) : null);
-        positionVO.setRedemptionValue(RoundUtil.getBigDecimal(position.getRedemptionValueDouble()));
         positionVO.setMaxLoss(RoundUtil.getBigDecimal(position.getMaxLossDouble()));
+        positionVO.setMargin(position.getMaintenanceMargin());
 
         // add properties if any
         Map<String, Property> properties = position.getPropertiesInitialized();

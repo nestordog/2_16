@@ -307,6 +307,18 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
+    protected void handleModifyOrder(int orderNumber, String propertiesString) throws Exception {
+
+        // get the properties
+        Map<String, String> properties = new HashMap<String, String>();
+        for (String nameValue : propertiesString.split(",")) {
+            properties.put(nameValue.split("=")[0], nameValue.split("=")[1]);
+        }
+
+        getOrderService().modifyOrder(orderNumber, properties);
+    }
+
+    @Override
     protected void handleSetVariableValue(String variableName, String value) {
 
         EsperManager.setVariableValue(StrategyUtil.getStartedStrategyName(), variableName, value);

@@ -151,5 +151,9 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
                 logger.error("transaction " + transactionType + " " + quantity + " " + security + " price: " + price + " does not exist");
             }
         }
+
+        for (Transaction transaction : transactions) {
+            logger.error("transaction " + transaction + " was not present in file");
+        }
     }
 }

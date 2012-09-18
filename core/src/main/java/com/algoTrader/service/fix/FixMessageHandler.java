@@ -35,6 +35,13 @@ public class FixMessageHandler {
             logger.error("order " + number + " has been rejected, reason: " + executionReport.getText().getValue());
         }
 
+        // ignore PENDING_NEW, PENDING_CANCEL and PENDING_REPLACE
+        if (executionReport.getOrdStatus().getValue() == OrdStatus.PENDING_NEW ||
+            executionReport.getOrdStatus().getValue() == OrdStatus.PENDING_REPLACE ||
+            executionReport.getOrdStatus().getValue() == OrdStatus.PENDING_CANCEL) {
+            return;
+        }
+
         // for orders that have been cancelled by the system get the number from OrigClOrdID
         if (executionReport.getOrdStatus().getValue() == OrdStatus.CANCELED) {
             if (!executionReport.isSetExecRestatementReason()) {

@@ -91,8 +91,8 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
     @Override
     protected void handleSavePortfolioValue(Strategy strategy, Transaction transaction) throws Exception {
 
-        if (TransactionType.BUY.equals(transaction.getType()) || TransactionType.SELL.equals(transaction.getType()) || TransactionType.EXPIRATION.equals(transaction.getType())) {
-            return; // nothing to do in case of BUY, SELL or EXPIRATION
+        if (transaction.isTrade()) {
+            return;
         }
 
         PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName());

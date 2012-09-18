@@ -83,7 +83,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         Security security = getSecurityDao().findById(securityId);
         if (TransactionType.BUY.equals(transactionType) ||
                 TransactionType.SELL.equals(transactionType) ||
-                TransactionType.EXPIRATION.equals(transactionType)) {
+                TransactionType.EXPIRATION.equals(transactionType) ||
+                TransactionType.TRANSFER.equals(transactionType)) {
 
             if (security == null) {
                 throw new IllegalArgumentException("security " + securityId + " was not found");
@@ -95,15 +96,12 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 quantity = Math.abs(quantity);
             } else if (TransactionType.SELL.equals(transactionType)) {
                 quantity = -Math.abs(quantity);
-            } else if (TransactionType.EXPIRATION.equals(transactionType)) {
-                // actual quantity taken
             }
 
+            // for EXPIRATION or TRANSFER the actual quantity istaken
+
         } else if (TransactionType.CREDIT.equals(transactionType) ||
-                TransactionType.DEBIT.equals(transactionType) ||
-                TransactionType.INTREST_PAID.equals(transactionType) ||
                 TransactionType.INTREST_RECEIVED.equals(transactionType) ||
-                TransactionType.FEES.equals(transactionType) ||
                 TransactionType.REFUND.equals(transactionType)) {
 
             if (currency == null) {
@@ -112,7 +110,16 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
             quantity = 1;
 
+        } else if (TransactionType.DEBIT.equals(transactionType) || TransactionType.INTREST_PAID.equals(transactionType) || TransactionType.FEES.equals(transactionType)) {
+
+            if (currency == null) {
+                throw new IllegalArgumentException("need to define a currency for " + transactionType);
+            }
+
+            quantity = -1;
+
         } else if (TransactionType.REBALANCE.equals(transactionType)) {
+
             throw new IllegalArgumentException("transaction type REBALANCE not allowed");
         }
 

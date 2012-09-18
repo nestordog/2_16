@@ -30,27 +30,14 @@ public class TransactionImpl extends Transaction {
     @Override
     public double getGrossValueDouble() {
 
-        //@formatter:off
         if (this.value == null) {
-            if (getType().equals(TransactionType.BUY) ||
-                    getType().equals(TransactionType.SELL) ||
-                    getType().equals(TransactionType.EXPIRATION)) {
+            if (isTrade()) {
                 this.value = -getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getPrice().doubleValue();
-            } else if (getType().equals(TransactionType.CREDIT) ||
-                    getType().equals(TransactionType.INTREST_RECEIVED) ||
-                    getType().equals(TransactionType.REFUND)) {
-                this.value = getPrice().doubleValue();
-            } else if (getType().equals(TransactionType.DEBIT) ||
-                    getType().equals(TransactionType.FEES) ||
-                    getType().equals(TransactionType.INTREST_PAID)) {
-                this.value = -getPrice().doubleValue();
-            } else if (getType().equals(TransactionType.REBALANCE)) {
-                this.value = getQuantity() * getPrice().doubleValue();
             } else {
-                throw new IllegalArgumentException("unsupported transactionType: " + getType());
+                this.value = getQuantity() * getPrice().doubleValue();
             }
         }
-        //@formatter:off
+
         return this.value;
     }
 
@@ -84,10 +71,22 @@ public class TransactionImpl extends Transaction {
         return RoundUtil.getBigDecimal(getTotalCommissionDouble(), portfolioDigits);
     }
 
+    public boolean isTrade() {
+
+        if (TransactionType.BUY.equals(getType()) ||
+                TransactionType.SELL.equals(getType()) ||
+                TransactionType.EXPIRATION.equals(getType())  ||
+                TransactionType.TRANSFER.equals(getType())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @Override
     public String toString() {
 
-        if (TransactionType.BUY.equals(getType()) || TransactionType.SELL.equals(getType()) || TransactionType.EXPIRATION.equals(getType()) ) {
+        if (isTrade()) {
 
             //@formatter:off
             return getType()

@@ -33,15 +33,15 @@ public class FixUtil {
 
     public static Status getStatus(OrdStatus ordStatus, CumQty cumQty) {
 
-        if (ordStatus.getValue() == OrdStatus.NEW || ordStatus.getValue() == OrdStatus.PENDING_NEW) {
+        if (ordStatus.getValue() == OrdStatus.NEW) {
             return Status.SUBMITTED;
         } else if (ordStatus.getValue() == OrdStatus.PARTIALLY_FILLED) {
             return Status.PARTIALLY_EXECUTED;
         } else if (ordStatus.getValue() == OrdStatus.FILLED) {
             return Status.EXECUTED;
-        } else if (ordStatus.getValue() == OrdStatus.CANCELED || ordStatus.getValue() == OrdStatus.PENDING_CANCEL || ordStatus.getValue() == OrdStatus.REJECTED) {
+        } else if (ordStatus.getValue() == OrdStatus.CANCELED || ordStatus.getValue() == OrdStatus.REJECTED) {
             return Status.CANCELED;
-        } else if (ordStatus.getValue() == OrdStatus.REPLACED || ordStatus.getValue() == OrdStatus.PENDING_REPLACE) {
+        } else if (ordStatus.getValue() == OrdStatus.REPLACED) {
             if (cumQty.getValue() == 0) {
                 return Status.SUBMITTED;
             } else {

@@ -190,21 +190,28 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
             String description = accountId + " " + desc;
 
             TransactionType transactionType;
+            long quantity;
             if (typeString.equals("Other Fees")) {
                 if (amountDouble < 0) {
                     transactionType = TransactionType.FEES;
+                    quantity = -1;
                 } else {
                     transactionType = TransactionType.REFUND;
+                    quantity = 1;
                 }
             } else if (typeString.equals("Broker Interest Paid")) {
                 transactionType = TransactionType.INTREST_PAID;
+                quantity = -1;
             } else if (typeString.equals("Broker Interest Received")) {
                 transactionType = TransactionType.INTREST_RECEIVED;
+                quantity = 1;
             } else if (typeString.equals("Deposits & Withdrawals")) {
                 if (amountDouble > 0) {
                     transactionType = TransactionType.CREDIT;
+                    quantity = 1;
                 } else {
                     transactionType = TransactionType.DEBIT;
+                    quantity = -1;
                 }
             } else {
                 throw new IBAccountServiceException("unknown cast transaction type " + typeString);
@@ -226,7 +233,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
 
                 Transaction transaction = new TransactionImpl();
                 transaction.setDateTime(dateTime);
-                transaction.setQuantity(1);
+                transaction.setQuantity(quantity);
                 transaction.setPrice(price);
                 transaction.setCurrency(currency);
                 transaction.setType(transactionType);
