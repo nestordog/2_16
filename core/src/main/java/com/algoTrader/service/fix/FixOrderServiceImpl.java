@@ -1,16 +1,13 @@
 package com.algoTrader.service.fix;
 
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import quickfix.field.Account;
 import quickfix.field.ClOrdID;
 import quickfix.field.ContractMultiplier;
 import quickfix.field.Currency;
-import quickfix.field.HandlInst;
 import quickfix.field.MaturityMonthYear;
 import quickfix.field.OrderQty;
 import quickfix.field.OrigClOrdID;
@@ -29,7 +26,6 @@ import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.Stock;
 import com.algoTrader.entity.security.StockOption;
-import com.algoTrader.entity.trade.LimitOrder;
 import com.algoTrader.entity.trade.LimitOrderI;
 import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.entity.trade.StopOrderI;
@@ -56,9 +52,6 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         Security security = order.getSecurity();
 
         // common info
-        newOrder.set(new Account("TEST"));
-        newOrder.set(new HandlInst('1'));
-
         newOrder.set(new TransactTime(new Date()));
         newOrder.set(new ClOrdID(String.valueOf(order.getNumber())));
 
@@ -119,7 +112,7 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         getOrderService().propagateOrder(order);
 
         // send the message to the FixClient
-        getFixClient().sendMessage(newOrder, getSessionName());
+        getFixClient().sendMessage(newOrder, getMarketChannel().toString());
 
         logger.info("sent order: " + order);
     }
@@ -184,7 +177,7 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         getOrderService().propagateOrder(order);
 
         // send the message to the FixClient
-        getFixClient().sendMessage(replaceRequest, getSessionName());
+        getFixClient().sendMessage(replaceRequest, getMarketChannel().toString());
 
         logger.info("modified order: " + order);
     }
@@ -230,7 +223,7 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         cancelOrder(order, cancelRequest);
 
         // send the message to the FixClient
-        getFixClient().sendMessage(cancelRequest, getSessionName());
+        getFixClient().sendMessage(cancelRequest, getMarketChannel().toString());
 
         logger.info("requested order cancallation for order: " + order);
     }

@@ -9,6 +9,7 @@ import quickfix.fix42.OrderCancelRequest;
 
 import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.enumeration.Market;
+import com.algoTrader.enumeration.MarketChannel;
 
 public class IBFixOrderServiceImpl extends IBFixOrderServiceBase {
 
@@ -33,9 +34,9 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase {
     }
 
     @Override
-    protected String handleGetSessionName() {
+    protected MarketChannel handleGetMarketChannel() {
 
-        return "FIXIB";
+        return MarketChannel.FIXIB;
     }
 
     @Override

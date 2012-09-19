@@ -12,6 +12,7 @@ import quickfix.fix42.OrderCancelRequest;
 
 import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.enumeration.Market;
+import com.algoTrader.enumeration.MarketChannel;
 
 public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
 
@@ -39,8 +40,9 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
     }
 
     @Override
-    protected String handleGetSessionName() {
-        return "FIXJPM";
+    protected MarketChannel handleGetMarketChannel() {
+
+        return MarketChannel.FIXJPM;
     }
 
     @Override

@@ -30,9 +30,9 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
     private static Logger notificationLogger = MyLogger.getLogger("com.algoTrader.service.NOTIFICATION");
+    private static String defaultBroker = "DEFAULT";
 
     private @Value("${simulation}") boolean simulation;
-    private @Value("${defaultBroker}") String defaultBroker;
 
     // injected by Spring
     private Map<String, ExternalOrderService> externalOrderServices = new HashMap<String, ExternalOrderService>();
@@ -271,7 +271,11 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         if (order.getBroker() != null) {
             return getExternalOrderServices().get(order.getBroker().getValue());
         } else {
-            return getExternalOrderServices().get(this.defaultBroker);
+
+            // add the broker if none was defined
+            ExternalOrderService externalOrderService = getExternalOrderServices().get(defaultBroker);
+            order.setBroker(externalOrderService.getMarketChannel());
+            return externalOrderService;
         }
     }
 }

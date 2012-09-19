@@ -10,6 +10,7 @@ import com.algoTrader.entity.trade.OrderQuantityValidationException;
 import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.entity.trade.StopOrderI;
 import com.algoTrader.enumeration.ConnectionState;
+import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.util.MyLogger;
 import com.ib.client.Contract;
@@ -33,6 +34,12 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     protected void handleInit() throws Exception {
 
         client = getIBClientFactory().getDefaultClient();
+    }
+
+    @Override
+    protected MarketChannel handleGetMarketChannel() {
+
+        return MarketChannel.IB;
     }
 
     @Override
