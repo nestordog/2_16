@@ -27,84 +27,96 @@ public class FixMessageHandler {
 
     private static Logger logger = MyLogger.getLogger(FixMessageHandler.class.getName());
 
-    public void onMessage(ExecutionReport executionReport, SessionID sessionID) throws FieldNotFound {
+    public void onMessage(ExecutionReport executionReport, SessionID sessionID) {
 
-        Integer number = Integer.parseInt(executionReport.getClOrdID().getValue());
+        try {
 
-        if (executionReport.getOrdStatus().getValue() == OrdStatus.REJECTED) {
-            logger.error("order " + number + " has been rejected, reason: " + executionReport.getText().getValue());
-        }
+            Integer number = Integer.parseInt(executionReport.getClOrdID().getValue());
 
-        // ignore PENDING_NEW, PENDING_CANCEL and PENDING_REPLACE
-        if (executionReport.getOrdStatus().getValue() == OrdStatus.PENDING_NEW ||
-            executionReport.getOrdStatus().getValue() == OrdStatus.PENDING_REPLACE ||
-            executionReport.getOrdStatus().getValue() == OrdStatus.PENDING_CANCEL) {
-            return;
-        }
-
-        // for orders that have been cancelled by the system get the number from OrigClOrdID
-        if (executionReport.getOrdStatus().getValue() == OrdStatus.CANCELED) {
-            if (!executionReport.isSetExecRestatementReason()) {
-                number = Integer.parseInt(executionReport.getOrigClOrdID().getValue());
-
-                // if the field ExecRestatementReason exists, there is something wrong
-            } else {
-                logger.error("order " + number + " has been canceled, reason: " + executionReport.getText().getValue());
+            if (executionReport.getOrdStatus().getValue() == OrdStatus.REJECTED) {
+                logger.error("order " + number + " has been rejected, reason: " + executionReport.getText().getValue());
             }
-        }
 
-        // get the order from the OpenOrderWindow
-        Order order = ServiceLocator.instance().getLookupService().getOpenOrderByNumber(number);
-        if (order == null) {
-            logger.error("order could not be found " + number + " for execution " + executionReport);
-            return;
-        }
+            // ignore PENDING_NEW, PENDING_CANCEL and PENDING_REPLACE
+            if (executionReport.getOrdStatus().getValue() == OrdStatus.PENDING_NEW || executionReport.getOrdStatus().getValue() == OrdStatus.PENDING_REPLACE
+                    || executionReport.getOrdStatus().getValue() == OrdStatus.PENDING_CANCEL) {
+                return;
+            }
 
-        // get the other fields
-        Status status = FixUtil.getStatus(executionReport.getOrdStatus(), executionReport.getCumQty());
-        long filledQuantity = (long) executionReport.getCumQty().getValue();
-        long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
+            if (executionReport.getOrdStatus().getValue() == OrdStatus.CANCELED) {
+                // check if there ae errors
+                if (!executionReport.isSetExecRestatementReason()) {
 
-        // assemble the orderStatus
-        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-        orderStatus.setStatus(status);
-        orderStatus.setFilledQuantity(filledQuantity);
-        orderStatus.setRemainingQuantity(remainingQuantity);
-        orderStatus.setOrd(order);
+                    // get the number from OrigClOrdID (if it exists)
+                    if (executionReport.isSetOrigClOrdID()) {
+                        number = Integer.parseInt(executionReport.getOrigClOrdID().getValue());
+                    }
 
-        EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
+                    // if the field ExecRestatementReason exists, there is something wrong
+                } else {
+                    logger.error("order " + number + " has been canceled, reason: " + executionReport.getText().getValue());
+                }
+            }
 
-        // only create fills if status is PARTIALLY_FILLED or FILLED
-        if (executionReport.getOrdStatus().getValue() == OrdStatus.PARTIALLY_FILLED || executionReport.getOrdStatus().getValue() == OrdStatus.FILLED) {
+            // get the order from the OpenOrderWindow
+            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByNumber(number);
+            if (order == null) {
+                logger.error("order could not be found " + number + " for execution " + executionReport);
+                return;
+            }
 
-            // get the fields
-            Date dateTime = DateUtil.getCurrentEPTime();
-            Date extDateTime = executionReport.getTransactTime().getValue();
-            Side side = FixUtil.getSide(executionReport.getSide());
-            long quantity = (long) executionReport.getLastShares().getValue();
-            BigDecimal price = RoundUtil.getBigDecimal(executionReport.getLastPx().getValue(), order.getSecurity().getSecurityFamily().getScale());
-            String extId = executionReport.getExecID().getValue();
+            // get the other fields
+            Status status = FixUtil.getStatus(executionReport.getOrdStatus(), executionReport.getCumQty());
+            long filledQuantity = (long) executionReport.getCumQty().getValue();
+            long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
 
-            // assemble the fill
-            Fill fill = Fill.Factory.newInstance();
-            fill.setDateTime(dateTime);
-            fill.setExtDateTime(extDateTime);
-            fill.setSide(side);
-            fill.setQuantity(quantity);
-            fill.setPrice(price);
-            fill.setExtId(extId);
+            // assemble the orderStatus
+            OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+            orderStatus.setStatus(status);
+            orderStatus.setFilledQuantity(filledQuantity);
+            orderStatus.setRemainingQuantity(remainingQuantity);
+            orderStatus.setOrd(order);
 
-            // associate the fill with the order
-            order.addFills(fill);
+            EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
 
-            EsperManager.sendEvent(StrategyImpl.BASE, fill);
+            // only create fills if status is PARTIALLY_FILLED or FILLED
+            if (executionReport.getOrdStatus().getValue() == OrdStatus.PARTIALLY_FILLED || executionReport.getOrdStatus().getValue() == OrdStatus.FILLED) {
+
+                // get the fields
+                Date dateTime = DateUtil.getCurrentEPTime();
+                Date extDateTime = executionReport.getTransactTime().getValue();
+                Side side = FixUtil.getSide(executionReport.getSide());
+                long quantity = (long) executionReport.getLastShares().getValue();
+                BigDecimal price = RoundUtil.getBigDecimal(executionReport.getLastPx().getValue(), order.getSecurity().getSecurityFamily().getScale());
+                String extId = executionReport.getExecID().getValue();
+
+                // assemble the fill
+                Fill fill = Fill.Factory.newInstance();
+                fill.setDateTime(dateTime);
+                fill.setExtDateTime(extDateTime);
+                fill.setSide(side);
+                fill.setQuantity(quantity);
+                fill.setPrice(price);
+                fill.setExtId(extId);
+
+                // associate the fill with the order
+                order.addFills(fill);
+
+                EsperManager.sendEvent(StrategyImpl.BASE, fill);
+            }
+        } catch (FieldNotFound e) {
+            logger.error(e);
         }
     }
 
-    public void onMessage(OrderCancelReject orderCancelReject, SessionID sessionID) throws FieldNotFound {
+    public void onMessage(OrderCancelReject orderCancelReject, SessionID sessionID)  {
 
-        logger.error("order has been rejected, clOrdID: " + orderCancelReject.getClOrdID().getValue() +
-                " origOrdID: " + orderCancelReject.getOrigClOrdID().getValue() +
-                " reason: " + orderCancelReject.getText().getValue());
+        try {
+            logger.error("order has been rejected, clOrdID: " + orderCancelReject.getClOrdID().getValue() +
+                    " origOrdID: " + orderCancelReject.getOrigClOrdID().getValue() +
+                    " reason: " + orderCancelReject.getText().getValue());
+        } catch (FieldNotFound e) {
+            logger.error(e);
+        }
     }
 }

@@ -143,6 +143,8 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
             StockOption stockOption = (StockOption) security;
 
             replaceRequest.set(new SecurityType(SecurityType.OPTION));
+            replaceRequest.set(new PutOrCall(OptionType.PUT.equals(stockOption.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
+            replaceRequest.set(new StrikePrice(stockOption.getStrike().doubleValue()));
             replaceRequest.set(new MaturityMonthYear(monthFormat.format(stockOption.getExpiration())));
 
         } else if (security instanceof Future) {
@@ -202,6 +204,8 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
             StockOption stockOption = (StockOption) security;
 
             cancelRequest.set(new SecurityType(SecurityType.OPTION));
+            cancelRequest.set(new PutOrCall(OptionType.PUT.equals(stockOption.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
+            cancelRequest.set(new StrikePrice(stockOption.getStrike().doubleValue()));
             cancelRequest.set(new MaturityMonthYear(monthFormat.format(stockOption.getExpiration())));
 
         } else if (security instanceof Future) {
