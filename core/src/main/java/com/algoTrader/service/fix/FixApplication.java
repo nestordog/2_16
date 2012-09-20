@@ -11,6 +11,8 @@ import quickfix.MessageCracker;
 import quickfix.RejectLogon;
 import quickfix.SessionID;
 import quickfix.UnsupportedMessageType;
+import quickfix.field.PossDupFlag;
+import quickfix.fix42.NewOrderSingle;
 
 import com.algoTrader.util.MyLogger;
 
@@ -59,7 +61,11 @@ public class FixApplication extends MessageCracker implements quickfix.Applicati
 
     @Override
     public void toApp(Message message, SessionID sessionId) throws DoNotSend {
-        // do nothing
+
+        // do not resend order if PossDupFlag is set
+        if (message instanceof NewOrderSingle && message.isSetField(new PossDupFlag())) {
+            throw new DoNotSend();
+        }
     }
 
     public SessionID getSessionID(String qualifier) {
