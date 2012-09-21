@@ -7,12 +7,14 @@ import quickfix.FieldNotFound;
 import quickfix.IncorrectDataFormat;
 import quickfix.IncorrectTagValue;
 import quickfix.Message;
+import quickfix.Message.Header;
 import quickfix.MessageCracker;
 import quickfix.RejectLogon;
 import quickfix.SessionID;
+import quickfix.StringField;
 import quickfix.UnsupportedMessageType;
+import quickfix.field.MsgType;
 import quickfix.field.PossDupFlag;
-import quickfix.fix42.NewOrderSingle;
 
 import com.algoTrader.util.MyLogger;
 
@@ -62,9 +64,15 @@ public class FixApplication extends MessageCracker implements quickfix.Applicati
     @Override
     public void toApp(Message message, SessionID sessionId) throws DoNotSend {
 
-        // do not resend order if PossDupFlag is set
-        if (message instanceof NewOrderSingle && message.isSetField(new PossDupFlag())) {
-            throw new DoNotSend();
+        // do not resend NewOrders if PossDupFlag is set
+        try {
+            Header header = message.getHeader();
+            StringField msgType = header.getField(new MsgType());
+            if ((msgType.getValue().equals(MsgType.ORDER_SINGLE) || msgType.getValue().equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST)) && header.isSetField(new PossDupFlag())) {
+                throw new DoNotSend();
+            }
+        } catch (FieldNotFound e) {
+            // MsgType is always available
         }
     }
 
