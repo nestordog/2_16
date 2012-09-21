@@ -29,6 +29,7 @@ import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.trade.LimitOrderI;
 import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.entity.trade.StopOrderI;
+import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.MyLogger;
 
@@ -108,13 +109,19 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         // broker-specific settings
         sendOrder(order, newOrder);
 
-        // progapate the order to all corresponding esper engines
-        getOrderService().propagateOrder(order);
+        if (getFixClient().getConnectionState(getMarketChannel()).equals(ConnectionState.LOGGED_ON)) {
 
-        // send the message to the FixClient
-        getFixClient().sendMessage(newOrder, getMarketChannel().toString());
+            // progapate the order to all corresponding esper engines
+            getOrderService().propagateOrder(order);
 
-        logger.info("sent order: " + order);
+            // send the message to the FixClient
+            getFixClient().sendMessage(newOrder, getMarketChannel());
+
+            logger.info("sent order: " + order);
+
+        } else {
+            throw new FixOrderServiceException("order cannot be sent, FIX Session is not logged on " + getMarketChannel());
+        }
     }
 
     @Override
@@ -175,13 +182,19 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         // broker-specific settings
         modifyOrder(order, replaceRequest);
 
-        // progapate the order to all corresponding esper engines
-        getOrderService().propagateOrder(order);
+        if (getFixClient().getConnectionState(getMarketChannel()).equals(ConnectionState.LOGGED_ON)) {
 
-        // send the message to the FixClient
-        getFixClient().sendMessage(replaceRequest, getMarketChannel().toString());
+            // progapate the order to all corresponding esper engines
+            getOrderService().propagateOrder(order);
 
-        logger.info("modified order: " + order);
+            // send the message to the FixClient
+            getFixClient().sendMessage(replaceRequest, getMarketChannel());
+
+            logger.info("modified order: " + order);
+
+        } else {
+            throw new FixOrderServiceException("order cannot be modified, FIX Session is not logged on " + getMarketChannel());
+        }
     }
 
     @Override
@@ -226,9 +239,15 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         // broker-specific settings
         cancelOrder(order, cancelRequest);
 
-        // send the message to the FixClient
-        getFixClient().sendMessage(cancelRequest, getMarketChannel().toString());
+        if (getFixClient().getConnectionState(getMarketChannel()).equals(ConnectionState.LOGGED_ON)) {
 
-        logger.info("requested order cancallation for order: " + order);
+            // send the message to the FixClient
+            getFixClient().sendMessage(cancelRequest, getMarketChannel());
+
+            logger.info("requested order cancallation for order: " + order);
+
+        } else {
+            throw new FixOrderServiceException("order cannot be cancelled, FIX Session is not logged on " + getMarketChannel());
+        }
     }
 }
