@@ -1,5 +1,6 @@
 package com.algoTrader.service.fix;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +33,7 @@ import quickfix.SessionSettings;
 import quickfix.SocketInitiator;
 
 import com.algoTrader.enumeration.ConnectionState;
+import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.util.MyLogger;
 
 @ManagedResource(objectName = "com.algoTrader.fix:name=FixClient")
@@ -102,6 +104,19 @@ public class FixClient implements InitializingBean {
         }
     }
 
+    /**
+     * will do a Sequence Number Reset
+     * @throws IOException
+     */
+    @ManagedOperation
+    @ManagedOperationParameters({})
+    public void reset() throws IOException {
+
+        for (SessionID sessionId : this.initiator.getSessions()) {
+            Session.lookupSession(sessionId).reset();
+        }
+    }
+
     @ManagedAttribute
     public Map<String, ConnectionState> getConnectionStates() {
 
@@ -117,19 +132,24 @@ public class FixClient implements InitializingBean {
         return connectionStates;
     }
 
-    public void sendMessage(Message message, String qualifier) throws SessionNotFound {
+    public ConnectionState getConnectionState(MarketChannel marketChannel) {
+
+        return getConnectionStates().get(marketChannel.getValue());
+    }
+
+    public void sendMessage(Message message, MarketChannel marketChannel) throws SessionNotFound {
 
         for (SessionID sessionId : this.initiator.getSessions()) {
-            if (sessionId.getSessionQualifier().equals(qualifier)) {
+            if (sessionId.getSessionQualifier().equals(marketChannel.getValue())) {
                 Session session = Session.lookupSession(sessionId);
                 if (session.isLoggedOn()) {
                     session.send(message);
                 } else {
-                    throw new RuntimeException("message cannot be sent, FIX Session is not logged on " + qualifier);
+                    throw new RuntimeException("message cannot be sent, FIX Session is not logged on " + marketChannel);
                 }
                 return;
             }
         }
-        throw new RuntimeException("message cannot be sent, FIX Session does not exist " + qualifier);
+        throw new RuntimeException("message cannot be sent, FIX Session does not exist " + marketChannel);
     }
 }

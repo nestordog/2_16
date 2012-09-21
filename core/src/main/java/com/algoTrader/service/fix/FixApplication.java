@@ -69,6 +69,7 @@ public class FixApplication extends MessageCracker implements quickfix.Applicati
             Header header = message.getHeader();
             StringField msgType = header.getField(new MsgType());
             if ((msgType.getValue().equals(MsgType.ORDER_SINGLE) || msgType.getValue().equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST)) && header.isSetField(new PossDupFlag())) {
+                logger.info("prevent order / order replacement to be sent: " + message);
                 throw new DoNotSend();
             }
         } catch (FieldNotFound e) {
