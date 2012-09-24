@@ -52,6 +52,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         TransactionType transactionType = Side.BUY.equals(fill.getSide()) ? TransactionType.BUY : TransactionType.SELL;
         long quantity = Side.BUY.equals(fill.getSide()) ? fill.getQuantity() : -fill.getQuantity();
         BigDecimal executionCommission = RoundUtil.getBigDecimal(Math.abs(quantity * security.getSecurityFamily().getExecutionCommission().doubleValue()));
+        BigDecimal clearingCommission = security.getSecurityFamily().getClearingCommission() != null ? RoundUtil.getBigDecimal(Math.abs(quantity
+                * security.getSecurityFamily().getClearingCommission().doubleValue())) : null;
 
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(fill.getExtDateTime());
@@ -63,6 +65,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setStrategy(strategy);
         transaction.setCurrency(security.getSecurityFamily().getCurrency());
         transaction.setExecutionCommission(executionCommission);
+        transaction.setClearingCommission(clearingCommission);
         transaction.setMarketChannel(fill.getOrd().getMarketChannel());
 
         fill.setTransaction(transaction);

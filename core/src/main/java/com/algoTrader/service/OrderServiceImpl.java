@@ -117,11 +117,6 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         }
         fill.setPrice(RoundUtil.getBigDecimal(price));
 
-        // set the commission
-        if (security.getSecurityFamily().getExecutionCommission() == null) {
-            throw new IllegalStateException("commission is undefined for " + security);
-        }
-
         fill.setOrd(order);
 
         // propagate the fill

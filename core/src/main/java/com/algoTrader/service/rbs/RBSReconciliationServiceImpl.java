@@ -2,7 +2,6 @@ package com.algoTrader.service.rbs;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -37,7 +36,7 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
             if (fileName.contains("Positions")) {
                 reconcilePositions(fileName);
             } else if (fileName.contains("Trades")) {
-                reconcileTrades(new SimpleDateFormat("dd.MM.yyyy").parse("07.09.2012"), fileName);
+                reconcileTrades(fileName);
             }
         }
     }
@@ -89,15 +88,31 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
         }
     }
 
-    private void reconcileTrades(Date date, String fileName) throws SuperCSVReflectionException, IOException {
+    private void reconcileTrades(String fileName) throws SuperCSVReflectionException, IOException {
 
-        // get all transactions for that day
-        Collection<Transaction> transactions = getTransactionDao().findTransactionsByMinDateAndMaxDate(date, DateUtils.addDays(date, 1));
-
+        // read the file
         List<Map<String, ? super Object>> trades = CsvRBSTradeReader.readPositions(fileName);
+
+        // get minDate and maxDate
+        Date minDate = new Date(Long.MAX_VALUE);
+        Date maxDate = new Date(0);
+        for (Map<String, ? super Object> trade : trades) {
+            Date date = (Date) trade.get("Trade Date");
+            if (date.getTime() < minDate.getTime()) {
+                minDate = date;
+            }
+            if (date.getTime() > maxDate.getTime()) {
+                maxDate = date;
+            }
+        }
+
+        // get all transactions for the date range
+        Collection<Transaction> transactions = getTransactionDao().findTransactionsByMinDateAndMaxDate(minDate, DateUtils.addDays(maxDate, 1));
+
         for (Map<String, ? super Object> trade : trades) {
 
             // parse parameters
+            final Date date = (Date) trade.get("Trade Date");
             String product = (String) trade.get("Security Code");
             String tradeType = (String) trade.get("Future/Option Indicator");
             BigDecimal strike = (BigDecimal) trade.get("Strike Price");
@@ -132,7 +147,8 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
                 public boolean evaluate(Transaction transaction) {
                     return transaction.getSecurity().equals(security) &&
                         transaction.getQuantity() == quantity &&
-                        transaction.getPrice().doubleValue() == price.doubleValue();
+                        transaction.getPrice().doubleValue() == price.doubleValue()
+                            && DateUtils.isSameDay(transaction.getDateTime(), date);
                 }
             });
 
@@ -148,7 +164,7 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
                 logger.info("transaction: " + transaction.getExtId() + " set clearing commission to: " + commission);
 
             } else {
-                logger.error("transaction " + transactionType + " " + quantity + " " + security + " price: " + price + " does not exist");
+                logger.error("transaction from " + date + " " + transactionType + " " + quantity + " " + security + " price: " + price + " does not exist");
             }
         }
 
