@@ -237,7 +237,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected void handleSendOrder(int securityId, long quantity, String sideString, String type, String brokerString, String propertiesString) throws Exception {
+    protected void handleSendOrder(int securityId, long quantity, String sideString, String type, String marketChannelString, String propertiesString) throws Exception {
 
         Side side = Side.fromValue(sideString);
         String strategyName = StrategyUtil.getStartedStrategyName();
@@ -278,9 +278,9 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         order.setQuantity(Math.abs(quantity));
         order.setSide(side);
 
-        // set the broker (if defined)
-        if (!"".equals(brokerString)) {
-            order.setBroker(MarketChannel.fromString(brokerString));
+        // set the marketChannel (if defined)
+        if (!"".equals(marketChannelString)) {
+            order.setMarketChannel(MarketChannel.fromString(marketChannelString));
         }
 
         // set additional properties

@@ -42,9 +42,9 @@
     <bean id="externalOrderServices" class="org.springframework.beans.factory.config.MapFactoryBean">
         <property name="sourceMap">
             <map>
-                <entry key="DEFAULT" value-ref="iBFixOrderService"/>
-<!--                 <entry key="IB" value-ref="iBOrderService"/> -->
-                <entry key="FIXIB" value-ref="iBFixOrderService"/>
+                <entry key="DEFAULT" value-ref="iBOrderService"/>
+                <entry key="IB" value-ref="iBOrderService"/>
+<!--                 <entry key="FIXIB" value-ref="iBFixOrderService"/> -->
                 <entry key="FIXJPM" value-ref="jPMFixOrderService"/>
             </map>
         </property>

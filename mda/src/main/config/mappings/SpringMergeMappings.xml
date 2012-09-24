@@ -152,7 +152,7 @@
         <!-- add externalOrderServices ref -->
         <mapping>
             <from><![CDATA[<!-- OrderService service property merge-point -->]]></from>
-            <to><![CDATA[<lookup-method name="getExternalOrderServices" bean="externalOrderServices"/>]]></to>
+            <to><![CDATA[<property name="externalOrderServices" ref="externalOrderServices"/>]]></to>
         </mapping>
 
         <!-- remove condition remotable for SpringClientServiceLocator.vsl -->

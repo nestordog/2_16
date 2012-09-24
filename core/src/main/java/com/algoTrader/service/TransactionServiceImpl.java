@@ -20,6 +20,7 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.trade.Fill;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Direction;
+import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.esper.EsperManager;
@@ -62,6 +63,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setStrategy(strategy);
         transaction.setCurrency(security.getSecurityFamily().getCurrency());
         transaction.setExecutionCommission(executionCommission);
+        transaction.setMarketChannel(fill.getOrd().getMarketChannel());
 
         fill.setTransaction(transaction);
 
@@ -71,8 +73,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
     @Override
     protected void handleCreateTransaction(int securityId, String strategyName, String extId, Date dateTime, long quantity, BigDecimal price, BigDecimal executionCommission,
-            BigDecimal clearingCommission, Currency currency,
-            TransactionType transactionType) throws Exception {
+            BigDecimal clearingCommission, Currency currency, TransactionType transactionType, MarketChannel marketChannel) throws Exception {
 
         // validations
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -134,6 +135,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setStrategy(strategy);
         transaction.setCurrency(currency);
         transaction.setExecutionCommission(executionCommission);
+        transaction.setMarketChannel(marketChannel);
 
         if (clearingCommission.doubleValue() != 0) {
             transaction.setClearingCommission(clearingCommission);

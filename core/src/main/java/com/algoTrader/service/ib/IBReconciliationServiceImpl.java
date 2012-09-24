@@ -33,6 +33,7 @@ import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.Currency;
+import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.HttpClientUtil;
 import com.algoTrader.util.MyLogger;
@@ -388,6 +389,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
             transaction.setType(transactionType);
             transaction.setCurrency(currency);
             transaction.setExecutionCommission(commission);
+            transaction.setMarketChannel(MarketChannel.IB);
 
             getTransactionService().persistTransaction(transaction);
 

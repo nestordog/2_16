@@ -17,6 +17,7 @@ import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.entity.trade.OrderValidationException;
 import com.algoTrader.entity.trade.SimpleOrder;
+import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.EsperManager;
@@ -30,7 +31,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
     private static Logger notificationLogger = MyLogger.getLogger("com.algoTrader.service.NOTIFICATION");
-    private static String defaultBroker = "DEFAULT";
+    private static String defaultMarketChannel = "DEFAULT";
 
     private @Value("${simulation}") boolean simulation;
 
@@ -263,18 +264,29 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         }
     }
 
+    @Override
+    protected void handleSetDefaultMarketChannel(MarketChannel marketChannel) throws Exception {
+
+        ExternalOrderService newExternalOrderServices = getExternalOrderServices().get(marketChannel.getValue());
+        if (newExternalOrderServices != null) {
+            getExternalOrderServices().put(defaultMarketChannel, newExternalOrderServices);
+        } else {
+            throw new OrderServiceException("marketChannel not active: " + marketChannel);
+        }
+    }
+
     /**
-     * if a broker is defined, return the corresponding orderService otherwise return the defaultExternalOrderService
+     * if a marketChannel is defined, return the corresponding orderService otherwise return the defaultExternalOrderService
      */
     private ExternalOrderService getExternalOrderService(Order order) {
 
-        if (order.getBroker() != null) {
-            return getExternalOrderServices().get(order.getBroker().getValue());
+        if (order.getMarketChannel() != null) {
+            return getExternalOrderServices().get(order.getMarketChannel().getValue());
         } else {
 
-            // add the broker if none was defined
-            ExternalOrderService externalOrderService = getExternalOrderServices().get(defaultBroker);
-            order.setBroker(externalOrderService.getMarketChannel());
+            // add the marketChannel if none was defined
+            ExternalOrderService externalOrderService = getExternalOrderServices().get(defaultMarketChannel);
+            order.setMarketChannel(externalOrderService.getMarketChannel());
             return externalOrderService;
         }
     }

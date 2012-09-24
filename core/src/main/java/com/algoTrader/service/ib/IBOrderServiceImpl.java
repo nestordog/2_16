@@ -23,6 +23,7 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
 
     private static IBClient client;
 
+    private @Value("${ib.orderServiceEnabled}") boolean orderServiceEnabled;
     private @Value("${ib.faEnabled}") boolean faEnabled;
     private @Value("${ib.faGroup}") String faGroup;
     private @Value("${ib.faOpenMethod}") String faOpenMethod;
@@ -32,6 +33,10 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
 
     @Override
     protected void handleInit() throws Exception {
+
+        if (!this.orderServiceEnabled) {
+            return;
+        }
 
         client = getIBClientFactory().getDefaultClient();
     }

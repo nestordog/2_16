@@ -1,19 +1,12 @@
 package com.algoTrader.service.fix;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-import org.opentradingsolutions.log4fix.Log4FIX;
 import org.quickfixj.jmx.JmxExporter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jmx.export.annotation.ManagedAttribute;
-import org.springframework.jmx.export.annotation.ManagedOperation;
-import org.springframework.jmx.export.annotation.ManagedOperationParameters;
-import org.springframework.jmx.export.annotation.ManagedResource;
 
 import quickfix.CompositeLogFactory;
 import quickfix.DefaultMessageFactory;
@@ -34,90 +27,46 @@ import quickfix.SocketInitiator;
 
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.MarketChannel;
-import com.algoTrader.util.MyLogger;
 
-@ManagedResource(objectName = "com.algoTrader.fix:name=FixClient")
 public class FixClient implements InitializingBean {
 
-    private static Logger logger = MyLogger.getLogger(FixClient.class.getName());
-
     private @Value("${simulation}") boolean simulation;
+    private @Value("${fix.enabled}") boolean fixEnabled;
 
-    private boolean initiatorStarted = false;
     private Initiator initiator = null;
 
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        if (!this.simulation) {
-
-            InputStream inputStream = this.getClass().getResourceAsStream("/fix.cfg");
-            SessionSettings settings = new SessionSettings(inputStream);
-            inputStream.close();
-
-            FixApplicationFactory applicationFactory = new FixApplicationFactory(settings);
-
-            MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
-
-            //    Log4FIX log4Fix = Log4FIX.createForLiveUpdates(settings);
-            //    LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings), new FileLogFactory(settings), log4Fix.getLogFactory() });
-            //    log4Fix.show();
-
-            LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings), new FileLogFactory(settings) });
-
-            MessageFactory messageFactory = new DefaultMessageFactory();
-
-            SessionFactory sessionFactory = new FixMultiApplicationSessionFactory(applicationFactory, messageStoreFactory, logFactory, messageFactory);
-            this.initiator = new SocketInitiator(sessionFactory, settings);
-
-            JmxExporter exporter = new JmxExporter();
-            exporter.register(this.initiator);
-
-            logon();
+        if (this.simulation || !this.fixEnabled) {
+            return;
         }
+
+        InputStream inputStream = this.getClass().getResourceAsStream("/fix.cfg");
+        SessionSettings settings = new SessionSettings(inputStream);
+        inputStream.close();
+
+        FixApplicationFactory applicationFactory = new FixApplicationFactory(settings);
+
+        MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
+
+        //    Log4FIX log4Fix = Log4FIX.createForLiveUpdates(settings);
+        //    LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings), new FileLogFactory(settings), log4Fix.getLogFactory() });
+        //    log4Fix.show();
+
+        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings), new FileLogFactory(settings) });
+
+        MessageFactory messageFactory = new DefaultMessageFactory();
+
+        SessionFactory sessionFactory = new FixMultiApplicationSessionFactory(applicationFactory, messageStoreFactory, logFactory, messageFactory);
+        this.initiator = new SocketInitiator(sessionFactory, settings);
+
+        JmxExporter exporter = new JmxExporter();
+        exporter.register(this.initiator);
+
+        this.initiator.start();
     }
 
-    @ManagedOperation
-    @ManagedOperationParameters({})
-    public synchronized void logon() {
-
-        if (!this.initiatorStarted) {
-            try {
-                this.initiator.start();
-                this.initiatorStarted = true;
-            } catch (Exception e) {
-                logger.error("Logon failed", e);
-            }
-        } else {
-            for (SessionID sessionId : this.initiator.getSessions()) {
-                Session.lookupSession(sessionId).logon();
-            }
-        }
-    }
-
-    @ManagedOperation
-    @ManagedOperationParameters({})
-    public void logout() {
-
-        for (SessionID sessionId : this.initiator.getSessions()) {
-            Session.lookupSession(sessionId).logout("user requested");
-        }
-    }
-
-    /**
-     * will do a Sequence Number Reset
-     * @throws IOException
-     */
-    @ManagedOperation
-    @ManagedOperationParameters({})
-    public void reset() throws IOException {
-
-        for (SessionID sessionId : this.initiator.getSessions()) {
-            Session.lookupSession(sessionId).reset();
-        }
-    }
-
-    @ManagedAttribute
     public Map<String, ConnectionState> getConnectionStates() {
 
         Map<String, ConnectionState> connectionStates = new HashMap<String, ConnectionState>();
@@ -134,22 +83,31 @@ public class FixClient implements InitializingBean {
 
     public ConnectionState getConnectionState(MarketChannel marketChannel) {
 
-        return getConnectionStates().get(marketChannel.getValue());
+        ConnectionState connectionState = getConnectionStates().get(marketChannel.getValue());
+        if (connectionState != null) {
+            return connectionState;
+        } else {
+            throw new IllegalStateException("no FIX Session available for " + marketChannel);
+        }
     }
 
     public void sendMessage(Message message, MarketChannel marketChannel) throws SessionNotFound {
 
-        for (SessionID sessionId : this.initiator.getSessions()) {
-            if (sessionId.getSessionQualifier().equals(marketChannel.getValue())) {
-                Session session = Session.lookupSession(sessionId);
-                if (session.isLoggedOn()) {
-                    session.send(message);
-                } else {
-                    throw new RuntimeException("message cannot be sent, FIX Session is not logged on " + marketChannel);
+        if (this.fixEnabled) {
+            for (SessionID sessionId : this.initiator.getSessions()) {
+                if (sessionId.getSessionQualifier().equals(marketChannel.getValue())) {
+                    Session session = Session.lookupSession(sessionId);
+                    if (session.isLoggedOn()) {
+                        session.send(message);
+                    } else {
+                        throw new IllegalStateException("message cannot be sent, FIX Session is not logged on " + marketChannel);
+                    }
+                    return;
                 }
-                return;
             }
+            throw new IllegalStateException("message cannot be sent, FIX Session does not exist " + marketChannel);
+        } else {
+            throw new IllegalStateException("Fix is not enabled");
         }
-        throw new RuntimeException("message cannot be sent, FIX Session does not exist " + marketChannel);
     }
 }

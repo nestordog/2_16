@@ -7,6 +7,7 @@ import java.util.Date;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.enumeration.Currency;
+import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.esper.EsperManager;
@@ -40,17 +41,18 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
 
     @Override
     protected void handleRecordTransaction(int securityId, String strategyName, String extIdString, String dateTimeString, long quantity, double priceDouble, double executionCommissionDouble,
-            double clearingCommissionDouble, String currencyString, String transactionTypeString) throws Exception {
+            double clearingCommissionDouble, String currencyString, String transactionTypeString, String marketChannelString) throws Exception {
 
         String extId = !"".equals(extIdString) ? extIdString : null;
         Date dateTime = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(dateTimeString);
         BigDecimal price = RoundUtil.getBigDecimal(priceDouble);
         BigDecimal executionCommission = RoundUtil.getBigDecimal(executionCommissionDouble);
         BigDecimal clearingCommission = RoundUtil.getBigDecimal(clearingCommissionDouble);
-        Currency currency = currencyString != null && !"".equals(currencyString) ? Currency.fromValue(currencyString) : null;
+        Currency currency = (currencyString != null) && !"".equals(currencyString) ? Currency.fromValue(currencyString) : null;
         TransactionType transactionType = TransactionType.fromValue(transactionTypeString);
+        MarketChannel marketChannel = (marketChannelString != null) && !"".equals(marketChannelString) ? MarketChannel.fromValue(marketChannelString) : null;
 
-        getTransactionService().createTransaction(securityId, strategyName, extId, dateTime, quantity, price, executionCommission, clearingCommission, currency, transactionType);
+        getTransactionService().createTransaction(securityId, strategyName, extId, dateTime, quantity, price, executionCommission, clearingCommission, currency, transactionType, marketChannel);
     }
 
     @Override
@@ -127,5 +129,11 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     protected void handleRemoveProperty(int propertyHolderId, String name) throws Exception {
 
         getPropertyService().removeProperty(propertyHolderId, name);
+    }
+
+    @Override
+    protected void handleSetDefaultMarketChannel(String marketChannel) throws Exception {
+
+        getOrderService().setDefaultMarketChannel(MarketChannel.fromString(marketChannel));
     }
 }
