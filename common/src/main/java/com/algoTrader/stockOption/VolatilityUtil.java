@@ -68,6 +68,7 @@ public class VolatilityUtil {
         return Math.sqrt((factorSum * 2 - Math.pow(forward / atmStrike - 1, 2)) / years);
     }
 
+    @SuppressWarnings("deprecation")
     public static double getPutAtmVola(final double underlyingSpot, final double indexVola, final double years, final double intrest, final double dividend,
             final double strikeDistance, final double beta, final double rhoCall, final double volVolCall, final double rhoPut, final double volVolPut)
             throws ConvergenceException, FunctionEvaluationException, IllegalArgumentException {

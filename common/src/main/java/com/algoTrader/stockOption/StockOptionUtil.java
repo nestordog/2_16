@@ -102,6 +102,7 @@ public class StockOptionUtil {
                 stockOption.getType());
     }
 
+    @SuppressWarnings("deprecation")
     public static double getImpliedVolatility(final double underlyingSpot, final double strike, final double currentValue, final double years, final double intrest,
             final double dividend, final OptionType type) throws MathException {
 

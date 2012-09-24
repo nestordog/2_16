@@ -192,6 +192,10 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
                 case WEEK:
                     durationString += "W";
                     break;
+                case MONTH:
+                    throw new IllegalArgumentException("MONTH durationPeriod is not allowed");
+                case QUARTER:
+                    throw new IllegalArgumentException("QUARTER durationPeriod is not allowed");
                 case YEAR:
                     durationString += "Y";
                     break;
@@ -215,6 +219,10 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
                     break;
                 case WEEK:
                     throw new IllegalArgumentException("WEEK barSize is not allowed");
+                case MONTH:
+                    throw new IllegalArgumentException("MONTH barSize is not allowed");
+                case QUARTER:
+                    throw new IllegalArgumentException("QUARTER barSize is not allowed");
                 case YEAR:
                     throw new IllegalArgumentException("YEAR barSize is not allowed");
             }

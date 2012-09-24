@@ -63,7 +63,7 @@ public class SystemPropertiesFactoryBean extends PropertiesFactoryBean {
         this.systemProperties = systemProperties;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     protected Properties mergeProperties() throws IOException {
         // First do the default merge

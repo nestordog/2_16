@@ -73,7 +73,7 @@ public final class Pair<First,Second> implements Serializable
             return false;
         }
 
-        Pair other = (Pair) obj;
+        Pair<?, ?> other = (Pair<?, ?>) obj;
 
         return  (this.first == null ?
                 other.first == null : this.first.equals(other.first)) &&

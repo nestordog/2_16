@@ -40,6 +40,7 @@ public class SABRVol {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static double findAlpha(double forward, double strike, double atmVol, double years, double b, double r, double v) {
 
         double c0 = -atmVol * Math.pow(forward, (1 - b));
