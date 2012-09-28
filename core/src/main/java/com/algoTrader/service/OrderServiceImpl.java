@@ -303,7 +303,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     private ExternalOrderService getExternalOrderService(Order order) {
 
         if (order.getMarketChannel() != null) {
-            return this.externalOrderServices.get(order.getMarketChannel().getValue());
+            return this.externalOrderServices.get(order.getMarketChannel());
         } else {
 
             // add the marketChannel if none was defined
