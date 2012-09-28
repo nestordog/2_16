@@ -1,4 +1,4 @@
-package com.algoTrader.service.fix;
+package com.algoTrader.service.ib;
 
 import quickfix.field.CustomerOrFirm;
 import quickfix.field.ExDestination;
@@ -36,7 +36,7 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase {
     @Override
     protected MarketChannel handleGetMarketChannel() {
 
-        return MarketChannel.FIXIB;
+        return MarketChannel.IB_FIX;
     }
 
     @Override

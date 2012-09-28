@@ -1,5 +1,6 @@
 package com.algoTrader.service;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,6 +8,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Security;
@@ -29,21 +31,32 @@ import com.algoTrader.vo.OrderStatusVO;
 
 public abstract class OrderServiceImpl extends OrderServiceBase {
 
+    private static final long serialVersionUID = -135731394908062298L;
+
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
     private static Logger notificationLogger = MyLogger.getLogger("com.algoTrader.service.NOTIFICATION");
-    private static String defaultMarketChannel = "DEFAULT";
 
+    private @Value("${misc.defaultMarketChannel}") String defaultMarketChannel;
     private @Value("${simulation}") boolean simulation;
 
-    // injected by Spring
-    private Map<String, ExternalOrderService> externalOrderServices = new HashMap<String, ExternalOrderService>();
+    private Map<MarketChannel, ExternalOrderService> externalOrderServices = new HashMap<MarketChannel, ExternalOrderService>();
+    private ExternalOrderService defaultExternalOrderService;
 
-    public Map<String, ExternalOrderService> getExternalOrderServices() {
-        return this.externalOrderServices;
-    }
+    @Override
+    protected void handleInit() {
 
-    public void setExternalOrderServices(Map<String, ExternalOrderService> externalOrderServices) {
-        this.externalOrderServices = externalOrderServices;
+        for (ExternalOrderService externalOrderService : ServiceLocator.instance().getServices(ExternalOrderService.class)) {
+
+            MarketChannel marketChannel = externalOrderService.getMarketChannel();
+            this.externalOrderServices.put(marketChannel, externalOrderService);
+            if (this.defaultMarketChannel.equals(marketChannel.toString())) {
+                this.defaultExternalOrderService = externalOrderService;
+            }
+        }
+
+        if (this.defaultExternalOrderService == null) {
+            throw new IllegalStateException("defaultMarketChannel was not found: " + this.defaultMarketChannel);
+        }
     }
 
     @Override
@@ -260,27 +273,41 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     }
 
     @Override
+    protected Collection<MarketChannel> handleGetMarketChannels() throws Exception {
+
+        return this.externalOrderServices.keySet();
+    }
+
+    @Override
+    protected MarketChannel handleGetDefaultMarketChannel() throws Exception {
+
+        return this.defaultExternalOrderService.getMarketChannel();
+    }
+
+    @Override
     protected void handleSetDefaultMarketChannel(MarketChannel marketChannel) throws Exception {
 
-        ExternalOrderService newExternalOrderServices = getExternalOrderServices().get(marketChannel.getValue());
+        ExternalOrderService newExternalOrderServices = this.externalOrderServices.get(marketChannel);
         if (newExternalOrderServices != null) {
-            getExternalOrderServices().put(defaultMarketChannel, newExternalOrderServices);
+
+            this.defaultExternalOrderService = newExternalOrderServices;
+            logger.info("SetDefaultMarketChannel to : " + marketChannel);
         } else {
             throw new OrderServiceException("marketChannel not active: " + marketChannel);
         }
     }
 
     /**
-     * if a marketChannel is defined, return the corresponding orderService otherwise return the defaultExternalOrderService
+     * if a marketChannel is defined, return the corresponding orderService otherwise return the defaultExternalOrderServiceI
      */
     private ExternalOrderService getExternalOrderService(Order order) {
 
         if (order.getMarketChannel() != null) {
-            return getExternalOrderServices().get(order.getMarketChannel().getValue());
+            return this.externalOrderServices.get(order.getMarketChannel().getValue());
         } else {
 
             // add the marketChannel if none was defined
-            ExternalOrderService externalOrderService = getExternalOrderServices().get(defaultMarketChannel);
+            ExternalOrderService externalOrderService = this.defaultExternalOrderService;
             order.setMarketChannel(externalOrderService.getMarketChannel());
             return externalOrderService;
         }

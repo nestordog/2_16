@@ -80,8 +80,8 @@ where
     openOrderWindow.number = fill.ord.parentOrder.number;
 
 @Name('ALGO_ORDER_DONE')
-@Subscriber(className='com.algoTrader.esper.subscriber.VoidSubscriber')
 @RunTimeOnly
+@Subscriber(className='com.algoTrader.esper.subscriber.VoidSubscriber')
 select
     cast(ord, com.algoTrader.entity.trade.AlgoOrder).done()
 from
@@ -90,8 +90,8 @@ from
 // ------------------------------LOGGING / PROPAGATION--------------------------------
 
 @Name('LOG_TRANSACTION_SUMMARY')
-@Subscriber(className='com.algoTrader.service.TransactionServiceImpl$LogTransactionSummarySubscriber')
 @RunTimeOnly()
+@Subscriber(className='com.algoTrader.service.TransactionServiceImpl$LogTransactionSummarySubscriber')
 select
     fill,
     orderStatus

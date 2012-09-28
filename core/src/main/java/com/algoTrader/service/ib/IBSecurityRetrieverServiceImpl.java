@@ -14,7 +14,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.FutureFamily;
@@ -39,9 +38,6 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
 
     private static Logger logger = MyLogger.getLogger(IBSecurityRetrieverServiceImpl.class.getName());
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMddkkmmss");
-
-    private @Value("${simulation}") boolean simulation;
-    private @Value("${ib.securityRetrieverServiceEnabled}") boolean securityRetrieverServiceEnabled;
 
     private IBClient client;
     private IBDefaultMessageHandler messageHandler;
@@ -213,10 +209,6 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
 
     @Override
     protected void handleInit() throws java.lang.Exception {
-
-        if (this.simulation || !this.securityRetrieverServiceEnabled) {
-            return;
-        }
 
         this.messageHandler = new IBDefaultMessageHandler(clientId) {
 

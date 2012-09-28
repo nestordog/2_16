@@ -1,15 +1,12 @@
 package com.algoTrader.service;
 
+import com.algoTrader.util.Constants;
 
 public final class AlgoIdGenerator {
 
     private static AlgoIdGenerator instance;
-    private int orderId = 1;
 
-    public AlgoIdGenerator() {
-
-        this.orderId = Integer.MAX_VALUE;
-    }
+    private int orderId = Constants.SECONDS_PER_DAY;
 
     public static synchronized AlgoIdGenerator getInstance() {
 
@@ -21,6 +18,6 @@ public final class AlgoIdGenerator {
 
     public int getNextOrderId() {
 
-        return this.orderId--;
+        return this.orderId++;
     }
 }

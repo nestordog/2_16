@@ -2,13 +2,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
     <bean id="beanRefFactory" class="org.springframework.context.support.ClassPathXmlApplicationContext">
         <constructor-arg>
            <list>
                 <value>classpath:/META-INF/applicationContext-common.xml</value>
                 <value>classpath:/META-INF/applicationContext-server.xml</value>
+                <value>classpath:/META-INF/applicationContext-simulation.xml</value>
                 <value>classpath*:/META-INF/applicationContext-client*.xml</value>
                 <value>classpath:/META-INF/applicationContext.xml</value>
            </list>

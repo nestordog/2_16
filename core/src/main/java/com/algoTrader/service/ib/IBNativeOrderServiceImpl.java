@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.trade.LimitOrderI;
 import com.algoTrader.entity.trade.Order;
-import com.algoTrader.entity.trade.OrderQuantityValidationException;
 import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.entity.trade.StopOrderI;
 import com.algoTrader.enumeration.ConnectionState;
@@ -15,15 +14,14 @@ import com.algoTrader.enumeration.Side;
 import com.algoTrader.util.MyLogger;
 import com.ib.client.Contract;
 
-public class IBOrderServiceImpl extends IBOrderServiceBase {
+public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
 
     private static final long serialVersionUID = -7426452967133280762L;
 
-    private static Logger logger = MyLogger.getLogger(IBOrderServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBNativeOrderServiceImpl.class.getName());
 
     private static IBClient client;
 
-    private @Value("${ib.orderServiceEnabled}") boolean orderServiceEnabled;
     private @Value("${ib.faEnabled}") boolean faEnabled;
     private @Value("${ib.faGroup}") String faGroup;
     private @Value("${ib.faOpenMethod}") String faOpenMethod;
@@ -34,31 +32,27 @@ public class IBOrderServiceImpl extends IBOrderServiceBase {
     @Override
     protected void handleInit() throws Exception {
 
-        if (!this.orderServiceEnabled) {
-            return;
-        }
-
         client = getIBClientFactory().getDefaultClient();
     }
 
     @Override
     protected MarketChannel handleGetMarketChannel() {
 
-        return MarketChannel.IB;
+        return MarketChannel.IB_NATIVE;
     }
 
     @Override
     protected void handleValidateOrder(SimpleOrder order) throws Exception {
 
         // validate quantity by allocations (if fa is enabled and no account has been specified)
-        if (this.faEnabled && (order.getAccount() == null || "".equals(order.getAccount()))) {
-            long quantity = getAccountService().getQuantityByAllocation(order.getStrategy().getName(), order.getQuantity());
-            if (quantity != order.getQuantity()) {
-                OrderQuantityValidationException ex = new OrderQuantityValidationException();
-                ex.setMaxQuantity(quantity);
-                throw ex;
-            }
-        }
+        //        if (this.faEnabled && (order.getAccount() == null || "".equals(order.getAccount()))) {
+        //            long quantity = getAccountService().getQuantityByAllocation(order.getStrategy().getName(), order.getQuantity());
+        //            if (quantity != order.getQuantity()) {
+        //                OrderQuantityValidationException ex = new OrderQuantityValidationException();
+        //                ex.setMaxQuantity(quantity);
+        //                throw ex;
+        //            }
+        //        }
     }
 
     @Override

@@ -30,9 +30,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
     private static Logger logger = MyLogger.getLogger(IBAccountServiceImpl.class.getName());
 
-    private @Value("${simulation}") boolean simulation;
     private @Value("${ib.faEnabled}") boolean faEnabled;
-    private @Value("${ib.accountServiceEnabled}") boolean accountServiceEnabled;
 
     private @Value("${ib.retrievalTimeout}") int retrievalTimeout;
 
@@ -50,10 +48,6 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
     @Override
     protected void handleInit() throws java.lang.Exception {
-
-        if (this.simulation || !this.accountServiceEnabled) {
-            return;
-        }
 
         this.messageHandler = new IBDefaultMessageHandler(clientId) {
 
@@ -219,10 +213,6 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
     @Override
     protected long handleGetQuantityByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception {
 
-        if (!this.faEnabled || this.simulation) {
-            return (long) (getPortfolioService().getAvailableFundsDouble(strategyName) / initialMarginPerContractInBase);
-        }
-
         // if financial advisor is enabled, we have to get the number of Contracts per account
         // in order to avoid fractions
         long quantityByMargin = 0;
@@ -241,10 +231,6 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
     @Override
     protected long handleGetQuantityByAllocation(String strategyName, long requestedQuantity) throws Exception {
-
-        if (!this.faEnabled || this.simulation) {
-            return requestedQuantity;
-        }
 
         // if financial advisor is enabled, we have to get the number of Contracts per account
         // in order to avoid fractions

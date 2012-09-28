@@ -389,7 +389,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
             transaction.setType(transactionType);
             transaction.setCurrency(currency);
             transaction.setExecutionCommission(commission);
-            transaction.setMarketChannel(MarketChannel.IB);
+            transaction.setMarketChannel(MarketChannel.IB_NATIVE);
 
             getTransactionService().persistTransaction(transaction);
 

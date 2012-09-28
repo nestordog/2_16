@@ -1,7 +1,5 @@
 package com.algoTrader.service.fix;
 
-import java.util.Date;
-
 import com.algoTrader.util.Constants;
 
 public final class FixIdGenerator {
@@ -11,7 +9,8 @@ public final class FixIdGenerator {
 
     public FixIdGenerator() {
 
-        this.orderId = (int) ((new Date()).getTime() % Constants.MILLIS_PER_DAY);
+        // start at seconds since midnight
+        this.orderId = (int) (System.currentTimeMillis() % Constants.MILLIS_PER_DAY / 1000);
     }
 
     public static synchronized FixIdGenerator getInstance() {

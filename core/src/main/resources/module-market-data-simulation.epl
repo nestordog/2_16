@@ -8,9 +8,9 @@ from
     Tick(instanceof(security, com.algoTrader.entity.security.NaturalIndex));
 
 @Name('INSERT_INTO_TICK_OPTIONS_FROM_DB')
+@SimulationOnly
 @Condition(key='statement.loadStockOptionsFromDB')
 @Priority(2)
-@SimulationOnly
 insert into
     Tick
 select
@@ -35,9 +35,9 @@ order by
        tick.security.id;
 
 @Name('INSERT_INTO_TICK_SIMULATED_FUTURES_BY_UNDERLYING')
+@SimulationOnly
 @Condition(key='statement.simulateFuturesByUnderlying')
 @Priority(2)
-@SimulationOnly
 insert into
     Tick
 select
@@ -53,9 +53,9 @@ where
     future.underlying.id = indexTick.security.id;
 
 @Name('INSERT_INTO_TICK_SIMULATED_FUTURES_BY_GENERIC_FUTURES')
+@SimulationOnly
 @Condition(key='statement.simulateFuturesByGenericFutures')
 @Priority(2)
-@SimulationOnly
 insert into
     Tick
 select

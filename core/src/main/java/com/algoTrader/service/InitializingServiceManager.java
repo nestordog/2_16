@@ -1,12 +1,12 @@
 package com.algoTrader.service;
 
-import com.algoTrader.util.ServiceUtil;
+import com.algoTrader.ServiceLocator;
 
 public class InitializingServiceManager {
 
     public static void init() {
 
-        for (InitializingServiceI service : ServiceUtil.getServicesByInterface(InitializingServiceI.class)) {
+        for (InitializingServiceI service : ServiceLocator.instance().getServices(InitializingServiceI.class)) {
             service.init();
         }
     }

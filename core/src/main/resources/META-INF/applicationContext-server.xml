@@ -3,7 +3,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p"
        xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd" >
 
     <!-- ============================= Data Source an Transaction Management ============================ -->
 
@@ -22,48 +22,6 @@
     <!-- (local) Transaction Manager -->
     <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
         <property name="sessionFactory"><ref bean="sessionFactory"/></property>
-    </bean>
-
-    <!-- =================================== Broker Interfaces  ========================================= -->
-
-    <!-- Aliases -->
-    <alias name="iBOrderService" alias="externalOrderService"/>
-    <!-- <alias name="fixOrderService" alias="externalOrderService"/> -->
-    <alias name="iBMarketDataService" alias="marketDataService"/>
-    <alias name="iBSecurityRetrieverService" alias="securityRetrieverService"/>
-    <alias name="iBAccountService" alias="accountService"/>
-    <alias name="iBHistoricalDataService" alias="historicalDataService"/>
-
-    <!-- Broker Clients -->
-    <bean id="iBClientFactory" class="com.algoTrader.service.ib.IBClientFactory"/>
-    <bean id="fixClient" class="com.algoTrader.service.fix.FixClient"/>
-
-    <!-- External Order Services -->
-    <bean id="externalOrderServices" class="org.springframework.beans.factory.config.MapFactoryBean">
-        <property name="sourceMap">
-            <map>
-                <entry key="DEFAULT" value-ref="iBOrderService"/>
-                <entry key="IB" value-ref="iBOrderService"/>
-<!--                 <entry key="FIXIB" value-ref="iBFixOrderService"/> -->
-                <entry key="FIXJPM" value-ref="jPMFixOrderService"/>
-            </map>
-        </property>
-    </bean>
-
-    <!-- =========================================== MAIL ================================================ -->
-
-    <bean id="messagingReceiver" class="org.springframework.ws.transport.mail.MailMessageReceiver">
-        <property name="storeUri" value="imap://aws:Zermatt11@mail.linardcapital.com/INBOX"/>
-        <property name="disposition">
-            <set>
-                <bean class="org.springframework.ws.transport.mail.Disposition" p:name="ib" p:from="donotreply@interactivebrokers.com" p:subject="Activity Flex" p:service-ref="iBReconciliationService"/>
-                <bean class="org.springframework.ws.transport.mail.Disposition" p:name="ui" p:from="listenversand-lux@universal-investment.com" p:subject="Bewertungsdaten" p:service-ref="uIReconciliationService"/>
-                <bean class="org.springframework.ws.transport.mail.Disposition" p:name="rbs" p:from="aflury@linardcapital.com" p:subject="Reports" p:service-ref="rBSReconciliationService"/>
-            </set>
-        </property>
-        <property name="monitoringStrategy">
-            <bean class="org.springframework.ws.transport.mail.monitor.ImapIdleMonitoringStrategy"/>
-        </property>
     </bean>
 
     <!-- =========================================== JMX ================================================ -->
@@ -119,5 +77,38 @@
         </property>
         <property name="server" ref="mbeanServer"/>
     </bean>
+
+    <!-- =================================== Broker Interfaces  ========================================= -->
+
+    <!-- Aliases -->
+    <alias name="iBMarketDataService" alias="marketDataService"/>
+    <alias name="iBAccountService" alias="accountService"/>
+    <alias name="iBHistoricalDataService" alias="historicalDataService"/>
+
+    <beans profile="trading,securityRetrieval">
+        <bean id="iBClientFactory" class="com.algoTrader.service.ib.IBClientFactory"/>
+    </beans>
+
+    <beans profile="jPMFix,iBFix">
+        <bean id="fixClient" class="com.algoTrader.service.fix.FixClient"/>
+    </beans>
+
+    <!-- =========================================== MAIL ================================================ -->
+
+    <beans profile="ucitsReconciliation">
+        <bean id="mailMessageReceiver" class="org.springframework.ws.transport.mail.MailMessageReceiver">
+            <property name="storeUri" value="imap://aws:Zermatt11@mail.linardcapital.com/INBOX"/>
+            <property name="disposition">
+                <set>
+                    <bean class="org.springframework.ws.transport.mail.Disposition" p:name="ib" p:from="donotreply@interactivebrokers.com" p:subject="Activity Flex" p:service-ref="iBReconciliationService"/>
+                    <bean class="org.springframework.ws.transport.mail.Disposition" p:name="ui" p:from="listenversand-lux@universal-investment.com" p:subject="Bewertungsdaten" p:service-ref="uIReconciliationService"/>
+                    <bean class="org.springframework.ws.transport.mail.Disposition" p:name="rbs" p:from="aflury@linardcapital.com" p:subject="Reports" p:service-ref="rBSReconciliationService"/>
+                </set>
+            </property>
+            <property name="monitoringStrategy">
+                <bean class="org.springframework.ws.transport.mail.monitor.ImapIdleMonitoringStrategy"/>
+            </property>
+        </bean>
+    </beans>
 
 </beans>

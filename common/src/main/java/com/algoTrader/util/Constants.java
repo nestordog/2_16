@@ -20,5 +20,7 @@ public class Constants {
 
     public static final long NINETY_DAYS = 7776000000l;
 
-    public static final long MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
+    public static final int SECONDS_PER_DAY = 86400;
+
+    public static final int MILLIS_PER_DAY = 86400000;
 }

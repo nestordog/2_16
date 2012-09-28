@@ -1,6 +1,6 @@
 @Name('SAVE_PORTFOLIO_VALUE')
-@Subscriber(className='com.algoTrader.service.AccountService.savePortfolioValues')
 @RunTimeOnly()
+@Subscriber(className='com.algoTrader.service.AccountService.savePortfolioValues')
 select
     null
 from
@@ -9,8 +9,8 @@ where
     LookupUtil.hasLastTicks();
 
 @Name('INSERT_INTO_PORTFOLIO_VALUE')
-@Subscriber(className='com.algoTrader.esper.subscriber.LogPortfolioValueSubscriber')
 @SimulationOnly
+@Subscriber(className='com.algoTrader.esper.subscriber.LogPortfolioValueSubscriber')
 insert into
     PortfolioValue
 select
@@ -21,24 +21,24 @@ where
     LookupUtil.hasLastTicks();
 
 @Name('SET_MARGINS')
-@Subscriber(className='com.algoTrader.service.PositionService.setMargins')
 @Condition(key='statement.setMargins')
+@Subscriber(className='com.algoTrader.service.PositionService.setMargins')
 select
     null
 from
     pattern[every timer:at (0, 7, *, *, 1:5)];
 
 @Name('EXPIRE_POSITION')
-@Subscriber(className='com.algoTrader.service.PositionService.expirePositions')
 @Condition(key='statement.expirePosition')
+@Subscriber(className='com.algoTrader.service.PositionService.expirePositions')
 select
     null
 from
     pattern[every timer:at (0, 13, *, *, *)];
 
 @Name('CLOSE_POSITION')
-@Subscriber(className='com.algoTrader.service.PositionService.closePosition')
 @Condition(key='statement.closePosition')
+@Subscriber(className='com.algoTrader.service.PositionService.closePosition')
 @Priority(2)
 select
     position.id as positionId,
@@ -80,9 +80,9 @@ output
     first every 5 seconds;
 
 @Name('RECONCILE_IB')
-@Subscriber(className='com.algoTrader.service.ib.IBReconciliationService.reconcile')
-@Condition(key='statement.reconcile')
 @RunTimeOnly
+@Condition(key='statement.reconcile')
+@Subscriber(className='com.algoTrader.service.ib.IBReconciliationService.reconcile')
 select
     null
 from
@@ -91,16 +91,16 @@ where
     simulation = false;
 
 @Name('EQUALIZE_FOREX_PORTFOLIO')
-@Subscriber(className='com.algoTrader.service.ForexService.equalizeForex')
 @Condition(key='statement.equalizeForex')
+@Subscriber(className='com.algoTrader.service.ForexService.equalizeForex')
 select
     null
 from
     pattern[every timer:at (0, 10, *, *, 3)];
 
 @Name('REBALANCE_PORTFOLIO')
-@Subscriber(className='com.algoTrader.service.AccountService.rebalancePortfolio')
 @Condition(key='statement.rebalancePortfolio')
+@Subscriber(className='com.algoTrader.service.AccountService.rebalancePortfolio')
 select
     null
 from

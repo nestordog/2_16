@@ -31,7 +31,6 @@ import javax.mail.URLName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.SchedulingAwareRunnable;
 import org.springframework.util.Assert;
 import org.springframework.ws.transport.mail.monitor.MonitoringStrategy;
@@ -53,8 +52,6 @@ import org.springframework.ws.transport.support.AbstractAsyncStandaloneMessageRe
  * @since 1.5.0
  */
 public class MailMessageReceiver extends AbstractAsyncStandaloneMessageReceiver {
-
-    private @Value("${misc.mailMessageReceiverEnabled}") boolean mailMessageReceiverEnabled;
 
     /** Logger available to subclasses. */
     protected final Log logger = LogFactory.getLog(getClass());
@@ -126,9 +123,6 @@ public class MailMessageReceiver extends AbstractAsyncStandaloneMessageReceiver 
 
     @Override
     public void afterPropertiesSet() throws Exception {
-
-        if (!this.mailMessageReceiverEnabled)
-            return;
 
         Assert.notNull(this.storeUri, "Property 'storeUri' is required");
         if (this.monitoringStrategy == null) {

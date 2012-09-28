@@ -134,7 +134,11 @@ public class IBDefaultMessageHandler implements EWrapper {
                     setState(ConnectionState.SUBSCRIBED);
                 } else {
                     setState(ConnectionState.LOGGED_ON);
-                    ServiceLocator.instance().getMarketDataService().initSubscriptions();
+
+                    // initSubscriptions if there is a marketDataService
+                    if (ServiceLocator.instance().containsService("marketDataService")) {
+                        ServiceLocator.instance().getMarketDataService().initSubscriptions();
+                    }
                 }
                 logger.debug(message);
                 break;

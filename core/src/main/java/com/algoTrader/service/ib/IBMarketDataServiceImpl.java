@@ -20,7 +20,6 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
     private static Logger logger = MyLogger.getLogger(IBMarketDataServiceImpl.class.getName());
     private static IBClient client;
 
-    private @Value("${simulation}") boolean simulation;
     private @Value("${ib.genericTickList}") String genericTickList;
 
     @Override
@@ -34,7 +33,7 @@ public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements 
 
         if (client != null
                 && (client.getMessageHandler().getState().getValue() >= ConnectionState.LOGGED_ON.getValue())
-                && !client.getMessageHandler().isRequested() && !this.simulation) {
+                && !client.getMessageHandler().isRequested()) {
 
             client.getMessageHandler().setRequested(true);
             client.getMessageHandler().setState(ConnectionState.SUBSCRIBED);

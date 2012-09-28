@@ -123,6 +123,7 @@
                 <property name="transactionManager">org.springframework.orm.hibernate3.HibernateTransactionManager</property>
                 <property name="hibernateInheritanceStrategy">${hibernate.inheritance.strategy}</property>
                 <property name="springTypesPackage">${application.package}</property>
+                <property name="springVersion">3.1</property>
 
                 <property name="daos">${core.generated.dir}</property>
                 <property name="dao-impls">${core.manual.dir}</property>

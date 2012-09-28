@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.quickfixj.jmx.JmxExporter;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Value;
 
 import quickfix.CompositeLogFactory;
 import quickfix.DefaultMessageFactory;
@@ -30,17 +29,10 @@ import com.algoTrader.enumeration.MarketChannel;
 
 public class FixClient implements InitializingBean {
 
-    private @Value("${simulation}") boolean simulation;
-    private @Value("${fix.enabled}") boolean fixEnabled;
-
     private Initiator initiator = null;
 
     @Override
     public void afterPropertiesSet() throws Exception {
-
-        if (this.simulation || !this.fixEnabled) {
-            return;
-        }
 
         InputStream inputStream = this.getClass().getResourceAsStream("/fix.cfg");
         SessionSettings settings = new SessionSettings(inputStream);
@@ -93,21 +85,17 @@ public class FixClient implements InitializingBean {
 
     public void sendMessage(Message message, MarketChannel marketChannel) throws SessionNotFound {
 
-        if (this.fixEnabled) {
-            for (SessionID sessionId : this.initiator.getSessions()) {
-                if (sessionId.getSessionQualifier().equals(marketChannel.getValue())) {
-                    Session session = Session.lookupSession(sessionId);
-                    if (session.isLoggedOn()) {
-                        session.send(message);
-                    } else {
-                        throw new IllegalStateException("message cannot be sent, FIX Session is not logged on " + marketChannel);
-                    }
-                    return;
+        for (SessionID sessionId : this.initiator.getSessions()) {
+            if (sessionId.getSessionQualifier().equals(marketChannel.getValue())) {
+                Session session = Session.lookupSession(sessionId);
+                if (session.isLoggedOn()) {
+                    session.send(message);
+                } else {
+                    throw new IllegalStateException("message cannot be sent, FIX Session is not logged on " + marketChannel);
                 }
+                return;
             }
-            throw new IllegalStateException("message cannot be sent, FIX Session does not exist " + marketChannel);
-        } else {
-            throw new IllegalStateException("Fix is not enabled");
         }
+        throw new IllegalStateException("message cannot be sent, FIX Session does not exist " + marketChannel);
     }
 }

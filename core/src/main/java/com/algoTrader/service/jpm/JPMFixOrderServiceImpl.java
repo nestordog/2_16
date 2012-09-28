@@ -1,6 +1,8 @@
-package com.algoTrader.service.fix;
+package com.algoTrader.service.jpm;
 
 import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Value;
 
 import quickfix.field.Account;
 import quickfix.field.ExDestination;
@@ -16,10 +18,12 @@ import com.algoTrader.enumeration.MarketChannel;
 
 public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
 
+    private @Value("${jpm.account}") String account;
+
     @Override
     protected void handleSendOrder(SimpleOrder order, NewOrderSingle newOrder) {
 
-        newOrder.set(new Account("TEST"));
+        newOrder.set(new Account(this.account));
         newOrder.set(new HandlInst('1'));
         newOrder.set(new TransactTime(new Date()));
     }
@@ -27,7 +31,7 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
     @Override
     protected void handleModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
 
-        replaceRequest.set(new Account("TEST"));
+        replaceRequest.set(new Account(this.account));
         replaceRequest.set(new HandlInst('1'));
         replaceRequest.set(new TransactTime(new Date()));
     }
@@ -35,14 +39,14 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
     @Override
     protected void handleCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
 
-        cancelRequest.set(new Account("TEST"));
+        cancelRequest.set(new Account(this.account));
         cancelRequest.set(new TransactTime(new Date()));
     }
 
     @Override
     protected MarketChannel handleGetMarketChannel() {
 
-        return MarketChannel.FIXJPM;
+        return MarketChannel.JPM_FIX;
     }
 
     @Override

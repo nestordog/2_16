@@ -2,7 +2,11 @@ package com.algoTrader.service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
+
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Transformer;
 
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.trade.OrderStatus;
@@ -129,6 +133,22 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     protected void handleRemoveProperty(int propertyHolderId, String name) throws Exception {
 
         getPropertyService().removeProperty(propertyHolderId, name);
+    }
+
+    @Override
+    protected Collection<String> handleGetMarketChannels() throws Exception {
+
+        return CollectionUtils.collect(getOrderService().getMarketChannels(), new Transformer<MarketChannel, String>() {
+            @Override
+            public String transform(MarketChannel marketChannel) {
+                return marketChannel.toString();
+            }
+        });
+    }
+
+    @Override
+    protected String handleGetDefaultMarketChannel() throws Exception {
+        return getOrderService().getDefaultMarketChannel().toString();
     }
 
     @Override

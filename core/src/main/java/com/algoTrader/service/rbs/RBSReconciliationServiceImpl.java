@@ -2,6 +2,7 @@ package com.algoTrader.service.rbs;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -14,8 +15,10 @@ import org.apache.log4j.Logger;
 import org.supercsv.exception.SuperCSVReflectionException;
 
 import com.algoTrader.entity.Transaction;
+import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.SecurityFamily;
+import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.MyLogger;
@@ -145,10 +148,21 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
             Transaction transaction = CollectionUtils.find(transactions, new Predicate<Transaction>() {
                 @Override
                 public boolean evaluate(Transaction transaction) {
-                    return transaction.getSecurity().equals(security) &&
+                    if (transaction.getSecurity().equals(security) &&
                         transaction.getQuantity() == quantity &&
-                        transaction.getPrice().doubleValue() == price.doubleValue()
-                            && DateUtils.isSameDay(transaction.getDateTime(), date);
+                        transaction.getPrice().doubleValue() == price.doubleValue()) {
+
+                        // check expiration (month for Futures / day for Options)
+                        if (security instanceof Future) {
+                            return DateUtils.truncatedEquals(transaction.getDateTime(), date, Calendar.MONTH);
+                        } else if (security instanceof StockOption) {
+                            return DateUtils.truncatedEquals(transaction.getDateTime(), date, Calendar.DAY_OF_YEAR);
+                        } else {
+                            throw new UnsupportedOperationException("unsupported security type " + security);
+                        }
+                    } else {
+                        return false;
+                    }
                 }
             });
 

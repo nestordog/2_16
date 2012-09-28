@@ -107,8 +107,8 @@ from
     com.algoTrader.vo.GenericEventVO;
 
 @Name('PERSIST_HOUR_TICKS')
-@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
 @RunTimeOnly()
+@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
 on pattern
     [every timer:at(0, *, *, *, 1:5)]
 select
@@ -125,8 +125,8 @@ and
     tickWindow.security.securityFamily.periodicity = Period.`HOUR`;
 
 @Name('PERSIST_MINUTE_TICKS')
-@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
 @RunTimeOnly()
+@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
 on pattern
     [every timer:at(*, *, *, *, 1:5)]
 select

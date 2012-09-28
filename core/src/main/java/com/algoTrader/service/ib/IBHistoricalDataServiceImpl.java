@@ -30,7 +30,6 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 
     private @Value("${simulation}") boolean simulation;
-    private @Value("${ib.historicalDataServiceEnabled}") boolean historicalDataServiceEnabled;
     private @Value("${ib.historicalDataTimeout}") int historicalDataTimeout;
 
     private IBClient client;
@@ -45,10 +44,6 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
 
     @Override
     protected void handleInit() throws Exception {
-
-        if (this.simulation || !this.historicalDataServiceEnabled) {
-            return;
-        }
 
         this.messageHandler = new IBDefaultMessageHandler(clientId) {
 

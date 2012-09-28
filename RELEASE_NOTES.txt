@@ -72,3 +72,13 @@ GenericEvents
 update Charting Functionality (add Indicators & Bars)
 JMX over SSL
 
+1.11 (R5299)
+Reconciliation (IB / RBS / UI)
+SimpleOrders vs AlgoOrders (e.g. SlicingOrder)
+Fix Interface
+OrderPreference
+PorfolioValue logging and charting
+MailMessageReceiver
+AndroMDA 3.4
+ForexFuture / FX Hedging by ForexFuture
+

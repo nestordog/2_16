@@ -1,16 +1,16 @@
 // ------------------------------ Incremental Limit Order ---------------------------------------
 
 @Name('INCREMENTAL_FIRST_ORDER')
-@Subscriber(className='com.algoTrader.service.OrderService.sendOrder')
 @RunTimeOnly
+@Subscriber(className='com.algoTrader.service.OrderService.sendOrder')
 select
     incrementalOrder.firstOrder()
 from
     com.algoTrader.entity.trade.IncrementalOrder as incrementalOrder;
 
 @Name('INCREMENTAL_MODIFY_ORDER')
-@Subscriber(className='com.algoTrader.service.OrderService.modifyOrder')
 @RunTimeOnly
+@Subscriber(className='com.algoTrader.service.OrderService.modifyOrder')
 select
     cast(currentOrder.parentOrder, com.algoTrader.entity.trade.IncrementalOrder).modifyOrder()
 from
@@ -20,8 +20,8 @@ where
     cast(currentOrder.parentOrder, com.algoTrader.entity.trade.IncrementalOrder).checkLimit();
 
 @Name('INCREMENTAL_CANCEL_ORDER')
-@Subscriber(className='com.algoTrader.service.OrderService.cancelOrder')
 @RunTimeOnly
+@Subscriber(className='com.algoTrader.service.OrderService.cancelOrder')
 select
     currentOrder.parentOrder
 from
@@ -33,8 +33,8 @@ where
 // ------------------------------ Slicing Limit Order ---------------------------------------
 
 @Name('SLICINING_DECREASE_OFFSET_TICKS')
-@Subscriber(className='com.algoTrader.esper.subscriber.VoidSubscriber')
 @RunTimeOnly
+@Subscriber(className='com.algoTrader.esper.subscriber.VoidSubscriber')
 select
     cast(currentOrder.parentOrder, com.algoTrader.entity.trade.SlicingOrder).decreaseOffsetTicks()
 from
@@ -44,8 +44,8 @@ from
             and not OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, ord.number = currentOrder.number))];
 
 @Name('SLICINING_INCREASE_OFFSET_TICKS')
-@Subscriber(className='com.algoTrader.esper.subscriber.VoidSubscriber')
 @RunTimeOnly
+@Subscriber(className='com.algoTrader.esper.subscriber.VoidSubscriber')
 select
     cast(currentOrder.parentOrder, com.algoTrader.entity.trade.SlicingOrder).increaseOffsetTicks()
 from
@@ -55,8 +55,8 @@ from
             and not OrderStatus(status = Status.CANCELED, ord.number = currentOrder.number))];
 
 @Name('SLICINING_CANCEL_ORDER')
-@Subscriber(className='com.algoTrader.service.OrderService.cancelOrder')
 @RunTimeOnly
+@Subscriber(className='com.algoTrader.service.OrderService.cancelOrder')
 select
     currentOrder
 from
@@ -66,16 +66,16 @@ from
             and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.number = currentOrder.number))];
 
 @Name('SLICINING_FIRST_ORDER')
-@Subscriber(className='com.algoTrader.service.OrderService.sendOrder')
 @RunTimeOnly
+@Subscriber(className='com.algoTrader.service.OrderService.sendOrder')
 select
     slicingOrder.nextOrder(slicingOrder.quantity)
 from
     com.algoTrader.entity.trade.SlicingOrder as slicingOrder;
 
 @Name('SLICINING_NEXT_ORDER')
-@Subscriber(className='com.algoTrader.service.OrderService.sendOrder')
 @RunTimeOnly
+@Subscriber(className='com.algoTrader.service.OrderService.sendOrder')
 select
     slicingOrder.nextOrder(openOrderWindow.remainingQuantity)
 from

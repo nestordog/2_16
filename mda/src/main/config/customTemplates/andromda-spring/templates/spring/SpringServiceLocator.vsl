@@ -177,6 +177,15 @@ public class $serviceLocatorName
 #end
 
     /**
+     * Gets the Configuration
+     * @return getContext().getBean("configuration")
+     */
+    public final com.algoTrader.util.spring.Configuration getConfiguration() 
+    {
+        return getContext().getBean("configuration", com.algoTrader.util.spring.Configuration.class);
+    }
+	
+    /**
      * Gets an instance of the given service.
      * @param serviceName
      * @param clazz 
@@ -186,13 +195,32 @@ public class $serviceLocatorName
     {
         return getContext().getBean(BEAN_PREFIX + serviceName, clazz);
     }
+	
 
     /**
-     * Gets the Configuration
-     * @return getContext().getBean("configuration")
+     * Checks wheather the the given service exists
+     * @param serviceName
      */
-    public final com.algoTrader.util.spring.Configuration getConfiguration() 
+	public final boolean containsService(String serviceName)
     {
-        return getContext().getBean("configuration", com.algoTrader.util.spring.Configuration.class);
+		return getContext().containsBean(serviceName);
     }
+
+    /**
+     * gets all services of the given type
+     * @param clazz 
+     */
+	public final <T> java.util.Collection<T> getServices(Class<T> clazz) 
+	{
+		java.util.Map<String, T> serviceMap = getContext().getBeansOfType(clazz);
+		java.util.Collection<T> services = new java.util.HashSet<T>();
+		for (String serviceName : serviceMap.keySet()) {
+
+			// wo only want the proxys from applicationContext.xml
+			if (!serviceName.startsWith("com.algoTrader.service")) {
+				services.add(serviceMap.get(serviceName));
+			}
+		}
+		return services;
+	}	
 }

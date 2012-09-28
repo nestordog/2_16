@@ -67,7 +67,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private @Value("${dataSource.dataSetLocation}") String dataSetLocation;
     private @Value("${dataSource.feedGenericEvents}") boolean feedGenericEvents;
 
-    public SimulationServiceImpl() {
+    {
         format.setMinimumFractionDigits(this.roundDigits);
     }
 
