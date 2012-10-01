@@ -37,15 +37,6 @@
         <property name="sessionFactory" ref="sessionFactory" />
     </bean>
 
-    <bean id="hibernateExporter" class="org.springframework.jmx.export.MBeanExporter">
-        <property name="beans">
-            <map>
-                <entry key="Hibernate:application=Statistics" value-ref="hibernateStatisticsMBean" />
-            </map>
-        </property>
-        <property name="server" ref="mbeanServer" />
-    </bean>
-
       <!--  EhCache JMX Beans -->
     <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
         <property name="configLocation" value="classpath:ehcache.xml" />
@@ -78,12 +69,71 @@
         <property name="server" ref="mbeanServer"/>
     </bean>
 
-    <!-- =================================== Broker Interfaces  ========================================= -->
+    <!-- =================================== JMS  ========================================= -->
 
-    <!-- Aliases -->
-    <alias name="iBMarketDataService" alias="marketDataService"/>
-    <alias name="iBAccountService" alias="accountService"/>
-    <alias name="iBHistoricalDataService" alias="historicalDataService"/>
+    <beans profile="server">
+
+        <!-- JMS ActiveMQ Connection Factory -->
+        <bean id="jmsActiveMQFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+            <property name="targetConnectionFactory">
+                <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                    <property name="brokerURL" value="failover:tcp://localhost:61616" />
+                </bean>
+            </property>
+        </bean>
+
+        <bean id="javax.jms.Session.DUPS_OK_ACKNOWLEDGE" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+
+        <!-- ActiveMQ topic used for marketData -->
+        <bean id="marketDataTopic" class="org.apache.activemq.command.ActiveMQTopic">
+            <constructor-arg value="MARKETDATA.TOPIC" />
+        </bean>
+
+        <!-- Spring JMS Template used for marketData -->
+        <bean id="marketDataTemplate" class="org.springframework.jms.core.JmsTemplate">
+            <property name="connectionFactory">
+                <ref bean="jmsActiveMQFactory" />
+            </property>
+            <property name="defaultDestination">
+                <ref bean="marketDataTopic" />
+            </property>
+            <property name="timeToLive" value="10000"/>
+              <property name="deliveryPersistent" value="false"/>
+              <property name="messageIdEnabled" value="false"/>
+              <property name="explicitQosEnabled" value="true" />
+            <property name="sessionAcknowledgeMode" ref="javax.jms.Session.DUPS_OK_ACKNOWLEDGE"/>
+        </bean>
+
+        <!-- ActiveMQ topic used for generic events -->
+        <bean id="genericTopic" class="org.apache.activemq.command.ActiveMQTopic">
+            <constructor-arg value="GENERIC.TOPIC" />
+        </bean>
+
+        <!-- Spring JMS Template used for marketData -->
+        <bean id="genericTemplate" class="org.springframework.jms.core.JmsTemplate">
+            <property name="connectionFactory">
+                <ref bean="jmsActiveMQFactory" />
+            </property>
+            <property name="defaultDestination">
+                <ref bean="genericTopic" />
+            </property>
+            <property name="timeToLive" value="10000"/>
+              <property name="deliveryPersistent" value="false"/>
+              <property name="messageIdEnabled" value="false"/>
+              <property name="explicitQosEnabled" value="true" />
+            <property name="sessionAcknowledgeMode" ref="javax.jms.Session.DUPS_OK_ACKNOWLEDGE"/>
+        </bean>
+
+        <!-- Spring JMS Template used for strategy specific messages -->
+        <bean id="strategyTemplate" class="org.springframework.jms.core.JmsTemplate">
+            <property name="connectionFactory">
+                <ref bean="jmsActiveMQFactory" />
+            </property>
+        </bean>
+
+    </beans>
+
+    <!-- =================================== Broker Interfaces  ========================================= -->
 
     <beans profile="trading,securityRetrieval">
         <bean id="iBClientFactory" class="com.algoTrader.service.ib.IBClientFactory"/>

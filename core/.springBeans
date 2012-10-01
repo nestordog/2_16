@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beansProjectDescription>
 	<version>1</version>
-	<pluginVersion><![CDATA[2.9.2.201205070117-RELEASE]]></pluginVersion>
+	<pluginVersion><![CDATA[2.6.0.201103160035-RELEASE]]></pluginVersion>
 	<configSuffixes>
 		<configSuffix><![CDATA[xml]]></configSuffix>
 	</configSuffixes>
@@ -12,7 +12,6 @@
 		<config>src/main/resources/beanRefFactorySimulation.xml</config>
 		<config>target/src/main/java/META-INF/applicationContext-export-remoteServices.xml</config>
 		<config>target/src/main/java/META-INF/applicationContext.xml</config>
-		<config>src/main/resources/META-INF/applicationContext-jms.xml</config>
 		<config>src/main/resources/META-INF/applicationContext-server.xml</config>
 	</configs>
 	<configSets>

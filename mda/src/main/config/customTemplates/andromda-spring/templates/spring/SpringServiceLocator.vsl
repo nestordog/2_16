@@ -26,9 +26,9 @@ public class $serviceLocatorName
     }
 
     /**
-     * The prefix used for all bean ids.
-     */
-    public static final String BEAN_PREFIX = "${beanNamePrefix}";
+	 * The default bean reference factory ID, referencing beanRefFactory.
+	 */
+	private static final String DEFAULT_BEAN_REFERENCE_ID = "beanRefFactory";
 
     /**
      * The shared instance of this ${serviceLocatorName}.
@@ -56,27 +56,6 @@ public class $serviceLocatorName
     private String beanFactoryReferenceLocation;
 
     /**
-     * The bean factory reference id.
-     */
-    private String beanRefFactoryReferenceId;
-
-    /**
-     * Initializes the Spring application context from
-     * the given <code>beanFactoryReferenceLocation</code>.  If <code>null</code>
-     * is specified for the <code>beanFactoryReferenceLocation</code>
-     * then the default application context will be used.
-     *
-     * @param beanFactoryReferenceLocationIn the location of the beanRefFactory reference.
-     * @param beanRefFactoryReferenceIdIn the id of the beanRefFactory reference.
-     */
-    public synchronized void init(final String beanFactoryReferenceLocationIn, final String beanRefFactoryReferenceIdIn)
-    {
-        this.beanFactoryReferenceLocation = beanFactoryReferenceLocationIn;
-        this.beanRefFactoryReferenceId = beanRefFactoryReferenceIdIn;
-        this.beanFactoryReference = null;
-    }
-
-    /**
      * Initializes the Spring application context from
      * the given <code>beanFactoryReferenceLocation</code>.  If <code>null</code>
      * is specified for the <code>beanFactoryReferenceLocation</code>
@@ -98,15 +77,10 @@ public class $serviceLocatorName
 #set ($factoryId = $beanRefFactoryId)
 #end
 
-    public static final String LOCAL_BEAN_REFERENCE_LOCATION = "beanRefFactoryLocal.xml";
-    public static final String SERVER_BEAN_REFERENCE_LOCATION = "beanRefFactoryServer.xml";
-    public static final String CLIENT_BEAN_REFERENCE_LOCATION = "beanRefFactoryClient.xml";
-    public static final String SIMULATION_BEAN_REFERENCE_LOCATION = "beanRefFactorySimulation.xml";    
-
-    /**
-     * The default bean reference factory ID, referencing $factoryId.
-     */
-    private final String DEFAULT_BEAN_REFERENCE_ID = "$factoryId";
+    public static final String LOCAL_BEAN_REFERENCE_LOCATION = "Local";
+    public static final String SERVER_BEAN_REFERENCE_LOCATION = "Server";
+    public static final String CLIENT_BEAN_REFERENCE_LOCATION = "Client";
+    public static final String SIMULATION_BEAN_REFERENCE_LOCATION = "Simulation";    
 
     /**
      * Gets the Spring ApplicationContext.
@@ -120,14 +94,13 @@ public class $serviceLocatorName
             {
                 this.beanFactoryReferenceLocation = SERVER_BEAN_REFERENCE_LOCATION;
             }
-            if (this.beanRefFactoryReferenceId == null)
-            {
-                this.beanRefFactoryReferenceId = this.DEFAULT_BEAN_REFERENCE_ID;
-            }
-            org.springframework.beans.factory.access.BeanFactoryLocator beanFactoryLocator =
-                org.springframework.context.access.ContextSingletonBeanFactoryLocator.getInstance(
-                    this.beanFactoryReferenceLocation);
-            this.beanFactoryReference = beanFactoryLocator.useBeanFactory(this.beanRefFactoryReferenceId);
+			String beanRefFactoryLocation = DEFAULT_BEAN_REFERENCE_ID + this.beanFactoryReferenceLocation + ".xml";
+            org.springframework.beans.factory.access.BeanFactoryLocator beanFactoryLocator = org.springframework.context.access.ContextSingletonBeanFactoryLocator.getInstance(this.beanRefFactoryLocation);
+            this.beanFactoryReference = beanFactoryLocator.useBeanFactory(DEFAULT_BEAN_REFERENCE_ID);
+            
+            // set the profile
+            org.springframework.context.ConfigurableApplicationContext applicationContext = (org.springframework.context.ConfigurableApplicationContext) this.beanFactoryReference.getFactory();
+            applicationContext.getEnvironment().addActiveProfile(this.beanFactoryReferenceLocation.toLowerCase());            
         }
         return (org.springframework.context.ApplicationContext)this.beanFactoryReference.getFactory();
     }
@@ -189,11 +162,11 @@ public class $serviceLocatorName
      * Gets an instance of the given service.
      * @param serviceName
      * @param clazz 
-     * @return getContext().getBean(BEAN_PREFIX + serviceName, clazz)
+     * @return getContext().getBean(serviceName, clazz)
      */
     public final <T> T getService(String serviceName, Class<T> clazz) 
     {
-        return getContext().getBean(BEAN_PREFIX + serviceName, clazz);
+        return getContext().getBean(serviceName, clazz);
     }
 	
 

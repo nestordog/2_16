@@ -346,6 +346,10 @@
                 </list>
             </property>
         </bean>
+#if ($stringUtils.isNotBlank($service.findTaggedValue('algoTrader_service_alias')))
+
+		<alias name="$service.getBeanName(false)" alias="$service.findTaggedValue('algoTrader_service_alias')"/>	
+#end	
     </beans>
 	
 #end
