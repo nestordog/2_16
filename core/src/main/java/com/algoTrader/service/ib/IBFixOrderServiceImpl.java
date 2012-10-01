@@ -10,8 +10,17 @@ import quickfix.fix42.OrderCancelRequest;
 import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.MarketChannel;
+import com.algoTrader.service.InitializingServiceI;
 
-public class IBFixOrderServiceImpl extends IBFixOrderServiceBase {
+public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements InitializingServiceI {
+
+    private static final long serialVersionUID = -537844523983750001L;
+
+    @Override
+    public void handleInit() throws Exception{
+
+        getFixClient().createSession(getMarketChannel());
+    }
 
     @Override
     protected void handleSendOrder(SimpleOrder order, NewOrderSingle newOrder) {

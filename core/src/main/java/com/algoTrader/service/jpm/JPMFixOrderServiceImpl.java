@@ -18,7 +18,15 @@ import com.algoTrader.enumeration.MarketChannel;
 
 public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
 
+    private static final long serialVersionUID = -8881034489922372443L;
+
     private @Value("${jpm.account}") String account;
+
+    @Override
+    public void handleInit() throws Exception {
+
+        getFixClient().createSession(getMarketChannel());
+    }
 
     @Override
     protected void handleSendOrder(SimpleOrder order, NewOrderSingle newOrder) {

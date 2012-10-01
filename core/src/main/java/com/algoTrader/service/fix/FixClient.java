@@ -2,8 +2,10 @@ package com.algoTrader.service.fix;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
+import org.opentradingsolutions.log4fix.Log4FIX;
 import org.quickfixj.jmx.JmxExporter;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -11,7 +13,6 @@ import quickfix.CompositeLogFactory;
 import quickfix.DefaultMessageFactory;
 import quickfix.FileLogFactory;
 import quickfix.FileStoreFactory;
-import quickfix.Initiator;
 import quickfix.LogFactory;
 import quickfix.Message;
 import quickfix.MessageFactory;
@@ -29,18 +30,19 @@ import com.algoTrader.enumeration.MarketChannel;
 
 public class FixClient implements InitializingBean {
 
-    private Initiator initiator = null;
+    private SocketInitiator initiator = null;
+    private SessionSettings settings = null;
 
     @Override
     public void afterPropertiesSet() throws Exception {
 
         InputStream inputStream = this.getClass().getResourceAsStream("/fix.cfg");
-        SessionSettings settings = new SessionSettings(inputStream);
+        this.settings = new SessionSettings(inputStream);
         inputStream.close();
 
-        FixApplicationFactory applicationFactory = new FixApplicationFactory(settings);
+        FixApplicationFactory applicationFactory = new FixApplicationFactory(this.settings);
 
-        MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
+        MessageStoreFactory messageStoreFactory = new FileStoreFactory(this.settings);
 
         //    Log4FIX log4Fix = Log4FIX.createForLiveUpdates(settings);
         //    LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings), new FileLogFactory(settings), log4Fix.getLogFactory() });
@@ -51,12 +53,25 @@ public class FixClient implements InitializingBean {
         MessageFactory messageFactory = new DefaultMessageFactory();
 
         SessionFactory sessionFactory = new FixMultiApplicationSessionFactory(applicationFactory, messageStoreFactory, logFactory, messageFactory);
-        this.initiator = new SocketInitiator(sessionFactory, settings);
+        this.initiator = new SocketInitiator(sessionFactory, this.settings);
 
         JmxExporter exporter = new JmxExporter();
         exporter.register(this.initiator);
 
         this.initiator.start();
+    }
+
+    public void createSession(MarketChannel marketChannel) throws Exception {
+
+        for (final Iterator<SessionID> i = this.settings.sectionIterator(); i.hasNext();) {
+            SessionID sessionId = i.next();
+            if (sessionId.getSessionQualifier().equals(marketChannel.toString())) {
+                this.initiator.createDynamicSession(sessionId);
+                return;
+            }
+        }
+
+        throw new IllegalStateException("SessionID missing in settings " + marketChannel);
     }
 
     public Map<String, ConnectionState> getConnectionStates() {
