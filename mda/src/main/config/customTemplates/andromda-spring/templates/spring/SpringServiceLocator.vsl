@@ -94,8 +94,8 @@ public class $serviceLocatorName
             {
                 this.beanFactoryReferenceLocation = SERVER_BEAN_REFERENCE_LOCATION;
             }
-			String beanRefFactoryLocation = DEFAULT_BEAN_REFERENCE_ID + this.beanFactoryReferenceLocation + ".xml";
-            org.springframework.beans.factory.access.BeanFactoryLocator beanFactoryLocator = org.springframework.context.access.ContextSingletonBeanFactoryLocator.getInstance(this.beanRefFactoryLocation);
+			String location = DEFAULT_BEAN_REFERENCE_ID + this.beanFactoryReferenceLocation + ".xml";
+            org.springframework.beans.factory.access.BeanFactoryLocator beanFactoryLocator = org.springframework.context.access.ContextSingletonBeanFactoryLocator.getInstance(location);
             this.beanFactoryReference = beanFactoryLocator.useBeanFactory(DEFAULT_BEAN_REFERENCE_ID);
             
             // set the profile
