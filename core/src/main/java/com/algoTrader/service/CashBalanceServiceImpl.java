@@ -90,7 +90,9 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
                 addAmount(map, transaction.getStrategy(), this.portfolioBaseCurrency, transaction.getExecutionCommission().negate());
 
                 // clearing commission is booked in transaction currency
-                addAmount(map, transaction.getStrategy(), transaction.getCurrency(), transaction.getClearingCommission().negate());
+                if (transaction.getClearingCommission() != null) {
+                    addAmount(map, transaction.getStrategy(), transaction.getCurrency(), transaction.getClearingCommission().negate());
+                }
             } else {
 
                 // the entire transaction (price + commission) is booked in transaction currency

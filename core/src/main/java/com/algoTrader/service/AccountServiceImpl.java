@@ -84,14 +84,21 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
 
         for (Strategy strategy : getStrategyDao().findAutoActivateStrategies()) {
 
-            getPortfolioValueDao().create(getPortfolioService().getPortfolioValue(strategy.getName()));
+            PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName());
+
+            internalSavePortfolioValue(portfolioValue);
         }
     }
 
     @Override
     protected void handleSavePortfolioValue(Strategy strategy, Transaction transaction) throws Exception {
 
+        // trades do not affect netLiqValue / performance so no portfolioValues are saved
         if (transaction.isTrade()) {
+            return;
+
+        // do not save a portfolioValue for BASE when rebalancing
+        } else if (TransactionType.REBALANCE.equals(transaction.getType()) && strategy.isBase()) {
             return;
         }
 
@@ -99,6 +106,14 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
 
         portfolioValue.setCashFlow(transaction.getGrossValue());
 
-        getPortfolioValueDao().create(portfolioValue);
+        internalSavePortfolioValue(portfolioValue);
+    }
+
+    private void internalSavePortfolioValue(PortfolioValue portfolioValue) {
+
+        // netLiqValue and securitiesCurrentValue might be null if there is a security without a last tick
+        if (portfolioValue.getSecuritiesCurrentValue() != null && portfolioValue.getNetLiqValue() != null) {
+            getPortfolioValueDao().create(portfolioValue);
+        }
     }
 }

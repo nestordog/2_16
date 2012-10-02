@@ -260,7 +260,11 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
         List<PortfolioValueVO> portfolioValues = (List<PortfolioValueVO>) getPortfolioValuesSinceDate(strategyName, date);
 
         // the performance of the last portfolioValue represents the performance of the entire timeperiod
-        return portfolioValues.get(portfolioValues.size() - 1).getPerformance();
+        if (portfolioValues.size() > 0) {
+            return portfolioValues.get(portfolioValues.size() - 1).getPerformance();
+        } else {
+            return Double.NaN;
+        }
     }
 
     @Override
@@ -296,9 +300,9 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
         portfolioValue.setStrategy(strategy);
         portfolioValue.setDateTime(DateUtil.getCurrentEPTime());
         portfolioValue.setCashBalance(cashBalance);
-        portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue);
+        portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue); // might be null if there was no last tick for a particular security
         portfolioValue.setMaintenanceMargin(maintenanceMargin);
-        portfolioValue.setNetLiqValue(cashBalance.add(securitiesCurrentValue)); // add here to prevent another lookup
+        portfolioValue.setNetLiqValue(securitiesCurrentValue != null ? cashBalance.add(securitiesCurrentValue) : null); // add here to prevent another lookup
         portfolioValue.setLeverage(Double.isNaN(leverage) ? 0 : leverage);
         portfolioValue.setAllocation(strategy.getAllocation());
 

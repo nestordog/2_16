@@ -50,11 +50,11 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
         String extId = !"".equals(extIdString) ? extIdString : null;
         Date dateTime = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(dateTimeString);
         BigDecimal price = RoundUtil.getBigDecimal(priceDouble);
-        BigDecimal executionCommission = RoundUtil.getBigDecimal(executionCommissionDouble);
-        BigDecimal clearingCommission = RoundUtil.getBigDecimal(clearingCommissionDouble);
-        Currency currency = (currencyString != null) && !"".equals(currencyString) ? Currency.fromValue(currencyString) : null;
+        BigDecimal executionCommission = (executionCommissionDouble != 0) ? RoundUtil.getBigDecimal(executionCommissionDouble) : null;
+        BigDecimal clearingCommission = (clearingCommissionDouble != 0) ? RoundUtil.getBigDecimal(clearingCommissionDouble) : null;
+        Currency currency = !"".equals(currencyString) ? Currency.fromValue(currencyString) : null;
         TransactionType transactionType = TransactionType.fromValue(transactionTypeString);
-        MarketChannel marketChannel = (marketChannelString != null) && !"".equals(marketChannelString) ? MarketChannel.fromValue(marketChannelString) : null;
+        MarketChannel marketChannel = !"".equals(marketChannelString) ? MarketChannel.fromValue(marketChannelString) : null;
 
         getTransactionService().createTransaction(securityId, strategyName, extId, dateTime, quantity, price, executionCommission, clearingCommission, currency, transactionType, marketChannel);
     }

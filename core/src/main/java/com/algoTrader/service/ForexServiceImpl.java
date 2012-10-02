@@ -10,6 +10,7 @@ import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
@@ -77,8 +78,9 @@ public class ForexServiceImpl extends ForexServiceBase {
                         // check that all orders have been fully filled
                         OrderUtil.checkOrderStati(orderStati);
 
-                        // build new hedge positions
-                        internalEqualizeForex();
+                        // build new hedge positions by invoking equalizeForex again
+                        // use ServiceLocator because TradeCallback is executed in a new thread
+                        ServiceLocator.instance().getService("forexService", ForexService.class).equalizeForex();
                     }
                 });
 
@@ -87,18 +89,9 @@ public class ForexServiceImpl extends ForexServiceBase {
                     getOrderService().sendOrder(order);
                 }
 
-            } else {
-                internalEqualizeForex();
+                return; // do not go any furter because closing trades will have to finish first
             }
-
-        } else {
-            internalEqualizeForex();
         }
-    }
-
-    private void internalEqualizeForex() {
-
-        Strategy base = getStrategyDao().findByName(StrategyImpl.BASE);
 
         // process all non-base currency balances
         Collection<BalanceVO> balances = getPortfolioService().getBalances();
@@ -137,6 +130,9 @@ public class ForexServiceImpl extends ForexServiceBase {
 
                     Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), this.fxFutureEqualizationMinTimeToExpiration);
                     Future future = getLookupService().getFutureByMinExpiration(futureFamily.getId(), targetDate);
+
+                    // make sure the future is subscriped
+                    getMarketDataService().subscribe(base.getName(), future.getId());
 
                     order.setSecurity(future);
 

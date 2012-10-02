@@ -138,11 +138,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setStrategy(strategy);
         transaction.setCurrency(currency);
         transaction.setExecutionCommission(executionCommission);
+        transaction.setClearingCommission(clearingCommission);
         transaction.setMarketChannel(marketChannel);
-
-        if (clearingCommission.doubleValue() != 0) {
-            transaction.setClearingCommission(clearingCommission);
-        }
 
         persistTransaction(transaction);
 

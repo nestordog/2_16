@@ -117,6 +117,7 @@ public class PositionServiceImpl extends PositionServiceBase {
                     Order order = orderStatus.getOrd();
                     if (Status.EXECUTED.equals(orderStatus.getStatus())) {
                         if (unsubscribe) {
+                            // use ServiceLocator because TradeCallback is executed in a new thread
                             MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
                             marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
                         }
