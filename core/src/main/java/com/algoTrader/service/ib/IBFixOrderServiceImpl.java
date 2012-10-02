@@ -17,12 +17,6 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
     private static final long serialVersionUID = -537844523983750001L;
 
     @Override
-    public void handleInit() throws Exception{
-
-        getFixClient().createSession(getMarketChannel());
-    }
-
-    @Override
     protected void handleSendOrder(SimpleOrder order, NewOrderSingle newOrder) {
 
         newOrder.set(new HandlInst('2'));

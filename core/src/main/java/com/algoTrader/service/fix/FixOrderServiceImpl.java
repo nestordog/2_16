@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import quickfix.field.ClOrdID;
 import quickfix.field.ContractMultiplier;
 import quickfix.field.Currency;
+import quickfix.field.MaturityDay;
 import quickfix.field.MaturityMonthYear;
 import quickfix.field.OrderQty;
 import quickfix.field.OrigClOrdID;
@@ -35,8 +36,17 @@ import com.algoTrader.util.MyLogger;
 
 public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
 
+    private static final long serialVersionUID = -1571841567775158540L;
+
     private static Logger logger = MyLogger.getLogger(FixOrderServiceImpl.class.getName());
     private static SimpleDateFormat monthFormat = new SimpleDateFormat("yyyyMM");
+    private static SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
+
+    @Override
+    public void handleInit() throws Exception {
+
+        getFixClient().createSession(getMarketChannel());
+    }
 
     @Override
     protected void handleValidateOrder(SimpleOrder order) throws Exception {
@@ -73,6 +83,7 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
             newOrder.set(new StrikePrice(stockOption.getStrike().doubleValue()));
             newOrder.set(new ContractMultiplier(stockOption.getSecurityFamily().getContractSize()));
             newOrder.set(new MaturityMonthYear(monthFormat.format(stockOption.getExpiration())));
+            newOrder.set(new MaturityDay(dayFormat.format(stockOption.getExpiration())));
 
         } else if (security instanceof Future) {
 
@@ -81,6 +92,7 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
             newOrder.set(new SecurityType(SecurityType.FUTURE));
             newOrder.set(new Currency(future.getSecurityFamily().getCurrency().toString()));
             newOrder.set(new MaturityMonthYear(monthFormat.format(future.getExpiration())));
+            newOrder.set(new MaturityDay(dayFormat.format(future.getExpiration())));
 
         } else if (security instanceof Forex) {
 

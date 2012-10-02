@@ -23,12 +23,6 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
     private @Value("${jpm.account}") String account;
 
     @Override
-    public void handleInit() throws Exception {
-
-        getFixClient().createSession(getMarketChannel());
-    }
-
-    @Override
     protected void handleSendOrder(SimpleOrder order, NewOrderSingle newOrder) {
 
         newOrder.set(new Account(this.account));
