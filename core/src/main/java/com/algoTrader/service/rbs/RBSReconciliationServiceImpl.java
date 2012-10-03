@@ -50,25 +50,25 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
         for (Map<String, ? super Object> position : positions) {
 
             // parse parameters
-            String product = (String) position.get("Product");
+            String securityCode = (String) position.get("Security Code");
             String tradeType = (String) position.get("Trade Type");
-            Date expiration = DateUtils.addHours((Date) position.get("Prompt"), 13); // expiration is at 13:00:00
-            BigDecimal strike = (BigDecimal) position.get("Strike");
-            Date date = (Date) position.get("Run Date");
-            Long quantity = (Long) position.get("Contracts");
+            Date exerciseDate = DateUtils.addHours((Date) position.get("Exercise Date"), 13); // expiration is at 13:00:00
+            BigDecimal strikePrice = (BigDecimal) position.get("Strike Price");
+            Date statementDate = (Date) position.get("Statement Date");
+            Long quantity = (Long) position.get("Quantity");
 
             // find the securities by ricRoot, expiration, strike and type
-            SecurityFamily family = getSecurityFamilyDao().findByRicRoot(product);
+            SecurityFamily family = getSecurityFamilyDao().findByRicRoot(securityCode);
             if (family == null) {
-                logger.error("unknown securityFamily for ric root " + product);
+                logger.error("unknown securityFamily for ric root " + securityCode);
                 continue;
             }
 
             Security security;
             if ("F".equals(tradeType)) {
-                security = getFutureDao().findByExpiration(family.getId(), expiration);
+                security = getFutureDao().findByExpiration(family.getId(), exerciseDate);
             } else if ("C".equals(tradeType) || "P".equals(tradeType)) {
-                security = getStockOptionDao().findByExpirationStrikeAndType(family.getId(), expiration, strike, OptionType.fromValue(tradeType));
+                security = getStockOptionDao().findByExpirationStrikeAndType(family.getId(), exerciseDate, strikePrice, OptionType.fromValue(tradeType));
             } else {
                 throw new IllegalArgumentException("unkown tradeType: " + tradeType);
             }
@@ -76,7 +76,7 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
             if (security != null) {
 
                 // get the actual quantity of the position as of the specified date
-                Long actualyQuantity = getTransactionDao().findQuantityBySecurityAndDate(security.getId(), date);
+                Long actualyQuantity = getTransactionDao().findQuantityBySecurityAndDate(security.getId(), statementDate);
 
                 if (actualyQuantity == null) {
                     logger.error("position(s) on security: " + security + " does not exist");
@@ -86,7 +86,7 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
                     logger.info("position(s) on security: " + security + " ok");
                 }
             } else {
-                logger.error("security does not exist, product: " + product + " expiration: " + expiration + " strike: " + strike + " tradeType: " + tradeType);
+                logger.error("security does not exist, product: " + securityCode + " expiration: " + exerciseDate + " strike: " + strikePrice + " tradeType: " + tradeType);
             }
         }
     }
@@ -115,13 +115,13 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
         for (Map<String, ? super Object> trade : trades) {
 
             // parse parameters
-            final Date date = (Date) trade.get("Trade Date");
-            String product = (String) trade.get("Security Code");
-            String tradeType = (String) trade.get("Future/Option Indicator");
-            BigDecimal strike = (BigDecimal) trade.get("Strike Price");
+            final Date tradeDate = (Date) trade.get("Trade Date");
+            String securityCode = (String) trade.get("Security Code");
+            String tradeType = (String) trade.get("Trade Type");
+            BigDecimal strikePrice = (BigDecimal) trade.get("Strike Price");
             Date exerciseDate = (Date) trade.get("Exercise Date");
             Long absQuantity = (Long) trade.get("Quantity");
-            final BigDecimal price = (BigDecimal) trade.get("Trade Price");
+            final BigDecimal tradePrice = (BigDecimal) trade.get("Trade Price");
             BigDecimal commission = ((BigDecimal) trade.get("Commission")).abs();
             TransactionType transactionType = TransactionType.fromValue((String) trade.get("Buy/Sell Indicator"));
 
@@ -129,9 +129,9 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
             final long quantity = TransactionType.BUY.equals(transactionType) ? absQuantity : -absQuantity; // signed quantity
 
             // find the securities by ricRoot, expiration, strike and type
-            SecurityFamily family = getSecurityFamilyDao().findByRicRoot(product);
+            SecurityFamily family = getSecurityFamilyDao().findByRicRoot(securityCode);
             if (family == null) {
-                logger.error("unknown securityFamily for ric root " + product);
+                logger.error("unknown securityFamily for ric root " + securityCode);
                 continue;
             }
 
@@ -139,7 +139,7 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
             if ("F".equals(tradeType)) {
                 security = getFutureDao().findByExpiration(family.getId(), expiration);
             } else if ("C".equals(tradeType) || "P".equals(tradeType)) {
-                security = getStockOptionDao().findByExpirationStrikeAndType(family.getId(), expiration, strike, OptionType.fromValue(tradeType));
+                security = getStockOptionDao().findByExpirationStrikeAndType(family.getId(), expiration, strikePrice, OptionType.fromValue(tradeType));
             } else {
                 throw new IllegalArgumentException("unkown tradeType: " + tradeType);
             }
@@ -150,13 +150,13 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
                 public boolean evaluate(Transaction transaction) {
                     if (transaction.getSecurity().equals(security) &&
                         transaction.getQuantity() == quantity &&
-                        transaction.getPrice().doubleValue() == price.doubleValue()) {
+ transaction.getPrice().doubleValue() == tradePrice.doubleValue()) {
 
                         // check expiration (month for Futures / day for Options)
                         if (security instanceof Future) {
-                            return DateUtils.truncatedEquals(transaction.getDateTime(), date, Calendar.MONTH);
+                            return DateUtils.truncatedEquals(transaction.getDateTime(), tradeDate, Calendar.MONTH);
                         } else if (security instanceof StockOption) {
-                            return DateUtils.truncatedEquals(transaction.getDateTime(), date, Calendar.DAY_OF_YEAR);
+                            return DateUtils.truncatedEquals(transaction.getDateTime(), tradeDate, Calendar.DAY_OF_YEAR);
                         } else {
                             throw new UnsupportedOperationException("unsupported security type " + security);
                         }
@@ -178,7 +178,7 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
                 logger.info("transaction: " + transaction.getExtId() + " set clearing commission to: " + commission);
 
             } else {
-                logger.error("transaction from " + date + " " + transactionType + " " + quantity + " " + security + " price: " + price + " does not exist");
+                logger.error("transaction from " + tradeDate + " " + transactionType + " " + quantity + " " + security + " price: " + tradePrice + " does not exist");
             }
         }
 
