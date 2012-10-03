@@ -7,6 +7,7 @@
  */
 
 @Name('TICK_WINDOW')
+@RunTimeOnly()
 create window
     TickWindow.std:groupwin(security.id).std:lastevent()
 as select

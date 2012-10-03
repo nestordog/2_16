@@ -102,6 +102,7 @@ from
         (not fill.ord.parentOrder.algoOrder and ord.number = fill.ord.number))];
 
 @Name('PROPAGATE_ORDER_STATUS')
+@RunTimeOnly()
 @Subscriber(className='com.algoTrader.service.OrderService.propagateOrderStatus')
 select
     *
@@ -110,6 +111,7 @@ from
 
 @Name('PROPAGATE_FILL')
 @Priority(1)
+@RunTimeOnly()
 @Subscriber(className='com.algoTrader.service.TransactionService.propagateFill')
 select
     *
@@ -117,6 +119,7 @@ from
     Fill;
 
 @Name('CREATE_TRANSACTION')
+@RunTimeOnly()
 @Subscriber(className='com.algoTrader.service.TransactionService.createTransaction')
 select
     *

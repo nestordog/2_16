@@ -337,7 +337,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
     @Override
     protected Collection<BalanceVO> handleGetBalances() throws Exception {
 
-        Collection<Currency> currencies = ServiceLocator.instance().getLookupService().getHeldCurrencies();
+        Collection<Currency> currencies = getCashBalanceDao().findHeldCurrencies();
         DoubleMap<Currency> cashMap = new DoubleMap<Currency>();
         DoubleMap<Currency> securitiesMap = new DoubleMap<Currency>();
 

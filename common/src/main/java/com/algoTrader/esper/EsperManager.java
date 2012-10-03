@@ -63,7 +63,6 @@ import com.espertech.esper.client.ConfigurationVariable;
 import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPOnDemandQueryResult;
 import com.espertech.esper.client.EPPreparedStatement;
-import com.espertech.esper.client.EPPreparedStatementImpl;
 import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
@@ -72,20 +71,23 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.SafeIterator;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
+import com.espertech.esper.client.annotation.Name;
 import com.espertech.esper.client.deploy.DeploymentInformation;
-import com.espertech.esper.client.deploy.DeploymentOptions;
-import com.espertech.esper.client.deploy.DeploymentResult;
 import com.espertech.esper.client.deploy.EPDeploymentAdmin;
 import com.espertech.esper.client.deploy.Module;
 import com.espertech.esper.client.deploy.ModuleItem;
 import com.espertech.esper.client.deploy.ParseException;
-import com.espertech.esper.client.soda.AnnotationAttribute;
 import com.espertech.esper.client.soda.AnnotationPart;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.TimerControlEvent;
 import com.espertech.esper.core.deploy.EPLModuleUtil;
 import com.espertech.esper.core.service.EPServiceProviderImpl;
+import com.espertech.esper.core.service.EPServiceProviderSPI;
+import com.espertech.esper.epl.annotation.AnnotationUtil;
+import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.spec.AnnotationDesc;
+import com.espertech.esper.epl.spec.StatementSpecMapper;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
@@ -152,102 +154,40 @@ public class EsperManager {
 
     public static void deployStatement(String strategyName, String moduleName, String statementName) {
 
-        internalDeployStatement(strategyName, moduleName, statementName, null, new Object[] {}, null);
+        deployStatement(strategyName, moduleName, statementName, null, new Object[] {}, null);
     }
 
     public static void deployStatement(String strategyName, String moduleName, String statementName, String alias, Object[] params) {
 
-        internalDeployStatement(strategyName, moduleName, statementName, alias, params, null);
+        deployStatement(strategyName, moduleName, statementName, alias, params, null);
     }
 
     public static void deployStatement(String strategyName, String moduleName, String statementName, String alias, Object[] params, Object callback) {
 
-        internalDeployStatement(strategyName, moduleName, statementName, alias, params, callback);
-    }
-
-    private static void internalDeployStatement(String strategyName, String moduleName, String statementName, String alias, Object[] params, Object callback) {
-
-        EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
+        EPServiceProvider serviceProvider = getServiceProvider(strategyName);
 
         // do nothing if the statement already exists
-        EPStatement oldStatement = administrator.getStatement(statementName);
+        EPStatement oldStatement = serviceProvider.getEPAdministrator().getStatement(statementName);
         if (oldStatement != null && oldStatement.isStarted()) {
             logger.warn(statementName + " is already deployed and started");
             return;
         }
 
-        // read the statement from the module
-        EPDeploymentAdmin deployAdmin = administrator.getDeploymentAdmin();
-
-        Module module;
-        try {
-            module = deployAdmin.read("module-" + moduleName + ".epl");
-        } catch (Exception e) {
-            throw new RuntimeException("module" + moduleName + " could not be read", e);
-        }
+        Module module = getModule(moduleName);
 
         // go through all statements in the module
         EPStatement newStatement = null;
-        items: for (ModuleItem item : module.getItems()) {
-            String exp = item.getExpression();
+        for (ModuleItem moduleItem : module.getItems()) {
 
-            // get the ObjectModel for the statement
-            EPStatementObjectModel model;
-            if (exp.contains("?")) {
-                EPPreparedStatementImpl prepared = ((EPPreparedStatementImpl) administrator.prepareEPL(exp));
-                model = prepared.getModel();
+            if (isEligibleStatement(serviceProvider, moduleItem, statementName)) {
+
+                newStatement = startStatement(moduleItem, serviceProvider, alias, params, callback);
+
+                // break iterating over the statements
+                break;
+
             } else {
-                model = administrator.compileEPL(exp);
-            }
-
-            // go through all annotations and check if the statement has the 'name' 'statementName'
-            List<AnnotationPart> annotationParts = model.getAnnotations();
-            for (AnnotationPart annotationPart : annotationParts) {
-                if (annotationPart.getName().equals("Name")) {
-                    for (AnnotationAttribute attribute : annotationPart.getAttributes()) {
-                        if (attribute.getValue().equals(statementName)) {
-
-                            // create the statement and set the prepared statement params if a prepared statement
-                            if (exp.contains("?")) {
-                                EPPreparedStatement prepared = administrator.prepareEPL(exp);
-                                for (int i = 0; i < params.length; i++) {
-                                    prepared.setObject(i + 1, params[i]);
-                                }
-                                if (alias != null) {
-                                    newStatement = administrator.create(prepared, alias);
-                                } else {
-                                    newStatement = administrator.create(prepared);
-                                }
-                            } else {
-                                if (alias != null) {
-                                    newStatement = administrator.createEPL(exp, alias);
-                                } else {
-                                    newStatement = administrator.createEPL(exp);
-                                }
-                            }
-
-                            // process annotations
-                            processAnnotations(newStatement);
-
-                            // attach the callback if supplied
-                            // will override the Subscriber defined in Annotations
-                            // in simulation stop the statement before attaching (and restart afterwards)
-                            // to make sure that the subscriber receives the first event
-                            if (callback != null) {
-                                if (simulation) {
-                                    newStatement.setSubscriber(callback);
-                                } else {
-                                    newStatement.stop();
-                                    newStatement.setSubscriber(callback);
-                                    newStatement.start();
-                                }
-                            }
-
-                            // break iterating over the statements
-                            break items;
-                        }
-                    }
-                }
+                continue;
             }
         }
 
@@ -256,70 +196,6 @@ public class EsperManager {
         } else {
             logger.debug("deployed statement " + newStatement.getName() + " on service provider: " + strategyName);
         }
-    }
-
-    public static void deployModule(String strategyName, String moduleName) {
-
-        EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
-        EPDeploymentAdmin deployAdmin = administrator.getDeploymentAdmin();
-
-        DeploymentResult deployResult;
-        try {
-            String fileName = "module-" + moduleName + ".epl";
-            String moduleString = processLoads(fileName);
-            Module module = EPLModuleUtil.parseInternal(moduleString, fileName);
-            deployResult = deployAdmin.deploy(module, new DeploymentOptions());
-        } catch (Exception e) {
-            throw new RuntimeException("module " + moduleName + " could not be deployed", e);
-        }
-
-        for (EPStatement statement : deployResult.getStatements()) {
-
-            // check if the statement should be excluded
-            if (moduleDeployExcludeStatements.contains(statement.getName())) {
-                statement.destroy();
-                continue;
-            }
-
-            // check if the statement is elgible, other destory it righ away
-            processAnnotations(statement);
-        }
-
-        logger.debug("deployed module " + moduleName + " on service provider: " + strategyName);
-    }
-
-    /**
-     * replaces all "load" clauses
-     */
-    private static String processLoads(String fileName) throws IOException, ParseException {
-
-        InputStream stream = EsperManager.class.getResourceAsStream("/" + fileName);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        StringWriter buffer = new StringWriter();
-        String strLine;
-        while ((strLine = reader.readLine()) != null) {
-            if (!strLine.startsWith("load")) {
-                buffer.append(strLine);
-                buffer.append(newline);
-            } else {
-                String argument = StringUtils.substringAfter(strLine, "load").trim();
-                String moduleName = argument.split("\\.")[0];
-                String statementName = argument.split("\\.")[1].split(";")[0];
-                Module module = EPLModuleUtil.readResource("module-" + moduleName + ".epl");
-                for (ModuleItem item : module.getItems()) {
-                    if (item.getExpression().contains("@Name('" + statementName + "')")) {
-                        buffer.append(item.getExpression());
-                        buffer.append(";");
-                        buffer.append(newline);
-                        break;
-                    }
-                }
-            }
-        }
-        reader.close();
-        stream.close();
-
-        return buffer.toString();
     }
 
     public static void deployAllModules(String strategyName) {
@@ -351,6 +227,26 @@ public class EsperManager {
                 }
             }
         }
+    }
+
+    public static void deployModule(String strategyName, String moduleName) {
+
+        EPServiceProvider serviceProvider = getServiceProvider(strategyName);
+
+        Module module = getModule(moduleName);
+
+        for (ModuleItem moduleItem : module.getItems()) {
+
+            if (isEligibleStatement(serviceProvider, moduleItem, null)) {
+
+                startStatement(moduleItem, serviceProvider, null, new Object[] {}, null);
+
+            } else {
+                continue;
+            }
+        }
+
+        logger.debug("deployed module " + moduleName + " on service provider: " + strategyName);
     }
 
     /**
@@ -847,8 +743,120 @@ public class EsperManager {
         }
     }
 
-    private static void processAnnotations(EPStatement statement) {
+    /**
+     * load the module and process load clauses
+     */
+    private static Module getModule(String moduleName) {
 
+        try {
+            String fileName = "module-" + moduleName + ".epl";
+            String moduleString = processLoads(fileName);
+            return EPLModuleUtil.parseInternal(moduleString, fileName);
+        } catch (Exception e) {
+            throw new RuntimeException("module " + moduleName + " could not be deployed", e);
+        }
+    }
+
+    /**
+     * replaces all load clauses
+     */
+    private static String processLoads(String fileName) throws IOException, ParseException {
+
+        InputStream stream = EsperManager.class.getResourceAsStream("/" + fileName);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        StringWriter buffer = new StringWriter();
+        String strLine;
+        while ((strLine = reader.readLine()) != null) {
+            if (!strLine.startsWith("load")) {
+                buffer.append(strLine);
+                buffer.append(newline);
+            } else {
+                String argument = StringUtils.substringAfter(strLine, "load").trim();
+                String moduleName = argument.split("\\.")[0];
+                String statementName = argument.split("\\.")[1].split(";")[0];
+                Module module = EPLModuleUtil.readResource("module-" + moduleName + ".epl");
+                for (ModuleItem item : module.getItems()) {
+                    if (item.getExpression().contains("@Name('" + statementName + "')")) {
+                        buffer.append(item.getExpression());
+                        buffer.append(";");
+                        buffer.append(newline);
+                        break;
+                    }
+                }
+            }
+        }
+        reader.close();
+        stream.close();
+
+        return buffer.toString();
+    }
+
+    private static boolean isEligibleStatement(EPServiceProvider serviceProvider, ModuleItem item, String statementName) {
+
+        String expression = item.getExpression().replace("?", "1"); // replace ? to prevent error during compile
+        EPStatementObjectModel objectModel = serviceProvider.getEPAdministrator().compileEPL(expression);
+        List<AnnotationPart> annotationParts = objectModel.getAnnotations();
+        List<AnnotationDesc> annotationDescs = StatementSpecMapper.mapAnnotations(annotationParts);
+
+        EngineImportService engineImportService = ((EPServiceProviderSPI) serviceProvider).getEngineImportService();
+        Annotation[] annotations = AnnotationUtil.compileAnnotations(annotationDescs, engineImportService, item.getExpression());
+
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof Name) {
+
+                Name name = (Name) annotation;
+                if (statementName != null && !statementName.equals(name.value())) {
+                    return false;
+                } else if (moduleDeployExcludeStatements.contains(name.value())) {
+                    return false;
+                }
+
+            } else if (annotation instanceof RunTimeOnly && simulation) {
+
+                return false;
+
+            } else if (annotation instanceof SimulationOnly && !simulation) {
+
+                return false;
+
+            } else if (annotation instanceof Condition) {
+
+                Condition condition = (Condition) annotation;
+                String key = condition.key();
+                if (!ServiceLocator.instance().getConfiguration().getBoolean(key)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private static EPStatement startStatement(ModuleItem moduleItem, EPServiceProvider serviceProvider, String alias, Object[] params, Object callback) {
+
+        // create the statement and set the prepared statement params if a prepared statement
+        EPStatement statement;
+        String expression = moduleItem.getExpression();
+        EPAdministrator administrator = serviceProvider.getEPAdministrator();
+        if (expression.contains("?")) {
+            EPPreparedStatement prepared = administrator.prepareEPL(expression);
+            for (int i = 0; i < params.length; i++) {
+                prepared.setObject(i + 1, params[i]);
+            }
+            if (alias != null) {
+                statement = administrator.create(prepared, alias);
+            } else {
+                statement = administrator.create(prepared);
+            }
+        } else {
+            if (alias != null) {
+                statement = administrator.createEPL(expression, alias);
+            } else {
+                statement = administrator.createEPL(expression);
+            }
+        }
+
+        // process annotations
         Annotation[] annotations = statement.getAnnotations();
         for (Annotation annotation : annotations) {
             if (annotation instanceof Subscriber) {
@@ -863,7 +871,7 @@ public class EsperManager {
 
             } else if (annotation instanceof Listeners) {
 
-                Listeners listeners = (Listeners)annotation;
+                Listeners listeners = (Listeners) annotation;
                 for (String className : listeners.classNames()) {
                     try {
                         Class<?> cl = Class.forName(className);
@@ -877,26 +885,23 @@ public class EsperManager {
                         throw new RuntimeException("listener " + className + " could not be created for statement " + statement.getName(), e);
                     }
                 }
-            } else if (annotation instanceof RunTimeOnly && simulation) {
-
-                statement.destroy();
-                return;
-
-            } else if (annotation instanceof SimulationOnly && !simulation) {
-
-                statement.destroy();
-                return;
-
-            } else if (annotation instanceof Condition) {
-
-                Condition condition = (Condition) annotation;
-                String key = condition.key();
-                if (!ServiceLocator.instance().getConfiguration().getBoolean(key)) {
-                    statement.destroy();
-                    return;
-                }
             }
         }
+
+        // attach the callback if supplied
+        // will override the Subscriber defined in Annotations
+        // in live trading stop the statement before attaching (and restart afterwards)
+        // to make sure that the subscriber receives the first event
+        if (callback != null) {
+            if (simulation) {
+                statement.setSubscriber(callback);
+            } else {
+                statement.stop();
+                statement.setSubscriber(callback);
+                statement.start();
+            }
+        }
+        return statement;
     }
 
     private static Object getSubscriber(String fqdn) throws ClassNotFoundException {
