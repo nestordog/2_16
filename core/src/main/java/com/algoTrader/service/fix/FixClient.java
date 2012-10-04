@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.opentradingsolutions.log4fix.Log4FIX;
 import org.quickfixj.jmx.JmxExporter;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -48,7 +47,7 @@ public class FixClient implements InitializingBean {
         //    LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings), new FileLogFactory(settings), log4Fix.getLogFactory() });
         //    log4Fix.show();
 
-        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings), new FileLogFactory(settings) });
+        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(this.settings), new FileLogFactory(this.settings) });
 
         MessageFactory messageFactory = new DefaultMessageFactory();
 
