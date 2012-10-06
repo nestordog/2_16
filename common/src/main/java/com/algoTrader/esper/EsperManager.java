@@ -27,6 +27,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
 
@@ -76,7 +78,6 @@ import com.espertech.esper.client.deploy.DeploymentInformation;
 import com.espertech.esper.client.deploy.EPDeploymentAdmin;
 import com.espertech.esper.client.deploy.Module;
 import com.espertech.esper.client.deploy.ModuleItem;
-import com.espertech.esper.client.deploy.ParseException;
 import com.espertech.esper.client.soda.AnnotationPart;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.time.CurrentTimeEvent;
@@ -119,7 +120,16 @@ public class EsperManager {
         String providerURI = getProviderURI(strategyName);
 
         Configuration configuration = new Configuration();
-        configuration.configure("esper-" + providerURI.toLowerCase() + ".cfg.xml");
+
+        try {
+            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+            Resource[] resources = resolver.getResources("classpath*:/META-INF/esper-**.cfg.xml");
+            for (Resource resource : resources) {
+                configuration.configure(resource.getFile());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("problem loading esper config", e);
+        }
 
         initVariables(configuration);
 
@@ -748,47 +758,44 @@ public class EsperManager {
      */
     private static Module getModule(String moduleName) {
 
-        try {
-            String fileName = "module-" + moduleName + ".epl";
-            String moduleString = processLoads(fileName);
-            return EPLModuleUtil.parseInternal(moduleString, fileName);
-        } catch (Exception e) {
-            throw new RuntimeException("module " + moduleName + " could not be deployed", e);
-        }
-    }
-
-    /**
-     * replaces all load clauses
-     */
-    private static String processLoads(String fileName) throws IOException, ParseException {
-
+        String fileName = "module-" + moduleName + ".epl";
         InputStream stream = EsperManager.class.getResourceAsStream("/" + fileName);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        StringWriter buffer = new StringWriter();
-        String strLine;
-        while ((strLine = reader.readLine()) != null) {
-            if (!strLine.startsWith("load")) {
-                buffer.append(strLine);
-                buffer.append(newline);
-            } else {
-                String argument = StringUtils.substringAfter(strLine, "load").trim();
-                String moduleName = argument.split("\\.")[0];
-                String statementName = argument.split("\\.")[1].split(";")[0];
-                Module module = EPLModuleUtil.readResource("module-" + moduleName + ".epl");
-                for (ModuleItem item : module.getItems()) {
-                    if (item.getExpression().contains("@Name('" + statementName + "')")) {
-                        buffer.append(item.getExpression());
-                        buffer.append(";");
-                        buffer.append(newline);
-                        break;
+        if (stream == null) {
+            throw new IllegalArgumentException(fileName + " does not exist");
+        }
+
+        // process loads
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            StringWriter buffer = new StringWriter();
+            String strLine;
+            while ((strLine = reader.readLine()) != null) {
+                if (!strLine.startsWith("load")) {
+                    buffer.append(strLine);
+                    buffer.append(newline);
+                } else {
+                    String argument = StringUtils.substringAfter(strLine, "load").trim();
+                    String moduleBaseName = argument.split("\\.")[0];
+                    String statementName = argument.split("\\.")[1].split(";")[0];
+                    Module module = EPLModuleUtil.readResource("module-" + moduleBaseName + ".epl");
+                    for (ModuleItem item : module.getItems()) {
+                        if (item.getExpression().contains("@Name('" + statementName + "')")) {
+                            buffer.append(item.getExpression());
+                            buffer.append(";");
+                            buffer.append(newline);
+                            break;
+                        }
                     }
                 }
             }
-        }
-        reader.close();
-        stream.close();
+            reader.close();
+            stream.close();
 
-        return buffer.toString();
+            return EPLModuleUtil.parseInternal(buffer.toString(), fileName);
+
+        } catch (Exception e) {
+            throw new RuntimeException(moduleName + " could not be deployed", e);
+        }
     }
 
     private static boolean isEligibleStatement(EPServiceProvider serviceProvider, ModuleItem item, String statementName) {

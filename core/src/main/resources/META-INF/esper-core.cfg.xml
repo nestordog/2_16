@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<esper-configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://www.espertech.com/schema/esper"
+    xsi:schemaLocation="http://www.espertech.com/schema/esper http://www.espertech.com/schema/esper/esper-configuration-4-0.xsd">
+
+    <!-- Raw Events -->
+    <event-type name="RawTick" class="com.algoTrader.vo.RawTickVO"/>
+    <event-type name="RawBar" class="com.algoTrader.vo.RawBarVO"/>
+
+    <!-- Tick Window -->
+    <event-type name="SubscribeTickEvent" class="com.algoTrader.vo.SubscribeTickVO"/>
+    <event-type name="UnsubscribeTickEvent" class="com.algoTrader.vo.UnsubscribeTickVO"/>
+
+    <!-- Combinations / Components -->
+    <event-type name="InsertComponentEvent" class="com.algoTrader.vo.InsertComponentEventVO"/>
+    <event-type name="RemoveComponentEvent" class="com.algoTrader.vo.RemoveComponentEventVO"/>
+
+    <!-- Performance -->
+    <event-type name="MonthlyPerformance" class="com.algoTrader.vo.PeriodPerformanceVO"/>
+    <event-type name="PerformanceKeys" class="com.algoTrader.vo.PerformanceKeysVO"/>
+    <event-type name="MaxDrawDown" class="com.algoTrader.vo.MaxDrawDownVO"/>
+    <event-type name="TradePerformance" class="com.algoTrader.vo.TradePerformanceVO"/>
+    <event-type name="AllTrades" class="com.algoTrader.vo.TradesVO"/>
+    <event-type name="WinningTrades" class="com.algoTrader.vo.TradesVO"/>
+    <event-type name="LoosingTrades" class="com.algoTrader.vo.TradesVO"/>
+    <event-type name="EndOfSimulation" class="com.algoTrader.vo.EndOfSimulationVO"/>
+
+    <auto-import import-name="com.algoTrader.entity.trade.AlgoOrder"/>
+
+    <!-- Variables -->
+    <variable name="misc_marketIntrest" type="double"/>
+    <variable name="misc_defaultRetrievalSeconds" type="double"/>
+
+    <variable name="engineStrategy" type="com.algoTrader.entity.Strategy"/>
+    <variable name="internal_clock" type="boolean" initialization-value="false"/>
+
+</esper-configuration>

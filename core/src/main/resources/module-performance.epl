@@ -101,7 +101,7 @@ from
     DrawDown as drawDown;
 
 @Name('METRICS')
-@Condition(key='statement.metrics')
+@Condition(key='misc.metricsEnabled')
 insert into
     StatementMetric
 select

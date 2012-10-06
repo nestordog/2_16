@@ -783,6 +783,7 @@ public class JConsole extends JFrame implements ActionListener, InternalFrameLis
                 jConsole.setBounds(scrBounds.x + (scrBounds.width - w) / 2, scrBounds.y + (scrBounds.height - h) / 2, w, h);
 
                 jConsole.setVisible(true);
+                jConsole.setExtendedState(JFrame.MAXIMIZED_BOTH);
                 jConsole.createMDI();
 
                 for (int i = 0; i < hostNames.size(); i++) {

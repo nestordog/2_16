@@ -16,6 +16,7 @@ import com.algoTrader.enumeration.Direction;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
+import com.algoTrader.util.metric.MetricsUtil;
 import com.espertech.esper.event.WrapperEventBean;
 import com.espertech.esper.event.bean.BeanEventBean;
 
@@ -184,12 +185,29 @@ public abstract class SecurityImpl extends Security {
     @Override
     public void initialize() {
 
-        // initialize collections
+        // initialize positions
+        long beforePositions = System.nanoTime();
         getPositionsInitialized();
-        getSubscriptionsInitialized();
+        long afterPositions = System.nanoTime();
 
-        // get proxy implementations
+        // initialize subscriptions
+        long beforeSubscriptions = System.nanoTime();
+        getSubscriptionsInitialized();
+        long afterSubscriptions = System.nanoTime();
+
+        // initialize underlying
+        long beforeUnderlying = System.nanoTime();
         setUnderlying(getUnderlyingInitialized());
+        long afterUnderlying = System.nanoTime();
+
+        // initialize securityFamily
+        long beforeSecurityFamily = System.nanoTime();
         setSecurityFamily(getSecurityFamilyInitialized());
+        long afterSecurityFamily = System.nanoTime();
+
+        MetricsUtil.account("Security.positions", (afterPositions - beforePositions));
+        MetricsUtil.account("Security.subscriptions", (afterSubscriptions - beforeSubscriptions));
+        MetricsUtil.account("Security.underlying", (afterUnderlying - beforeUnderlying));
+        MetricsUtil.account("Security.securityFamily", (afterSecurityFamily - beforeSecurityFamily));
     }
 }
