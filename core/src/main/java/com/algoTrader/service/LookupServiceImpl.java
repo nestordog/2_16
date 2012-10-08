@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import javax.jms.IllegalStateException;
+
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.Position;
@@ -26,6 +28,7 @@ import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.entity.strategy.CashBalance;
+import com.algoTrader.entity.strategy.DefaultOrderPreference;
 import com.algoTrader.entity.strategy.Measurement;
 import com.algoTrader.entity.strategy.OrderPreference;
 import com.algoTrader.entity.trade.Order;
@@ -541,7 +544,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected OrderPreference handleGetOrderPreferenceByStrategyAndSecurityFamily(String strategyName, int securityFamilyId) throws Exception {
 
-        return getDefaultOrderPreferenceDao().findByStrategyAndSecurityFamily(strategyName, securityFamilyId).getOrderPreferenceInitialized();
+        DefaultOrderPreference orderPreference = getDefaultOrderPreferenceDao().findByStrategyAndSecurityFamily(strategyName, securityFamilyId);
+        if (orderPreference != null) {
+            return orderPreference.getOrderPreferenceInitialized();
+        } else {
+            throw new IllegalStateException("no default order preference defined for securityFamilyId " + securityFamilyId + " and " + strategyName);
+        }
     }
 
     @Override
