@@ -5,9 +5,7 @@ cd $ALGOTRADER_HOME
 java \
 -cp `cat bin/cp.txt` \
 -DstrategyName=BASE \
--Dib.accountServiceEnabled=false \
--Dib.historicalDataServiceEnabled=false \
--Dib.securityRetrieverServiceEnabled=true \
+-Dspring.profiles.active=securityRetrieval \
 com.algoTrader.starter.SecurityRetrievalStarter \
 22 26 44
 
