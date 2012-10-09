@@ -12,11 +12,11 @@ start javaw.exe ^
 sun.tools.jconsole.JConsole ^
 -interval=60 ^
 -debug ^
-base.vola.linardcapital.com:1099 ^
-macro.vola.linardcapital.com:1097 ^
-tailhedge.vola.linardcapital.com:1095 ^
-static.vola.linardcapital.com:1093 ^
-fixed.vola.linardcapital.com:1091 ^
-atr.vola.linardcapital.com:1089 ^
-rollyield.vola.linardcapital.com:1087 ^
-countertrend.vola.linardcapital.com:1085
+base.test.linardcapital.com:1099 ^
+macro.test.linardcapital.com:1097 ^
+tailhedge.test.linardcapital.com:1095 ^
+static.test.linardcapital.com:1093 ^
+fixed.test.linardcapital.com:1091 ^
+atr.test.linardcapital.com:1089 ^
+rollyield.test.linardcapital.com:1087 ^
+countertrend.test.linardcapital.com:1085

@@ -21,7 +21,7 @@
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="sun.tools.jconsole.JConsole"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-interval=60 -debug &#13;&#10;base.vola.linardcapital.com:1099 &#13;&#10;macro.vola.linardcapital.com:1097&#13;&#10;tailhedge.vola.linardcapital.com:1095&#13;&#10;static.vola.linardcapital.com:1093&#13;&#10;fixed.vola.linardcapital.com:1091&#13;&#10;atr.vola.linardcapital.com:1089&#13;&#10;rollyield.vola.linardcapital.com:1087&#13;&#10;countertrend.vola.linardcapital.com:1085"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-interval=60 -debug &#13;&#10;base.test.linardcapital.com:1099 &#13;&#10;macro.test.linardcapital.com:1097&#13;&#10;tailhedge.test.linardcapital.com:1095&#13;&#10;static.test.linardcapital.com:1093&#13;&#10;fixed.test.linardcapital.com:1091&#13;&#10;atr.test.linardcapital.com:1089&#13;&#10;rollyield.test.linardcapital.com:1087&#13;&#10;countertrend.test.linardcapital.com:1085"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="algotrader-client"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djavax.net.ssl.keyStore=${env_var:ALGOTRADER_CLIENT_HOME}/bin/keystore&#13;&#10;-Djavax.net.ssl.keyStorePassword=Zermatt11&#13;&#10;-Djavax.net.ssl.trustStore=${env_var:ALGOTRADER_CLIENT_HOME}/bin/truststore&#13;&#10;-Djavax.net.ssl.trustStorePassword=Zermatt11"/>

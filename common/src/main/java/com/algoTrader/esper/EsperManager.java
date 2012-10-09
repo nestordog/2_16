@@ -125,7 +125,7 @@ public class EsperManager {
             PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
             Resource[] resources = resolver.getResources("classpath*:/META-INF/esper-**.cfg.xml");
             for (Resource resource : resources) {
-                configuration.configure(resource.getFile());
+                configuration.configure(resource.getURL());
             }
         } catch (IOException e) {
             throw new RuntimeException("problem loading esper config", e);
