@@ -13,5 +13,5 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-    <name>AlgoTrader Production</name>
+    <name>AlgoTrader Core Production</name>
 </project>
