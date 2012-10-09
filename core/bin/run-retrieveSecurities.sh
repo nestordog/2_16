@@ -9,5 +9,5 @@ java \
 -Dib.historicalDataServiceEnabled=false \
 -Dib.securityRetrieverServiceEnabled=true \
 com.algoTrader.starter.SecurityRetrievalStarter \
-22 26
+22 26 44
 
