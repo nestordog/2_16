@@ -55,11 +55,6 @@ public class Configuration {
         return this.initialBalance;
     }
 
-    private @Value("${simulation.eventsPerDay}") int eventsPerDay;
-    public int getEventsPerDay() {
-        return this.eventsPerDay;
-    }
-
     private @Value("${simulation.logTransactions}") boolean logTransactions;
     public boolean getLogTransactions() {
         return this.logTransactions;

@@ -22,7 +22,5 @@ nohup java \
 -XX:MaxHeapFreeRatio=10 \
 -XX:MinHeapFreeRatio=5 \
 -XX:-UseParallelGC \
--Dstatement.reconcile=true \
--Dstatement.setMargins=false \
 com.algoTrader.starter.MarketDataStarter \
 > log/nohup.log 2>&1 &
