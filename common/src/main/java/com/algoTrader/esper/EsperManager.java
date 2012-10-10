@@ -125,7 +125,19 @@ public class EsperManager {
             PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
             Resource[] resources = resolver.getResources("classpath*:/META-INF/esper-**.cfg.xml");
             for (Resource resource : resources) {
-                configuration.configure(resource.getURL());
+                if (StrategyImpl.BASE.equals(strategyName)) {
+
+                    // for Base only load esper-common.cfg.xml and esper-core.cfg.xml
+                    if (resource.toString().contains("esper-common.cfg.xml") || resource.toString().contains("esper-core.cfg.xml")) {
+                        configuration.configure(resource.getURL());
+                    }
+                } else {
+
+                    // for Strategies to not load esper-core.cfg.xml
+                    if (!resource.toString().contains("esper-core.cfg.xml")) {
+                        configuration.configure(resource.getURL());
+                    }
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException("problem loading esper config", e);
