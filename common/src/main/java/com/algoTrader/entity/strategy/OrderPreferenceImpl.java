@@ -1,8 +1,7 @@
 package com.algoTrader.entity.strategy;
 
-import org.apache.commons.beanutils.BeanUtils;
-
 import com.algoTrader.entity.trade.Order;
+import com.algoTrader.util.BeanUtils;
 
 public class OrderPreferenceImpl extends OrderPreference {
 

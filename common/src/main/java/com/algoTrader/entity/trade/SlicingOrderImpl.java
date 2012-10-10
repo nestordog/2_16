@@ -126,6 +126,7 @@ public class SlicingOrderImpl extends SlicingOrder {
         order.setSide(this.getSide());
         order.setQuantity(quantity);
         order.setLimit(limit);
+        order.setMarketChannel(this.getMarketChannel());
 
         // associate the childOrder with the parentOrder(this)
         order.setParentOrder(this);

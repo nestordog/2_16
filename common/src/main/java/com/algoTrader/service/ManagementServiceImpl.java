@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 
@@ -33,6 +32,7 @@ import com.algoTrader.entity.trade.VariableIncrementalOrder;
 import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.esper.EsperManager;
+import com.algoTrader.util.BeanUtils;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
 import com.algoTrader.vo.OrderStatusVO;

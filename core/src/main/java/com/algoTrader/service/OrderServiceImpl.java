@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -23,6 +22,7 @@ import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.EsperManager;
+import com.algoTrader.util.BeanUtils;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
@@ -298,14 +298,16 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
      */
     private ExternalOrderService getExternalOrderService(Order order) {
 
-        if (order.getMarketChannel() != null) {
-            return this.externalOrderServices.get(order.getMarketChannel());
-        } else {
+        // add the marketChannel if none was defined
+        if (order.getMarketChannel() == null) {
+            order.setMarketChannel(this.defaultMarketChannel);
+        }
 
-            // add the marketChannel if none was defined
-            ExternalOrderService externalOrderService = this.externalOrderServices.get(this.defaultMarketChannel);
-            order.setMarketChannel(externalOrderService.getMarketChannel());
+        ExternalOrderService externalOrderService = this.externalOrderServices.get(order.getMarketChannel());
+        if (externalOrderService != null) {
             return externalOrderService;
+        } else {
+            throw new IllegalStateException("externalOrderService does not exist " + order.getMarketChannel());
         }
     }
 }
