@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.Strategy;
+import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.strategy.PortfolioValue;
@@ -22,28 +23,34 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
     private static Logger logger = MyLogger.getLogger(AccountServiceImpl.class.getName());
 
     private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
-    private @Value("${misc.rebalanceThreshold}") double rebalanceThreshold;
+    private @Value("${misc.rebalanceMinAmount}") double rebalanceMinAmount;
 
     @Override
     protected void handleRebalancePortfolio() throws Exception {
 
+        Strategy base = getStrategyDao().findByName(StrategyImpl.BASE);
+        Collection<Strategy> strategies = getStrategyDao().loadAll();
         double portfolioNetLiqValue = getPortfolioService().getNetLiqValueDouble();
+
         double totalAllocation = 0.0;
         double totalRebalanceAmount = 0.0;
-        double maxRebalanceAmount = 0.0;
-        Collection<Strategy> strategies = getStrategyDao().loadAll();
         Collection<Transaction> transactions = new ArrayList<Transaction>();
         for (Strategy strategy : strategies) {
+
+            totalAllocation += strategy.getAllocation();
+
+            if (StrategyImpl.BASE.equals(strategy.getName())) {
+                continue;
+            }
 
             double actualNetLiqValue = MathUtils.round(getPortfolioService().getNetLiqValueDouble(strategy.getName()), 2);
             double targetNetLiqValue = MathUtils.round(portfolioNetLiqValue * strategy.getAllocation(), 2);
             double rebalanceAmount = targetNetLiqValue - actualNetLiqValue;
 
-            totalAllocation += strategy.getAllocation();
-            totalRebalanceAmount += rebalanceAmount;
-            maxRebalanceAmount = Math.max(maxRebalanceAmount, rebalanceAmount);
+            if (Math.abs(rebalanceAmount) >= this.rebalanceMinAmount) {
 
-            if (targetNetLiqValue != actualNetLiqValue) {
+                totalRebalanceAmount += rebalanceAmount;
+
                 Transaction transaction = new TransactionImpl();
                 transaction.setDateTime(DateUtil.getCurrentEPTime());
                 transaction.setQuantity(targetNetLiqValue > actualNetLiqValue ? +1 : -1);
@@ -56,25 +63,31 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
             }
         }
 
+        // check allocations add up to 1.0
         if (MathUtils.round(totalAllocation, 2) != 1.0) {
-            logger.warn("the total of all allocations is: " + totalAllocation + " where it should be 1.0");
-            return;
+            throw new IllegalStateException("the total of all allocations is: " + totalAllocation + " where it should be 1.0");
         }
 
-        if (MathUtils.round(totalRebalanceAmount, 0) != 0.0) {
-            logger.warn("the total of all rebalance transactions is: " + totalRebalanceAmount + " where it should be 0.0");
-            return;
-        }
+        // add BASE REBALANCE transaction to offset totalRebalanceAmount
+        if (transactions.size() != 0) {
 
-        if (maxRebalanceAmount / portfolioNetLiqValue < this.rebalanceThreshold) {
-            logger.info("no rebalancing is performed because maximum rebalancing amount " + RoundUtil.getBigDecimal(maxRebalanceAmount) + " is less than "
-                    + this.rebalanceThreshold + " of the entire portfolio of " + RoundUtil.getBigDecimal(portfolioNetLiqValue));
-            return;
+            Transaction transaction = new TransactionImpl();
+            transaction.setDateTime(DateUtil.getCurrentEPTime());
+            transaction.setQuantity((int) Math.signum(-1.0 * totalRebalanceAmount));
+            transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(totalRebalanceAmount)));
+            transaction.setCurrency(this.portfolioBaseCurrency);
+            transaction.setType(TransactionType.REBALANCE);
+            transaction.setStrategy(base);
+
+            transactions.add(transaction);
+
+        } else {
+
+            logger.info("no rebalancing is performed because all rebalancing amounts are below min amount " + this.rebalanceMinAmount);
         }
 
         for (Transaction transaction : transactions) {
 
-            // persist the transaction
             getTransactionService().persistTransaction(transaction);
         }
     }
