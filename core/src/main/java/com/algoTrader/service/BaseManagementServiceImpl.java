@@ -20,6 +20,28 @@ import com.algoTrader.util.RoundUtil;
 public class BaseManagementServiceImpl extends BaseManagementServiceBase {
 
     @Override
+    protected Collection<String> handleGetMarketChannels() throws Exception {
+
+        return CollectionUtils.collect(getOrderService().getMarketChannels(), new Transformer<MarketChannel, String>() {
+            @Override
+            public String transform(MarketChannel marketChannel) {
+                return marketChannel.toString();
+            }
+        });
+    }
+
+    @Override
+    protected String handleGetDefaultMarketChannel() throws Exception {
+        return getOrderService().getDefaultMarketChannel().toString();
+    }
+
+    @Override
+    protected void handleSetDefaultMarketChannel(String marketChannel) throws Exception {
+
+        getOrderService().setDefaultMarketChannel(MarketChannel.fromString(marketChannel));
+    }
+
+    @Override
     protected void handleClosePosition(int positionId, boolean unsubscribe) throws Exception {
 
         getPositionService().closePosition(positionId, unsubscribe);
@@ -136,24 +158,14 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     }
 
     @Override
-    protected Collection<String> handleGetMarketChannels() throws Exception {
+    protected void handleSetComponentQuantity(int combinationId, int securityId, long quantity) throws Exception {
 
-        return CollectionUtils.collect(getOrderService().getMarketChannels(), new Transformer<MarketChannel, String>() {
-            @Override
-            public String transform(MarketChannel marketChannel) {
-                return marketChannel.toString();
-            }
-        });
+        getCombinationService().setComponentQuantity(combinationId, securityId, quantity);
     }
 
     @Override
-    protected String handleGetDefaultMarketChannel() throws Exception {
-        return getOrderService().getDefaultMarketChannel().toString();
-    }
+    protected void handleRemoveComponent(int combinationId, final int securityId) {
 
-    @Override
-    protected void handleSetDefaultMarketChannel(String marketChannel) throws Exception {
-
-        getOrderService().setDefaultMarketChannel(MarketChannel.fromString(marketChannel));
+        getCombinationService().removeComponent(combinationId, securityId);
     }
 }
