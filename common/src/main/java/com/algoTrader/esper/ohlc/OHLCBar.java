@@ -10,33 +10,47 @@ public class OHLCBar {
     private Double high;
     private Double low;
 
-    public OHLCBar(long time, Double open, Double high, Double low, Double close) {
-
-        this.time = time;
-        this.open = open;
-        this.high = high;
-        this.low = low;
-        this.close = close;
+    public OHLCBar() {
     }
 
     public long getTime() {
         return this.time;
     }
 
+    void setTime(long time) {
+        this.time = time;
+    }
+
     public Double getOpen() {
         return this.open;
+    }
+
+    void setOpen(Double open) {
+        this.open = open;
     }
 
     public Double getClose() {
         return this.close;
     }
 
+    void setClose(Double close) {
+        this.close = close;
+    }
+
     public Double getHigh() {
         return this.high;
     }
 
+    void setHigh(Double high) {
+        this.high = high;
+    }
+
     public Double getLow() {
         return this.low;
+    }
+
+    void setLow(Double low) {
+        this.low = low;
     }
 
     public double getOpenP() {

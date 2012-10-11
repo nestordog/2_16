@@ -9,6 +9,9 @@
  **************************************************************************************/
 package com.algoTrader.esper.ohlc;
 
+import java.util.Collections;
+import java.util.Iterator;
+
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.ViewUpdatedCollection;
@@ -19,15 +22,11 @@ import com.espertech.esper.epl.expression.ExprEvaluator;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.schedule.ScheduleSlot;
 import com.espertech.esper.util.StopCallback;
-import com.espertech.esper.view.*;
-import com.espertech.esper.view.window.TimeBatchView;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
+import com.espertech.esper.view.CloneableView;
+import com.espertech.esper.view.DataWindowView;
+import com.espertech.esper.view.StoppableView;
+import com.espertech.esper.view.View;
+import com.espertech.esper.view.ViewSupport;
 
 /**
  * A data view that aggregates events in a stream to OHLC Bars and releases them at the end of every specified time interval.
@@ -60,8 +59,8 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
     // Current running parameters
     private Long currentReferencePoint;
     private long currentStartTime;
-    private LinkedList<EventBean> lastBatch = null;
-    private LinkedList<EventBean> currentBatch = new LinkedList<EventBean>();
+    private OHLCBar lastBar = null;
+    private OHLCBar currentBar = new OHLCBar();
     private boolean isCallbackScheduled;
 
     /**
@@ -164,7 +163,7 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
         }
 
         // If we have an empty window about to be filled for the first time, schedule a callback
-        if (currentBatch.isEmpty())
+        if (currentBar.getOpen() == null)
         {
             if (currentReferencePoint == null)
             {
@@ -185,8 +184,10 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
             this.currentStartTime = this.agentInstanceContext.getStatementContext().getSchedulingService().getTime();
         }
 
-        // add data points to the timeWindow
-        currentBatch.addAll(Arrays.asList(newData));
+        // update the ohlc with new events
+        for (EventBean bean : newData) {
+            updateOHLCBar(currentBar, bean);
+        }
 
         // We do not update child views, since we batch the events.
     }
@@ -203,41 +204,39 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
         if (this.hasViews())
         {
             // Convert to object arrays
-            EventBean[] newData = null;
-            EventBean[] oldData = null;
-            if (!currentBatch.isEmpty())
+            OHLCBar newData = null;
+            OHLCBar oldData = null;
+            if (currentBar.getOpen() != null)
             {
-                newData = currentBatch.toArray(new EventBean[currentBatch.size()]);
+                newData = currentBar;
             }
-            if ((lastBatch != null) && (!lastBatch.isEmpty()))
+            if ((lastBar != null) && (lastBar.getOpen() != null))
             {
-                oldData = lastBatch.toArray(new EventBean[lastBatch.size()]);
+                oldData = lastBar;
             }
 
             // Post new data (current batch) and old data (prior batch)
             if (viewUpdatedCollection != null)
             {
-                viewUpdatedCollection.update(newData, oldData);
+                throw new UnsupportedOperationException("viewUpdatedCollection.update not supported");
             }
             if ((newData != null) || (oldData != null) || (isForceOutput))
             {
-                updateChildren(getOHLCBar(newData), getOHLCBar(oldData));
+                updateChildren(getEventBeans(newData), getEventBeans(oldData));
             }
         }
 
         // Only if forceOutput is enabled or
         // there have been any events in this or the last interval do we schedule a callback,
         // such as to not waste resources when no events arrive.
-        if ((!currentBatch.isEmpty()) || ((lastBatch != null) && (!lastBatch.isEmpty()))
-            ||
-            (isForceOutput))
+        if ((currentBar.getOpen() != null) || ((lastBar != null) && (lastBar.getOpen() != null)) || (isForceOutput))
         {
             scheduleCallback();
             isCallbackScheduled = true;
         }
 
-        lastBatch = currentBatch;
-        currentBatch = new LinkedList<EventBean>();
+        lastBar = currentBar;
+        currentBar = new OHLCBar();
     }
 
     /**
@@ -246,19 +245,20 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
      */
     public boolean isEmpty()
     {
-        if (lastBatch != null)
+        if (lastBar != null)
         {
-            if (!lastBatch.isEmpty())
+            if (lastBar.getOpen() == null)
             {
-                return false;
+                return true;
             }
         }
-        return currentBatch.isEmpty();
+        return currentBar.getOpen() == null;
     }
 
     public final Iterator<EventBean> iterator()
     {
-        return currentBatch.iterator();
+        EventBean bean = this.agentInstanceContext.getStatementContext().getEventAdapterService().adapterForBean(currentBar);
+        return Collections.singleton(bean).iterator();
     }
 
     public final String toString()
@@ -331,56 +331,52 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
         }
     }
 
-    private static final Log log = LogFactory.getLog(TimeBatchView.class);
+    private void updateOHLCBar(OHLCBar bar, EventBean bean) {
 
-    private EventBean[] getOHLCBar(EventBean[] beans) {
-
-        if (beans == null) {
-            return null;
+        if (bean == null) {
+            return;
         }
 
-        // initiate the values
-        Double open = null;
-        Double close = null;
-        Double high = null;
-        Double low = null;
+        // get the value using the ExprEvaluator
+        Double value = (Double) this.valueExpressionEval.evaluate(new EventBean[] { bean }, true, this.agentInstanceContext);
 
-        for (EventBean bean : beans) {
+        // open
+        if (bar.getOpen() == null) {
+            bar.setOpen(value);
+        }
 
-            // get the value using the ExprEvaluator
-            Double value = (Double) this.valueExpressionEval.evaluate(new EventBean[] { bean }, true, this.agentInstanceContext);
+        // high
+        if (bar.getHigh() == null) {
+            bar.setHigh(value);
+        } else if (bar.getHigh().compareTo(value) < 0) {
+            bar.setHigh(value);
+        }
 
-            // open
-            if (open == null) {
-                open = value;
-            }
+        // low
+        if (bar.getLow() == null) {
+            bar.setLow(value);
+        } else if (bar.getLow().compareTo(value) > 0) {
+            bar.setLow(value);
+        }
 
-            // hight
-            if (high == null) {
-                high = value;
-            } else if (high.compareTo(value) < 0) {
-                high = value;
-            }
+        // close
+        bar.setClose(value);
+    }
 
-            // low
-            if (low == null) {
-                low = value;
-            } else if (low.compareTo(value) > 0) {
-                low = value;
-            }
+    private EventBean[] getEventBeans(OHLCBar bar) {
 
-            // close
-            close = value;
+        if (bar == null) {
+            return null;
         }
 
         // the the currentReferenceTimeStamp
         long currentReference = computeCurrentReference(this.currentStartTime, this.currentReferencePoint, this.msecIntervalSize);
 
-        // create the Bar
-        OHLCBar barValue = new OHLCBar(currentReference, open, high, low, close);
+        // set the time
+        bar.setTime(currentReference);
 
         // wrap it in a EventBean
-        EventBean bean = this.agentInstanceContext.getStatementContext().getEventAdapterService().adapterForBean(barValue);
+        EventBean bean = this.agentInstanceContext.getStatementContext().getEventAdapterService().adapterForBean(bar);
 
         return new EventBean[] { bean };
     }
