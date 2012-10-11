@@ -59,7 +59,7 @@
     <auto-import import-name="java.text.*"/>
     <auto-import import-name="java.util.*"/>
 
-    <plugin-view factory-class="com.espertech.esper.ohlc.OHLCBarPlugInViewFactory" name="ohlcbar" namespace="custom"/>
+    <plugin-view factory-class="com.algoTrader.esper.ohlc.OHLCViewFactory" name="ohlcbar" namespace="custom"/>
 
     <plugin-aggregation-function name="talib" factory-class="com.algoTrader.esper.aggregation.GenericTALibFunctionFactory"/>
 

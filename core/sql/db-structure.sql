@@ -191,6 +191,22 @@ CREATE TABLE `forex_future` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `forex_future_family`
+--
+
+DROP TABLE IF EXISTS `forex_future_family`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `forex_future_family` (
+  `ID` int(11) NOT NULL,
+  `BASE_CURRENCY` enum('CHF','EUR','USD') NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `FOREX_FUTURE_FAMILYIFKC` (`ID`),
+  CONSTRAINT `FOREX_FUTURE_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `future_family` (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `future`
 --
 
@@ -687,4 +703,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-10-02 17:20:00
+-- Dump completed on 2012-10-11 13:50:19

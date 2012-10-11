@@ -15,6 +15,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
+import com.algoTrader.entity.security.ForexFuture;
+import com.algoTrader.entity.security.ForexFutureFamily;
+import com.algoTrader.entity.security.ForexFutureImpl;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.FutureFamily;
 import com.algoTrader.entity.security.FutureImpl;
@@ -54,8 +57,13 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
 
         SecurityFamily securityFamily = getSecurityFamilyDao().get(securityFamilyId);
 
+        // engage the retrieval process
+        retrieveContractDetails(securityFamily);
+
         if (securityFamily instanceof StockOptionFamily) {
             retrieveStockOptions((StockOptionFamily) securityFamily);
+        } else if (securityFamily instanceof ForexFutureFamily) {
+            retrieveForexFutures((ForexFutureFamily) securityFamily);
         } else if (securityFamily instanceof FutureFamily) {
             retrieveFutures((FutureFamily) securityFamily);
         } else {
@@ -67,15 +75,11 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
 
         Security underlying = family.getUnderlying();
 
-        // engage the retrieval process
-        retrieveContractDetails(family);
-
         // get all current stockOptions (sorted by isin)
-        Comparator<Security> comparator = getComparator();
         Set<Security> existingStockOptions = new TreeSet<Security>(getComparator());
         existingStockOptions.addAll(getStockOptionDao().findStockOptionsBySecurityFamily(family.getId()));
 
-        Set<StockOption> newStockOptions = new TreeSet<StockOption>(comparator);
+        Set<StockOption> newStockOptions = new TreeSet<StockOption>();
         for (ContractDetails contractDetails : this.contractDetailsList) {
 
             StockOption stockOption = new StockOptionImpl();
@@ -94,7 +98,6 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike);
             String ric = StockOptionSymbol.getRic(family, expiration, type, strike);
             String conid = String.valueOf(contract.m_conId);
-
 
             stockOption.setSymbol(symbol);
             stockOption.setIsin(isin);
@@ -121,15 +124,11 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
 
         Security underlying = family.getUnderlying();
 
-        // engage the retrieval process
-        retrieveContractDetails(family);
-
         // get all current futures (sorted by isin)
-        Comparator<Security> comparator = getComparator();
-        Set<Future> existingFutures = new TreeSet<Future>(comparator);
+        Set<Future> existingFutures = new TreeSet<Future>(getComparator());
         existingFutures.addAll(getFutureDao().findFuturesBySecurityFamily(family.getId()));
 
-        Set<Future> newFutures = new TreeSet<Future>(comparator);
+        Set<Future> newFutures = new TreeSet<Future>();
         for (ContractDetails contractDetails : this.contractDetailsList) {
 
             Future future = new FutureImpl();
@@ -164,6 +163,52 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
         getFutureDao().create(newFutures);
 
         logger.debug("retrieved futures for futurefamily: " + family.getName() + " " + newFutures);
+    }
+
+    private void retrieveForexFutures(ForexFutureFamily family) throws Exception {
+
+        Security underlying = family.getUnderlying();
+
+        // get all current forexFutures (sorted by isin)
+        Set<ForexFuture> existingForexFutures = new TreeSet<ForexFuture>(getComparator());
+        existingForexFutures.addAll(getForexFutureDao().findForexFuturesBySecurityFamily(family.getId()));
+
+        Set<ForexFuture> newForexFutures = new TreeSet<ForexFuture>();
+        for (ContractDetails contractDetails : this.contractDetailsList) {
+
+            ForexFuture forexFuture = new ForexFutureImpl();
+            forexFuture.setSecurityFamily(family);
+
+            Contract contract = contractDetails.m_summary;
+            Date expiration = format.parse(contract.m_expiry + "130000");
+
+            if (underlying.getSecurityFamily().getMarket().equals(Market.CBOE) || underlying.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {
+                expiration = DateUtils.addDays(expiration, 1);
+            }
+
+            String symbol = FutureSymbol.getSymbol(family, expiration);
+            final String isin = FutureSymbol.getIsin(family, expiration);
+            String ric = FutureSymbol.getRic(family, expiration);
+            String conid = String.valueOf(contract.m_conId);
+
+            forexFuture.setSymbol(symbol);
+            forexFuture.setIsin(isin);
+            forexFuture.setRic(ric);
+            forexFuture.setConid(conid);
+            forexFuture.setExpiration(expiration);
+            forexFuture.setUnderlying(underlying);
+            forexFuture.setSecurityFamily(family);
+            forexFuture.setBaseCurrency(family.getBaseCurrency());
+
+            // ignore forexFutures that already exist
+            if (!existingForexFutures.contains(forexFuture)) {
+                newForexFutures.add(forexFuture);
+            }
+        }
+
+        getForexFutureDao().create(newForexFutures);
+
+        logger.debug("retrieved forexFutures for forexFuturefamily: " + family.getName() + " " + newForexFutures);
     }
 
     private void retrieveContractDetails(SecurityFamily family) throws InterruptedException {

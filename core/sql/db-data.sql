@@ -57,6 +57,17 @@ INSERT INTO `forex` (`ID`, `BASE_CURRENCY`) VALUES (11,'GBP');
 UNLOCK TABLES;
 
 --
+-- Dumping data for table `forex_future_family`
+--
+-- WHERE:  id<1000
+
+LOCK TABLES `forex_future_family` WRITE;
+/*!40000 ALTER TABLE `forex_future_family` DISABLE KEYS */;
+INSERT INTO `forex_future_family` (`ID`, `BASE_CURRENCY`) VALUES (44,'EUR');
+/*!40000 ALTER TABLE `forex_future_family` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Dumping data for table `future_family`
 --
 -- WHERE:  id<1000
