@@ -78,7 +78,7 @@ public class OHLCViewFactory extends TimeBatchViewFactoryParams implements DataW
             throw new ViewParameterException(errorMessage);
         }
         this.valueExpressionEval = validated[0].getExprEvaluator();
-        this.eventType = parentEventType;
+        this.eventType = statementContext.getEventAdapterService().addBeanType(OHLCBar.class.getName(), OHLCBar.class, false, false, false);
     }
 
     public Object makePreviousGetter() {
