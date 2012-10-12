@@ -1,8 +1,10 @@
 package com.algoTrader.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -98,6 +100,9 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
         for (Strategy strategy : getStrategyDao().findAutoActivateStrategies()) {
 
             PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName());
+
+            // truncate Date to hour
+            portfolioValue.setDateTime(DateUtils.truncate(portfolioValue.getDateTime(), Calendar.HOUR));
 
             internalSavePortfolioValue(portfolioValue);
         }
