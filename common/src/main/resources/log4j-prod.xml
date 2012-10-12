@@ -69,7 +69,7 @@
         <param name="To" value="emergency@linardcapital.com" />
         <param name="Subject" value="" />
         <param name="TimeFrame" value="60" />
-        <param name="MaxEMails" value="3" />
+        <param name="MaxEMails" value="5" />
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%m" />
         </layout>
