@@ -1,3 +1,4 @@
+// AlgoTrader:
 // line 84 - 99: sort operations alphabetically & get the number of non-getter operations
 // line 111 - 113: do not display getters as operations
 // line 185 - 201: format error message

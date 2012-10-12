@@ -1,4 +1,5 @@
-/* 85 - 108: AlgoTrader refresh MBeans
+// AlgoTrader: 85 - 108 AlgoTrader refresh MBeans
+/*
  * %W% %E%
  *
  * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
