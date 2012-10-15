@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -179,6 +180,10 @@ public class ChartTab extends ChartPanel {
             } else {
                 rangeAxis.setLowerBound(axisDefinition.getLowerBound());
                 rangeAxis.setUpperBound(axisDefinition.getUpperBound());
+            }
+
+            if (axisDefinition.isPercent()) {
+                rangeAxis.setNumberFormatOverride(new DecimalFormat("##0.00%"));
             }
 
             getPlot().setRangeAxis(axisNumber, rangeAxis);

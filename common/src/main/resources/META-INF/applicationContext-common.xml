@@ -65,7 +65,7 @@
                         </set>
                     </property>
                 </bean>
-                <bean class="com.algoTrader.vo.AxisDefinitionVO" p:label="Performance / Leverage / Allocation" p:autoRange="true" p:autoRangeIncludesZero="false">
+                <bean class="com.algoTrader.vo.AxisDefinitionVO" p:label="Performance / Leverage / Allocation" p:autoRange="true" p:autoRangeIncludesZero="false" p:percent="true">
                     <property name="datasetDefinitions">
                         <set>
                             <bean class="com.algoTrader.vo.DatasetDefinitionVO" p:type="time">
