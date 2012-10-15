@@ -319,9 +319,80 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
+    protected void handleClosePosition(int positionId) throws Exception {
+
+        getPositionService().closePosition(positionId, false);
+    }
+
+    @Override
+    protected void handleReducePosition(int positionId, int quantity) throws Exception {
+
+        getPositionService().reducePosition(positionId, quantity);
+    }
+
+    @Override
+    protected void handleSetExitValue(int positionId, double exitValue) throws Exception {
+
+        getPositionService().setExitValue(positionId, exitValue, true);
+    }
+
+    @Override
     protected void handleSetVariableValue(String variableName, String value) {
 
         EsperManager.setVariableValue(StrategyUtil.getStartedStrategyName(), variableName, value);
+    }
+
+    @Override
+    protected void handleSubscribe(int securityid) throws Exception {
+
+        getSubscriptionService().subscribeMarketDataEvent(StrategyUtil.getStartedStrategyName(), securityid);
+    }
+
+    @Override
+    protected void handleUnsubscribe(int securityid) throws Exception {
+
+        getSubscriptionService().unsubscribeMarketDataEvent(StrategyUtil.getStartedStrategyName(), securityid);
+    }
+
+    @Override
+    protected void handleAddProperty(int propertyHolderId, String name, String value, String type) throws Exception {
+
+        Object obj;
+        if ("INT".equals(type)) {
+            obj = Integer.parseInt(value);
+        } else if ("DOUBLE".equals(type)) {
+            obj = Double.parseDouble(value);
+        } else if ("MONEY".equals(type)) {
+            obj = new BigDecimal(value);
+        } else if ("TEXT".equals(type)) {
+            obj = value;
+        } else if ("DATE".equals(type)) {
+            obj = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(value);
+        } else if ("BOOLEAN".equals(type)) {
+            obj = Boolean.parseBoolean(value);
+        } else {
+            throw new IllegalArgumentException("unknown type " + type);
+        }
+
+        getPropertyService().addProperty(propertyHolderId, name, obj, false);
+    }
+
+    @Override
+    protected void handleRemoveProperty(int propertyHolderId, String name) throws Exception {
+
+        getPropertyService().removeProperty(propertyHolderId, name);
+    }
+
+    @Override
+    protected void handleSetComponentQuantity(int combinationId, int securityId, long quantity) throws Exception {
+
+        getCombinationService().setComponentQuantity(combinationId, securityId, quantity);
+    }
+
+    @Override
+    protected void handleRemoveComponent(int combinationId, final int securityId) {
+
+        getCombinationService().removeComponent(combinationId, securityId);
     }
 
     @Override
@@ -336,18 +407,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
         // need to force exit because grafefull shutdown of esper-service (and esper-jmx) does not work
         System.exit(0);
-    }
-
-    @Override
-    protected void handleSubscribe(int securityid) throws Exception {
-
-        getSubscriptionService().subscribeMarketDataEvent(StrategyUtil.getStartedStrategyName(), securityid);
-    }
-
-    @Override
-    protected void handleUnsubscribe(int securityid) throws Exception {
-
-        getSubscriptionService().unsubscribeMarketDataEvent(StrategyUtil.getStartedStrategyName(), securityid);
     }
 
     private List<TickVO> getTickVOs(List<Tick> ticks) {

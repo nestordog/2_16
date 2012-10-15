@@ -32,7 +32,9 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
             processAmount(transaction.getStrategy().getName(), transaction.getCurrency(), transaction.getGrossValue());
 
             // execution commission is booked in baseCurrency (this is IB specific!)
-            processAmount(transaction.getStrategy().getName(), this.portfolioBaseCurrency, transaction.getExecutionCommission().negate());
+            if (transaction.getExecutionCommission() != null) {
+                processAmount(transaction.getStrategy().getName(), this.portfolioBaseCurrency, transaction.getExecutionCommission().negate());
+            }
 
             // clearing commission is booked in transaction currency
             if (transaction.getClearingCommission() != null) {

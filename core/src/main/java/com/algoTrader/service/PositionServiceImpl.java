@@ -21,6 +21,7 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Combination;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.strategy.DefaultOrderPreference;
 import com.algoTrader.entity.trade.Order;
@@ -160,6 +161,49 @@ public class PositionServiceImpl extends PositionServiceBase {
         logger.info("created non-tradeable position on " + security + " for strategy " + strategyName + " quantity " + quantity);
 
         return position;
+    }
+
+
+    @Override
+    protected void handleTransferPosition(int positionId, String targetStrategyName) throws Exception {
+
+        Position position = getPositionDao().get(positionId);
+
+        if (position == null) {
+            throw new PositionServiceException("position " + positionId + " could not be found");
+        }
+
+        Strategy targetStrategy =  getStrategyDao().findByName(targetStrategyName);
+        Security security = position.getSecurity();
+        SecurityFamily family = security.getSecurityFamily();
+        long quantity = position.getQuantity();
+        BigDecimal price = RoundUtil.getBigDecimal(position.getMarketPriceDouble(),family.getScale());
+
+        // debit transaction
+        Transaction debitTransaction = Transaction.Factory.newInstance();
+        debitTransaction.setDateTime(DateUtil.getCurrentEPTime());
+        debitTransaction.setQuantity(-quantity);
+        debitTransaction.setPrice(price);
+        debitTransaction.setCurrency(family.getCurrency());
+        debitTransaction.setType(TransactionType.TRANSFER);
+        debitTransaction.setSecurity(security);
+        debitTransaction.setStrategy(position.getStrategy());
+
+        // persiste the transaction
+        getTransactionService().persistTransaction(debitTransaction);
+
+        // credit transaction
+        Transaction creditTransaction = Transaction.Factory.newInstance();
+        creditTransaction.setDateTime(DateUtil.getCurrentEPTime());
+        creditTransaction.setQuantity(quantity);
+        creditTransaction.setPrice(price);
+        creditTransaction.setCurrency(family.getCurrency());
+        creditTransaction.setType(TransactionType.TRANSFER);
+        creditTransaction.setSecurity(security);
+        creditTransaction.setStrategy(targetStrategy);
+
+        // persiste the transaction
+        getTransactionService().persistTransaction(creditTransaction);
     }
 
     @Override
