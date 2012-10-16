@@ -3,14 +3,14 @@
     <parent>
         <groupId>algotrader</groupId>
         <artifactId>algotrader</artifactId>
-        <version>1.11</version>
+        <version>1.12-SNAPSHOT</version>
     </parent>
     <artifactId>algotrader-common</artifactId>
     <packaging>jar</packaging>
     <name>AlgoTrader Common</name>
 
     <scm>
-        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/tags/AlgoTrader-1.11/AlgoTrader</developerConnection>
+        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</developerConnection>
     </scm>
     <build>
         <plugins>
