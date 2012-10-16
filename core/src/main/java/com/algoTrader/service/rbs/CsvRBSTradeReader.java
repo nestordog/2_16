@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.ParseBigDecimal;
 import org.supercsv.cellprocessor.ParseDate;
 import org.supercsv.cellprocessor.ParseInt;
@@ -24,30 +23,23 @@ public class CsvRBSTradeReader {
     private static CellProcessor[] processor = new CellProcessor[] {
         new ParseDate("dd/MM/yyyy"),
         new ParseInt(),
-        new Optional(),
-        new Optional(),
         new StrNotNullOrEmpty(),
         new ParseDate("dd/MM/yyyy"),
-        new StrNotNullOrEmpty(),
         new StrNotNullOrEmpty(),
         new ParseInt(),
         new ParseInt(),
         new ParseLong(),
         new ParseBigDecimal(),
-        new Optional(),
         new StrNotNullOrEmpty(),
         new ParseDate("dd/MM/yyyy"),
-        new StrNotNullOrEmpty(),
         new ParseBigDecimal(),
         new ParseBigDecimal(),
         new StrNotNullOrEmpty(),
         new StrNotNullOrEmpty(),
         new StrNotNullOrEmpty(),
-        new Optional(),
-        new Optional(),
         new ParseDate("dd/MM/yyyy"),
         new StrNotNullOrEmpty(),
-        new StrNotNullOrEmpty(),
+        new StrNotNullOrEmpty()
     };
     //@formatter:on
 
