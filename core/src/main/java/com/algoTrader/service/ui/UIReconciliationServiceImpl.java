@@ -143,14 +143,14 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
 
     private double getFees(File newFile) throws FileNotFoundException, IOException, ParseException {
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(newFile)));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(newFile), "ISO-8859-1"));
 
         // add all items of type 090 (Verbindlichkeiten)
         String line;
         double totalAmount = 0;
         while ((line = reader.readLine()) != null) {
 
-            String[] values = line.split(String.valueOf((char) 182));
+            String[] values = line.split("\u00b6");
 
             if ("090".equals(values[0])) {
 
@@ -164,13 +164,13 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
 
     private void reconcilePositions(File newFile) throws FileNotFoundException, IOException, ParseException {
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(newFile)));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(newFile), "ISO-8859-1"));
 
         // reoncile all futures and option positions
         String line;
         while ((line = reader.readLine()) != null) {
 
-            String[] values = line.split(String.valueOf((char) 182));
+            String[] values = line.split("\u00b6");
 
             // Futures
             if ("050".equals(values[0])) {
