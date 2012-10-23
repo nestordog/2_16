@@ -70,7 +70,6 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         newOrder.set(FixUtil.getFixSide(order.getSide()));
         newOrder.set(new OrderQty(order.getQuantity()));
         newOrder.set(FixUtil.getFixOrderType(order));
-        newOrder.set(getExDestination(security.getSecurityFamily().getMarket()));
 
         // populate security information
         if (security instanceof StockOption) {
@@ -149,7 +148,6 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         // common info
         replaceRequest.set(new ClOrdID(String.valueOf(order.getNumber())));
         replaceRequest.set(new OrigClOrdID(String.valueOf(origNumber)));
-        replaceRequest.set(getExDestination(security.getSecurityFamily().getMarket()));
 
         replaceRequest.set(FixUtil.getFixSymbol(security));
         replaceRequest.set(FixUtil.getFixSide(order.getSide()));

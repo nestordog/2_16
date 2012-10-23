@@ -365,7 +365,8 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
 
         if (!this.recreateTransactions && transaction == null) {
 
-            throw new IllegalStateException("transaction: " + extId + " does not exist");
+            logger.error("transaction: " + extId + " does not exist");
+            return;
 
         } else if (transaction == null) {
 

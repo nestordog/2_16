@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import quickfix.field.Account;
 import quickfix.field.ExDestination;
 import quickfix.field.HandlInst;
+import quickfix.field.SecurityExchange;
 import quickfix.field.TransactTime;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
@@ -28,6 +29,10 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
         newOrder.set(new Account(this.account));
         newOrder.set(new HandlInst('1'));
         newOrder.set(new TransactTime(new Date()));
+
+        String exchange = getExchange(order.getSecurity().getSecurityFamily().getMarket());
+        newOrder.set(new ExDestination(exchange));
+        newOrder.set(new SecurityExchange(exchange));
     }
 
     @Override
@@ -36,6 +41,10 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
         replaceRequest.set(new Account(this.account));
         replaceRequest.set(new HandlInst('1'));
         replaceRequest.set(new TransactTime(new Date()));
+
+        String exchange = getExchange(order.getSecurity().getSecurityFamily().getMarket());
+        replaceRequest.set(new ExDestination(exchange));
+        replaceRequest.set(new SecurityExchange(exchange));
     }
 
     @Override
@@ -43,6 +52,9 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
 
         cancelRequest.set(new Account(this.account));
         cancelRequest.set(new TransactTime(new Date()));
+
+        String exchange = getExchange(order.getSecurity().getSecurityFamily().getMarket());
+        cancelRequest.set(new SecurityExchange(exchange));
     }
 
     @Override
@@ -51,13 +63,12 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
         return MarketChannel.JPM_FIX;
     }
 
-    @Override
-    protected ExDestination handleGetExDestination(Market market) throws Exception {
+    private String getExchange(Market market) {
 
         if (Market.CBOE.equals(market)) {
-            return new ExDestination("XCBO");
+            return "XCBO";
         } else if (Market.CFE.equals(market)) {
-            return new ExDestination("XCBF");
+            return "XCBF";
         } else {
             throw new UnsupportedOperationException("market not supported " + market);
         }

@@ -8,7 +8,6 @@ import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
 
 import com.algoTrader.entity.trade.SimpleOrder;
-import com.algoTrader.enumeration.Market;
 import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.service.InitializingServiceI;
 
@@ -21,6 +20,7 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
 
         newOrder.set(new HandlInst('2'));
         newOrder.set(new CustomerOrFirm(0));
+        newOrder.set(new ExDestination(order.getSecurity().getSecurityFamily().getMarket().toString()));
     }
 
     @Override
@@ -28,6 +28,7 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
 
         replaceRequest.set(new HandlInst('2'));
         replaceRequest.set(new CustomerOrFirm(0));
+        replaceRequest.set(new ExDestination(order.getSecurity().getSecurityFamily().getMarket().toString()));
     }
 
     @Override
@@ -40,11 +41,5 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
     protected MarketChannel handleGetMarketChannel() {
 
         return MarketChannel.IB_FIX;
-    }
-
-    @Override
-    protected ExDestination handleGetExDestination(Market market) throws Exception {
-
-        return new ExDestination(market.toString());
     }
 }

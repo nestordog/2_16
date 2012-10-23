@@ -17,7 +17,7 @@ public class UIReconciliationStarter {
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
         UIReconciliationService service = ServiceLocator.instance().getService("uIReconciliationService", UIReconciliationService.class);
 
-        service.reconcile(Arrays.asList(args[0]));
+        service.reconcile(Arrays.asList(args));
 
         ServiceLocator.instance().shutdown();
     }

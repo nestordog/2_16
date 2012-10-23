@@ -2,6 +2,7 @@ package com.algoTrader.service.rbs;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -28,6 +29,8 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(RBSReconciliationServiceImpl.class.getName());
 
+    private static SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+
     private @Value("${misc.portfolioDigits}") int portfolioDigits;
 
     @Override
@@ -39,11 +42,14 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
     protected void handleReconcile(List<String> fileNames) throws Exception {
 
         for (String fileName : fileNames) {
+
             if (fileName.contains("Positions")) {
                 reconcilePositions(fileName);
             } else if (fileName.contains("Trades")) {
                 reconcileTrades(fileName);
             }
+
+            logger.info("reconciliation of " + fileName + " finished");
         }
     }
 
@@ -69,7 +75,7 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
 
             Security security;
             if ("F".equals(tradeType)) {
-                security = getFutureDao().findByExpiration(family.getId(), exerciseDate);
+                security = getFutureDao().findByExpirationMonth(family.getId(), exerciseDate);
             } else if ("C".equals(tradeType) || "P".equals(tradeType)) {
                 security = getStockOptionDao().findByExpirationStrikeAndType(family.getId(), exerciseDate, strikePrice, OptionType.fromValue(tradeType));
             } else {
@@ -82,14 +88,14 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
                 Long actualyQuantity = getTransactionDao().findQuantityBySecurityAndDate(security.getId(), statementDate);
 
                 if (actualyQuantity == null) {
-                    logger.error("position(s) on security: " + security + " does not exist");
+                    logger.error("position " + format.format(statementDate) + " " + quantity + " " + security + " does not exist");
                 } else if (actualyQuantity.longValue() != quantity.longValue()) {
-                    logger.error("position(s) on security: " + security + " quantity does not match db: " + actualyQuantity + " broker: " + quantity);
+                    logger.error("position " + format.format(statementDate) + " " + security + " quantity does not match db: " + actualyQuantity + " file: " + quantity);
                 } else {
-                    logger.info("position(s) on security: " + security + " ok");
+                    logger.info("position " + format.format(statementDate) + " " + quantity + " " + security + " ok");
                 }
             } else {
-                logger.error("security does not exist, product: " + securityCode + " expiration: " + exerciseDate + " strike: " + strikePrice + " tradeType: " + tradeType);
+                logger.error("security does not exist, product: " + securityCode + " expiration: " + format.format(exerciseDate) + " strike: " + strikePrice + " tradeType: " + tradeType);
             }
         }
     }
@@ -113,7 +119,7 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
         }
 
         // get all transactions for the date range
-        Collection<Transaction> transactions = getTransactionDao().findTransactionsByMinDateAndMaxDate(minDate, DateUtils.addDays(maxDate, 1));
+        Collection<Transaction> transactions = getTransactionDao().findTradesByMinDateAndMaxDate(minDate, DateUtils.addDays(maxDate, 1));
 
         // group transactions by date, transactionType, security and price
         Bag<MultiKey<Object>> transactionBag = new HashBag<MultiKey<Object>>();
@@ -157,7 +163,7 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
             // check clearing commission
             BigDecimal commissionPerContract = RoundUtil.getBigDecimal(commission.doubleValue() / absQuantity, this.portfolioDigits);
             if (!family.getClearingCommission().setScale(this.portfolioDigits).equals(commissionPerContract)) {
-                logger.error("transaction from " + tradeDate + " " + transactionType + " " + absQuantity + " " + security + " price: " + tradePrice + " clearing commission is "
+                logger.error("transaction " + format.format(tradeDate) + " " + transactionType + " " + absQuantity + " " + security + " price: " + tradePrice + " clearing commission is "
                         + commissionPerContract + " where it should be " + family.getClearingCommission());
             }
 
@@ -165,21 +171,21 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
             MultiKey<Object> key = new MultiKey<Object>(tradeDate, transactionType, security, tradePrice.doubleValue());
             if (!transactionBag.contains(key)) {
 
-                logger.error("transactions from " + tradeDate + " " + transactionType + " " + security + " price: " + tradePrice + " quantity: " + absQuantity + " does not exist");
+                logger.error("transactions " + format.format(tradeDate) + " " + transactionType + " " + security + " price: " + tradePrice + " quantity: " + absQuantity + " does not exist in db");
             } else if (absQuantity > transactionBag.getCount(key)) {
 
-                logger.error("transactions from " + tradeDate + " " + transactionType + " " + security + " price: " + tradePrice + " unmatched file quantity " + absQuantity);
+                logger.error("transactions " + format.format(tradeDate) + " " + transactionType + " " + security + " price: " + tradePrice + " unmatched file quantity " + absQuantity);
             } else {
 
                 // remove that corresponding quantity
                 transactionBag.remove(key, absQuantity.intValue());
 
-                logger.info("transaction from " + tradeDate + " " + transactionType + " " + absQuantity + " " + security + " price: " + tradePrice + " is ok");
+                logger.info("transaction " + format.format(tradeDate) + " " + transactionType + " " + absQuantity + " " + security + " price: " + tradePrice + " is ok");
             }
         }
 
         for (MultiKey<Object> key : transactionBag.uniqueSet()) {
-            logger.error("transactions from " + key.getKey(0) + " " + key.getKey(1) + " " + key.getKey(2) + " price: " + key.getKey(3) + " unmatched db quantitiy " + transactionBag.getCount(key));
+            logger.error("transactions " + format.format(key.getKey(0)) + " " + key.getKey(1) + " " + key.getKey(2) + " price: " + key.getKey(3) + " unmatched db quantitiy " + transactionBag.getCount(key));
         }
     }
 }
