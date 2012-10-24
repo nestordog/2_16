@@ -73,15 +73,12 @@ public class SlicingOrderImpl extends SlicingOrder {
             throw new IllegalStateException("no last tick available to initialize SlicingOrder");
         }
 
-        // vol between minVol and maxVol of the market
-        double vol = getMinVolPct() + Math.random() * (getMaxVolPct() - getMinVolPct());
-
         // limit (at least one tick above market but do not exceed the market)
         BigDecimal limit;
-        long quantity;
+        long marketQuantity;
         if (Side.BUY.equals(getSide())) {
 
-            quantity = Math.round(vol * tick.getVolAsk());
+            marketQuantity = tick.getVolAsk();
             limit = family.adjustPrice(tick.getAsk(), -this.currentOffsetTicks);
 
             if (limit.compareTo(tick.getBid()) <= 0.0) {
@@ -96,7 +93,7 @@ public class SlicingOrderImpl extends SlicingOrder {
 
         } else {
 
-            quantity = Math.round(vol * tick.getVolBid());
+            marketQuantity = tick.getVolBid();
             limit = family.adjustPrice(tick.getBid(), this.currentOffsetTicks);
 
             if (limit.compareTo(tick.getAsk()) >= 0.0) {
@@ -110,14 +107,20 @@ public class SlicingOrderImpl extends SlicingOrder {
             }
         }
 
-        // at least one but
+        // reduce the marketQuantity to a maximum of maxQuantity
+        long reducedMarketQuantity = Math.min(marketQuantity, getMaxQuantity());
+
+        // volPct between minVolPct and maxVolPct of the market
+        double volPct = getMinVolPct() + Math.random() * (getMaxVolPct() - getMinVolPct());
+
+        // multiply the reducedMarketQuantity by volPct
+        long quantity = Math.round(volPct * reducedMarketQuantity);
+
+        // qty should be at least one
         quantity = Math.max(quantity, 1);
 
-        // maximium remainingQuantity
+        // qty should be maximium remainingQuantity
         quantity = Math.min(quantity, remainingQuantity);
-
-        // maximium maxQuantitity
-        quantity = Math.min(quantity, getMaxQuantity());
 
         // create the limit order
         LimitOrder order = LimitOrder.Factory.newInstance();
