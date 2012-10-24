@@ -110,9 +110,11 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
         }
 
         Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
-        BigDecimal price = RoundUtil.getBigDecimal(newFees - oldFees); // difference in fees
+        double totalFees = newFees - oldFees;
+        BigDecimal price = RoundUtil.getBigDecimal(totalFees).abs(); // price is always positive
+        int quantity = totalFees < 0 ? -1 : 1;
+        TransactionType transactionType = totalFees < 0 ? TransactionType.FEES : TransactionType.REFUND;
         String description = "UI Fees";
-        TransactionType transactionType = TransactionType.FEES;
 
         if (getTransactionDao().findByDateTimePriceTypeAndDescription(date, price, transactionType, description) != null) {
 
@@ -129,7 +131,7 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
             // create the transaction
             Transaction transaction = new TransactionImpl();
             transaction.setDateTime(date);
-            transaction.setQuantity(1);
+            transaction.setQuantity(quantity);
             transaction.setPrice(price);
             transaction.setCurrency(this.portfolioBaseCurrency);
             transaction.setType(transactionType);
