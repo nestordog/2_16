@@ -34,6 +34,7 @@ import com.algoTrader.util.ZipUtil;
 public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(UIReconciliationServiceImpl.class.getName());
+    private static Logger notificationLogger = MyLogger.getLogger("com.algoTrader.service.NOTIFICATION");
 
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
     private static NumberFormat numberFormat = NumberFormat.getInstance(Locale.GERMANY);
@@ -215,14 +216,14 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
             Long actualyQuantity = getTransactionDao().findQuantityBySecurityAndDate(security.getId(), DateUtils.addDays(date, 1));
 
             if (actualyQuantity == null) {
-                logger.error("position " + dateFormat.format(date) + " " + security + " does not exist");
+                notificationLogger.error("position " + dateFormat.format(date) + " " + security + " does not exist");
             } else if (actualyQuantity != quantity) {
-                logger.error("position " + dateFormat.format(date) + " " + security + " quantity does not match db: " + actualyQuantity + " broker: " + quantity);
+                notificationLogger.error("position " + dateFormat.format(date) + " " + security + " quantity does not match db: " + actualyQuantity + " broker: " + quantity);
             } else {
                 logger.info("position " + dateFormat.format(date) + " " + security + " ok");
             }
         } else {
-            logger.error("security does not exist, ric: " + ric);
+            notificationLogger.error("security does not exist, ric: " + ric);
         }
     }
 

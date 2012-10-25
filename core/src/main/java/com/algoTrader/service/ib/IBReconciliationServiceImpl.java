@@ -43,6 +43,7 @@ import com.algoTrader.util.XmlUtil;
 public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(IBReconciliationServiceImpl.class.getName());
+    private static Logger notificationLogger = MyLogger.getLogger("com.algoTrader.service.NOTIFICATION");
 
     private @Value("${simulation}") boolean simulation;
     private @Value("${misc.portfolioDigits}") int portfolioDigits;
@@ -278,7 +279,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
             Security security = getSecurityDao().findByConid(conid);
             if (security == null) {
 
-                logger.error("security for conid: " + conid + " does not exist");
+                notificationLogger.error("security for conid: " + conid + " does not exist");
             } else {
 
                 long totalQuantity = 0;
@@ -290,7 +291,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
                 long quantity = Long.parseLong(quantityString);
 
                 if (totalQuantity != quantity) {
-                    logger.error("position(s) on security: " + conid + " totalQuantity does not match db: " + totalQuantity + " broker: " + quantity);
+                    notificationLogger.error("position(s) on security: " + conid + " totalQuantity does not match db: " + totalQuantity + " broker: " + quantity);
                 } else {
                     logger.info("position(s) on security: " + conid + " ok");
                 }
@@ -365,7 +366,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
 
         if (!this.recreateTransactions && transaction == null) {
 
-            logger.error("transaction: " + extId + " does not exist");
+            notificationLogger.error("transaction: " + extId + " does not exist");
             return;
 
         } else if (transaction == null) {
@@ -404,22 +405,22 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
             }
 
             if (transaction.getQuantity() != quantity) {
-                logger.error("transaction: " + extId + " quantity does not match db: " + transaction.getQuantity() + " broker: " + quantity);
+                notificationLogger.error("transaction: " + extId + " quantity does not match db: " + transaction.getQuantity() + " broker: " + quantity);
                 success = false;
             }
 
             if (transaction.getPrice().doubleValue() != priceDouble) {
-                logger.error("transaction: " + extId + " price does not match db: " + transaction.getPrice() + " broker: " + priceDouble);
+                notificationLogger.error("transaction: " + extId + " price does not match db: " + transaction.getPrice() + " broker: " + priceDouble);
                 success = false;
             }
 
             if (!transaction.getCurrency().equals(currency)) {
-                logger.error("transaction: " + extId + " currency does not match db: " + transaction.getCurrency() + " broker: " + currency);
+                notificationLogger.error("transaction: " + extId + " currency does not match db: " + transaction.getCurrency() + " broker: " + currency);
                 success = false;
             }
 
             if (!transaction.getType().equals(transactionType)) {
-                logger.error("transaction: " + extId + " type does not match db: " + transaction.getType() + " broker: " + transactionType);
+                notificationLogger.error("transaction: " + extId + " type does not match db: " + transaction.getType() + " broker: " + transactionType);
                 success = false;
             }
 
