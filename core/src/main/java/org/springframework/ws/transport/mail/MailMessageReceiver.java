@@ -210,6 +210,8 @@ public class MailMessageReceiver extends AbstractAsyncStandaloneMessageReceiver 
                         Message[] messages = MailMessageReceiver.this.monitoringStrategy.monitor(MailMessageReceiver.this.folder);
                         for (Message message : messages) {
 
+                            MailMessageReceiver.this.logger.info("received message \"" + message.getSubject() + "\" from " + message.getFrom()[0]);
+
                             for (Disposition disposition : MailMessageReceiver.this.dispositions) {
 
                                 if (disposition.getFrom() != null && !containsAddress(message.getFrom(), disposition.getFrom())) {
@@ -221,6 +223,8 @@ public class MailMessageReceiver extends AbstractAsyncStandaloneMessageReceiver 
                                 if (disposition.getSubject() != null && !message.getSubject().contains(disposition.getSubject())) {
                                     continue;
                                 }
+
+                                MailMessageReceiver.this.logger.info("process message \"" + message.getSubject() + "\" by disposition " + disposition.getName());
 
                                 // only if all defined dispositions match execute the service
                                 MessageHandler handler = new MessageHandler(message, disposition.getName(), disposition.getService());

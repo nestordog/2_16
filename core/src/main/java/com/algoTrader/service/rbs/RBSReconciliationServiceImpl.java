@@ -70,7 +70,7 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
             // find the securities by ricRoot, expiration, strike and type
             SecurityFamily family = getSecurityFamilyDao().findByRicRoot(securityCode);
             if (family == null) {
-                notificationLogger.error("unknown securityFamily for ric root " + securityCode);
+                notificationLogger.warn("unknown securityFamily for ric root " + securityCode);
                 continue;
             }
 
@@ -89,14 +89,14 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
                 Long actualyQuantity = getTransactionDao().findQuantityBySecurityAndDate(security.getId(), statementDate);
 
                 if (actualyQuantity == null) {
-                    notificationLogger.error("position " + format.format(statementDate) + " " + quantity + " " + security + " does not exist");
+                    notificationLogger.warn("position " + format.format(statementDate) + " " + quantity + " " + security + " does not exist");
                 } else if (actualyQuantity.longValue() != quantity.longValue()) {
-                    notificationLogger.error("position " + format.format(statementDate) + " " + security + " quantity does not match db: " + actualyQuantity + " file: " + quantity);
+                    notificationLogger.warn("position " + format.format(statementDate) + " " + security + " quantity does not match db: " + actualyQuantity + " file: " + quantity);
                 } else {
                     logger.info("position " + format.format(statementDate) + " " + quantity + " " + security + " ok");
                 }
             } else {
-                notificationLogger.error("security does not exist, product: " + securityCode + " expiration: " + format.format(exerciseDate) + " strike: " + strikePrice + " tradeType: " + tradeType);
+                notificationLogger.warn("security does not exist, product: " + securityCode + " expiration: " + format.format(exerciseDate) + " strike: " + strikePrice + " tradeType: " + tradeType);
             }
         }
     }
@@ -147,7 +147,7 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
             // find the securityFamily and securitiy by ricRoot, expiration, strike and type
             SecurityFamily family = getSecurityFamilyDao().findByRicRoot(securityCode);
             if (family == null) {
-                notificationLogger.error("unknown securityFamily for ric root " + securityCode);
+                notificationLogger.warn("unknown securityFamily for ric root " + securityCode);
                 continue;
             }
 
@@ -164,7 +164,7 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
             // check clearing commission
             BigDecimal commissionPerContract = RoundUtil.getBigDecimal(commission.doubleValue() / absQuantity, this.portfolioDigits);
             if (!family.getClearingCommission().setScale(this.portfolioDigits).equals(commissionPerContract)) {
-                notificationLogger.error("transaction " + format.format(tradeDate) + " " + transactionType + " " + absQuantity + " " + security + " price: " + tradePrice + " clearing commission is "
+                notificationLogger.warn("transaction " + format.format(tradeDate) + " " + transactionType + " " + absQuantity + " " + security + " price: " + tradePrice + " clearing commission is "
                         + commissionPerContract + " where it should be " + family.getClearingCommission());
             }
 
@@ -172,10 +172,11 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
             MultiKey<Object> key = new MultiKey<Object>(tradeDate, transactionType, security, tradePrice.doubleValue());
             if (!transactionBag.contains(key)) {
 
-                notificationLogger.error("transactions " + format.format(tradeDate) + " " + transactionType + " " + security + " price: " + tradePrice + " quantity: " + absQuantity + " does not exist in db");
+                notificationLogger.warn("transactions " + format.format(tradeDate) + " " + transactionType + " " + security + " price: " + tradePrice + " quantity: " + absQuantity
+                        + " does not exist in db");
             } else if (absQuantity > transactionBag.getCount(key)) {
 
-                notificationLogger.error("transactions " + format.format(tradeDate) + " " + transactionType + " " + security + " price: " + tradePrice + " unmatched file quantity " + absQuantity);
+                notificationLogger.warn("transactions " + format.format(tradeDate) + " " + transactionType + " " + security + " price: " + tradePrice + " unmatched file quantity " + absQuantity);
             } else {
 
                 // remove that corresponding quantity
@@ -186,7 +187,8 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
         }
 
         for (MultiKey<Object> key : transactionBag.uniqueSet()) {
-            notificationLogger.error("transactions " + format.format(key.getKey(0)) + " " + key.getKey(1) + " " + key.getKey(2) + " price: " + key.getKey(3) + " unmatched db quantitiy " + transactionBag.getCount(key));
+            notificationLogger.warn("transactions " + format.format(key.getKey(0)) + " " + key.getKey(1) + " " + key.getKey(2) + " price: " + key.getKey(3) + " unmatched db quantitiy "
+                    + transactionBag.getCount(key));
         }
     }
 }
