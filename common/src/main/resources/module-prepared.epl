@@ -17,3 +17,9 @@ from
             ord.security.id in (?),
             ord.strategy.name = ?,
             ord.algoOrder = ?)))];
+
+@Name('FIX_SESSION')
+select
+    null
+from
+    pattern[timer:at (?, ?, *, *, ?, ?)];

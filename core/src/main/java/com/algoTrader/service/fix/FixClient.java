@@ -4,12 +4,15 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.quickfixj.jmx.JmxExporter;
 import org.springframework.beans.factory.InitializingBean;
 
 import quickfix.CompositeLogFactory;
+import quickfix.ConfigError;
 import quickfix.DefaultMessageFactory;
+import quickfix.FieldConvertError;
 import quickfix.FileLogFactory;
 import quickfix.FileStoreFactory;
 import quickfix.LogFactory;
@@ -24,8 +27,10 @@ import quickfix.SessionNotFound;
 import quickfix.SessionSettings;
 import quickfix.SocketInitiator;
 
+import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.MarketChannel;
+import com.algoTrader.esper.EsperManager;
 
 public class FixClient implements InitializingBean {
 
@@ -66,11 +71,46 @@ public class FixClient implements InitializingBean {
             SessionID sessionId = i.next();
             if (sessionId.getSessionQualifier().equals(marketChannel.toString())) {
                 this.initiator.createDynamicSession(sessionId);
+                createLogonLogoutStatement(sessionId);
                 return;
             }
         }
 
         throw new IllegalStateException("SessionID missing in settings " + marketChannel);
+    }
+
+    private void createLogonLogoutStatement(final SessionID sessionId) throws ConfigError, FieldConvertError {
+
+        if (this.initiator.getSettings().isSetting(sessionId, "LogonPattern") && this.initiator.getSettings().isSetting(sessionId, "LogoutPattern")) {
+
+            // TimeZone offset
+            String timeZone = this.initiator.getSettings().getString(sessionId, "TimeZone");
+            int hourOffset = (TimeZone.getDefault().getOffset(System.currentTimeMillis()) - TimeZone.getTimeZone(timeZone).getOffset(System.currentTimeMillis())) / 3600000;
+
+            // logon
+            String[] logonPattern = this.initiator.getSettings().getString(sessionId, "LogonPattern").split("\\W");
+            Object[] logonParams = { Integer.valueOf(logonPattern[2]), Integer.valueOf(logonPattern[1]) + hourOffset, Integer.valueOf(logonPattern[0]), Integer.valueOf(logonPattern[3]) };
+
+            EsperManager.deployStatement(StrategyImpl.BASE, "prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGON", logonParams, new Object() {
+                @SuppressWarnings("unused")
+                public void update() {
+                    Session session = Session.lookupSession(sessionId);
+                    session.logon();
+                }
+            });
+
+            // logout
+            String[] logoutPattern = this.initiator.getSettings().getString(sessionId, "LogoutPattern").split("\\W");
+            Object[] logoutParams = { Integer.valueOf(logoutPattern[2]), Integer.valueOf(logoutPattern[1]) + hourOffset, Integer.valueOf(logoutPattern[0]), Integer.valueOf(logoutPattern[3]) };
+
+            EsperManager.deployStatement(StrategyImpl.BASE, "prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGOUT", logoutParams, new Object() {
+                @SuppressWarnings("unused")
+                public void update() {
+                    Session session = Session.lookupSession(sessionId);
+                    session.logout();
+                }
+            });
+        }
     }
 
     public Map<String, ConnectionState> getConnectionStates() {
