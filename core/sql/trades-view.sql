@@ -13,13 +13,13 @@ SELECT
       WHEN
       IFNULL(SUM(t2.quantity),0) = 0
     THEN
-      'OPEN'
+      'OPEP'
     WHEN
        SIGN(t1.QUANTITY) = SIGN(IFNULL(SUM(t2.quantity),0))
     THEN
-      'OPEN'
+      'OPEP'
     ELSE
-      'CLOSE'
+      'CLOP'
   END AS OPEN_CLOSE
 FROM
   transaction t1
@@ -34,7 +34,7 @@ ON
 AND
   t2.DATE_TIME < t1.DATE_TIME
 WHERE
-  t1.TYPE = 'BUY'
+  t1.TYPE = 'BUYI'
 OR
   t1.TYPE = 'SELL'
 GROUP BY
