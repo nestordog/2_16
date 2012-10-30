@@ -40,6 +40,7 @@ public class PositionDaoImpl extends PositionDaoBase {
         positionVO.setAveragePrice(RoundUtil.getBigDecimal(position.getAveragePriceDouble(), scale));
         positionVO.setCost(RoundUtil.getBigDecimal(position.getCostDouble()));
         positionVO.setUnrealizedPL(RoundUtil.getBigDecimal(position.getUnrealizedPLDouble()));
+        positionVO.setRealizedPL(RoundUtil.getBigDecimal(position.getRealizedPLDouble()));
         positionVO.setExitValue(position.getExitValue() != null ? RoundUtil.getBigDecimal(position.getExitValue(), scale) : null);
         positionVO.setMaxLoss(RoundUtil.getBigDecimal(position.getMaxLossDouble()));
         positionVO.setMargin(position.getMaintenanceMargin());

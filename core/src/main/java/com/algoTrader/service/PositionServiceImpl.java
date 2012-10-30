@@ -38,7 +38,7 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.ClosePositionVO;
 import com.algoTrader.vo.ExpirePositionVO;
-import com.algoTrader.vo.TransactionSummaryVO;
+import com.algoTrader.vo.OpenPositionVO;
 
 public class PositionServiceImpl extends PositionServiceBase {
 
@@ -327,21 +327,21 @@ public class PositionServiceImpl extends PositionServiceBase {
     @Override
     protected void handleResetPositions() throws Exception {
 
-        Collection<TransactionSummaryVO> transactionSummaries = getTransactionDao().findTransactionSummaries();
+        Collection<OpenPositionVO> openPositionVOs = getTransactionDao().findTransactionSummariesPerStrategy();
 
-        for (TransactionSummaryVO summary : transactionSummaries) {
+        for (OpenPositionVO openPositionVO : openPositionVOs) {
 
-            Position position = getPositionDao().findBySecurityAndStrategy(summary.getSecurityId(), summary.getStrategyName());
+            Position position = getPositionDao().findBySecurityAndStrategy(openPositionVO.getSecurityId(), openPositionVO.getStrategyName());
             if (position == null) {
 
-                logger.warn("position on security " + summary.getSecurityId() + " strategy " + summary.getStrategyName() + " quantity " + summary.getQuantity() + " does not exist");
+                logger.warn("position on security " + openPositionVO.getSecurityId() + " strategy " + openPositionVO.getStrategyName() + " quantity " + openPositionVO.getQuantity() + " does not exist");
 
-            } else if (position.getQuantity() != summary.getQuantity()) {
+            } else if (position.getQuantity() != openPositionVO.getQuantity()) {
 
                 long existingQty = position.getQuantity();
-                position.setQuantity(summary.getQuantity());
+                position.setQuantity(openPositionVO.getQuantity());
 
-                logger.warn("adjusted quantity of position " + position.getId() + " from " + existingQty + " to " + summary.getQuantity());
+                logger.warn("adjusted quantity of position " + position.getId() + " from " + existingQty + " to " + openPositionVO.getQuantity());
             }
         }
 
@@ -349,9 +349,9 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         for (final Position position : openPositions) {
 
-            TransactionSummaryVO summary = CollectionUtils.find(transactionSummaries, new Predicate<TransactionSummaryVO>() {
+            OpenPositionVO summary = CollectionUtils.find(openPositionVOs, new Predicate<OpenPositionVO>() {
                 @Override
-                public boolean evaluate(TransactionSummaryVO summary) {
+                public boolean evaluate(OpenPositionVO summary) {
                     return position.getSecurity().getId() == summary.getSecurityId() && position.getStrategy().getName().equals(summary.getStrategyName());
                 }
             });

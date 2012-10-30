@@ -3,6 +3,6 @@
           "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <import class="com.algoTrader.vo.TransactionSummaryVO" rename="TransactionSummaryVO"/>
+    <import class="com.algoTrader.vo.OpenPositionVO" rename="OpenPositionVO"/>
     <import class="com.algoTrader.entity.security.ExpirableI" rename="ExpirableI"/>
 </hibernate-mapping>

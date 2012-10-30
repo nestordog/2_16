@@ -1,14 +1,8 @@
 package com.algoTrader.entity;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.enumeration.Direction;
-import com.algoTrader.util.DateUtil;
+import com.algoTrader.util.PositionUtil;
 
 public class PositionImpl extends Position {
 
@@ -91,21 +85,7 @@ public class PositionImpl extends Position {
     @Override
     public double getAveragePriceDouble() {
 
-        long totalQuantity = 0;
-        double totalPrice = 0.0;
-
-        List<QuantityTransaction> quantityTransactions = getFIFIQueue();
-        for (QuantityTransaction queueTransaction : quantityTransactions) {
-
-            Transaction transaction = queueTransaction.getTransaction();
-            long quantity = queueTransaction.getQuantity();
-            double pricePerContract = Math.abs(transaction.getNetValueDouble() / transaction.getQuantity());
-
-            totalQuantity += quantity;
-            totalPrice += quantity * pricePerContract;
-
-        }
-        return totalPrice / totalQuantity / getSecurity().getSecurityFamily().getContractSize();
+        return PositionUtil.getAveragePrice(getSecurity(), getTransactions(), true);
     }
 
     @Override
@@ -120,25 +100,7 @@ public class PositionImpl extends Position {
     @Override
     public double getAverageAge() {
 
-        long totalQuantity = 0;
-        long totalAge = 0;
-
-        List<QuantityTransaction> quantityTransactions = getFIFIQueue();
-        for (QuantityTransaction queueTransaction : quantityTransactions) {
-
-            Transaction transaction = queueTransaction.getTransaction();
-            long quantity = queueTransaction.getQuantity();
-            long age = DateUtil.getCurrentEPTime().getTime() - transaction.getDateTime().getTime();
-
-            totalQuantity += quantity;
-            totalAge += quantity * age;
-
-        }
-        if (totalQuantity != 0) {
-            return totalAge / totalQuantity / 86400000.0;
-        } else {
-            return Double.NaN;
-        }
+        return PositionUtil.getAverageAge(getTransactions());
     }
 
     /**
@@ -148,8 +110,7 @@ public class PositionImpl extends Position {
     public double getCostDouble() {
 
         if (isOpen()) {
-
-            return getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getAveragePriceDouble();
+            return PositionUtil.getCost(getTransactions(), true);
         } else {
             return 0.0;
         }
@@ -175,6 +136,18 @@ public class PositionImpl extends Position {
     public double getUnrealizedPLBaseDouble() {
 
         return getUnrealizedPLDouble() * getSecurity().getFXRateBase();
+    }
+
+    @Override
+    public double getRealizedPLDouble() {
+
+        return PositionUtil.getRealizedPL(getTransactions(), true);
+    }
+
+    @Override
+    public double getRealizedPLBaseDouble() {
+
+        return getRealizedPLDouble() * getSecurity().getFXRateBase();
     }
 
     @Override
@@ -259,81 +232,5 @@ public class PositionImpl extends Position {
     public String toString() {
 
         return getQuantity() + " " + getSecurity();
-    }
-
-    private List<QuantityTransaction> getFIFIQueue() {
-
-        List<Transaction> transactions = new ArrayList<Transaction>(getTransactions());
-
-        // sort by date ascending
-        Collections.sort(transactions, new Comparator<Transaction>() {
-            @Override
-            public int compare(Transaction t1, Transaction t2) {
-                return (t1.getDateTime().compareTo(t2.getDateTime()));
-            }
-        });
-
-        List<QuantityTransaction> queue = new ArrayList<QuantityTransaction>();
-        long totalQuantity = 0;
-        for (Transaction transaction : transactions) {
-
-            // if queue is empty or transaction increases existing position -> add transaction to queue
-            if (queue.size() == 0 || Long.signum(totalQuantity) == Long.signum(transaction.getQuantity())) {
-                queue.add(new QuantityTransaction(transaction.getQuantity(), transaction));
-
-                // if transaction is reducing quantity -> go through the queue and remove as many items as necessary
-            } else {
-                long runningQuantity = transaction.getQuantity();
-                for (Iterator<QuantityTransaction> it = queue.iterator(); it.hasNext();) {
-
-                    QuantityTransaction queueTransaction = it.next();
-
-                    // transaction will be completely removed
-                    if (Math.abs(queueTransaction.getQuantity()) <= Math.abs(runningQuantity)) {
-                        runningQuantity += queueTransaction.getQuantity();
-                        it.remove();
-
-                        // transaction will be partly removed
-                    } else {
-                        queueTransaction.setQuantity(queueTransaction.getQuantity() + runningQuantity);
-                        runningQuantity = 0;
-                        break;
-                    }
-                }
-
-                // if not the entire runningQuantity could be eliminated,
-                // create a new Quantity Transaction with the reminder
-                if (runningQuantity != 0) {
-                    queue.add(new QuantityTransaction(runningQuantity, transaction));
-                }
-            }
-            totalQuantity += transaction.getQuantity();
-        }
-
-        return queue;
-    }
-
-    private static class QuantityTransaction {
-
-        private long quantity;
-        private Transaction transaction;
-
-        public QuantityTransaction(long quantity, Transaction transaction) {
-            super();
-            this.quantity = quantity;
-            this.transaction = transaction;
-        }
-
-        public long getQuantity() {
-            return this.quantity;
-        }
-
-        public void setQuantity(long quantity) {
-            this.quantity = quantity;
-        }
-
-        public Transaction getTransaction() {
-            return this.transaction;
-        }
     }
 }

@@ -36,6 +36,7 @@ import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
+import com.algoTrader.util.PositionUtil;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.OrderStatusVO;
 import com.algoTrader.vo.PositionVO;
@@ -485,6 +486,20 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected double handleGetPositionMarketPriceByDate(Security security, Date date) throws Exception {
+
+        Tick tick = getTickDao().findTicksForSecurityAndMinDate(1, 1, security.getId(), date).get(0);
+        return tick.getSettlement().doubleValue();
+    }
+
+    @Override
+    protected double handleGetPositionAveragePriceByDate(Security security, Date date) throws Exception {
+
+        Collection<Transaction> transactions = getTransactionDao().findBySecurityAndDate(security.getId(), date);
+        return PositionUtil.getAveragePrice(security, transactions, false);
+    }
+
+    @Override
     protected Collection<Transaction> handleGetAllTransactions() throws Exception {
 
         return getTransactionDao().loadAll();
@@ -617,6 +632,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected double handleGetForexRateDouble(Currency baseCurrency, Currency transactionCurrency) throws Exception {
 
         return getForexDao().getRateDouble(baseCurrency, transactionCurrency);
+    }
+
+    @Override
+    protected double handleGetForexSettlementRateDoubleByDate(Currency baseCurrency, Currency transactionCurrency, Date date) throws Exception {
+
+        return getForexDao().getSettlementRateDoubleByDate(baseCurrency, transactionCurrency, date);
     }
 
     @Override
