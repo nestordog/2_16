@@ -1,4 +1,6 @@
-// AlgoTrader: 85 - 108 AlgoTrader refresh MBeans
+// AlgoTrader:
+// 85 - 108 refresh MBeans
+// 387 - 413 add SplitPane to Attributes
 /*
  * %W% %E%
  *
@@ -35,6 +37,7 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 import javax.swing.border.LineBorder;
@@ -380,25 +383,34 @@ public class XSheet extends JPanel
             return;
         }
         this.mbean = (XMBean) uo.getData();
-        SwingWorker<Void,Void> sw = new SwingWorker<Void,Void>() {
+        SwingWorker<MBeanInfo,Void> sw = new SwingWorker<MBeanInfo,Void>() {
             @Override
-            public Void doInBackground() throws InstanceNotFoundException,
+            public MBeanInfo doInBackground() throws InstanceNotFoundException,
                     IntrospectionException, ReflectionException, IOException {
                 XSheet.this.mbeanAttributes.loadAttributes(XSheet.this.mbean, XSheet.this.mbean.getMBeanInfo());
-                return null;
+                return XSheet.this.mbean.getMBeanInfo();
             }
             @Override
             protected void done() {
                 try {
-                    get();
-                    if (!isSelectedNode(node, XSheet.this.currentNode)) return;
+                    MBeanInfo mbi = get();
                     invalidate();
                     XSheet.this.mainPanel.removeAll();
-                    JPanel borderPanel = new JPanel(new BorderLayout());
-                    borderPanel.setBorder(BorderFactory.createTitledBorder(
-                            Resources.getText("Attribute values")));
-                    borderPanel.add(new JScrollPane(XSheet.this.mbeanAttributes));
-                    XSheet.this.mainPanel.add(borderPanel, BorderLayout.CENTER);
+                    JScrollPane attributeScrollPane = new JScrollPane(XSheet.this.mbeanAttributes);
+
+                    if (mbi != null && mbi.getOperations().length > 0) {
+
+                        XSheet.this.mbeanOperations.loadOperations(XSheet.this.mbean, mbi);
+                        JScrollPane operationScrollPane = new JScrollPane(XSheet.this.mbeanOperations);
+
+                        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, attributeScrollPane, operationScrollPane);
+                        splitPane.setResizeWeight(0.5);
+
+                        XSheet.this.mainPanel.add(splitPane, BorderLayout.CENTER);
+                    } else {
+                        XSheet.this.mainPanel.add(attributeScrollPane, BorderLayout.CENTER);
+                    }
+
                     // add the refresh button to the south panel
                     XSheet.this.southPanel.removeAll();
                     XSheet.this.southPanel.add(XSheet.this.refreshButton, BorderLayout.SOUTH);
