@@ -398,7 +398,7 @@ public class XSheet extends JPanel
                     XSheet.this.mainPanel.removeAll();
                     JScrollPane attributeScrollPane = new JScrollPane(XSheet.this.mbeanAttributes);
 
-                    if (mbi != null && mbi.getOperations().length > 0) {
+                    if (mbi != null && mbi.getOperations().length > 0 && System.getProperty("readOnly") == null) {
 
                         XSheet.this.mbeanOperations.loadOperations(XSheet.this.mbean, mbi);
                         JScrollPane operationScrollPane = new JScrollPane(XSheet.this.mbeanOperations);
