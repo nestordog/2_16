@@ -161,4 +161,18 @@
         </bean>
     </beans>
 
+    <beans profile="bviReconciliation">
+        <bean id="mailMessageReceiver" class="org.springframework.ws.transport.mail.MailMessageReceiver">
+            <property name="storeUri" value="imap://quant:Zermatt11@mail.linardcapital.com/INBOX"/>
+            <property name="disposition">
+                <set>
+                    <bean class="org.springframework.ws.transport.mail.Disposition" p:name="ib" p:from="donotreply@interactivebrokers.com" p:subject="Activity Flex" p:service-ref="iBReconciliationService"/>
+                </set>
+            </property>
+            <property name="monitoringStrategy">
+                <bean class="org.springframework.ws.transport.mail.monitor.ImapIdleMonitoringStrategy"/>
+            </property>
+        </bean>
+    </beans>
+
 </beans>

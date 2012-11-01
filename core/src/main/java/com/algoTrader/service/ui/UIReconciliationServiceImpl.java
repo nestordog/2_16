@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -40,11 +41,6 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
     private static NumberFormat numberFormat = NumberFormat.getInstance(Locale.GERMANY);
 
     private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
-
-    @Override
-    protected void handleReconcile() throws Exception {
-        throw new UnsupportedOperationException();
-    }
 
     @Override
     protected void handleReconcile(List<String> fileNames) throws Exception {
@@ -216,14 +212,14 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
             Long actualyQuantity = getTransactionDao().findQuantityBySecurityAndDate(security.getId(), DateUtils.addDays(date, 1));
 
             if (actualyQuantity == null) {
-                notificationLogger.error("position " + dateFormat.format(date) + " " + security + " does not exist");
+                notificationLogger.warn("position " + dateFormat.format(date) + " " + security + " does not exist");
             } else if (actualyQuantity != quantity) {
-                notificationLogger.error("position " + dateFormat.format(date) + " " + security + " quantity does not match db: " + actualyQuantity + " broker: " + quantity);
+                notificationLogger.warn("position " + dateFormat.format(date) + " " + security + " quantity does not match db: " + actualyQuantity + " broker: " + quantity);
             } else {
                 logger.info("position " + dateFormat.format(date) + " " + security + " ok");
             }
         } else {
-            notificationLogger.error("security does not exist, ric: " + ric);
+            notificationLogger.warn("security does not exist, ric: " + ric);
         }
     }
 
@@ -248,5 +244,10 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
     private Date parseDate(String[] values, int idx) throws ParseException {
 
         return dateFormat.parse(values[idx]);
+    }
+
+    @Override
+    protected void handleReconcileNAV(Date date, boolean ignoreExecutionCommission, Collection<Integer> ignoredTransactions, Collection<Date> ignoredOptionCommisionDates, Collection<Date> ignoredFutureCommisionDates) {
+
     }
 }

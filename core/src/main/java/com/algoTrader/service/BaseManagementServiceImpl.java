@@ -76,12 +76,6 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     }
 
     @Override
-    protected void handleReconcile() throws Exception {
-
-        getReconciliationService().reconcile();
-    }
-
-    @Override
     protected void handleEqualizeForex() throws Exception {
 
         getForexService().equalizeForex();

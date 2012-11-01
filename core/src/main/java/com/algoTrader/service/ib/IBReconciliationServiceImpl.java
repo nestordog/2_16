@@ -12,11 +12,6 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
@@ -24,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
-import org.xml.sax.InputSource;
 
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Strategy;
@@ -35,10 +29,8 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.util.HttpClientUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
-import com.algoTrader.util.XmlUtil;
 
 public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
 
@@ -55,98 +47,9 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
     private @Value("${ib.timeDifferenceHours}") int timeDifferenceHours;
     private @Value("${ib.recreateTransactions}") boolean recreateTransactions;
 
-    private static final String requestUrl = "https://www.interactivebrokers.com/Universal/servlet/FlexStatementService.SendRequest";
-    private static final String statementUrl = "https://www.interactivebrokers.com/Universal/servlet/FlexStatementService.GetStatement";
-
-    private static SimpleDateFormat fileFormat = new SimpleDateFormat("yyyyMMdd_kkmmss");
     private static SimpleDateFormat cashDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd, kk:mm:ss");
     private static SimpleDateFormat cashDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private static SimpleDateFormat tradeDateTimeFormat = new SimpleDateFormat("yyyyMMdd kkmmss");
-
-    @Override
-    protected void handleReconcile() throws Exception {
-
-        if (this.simulation) {
-            return;
-        }
-
-        if (("").equals(this.flexQueryId) || ("").equals(this.flexToken)) {
-            throw new IBAccountServiceException("flexQueryId and flexToken have to be defined");
-        }
-
-        String url = requestUrl + "?t=" + this.flexToken + "&q=" + this.flexQueryId;
-
-        // get the flex reference code
-        GetMethod get = new GetMethod(url);
-        HttpClient standardClient = HttpClientUtil.getStandardClient();
-
-        Document document;
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-
-        try {
-            int status = standardClient.executeMethod(get);
-
-            if (status != HttpStatus.SC_OK) {
-                throw new HttpException("invalid flex reference code request with url:" + url);
-            }
-
-            // get the xml-document
-            document = builder.parse(new InputSource(get.getResponseBodyAsStream()));
-
-            XmlUtil.saveDocumentToFile(document, fileFormat.format(new Date()) + "_flexReferenceCode.xml", "flex");
-
-        } finally {
-            get.releaseConnection();
-        }
-
-        String code = XPathAPI.selectSingleNode(document, "//code/text()").getNodeValue();
-
-        if (!NumberUtils.isDigits(code)) {
-            throw new IBAccountServiceException(code);
-        }
-
-        // get the statement
-        url = statementUrl + "?t=" + this.flexToken + "&q=" + code + "&v=2";
-
-        // repeat until the statement is generated
-        while (true) {
-
-            get = new GetMethod(url);
-
-            try {
-                int status = standardClient.executeMethod(get);
-
-                if (status != HttpStatus.SC_OK) {
-                    throw new HttpException("invalid flex statement request with url:" + url);
-                }
-
-                // get the xml-document
-                document = builder.parse(new InputSource(get.getResponseBodyAsStream()));
-
-                XmlUtil.saveDocumentToFile(document, fileFormat.format(new Date()) + "_flexStatement.xml", "flex");
-
-            } finally {
-                get.releaseConnection();
-            }
-
-            Node errorNode = XPathAPI.selectSingleNode(document, "/FlexStatementResponse/code/text()");
-            if (errorNode == null) {
-                break; // statement was generated sucessfully
-            } else {
-                if ("Statement generation in progress. Please try again shortly.".equals(errorNode.getNodeValue())) {
-                    Thread.sleep(10000); // wait 10 sec
-                } else {
-                    throw new IBAccountServiceException(errorNode.getNodeValue());
-                }
-            }
-        }
-
-        // do the actual reconciliation
-        processCashTransactions(document);
-        reconcilePositions(document);
-        reconcileTrades(document);
-    }
 
     @Override
     protected void handleReconcile(List<String> fileNames) throws Exception {
@@ -159,6 +62,9 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
             Document document = builder.parse(fileName);
 
             // do the actual reconciliation
+            processCashTransactions(document);
+            reconcilePositions(document);
+            reconcileTrades(document);
             reconcileUnbookedTrades(document);
         }
     }

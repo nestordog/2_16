@@ -35,11 +35,6 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
     private @Value("${misc.portfolioDigits}") int portfolioDigits;
 
     @Override
-    protected void handleReconcile() throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     protected void handleReconcile(List<String> fileNames) throws Exception {
 
         for (String fileName : fileNames) {
