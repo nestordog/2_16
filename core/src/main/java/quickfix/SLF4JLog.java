@@ -119,7 +119,8 @@ public class SLF4JLog extends AbstractLog {
     public void onErrorEvent(String text) {
         if (text.startsWith("java.net.ConnectException") ||
             text.startsWith("MsgSeqNum too high") ||
-            text.startsWith("Disconnecting: Timed out waiting for heartbeat")) {
+            text.startsWith("Disconnecting: Timed out waiting for heartbeat") ||
+            text.startsWith("quickfix.SessionException Logon state is not valid")) {
 
             log(eventLog, text);
         } else {

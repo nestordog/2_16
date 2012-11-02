@@ -112,9 +112,14 @@ public class FixMessageHandler {
     public void onMessage(OrderCancelReject orderCancelReject, SessionID sessionID)  {
 
         try {
-            logger.error("order has been rejected, clOrdID: " + orderCancelReject.getClOrdID().getValue() +
-                    " origOrdID: " + orderCancelReject.getOrigClOrdID().getValue() +
-                    " reason: " + orderCancelReject.getText().getValue());
+            if ("Too late to cancel".equals(orderCancelReject.getText().getValue())) {
+                logger.info("cannot cancel, order has already been executed, clOrdID: " + orderCancelReject.getClOrdID().getValue() +
+                        " origOrdID: " + orderCancelReject.getOrigClOrdID().getValue());
+            } else {
+                logger.error("order cancel/replace has been rejected, clOrdID: " + orderCancelReject.getClOrdID().getValue() +
+                        " origOrdID: " + orderCancelReject.getOrigClOrdID().getValue() +
+                        " reason: " + orderCancelReject.getText().getValue());
+            }
         } catch (FieldNotFound e) {
             logger.error(e);
         }
