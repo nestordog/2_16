@@ -101,12 +101,12 @@
         <level value="warn" />
     </logger>
 
-    <logger name="org.springframework.ws.transport.mail.MailMessageReceiver">
-        <level value="info"/>
-    </logger>
-
     <logger name="org.springframework.beans.factory.support.DisposableBeanAdapter">
         <level value="error" />
+    </logger>
+
+    <logger name="org.springframework.ws.transport">
+        <level value="debug"/>
     </logger>
 
     <logger name="org.hibernate">

@@ -27,6 +27,7 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
+import javax.mail.StoreClosedException;
 import javax.mail.URLName;
 
 import org.apache.commons.logging.Log;
@@ -67,6 +68,8 @@ public class MailMessageReceiver extends AbstractAsyncStandaloneMessageReceiver 
     private MonitoringStrategy monitoringStrategy;
 
     private Set<Disposition> dispositions = new HashSet<Disposition>();
+
+    private int reconnectTimeout = 0;
 
     /**
      * Set JavaMail properties for the {@link Session}.
@@ -119,6 +122,10 @@ public class MailMessageReceiver extends AbstractAsyncStandaloneMessageReceiver 
     public void setDisposition(Set<Disposition> dispositions) {
 
         this.dispositions = dispositions;
+    }
+
+    public void setReconnectTimeout(int reconnectTimeout) {
+        this.reconnectTimeout = reconnectTimeout;
     }
 
     @Override
@@ -210,32 +217,40 @@ public class MailMessageReceiver extends AbstractAsyncStandaloneMessageReceiver 
                         Message[] messages = MailMessageReceiver.this.monitoringStrategy.monitor(MailMessageReceiver.this.folder);
                         for (Message message : messages) {
 
-                            MailMessageReceiver.this.logger.info("received message \"" + message.getSubject() + "\" from " + message.getFrom()[0]);
-
                             for (Disposition disposition : MailMessageReceiver.this.dispositions) {
 
+                                boolean match = true;
                                 if (disposition.getFrom() != null && !containsAddress(message.getFrom(), disposition.getFrom())) {
-                                    continue;
-                                }
-                                if (disposition.getTo() != null && !containsAddress(message.getAllRecipients(), disposition.getTo())) {
-                                    continue;
-                                }
-                                if (disposition.getSubject() != null && !message.getSubject().contains(disposition.getSubject())) {
-                                    continue;
+                                    match = false;
+                                } else if (disposition.getTo() != null && !containsAddress(message.getAllRecipients(), disposition.getTo())) {
+                                    match = false;
+                                } else if (disposition.getSubject() != null && !message.getSubject().contains(disposition.getSubject())) {
+                                    match = false;
                                 }
 
-                                MailMessageReceiver.this.logger.info("process message \"" + message.getSubject() + "\" by disposition " + disposition.getName());
-
-                                // only if all defined dispositions match execute the service
-                                MessageHandler handler = new MessageHandler(message, disposition.getName(), disposition.getService());
-                                execute(handler);
+                                if (match) {
+                                    // only if all defined dispositions match execute the service
+                                    MailMessageReceiver.this.logger.info("processing message \"" + message.getSubject() + "\" from " + message.getFrom()[0] + " received on " + message.getReceivedDate() + " by disposition " + disposition.getName());
+                                    MessageHandler handler = new MessageHandler(message, disposition.getName(), disposition.getService());
+                                    execute(handler);
+                                } else {
+                                    MailMessageReceiver.this.logger.info("ignoring message \"" + message.getSubject() + "\" from " + message.getFrom()[0] + " received on " + message.getReceivedDate());
+                                }
                             }
                         }
                     }
                     catch (FolderClosedException ex) {
-                        MailMessageReceiver.this.logger.debug("Folder closed, reopening");
+                        MailMessageReceiver.this.logger.debug("Folder closed, trying to reopen");
                         if (isRunning()) {
-                            openFolder();
+                            while(true) {
+                                try {
+                                    openFolder();
+                                    break;
+                                } catch (StoreClosedException e) {
+                                    Thread.sleep(MailMessageReceiver.this.reconnectTimeout);
+                                    MailMessageReceiver.this.logger.debug("Store closed, trying to reopen");
+                                }
+                            }
                         }
                     }
                     catch (MessagingException ex) {
