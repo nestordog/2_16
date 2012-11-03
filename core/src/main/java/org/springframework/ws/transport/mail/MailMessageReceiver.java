@@ -217,25 +217,28 @@ public class MailMessageReceiver extends AbstractAsyncStandaloneMessageReceiver 
                         Message[] messages = MailMessageReceiver.this.monitoringStrategy.monitor(MailMessageReceiver.this.folder);
                         for (Message message : messages) {
 
+                            boolean match = false;
                             for (Disposition disposition : MailMessageReceiver.this.dispositions) {
 
-                                boolean match = true;
                                 if (disposition.getFrom() != null && !containsAddress(message.getFrom(), disposition.getFrom())) {
-                                    match = false;
+                                    continue;
                                 } else if (disposition.getTo() != null && !containsAddress(message.getAllRecipients(), disposition.getTo())) {
-                                    match = false;
+                                    continue;
                                 } else if (disposition.getSubject() != null && !message.getSubject().contains(disposition.getSubject())) {
-                                    match = false;
+                                    continue;
                                 }
 
-                                if (match) {
-                                    // only if all defined dispositions match execute the service
-                                    MailMessageReceiver.this.logger.info("processing message \"" + message.getSubject() + "\" from " + message.getFrom()[0] + " received on " + message.getReceivedDate() + " by disposition " + disposition.getName());
-                                    MessageHandler handler = new MessageHandler(message, disposition.getName(), disposition.getService());
-                                    execute(handler);
-                                } else {
-                                    MailMessageReceiver.this.logger.info("ignoring message \"" + message.getSubject() + "\" from " + message.getFrom()[0] + " received on " + message.getReceivedDate());
-                                }
+                                // only if all defined dispositions match execute the service
+                                match = true;
+                                MailMessageReceiver.this.logger.info("processing message \"" + message.getSubject() + "\" from " + message.getFrom()[0] + " received on " + message.getReceivedDate()
+                                        + " by disposition " + disposition.getName());
+                                MessageHandler handler = new MessageHandler(message, disposition.getName(), disposition.getService());
+                                execute(handler);
+                                break; // not need to look at the rest of the dispositions
+                            }
+
+                            if (!match) {
+                                MailMessageReceiver.this.logger.info("ignoring message \"" + message.getSubject() + "\" from " + message.getFrom()[0] + " received on " + message.getReceivedDate());
                             }
                         }
                     }
