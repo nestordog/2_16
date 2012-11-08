@@ -177,6 +177,9 @@ public abstract class SecurityImpl extends Security {
             return false;
         } else if (tick.getSettlement() == null) {
             return false;
+        } else if (tick.getBidAskSpreadDouble() < 0) {
+            logger.error("crossed spread: bid " + tick.getBid() + " ask " + tick.getAsk() + " for " + this);
+            return false;
         } else {
             return true;
         }
