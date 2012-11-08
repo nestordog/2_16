@@ -10,6 +10,8 @@ public class Constants {
 
     public static final long ONE_WEEK = 604800000l;
 
+    public static final long ONE_YEAR = 31536000000l;
+
     public static final long FIVETEEN_DAY = 1296000000l;
 
     public static final long THIRTY_DAYS = 2592000000l;
@@ -21,6 +23,4 @@ public class Constants {
     public static final long NINETY_DAYS = 7776000000l;
 
     public static final int SECONDS_PER_DAY = 86400;
-
-    public static final int MILLIS_PER_DAY = 86400000;
 }
