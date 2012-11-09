@@ -178,8 +178,17 @@ public abstract class SecurityImpl extends Security {
         } else if (tick.getSettlement() == null) {
             return false;
         } else if (tick.getBidAskSpreadDouble() < 0) {
-            logger.error("crossed spread: bid " + tick.getBid() + " ask " + tick.getAsk() + " for " + this);
-            return false;
+            int spreadTicks = -getSecurityFamily().getSpreadTicks(tick.getAsk(), tick.getBid());
+            if (spreadTicks <= -5) {
+                logger.error("crossed spread: bid " + tick.getBid() + " ask " + tick.getAsk() + " for " + this);
+                return false;
+            } else if (spreadTicks <= -2) {
+                logger.warn("crossed spread: bid " + tick.getBid() + " ask " + tick.getAsk() + " for " + this);
+                return false;
+            } else {
+                // no logging, as this happens often for Forex
+                return false;
+            }
         } else {
             return true;
         }
