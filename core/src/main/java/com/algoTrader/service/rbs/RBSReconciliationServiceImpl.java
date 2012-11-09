@@ -157,10 +157,14 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
             }
 
             // check clearing commission
-            BigDecimal commissionPerContract = RoundUtil.getBigDecimal(commission.doubleValue() / absQuantity, this.portfolioDigits);
-            if (!family.getClearingCommission().setScale(this.portfolioDigits).equals(commissionPerContract)) {
-                notificationLogger.warn("transaction " + format.format(tradeDate) + " " + transactionType + " " + absQuantity + " " + security + " price: " + tradePrice + " clearing commission is "
-                        + commissionPerContract + " where it should be " + family.getClearingCommission());
+            if (family.getClearingCommission() != null) {
+                BigDecimal commissionPerContract = RoundUtil.getBigDecimal(commission.doubleValue() / absQuantity, this.portfolioDigits);
+                if (!family.getClearingCommission().setScale(this.portfolioDigits).equals(commissionPerContract)) {
+                    notificationLogger.warn("transaction " + format.format(tradeDate) + " " + transactionType + " " + absQuantity + " " + security + " price: " + tradePrice
+                            + " clearing commission is " + commissionPerContract + " where it should be " + family.getClearingCommission());
+                }
+            } else {
+                throw new IllegalArgumentException("no clearing commission defined for security family " + family);
             }
 
             // lookup by date, transactionType, security and price
