@@ -6,7 +6,7 @@
         <param name="file" value="log/debug-${strategyName}.log" />
         <param name="append" value="false" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p %c{1} %m %n" />
+            <param name="ConversionPattern" value="%d %-5p [%t] [%c{1}] %m %n" />
         </layout>
         <filter class="org.apache.log4j.varia.LevelRangeFilter">
             <param name="LevelMin" value="TRACE" />
@@ -19,7 +19,7 @@
         <param name="datePattern" value="'.'yyyy-MM-dd" />
         <param name="append" value="true" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p %c{1} %m %n" />
+            <param name="ConversionPattern" value="%d %-5p [%t] [%c{1}] %m %n" />
         </layout>
         <filter class="org.apache.log4j.varia.LevelRangeFilter">
             <param name="LevelMin" value="INFO" />
@@ -42,7 +42,7 @@
         <param name="Subject" value="AlgoTrader Error ${environment}" />
         <param name="bufferSize" value="20" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d%n%n%-5p%n%n%c%n%n%m%n%n" />
+            <param name="ConversionPattern" value="%d %p %t%n%n%c%n%n%m%n%n" />
         </layout>
     </appender>
 
@@ -75,7 +75,7 @@
         <param name="To" value="trades@linardcapital.com" />
         <param name="Subject" value="AlgoTrader Transaction ${environment}" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d%n%n%-5p%n%n%c%n%n%m%n%n" />
+            <param name="ConversionPattern" value="%d%n%n%m%n%n" />
         </layout>
     </appender>
 
@@ -93,7 +93,7 @@
         <param name="To" value="notifications@linardcapital.com" />
         <param name="Subject" value="AlgoTrader Notification ${environment}" />
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d%n%n%-5p%n%n%c%n%n%m%n%n" />
+            <param name="ConversionPattern" value="%d %p %t%n%n%c%n%n%m%n%n" />
         </layout>
     </appender>
 
