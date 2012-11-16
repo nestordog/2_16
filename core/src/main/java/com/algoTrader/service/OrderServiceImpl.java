@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.trade.AlgoOrder;
@@ -24,7 +23,6 @@ import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.BeanUtils;
 import com.algoTrader.util.DateUtil;
-import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.OrderStatusVO;
@@ -38,6 +36,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
     private @Value("#{T(com.algoTrader.enumeration.MarketChannel).fromString('${misc.defaultMarketChannel}')}") MarketChannel defaultMarketChannel;
     private @Value("${simulation}") boolean simulation;
+    private @Value("${misc.propagateTradeEvents}") boolean propagateTradeEvents;
 
     private Map<MarketChannel, ExternalOrderService> externalOrderServices = new HashMap<MarketChannel, ExternalOrderService>();
 
@@ -76,10 +75,6 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
     @Override
     protected void handleSendOrder(Order order) throws Exception {
-
-        // reasociate the potentially merged security & strategy
-        order.setSecurity((Security) HibernateUtil.reattach(this.getSessionFactory(), order.getSecurity()));
-        order.setStrategy((Strategy) HibernateUtil.reattach(this.getSessionFactory(), order.getStrategy()));
 
         // make sure there is no order for the same security / strategy
         if (getOrderDao().findOpenOrderCountByStrategySecurityAndAlgoOrder(order.getStrategy().getName(), order.getSecurity().getId(), order.isAlgoOrder()) > 0) {
@@ -250,7 +245,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         EsperManager.sendEvent(StrategyImpl.BASE, order);
 
         // also send the order to the strategy that placed the order
-        if (!StrategyImpl.BASE.equals(order.getStrategy().getName())) {
+        if (this.propagateTradeEvents && !StrategyImpl.BASE.equals(order.getStrategy().getName())) {
             EsperManager.sendEvent(order.getStrategy().getName(), order);
         }
     }
@@ -259,7 +254,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     protected void handlePropagateOrderStatus(OrderStatus orderStatus) throws Exception {
 
         // send the fill to the strategy that placed the corresponding order
-        if (orderStatus.getOrd() != null && !StrategyImpl.BASE.equals(orderStatus.getOrd().getStrategy().getName())) {
+        if (this.propagateTradeEvents && orderStatus.getOrd() != null && !StrategyImpl.BASE.equals(orderStatus.getOrd().getStrategy().getName())) {
             EsperManager.sendEvent(orderStatus.getOrd().getStrategy().getName(), orderStatus);
         }
 

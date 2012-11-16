@@ -1,10 +1,10 @@
 package com.algoTrader.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +24,7 @@ import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.esper.EsperManager;
+import com.algoTrader.esper.subscriber.Subscriber;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -38,6 +39,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
     private @Value("${simulation}") boolean simulation;
     private @Value("${simulation.logTransactions}") boolean logTransactions;
+    private @Value("${misc.propagateTradeEvents}") boolean propagateTradeEvents;
 
     @Override
     protected void handleCreateTransaction(Fill fill) throws Exception {
@@ -68,9 +70,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setClearingCommission(clearingCommission);
         transaction.setMarketChannel(fill.getOrd().getMarketChannel());
 
-        fill.setTransaction(transaction);
-
         persistTransaction(transaction);
+
         propagateTransaction(transaction);
     }
 
@@ -255,10 +256,10 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     }
 
     @Override
-    protected void handlePropagateTransaction(Transaction transaction) {
+    protected void handlePropagateTransaction(Transaction transaction) throws Exception {
 
         // propagate the transaction to the corresponding strategy
-        if (!StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
+        if (this.propagateTradeEvents && !StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
             EsperManager.sendEvent(transaction.getStrategy().getName(), transaction);
         }
     }
@@ -267,7 +268,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     protected void handlePropagateFill(Fill fill) throws Exception {
 
         // send the fill to the strategy that placed the corresponding order
-        if (!StrategyImpl.BASE.equals(fill.getOrd().getStrategy().getName())) {
+        if (this.propagateTradeEvents && !StrategyImpl.BASE.equals(fill.getOrd().getStrategy().getName())) {
             EsperManager.sendEvent(fill.getOrd().getStrategy().getName(), fill);
         }
 
@@ -277,35 +278,28 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     }
 
     @Override
-    protected void handleLogTransactionSummary(Set<Transaction> transactions) throws Exception {
+    protected void handleLogFillSummary(List<Fill> fills) throws Exception {
 
-        if (transactions.size() > 0 && !this.simulation) {
+        if (fills.size() > 0 && !this.simulation) {
 
             long totalQuantity = 0;
             double totalPrice = 0.0;
-            double totalCommission = 0.0;
 
-            for (Transaction transaction : transactions) {
+            for (Fill fill : fills) {
 
-                totalQuantity += transaction.getQuantity();
-                totalPrice += transaction.getPrice().doubleValue() * transaction.getQuantity();
-                totalCommission += transaction.getTotalCommissionDouble();
+                totalQuantity += fill.getQuantity();
+                totalPrice += fill.getPrice().doubleValue() * fill.getQuantity();
             }
 
-            Transaction transaction = transactions.iterator().next();
-            Security security = transaction.getSecurity();
-
-            // reattach the security
-            security = (Security) HibernateUtil.reattach(this.getSessionFactory(), security);
+            Fill fill = fills.iterator().next();
 
             //@formatter:off
             mailLogger.info("executed transaction: " +
-                    transaction.getType() +
+                    fill.getSide() +
                     " " + totalQuantity +
-                    " " + security +
-                    " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) + " " + security.getSecurityFamily().getCurrency() +
-                    " commission: " + RoundUtil.getBigDecimal(totalCommission) +
-                    " strategy: " + transaction.getStrategy());
+                    " " + fill.getOrd().getSecurity() +
+                    " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) + " " + fill.getOrd().getSecurity().getSecurityFamily().getCurrency() +
+                    " strategy: " + fill.getOrd().getStrategy());
             //@formatter:on
         }
     }
@@ -314,13 +308,26 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         public void update(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream) {
 
-            Set<Transaction> transactions = new HashSet<Transaction>();
+            List<Fill> fills = new ArrayList<Fill>();
             for (Map<?, ?> element : insertStream) {
                 Fill fill = (Fill) element.get("fill");
-                transactions.add(fill.getTransaction());
+                fills.add(fill);
             }
 
-            ServiceLocator.instance().getService("transactionService", TransactionService.class).logTransactionSummary(transactions);
+            ServiceLocator.instance().getService("transactionService", TransactionService.class).logFillSummary(fills);
+        }
+    }
+
+    public static class CreateTransactionSubscriber extends Subscriber {
+
+        /*
+         * synchronized to make sure that only on transaction is created at a time
+         */
+        public synchronized void update(Fill fill) {
+
+            logger.debug("createTransaction start");
+            ServiceLocator.instance().getService("transactionService", TransactionService.class).createTransaction(fill);
+            logger.debug("createTransaction end");
         }
     }
 }

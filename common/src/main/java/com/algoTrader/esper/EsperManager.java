@@ -60,6 +60,7 @@ import com.algoTrader.vo.GenericEventVO;
 import com.algoTrader.vo.StatementMetricVO;
 import com.espertech.esper.adapter.InputAdapter;
 import com.espertech.esper.client.Configuration;
+import com.espertech.esper.client.ConfigurationEngineDefaults.Threading;
 import com.espertech.esper.client.ConfigurationOperations;
 import com.espertech.esper.client.ConfigurationVariable;
 import com.espertech.esper.client.EPAdministrator;
@@ -102,6 +103,7 @@ public class EsperManager {
 
     private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
     private static List<String> moduleDeployExcludeStatements = Arrays.asList((ServiceLocator.instance().getConfiguration().getString("misc.moduleDeployExcludeStatements")).split(","));
+    private static int outboundThreads = ServiceLocator.instance().getConfiguration().getInt("misc.outboundThreads");
 
     private static Map<String, AdapterCoordinator> coordinators = new HashMap<String, AdapterCoordinator>();
     private static Map<String, Boolean> internalClock = new HashMap<String, Boolean>();
@@ -144,6 +146,15 @@ public class EsperManager {
         }
 
         initVariables(configuration);
+
+        // outbound threading for BASE
+        if (StrategyImpl.BASE.equals(strategyName) && !simulation) {
+
+            Threading threading = configuration.getEngineDefaults().getThreading();
+
+            threading.setThreadPoolOutbound(true);
+            threading.setThreadPoolOutboundNumThreads(outboundThreads);
+        }
 
         Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(strategyName);
         configuration.getVariables().get("engineStrategy").setInitializationValue(strategy);

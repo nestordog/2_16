@@ -120,7 +120,7 @@ from
 
 @Name('CREATE_TRANSACTION')
 @RunTimeOnly()
-@Subscriber(className='com.algoTrader.service.TransactionService.createTransaction')
+@Subscriber(className='com.algoTrader.service.TransactionServiceImpl$CreateTransactionSubscriber')
 select
     *
 from
