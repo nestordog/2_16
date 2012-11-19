@@ -21,7 +21,7 @@
 
     <!-- (local) Transaction Manager -->
     <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-        <property name="sessionFactory"><ref bean="sessionFactory"/></property>
+        <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
     <!-- =========================================== JMX ================================================ -->
@@ -91,12 +91,8 @@
 
         <!-- Spring JMS Template used for marketData -->
         <bean id="marketDataTemplate" class="org.springframework.jms.core.JmsTemplate">
-            <property name="connectionFactory">
-                <ref bean="jmsActiveMQFactory" />
-            </property>
-            <property name="defaultDestination">
-                <ref bean="marketDataTopic" />
-            </property>
+            <property name="connectionFactory" ref="jmsActiveMQFactory" />
+            <property name="defaultDestination" ref="marketDataTopic" />
             <property name="timeToLive" value="10000"/>
               <property name="deliveryPersistent" value="false"/>
               <property name="messageIdEnabled" value="false"/>
@@ -111,12 +107,8 @@
 
         <!-- Spring JMS Template used for marketData -->
         <bean id="genericTemplate" class="org.springframework.jms.core.JmsTemplate">
-            <property name="connectionFactory">
-                <ref bean="jmsActiveMQFactory" />
-            </property>
-            <property name="defaultDestination">
-                <ref bean="genericTopic" />
-            </property>
+            <property name="connectionFactory" ref="jmsActiveMQFactory" />
+            <property name="defaultDestination" ref="genericTopic" />
             <property name="timeToLive" value="10000"/>
               <property name="deliveryPersistent" value="false"/>
               <property name="messageIdEnabled" value="false"/>
@@ -126,10 +118,11 @@
 
         <!-- Spring JMS Template used for strategy specific messages -->
         <bean id="strategyTemplate" class="org.springframework.jms.core.JmsTemplate">
-            <property name="connectionFactory">
-                <ref bean="jmsActiveMQFactory" />
-            </property>
+            <property name="connectionFactory" ref="jmsActiveMQFactory" />
+            <property name="messageConverter" ref="messageConverter" />
         </bean>
+
+        <bean id="messageConverter" class="com.algoTrader.util.io.CollectionIgnoringMessageConverter"/>
 
     </beans>
 

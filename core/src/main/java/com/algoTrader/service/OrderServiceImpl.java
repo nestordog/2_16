@@ -36,7 +36,6 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
     private @Value("#{T(com.algoTrader.enumeration.MarketChannel).fromString('${misc.defaultMarketChannel}')}") MarketChannel defaultMarketChannel;
     private @Value("${simulation}") boolean simulation;
-    private @Value("${misc.propagateTradeEvents}") boolean propagateTradeEvents;
 
     private Map<MarketChannel, ExternalOrderService> externalOrderServices = new HashMap<MarketChannel, ExternalOrderService>();
 
@@ -245,7 +244,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         EsperManager.sendEvent(StrategyImpl.BASE, order);
 
         // also send the order to the strategy that placed the order
-        if (this.propagateTradeEvents && !StrategyImpl.BASE.equals(order.getStrategy().getName())) {
+        if (!StrategyImpl.BASE.equals(order.getStrategy().getName())) {
             EsperManager.sendEvent(order.getStrategy().getName(), order);
         }
     }
@@ -254,7 +253,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     protected void handlePropagateOrderStatus(OrderStatus orderStatus) throws Exception {
 
         // send the fill to the strategy that placed the corresponding order
-        if (this.propagateTradeEvents && orderStatus.getOrd() != null && !StrategyImpl.BASE.equals(orderStatus.getOrd().getStrategy().getName())) {
+        if (orderStatus.getOrd() != null && !StrategyImpl.BASE.equals(orderStatus.getOrd().getStrategy().getName())) {
             EsperManager.sendEvent(orderStatus.getOrd().getStrategy().getName(), orderStatus);
         }
 

@@ -39,7 +39,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
     private @Value("${simulation}") boolean simulation;
     private @Value("${simulation.logTransactions}") boolean logTransactions;
-    private @Value("${misc.propagateTradeEvents}") boolean propagateTradeEvents;
 
     @Override
     protected void handleCreateTransaction(Fill fill) throws Exception {
@@ -259,7 +258,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     protected void handlePropagateTransaction(Transaction transaction) throws Exception {
 
         // propagate the transaction to the corresponding strategy
-        if (this.propagateTradeEvents && !StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
+        if (!StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
             EsperManager.sendEvent(transaction.getStrategy().getName(), transaction);
         }
     }
@@ -268,7 +267,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     protected void handlePropagateFill(Fill fill) throws Exception {
 
         // send the fill to the strategy that placed the corresponding order
-        if (this.propagateTradeEvents && !StrategyImpl.BASE.equals(fill.getOrd().getStrategy().getName())) {
+        if (!StrategyImpl.BASE.equals(fill.getOrd().getStrategy().getName())) {
             EsperManager.sendEvent(fill.getOrd().getStrategy().getName(), fill);
         }
 
