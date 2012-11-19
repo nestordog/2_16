@@ -1,5 +1,7 @@
 package com.algoTrader.service.ib;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -52,21 +54,18 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
     private static SimpleDateFormat tradeDateTimeFormat = new SimpleDateFormat("yyyyMMdd kkmmss");
 
     @Override
-    protected void handleReconcile(List<String> fileNames) throws Exception {
+    protected void handleReconcile(String fileName, byte[] data) throws Exception {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        InputStream is = new ByteArrayInputStream(data);
+        Document document = builder.parse(is);
 
-        for (String fileName : fileNames) {
-
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(fileName);
-
-            // do the actual reconciliation
-            processCashTransactions(document);
-            reconcilePositions(document);
-            reconcileTrades(document);
-            reconcileUnbookedTrades(document);
-        }
+        // do the actual reconciliation
+        processCashTransactions(document);
+        reconcilePositions(document);
+        reconcileTrades(document);
+        reconcileUnbookedTrades(document);
     }
 
     @Override

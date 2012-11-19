@@ -1,8 +1,7 @@
 package com.algoTrader.service.ui;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,8 +13,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
@@ -29,6 +26,7 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.MyLogger;
+import com.algoTrader.util.Pair;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.ZipUtil;
 
@@ -43,67 +41,55 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
     private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
 
     @Override
-    protected void handleReconcile(List<String> fileNames) throws Exception {
+    protected void handleReconcile(String fileName, byte[] data) throws Exception {
 
-        // compose a sorted map of new files with their corresponding date as key
-        TreeMap<Date, File> newFiles = new TreeMap<Date, File>();
-        for (String fileName : fileNames) {
+        // unzip potential zip files
+        if (fileName.endsWith(".zip")) {
 
-            // unzip potential zip files
-            File file;
-            if (fileName.endsWith(".zip")) {
-
-                // check for one and only one entry file
-                List<String> entryFileNames = ZipUtil.unzip(fileNames.get(0), true);
-                if (entryFileNames.size() == 0 || entryFileNames.size() > 1) {
-                    throw new IllegalStateException("expecting 1 file inside the zip file");
-                } else if (!entryFileNames.get(0).endsWith(".txt")) {
-                    throw new IllegalStateException("expecting txt entry file");
-                }
-
-                file = new File(entryFileNames.get(0));
-
-            } else {
-
-                file = new File(fileName);
+            // check for one and only one entry file
+            List<Pair<String, byte[]>> entries = ZipUtil.unzip(data);
+            if (entries.size() == 0 || entries.size() > 1) {
+                throw new IllegalStateException("expecting 1 file inside the zip file");
+            } else if (!entries.get(0).getFirst().endsWith(".txt")) {
+                throw new IllegalStateException("expecting txt entry file");
             }
 
-            String dateString = file.getName().substring(16, 26);
-            Date date = dateFormat.parse(dateString);
-            newFiles.put(date, file);
+            fileName = entries.get(0).getFirst();
+            data = entries.get(0).getSecond();
         }
 
-        // compose a sorted map of all files in the directory with their corresponding date as key
-        TreeMap<Date, File> allFiles = new TreeMap<Date, File>();
-        File dir = new File("files/ui");
-        for (File file : dir.listFiles()) {
+        // create the cash transaction based on todays and yesterdays fees
+        createCashTransaction(fileName, data);
 
-            if (file.getName().startsWith("Bewertungsdaten")) {
-                String dateString = file.getName().substring(16, 26);
-                Date date = dateFormat.parse(dateString);
-                allFiles.put(date, file);
-            }
-        }
-
-        for (Map.Entry<Date, File> entry : newFiles.entrySet()) {
-
-            // create the cash transaction based on todays and yesterdays fees
-            Map.Entry<Date, File> lowerEntry = allFiles.lowerEntry(entry.getKey());
-            File lowerValue = lowerEntry != null ? lowerEntry.getValue() : null;
-            createCashTransaction(entry.getKey(), entry.getValue(), lowerValue);
-
-            // reconcile positions
-            reconcilePositions(entry.getValue());
-        }
+        // reconcile positions
+        reconcilePositions(fileName, data);
     }
 
-    private void createCashTransaction(Date date, File currentFile, File lastFile) throws FileNotFoundException, IOException, ParseException {
+    private void createCashTransaction(String fileName, byte[] data) throws FileNotFoundException, IOException, ParseException {
 
-        double newFees = getFees(currentFile);
+        String dateString = fileName.substring(16, 26);
+        Date date = dateFormat.parse(dateString);
 
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(data), "ISO-8859-1"));
+
+        // calculate the fee total by adding all items of type 090 (Verbindlichkeiten)
+        String line;
+        double newFees = 0;
+        while ((line = reader.readLine()) != null) {
+
+            String[] values = line.split("\u00b6");
+            if ("090".equals(values[0])) {
+                newFees += parseDouble(values, 11);
+            }
+        }
+        reader.close();
+
+        // get yesterdays fees from the database
         double oldFees = 0.0;
-        if (lastFile != null) {
-            oldFees = getFees(lastFile);
+        String description = "UI Fees";
+        Collection<Transaction> transactions = getTransactionDao().findByDescriptionAndMaxDate(1, 1, description, date);
+        if (!transactions.isEmpty()) {
+            oldFees = -transactions.iterator().next().getPrice().doubleValue();
         }
 
         Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
@@ -111,7 +97,6 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
         BigDecimal price = RoundUtil.getBigDecimal(totalFees).abs(); // price is always positive
         int quantity = totalFees < 0 ? -1 : 1;
         TransactionType transactionType = totalFees < 0 ? TransactionType.FEES : TransactionType.REFUND;
-        String description = "UI Fees";
 
         if (getTransactionDao().findByDateTimePriceTypeAndDescription(date, price, transactionType, description) != null) {
 
@@ -140,30 +125,9 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
         }
     }
 
-    private double getFees(File newFile) throws FileNotFoundException, IOException, ParseException {
+    private void reconcilePositions(String fileName, byte[] data) throws FileNotFoundException, IOException, ParseException {
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(newFile), "ISO-8859-1"));
-
-        // add all items of type 090 (Verbindlichkeiten)
-        String line;
-        double totalAmount = 0;
-        while ((line = reader.readLine()) != null) {
-
-            String[] values = line.split("\u00b6");
-
-            if ("090".equals(values[0])) {
-
-                totalAmount += parseDouble(values, 11);
-            }
-        }
-        reader.close();
-
-        return totalAmount;
-    }
-
-    private void reconcilePositions(File newFile) throws FileNotFoundException, IOException, ParseException {
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(newFile), "ISO-8859-1"));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(data), "ISO-8859-1"));
 
         // reoncile all futures and option positions
         String line;

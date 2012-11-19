@@ -61,10 +61,6 @@
         <level value="error" />
     </logger>
 
-    <logger name="org.springframework.ws.transport">
-        <level value="debug"/>
-    </logger>
-
     <logger name="org.hibernate">
         <level value="warn" />
     </logger>

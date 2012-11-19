@@ -1,8 +1,9 @@
 package com.algoTrader.service.rbs;
 
-import java.io.File;
-import java.io.FileReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,11 +40,10 @@ public class CsvRBSPositionReader {
     };
     //@formatter:on
 
-    public static List<Map<String, ? super Object>> readPositions(String fileName) throws SuperCSVReflectionException, IOException {
+    public static List<Map<String, ? super Object>> readPositions(byte[] data) throws SuperCSVReflectionException, IOException {
 
-        File file = new File(fileName);
-
-        CsvMapReader reader = new CsvMapReader(new FileReader(file), CsvPreference.EXCEL_PREFERENCE);
+        Reader isr = new InputStreamReader(new ByteArrayInputStream(data));
+        CsvMapReader reader = new CsvMapReader(isr, CsvPreference.EXCEL_PREFERENCE);
         String[] header = reader.getCSVHeader(true);
 
         List<Map<String, ? super Object>> list = new ArrayList<Map<String, ? super Object>>();

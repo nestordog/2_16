@@ -1,0 +1,2 @@
+//com.springsource.sts.config.flow.coordinates\:http\://www.springframework.org/schema/integration\:/algotrader-core/src/main/resources/META-INF/applicationContext-server.xml=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<graph>\r\n<element clazz\="ChainContainerElement" type\="chain">\r\n<structure end\="7645" endstart\="7633" start\="7146" startend\="7217"/>\r\n<bounds height\="158" width\="570" x\="17" y\="15"/>\r\n</element>\r\n</graph>
+eclipse.preferences.version=1

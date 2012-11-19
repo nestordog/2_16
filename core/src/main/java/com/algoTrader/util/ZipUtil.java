@@ -2,6 +2,8 @@ package com.algoTrader.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import org.apache.commons.io.IOUtils;
 
 public class ZipUtil {
 
@@ -25,20 +29,16 @@ public class ZipUtil {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
 
-                byte data[] = new byte[BUFFER];
                 String entryFileName = file.getParent() + File.separator + entry.getName();
                 fileNames.add(entryFileName);
 
                 FileOutputStream fos = new FileOutputStream(entryFileName);
-                BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER);
+                BufferedOutputStream bos = new BufferedOutputStream(fos, BUFFER);
 
-                int count;
-                while ((count = zis.read(data, 0, BUFFER)) != -1) {
-                    dest.write(data, 0, count);
-                }
+                IOUtils.copy(zis, bos);
 
-                dest.flush();
-                dest.close();
+                bos.flush();
+                bos.close();
             }
 
             zis.close();
@@ -52,5 +52,34 @@ public class ZipUtil {
         }
 
         return fileNames;
+    }
+
+    public static List<Pair<String, byte[]>> unzip(byte[] data) {
+
+        List<Pair<String, byte[]>> entries = new ArrayList<Pair<String, byte[]>>();
+
+        try {
+            ByteArrayInputStream bis = new ByteArrayInputStream(data);
+            ZipInputStream zis = new ZipInputStream(bis);
+
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                IOUtils.copy(zis, bos);
+
+                entries.add(new Pair<String, byte[]>(entry.getName(), bos.toByteArray()));
+
+                bos.flush();
+                bos.close();
+            }
+
+            zis.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return entries;
     }
 }

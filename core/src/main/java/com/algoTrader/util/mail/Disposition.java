@@ -1,4 +1,4 @@
-package org.springframework.ws.transport.mail;
+package com.algoTrader.util.mail;
 
 import com.algoTrader.service.ReconciliationService;
 
@@ -8,7 +8,8 @@ public class Disposition {
     private String to;
     private String from;
     private String subject;
-    private ReconciliationService service;
+    private String directory;
+    private ReconciliationService reconciliationService;
 
     public String getName() {
         return this.name;
@@ -42,12 +43,24 @@ public class Disposition {
         this.subject = subject;
     }
 
-    public ReconciliationService getService() {
-        return this.service;
+    public String getDirectory() {
+        return this.directory;
     }
 
-    public void setService(ReconciliationService service) {
-        this.service = service;
+    public void setDirectory(String directory) {
+        this.directory = directory;
     }
 
+    public ReconciliationService getReconciliationService() {
+        return this.reconciliationService;
+    }
+
+    public void setReconciliationService(ReconciliationService reconciliationService) {
+        this.reconciliationService = reconciliationService;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }

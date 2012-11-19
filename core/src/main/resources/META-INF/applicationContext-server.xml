@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:p="http://www.springframework.org/schema/p"
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd" >
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:int="http://www.springframework.org/schema/integration"
+    xmlns:int-file="http://www.springframework.org/schema/integration/file"
+    xmlns:int-mail="http://www.springframework.org/schema/integration/mail"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xsi:schemaLocation="http://www.springframework.org/schema/integration/mail http://www.springframework.org/schema/integration/mail/spring-integration-mail-2.1.xsd
+        http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.1.xsd
+        http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file-2.1.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
     <!-- ============================= Data Source an Transaction Management ============================ -->
 
@@ -138,45 +145,75 @@
 
     <!-- =========================================== MAIL ================================================ -->
 
+    <beans profile="ucitsReconciliation,bviReconciliation">
+
+        <task:scheduler id="taskScheduler" pool-size="1"/>
+
+        <int:channel id="inputChannel"/>
+
+        <int:chain input-channel="inputChannel" output-channel="outputChannel">
+            <int:transformer>
+                <bean class="com.algoTrader.util.mail.EmailDispatcher" p:dispositions-ref="dispositions"/>
+            </int:transformer>
+            <int:filter expression="headers.containsKey('directory')"/>
+            <int:transformer>
+                <bean class="com.algoTrader.util.mail.EmailTransformer"/>
+            </int:transformer>
+            <int:splitter>
+                <bean class="com.algoTrader.util.mail.EmailSplitter"/>
+            </int:splitter>
+        </int:chain>
+
+        <int:publish-subscribe-channel id="outputChannel"/>
+
+        <int-file:outbound-channel-adapter
+            auto-create-directory="true"
+            channel="outputChannel"
+            directory="files/"
+            filename-generator="fileNameGenerator"/>
+
+        <bean id="fileNameGenerator"
+            class="org.springframework.integration.file.DefaultFileNameGenerator"
+            p:expression="headers.directory + '/' + headers.file_name"/>
+
+        <int:service-activator
+            input-channel="outputChannel"
+            expression="headers.reconciliationService.reconcile(headers.file_name, payload)"/>
+    </beans>
+
     <beans profile="ucitsReconciliation">
-        <bean id="mailMessageReceiver" class="org.springframework.ws.transport.mail.MailMessageReceiver">
-            <property name="storeUri" value="imap://aws:Zermatt11@mail.linardcapital.com/INBOX"/>
-            <property name="disposition">
+
+        <int-mail:imap-idle-channel-adapter
+            store-uri="imap://vola:Zermatt11@mail.linardcapital.com/INBOX"
+            channel="inputChannel"
+            auto-startup="true"
+            should-delete-messages="true"/>
+
+        <bean id="dispositions" class="org.springframework.beans.factory.config.SetFactoryBean">
+            <property name="sourceSet">
                 <set>
-                    <bean class="org.springframework.ws.transport.mail.Disposition" p:name="ib" p:from="donotreply@interactivebrokers.com" p:subject="Activity Flex" p:service-ref="iBReconciliationService"/>
-                    <bean class="org.springframework.ws.transport.mail.Disposition" p:name="ui" p:from="listenversand-lux@universal-investment.com" p:subject="Bewertungsdaten" p:service-ref="uIReconciliationService"/>
-                    <bean class="org.springframework.ws.transport.mail.Disposition" p:name="rbs" p:from="customer.services@rbs.com" p:subject="Linard Files" p:service-ref="rBSReconciliationService"/>
+                    <bean class="com.algoTrader.util.mail.Disposition" p:name="ib" p:from="donotreply@interactivebrokers.com" p:subject="Activity Flex" p:directory="ib" p:reconciliationService-ref="iBReconciliationService"/>
+                    <bean class="com.algoTrader.util.mail.Disposition" p:name="ui" p:from="listenversand-lux@universal-investment.com" p:subject="Bewertungsdaten" p:directory="ui" p:reconciliationService-ref="uIReconciliationService"/>
+                    <bean class="com.algoTrader.util.mail.Disposition" p:name="rbs" p:from="customer.services@rbs.com" p:subject="Linard Files" p:directory="rbs" p:reconciliationService-ref="rBSReconciliationService"/>
                 </set>
             </property>
-            <property name="monitoringStrategy">
-                <bean class="org.springframework.ws.transport.mail.monitor.ImapIdleMonitoringStrategy"/>
-            </property>
-            <property name="javaMailProperties">
-                <props>
-                    <prop key="mail.imap.timeout">180000</prop>
-                </props>
-            </property>
-            <property name="reconnectTimeout" value="60000"/>
         </bean>
     </beans>
 
     <beans profile="bviReconciliation">
-        <bean id="mailMessageReceiver" class="org.springframework.ws.transport.mail.MailMessageReceiver">
-            <property name="storeUri" value="imap://quant:Zermatt11@mail.linardcapital.com/INBOX"/>
-            <property name="disposition">
+
+        <int-mail:imap-idle-channel-adapter
+            store-uri="imap://quant:Zermatt11@mail.linardcapital.com/INBOX"
+            channel="inputChannel"
+            auto-startup="true"
+            should-delete-messages="true"/>
+
+        <bean id="dispositions" class="org.springframework.beans.factory.config.SetFactoryBean">
+            <property name="sourceSet">
                 <set>
-                    <bean class="org.springframework.ws.transport.mail.Disposition" p:name="ib" p:from="donotreply@interactivebrokers.com" p:subject="Activity Flex" p:service-ref="iBReconciliationService"/>
+                    <bean class="com.algoTrader.util.mail.Disposition" p:name="ib" p:from="donotreply@interactivebrokers.com" p:subject="Activity Flex" p:directory="ib" p:reconciliationService-ref="iBReconciliationService"/>
                 </set>
             </property>
-            <property name="monitoringStrategy">
-                <bean class="org.springframework.ws.transport.mail.monitor.ImapIdleMonitoringStrategy"/>
-            </property>
-            <property name="javaMailProperties">
-                <props>
-                    <prop key="mail.imap.timeout">180000</prop>
-                </props>
-            </property>
-            <property name="reconnectTimeout" value="60000"/>
         </bean>
     </beans>
 

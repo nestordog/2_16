@@ -30,28 +30,24 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
     private static Logger logger = MyLogger.getLogger(RBSReconciliationServiceImpl.class.getName());
     private static Logger notificationLogger = MyLogger.getLogger("com.algoTrader.service.NOTIFICATION");
 
+
     private static SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
     private @Value("${misc.portfolioDigits}") int portfolioDigits;
 
     @Override
-    protected void handleReconcile(List<String> fileNames) throws Exception {
+    protected void handleReconcile(String fileName, byte[] data) throws Exception {
 
-        for (String fileName : fileNames) {
-
-            if (fileName.contains("Positions")) {
-                reconcilePositions(fileName);
-            } else if (fileName.contains("Trades")) {
-                reconcileTrades(fileName);
-            }
-
-            logger.info("reconciliation of " + fileName + " finished");
+        if (fileName.contains("Positions")) {
+            reconcilePositions(data);
+        } else if (fileName.contains("Trades")) {
+            reconcileTrades(data);
         }
     }
 
-    private void reconcilePositions(String fileName) throws IOException {
+    private void reconcilePositions(byte[] data) throws IOException {
 
-        List<Map<String, ? super Object>> positions = CsvRBSPositionReader.readPositions(fileName);
+        List<Map<String, ? super Object>> positions = CsvRBSPositionReader.readPositions(data);
         for (Map<String, ? super Object> position : positions) {
 
             // parse parameters
@@ -96,10 +92,10 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
         }
     }
 
-    private void reconcileTrades(String fileName) throws SuperCSVReflectionException, IOException {
+    private void reconcileTrades(byte[] data) throws SuperCSVReflectionException, IOException {
 
         // read the file
-        List<Map<String, ? super Object>> trades = CsvRBSTradeReader.readPositions(fileName);
+        List<Map<String, ? super Object>> trades = CsvRBSTradeReader.readPositions(data);
 
         // get minDate and maxDate
         Date minDate = new Date(Long.MAX_VALUE);
