@@ -33,7 +33,7 @@ public class ResetServiceImpl extends ResetServiceBase {
         for (Strategy strategy : strategies) {
 
             // delete all transactions except the initial CREDIT
-            Collection<Transaction> transactions = strategy.getTransactions();
+            Collection<Transaction> transactions = getTransactionDao().findByStrategy(strategy.getName());
             Set<Transaction> toRemoveTransactions = new HashSet<Transaction>();
             Set<Transaction> toKeepTransactions = new HashSet<Transaction>();
             BigDecimal initialAmount = new BigDecimal(0);
@@ -46,7 +46,6 @@ public class ResetServiceImpl extends ResetServiceBase {
                 }
             }
             getTransactionDao().remove(toRemoveTransactions);
-            strategy.setTransactions(toKeepTransactions);
 
             // delete all cashBalances except the initial CREDIT
             Collection<CashBalance> cashBalances = strategy.getCashBalances();
@@ -64,12 +63,11 @@ public class ResetServiceImpl extends ResetServiceBase {
             strategy.setCashBalances(toKeepCashBalances);
 
             // delete all positions and references to them
-            Collection<Position> positions = strategy.getPositions();
+            Collection<Position> positions = getPositionDao().findByStrategy(strategy.getName());
             for (Position position : positions) {
                 position.getSecurity().removePositions(position);
             }
             getPositionDao().remove(positions);
-            strategy.getPositions().removeAll(positions);
         }
 
         // delete all non-presistent subscriptions and references to them
@@ -77,7 +75,6 @@ public class ResetServiceImpl extends ResetServiceBase {
         getSubscriptionDao().remove(nonPersistentSubscriptions);
         for (Subscription subscription : nonPersistentSubscriptions) {
             subscription.getSecurity().getSubscriptions().remove(subscription);
-            subscription.getStrategy().getSubscriptions().remove(subscription);
         }
 
         // delete all non-persistent combinations

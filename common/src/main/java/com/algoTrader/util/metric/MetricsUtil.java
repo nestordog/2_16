@@ -11,6 +11,7 @@ import com.algoTrader.util.MyLogger;
 public class MetricsUtil {
 
     private static final boolean metricsEnabled = ServiceLocator.instance().getConfiguration().getBoolean("misc.metricsEnabled");
+    private static final boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
 
     private static Logger logger = MyLogger.getLogger(MetricsUtil.class.getName());
 
@@ -59,13 +60,21 @@ public class MetricsUtil {
 
         if (metricsEnabled) {
 
-            logger.info("TotalDuration: " + getDuration() + " millis");
+            if (simulation) {
+                logger.info("TotalDuration: " + getDuration() + " millis");
+            }
 
             for (Map.Entry<String, Metric> entry : metrics.entrySet()) {
                 Metric metric = entry.getValue();
-                logger.info(metric.getName() + ": " + metric.getExecutions() + " executions " + metric.getTime() + " millis");
+                logger.info(metric.getName() + ": " + metric.getTime() + " millis " + metric.getExecutions() + " executions");
             }
         }
+    }
+
+    public static void resetMetrics() {
+
+        metrics = new HashMap<String, Metric>();
+        startMillis = System.nanoTime();
     }
 
     public static long getDuration() {

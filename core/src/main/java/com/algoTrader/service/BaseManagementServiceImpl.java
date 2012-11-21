@@ -16,6 +16,7 @@ import com.algoTrader.enumeration.Status;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.RoundUtil;
+import com.algoTrader.util.metric.MetricsUtil;
 
 public class BaseManagementServiceImpl extends BaseManagementServiceBase {
 
@@ -108,5 +109,19 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
         orderStatus.setStatus(Status.CANCELED);
 
         EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
+    }
+
+    @Override
+    protected void handleLogMetrics() throws Exception {
+
+        MetricsUtil.logMetrics();
+        EsperManager.logStatementMetrics();
+    }
+
+    @Override
+    protected void handleResetMetrics() throws Exception {
+
+        MetricsUtil.resetMetrics();
+        EsperManager.resetStatementMetrics();
     }
 }

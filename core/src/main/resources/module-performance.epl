@@ -99,20 +99,3 @@ select
     max(drawDown.period) as period
 from
     DrawDown as drawDown;
-
-@Name('METRICS')
-@Condition(key='misc.metricsEnabled')
-insert into
-    StatementMetric
-select
-    engineURI,
-    statementName,
-    sum(cpuTime) as cpuTime,
-    sum(wallTime) as wallTime,
-    sum(numInput) as numInput
-from
-    com.espertech.esper.client.metric.StatementMetric.win:keepall()
-group by
-    engineURI, statementName
-order by
-    engineURI, statementName;

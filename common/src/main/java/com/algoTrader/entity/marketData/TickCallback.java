@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.MyLogger;
+import com.algoTrader.util.metric.MetricsUtil;
 
 public abstract class TickCallback {
 
@@ -35,13 +36,15 @@ public abstract class TickCallback {
         // undeploy the statement
         EsperManager.undeployStatement(strategyName, alias);
 
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         logger.debug("onFirstTick start " + sortedSecurityIds);
 
         // call orderCompleted
         onFirstTick(strategyName, tickList);
 
-        logger.debug("onFirstTick end (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+        logger.debug("onFirstTick end " + sortedSecurityIds);
+
+        MetricsUtil.accountEnd("TickCallback." + strategyName, startTime);
     }
 
     public abstract void onFirstTick(String strategyName, List<Tick> ticks) throws Exception;

@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.MyLogger;
+import com.algoTrader.util.metric.MetricsUtil;
 
 public abstract class TradeCallback {
 
@@ -36,13 +37,15 @@ public abstract class TradeCallback {
         // undeploy the statement
         EsperManager.undeployStatement(strategyName, alias);
 
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         logger.debug("onTradeCompleted start " + sortedSecurityIds + " " + owningStrategyName);
 
         // call orderCompleted
         onTradeCompleted(orderStatusList);
 
-        logger.debug("onTradeCompleted end " + sortedSecurityIds + " " + owningStrategyName + " (" + (System.currentTimeMillis() - startTime) + "ms execution)");
+        logger.debug("onTradeCompleted end " + sortedSecurityIds + " " + owningStrategyName);
+
+        MetricsUtil.accountEnd("TradeCallback." + strategyName, startTime);
     }
 
     public abstract void onTradeCompleted(List<OrderStatus> orderStatus) throws Exception;

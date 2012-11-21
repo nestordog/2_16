@@ -154,7 +154,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         security.addPositions(position);
 
         // associate the strategy
-        strategy.addPositions(position);
+        position.setStrategy(strategy);
 
         getPositionDao().create(position);
 
@@ -400,7 +400,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
     private void expirePosition(Position position) throws Exception {
 
-        Security security = position.getSecurity();
+        Security security = position.getSecurityInitialized();
 
         ExpirePositionVO expirePositionEvent = getPositionDao().toExpirePositionVO(position);
 

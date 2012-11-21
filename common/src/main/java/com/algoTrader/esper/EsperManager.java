@@ -419,7 +419,7 @@ public class EsperManager {
 
         if (simulation) {
             for (Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
-                if (!subscription.getStrategy().getName().equals(StrategyImpl.BASE)) {
+                if (!subscription.getStrategyInitialized().getName().equals(StrategyImpl.BASE)) {
                     sendEvent(subscription.getStrategy().getName(), marketDataEvent);
                 }
             }
@@ -730,11 +730,51 @@ public class EsperManager {
     @SuppressWarnings("unchecked")
     public static void logStatementMetrics() {
 
-        for (Map.Entry<String, EPServiceProvider> entry : serviceProviders.entrySet()) {
-            List<StatementMetricVO> metrics = getAllEvents(entry.getKey(), "METRICS");
-            for (StatementMetricVO metric : metrics) {
-                logger.info(metric.getEngineURI() + "." + metric.getStatementName() + ": " + metric.getNumInput() + " events " + metric.getWallTime() + " millis");
+        for (String strategyName : serviceProviders.keySet()) {
+
+            List<StatementMetricVO> metrics = getAllEvents(strategyName, "METRICS");
+
+            // consolidate ON_TRADE_COMPLETED and ON_FIRST_TICK
+            for (final String statementName :  new String[] {"ON_TRADE_COMPLETED", "ON_FIRST_TICK"}) {
+
+                // select metrics where the statementName startsWith
+                Collection<StatementMetricVO> selectedMetrics = CollectionUtils.select(metrics, new Predicate<StatementMetricVO>() {
+                    @Override
+                    public boolean evaluate(StatementMetricVO metric) {
+                        return metric.getStatementName() != null && metric.getStatementName().startsWith(statementName);
+                    }});
+
+                // add cpuTime, wallTime and numInput
+                if (selectedMetrics.size() > 0) {
+
+                    long cpuTime = 0;
+                    long wallTime = 0;
+                    long numInput = 0;
+                    for (StatementMetricVO metric : selectedMetrics) {
+
+                        cpuTime += metric.getCpuTime();
+                        wallTime += metric.getWallTime();
+                        numInput += metric.getNumInput();
+
+                        // remove the original metric
+                        metrics.remove(metric);
+                    };
+
+                    // add a consolidated metric
+                    metrics.add(new StatementMetricVO(strategyName, statementName, cpuTime, wallTime, numInput));
+                }
             }
+
+            for (StatementMetricVO metric : metrics) {
+                logger.info(metric.getEngineURI() + "." + metric.getStatementName() + ": " + metric.getWallTime() + " millis " +  metric.getNumInput() + " events");
+            }
+        }
+    }
+
+    public static void resetStatementMetrics() {
+
+        for (String strategyName : serviceProviders.keySet()) {
+            restartStatement(strategyName, "METRICS");
         }
     }
 

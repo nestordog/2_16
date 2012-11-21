@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.trade.AlgoOrder;
@@ -75,8 +76,16 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     @Override
     protected void handleSendOrder(Order order) throws Exception {
 
+        // reload the strategy and security to get potential changes
+        Strategy strategy = getStrategyDao().load(order.getStrategy().getId());
+        Security security = getSecurityDao().load(order.getSecurity().getId());
+
+        // also update the strategy and security of the order
+        order.setStrategy(strategy);
+        order.setSecurity(security);
+
         // make sure there is no order for the same security / strategy
-        if (getOrderDao().findOpenOrderCountByStrategySecurityAndAlgoOrder(order.getStrategy().getName(), order.getSecurity().getId(), order.isAlgoOrder()) > 0) {
+        if (getOrderDao().findOpenOrderCountByStrategySecurityAndAlgoOrder(strategy.getName(), security.getId(), order.isAlgoOrder()) > 0) {
                 throw new OrderServiceException("existing " + (order instanceof AlgoOrder ? "AlgoOrder" : "SimpleOrder") + " for " + order.getSecurity() + " strategy " + order.getStrategy());
         }
 

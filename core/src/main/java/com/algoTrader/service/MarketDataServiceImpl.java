@@ -98,7 +98,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             security.addSubscriptions(subscription);
 
             // associate the strategy
-            strategy.addSubscriptions(subscription);
+            subscription.setStrategy(strategy);
 
             getSubscriptionDao().create(subscription);
 
@@ -118,8 +118,6 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             // update links
             security.getSubscriptions().remove(subscription);
-
-            strategy.getSubscriptions().remove(subscription);
 
             getSubscriptionDao().remove(subscription);
 
@@ -162,7 +160,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             // security.toString & marketDataEvent.toString is expensive, so only log if debug is anabled
             if (!logger.getParent().getLevel().isGreaterOrEqual(Level.DEBUG)) {
-                logger.trace(marketDataEvent.getSecurity() + " " + marketDataEvent);
+                logger.trace(marketDataEvent.getSecurityInitialized() + " " + marketDataEvent);
             }
 
             long startTime = System.nanoTime();

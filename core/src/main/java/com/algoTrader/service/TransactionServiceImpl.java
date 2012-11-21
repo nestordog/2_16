@@ -17,7 +17,9 @@ import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.entity.trade.Fill;
+import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.MarketChannel;
@@ -25,9 +27,9 @@ import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.esper.subscriber.Subscriber;
-import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
+import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.ClosePositionVO;
 import com.algoTrader.vo.TradePerformanceVO;
 
@@ -43,18 +45,21 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     @Override
     protected void handleCreateTransaction(Fill fill) throws Exception {
 
-        Strategy strategy = fill.getOrd().getStrategy();
-        Security security = fill.getOrd().getSecurity();
+        Order order = fill.getOrd();
 
-        // reattach the security & strategy
-        HibernateUtil.reattach(this.getSessionFactory(), security);
-        HibernateUtil.reattach(this.getSessionFactory(), strategy);
+        // reload the strategy and security to get potential changes
+        Strategy strategy = getStrategyDao().load(order.getStrategy().getId());
+        Security security = getSecurityDao().load(order.getSecurity().getId());
 
+        // and update the strategy and security of the order
+        order.setStrategy(strategy);
+        order.setSecurity(security);
+
+        SecurityFamily securityFamily = security.getSecurityFamily();
         TransactionType transactionType = Side.BUY.equals(fill.getSide()) ? TransactionType.BUY : TransactionType.SELL;
         long quantity = Side.BUY.equals(fill.getSide()) ? fill.getQuantity() : -fill.getQuantity();
-        BigDecimal executionCommission = RoundUtil.getBigDecimal(Math.abs(quantity * security.getSecurityFamily().getExecutionCommission().doubleValue()));
-        BigDecimal clearingCommission = security.getSecurityFamily().getClearingCommission() != null ? RoundUtil.getBigDecimal(Math.abs(quantity
-                * security.getSecurityFamily().getClearingCommission().doubleValue())) : null;
+        BigDecimal executionCommission = RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getExecutionCommission().doubleValue()));
+        BigDecimal clearingCommission = securityFamily.getClearingCommission() != null ? RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getClearingCommission().doubleValue())) : null;
 
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(fill.getExtDateTime());
@@ -64,10 +69,10 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setType(transactionType);
         transaction.setSecurity(security);
         transaction.setStrategy(strategy);
-        transaction.setCurrency(security.getSecurityFamily().getCurrency());
+        transaction.setCurrency(securityFamily.getCurrency());
         transaction.setExecutionCommission(executionCommission);
         transaction.setClearingCommission(clearingCommission);
-        transaction.setMarketChannel(fill.getOrd().getMarketChannel());
+        transaction.setMarketChannel(order.getMarketChannel());
 
         persistTransaction(transaction);
 
@@ -150,7 +155,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     protected void handlePersistTransaction(Transaction transaction) throws Exception {
 
         // associate the strategy
-        transaction.getStrategy().addTransactions(transaction);
+        transaction.setStrategy(transaction.getStrategy());
 
         double profit = 0.0;
         double profitPct = 0.0;
@@ -176,7 +181,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 position.addTransactions(transaction);
 
                 // associate the strategy
-                transaction.getStrategy().addPositions(position);
+                position.setStrategy(transaction.getStrategy());
 
                 getPositionDao().create(position);
 
@@ -324,9 +329,11 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
          */
         public synchronized void update(Fill fill) {
 
+            long startTime = System.nanoTime();
             logger.debug("createTransaction start");
             ServiceLocator.instance().getService("transactionService", TransactionService.class).createTransaction(fill);
             logger.debug("createTransaction end");
+            MetricsUtil.accountEnd("CreateTransactionSubscriber", startTime);
         }
     }
 }

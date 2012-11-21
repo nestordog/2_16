@@ -18,6 +18,13 @@ public class HibernateUtil {
 
     private static Logger logger = MyLogger.getLogger(HibernateUtil.class.getName());
 
+    /**
+     * will try to lock the transient object (modifications will be lost).
+     * If the object is already associated with the session, a merge is executed to
+     * to merge the transient object onto the one already in the session
+     * If the object is associated with another session, it will be evicted from the other session
+     * Therefore reattach does not work if multiple threads use the same object
+     */
     public static Object reattach(SessionFactory sessionFactory, Object target) {
 
         // get the current session

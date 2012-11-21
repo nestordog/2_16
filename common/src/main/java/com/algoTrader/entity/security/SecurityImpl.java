@@ -50,7 +50,7 @@ public abstract class SecurityImpl extends Security {
             }
         }
 
-        if (getSecurityFamily().isSynthetic()) {
+        if (getSecurityFamilyInitialized().isSynthetic()) {
 
             return null;
         } else {

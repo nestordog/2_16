@@ -98,6 +98,7 @@
             <expression udf-cache="false"/>
             <execution prioritized="true"/>
 <!--             <metrics-reporting enabled="true" engine-interval="-1" statement-interval="86400000" />         -->
+<!--             <metrics-reporting enabled="true" engine-interval="-1" statement-interval="10000" />         -->
         </defaults>
     </engine-settings>
 

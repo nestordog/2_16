@@ -31,7 +31,7 @@ public class FutureImpl extends Future {
     @Override
     public int getDuration() {
 
-        FutureFamily family = (FutureFamily) this.getSecurityFamily();
+        FutureFamily family = (FutureFamily) this.getSecurityFamilyInitialized();
         Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), DateUtil.getCurrentEPTime());
         return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / 2592000000d));
     }

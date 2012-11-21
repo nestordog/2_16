@@ -55,8 +55,7 @@ public class SubscriptionServiceImpl extends SubscriptionServiceBase {
 
         // assemble the message selector
         List<String> selections = new ArrayList<String>();
-        Strategy strategy = getLookupService().getStrategyByName(StrategyUtil.getStartedStrategyName());
-        for (Subscription subscription : strategy.getSubscriptionsInitialized()) {
+        for (Subscription subscription : getLookupService().getSubscriptionsByStrategyInclComponents(StrategyUtil.getStartedStrategyName())) {
             selections.add("securityId=" + subscription.getSecurity().getId());
         }
 

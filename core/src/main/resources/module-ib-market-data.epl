@@ -128,7 +128,7 @@ and
 and
     tickWindow.tickerId = tickSize.tickerId;
 
-@Name('UPDATE_TICK_LAST_TIMESTAMP')
+@Name('UPDATE_TICK_WINDOW_LAST_TIMESTAMP')
 @RunTimeOnly()
 on
     com.algoTrader.service.ib.TickString as tickString
