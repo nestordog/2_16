@@ -277,6 +277,10 @@ public class LookupServiceImpl extends LookupServiceBase {
         if (future == null) {
             throw new LookupServiceException("no future available targetExpiration " + expirationDate);
         } else {
+
+            // init SecurityFamily to make sure that it is available for future.getDuration
+            future.getSecurityFamilyInitialized();
+
             return future;
         }
     }
