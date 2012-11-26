@@ -98,8 +98,8 @@ select
 from
     pattern [every fill=Fill -> orderStatus=OrderStatus(
         status = Status.EXECUTED or status = Status.CANCELED,
-        (fill.ord.parentOrder.algoOrder and ord.number = fill.ord.parentOrder.number) or
-        (not fill.ord.parentOrder.algoOrder and ord.number = fill.ord.number))];
+        (not fill.ord.parentOrder is null and ord.number = fill.ord.parentOrder.number) or
+        (fill.ord.parentOrder is null and ord.number = fill.ord.number))];
 
 @Name('PROPAGATE_ORDER_STATUS')
 @RunTimeOnly()
