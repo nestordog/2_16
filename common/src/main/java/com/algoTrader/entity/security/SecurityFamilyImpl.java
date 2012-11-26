@@ -31,6 +31,20 @@ public class SecurityFamilyImpl extends SecurityFamily {
 
 
     @Override
+    public BigDecimal getTotalCommission() {
+
+        if (getExecutionCommission() != null && getClearingCommission() != null) {
+            return getExecutionCommission().add(getClearingCommission());
+        } else if (getExecutionCommission() == null) {
+            return getClearingCommission();
+        } else if (getClearingCommission() == null) {
+            return getExecutionCommission();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public BigDecimal adjustPrice(BigDecimal price, int ticks) {
 
         if (ticks > 0) {

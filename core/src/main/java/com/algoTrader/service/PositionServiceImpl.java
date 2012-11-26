@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
-import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
@@ -209,7 +208,7 @@ public class PositionServiceImpl extends PositionServiceBase {
     @Override
     protected Position handleModifyNonTradeablePosition(int positionId, long quantity) {
 
-        Position position = getPositionDao().get(positionId);
+        Position position = getPositionDao().getLocked(positionId);
 
         if (position == null) {
             throw new PositionServiceException("position " + positionId + " could not be found");
@@ -249,9 +248,9 @@ public class PositionServiceImpl extends PositionServiceBase {
     }
 
     @Override
-    protected Position handleSetExitValue(int positionId, double exitValue, boolean force) throws MathException {
+    protected Position handleSetExitValue(int positionId, double exitValue, boolean force) throws Exception {
 
-        Position position = getPositionDao().get(positionId);
+        Position position = getPositionDao().getLocked(positionId);
 
         // prevent exitValues near Zero
         if (exitValue <= 0.05) {
@@ -292,7 +291,7 @@ public class PositionServiceImpl extends PositionServiceBase {
     @Override
     protected Position handleRemoveExitValue(int positionId) throws Exception {
 
-        Position position = getPositionDao().get(positionId);
+        Position position = getPositionDao().getLocked(positionId);
 
         if (position.getExitValue() != null) {
 

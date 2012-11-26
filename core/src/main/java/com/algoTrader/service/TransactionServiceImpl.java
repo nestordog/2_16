@@ -154,9 +154,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     @Override
     protected void handlePersistTransaction(Transaction transaction) throws Exception {
 
-        // associate the strategy
-        transaction.setStrategy(transaction.getStrategy());
-
         double profit = 0.0;
         double profitPct = 0.0;
         double avgAge = 0;
@@ -165,7 +162,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         if (transaction.getSecurity() != null) {
 
             // create a new position if necessary
-            Position position = getPositionDao().findBySecurityAndStrategy(transaction.getSecurity().getId(), transaction.getStrategy().getName());
+            Position position = getPositionDao().findBySecurityAndStrategyIdLocked(transaction.getSecurity().getId(), transaction.getStrategy().getId());
             if (position == null) {
 
                 position = new PositionImpl();
@@ -327,7 +324,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         /*
          * synchronized to make sure that only on transaction is created at a time
          */
-        public synchronized void update(Fill fill) {
+        public void update(Fill fill) {
 
             long startTime = System.nanoTime();
             logger.debug("createTransaction start");

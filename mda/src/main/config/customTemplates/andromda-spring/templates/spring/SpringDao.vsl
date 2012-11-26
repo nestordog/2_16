@@ -1,3 +1,4 @@
+## AlgoTrader: line 166 - 171 add getLocked
 #set ($generatedFile = "${entity.packagePath}/${entity.daoName}.java")
 // license-header java merge-point
 //
@@ -161,6 +162,13 @@ public interface $entity.daoName
      * @return either the entity or the object transformed from the entity.
      */
     public Object get(int transform, $identifierTypeName $identifierName);
+	
+    /**
+     * Gets an instance of $entity.fullyQualifiedEntityName from the persistent store and sets a db lock on it
+     * @param $identifierName
+     * @return $rootEntityType
+     */
+    public $rootEntityType getLocked($identifierTypeName $identifierName);	
 
     /**
      * Loads an instance of ${entity.fullyQualifiedEntityName} from the persistent store.

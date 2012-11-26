@@ -51,8 +51,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
     protected void handleProcessAmount(String strategyName, Currency currency, BigDecimal amount) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
-        CashBalance cashBalance = getCashBalanceDao().findByStrategyAndCurrency(strategy, currency);
-
+        CashBalance cashBalance = getCashBalanceDao().findByStrategyAndCurrencyLocked(strategy, currency);
         // create the cashBalance, if it does not exist yet
         if (cashBalance == null) {
 
@@ -111,7 +110,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
             Currency currency = entry.getKey().getSecond();
             BigDecimal amount = entry.getValue().setScale(this.portfolioDigits, BigDecimal.ROUND_HALF_UP);
 
-            CashBalance cashBalance = getCashBalanceDao().findByStrategyAndCurrency(strategy, currency);
+            CashBalance cashBalance = getCashBalanceDao().findByStrategyAndCurrencyLocked(strategy, currency);
 
             if (cashBalance != null) {
 

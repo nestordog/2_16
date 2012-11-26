@@ -1,10 +1,11 @@
 ## AlgoTraderRevision: 15256
-## line 65 92 683 1466 1624:  algoTrader_entity_nonPersistent
-## line 254: criteria.setCacheable(true)
-## line 871 - 875: handle algoTrader_entity_query_native
-## line 879 - 881: if taggedValue andromda_hibernate_query_useCache is set add queryObject.setCacheable(true);
-## line 777: Enumerations do not use SpringUtils (it will output param.getValue() for Enumerations, which is wrong)
-## line 1432 - 1452: remove getPrincipal
+## line 67 97 1492:  algoTrader_entity_nonPersistent
+## line 73: add simulation
+## line 270: criteria.setCacheable(true)
+## line 887 - 891: handle algoTrader_finder_method_native_query / 
+## line 894 - 907: handleandromda_hibernate_query_useCache / algoTrader_finder_method_locked
+## line 780: Enumerations do not use SpringUtils (it will output param.getValue() for Enumerations, which is wrong)
+## line 1435 - 1455: remove getPrincipal
 #set ($generatedFile = "${entity.packagePath}/${entity.daoBaseName}.java")
 // license-header java merge-point
 //
@@ -67,6 +68,9 @@ public abstract class $entity.daoBaseName
 #end
     implements $entity.fullyQualifiedDaoName
 {
+
+    private @org.springframework.beans.factory.annotation.Value("${simulation}") boolean simulation;
+
 #foreach($entityRef in $entity.entityReferences)
     private $entityRef.targetElement.fullyQualifiedDaoName $entityRef.daoName;
 
@@ -146,6 +150,17 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
     {
         return ($entity.fullyQualifiedEntityName)this.get($entity.daoNoTransformationConstantName, ${identifierName});
     }
+	
+    /**
+     * {@inheritDoc}
+     */
+#if ($enableAnnotations)
+    @Override
+#end
+    public $rootEntityType getLocked(${identifierTypeName} ${identifierName})
+    {
+        return ($entity.fullyQualifiedName)this.getHibernateTemplate().get(${entity.fullyQualifiedEntityImplementationName}.class, $argument, org.hibernate.LockMode.PESSIMISTIC_WRITE);
+    }	
 
     /**
      * {@inheritDoc}
@@ -868,16 +883,26 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
     {
         try
         {
-#if ($finder.findTaggedValue("algoTrader_entity_query_native"))
+#if ($finder.findTaggedValue("algoTrader_finder_method_native_query"))
             ${hibernateUtils.basePackage}.SQLQuery queryObject = super.getSession(false).createSQLQuery(queryString);
-#if ($finder.findTaggedValue("algoTrader_entity_query_native_entity"))            
-			queryObject.addEntity($finder.findTaggedValue("algoTrader_entity_query_native_entity"));
+#if ($finder.findTaggedValue("algoTrader_finder_method_native_query_entity"))            
+			queryObject.addEntity($finder.findTaggedValue("algoTrader_finder_method_native_query_entity"));
 #end
 #else
             ${hibernateUtils.basePackage}.Query queryObject = super.getSession(false).createQuery(queryString);	
 #end
-#if ($finder.findTaggedValue("andromda_hibernate_query_useCache"))
+#if ($finder.findTaggedValue("andromda_hibernate_query_useCache") && $finder.findTaggedValue("algoTrader_finder_method_locked"))
+            if (this.simulation) {
+                  queryObject.setCacheable(true);
+			} else {
+                  queryObject.setLockOptions(org.hibernate.LockOptions.UPGRADE);
+            }
+#elseif ($finder.findTaggedValue("andromda_hibernate_query_useCache"))
             queryObject.setCacheable(true);
+#elseif ($finder.findTaggedValue("algoTrader_finder_method_locked"))
+            if (!this.simulation) {
+                  queryObject.setLockOptions(org.hibernate.LockOptions.UPGRADE);
+            }
 #end
 #foreach($argument in $finder.arguments)
 #set ($count = $velocityCount - 1)
