@@ -165,6 +165,8 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
 
                 PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName(), date);
                 portfolioValues.add(portfolioValue);
+
+                logger.info("processed portfolioValue for " + strategy.getName() + " " + date);
             }
         }
 
@@ -189,6 +191,8 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
             PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(transaction.getStrategy().getName(), transaction.getDateTime());
             portfolioValue.setCashFlow(transaction.getGrossValue());
             portfolioValues.add(portfolioValue);
+
+            logger.info("processed portfolioValue for " + transaction.getStrategy().getName() + " " + transaction.getDateTime());
         }
 
         // netLiqValue might simply be zero because the strategy is not active yet

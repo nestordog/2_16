@@ -135,13 +135,16 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
             if (security instanceof Forex) {
                 List<Tick> ticks = getTickDao().findTicksForSecurityAndMaxDate(1, 1, security.getId(), date, this.intervalDays);
                 if (ticks.isEmpty()) {
-                    logger.warn("not last tick available for " + security);
-                    continue;
-                } else {
-                    Tick tick = ticks.get(0);
-                    double amount = openPosition.getQuantity() * tick.getRelevantPriceDouble(openPosition.getQuantity());
-                    map.increment(security.getSecurityFamily().getCurrency(), amount);
+                    ticks = getTickDao().findTicksForSecurityAndMinDate(1, 1, security.getId(), date, this.intervalDays);
+                    if (ticks.isEmpty()) {
+                        logger.warn("no tick available for " + security + " on " + date);
+                        continue;
+                    }
+                    logger.info("no prior tick available on " + date + " next tick is " + ((ticks.get(0).getDateTime().getTime() - date.getTime()) / 86400000.0) + " days later for " + security);
                 }
+
+                double amount = openPosition.getQuantity() * ticks.get(0).getRelevantPriceDouble(openPosition.getQuantity());
+                map.increment(security.getSecurityFamily().getCurrency(), amount);
             }
         }
 
@@ -238,8 +241,9 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
                         logger.warn("no tick available for " + security + " on " + date);
                         continue;
                     }
-                    logger.info("no prior tick available for " + security + " on " + date + " next tick " + ((ticks.get(0).getDateTime().getTime() - date.getTime()) / 86400000.0) + " days later");
+                    logger.info("no prior tick available on " + date + " next tick is " + ((ticks.get(0).getDateTime().getTime() - date.getTime()) / 86400000.0) + " days later for " + security);
                 }
+
                 double marketValue = openPosition.getQuantity() * ticks.get(0).getRelevantPriceDouble(openPosition.getQuantity()) * security.getSecurityFamily().getContractSize();
                 map.increment(security.getSecurityFamily().getCurrency(), marketValue);
             }
@@ -461,8 +465,9 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
         portfolioValue.setStrategy(strategy);
         portfolioValue.setDateTime(date);
         portfolioValue.setCashBalance(cashBalance);
-        portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue); // might be null if there was no last tick for a particular security
-        portfolioValue.setNetLiqValue(securitiesCurrentValue != null ? cashBalance.add(securitiesCurrentValue) : null); // add here to prevent another lookup
+        portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue);
+        portfolioValue.setNetLiqValue(cashBalance.add(securitiesCurrentValue)); // add here to prevent another lookup
+        portfolioValue.setMaintenanceMargin(new BigDecimal(0));
 
         return portfolioValue;
     }

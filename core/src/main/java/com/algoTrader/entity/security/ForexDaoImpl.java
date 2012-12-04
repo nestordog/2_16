@@ -8,7 +8,7 @@ import com.algoTrader.enumeration.Currency;
 
 public class ForexDaoImpl extends ForexDaoBase {
 
-    private static final int intervalDays = 3;
+    private static final int intervalDays = 4;
 
     @Override
     protected double handleGetRateDouble(Currency baseCurrency, Currency transactionCurrency) {
@@ -45,7 +45,7 @@ public class ForexDaoImpl extends ForexDaoBase {
 
         List<Tick> ticks = getTickDao().findTicksForSecurityAndMaxDate(1, 1, forex.getId(), date, intervalDays);
         if (ticks.isEmpty()) {
-            throw new IllegalStateException("cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no last tick is available");
+            throw new IllegalStateException("cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no last tick is available for date " + date);
         }
 
         Tick tick = ticks.get(0);
