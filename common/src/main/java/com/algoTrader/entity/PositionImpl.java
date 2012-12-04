@@ -1,17 +1,44 @@
 package com.algoTrader.entity;
 
 import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.security.Forex;
+import com.algoTrader.entity.security.ForexI;
+import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.SecurityFamily;
+import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Direction;
 import com.algoTrader.util.PositionUtil;
+import com.algoTrader.util.RoundUtil;
+import com.algoTrader.vo.CurrencyAmountVO;
 
 public class PositionImpl extends Position {
 
     private static final long serialVersionUID = -2679980079043322328L;
 
-    @Override
-    public boolean isOpen() {
+    /**
+     * used by hibernate hql expression to instantiate a virtual position
+     */
+    public PositionImpl() {
+        super();
+    }
 
-        return getQuantity() != 0;
+    /**
+     * used by hibernate hql expression to instantiate a virtual position
+     */
+    public PositionImpl(long quantity, Strategy strategy, Security security) {
+        super();
+        setQuantity(quantity);
+        setStrategy(strategy);
+        setSecurity(security);
+    }
+
+    /**
+     * used by hibernate hql expression to instantiate a virtual position
+     */
+    public PositionImpl(long quantity, Security security) {
+        super();
+        setQuantity(quantity);
+        setSecurity(security);
     }
 
     @Override
@@ -36,15 +63,7 @@ public class PositionImpl extends Position {
 
             Tick tick = getSecurity().getLastTick();
             if (tick != null) {
-                if (getQuantity() < 0) {
-
-                    // short position
-                    return tick.getAsk().doubleValue();
-                } else {
-
-                    // short position
-                    return tick.getBid().doubleValue();
-                }
+                return tick.getRelevantPriceDouble(getQuantity());
             } else {
                 return Double.NaN;
             }
@@ -183,23 +202,6 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getRedemptionValueDouble() {
-
-        if (isOpen() && getExitValue() != null) {
-
-            return -getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getExitValueDouble();
-        } else {
-            return 0.0;
-        }
-    }
-
-    @Override
-    public double getRedemptionValueBaseDouble() {
-
-        return getRedemptionValueDouble() * getSecurity().getFXRateBase();
-    }
-
-    @Override
     public double getMaxLossDouble() {
 
         if (isOpen() && getExitValue() != null) {
@@ -226,6 +228,43 @@ public class PositionImpl extends Position {
     public double getExposure() {
 
         return getMarketValueDouble() * getSecurity().getLeverage();
+    }
+
+    @Override
+    public CurrencyAmountVO getAttribution() {
+
+        double amount = 0;
+        Currency currency = null;
+        SecurityFamily securityFamily = getSecurity().getSecurityFamily();
+
+        // Forex and ForexFutures are attributed in their baseCurrency
+        if (getSecurity() instanceof ForexI) {
+
+            currency = ((ForexI) getSecurity()).getBaseCurrency();
+            amount = getQuantity() * securityFamily.getContractSize();
+
+        } else {
+            currency = securityFamily.getCurrency();
+            amount = getMarketValueDouble();
+        }
+
+        CurrencyAmountVO currencyAmount = new CurrencyAmountVO();
+        currencyAmount.setCurrency(currency);
+        currencyAmount.setAmount(RoundUtil.getBigDecimal(amount, securityFamily.getScale()));
+
+        return currencyAmount;
+    }
+
+    @Override
+    public boolean isOpen() {
+
+        return getQuantity() != 0;
+    }
+
+    @Override
+    public boolean isCashPosition() {
+
+        return getSecurity() instanceof Forex;
     }
 
     @Override

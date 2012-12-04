@@ -14,6 +14,8 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
 
+import com.algoTrader.util.collection.Pair;
+
 public class ZipUtil {
 
     public static List<String> unzip(String fileName, boolean delete) {

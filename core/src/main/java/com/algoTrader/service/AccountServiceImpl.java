@@ -3,11 +3,19 @@ package com.algoTrader.service;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.support.CronSequenceGenerator;
 
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
@@ -104,7 +112,7 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
             // truncate Date to hour
             portfolioValue.setDateTime(DateUtils.truncate(portfolioValue.getDateTime(), Calendar.HOUR));
 
-            internalSavePortfolioValue(portfolioValue);
+            getPortfolioValueDao().create(portfolioValue);
         }
     }
 
@@ -124,14 +132,73 @@ public abstract class AccountServiceImpl extends AccountServiceBase {
 
         portfolioValue.setCashFlow(transaction.getGrossValue());
 
-        internalSavePortfolioValue(portfolioValue);
+        getPortfolioValueDao().create(portfolioValue);
     }
 
-    private void internalSavePortfolioValue(PortfolioValue portfolioValue) {
+    @Override
+    protected void handleRestorePortfolioValues(Date fromDate, Date toDate) throws Exception {
 
-        // netLiqValue and securitiesCurrentValue might be null if there is a security without a last tick
-        if (portfolioValue.getSecuritiesCurrentValue() != null && portfolioValue.getNetLiqValue() != null) {
-            getPortfolioValueDao().create(portfolioValue);
+        // same cron as SAVE_PORTFOLIO_VALUE
+        CronSequenceGenerator cron = new CronSequenceGenerator("0 0 14-23 * * 1-5", TimeZone.getDefault());
+
+        // sort by dateTime and strategy
+        Set<PortfolioValue> portfolioValues = new TreeSet<PortfolioValue>(new Comparator<PortfolioValue>() {
+            @Override
+            public int compare(PortfolioValue p1, PortfolioValue p2) {
+                if (!p1.getDateTime().equals(p2.getDateTime())) {
+                    return p1.getDateTime().compareTo(p2.getDateTime());
+                } else {
+                    return p1.getStrategy().compareTo(p2.getStrategy());
+                }
+            }
+        });
+
+        // save values for all autoActiveStrategies
+        List<Strategy> strategies = getStrategyDao().findAutoActivateStrategies();
+
+        // create portfolioValues for all cron time slots
+        Date date = fromDate;
+        while (date.compareTo(toDate) <= 0) {
+
+            date = cron.next(date);
+            for (Strategy strategy : strategies) {
+
+                PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName(), date);
+                portfolioValues.add(portfolioValue);
+            }
         }
+
+        // save values for all cashFlows
+        List<Transaction> transactions = getTransactionDao().findAllCashflows();
+        for (Transaction transaction : transactions) {
+
+            // trades do not affect netLiqValue / performance so no portfolioValues are saved
+            if (transaction.isTrade()) {
+                continue;
+
+            // do not save a portfolioValue for BASE when rebalancing
+            } else if (TransactionType.REBALANCE.equals(transaction.getType()) && transaction.getStrategy().isBase()) {
+                continue;
+            }
+
+            // don not save before fromDate
+            if (transaction.getDateTime().compareTo(fromDate) < 0) {
+                continue;
+            }
+
+            PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(transaction.getStrategy().getName(), transaction.getDateTime());
+            portfolioValue.setCashFlow(transaction.getGrossValue());
+            portfolioValues.add(portfolioValue);
+        }
+
+        // netLiqValue might simply be zero because the strategy is not active yet
+        for (Iterator<PortfolioValue> it = portfolioValues.iterator(); it.hasNext();) {
+            PortfolioValue portfolioValue = it.next();
+            if (portfolioValue.getNetLiqValueDouble() == 0) {
+                it.remove();
+            }
+        }
+
+        getPortfolioValueDao().create(portfolioValues);
     }
 }

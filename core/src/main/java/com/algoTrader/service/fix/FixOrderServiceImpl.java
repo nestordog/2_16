@@ -56,11 +56,12 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
     @Override
     protected void handleSendOrder(SimpleOrder order) throws Exception {
 
+        Security security = order.getSecurityInitialized();
+
         // use system time for orderNumber
         order.setNumber(FixIdGenerator.getInstance().getNextOrderId());
 
         NewOrderSingle newOrder = new NewOrderSingle();
-        Security security = order.getSecurity();
 
         // common info
         newOrder.set(new TransactTime(new Date()));
@@ -138,12 +139,13 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
     @Override
     protected void handleModifyOrder(SimpleOrder order) throws Exception {
 
+        Security security = order.getSecurityInitialized();
+
         // assign a new order number
         long origNumber = order.getNumber();
         order.setNumber(FixIdGenerator.getInstance().getNextOrderId());
 
         OrderCancelReplaceRequest replaceRequest = new OrderCancelReplaceRequest();
-        Security security = order.getSecurity();
 
         // common info
         replaceRequest.set(new ClOrdID(String.valueOf(order.getNumber())));
@@ -210,8 +212,9 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
     @Override
     protected void handleCancelOrder(SimpleOrder order) throws Exception {
 
+        Security security = order.getSecurityInitialized();
+
         OrderCancelRequest cancelRequest = new OrderCancelRequest();
-        Security security = order.getSecurity();
 
         // common info
         cancelRequest.set(new ClOrdID(String.valueOf(FixIdGenerator.getInstance().getNextOrderId())));

@@ -55,7 +55,7 @@ public class ForexServiceImpl extends ForexServiceBase {
             for (Position position : getLookupService().getOpenPositionsByStrategyAndType(StrategyImpl.BASE, ForexFuture.class)) {
 
                 // check if expiration is below minimum
-                ForexFuture forexFuture = (ForexFuture) position.getSecurity();
+                ForexFuture forexFuture = (ForexFuture) position.getSecurityInitialized();
                 if (forexFuture.getTimeToExpiration() < this.fxFutureEqualizationMinTimeToExpiration) {
 
                     Order order = MarketOrder.Factory.newInstance();

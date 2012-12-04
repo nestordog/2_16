@@ -37,7 +37,6 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.ClosePositionVO;
 import com.algoTrader.vo.ExpirePositionVO;
-import com.algoTrader.vo.OpenPositionVO;
 
 public class PositionServiceImpl extends PositionServiceBase {
 
@@ -57,12 +56,13 @@ public class PositionServiceImpl extends PositionServiceBase {
     protected void handleClosePosition(int positionId, final boolean unsubscribe) throws Exception {
 
         final Position position = getPositionDao().get(positionId);
+        Security security = position.getSecurityInitialized();
 
         if (position.isOpen()) {
 
             // handle Combinations by the combination service
-            if (position.getSecurity() instanceof Combination) {
-                getCombinationService().closeCombination(position.getSecurity().getId(), position.getStrategy().getName());
+            if (security instanceof Combination) {
+                getCombinationService().closeCombination(security.getId(), position.getStrategy().getName());
             } else {
                 reduceOrClosePosition(position, position.getQuantity(), unsubscribe);
             }
@@ -71,7 +71,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             // if there was no open position but unsubscribe was requested do that anyway
             if (unsubscribe) {
-                getMarketDataService().unsubscribe(position.getStrategy().getName(), position.getSecurity().getId());
+                getMarketDataService().unsubscribe(position.getStrategy().getName(), security.getId());
             }
         }
     }
@@ -324,41 +324,54 @@ public class PositionServiceImpl extends PositionServiceBase {
     }
 
     @Override
-    protected void handleResetPositions() throws Exception {
+    protected String handleResetPositions() throws Exception {
 
-        Collection<OpenPositionVO> openPositionVOs = getTransactionDao().findTransactionSummariesPerStrategy();
+        Collection<Position> targetOpenPositions = getPositionDao().findOpenPositionsFromTransactions();
 
-        for (OpenPositionVO openPositionVO : openPositionVOs) {
+        StringBuffer buffer = new StringBuffer();
+        for (Position targetOpenPosition : targetOpenPositions) {
 
-            Position position = getPositionDao().findBySecurityAndStrategy(openPositionVO.getSecurityId(), openPositionVO.getStrategyName());
-            if (position == null) {
+            Position actualOpenPosition = getPositionDao().findBySecurityAndStrategy(targetOpenPosition.getSecurity().getId(), targetOpenPosition.getStrategy().getName());
+            if (actualOpenPosition == null) {
 
-                logger.warn("position on security " + openPositionVO.getSecurityId() + " strategy " + openPositionVO.getStrategyName() + " quantity " + openPositionVO.getQuantity() + " does not exist");
+                String warning = "position on security " + targetOpenPosition.getSecurity() + " strategy " + targetOpenPosition.getStrategy() + " quantity " + targetOpenPosition.getQuantity() + " does not exist";
+                logger.warn(warning);
+                buffer.append(warning + "\\n");
 
-            } else if (position.getQuantity() != openPositionVO.getQuantity()) {
+            } else if (actualOpenPosition.getQuantity() != targetOpenPosition.getQuantity()) {
 
-                long existingQty = position.getQuantity();
-                position.setQuantity(openPositionVO.getQuantity());
+                long existingQty = actualOpenPosition.getQuantity();
+                actualOpenPosition.setQuantity(targetOpenPosition.getQuantity());
 
-                logger.warn("adjusted quantity of position " + position.getId() + " from " + existingQty + " to " + openPositionVO.getQuantity());
+                String warning = "adjusted quantity of position " + actualOpenPosition.getId() + " from " + existingQty + " to " + targetOpenPosition.getQuantity();
+                logger.warn(warning);
+                buffer.append(warning + "\\n");
             }
         }
 
-        List<Position> openPositions = getPositionDao().findOpenTradeablePositions();
+        List<Position> actualOpenPositions = getPositionDao().findOpenTradeablePositions();
 
-        for (final Position position : openPositions) {
+        for (final Position actualOpenPosition : actualOpenPositions) {
 
-            OpenPositionVO summary = CollectionUtils.find(openPositionVOs, new Predicate<OpenPositionVO>() {
+            Position targetOpenPosition = CollectionUtils.find(targetOpenPositions, new Predicate<Position>() {
                 @Override
-                public boolean evaluate(OpenPositionVO summary) {
-                    return position.getSecurity().getId() == summary.getSecurityId() && position.getStrategy().getName().equals(summary.getStrategyName());
+                public boolean evaluate(Position targetOpenPosition) {
+                    return actualOpenPosition.getSecurity().getId() == targetOpenPosition.getSecurity().getId()
+                            && actualOpenPosition.getStrategy().getName().equals(targetOpenPosition.getStrategy().getName());
                 }
             });
 
-            if (summary == null) {
-                logger.warn("position " + position.getId() + " should have qty=0");
+            if (targetOpenPosition == null) {
+
+                long existingQty = actualOpenPosition.getQuantity();
+                actualOpenPosition.setQuantity(0);
+                String warning = "closed position " + actualOpenPosition.getId() + " qty was " + existingQty;
+                logger.warn(warning);
+                buffer.append(warning + "\\n");
             }
         }
+
+        return buffer.toString();
     }
 
     private void setMargin(Position position) throws Exception {

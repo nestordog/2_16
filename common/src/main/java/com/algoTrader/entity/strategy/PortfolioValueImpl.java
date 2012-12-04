@@ -1,16 +1,19 @@
 package com.algoTrader.entity.strategy;
 
+import java.text.SimpleDateFormat;
+
 import com.algoTrader.util.RoundUtil;
 
 public class PortfolioValueImpl extends PortfolioValue {
 
     private static final long serialVersionUID = -3646704287725745092L;
+    private static SimpleDateFormat format = new SimpleDateFormat("dd.MM.yy hh:mm:ss");
 
     @Override
     public String toString() {
 
         //@formatter:off
-        return getDateTime() + " " + getStrategy() +
+        return format.format(getDateTime()) + " " + getStrategy() +
                 " netLiqValue: " + getNetLiqValue() +
                 " securitiesCurrentValue: " + getSecuritiesCurrentValue() +
                 " cashBalance: " + getCashBalance() +

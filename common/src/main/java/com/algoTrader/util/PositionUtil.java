@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.beanutils.BeanUtils;
+
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.TransactionType;
@@ -23,14 +25,10 @@ public class PositionUtil {
 
         double pL = 0.0;
 
-        List<Pair<Long, Transaction>> closedPositionTransactions = getClosedPositionTransactions(transactions);
-        for (Pair<Long, Transaction> pair : closedPositionTransactions) {
+        Collection<Transaction> closedPositionTransactions = getClosedPositionTransactions(transactions);
+        for (Transaction transaction : closedPositionTransactions) {
 
-            Transaction transaction = pair.getSecond();
-            long quantity = pair.getFirst();
-            double value = net ? transaction.getNetValueDouble() : transaction.getGrossValueDouble();
-
-            pL += value / transaction.getQuantity() * quantity;
+            pL += net ? transaction.getNetValueDouble() : transaction.getGrossValueDouble();
         }
 
         return pL;
@@ -43,14 +41,10 @@ public class PositionUtil {
 
         double cost = 0.0;
 
-        List<Pair<Long, Transaction>> openPositionTransactions = getOpenPositionTransactions(transactions);
-        for (Pair<Long, Transaction> pair : openPositionTransactions) {
+        List<Transaction> openPositionTransactions = getOpenPositionTransactions(transactions);
+        for (Transaction transaction : openPositionTransactions) {
 
-            Transaction transaction = pair.getSecond();
-            long quantity = pair.getFirst();
-            double value = net ? transaction.getNetValueDouble() : transaction.getGrossValueDouble();
-
-            cost -= value / transaction.getQuantity() * quantity;
+            cost -= net ? transaction.getNetValueDouble() : transaction.getGrossValueDouble();
         }
 
         return cost;
@@ -61,15 +55,11 @@ public class PositionUtil {
         long totalQuantity = 0;
         double totalPrice = 0.0;
 
-        List<Pair<Long, Transaction>> openPositionTransactions = getOpenPositionTransactions(transactions);
-        for (Pair<Long, Transaction> pair : openPositionTransactions) {
+        List<Transaction> openPositionTransactions = getOpenPositionTransactions(transactions);
+        for (Transaction transaction : openPositionTransactions) {
 
-            Transaction transaction = pair.getSecond();
-            long quantity = pair.getFirst();
-            double value = net ? transaction.getNetValueDouble() : transaction.getGrossValueDouble();
-
-            totalQuantity += quantity;
-            totalPrice -= value / transaction.getQuantity() * quantity;
+            totalQuantity += transaction.getQuantity();
+            totalPrice -= net ? transaction.getNetValueDouble() : transaction.getGrossValueDouble();
 
         }
         return totalPrice / totalQuantity / security.getSecurityFamily().getContractSize();
@@ -81,15 +71,13 @@ public class PositionUtil {
         long totalQuantity = 0;
         long totalAge = 0;
 
-        List<Pair<Long, Transaction>> openPositionTransactions = getOpenPositionTransactions(transactions);
-        for (Pair<Long, Transaction> pair : openPositionTransactions) {
+        List<Transaction> openPositionTransactions = getOpenPositionTransactions(transactions);
+        for (Transaction transaction : openPositionTransactions) {
 
-            Transaction transaction = pair.getSecond();
-            long quantity = pair.getFirst();
             long age = DateUtil.getCurrentEPTime().getTime() - transaction.getDateTime().getTime();
 
-            totalQuantity += quantity;
-            totalAge += quantity * age;
+            totalQuantity += transaction.getQuantity();
+            totalAge += transaction.getQuantity() * age;
 
         }
         if (totalQuantity != 0) {
@@ -102,7 +90,7 @@ public class PositionUtil {
     /**
      * transactions need to be of one security
      */
-    public static List<Pair<Long, Transaction>> getOpenPositionTransactions(Collection<Transaction> transactions) {
+    public static List<Transaction> getOpenPositionTransactions(Collection<Transaction> transactions) {
 
         ArrayList<Transaction> sortedTransactions = new ArrayList<Transaction>(transactions);
 
@@ -114,29 +102,31 @@ public class PositionUtil {
             }
         });
 
-        List<Pair<Long, Transaction>> quantityTransactionPairs = new ArrayList<Pair<Long, Transaction>>();
+        List<Transaction> openPositionTransactions = new ArrayList<Transaction>();
         long totalQuantity = 0;
         for (Transaction transaction : sortedTransactions) {
 
             // if queue is empty or transaction increases existing position -> add transaction to queue
-            if (quantityTransactionPairs.size() == 0 || Long.signum(totalQuantity) == Long.signum(transaction.getQuantity())) {
-                quantityTransactionPairs.add(new Pair<Long, Transaction>(transaction.getQuantity(), transaction));
+            if (openPositionTransactions.size() == 0 || Long.signum(totalQuantity) == Long.signum(transaction.getQuantity())) {
+
+                Transaction openPositionTransaction = cloneTransaction(transaction, transaction.getQuantity());
+                openPositionTransactions.add(openPositionTransaction);
 
                 // if transaction is reducing quantity -> go through the queue and remove as many items as necessary
             } else {
                 long runningQuantity = transaction.getQuantity();
-                for (Iterator<Pair<Long, Transaction>> it = quantityTransactionPairs.iterator(); it.hasNext();) {
+                for (Iterator<Transaction> it = openPositionTransactions.iterator(); it.hasNext();) {
 
-                    Pair<Long, Transaction> pair = it.next();
+                    Transaction openPositionTransaction = it.next();
 
                     // transaction will be completely removed
-                    if (Math.abs(pair.getFirst()) <= Math.abs(runningQuantity)) {
-                        runningQuantity += pair.getFirst();
+                    if (Math.abs(openPositionTransaction.getQuantity()) <= Math.abs(runningQuantity)) {
+                        runningQuantity += openPositionTransaction.getQuantity();
                         it.remove();
 
                         // transaction will be partly removed
                     } else {
-                        pair.setFirst(pair.getFirst() + runningQuantity);
+                        openPositionTransaction.setQuantity(openPositionTransaction.getQuantity() + runningQuantity);
                         runningQuantity = 0;
                         break;
                     }
@@ -145,17 +135,16 @@ public class PositionUtil {
                 // if not the entire runningQuantity could be eliminated,
                 // create a new Quantity Transaction with the reminder
                 if (runningQuantity != 0) {
-                    quantityTransactionPairs.add(new Pair<Long, Transaction>(runningQuantity, transaction));
+                    openPositionTransactions.add(cloneTransaction(transaction, runningQuantity));
                 }
             }
             totalQuantity += transaction.getQuantity();
         }
 
-        return quantityTransactionPairs;
+        return openPositionTransactions;
     }
 
-
-    public static List<Pair<Long, Transaction>> getOpenPositionTransactionsMultiSecurity(Collection<Transaction> transactions) {
+    public static List<Transaction> getOpenPositionTransactionsMultiSecurity(Collection<Transaction> transactions) {
 
         // group BUY and SELL transactions by security
         Map<Security, Collection<Transaction>> transactionsPerSecurity = new HashMap<Security, Collection<Transaction>>();
@@ -169,7 +158,7 @@ public class PositionUtil {
         }
 
         // for every security the the corresponding open positions
-        List<Pair<Long, Transaction>> openPositionTransactions = new ArrayList<Pair<Long, Transaction>>();
+        List<Transaction> openPositionTransactions = new ArrayList<Transaction>();
         for (Map.Entry<Security, Collection<Transaction>> entry : transactionsPerSecurity.entrySet()) {
 
             openPositionTransactions.addAll(getOpenPositionTransactions(entry.getValue()));
@@ -180,37 +169,32 @@ public class PositionUtil {
     /**
      * transactions need to be of one security
      */
-    public static List<Pair<Long, Transaction>> getClosedPositionTransactions(Collection<Transaction> transactions) {
+    public static Collection<Transaction> getClosedPositionTransactions(Collection<Transaction> transactions) {
 
-        // compile a list of transactions with their quantities
-        Map<Transaction, Long> transactionQuantityMap = new HashMap<Transaction, Long>();
+        // add the transactions to a map by their id
+        Map<Integer, Transaction> transactionMap = new HashMap<Integer, Transaction>();
         for (Transaction transaction : transactions) {
-            transactionQuantityMap.put(transaction, transaction.getQuantity());
+            transactionMap.put(transaction.getId(), transaction);
         }
 
         // go through the list of openPositionTransactions
-        List<Pair<Long, Transaction>> openPositionTransactions = getOpenPositionTransactions(transactions);
-        for (Pair<Long, Transaction> openPositionTransaction : openPositionTransactions) {
+        List<Transaction> openPositionTransactions = getOpenPositionTransactions(transactions);
+        for (Transaction openPositionTransaction : openPositionTransactions) {
 
-            // reduce the position by the corresponding amount
-            long quantity = transactionQuantityMap.get(openPositionTransaction.getSecond()) - openPositionTransaction.getFirst();
+            // reduce the quantity of the transaction by the corresponding amount
+            Transaction transaction = transactionMap.get(openPositionTransaction.getId());
+            long quantity = transaction.getQuantity() - openPositionTransaction.getQuantity();
             if (quantity == 0) {
-                transactionQuantityMap.remove(openPositionTransaction.getSecond());
+                transactionMap.remove(openPositionTransaction.getId());
             } else {
-                transactionQuantityMap.put(openPositionTransaction.getSecond(), quantity);
+                transaction.setQuantity(quantity);
             }
         }
 
-        // compile the closedPositionTransaction List
-        List<Pair<Long, Transaction>> closedPositionTransactions = new ArrayList<Pair<Long, Transaction>>();
-        for (Map.Entry<Transaction, Long> entry : transactionQuantityMap.entrySet()) {
-            closedPositionTransactions.add(new Pair<Long, Transaction>(entry.getValue(), entry.getKey()));
-        }
-
-        return closedPositionTransactions;
+        return transactionMap.values();
     }
 
-    public static List<Pair<Long, Transaction>> getClosedPositionTransactionsMultiSecurity(Collection<Transaction> transactions) {
+    public static List<Transaction> getClosedPositionTransactionsMultiSecurity(Collection<Transaction> transactions) {
 
         // group BUY and SELL transactions by security
         Map<Security, Collection<Transaction>> transactionsPerSecurity = new HashMap<Security, Collection<Transaction>>();
@@ -224,11 +208,24 @@ public class PositionUtil {
         }
 
         // for every security the the corresponding open positions
-        List<Pair<Long, Transaction>> closedPositionTransactions = new ArrayList<Pair<Long, Transaction>>();
+        List<Transaction> closedPositionTransactions = new ArrayList<Transaction>();
         for (Map.Entry<Security, Collection<Transaction>> entry : transactionsPerSecurity.entrySet()) {
 
             closedPositionTransactions.addAll(getClosedPositionTransactions(entry.getValue()));
         }
         return closedPositionTransactions;
+    }
+
+    private static Transaction cloneTransaction(Transaction transaction, long quantity) {
+
+        Transaction clonedTransaction;
+        try {
+            clonedTransaction = (Transaction)BeanUtils.cloneBean(transaction);
+            clonedTransaction.setQuantity(quantity);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return clonedTransaction;
     }
 }

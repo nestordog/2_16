@@ -11,7 +11,7 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.Pair;
+import com.algoTrader.util.collection.Pair;
 
 public class SlicingOrderImpl extends SlicingOrder {
 

@@ -211,7 +211,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
         logger.debug("retrieved forexFutures for forexFuturefamily: " + family.getName() + " " + newForexFutures);
     }
 
-    private void retrieveContractDetails(SecurityFamily family) throws InterruptedException {
+    private void retrieveContractDetails(SecurityFamily securityFamily) throws InterruptedException {
 
         this.contractDetailsList = new ArrayList<ContractDetails>();
 
@@ -221,13 +221,13 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
 
             int requestId = IBIdGenerator.getInstance().getNextRequestId();
             Contract contract = new Contract();
-            contract.m_currency = family.getCurrency().toString();
-            contract.m_symbol = family.getBaseSymbol();
-            contract.m_exchange = IBMarketConverter.marketToString(family.getMarket());
+            contract.m_currency = securityFamily.getCurrency().toString();
+            contract.m_symbol = securityFamily.getBaseSymbol();
+            contract.m_exchange = IBMarketConverter.marketToString(securityFamily.getMarket());
 
-            if (family instanceof StockOptionFamily) {
+            if (securityFamily instanceof StockOptionFamily) {
                 contract.m_secType = "OPT";
-            } else if (family instanceof FutureFamily) {
+            } else if (securityFamily instanceof FutureFamily) {
                 contract.m_secType = "FUT";
             }
 

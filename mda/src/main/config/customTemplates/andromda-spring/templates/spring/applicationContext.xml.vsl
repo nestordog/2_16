@@ -122,6 +122,8 @@
 #if ($stringUtils.isNotBlank($hibernateTransactionFactoryClass))
                 <prop key="transaction.factory_class">$hibernateTransactionFactoryClass</prop>
 #end
+                <!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
+                <!-- <prop key="hibernate.show_sql">true</prop> -->
                 <!-- applicationContext hibernateProperties merge-point -->
             </props>
         </property>

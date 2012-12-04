@@ -118,6 +118,26 @@ public class TickImpl extends Tick {
     }
 
     @Override
+    public BigDecimal getRelevantPrice(long quantity) {
+
+        return RoundUtil.getBigDecimal(getRelevantPriceDouble(quantity));
+    }
+
+    @Override
+    public double getRelevantPriceDouble(long quantity) {
+
+        if (quantity < 0) {
+
+            // short position
+            return getAsk().doubleValue();
+        } else {
+
+            // short position
+            return getBid().doubleValue();
+        }
+    }
+
+    @Override
     public boolean isSpreadValid() {
 
         SecurityFamily family = getSecurity().getSecurityFamily();

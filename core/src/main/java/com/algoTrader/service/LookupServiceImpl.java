@@ -52,6 +52,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     private @Value("${statement.simulateFuturesByUnderlying}") boolean simulateFuturesByUnderlying;
     private @Value("${statement.simulateFuturesByGenericFutures}") boolean simulateFuturesByGenericFutures;
     private @Value("${misc.transactionDisplayCount}") int transactionDisplayCount;
+    private @Value("${misc.intervalDays}") int intervalDays;
 
     @Override
     protected Collection<Security> handleGetAllSecurities() throws Exception {
@@ -492,8 +493,13 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected double handleGetPositionMarketPriceByDate(Security security, Date date) throws Exception {
 
-        Tick tick = getTickDao().findTicksForSecurityAndMinDate(1, 1, security.getId(), date).get(0);
-        return tick.getSettlement().doubleValue();
+        List<Tick> ticks = getTickDao().findTicksForSecurityAndMinDate(1, 1, security.getId(), date, this.intervalDays);
+        if (ticks.isEmpty()) {
+            throw new IllegalStateException("not tick available for " + security);
+        } else {
+            Tick tick = ticks.get(0);
+            return tick.getSettlement().doubleValue();
+        }
     }
 
     @Override
@@ -574,7 +580,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Tick handleGetLastTick(int securityId) throws Exception {
 
-        List<Tick> list = getTickDao().findTicksForSecurityAndMaxDate(1, 1, securityId, DateUtil.getCurrentEPTime());
+        List<Tick> list = getTickDao().findTicksForSecurityAndMaxDate(1, 1, securityId, DateUtil.getCurrentEPTime(), this.intervalDays);
 
         Tick tick = null;
         if (!list.isEmpty()) {
@@ -639,9 +645,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected double handleGetForexSettlementRateDoubleByDate(Currency baseCurrency, Currency transactionCurrency, Date date) throws Exception {
+    protected double handleGetForexRateDoubleByDate(Currency baseCurrency, Currency transactionCurrency, Date date) throws Exception {
 
-        return getForexDao().getSettlementRateDoubleByDate(baseCurrency, transactionCurrency, date);
+        return getForexDao().getRateDoubleByDate(baseCurrency, transactionCurrency, date);
     }
 
     @Override
