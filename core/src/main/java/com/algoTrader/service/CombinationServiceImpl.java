@@ -198,6 +198,38 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         deleteCombination(combination.getId());
     }
 
+    @Override
+    protected Combination handleReduceCombination(int combinationId, String strategyName, double ratio) throws Exception {
+
+        Combination combination = getCombinationDao().get(combinationId);
+        if (combination == null) {
+            throw new IllegalArgumentException("combination does not exist: " + combinationId);
+        }
+
+        if (ratio == 0) {
+            return combination;
+        } else if (ratio >= 1.0) {
+            closeCombination(combinationId, strategyName);
+        } else if (ratio < 0) {
+            throw new IllegalArgumentException("ratio cannot be smaller than zero");
+        }
+
+        // reduce all associated positions by the specified ratio
+        // Note: positions are not closed, because other combinations might relate to them as well
+        for (Component component : combination.getComponents()) {
+
+            Position position = getPositionDao().findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
+
+            logger.info("reduce position " + position.getId() + " of combination " + combination);
+
+            long quantity = Math.round(component.getQuantity() * ratio);
+
+            getPositionService().reducePosition(position.getId(), quantity);
+        }
+
+        return combination;
+    }
+
     @SuppressWarnings("rawtypes")
     @Override
     protected void handleDeleteCombinationsWithZeroQty(String strategyName, Class type) throws Exception {
