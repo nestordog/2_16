@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/eastwest"/>
+<listEntry value="/algotrader-core/src/main/java/com/algoTrader/starter/ServiceInvoker.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="4"/>
+<listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.algoTrader.starter.ServiceInvoker"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="RuleService:initServiceProvider:BASE&#13;&#10;RuleService:initServiceProvider:EASTWEST"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="eastwest"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="importService:importTicks"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="algotrader-core"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dsimulation=true&#13;&#10;-Desperee.base=D:/AlgoTrader/code"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DdataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTraderTest&#13;&#10;-Dspring.profiles.active=misc"/>
 </launchConfiguration>

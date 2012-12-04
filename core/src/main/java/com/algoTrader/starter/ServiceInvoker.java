@@ -1,47 +1,36 @@
 package com.algoTrader.starter;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.StringTokenizer;
 
-import org.apache.log4j.Logger;
-
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.util.MyLogger;
 
 public class ServiceInvoker {
 
-    private static Logger logger = MyLogger.getLogger(ServiceInvoker.class.getName());
-    private static ServiceInvoker invoker;
+    private static SimpleDateFormat dayFormat = new SimpleDateFormat("dd.MM.yy");
+    private static SimpleDateFormat hourFormat = new SimpleDateFormat("dd.MM.yy hh:mm:ss");
 
     public static void main(String[] args) throws Exception {
 
         for (String arg : args) {
-            getInstance().invoke(arg);
+            invoke(arg);
         }
     }
 
-    public static ServiceInvoker getInstance() {
+    public static Object invoke(String arg) {
 
-        if (invoker == null) {
-            invoker = new ServiceInvoker();
-        }
-        return invoker;
-    }
-
-    public Object invoke(String call) {
-
-        if (call == null) {
-            logger.warn("you must specifiy service and method");
-            return "you must specifiy service and method";
+        if (arg == null) {
+            throw new IllegalArgumentException("you must specifiy service and method");
         }
 
-        StringTokenizer tokenizer = new StringTokenizer(call, ":");
+        StringTokenizer tokenizer = new StringTokenizer(arg, ":");
 
         int len = tokenizer.countTokens();
         if (len < 2) {
-            logger.warn("you must specifiy service and method");
-            return "you must specifiy service and method";
+            throw new IllegalArgumentException("you must specifiy service and method");
         }
 
         String serviceName = tokenizer.nextToken();
@@ -49,35 +38,59 @@ public class ServiceInvoker {
 
         ServiceLocator serviceLocator = ServiceLocator.instance();
 
-        try {
-            Method getServiceMethod = serviceLocator.getClass().getMethod("get" + serviceName, (Class[]) null);
-            Object service = getServiceMethod.invoke(serviceLocator, new Object[] {});
+        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        Object service = serviceLocator.getService(serviceName);
 
-            Class<?>[] signature = new Class<?>[len - 2];
-            String[] params = new String[len - 2];
-            int i = 0;
-            while (tokenizer.hasMoreTokens()) {
-                signature[i] = String.class;
-                params[i] = tokenizer.nextToken();
-                i++;
+        Object result = null;
+        boolean found = false;
+        for (Method method : service.getClass().getMethods()) {
+            if (method.getName().equals(methodName)) {
+                found = true;
+
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                if (parameterTypes.length != len - 2) {
+                    throw new IllegalArgumentException("number of parameters does not match");
+                }
+
+                Object[] params = new Object[parameterTypes.length];
+                for (int i = 0; i < parameterTypes.length; i++) {
+                    Class<?> parameterType = parameterTypes[i];
+                    String param = tokenizer.nextToken();
+                    if (parameterType.equals(String.class)) {
+                        params[i] = param;
+                    } else if (parameterType.equals(int.class) || parameterType.equals(Integer.class)) {
+                        params[i] = Integer.valueOf(param);
+                    } else if (parameterType.equals(double.class) || parameterType.equals(Double.class)) {
+                        params[i] = Double.valueOf(param);
+                    } else if (parameterType.equals(Date.class)) {
+                        try {
+                            params[i] = hourFormat.parse(param);
+                        } catch (ParseException e) {
+                            try {
+                                params[i] = dayFormat.parse(param);
+                            } catch (ParseException e1) {
+                                throw new IllegalStateException(e1);
+                            }
+                        }
+                    }
+                }
+
+                try {
+                    result = method.invoke(service, params);
+                } catch (Exception e) {
+                    throw new IllegalStateException(e);
+                }
+
+                break;
             }
-
-            Method method = service.getClass().getMethod(methodName, signature);
-            Object result = method.invoke(service, (Object[]) params);
-
-            serviceLocator.shutdown();
-
-            return result;
-
-        } catch (NoSuchMethodException e) {
-            logger.error("the specified service or method does not exist", e);
-            return "the specified service or method does not exist";
-        } catch (InvocationTargetException e) {
-            logger.error("there was an error", e.getTargetException());
-            return e.getTargetException().getMessage();
-        } catch (Exception e) {
-            logger.error("there was an error", e);
-            return e.getMessage();
         }
+
+        if (!found) {
+            throw new IllegalArgumentException("method does not exist");
+        }
+
+        serviceLocator.shutdown();
+
+        return result;
     }
 }
