@@ -5,6 +5,7 @@ import java.util.Map;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.ClosePositionVO;
 import com.algoTrader.vo.ExpirePositionVO;
+import com.algoTrader.vo.OpenPositionVO;
 import com.algoTrader.vo.PositionVO;
 
 @SuppressWarnings("unchecked")
@@ -53,6 +54,32 @@ public class PositionDaoImpl extends PositionDaoBase {
     }
 
     @Override
+    public void toOpenPositionVO(Position position, OpenPositionVO openPositionVO) {
+
+        super.toOpenPositionVO(position, openPositionVO);
+
+        completeOpenPositionVO(position, openPositionVO);
+    }
+
+    @Override
+    public OpenPositionVO toOpenPositionVO(final Position position) {
+
+        OpenPositionVO openPositionVO = super.toOpenPositionVO(position);
+
+        completeOpenPositionVO(position, openPositionVO);
+
+        return openPositionVO;
+    }
+
+    private void completeOpenPositionVO(Position position, OpenPositionVO openPositionVO) {
+
+        openPositionVO.setSecurityId(position.getSecurity().getId());
+        openPositionVO.setStrategyName(position.getStrategy().getName());
+
+        openPositionVO.setDirection(position.getDirection());
+    }
+
+    @Override
     public void toClosePositionVO(Position position, ClosePositionVO closePositionVO) {
 
         super.toClosePositionVO(position, closePositionVO);
@@ -75,6 +102,7 @@ public class PositionDaoImpl extends PositionDaoBase {
         int scale = position.getSecurity().getSecurityFamily().getScale();
 
         closePositionVO.setSecurityId(position.getSecurity().getId());
+        closePositionVO.setStrategyName(position.getStrategy().getName());
         closePositionVO.setExitValue(position.getExitValue() != null ? RoundUtil.getBigDecimal(position.getExitValue(), scale) : null);
         closePositionVO.setDirection(position.getDirection());
     }
@@ -107,6 +135,12 @@ public class PositionDaoImpl extends PositionDaoBase {
     public Position positionVOToEntity(PositionVO positionVO) {
 
         throw new UnsupportedOperationException("positionVOToEntity ist not implemented.");
+    }
+
+    @Override
+    public Position openPositionVOToEntity(OpenPositionVO openPositionVO) {
+
+        throw new UnsupportedOperationException("openPositionVOToEntity is not implemented.");
     }
 
     @Override

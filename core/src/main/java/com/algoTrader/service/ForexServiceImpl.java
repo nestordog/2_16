@@ -22,13 +22,12 @@ import com.algoTrader.entity.security.FutureFamily;
 import com.algoTrader.entity.trade.MarketOrder;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;
-import com.algoTrader.entity.trade.TradeCallback;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.esper.EsperManager;
+import com.algoTrader.esper.TradeCallback;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.OrderUtil;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.BalanceVO;
 
@@ -71,12 +70,9 @@ public class ForexServiceImpl extends ForexServiceBase {
             // setup an TradeCallback so that new hedge positions are only setup when existing positions are closed
             if (orders.size() > 0) {
 
-                EsperManager.addTradeCallback(base.getName(), orders, new TradeCallback() {
+                EsperManager.addTradeCallback(base.getName(), orders, new TradeCallback(true) {
                     @Override
                     public void onTradeCompleted(List<OrderStatus> orderStati) {
-
-                        // check that all orders have been fully filled
-                        OrderUtil.checkOrderStati(orderStati);
 
                         // build new hedge positions by invoking equalizeForex again
                         // use ServiceLocator because TradeCallback is executed in a new thread

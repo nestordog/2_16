@@ -31,6 +31,7 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.ClosePositionVO;
+import com.algoTrader.vo.OpenPositionVO;
 import com.algoTrader.vo.TradePerformanceVO;
 
 public abstract class TransactionServiceImpl extends TransactionServiceBase {
@@ -162,6 +163,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         if (transaction.getSecurity() != null) {
 
             // create a new position if necessary
+            boolean existingOpenPosition = false;
             Position position = getPositionDao().findBySecurityAndStrategyIdLocked(transaction.getSecurity().getId(), transaction.getStrategy().getId());
             if (position == null) {
 
@@ -183,6 +185,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 getPositionDao().create(position);
 
             } else {
+
+                existingOpenPosition = position.isOpen();
 
                 // get the closePositionVO
                 // must be done before closing the position
@@ -215,6 +219,18 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
                 // associate the position
                 position.addTransactions(transaction);
+            }
+
+            // if no position was open before
+            if (!existingOpenPosition) {
+
+                // get the OpenPositionVO
+                OpenPositionVO openPositionVO = getPositionDao().toOpenPositionVO(position);
+
+                // propagate the OpenPosition event
+                if (EsperManager.isInitialized(StrategyImpl.BASE)) {
+                    EsperManager.sendEvent(position.getStrategy().getName(), openPositionVO);
+                }
             }
         }
 

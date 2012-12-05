@@ -25,12 +25,12 @@ import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.strategy.DefaultOrderPreference;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;
-import com.algoTrader.entity.trade.TradeCallback;
 import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.esper.EsperManager;
+import com.algoTrader.esper.TradeCallback;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
@@ -110,7 +110,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         order.setSide(side);
 
         // unsubscribe is requested / notify non-full executions
-        EsperManager.addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback() {
+        EsperManager.addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback(true) {
             @Override
             public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
                 for (OrderStatus orderStatus : orderStati) {
@@ -121,10 +121,6 @@ public class PositionServiceImpl extends PositionServiceBase {
                             MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
                             marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
                         }
-                    } else {
-                        logger.error("reduction / closing of position " + position.getId() +
-                                " did not executed fully, filledQty: " + orderStatus.getFilledQuantity() +
-                                " remainingQty: " + orderStatus.getRemainingQuantity());
                     }
                 }
             }

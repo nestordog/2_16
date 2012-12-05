@@ -37,10 +37,8 @@ import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.marketData.MarketDataEvent;
-import com.algoTrader.entity.marketData.TickCallback;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.trade.Order;
-import com.algoTrader.entity.trade.TradeCallback;
 import com.algoTrader.esper.annotation.Condition;
 import com.algoTrader.esper.annotation.Listeners;
 import com.algoTrader.esper.annotation.RunTimeOnly;
@@ -724,6 +722,32 @@ public class EsperManager {
 
             int[] securityIdsArray = ArrayUtils.toPrimitive(securityIds.toArray(new Integer[0]));
             deployStatement(strategyName, "prepared", "ON_FIRST_TICK", alias, new Object[] { securityIds.size(), securityIdsArray }, callback);
+        }
+    }
+
+    public static void addOpenPositionCallback(String strategyName, int securityId, OpenPositionCallback callback) {
+
+        String alias = "ON_OPEN_POSITION_" + securityId;
+
+        if (isDeployed(strategyName, alias)) {
+
+            logger.warn(alias + " is already deployed");
+        } else {
+
+            deployStatement(strategyName, "prepared", "ON_OPEN_POSITION", alias, new Object[] { securityId }, callback);
+        }
+    }
+
+    public static void addClosePositionCallback(String strategyName, int securityId, ClosePositionCallback callback) {
+
+        String alias = "ON_CLOSE_POSITION_" + securityId;
+
+        if (isDeployed(strategyName, alias)) {
+
+            logger.warn(alias + " is already deployed");
+        } else {
+
+            deployStatement(strategyName, "prepared", "ON_CLOSE_POSITION", alias, new Object[] { securityId }, callback);
         }
     }
 

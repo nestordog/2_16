@@ -24,6 +24,7 @@
     <event-type name="Transaction" class="com.algoTrader.entity.Transaction"/>
 
     <!-- Value Objects -->
+    <event-type name="OpenPosition" class="com.algoTrader.vo.OpenPositionVO"/>
     <event-type name="ClosePosition" class="com.algoTrader.vo.ClosePositionVO"/>
     <event-type name="BarVO" class="com.algoTrader.vo.BarVO"/>
 

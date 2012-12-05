@@ -18,6 +18,18 @@ from
             ord.strategy.name = ?,
             ord.algoOrder = ?)))];
 
+@Name('ON_OPEN_POSITION')
+select
+    openPosition
+from
+    pattern[openPosition=OpenPosition(securityId = ?)];
+
+@Name('ON_CLOSE_POSITION')
+select
+    *
+from
+    pattern[ClosePosition(securityId = ?)];
+
 @Name('FIX_SESSION')
 select
     null

@@ -1,4 +1,4 @@
-package com.algoTrader.entity.marketData;
+package com.algoTrader.esper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +10,7 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.algoTrader.esper.EsperManager;
+import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.metric.MetricsUtil;
 

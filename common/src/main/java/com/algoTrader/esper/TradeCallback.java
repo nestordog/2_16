@@ -1,4 +1,4 @@
-package com.algoTrader.entity.trade;
+package com.algoTrader.esper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.algoTrader.esper.EsperManager;
+import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.metric.MetricsUtil;
 
@@ -17,11 +17,27 @@ public abstract class TradeCallback {
 
     private static Logger logger = MyLogger.getLogger(TradeCallback.class.getName());
 
+    private boolean expectFullExecution;
+
+    public TradeCallback(boolean expectFullExecution) {
+
+        this.expectFullExecution = expectFullExecution;
+    }
+
     public void update(String strategyName, OrderStatus[] orderStati) throws Exception {
 
-        List<OrderStatus> orderStatusList = Arrays.asList(orderStati);
+        // check full execution if needed
+        if (this.expectFullExecution) {
+            for (OrderStatus orderStatus : orderStati) {
+                if (orderStatus.getRemainingQuantity() > 0) {
+                    logger.error("order on " + orderStatus.getOrd().getSecurityInitialized() + " has not been fully executed, filledQty: " + orderStatus.getFilledQuantity() + " remainingQty: "
+                            + orderStatus.getRemainingQuantity());
+                }
+            }
+        }
 
         // get the securityIds sorted asscending
+        List<OrderStatus> orderStatusList = Arrays.asList(orderStati);
         TreeSet<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(orderStatusList, new Transformer<OrderStatus, Integer>() {
             @Override
             public Integer transform(OrderStatus order) {
