@@ -169,6 +169,15 @@ public class $serviceLocatorName
         return getContext().getBean(serviceName, clazz);
     }
 	
+    /**
+     * Gets an instance of the given service.
+     * @param serviceName
+     * @return getContext().getBean(serviceName)
+     */
+    public final Object getService(String serviceName) 
+    {
+        return getContext().getBean(serviceName);
+    }	
 
     /**
      * Checks wheather the the given service exists

@@ -331,6 +331,12 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
+    protected void handleReduceCombination(int combinationId, double ratio) throws Exception {
+
+        getCombinationService().reduceCombination(combinationId, StrategyUtil.getStartedStrategyName(), ratio);
+    }
+
+    @Override
     protected void handleSetExitValue(int positionId, double exitValue) throws Exception {
 
         getPositionService().setExitValue(positionId, exitValue, true);
