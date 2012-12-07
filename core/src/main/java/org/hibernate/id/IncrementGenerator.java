@@ -1,3 +1,4 @@
+//AlgoTrader 106 - 118: improve retrieval of maxId
 /*
  * Hibernate, Relational Persistence for Idiomatic Java
  *
@@ -111,9 +112,10 @@ public class IncrementGenerator implements IdentifierGenerator, Configurable {
         }
         if ( tables.length > 1 ) {
             buf.insert( 0, "( " ).append( " ) ids_" );
+            column = "ids_.mx";
         }
 
-        sql = "select max(ids_.mx) from " + buf.toString();
+        sql = "select max(" + column + ") from " + buf.toString();
     }
 
     private void initializePreviousValueHolder(SessionImplementor session) {

@@ -1,3 +1,4 @@
+// AlgoTrader 174 - 178: cache ObjectNotFoundException
 /*
  * Hibernate, Relational Persistence for Idiomatic Java
  *
@@ -57,8 +58,9 @@ public class StandardQueryCache implements QueryCache {
     private QueryResultsRegion cacheRegion;
     private UpdateTimestampsCache updateTimestampsCache;
 
+    @Override
     public void clear() throws CacheException {
-        cacheRegion.evictAll();
+        this.cacheRegion.evictAll();
     }
 
     public StandardQueryCache(
@@ -79,6 +81,7 @@ public class StandardQueryCache implements QueryCache {
         this.updateTimestampsCache = updateTimestampsCache;
     }
 
+    @Override
     @SuppressWarnings({ "UnnecessaryBoxing", "unchecked" })
     public boolean put(
             QueryKey key,
@@ -93,7 +96,7 @@ public class StandardQueryCache implements QueryCache {
             Long ts = new Long( session.getFactory().getSettings().getRegionFactory().nextTimestamp());
 
             if ( log.isDebugEnabled() ) {
-                log.debug( "caching query results in region: " + cacheRegion.getName() + "; timestamp=" + ts );
+                log.debug( "caching query results in region: " + this.cacheRegion.getName() + "; timestamp=" + ts );
             }
 
             List cacheable = new ArrayList( result.size() + 1 );
@@ -109,11 +112,12 @@ public class StandardQueryCache implements QueryCache {
                 }
             }
 
-            cacheRegion.put( key, cacheable );
+            this.cacheRegion.put( key, cacheable );
             return true;
         }
     }
 
+    @Override
     @SuppressWarnings({ "unchecked" })
     public List get(
             QueryKey key,
@@ -122,10 +126,10 @@ public class StandardQueryCache implements QueryCache {
             Set spaces,
             SessionImplementor session) throws HibernateException {
         if ( log.isDebugEnabled() ) {
-            log.debug( "checking cached query results in region: " + cacheRegion.getName() );
+            log.debug( "checking cached query results in region: " + this.cacheRegion.getName() );
         }
 
-        List cacheable = ( List ) cacheRegion.get( key );
+        List cacheable = ( List ) this.cacheRegion.get( key );
         if ( cacheable == null ) {
             log.debug( "query results were not found in cache" );
             return null;
@@ -167,13 +171,13 @@ public class StandardQueryCache implements QueryCache {
                     //      associations, leaving the PC in an
                     //      inconsistent state
                     log.debug( "could not reassemble cached result set" );
-                    cacheRegion.evict( key );
+                    this.cacheRegion.evict( key );
                     return null;
                 }
                 else if (ObjectNotFoundException.class.isInstance(ex)) {
                     // object must have been removed from the entity cache after
                     // reading the query cache
-                    cacheRegion.evict( key );
+                    this.cacheRegion.evict( key );
                 }
                 else {
                     throw ex;
@@ -187,24 +191,27 @@ public class StandardQueryCache implements QueryCache {
         if ( log.isDebugEnabled() ) {
             log.debug( "Checking query spaces for up-to-dateness: " + spaces );
         }
-        return updateTimestampsCache.isUpToDate( spaces, timestamp );
+        return this.updateTimestampsCache.isUpToDate( spaces, timestamp );
     }
 
+    @Override
     public void destroy() {
         try {
-            cacheRegion.destroy();
+            this.cacheRegion.destroy();
         }
         catch ( Exception e ) {
-            log.warn( "could not destroy query cache: " + cacheRegion.getName(), e );
+            log.warn( "could not destroy query cache: " + this.cacheRegion.getName(), e );
         }
     }
 
+    @Override
     public QueryResultsRegion getRegion() {
-        return cacheRegion;
+        return this.cacheRegion;
     }
 
+    @Override
     public String toString() {
-        return "StandardQueryCache(" + cacheRegion.getName() + ')';
+        return "StandardQueryCache(" + this.cacheRegion.getName() + ')';
     }
 
 }
