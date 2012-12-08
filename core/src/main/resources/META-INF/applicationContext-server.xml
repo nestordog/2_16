@@ -195,6 +195,7 @@
                     <bean class="com.algoTrader.util.mail.Disposition" p:name="ib" p:from="donotreply@interactivebrokers.com" p:subject="Activity Flex" p:directory="ib" p:reconciliationService-ref="iBReconciliationService"/>
                     <bean class="com.algoTrader.util.mail.Disposition" p:name="ui" p:from="listenversand-lux@universal-investment.com" p:subject="Bewertungsdaten" p:directory="ui" p:reconciliationService-ref="uIReconciliationService"/>
                     <bean class="com.algoTrader.util.mail.Disposition" p:name="rbs" p:from="customer.services@rbs.com" p:subject="Linard Files" p:directory="rbs" p:reconciliationService-ref="rBSReconciliationService"/>
+                    <bean class="com.algoTrader.util.mail.Disposition" p:name="jpm" p:from="FO.eXtraTrade.Operate.NA@jpmorgan.com" p:subject="linard_eod" p:directory="jpm" p:reconciliationService-ref="jPMReconciliationService"/>
                 </set>
             </property>
         </bean>
