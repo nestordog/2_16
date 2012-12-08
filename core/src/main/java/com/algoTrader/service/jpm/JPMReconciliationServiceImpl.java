@@ -1,0 +1,111 @@
+package com.algoTrader.service.jpm;
+
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
+import org.apache.log4j.Logger;
+
+import com.algoTrader.entity.Transaction;
+import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.security.SecurityFamily;
+import com.algoTrader.enumeration.Currency;
+import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.util.DateUtil;
+import com.algoTrader.util.MyLogger;
+
+public class JPMReconciliationServiceImpl extends JPMReconciliationServiceBase {
+
+    private static Logger logger = MyLogger.getLogger(JPMReconciliationServiceImpl.class.getName());
+    private static Logger notificationLogger = MyLogger.getLogger("com.algoTrader.service.NOTIFICATION");
+    private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMddkk:mm:ss");
+    private static SimpleDateFormat monthFormat = new SimpleDateFormat("MMM-yy", Locale.ENGLISH);
+
+    @Override
+    protected void handleReconcile(String fileName, byte[] data) throws Exception {
+
+        // read the file
+        List<Map<String, ? super Object>> trades = CsvJPMTradeReader.readPositions(data);
+
+        for (Map<String, ? super Object> trade : trades) {
+
+            // parse parameters
+            String executionId = (String) trade.get("jpm execution id");
+            String executionDate = (String) trade.get("execution date");
+            String executionTime = (String) trade.get("execution time");
+            String buySell = (String) trade.get("buy/sell");
+            Long quantity = (Long) trade.get("executed quantity");
+            String symbol = (String) trade.get("symbol");
+            String expiry = (String) trade.get("expiry month and year");
+            BigDecimal price = (BigDecimal) trade.get("executed price");
+            String cur = (String) trade.get("currency");
+
+            Currency currency = Currency.valueOf(cur);
+            Date dateTime = DateUtils.addHours(dateTimeFormat.parse(executionDate + executionTime), 1); // JPM is london time
+            TransactionType transactionType = TransactionType.fromString(buySell.toUpperCase());
+            Date exerciseDate = DateUtil.getLastDayOfMonth(monthFormat.parse(StringUtils.capitalize(expiry.toLowerCase()))); // from DEC-12
+
+            // find the securityFamily and securitiy by ricRoot, expiration, strike and type
+            SecurityFamily family = getSecurityFamilyDao().findByRicRoot(symbol);
+            if (family == null) {
+                notificationLogger.warn("unknown securityFamily for ric root " + symbol);
+                continue;
+            }
+
+            // find the security expirationMonth (date needs to be last day of the month)
+            Security security = getFutureDao().findByExpirationMonth(family.getId(), exerciseDate);
+            if (security == null) {
+                notificationLogger.warn("unknown security for ric root " + symbol + " and expirationMonth " + exerciseDate);
+                continue;
+            }
+
+            // find the transaction
+            Transaction transaction = getTransactionDao().findByExtId(executionId);
+            if (transaction == null) {
+                notificationLogger.warn("transaction: " + executionId + " does not exist");
+                continue;
+            }
+
+            boolean success = true;
+
+            if (!(transaction.getSecurity().equals(security))) {
+                logger.warn("transaction: " + executionId + " security does not match db: " + transaction.getSecurity() + " broker: " + security);
+                success = false;
+            }
+
+            if (!(new Date(transaction.getDateTime().getTime())).equals(dateTime)) {
+                logger.warn("transaction: " + executionId + " dateTime does not match db: " + transaction.getDateTime() + " broker: " + dateTime);
+                success = false;
+            }
+
+            if (Math.abs(transaction.getQuantity()) != quantity) {
+                notificationLogger.warn("transaction: " + executionId + " quantity does not match db: " + Math.abs(transaction.getQuantity()) + " broker: " + quantity);
+                success = false;
+            }
+
+            if (transaction.getPrice().doubleValue() != price.doubleValue()) {
+                notificationLogger.warn("transaction: " + executionId + " price does not match db: " + transaction.getPrice() + " broker: " + price);
+                success = false;
+            }
+
+            if (!transaction.getCurrency().equals(currency)) {
+                notificationLogger.warn("transaction: " + executionId + " currency does not match db: " + transaction.getCurrency() + " broker: " + currency);
+                success = false;
+            }
+
+            if (!transaction.getType().equals(transactionType)) {
+                notificationLogger.warn("transaction: " + executionId + " type does not match db: " + transaction.getType() + " broker: " + transactionType);
+                success = false;
+            }
+
+            if (success) {
+                logger.info("transaction: " + executionId + " ok");
+            }
+        }
+    }
+}

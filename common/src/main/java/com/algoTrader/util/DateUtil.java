@@ -33,6 +33,17 @@ public class DateUtil {
         return cal.get(Calendar.HOUR_OF_DAY);
     }
 
+    public static Date getLastDayOfMonth(Date date) {
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+
+        int lastDate = cal.getActualMaximum(Calendar.DATE);
+        cal.set(Calendar.DATE, lastDate);
+
+        return cal.getTime();
+    }
+
     /**
      *
      * @param first

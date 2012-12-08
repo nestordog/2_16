@@ -132,7 +132,7 @@ public class TickImpl extends Tick {
             return getAsk().doubleValue();
         } else {
 
-            // short position
+            // long position
             return getBid().doubleValue();
         }
     }
