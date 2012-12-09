@@ -1,7 +1,7 @@
 package com.algoTrader.service.fix;
 
 import quickfix.field.CumQty;
-import quickfix.field.OrdStatus;
+import quickfix.field.ExecType;
 import quickfix.field.OrdType;
 import quickfix.field.Symbol;
 
@@ -31,24 +31,25 @@ public class FixUtil {
         }
     }
 
-    public static Status getStatus(OrdStatus ordStatus, CumQty cumQty) {
+    public static Status getStatus(ExecType execType, CumQty cumQty) {
 
-        if (ordStatus.getValue() == OrdStatus.NEW) {
+        if (execType.getValue() == ExecType.NEW) {
             return Status.SUBMITTED;
-        } else if (ordStatus.getValue() == OrdStatus.PARTIALLY_FILLED) {
+        } else if (execType.getValue() == ExecType.PARTIAL_FILL) {
             return Status.PARTIALLY_EXECUTED;
-        } else if (ordStatus.getValue() == OrdStatus.FILLED) {
+        } else if (execType.getValue() == ExecType.FILL) {
             return Status.EXECUTED;
-        } else if (ordStatus.getValue() == OrdStatus.CANCELED || ordStatus.getValue() == OrdStatus.REJECTED) {
+        } else if (execType.getValue() == ExecType.CANCELED || execType.getValue() == ExecType.REJECTED
+                || execType.getValue() == ExecType.DONE_FOR_DAY || execType.getValue() == ExecType.EXPIRED) {
             return Status.CANCELED;
-        } else if (ordStatus.getValue() == OrdStatus.REPLACED) {
+        } else if (execType.getValue() == ExecType.REPLACE) {
             if (cumQty.getValue() == 0) {
                 return Status.SUBMITTED;
             } else {
                 return Status.PARTIALLY_EXECUTED;
             }
         } else {
-            throw new IllegalArgumentException("unknown orderStatus " + ordStatus.getValue());
+            throw new IllegalArgumentException("unknown orderStatus " + execType.getValue());
         }
     }
 

@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
-import quickfix.field.OrdStatus;
+import quickfix.field.ExecType;
 import quickfix.fix42.ExecutionReport;
 import quickfix.fix42.OrderCancelReject;
 
@@ -33,18 +33,19 @@ public class FixMessageHandler {
 
             Integer number = Integer.parseInt(executionReport.getClOrdID().getValue());
 
-            if (executionReport.getOrdStatus().getValue() == OrdStatus.REJECTED) {
-                logger.error("order " + number + " has been rejected, reason: " + executionReport.getText().getValue());
-            }
-
             // ignore PENDING_NEW, PENDING_CANCEL and PENDING_REPLACE
-            if (executionReport.getOrdStatus().getValue() == OrdStatus.PENDING_NEW || executionReport.getOrdStatus().getValue() == OrdStatus.PENDING_REPLACE
-                    || executionReport.getOrdStatus().getValue() == OrdStatus.PENDING_CANCEL) {
+            if (executionReport.getExecType().getValue() == ExecType.PENDING_NEW || executionReport.getExecType().getValue() == ExecType.PENDING_REPLACE
+                    || executionReport.getExecType().getValue() == ExecType.PENDING_CANCEL) {
                 return;
             }
 
-            if (executionReport.getOrdStatus().getValue() == OrdStatus.CANCELED) {
-                // check if there ae errors
+            if (executionReport.getExecType().getValue() == ExecType.REJECTED) {
+                logger.error("order " + number + " has been rejected, reason: " + executionReport.getText().getValue());
+            }
+
+            if (executionReport.getExecType().getValue() == ExecType.CANCELED) {
+
+                // check if there are errors
                 if (!executionReport.isSetExecRestatementReason()) {
 
                     // get the number from OrigClOrdID (if it exists)
@@ -66,7 +67,7 @@ public class FixMessageHandler {
             }
 
             // get the other fields
-            Status status = FixUtil.getStatus(executionReport.getOrdStatus(), executionReport.getCumQty());
+            Status status = FixUtil.getStatus(executionReport.getExecType(), executionReport.getCumQty());
             long filledQuantity = (long) executionReport.getCumQty().getValue();
             long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
 
@@ -80,7 +81,7 @@ public class FixMessageHandler {
             EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
 
             // only create fills if status is PARTIALLY_FILLED or FILLED
-            if (executionReport.getOrdStatus().getValue() == OrdStatus.PARTIALLY_FILLED || executionReport.getOrdStatus().getValue() == OrdStatus.FILLED) {
+            if (executionReport.getExecType().getValue() == ExecType.PARTIAL_FILL || executionReport.getExecType().getValue() == ExecType.FILL) {
 
                 // get the fields
                 Date dateTime = DateUtil.getCurrentEPTime();
