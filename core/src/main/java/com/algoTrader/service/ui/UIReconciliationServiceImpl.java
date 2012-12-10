@@ -26,9 +26,9 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.Pair;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.ZipUtil;
+import com.algoTrader.util.collection.Pair;
 
 public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
 
