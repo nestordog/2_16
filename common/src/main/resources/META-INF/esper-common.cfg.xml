@@ -35,7 +35,7 @@
     <auto-import import-name="com.algoTrader.enumeration.Direction"/>
     <auto-import import-name="com.algoTrader.enumeration.Side"/>
     <auto-import import-name="com.algoTrader.enumeration.Status"/>
-    <auto-import import-name="com.algoTrader.enumeration.Period"/>
+    <auto-import import-name="com.algoTrader.enumeration.TimePeriod"/>
     <auto-import import-name="com.algoTrader.enumeration.TransactionType"/>
     <auto-import import-name="com.algoTrader.enumeration.ExpirationType"/>
     <auto-import import-name="com.algoTrader.enumeration.OptionType"/>
@@ -49,7 +49,7 @@
     <auto-import import-name="com.algoTrader.util.DrawDownUtil"/>
     <auto-import import-name="com.algoTrader.util.DateUtil"/>
     <auto-import import-name="com.algoTrader.util.OrderUtil"/>
-    <auto-import import-name="com.algoTrader.util.Constants"/>
+    <auto-import import-name="com.algoTrader.esper.Constants"/>
 
     <!-- Annotations -->
     <auto-import import-name="com.algoTrader.esper.annotation.*"/>
