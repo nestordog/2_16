@@ -6,6 +6,7 @@ import java.util.GregorianCalendar;
 
 import com.algoTrader.entity.security.ExpirableFamilyI;
 import com.algoTrader.entity.security.SecurityFamily;
+import com.algoTrader.enumeration.Duration;
 import com.algoTrader.enumeration.ExpirationType;
 import com.algoTrader.esper.EsperManager;
 
@@ -42,6 +43,11 @@ public class DateUtil {
         cal.set(Calendar.DATE, lastDate);
 
         return cal.getTime();
+    }
+
+    public static long getDuration(String durationString) {
+
+        return Duration.valueOf(durationString).getValue();
     }
 
     /**

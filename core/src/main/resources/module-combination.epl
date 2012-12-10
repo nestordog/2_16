@@ -97,4 +97,4 @@ where
 and
     ((not simulation) or (timeDiff = 0)) // during simulation generate only one tick per time_stamp
 and
-    (simulation or (timeDiff < Constants.ONE_HOUR)) // during live-trading ignore components older hand an hour;
+    (simulation or (timeDiff < DateUtil.getDuration('ONE_HOUR'))) // during live-trading ignore components older hand an hour;

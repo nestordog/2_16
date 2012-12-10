@@ -138,7 +138,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             if (MarketDataType.TICK.equals(marketDataType)) {
                 spec = new CsvTickInputAdapterSpec(file);
             } else if (MarketDataType.BAR.equals(marketDataType)) {
-                spec = new CsvBarInputAdapterSpec(file);
+                spec = new CsvBarInputAdapterSpec(file, getConfiguration().getBarSize());
             } else {
                 throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
             }

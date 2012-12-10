@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.algoTrader.enumeration.Duration;
 import com.algoTrader.util.CustomDate;
 import com.espertech.esperio.AdapterInputSource;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
@@ -12,12 +13,14 @@ import com.espertech.esperio.csv.CSVInputAdapterSpec;
 public class CsvBarInputAdapterSpec extends CSVInputAdapterSpec {
 
     private File file;
+    private Duration barSize;
 
-    public CsvBarInputAdapterSpec(File file) {
+    public CsvBarInputAdapterSpec(File file, Duration barSize) {
 
-        super(new AdapterInputSource(file), "BarVO");
+        super(new AdapterInputSource(file), "RawBar");
 
         this.file = file;
+        this.barSize = barSize;
 
         //@formatter:off
         String[] barPropertyOrder = new String[] {
@@ -54,5 +57,9 @@ public class CsvBarInputAdapterSpec extends CSVInputAdapterSpec {
     public File getFile() {
 
         return this.file;
+    }
+
+    public Duration getBarSize() {
+        return this.barSize;
     }
 }

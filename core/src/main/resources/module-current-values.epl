@@ -8,6 +8,6 @@ from
 where
     tick.security is not null
 and
-    tick.dateTime.time > (current_timestamp - Constants.ONE_WEEK)
+    tick.dateTime.time > (current_timestamp - DateUtil.getDuration('ONE_WEEK'))
 order by
     tick.security.id;

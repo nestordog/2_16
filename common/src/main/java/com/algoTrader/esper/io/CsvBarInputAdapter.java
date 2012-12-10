@@ -1,5 +1,6 @@
 package com.algoTrader.esper.io;
 
+import com.algoTrader.enumeration.Duration;
 import com.algoTrader.vo.RawBarVO;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPServiceProvider;
@@ -25,8 +26,12 @@ public class CsvBarInputAdapter extends CSVInputAdapter {
         if (event != null && event.getBeanToSend() instanceof RawBarVO) {
 
             RawBarVO bar = (RawBarVO) event.getBeanToSend();
+
             String isin = this.spec.getFile().getName().split("\\.")[0];
             bar.setIsin(isin);
+
+            Duration barSize = this.spec.getBarSize();
+            bar.setBarSize(barSize);
         }
         return event;
     }

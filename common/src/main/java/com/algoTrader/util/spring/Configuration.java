@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.enumeration.Currency;
+import com.algoTrader.enumeration.Duration;
 import com.algoTrader.enumeration.MarketDataType;
 
 public class Configuration {
@@ -33,6 +34,11 @@ public class Configuration {
     private @Value("${dataSource.dataSetType}") String dataSetType;
     public MarketDataType getDataSetType() {
         return MarketDataType.fromString(this.dataSetType);
+    }
+
+    private @Value("${dataSource.barSize}") String barSize;
+    public Duration getBarSize() {
+        return Duration.fromString(this.barSize);
     }
 
     private @Value("${simulation}") boolean simulation;
