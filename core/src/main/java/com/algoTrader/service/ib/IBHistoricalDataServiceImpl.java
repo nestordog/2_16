@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.BarType;
-import com.algoTrader.enumeration.Period;
+import com.algoTrader.enumeration.TimePeriod;
 import com.algoTrader.service.HistoricalDataServiceException;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -154,8 +154,8 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
     }
 
     @Override
-    protected synchronized List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int duration, Period durationPeriod, int barSize,
-            Period barSizePeriod, BarType barType) throws Exception {
+    protected synchronized List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int duration, TimePeriod durationPeriod, int barSize,
+            TimePeriod barSizePeriod, BarType barType) throws Exception {
 
         this.barList = new ArrayList<Bar>();
         this.success = false;

@@ -18,7 +18,7 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.BarType;
-import com.algoTrader.enumeration.Period;
+import com.algoTrader.enumeration.TimePeriod;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.io.CsvTickWriter;
@@ -65,7 +65,7 @@ public abstract class HistoricalDataServiceImpl extends HistoricalDataServiceBas
         // run all barTypes and get the ticks
         for (BarType barType : barTypes) {
 
-            List<Bar> bars = getHistoricalBars(security.getId(), date, 1, Period.DAY, 1, Period.MINUTE, barType);
+            List<Bar> bars = getHistoricalBars(security.getId(), date, 1, TimePeriod.DAY, 1, TimePeriod.MINUTE, barType);
 
             // filter Bars by date
             for (Iterator<Bar> it = bars.iterator(); it.hasNext();) {

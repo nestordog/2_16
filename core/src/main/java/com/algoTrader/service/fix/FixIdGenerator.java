@@ -1,6 +1,6 @@
 package com.algoTrader.service.fix;
 
-import com.algoTrader.util.Constants;
+import com.algoTrader.enumeration.Duration;
 
 public final class FixIdGenerator {
 
@@ -10,7 +10,7 @@ public final class FixIdGenerator {
     public FixIdGenerator() {
 
         // start at seconds since midnight
-        this.orderId = (int) (System.currentTimeMillis() % Constants.ONE_DAY / 1000);
+        this.orderId = (int) (System.currentTimeMillis() % Duration.ONE_DAY.getValue() / 1000);
     }
 
     public static synchronized FixIdGenerator getInstance() {

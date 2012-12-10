@@ -1,12 +1,12 @@
 package com.algoTrader.service;
 
-import com.algoTrader.util.Constants;
+import com.algoTrader.enumeration.Duration;
 
 public final class AlgoIdGenerator {
 
     private static AlgoIdGenerator instance;
 
-    private int orderId = Constants.SECONDS_PER_DAY;
+    private int orderId = (int) (Duration.ONE_DAY.getValue() / 1000);
 
     public static synchronized AlgoIdGenerator getInstance() {
 
