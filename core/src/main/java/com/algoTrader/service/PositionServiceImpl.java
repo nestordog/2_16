@@ -249,7 +249,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         Position position = getPositionDao().getLocked(positionId);
 
         // prevent exitValues near Zero
-        if (exitValue <= 0.05) {
+        if (!(position.getSecurityInitialized() instanceof Combination) && exitValue <= 0.05) {
             logger.warn("setting of exitValue below 0.05 is prohibited: " + exitValue);
             return position;
         }
