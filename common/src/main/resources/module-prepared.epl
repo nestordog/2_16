@@ -34,4 +34,4 @@ from
 select
     null
 from
-    pattern[timer:at (?, ?, *, *, ?, ?)];
+    pattern[every timer:at (?, ?, *, *, ?, ?)];
