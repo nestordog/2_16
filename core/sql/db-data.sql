@@ -39,6 +39,7 @@ INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_F
 INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (4,193,9,22);
 INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (5,193,10,22);
 INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (6,193,11,22);
+INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (7,195,12,9);
 /*!40000 ALTER TABLE `default_order_preference` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -171,6 +172,7 @@ LOCK TABLES `order_preference` WRITE;
 /*!40000 ALTER TABLE `order_preference` DISABLE KEYS */;
 INSERT INTO `order_preference` (`ID`, `NAME`, `ORDER_TYPE`, `VERSION`) VALUES (193,'FVIX','SLICING',0);
 INSERT INTO `order_preference` (`ID`, `NAME`, `ORDER_TYPE`, `VERSION`) VALUES (194,'OVIX','SLICING',0);
+INSERT INTO `order_preference` (`ID`, `NAME`, `ORDER_TYPE`, `VERSION`) VALUES (195,'EUR.USD','MARKET',0);
 /*!40000 ALTER TABLE `order_preference` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -220,14 +222,14 @@ INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`,
 INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (13,'GF ES 1M',NULL,NULL,NULL,NULL,12,NULL);
 INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (14,'GF LH 1M',NULL,NULL,NULL,NULL,13,NULL);
 INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (15,'GF NG 1M',NULL,NULL,NULL,NULL,14,NULL);
-INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (21,'UX1',NULL,NULL,NULL,29,21,NULL);
-INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (22,'UX2',NULL,NULL,NULL,29,21,NULL);
-INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (23,'UX3',NULL,NULL,NULL,29,21,NULL);
-INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (24,'UX4',NULL,NULL,NULL,29,21,NULL);
-INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (25,'UX5',NULL,NULL,NULL,29,21,NULL);
-INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (26,'UX6',NULL,NULL,NULL,29,21,NULL);
-INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (27,'UX7',NULL,NULL,NULL,29,21,NULL);
-INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (28,'UX8',NULL,NULL,NULL,29,21,NULL);
+INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (21,'UX1','UX1',NULL,NULL,29,21,NULL);
+INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (22,'UX2','UX2',NULL,NULL,29,21,NULL);
+INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (23,'UX3','UX3',NULL,NULL,29,21,NULL);
+INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (24,'UX4','UX4',NULL,NULL,29,21,NULL);
+INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (25,'UX5','UX5',NULL,NULL,29,21,NULL);
+INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (26,'UX6','UX6',NULL,NULL,29,21,NULL);
+INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (27,'UX7','UX7',NULL,NULL,29,21,NULL);
+INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (28,'UX8','UX8',NULL,NULL,29,21,NULL);
 INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (29,'VIX','XD0016891059',NULL,'13455763',12,20,NULL);
 INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (30,'IV SPX 12M 100',NULL,NULL,NULL,12,25,NULL);
 INSERT INTO `security` (`id`, `SYMBOL`, `ISIN`, `RIC`, `CONID`, `UNDERLYING_FK`, `SECURITY_FAMILY_FK`, `INTREST_RATE_FAMILY_FK`) VALUES (31,'IV SPX 12M 95',NULL,NULL,NULL,12,25,NULL);
@@ -565,13 +567,14 @@ INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODUL
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (2,'SMI','\0',0,'theta-init,theta-main',NULL);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (3,'ESTX50','\0',0,'theta-init,theta-main',NULL);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (4,'MULTIIND','\0',0,'multiind-movavcross,multiind-main',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (5,'MACRO','',0,'market-data-fut-and-opt,market-data-vix,exposure,direction,macro-init','subscription,macro-run');
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (6,'TAILHEDGE','',1,'market-data-fut-and-opt,exposure,direction,subscription,tailhedge',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (7,'STATIC','',0.2,'market-data-fut-and-opt,market-data-vix,exposure,direction,subscription,charting,exit-value,signal,static',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (8,'FIXED','',0.2,'market-data-fut-and-opt,market-data-vix,exposure,direction,subscription,charting,exit-value,signal,intraday',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (9,'ATR','',0.2,'market-data-fut-and-opt,market-data-vix,exposure,direction,subscription,bars,charting,exit-value,signal,intraday,atr',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (10,'ROLLYIELD','',0.2,'market-data-fut-and-opt,market-data-vix,exposure,subscription,bars,charting,swing,rollyield,exit-value',NULL);
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (11,'COUNTERTREND','',0.2,'market-data-fut-and-opt,exposure,subscription,bars,charting,swing,countertrend',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (5,'MACRO','\0',0,'market-data-fut-and-opt,market-data-vix,exposure,direction,macro-init','subscription,macro-run');
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (6,'TAILHEDGE','\0',0,'market-data-fut-and-opt,exposure,direction,subscription,tailhedge',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (7,'STATIC','\0',0,'market-data-fut-and-opt,market-data-vix,exposure,direction,subscription,charting,exit-value,signal,static',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (8,'FIXED','\0',0,'market-data-fut-and-opt,market-data-vix,exposure,direction,subscription,charting,exit-value,signal,intraday',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (9,'ATR','\0',0,'market-data-fut-and-opt,market-data-vix,exposure,direction,subscription,bars,charting,exit-value,signal,intraday,atr',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (10,'ROLLYIELD','\0',0,'market-data-fut-and-opt,market-data-vix,exposure,subscription,bars,charting,swing,rollyield,exit-value',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (11,'COUNTERTREND','\0',0,'market-data-fut-and-opt,exposure,subscription,bars,charting,swing,countertrend',NULL);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`) VALUES (12,'SWINGSET','\0',0,'swingset',NULL);
 /*!40000 ALTER TABLE `strategy` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -641,4 +644,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-12-03 11:09:01
+-- Dump completed on 2012-12-19 20:20:19

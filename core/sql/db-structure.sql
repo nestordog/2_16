@@ -16,26 +16,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `ask`
---
-
-DROP TABLE IF EXISTS `ask`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `ask` (
-  `ID` int(11) NOT NULL,
-  `DATE_TIME` datetime NOT NULL,
-  `SECURITY_FK` int(11) NOT NULL,
-  `PRICE` decimal(12,5) NOT NULL,
-  `SIZE` bigint(20) NOT NULL,
-  `VALID` datetime NOT NULL,
-  `EXT_ID` varchar(255) NOT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `MARKET_DATA_EVENT_SECURITY_FKC6fa0ac2466f3e7c17a79` (`SECURITY_FK`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `bar`
 --
 
@@ -50,31 +30,11 @@ CREATE TABLE `bar` (
   `HIGH` decimal(12,5) NOT NULL,
   `LOW` decimal(12,5) NOT NULL,
   `CLOSE` decimal(12,5) NOT NULL,
-  `ADJ_CLOSE` decimal(12,5) DEFAULT NULL,
   `VOL` int(11) NOT NULL,
   `OPEN_INTEREST` int(11) NOT NULL,
+  `SETTLEMENT` decimal(12,5) DEFAULT NULL,
   PRIMARY KEY (`ID`),
   KEY `MARKET_DATA_EVENT_SECURITY_FKC17c13` (`SECURITY_FK`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `bid`
---
-
-DROP TABLE IF EXISTS `bid`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `bid` (
-  `ID` int(11) NOT NULL,
-  `DATE_TIME` datetime NOT NULL,
-  `SECURITY_FK` int(11) NOT NULL,
-  `PRICE` decimal(12,5) NOT NULL,
-  `SIZE` bigint(20) NOT NULL,
-  `VALID` datetime NOT NULL,
-  `EXT_ID` varchar(255) NOT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `MARKET_DATA_EVENT_SECURITY_FKC6fa0ac2466f3e7c17cfd` (`SECURITY_FK`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -379,7 +339,7 @@ CREATE TABLE `portfolio_value` (
   `DATE_TIME` datetime NOT NULL,
   `SECURITIES_CURRENT_VALUE` decimal(15,6) NOT NULL,
   `CASH_BALANCE` decimal(15,6) NOT NULL,
-  `MAINTENANCE_MARGIN` decimal(15,6) NOT NULL,
+  `MAINTENANCE_MARGIN` decimal(15,6) DEFAULT NULL,
   `NET_LIQ_VALUE` decimal(15,6) NOT NULL,
   `LEVERAGE` double NOT NULL,
   `ALLOCATION` double NOT NULL,
@@ -573,7 +533,7 @@ CREATE TABLE `strategy` (
   `NAME` varchar(30) NOT NULL,
   `AUTO_ACTIVATE` bit(1) NOT NULL,
   `ALLOCATION` double NOT NULL,
-  `INIT_MODULES` varchar(255) NOT NULL,
+  `INIT_MODULES` varchar(255) DEFAULT NULL,
   `RUN_MODULES` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `NAME_UNIQUE` (`NAME`)
@@ -647,24 +607,6 @@ CREATE TABLE `tick` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `trade`
---
-
-DROP TABLE IF EXISTS `trade`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `trade` (
-  `ID` int(11) NOT NULL,
-  `DATE_TIME` datetime NOT NULL,
-  `SECURITY_FK` int(11) NOT NULL,
-  `PRICE` decimal(12,5) NOT NULL,
-  `SIZE` bigint(20) NOT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `MARKET_DATA_EVENT_SECURITY_FKC6fa0ac24697f164` (`SECURITY_FK`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `transaction`
 --
 
@@ -681,7 +623,7 @@ CREATE TABLE `transaction` (
   `CLEARING_COMMISSION` decimal(15,2) DEFAULT NULL,
   `CURRENCY` enum('CHF','EUR','USD','GBP') NOT NULL,
   `TYPE` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST_PAID','INTREST_RECEIVED','FEES','REFUND','REBALANCE','TRANSFER') NOT NULL,
-  `MARKET_CHANNEL` enum('IB_NATIVE','IB_FIX','JPM_FIX') DEFAULT NULL,
+  `MARKET_CHANNEL` enum('IB_NATIVE','IB_FIX','JPM_FIX','RBS_MANUAL') DEFAULT NULL,
   `DESCRIPTION` varchar(255) DEFAULT NULL,
   `SECURITY_FK` int(11) DEFAULT NULL,
   `STRATEGY_FK` int(11) DEFAULT NULL,
@@ -709,4 +651,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-12-03 11:09:00
+-- Dump completed on 2012-12-19 20:20:18
