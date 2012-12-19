@@ -143,7 +143,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
                     logger.info("no prior tick available on " + date + " next tick is " + ((ticks.get(0).getDateTime().getTime() - date.getTime()) / 86400000.0) + " days later for " + security);
                 }
 
-                double amount = openPosition.getQuantity() * ticks.get(0).getRelevantPriceDouble(openPosition.getQuantity());
+                double amount = openPosition.getQuantity() * ticks.get(0).getRelevantPriceDouble(openPosition.getDirection());
                 map.increment(security.getSecurityFamily().getCurrency(), amount);
             }
         }
@@ -244,7 +244,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
                     logger.info("no prior tick available on " + date + " next tick is " + ((ticks.get(0).getDateTime().getTime() - date.getTime()) / 86400000.0) + " days later for " + security);
                 }
 
-                double marketValue = openPosition.getQuantity() * ticks.get(0).getRelevantPriceDouble(openPosition.getQuantity()) * security.getSecurityFamily().getContractSize();
+                double marketValue = openPosition.getQuantity() * ticks.get(0).getRelevantPriceDouble(openPosition.getDirection()) * security.getSecurityFamily().getContractSize();
                 map.increment(security.getSecurityFamily().getCurrency(), marketValue);
             }
         }

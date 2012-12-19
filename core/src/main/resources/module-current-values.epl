@@ -1,13 +1,29 @@
-@Name('GET_LAST_TICK')
+@Name('CURRENT_MARKET_DATA_EVENT')
 @Priority(4)
 select
-    tick.security.id as securityId,
-    tick.* as tick
+    marketDataEvent.security.id as securityId,
+    marketDataEvent.* as marketDataEvent
 from
-    Tick.std:groupwin(security.id).win:length(1) as tick
+    MarketDataEvent.std:groupwin(security.id).win:length(1) as marketDataEvent
 where
-    tick.security is not null
+    marketDataEvent.security is not null
 and
-    tick.dateTime.time > (current_timestamp - DateUtil.getDuration('ONE_WEEK'))
+    marketDataEvent.dateTime.time > (current_timestamp - DateUtil.getDuration('ONE_WEEK'))
+and
+    (
+        (
+            (not simulation or dataSource_dataSetType = com.algoTrader.enumeration.MarketDataType.TICK)
+        and
+            instanceof(marketDataEvent, com.algoTrader.entity.marketData.Tick)
+        )
+    or
+        (
+            (simulation and dataSource_dataSetType = com.algoTrader.enumeration.MarketDataType.BAR)
+        and
+            instanceof(marketDataEvent, com.algoTrader.entity.marketData.Bar)
+        and
+            cast(marketDataEvent.barSize?, com.algoTrader.enumeration.Duration) = dataSource_barSize
+        )
+    )
 order by
-    tick.security.id;
+    marketDataEvent.security.id;

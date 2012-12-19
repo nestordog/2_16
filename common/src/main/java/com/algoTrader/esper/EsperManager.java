@@ -238,10 +238,11 @@ public class EsperManager {
     public static void deployInitModules(String strategyName) {
 
         Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(strategyName);
-        String[] modules = strategy.getInitModules().split(",");
-        for (String module : modules) {
-            if (module != null && !module.equals("")) {
-                deployModule(strategyName, module);
+        String initModules = strategy.getInitModules();
+        if (initModules != null) {
+            String[] modules = initModules.split(",");
+            for (String module : modules) {
+                deployModule(strategyName, module.trim());
             }
         }
     }
@@ -253,9 +254,7 @@ public class EsperManager {
         if (runModules != null) {
             String[] modules = runModules.split(",");
             for (String module : modules) {
-                if (module != null && !module.equals("")) {
-                    deployModule(strategyName, module);
-                }
+                deployModule(strategyName, module.trim());
             }
         }
     }
@@ -633,7 +632,7 @@ public class EsperManager {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static void setVariableValue(String strategyName, String variableName, String value) {
+    public static void setVariableValueFromString(String strategyName, String variableName, String value) {
 
         variableName = variableName.replace(".", "_");
         EPRuntime runtime = getServiceProvider(strategyName).getEPRuntime();
@@ -647,6 +646,7 @@ public class EsperManager {
                 castedObj = JavaClassHelper.parse(clazz, value);
             }
             runtime.setVariableValue(variableName, castedObj);
+            logger.debug("set variable " + variableName + " to value " + value);
         }
     }
 
@@ -656,6 +656,7 @@ public class EsperManager {
         EPRuntime runtime = getServiceProvider(strategyName).getEPRuntime();
         if (runtime.getVariableValueAll().containsKey(variableName)) {
             runtime.setVariableValue(variableName, value);
+            logger.debug("set variable " + variableName + " to value " + value);
         }
     }
 
@@ -822,6 +823,7 @@ public class EsperManager {
     /**
      * initialize all the variables from the Configuration
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static void initVariables(Configuration configuration) {
 
         try {
@@ -830,8 +832,13 @@ public class EsperManager {
                 String variableName = entry.getKey().replace("_", ".");
                 String value = ServiceLocator.instance().getConfiguration().getString(variableName);
                 if (value != null) {
-                    Class<?> clazz = Class.forName(entry.getValue().getType());
-                    Object castedObj = JavaClassHelper.parse(clazz, value);
+                    Class clazz = Class.forName(entry.getValue().getType());
+                    Object castedObj = null;
+                    if (clazz.isEnum()) {
+                        castedObj = Enum.valueOf(clazz, value);
+                    } else {
+                        castedObj = JavaClassHelper.parse(clazz, value);
+                    }
                     entry.getValue().setInitializationValue(castedObj);
                 }
             }

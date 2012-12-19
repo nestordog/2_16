@@ -18,6 +18,8 @@ import com.algoTrader.entity.Property;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Subscription;
+import com.algoTrader.entity.marketData.Bar;
+import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.strategy.OrderPreference;
@@ -35,6 +37,8 @@ import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.BeanUtils;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
+import com.algoTrader.vo.BarVO;
+import com.algoTrader.vo.MarketDataEventVO;
 import com.algoTrader.vo.OrderStatusVO;
 import com.algoTrader.vo.PositionVO;
 import com.algoTrader.vo.TickVO;
@@ -142,49 +146,49 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected List<TickVO> handleGetDataTicks() {
+    protected List<MarketDataEventVO> handleGetMarketDataEvents() {
 
         String strategyName = StrategyUtil.getStartedStrategyName();
-        List<Tick> ticks = EsperManager.getAllEventsProperty(strategyName, "GET_LAST_TICK", "tick");
+        List<MarketDataEvent> marketDataEvents = EsperManager.getAllEventsProperty(strategyName, "CURRENT_MARKET_DATA_EVENT", "marketDataEvent");
 
-        List<TickVO> tickVOs = getTickVOs(ticks);
+        List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents);
 
         // get all subscribed securities
 
         if (StrategyUtil.isStartedStrategyBASE()) {
 
             // for base iterate over all subscribed securities
-            Map<Integer, TickVO> processedTickVOs = new TreeMap<Integer, TickVO>();
+            Map<Integer, MarketDataEventVO> processedMarketDataEventVOs = new TreeMap<Integer, MarketDataEventVO>();
             for (Subscription subscription : getLookupService().getSubscriptionsForAutoActivateStrategiesInclComponents()) {
 
                 Security security = subscription.getSecurity();
 
-                // try to get the processedTick
-                TickVO tickVO = processedTickVOs.get(security.getId());
-                if (tickVO == null) {
-                    tickVO = getTickVO(tickVOs, security);
-                    processedTickVOs.put(security.getId(), tickVO);
+                // try to get the processedMarketDataEvent
+                MarketDataEventVO marketDataEventVO = processedMarketDataEventVOs.get(security.getId());
+                if (marketDataEventVO == null) {
+                    marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, security);
+                    processedMarketDataEventVOs.put(security.getId(), marketDataEventVO);
                 }
             }
-            return new ArrayList<TickVO>(processedTickVOs.values());
+            return new ArrayList<MarketDataEventVO>(processedMarketDataEventVOs.values());
 
         } else {
 
             // for strategies iterate over all subscriptions
-            List<TickVO> processedTickVOs = new ArrayList<TickVO>();
+            List<MarketDataEventVO> processedMarketDataEventVOs = new ArrayList<MarketDataEventVO>();
             for (Subscription subscription : getLookupService().getSubscriptionsByStrategyInclComponents(strategyName)) {
 
-                TickVO tickVO = getTickVO(tickVOs, subscription.getSecurity());
+                MarketDataEventVO marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, subscription.getSecurity());
 
                 // add properties from this strategies subscription
                 Map<String, Property> properties = subscription.getPropertiesInitialized();
                 if (!properties.isEmpty()) {
-                    tickVO.setProperties(properties);
+                    marketDataEventVO.setProperties(properties);
                 }
 
-                processedTickVOs.add(tickVO);
+                processedMarketDataEventVOs.add(marketDataEventVO);
             }
-            return processedTickVOs;
+            return processedMarketDataEventVOs;
         }
 
     }
@@ -345,7 +349,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected void handleSetVariableValue(String variableName, String value) {
 
-        EsperManager.setVariableValue(StrategyUtil.getStartedStrategyName(), variableName, value);
+        EsperManager.setVariableValueFromString(StrategyUtil.getStartedStrategyName(), variableName, value);
     }
 
     @Override
@@ -415,49 +419,72 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         System.exit(0);
     }
 
-    private List<TickVO> getTickVOs(List<Tick> ticks) {
+    private List<MarketDataEventVO> getMarketDataEventVOs(List<MarketDataEvent> marketDataEvents) {
 
-        // create TickVOs based on the ticks (have to do this manually since we have no access to the Dao)
-        List<TickVO> tickVOs = new ArrayList<TickVO>();
-        for (Tick tick : ticks) {
+        // create MarketDataEventVOs based on the MarketDataEvents (have to do this manually since we have no access to the Dao)
+        List<MarketDataEventVO> marketDataEventVOs = new ArrayList<MarketDataEventVO>();
+        for (MarketDataEvent marketDataEvent : marketDataEvents) {
 
-            TickVO tickVO = new TickVO();
-            tickVO.setDateTime(tick.getDateTime());
-            tickVO.setLast(tick.getLast());
-            tickVO.setLastDateTime(tick.getLastDateTime());
-            tickVO.setVol(tick.getVol());
-            tickVO.setVolBid(tick.getVolBid());
-            tickVO.setVolAsk(tick.getVolAsk());
-            tickVO.setBid(tick.getBid());
-            tickVO.setAsk(tick.getAsk());
-            tickVO.setOpenIntrest(tick.getOpenIntrest());
-            tickVO.setSettlement(tick.getSettlement());
-            tickVO.setSecurityId(tick.getSecurity().getId());
-            tickVO.setCurrentValue(tick.getCurrentValue());
+            MarketDataEventVO marketDataEventVO;
+            if (marketDataEvent instanceof Tick) {
 
-            tickVOs.add(tickVO);
+                Tick tick = (Tick) marketDataEvent;
+                TickVO tickVO = new TickVO();
+                tickVO.setLast(tick.getLast());
+                tickVO.setLastDateTime(tick.getLastDateTime());
+                tickVO.setVolBid(tick.getVolBid());
+                tickVO.setVolAsk(tick.getVolAsk());
+                tickVO.setBid(tick.getBid());
+                tickVO.setAsk(tick.getAsk());
+
+                marketDataEventVO = tickVO;
+
+            } else if (marketDataEvent instanceof Bar) {
+
+                Bar bar = (Bar) marketDataEvent;
+                BarVO barVO = new BarVO();
+                barVO.setOpen(bar.getOpen());
+                barVO.setHigh(bar.getHigh());
+                barVO.setLow(bar.getLow());
+                barVO.setClose(bar.getClose());
+
+                marketDataEventVO = barVO;
+
+            } else {
+                throw new IllegalArgumentException("unknown marketDataEvent type");
+            }
+
+            marketDataEventVO.setDateTime(marketDataEvent.getDateTime());
+            marketDataEventVO.setVol(marketDataEvent.getVol());
+            marketDataEventVO.setOpenIntrest(marketDataEvent.getOpenIntrest());
+            marketDataEventVO.setSettlement(marketDataEvent.getSettlement());
+            marketDataEventVO.setSecurityId(marketDataEvent.getSecurity().getId());
+            marketDataEventVO.setCurrentValue(marketDataEvent.getCurrentValue());
+
+            marketDataEventVOs.add(marketDataEventVO);
         }
-        return tickVOs;
+
+        return marketDataEventVOs;
     }
 
-    private TickVO getTickVO(List<TickVO> tickVOs, final Security security) {
+    private MarketDataEventVO getMarketDataEventVO(List<MarketDataEventVO> marketDataEventVOs, final Security security) {
 
-        // get the tickVO matching the securityId
-        TickVO tickVO = CollectionUtils.find(tickVOs, new Predicate<TickVO>() {
+        // get the marketDataEventVO matching the securityId
+        MarketDataEventVO marketDataEventVO = CollectionUtils.find(marketDataEventVOs, new Predicate<MarketDataEventVO>() {
             @Override
-            public boolean evaluate(TickVO TickVO) {
-                return TickVO.getSecurityId() == security.getId();
+            public boolean evaluate(MarketDataEventVO MarketDataEventVO) {
+                return MarketDataEventVO.getSecurityId() == security.getId();
             }
         });
 
-        // create an empty TickVO if non exists
-        if (tickVO == null) {
-            tickVO = new TickVO();
+        // create an empty MarketDataEventVO if non exists
+        if (marketDataEventVO == null) {
+            marketDataEventVO = new MarketDataEventVO();
         }
 
         // set db data
-        tickVO.setSecurityId(security.getId());
-        tickVO.setName(security.toString());
-        return tickVO;
+        marketDataEventVO.setSecurityId(security.getId());
+        marketDataEventVO.setName(security.toString());
+        return marketDataEventVO;
     }
 }

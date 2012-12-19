@@ -8,10 +8,9 @@
     <event-type name="Tick" class="com.algoTrader.entity.marketData.Tick">
         <legacy-type accessor-style="javabean" code-generation="enabled" property-resolution-style="case_sensitive" factory-method="com.algoTrader.entity.marketData.Tick$Factory.newInstance"/>
     </event-type>
-    <event-type name="Bar" class="com.algoTrader.entity.marketData.Bar"/>
-    <event-type name="Bid" class="com.algoTrader.entity.marketData.Bid"/>
-    <event-type name="Ask" class="com.algoTrader.entity.marketData.Ask"/>
-    <event-type name="Trade" class="com.algoTrader.entity.marketData.Trade"/>
+    <event-type name="Bar" class="com.algoTrader.entity.marketData.Bar">
+        <legacy-type accessor-style="javabean" code-generation="enabled" property-resolution-style="case_sensitive" factory-method="com.algoTrader.entity.marketData.Bar$Factory.newInstance"/>
+    </event-type>
 
     <!-- Trades -->
     <event-type name="GenericOrder" class="com.algoTrader.entity.trade.Order"/>
@@ -68,6 +67,8 @@
     <variable name="simulation" type="boolean"/>
     <variable name="engineStrategy" type="com.algoTrader.entity.Strategy"/>
     <variable name="internal_clock" type="boolean" initialization-value="false"/>
+    <variable name="dataSource_barSize" type="com.algoTrader.enumeration.Duration"/>
+    <variable name="dataSource_dataSetType" type="com.algoTrader.enumeration.MarketDataType"/>
 
     <!-- Esper JMX -->
     <plugin-loader name="EsperJMX" class-name="com.espertech.esper.jmx.client.EsperJMXPlugin">

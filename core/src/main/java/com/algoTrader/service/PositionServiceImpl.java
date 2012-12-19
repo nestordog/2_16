@@ -16,7 +16,7 @@ import com.algoTrader.entity.PositionImpl;
 import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
-import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.security.Combination;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;
@@ -266,9 +266,9 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
 
         // exitValue cannot be lower than currentValue
-        Tick tick = position.getSecurity().getLastTick();
-        if (tick != null) {
-            double currentValue = tick.getCurrentValueDouble();
+        MarketDataEvent marketDataEvent = position.getSecurity().getCurrentMarketDataEvent();
+        if (marketDataEvent != null) {
+            double currentValue = marketDataEvent.getCurrentValueDouble();
             if (Direction.SHORT.equals(position.getDirection()) && exitValue < currentValue) {
                 throw new PositionServiceException("ExitValue (" + exitValue + ") for short-position " + position.getId() + " is lower than currentValue: " + currentValue);
             } else if (Direction.LONG.equals(position.getDirection()) && exitValue > currentValue) {
@@ -424,14 +424,14 @@ public class PositionServiceImpl extends PositionServiceBase {
 
             StockOption stockOption = (StockOption) security;
             int scale = security.getSecurityFamily().getScale();
-            double underlyingSpot = security.getUnderlying().getLastTick().getCurrentValueDouble();
+            double underlyingSpot = security.getUnderlying().getCurrentMarketDataEvent().getCurrentValueDouble();
             double intrinsicValue = StockOptionUtil.getIntrinsicValue(stockOption, underlyingSpot);
             BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue, scale);
             transaction.setPrice(price);
 
         } else if (security instanceof Future) {
 
-            BigDecimal price = security.getUnderlying().getLastTick().getCurrentValue();
+            BigDecimal price = security.getUnderlying().getCurrentMarketDataEvent().getCurrentValue();
             transaction.setPrice(price);
 
         } else {

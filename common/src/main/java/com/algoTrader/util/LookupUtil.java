@@ -92,9 +92,9 @@ public class LookupUtil {
         return ServiceLocator.instance().getPortfolioService().getPortfolioValue();
     }
 
-    public static boolean hasLastTicks() {
+    public static boolean hasCurrentMarketDataEvents() {
 
-        return (EsperManager.getLastEvent(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK") != null);
+        return (EsperManager.getLastEvent(StrategyUtil.getStartedStrategyName(), "CURRENT_MARKET_DATA_EVENT") != null);
     }
 
     public static Tick getTickByDateAndSecurityInclSecurityInitialized(Date date, int securityId) {

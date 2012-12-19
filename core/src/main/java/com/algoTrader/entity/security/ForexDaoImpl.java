@@ -3,6 +3,7 @@ package com.algoTrader.entity.security;
 import java.util.Date;
 import java.util.List;
 
+import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.enumeration.Currency;
 
@@ -19,18 +20,18 @@ public class ForexDaoImpl extends ForexDaoBase {
 
         Forex forex = getForex(baseCurrency, transactionCurrency);
 
-        Tick tick = forex.getLastTick();
+        MarketDataEvent marketDataEvent = forex.getCurrentMarketDataEvent();
 
-        if (tick == null) {
-            throw new IllegalStateException("cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no last tick is available");
+        if (marketDataEvent == null) {
+            throw new IllegalStateException("cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no marketDataEvent is available");
         }
 
         if (forex.getBaseCurrency().equals(baseCurrency)) {
             // expected case
-            return tick.getCurrentValueDouble();
+            return marketDataEvent.getCurrentValueDouble();
         } else {
             // reverse case
-            return 1.0 / tick.getCurrentValueDouble();
+            return 1.0 / marketDataEvent.getCurrentValueDouble();
         }
     }
 

@@ -1,6 +1,6 @@
 package com.algoTrader.entity;
 
-import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.security.Forex;
 import com.algoTrader.entity.security.ForexI;
 import com.algoTrader.entity.security.Security;
@@ -61,9 +61,9 @@ public class PositionImpl extends Position {
 
         if (isOpen()) {
 
-            Tick tick = getSecurity().getLastTick();
-            if (tick != null) {
-                return tick.getRelevantPriceDouble(getQuantity());
+            MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
+            if (marketDataEvent != null) {
+                return marketDataEvent.getRelevantPriceDouble(getDirection());
             } else {
                 return Double.NaN;
             }

@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.Side;
@@ -67,11 +68,15 @@ public class SlicingOrderImpl extends SlicingOrder {
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 
-        Tick tick = getSecurity().getLastTick();
+        MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
 
-        if (tick == null) {
-            throw new IllegalStateException("no last tick available to initialize SlicingOrder");
+        if (marketDataEvent == null) {
+            throw new IllegalStateException("no marketDataEvent available to initialize SlicingOrder");
+        } else if (!(marketDataEvent instanceof Tick)) {
+            throw new IllegalStateException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
         }
+
+        Tick tick = (Tick) marketDataEvent;
 
         // limit (at least one tick above market but do not exceed the market)
         BigDecimal limit;

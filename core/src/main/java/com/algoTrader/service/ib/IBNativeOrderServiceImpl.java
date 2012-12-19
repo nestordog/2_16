@@ -93,7 +93,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
             return;
         }
 
-        Contract contract = IBUtil.getContract(order.getSecurity());
+        Contract contract = IBUtil.getContract(order.getSecurityInitialized());
 
         com.ib.client.Order ibOrder = new com.ib.client.Order();
         ibOrder.m_action = order.getSide().toString();

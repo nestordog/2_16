@@ -29,9 +29,9 @@ public class CsvBarInputAdapterSpec extends CSVInputAdapterSpec {
                 "high",
                 "low",
                 "close",
-                "adjClose",
                 "vol",
-                "openInterest" };
+                "openIntrest",
+                "settlement" };
         //@formatter:on
 
         setPropertyOrder(barPropertyOrder);
@@ -43,9 +43,9 @@ public class CsvBarInputAdapterSpec extends CSVInputAdapterSpec {
         barPropertyTypes.put("high", BigDecimal.class);
         barPropertyTypes.put("low", BigDecimal.class);
         barPropertyTypes.put("close", BigDecimal.class);
-        barPropertyTypes.put("adjClose", BigDecimal.class);
         barPropertyTypes.put("vol", int.class);
-        barPropertyTypes.put("openInterest", int.class);
+        barPropertyTypes.put("openIntrest", int.class);
+        barPropertyTypes.put("settlement", BigDecimal.class);
 
         setPropertyTypes(barPropertyTypes);
 

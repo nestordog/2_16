@@ -16,6 +16,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.lang.ArrayUtils;
+
 public class DataViewer extends JPanel {
 
     private static final long serialVersionUID = 2014300386194071692L;
@@ -64,7 +66,13 @@ public class DataViewer extends JPanel {
 
             List<Object> list = new ArrayList<Object>(col);
             Class<?> cl = list.get(0).getClass();
-            Field[] allFields = cl.getDeclaredFields();
+
+            Field[] allFields = new Field[0];
+            do {
+                allFields = (Field[]) ArrayUtils.addAll(cl.getDeclaredFields(), allFields);
+                cl = cl.getSuperclass();
+            } while (cl != null && cl != Object.class);
+
             AccessibleObject.setAccessible(allFields, true);
             List<Field> fields = new ArrayList<Field>();
             for (Field field : allFields) {

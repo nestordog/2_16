@@ -6,7 +6,7 @@ select
 from
     pattern[every timer:at(0, 14:23, *, *, 1:5)]
 where
-    LookupUtil.hasLastTicks();
+    LookupUtil.hasCurrentMarketDataEvents();
 
 @Name('INSERT_INTO_PORTFOLIO_VALUE')
 @SimulationOnly
@@ -18,7 +18,7 @@ select
 from
     pattern[every (timer:at (0, 23, *, *, 1:5) or EndOfSimulation)]
 where
-    LookupUtil.hasLastTicks();
+    LookupUtil.hasCurrentMarketDataEvents();
 
 @Name('SET_MARGINS')
 @Condition(key='statement.setMargins')

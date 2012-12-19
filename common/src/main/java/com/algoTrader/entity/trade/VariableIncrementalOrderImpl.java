@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import org.apache.commons.beanutils.BeanUtils;
 
+import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.Side;
@@ -42,8 +43,15 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
     @Override
     public LimitOrder firstOrder() {
 
-        // make sure there is a tick
-        Tick tick = getSecurity().getLastTick();
+        MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
+
+        if (marketDataEvent == null) {
+            throw new IllegalStateException("no marketDataEvent available to initialize SlicingOrder");
+        } else if (!(marketDataEvent instanceof Tick)) {
+            throw new IllegalStateException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
+        }
+
+        Tick tick = (Tick) marketDataEvent;
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 

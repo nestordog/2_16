@@ -5,6 +5,7 @@ import java.util.Date;
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
+import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
@@ -19,8 +20,8 @@ public class StockOptionImpl extends StockOption {
     public double getLeverage() {
 
         try {
-            double underlyingSpot = getUnderlying().getLastTick().getCurrentValueDouble();
-            double currentValue = getLastTick().getCurrentValueDouble();
+            double underlyingSpot = getUnderlying().getCurrentMarketDataEvent().getCurrentValueDouble();
+            double currentValue = getCurrentMarketDataEvent().getCurrentValueDouble();
             double delta = StockOptionUtil.getDelta(this, currentValue, underlyingSpot);
 
             return underlyingSpot / currentValue * delta;
@@ -34,14 +35,14 @@ public class StockOptionImpl extends StockOption {
     @Override
     public double getMargin() {
 
-        Tick stockOptionTick = getLastTick();
-        Tick underlyingTick = getUnderlying().getLastTick();
+        MarketDataEvent stockOptionMarketDataEvent = getCurrentMarketDataEvent();
+        MarketDataEvent underlyingMarketDataEvent = getUnderlying().getCurrentMarketDataEvent();
 
         double marginPerContract = 0;
-        if (stockOptionTick != null && underlyingTick != null && stockOptionTick.getCurrentValueDouble() > 0.0) {
+        if (stockOptionMarketDataEvent != null && underlyingMarketDataEvent != null && stockOptionMarketDataEvent.getCurrentValueDouble() > 0.0) {
 
-            double stockOptionSettlement = stockOptionTick.getSettlement().doubleValue();
-            double underlyingSettlement = underlyingTick.getSettlement().doubleValue();
+            double stockOptionSettlement = stockOptionMarketDataEvent.getSettlement().doubleValue();
+            double underlyingSettlement = underlyingMarketDataEvent.getSettlement().doubleValue();
             int contractSize = getSecurityFamily().getContractSize();
             try {
                 marginPerContract = StockOptionUtil.getMaintenanceMargin(this, stockOptionSettlement, underlyingSettlement) * contractSize;

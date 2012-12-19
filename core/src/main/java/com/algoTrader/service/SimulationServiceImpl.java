@@ -233,7 +233,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         // activate the necessary rules
         EsperManager.deployStatement(StrategyImpl.BASE, "base", "CREATE_PORTFOLIO_VALUE");
         EsperManager.deployStatement(StrategyImpl.BASE, "base", "CREATE_MONTHLY_PERFORMANCE");
-        EsperManager.deployStatement(StrategyImpl.BASE, "base", "GET_LAST_TICK");
+        EsperManager.deployStatement(StrategyImpl.BASE, "base", "GET_LAST_MARKET_DATA_EVENT");
         EsperManager.deployStatement(StrategyImpl.BASE, "base", "CREATE_PERFORMANCE_KEYS");
         EsperManager.deployStatement(StrategyImpl.BASE, "base", "KEEP_MONTHLY_PERFORMANCE");
         EsperManager.deployStatement(StrategyImpl.BASE, "base", "CREATE_DRAW_DOWN");

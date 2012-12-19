@@ -413,6 +413,14 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected Position handleGetPositionInclSecurityAndSecurityFamily(int id) throws Exception {
+
+        Position position = getPositionDao().findByIdInclSecurityAndSecurityFamily(id);
+        position.getSecurityInitialized().getSecurityFamilyInitialized();
+        return position;
+    }
+
+    @Override
     protected List<Position> handleGetPositionsByStrategy(String strategyName) throws Exception {
 
         return getPositionDao().findByStrategy(strategyName);

@@ -10,6 +10,7 @@ import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Direction;
@@ -31,20 +32,20 @@ public abstract class SecurityImpl extends Security {
 
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Tick getLastTick() {
+    public MarketDataEvent getCurrentMarketDataEvent() {
 
         if (EsperManager.isInitialized(StrategyUtil.getStartedStrategyName())) {
-            List<Map> events = EsperManager.getAllEvents(StrategyUtil.getStartedStrategyName(), "GET_LAST_TICK");
+            List<Map> events = EsperManager.getAllEvents(StrategyUtil.getStartedStrategyName(), "CURRENT_MARKET_DATA_EVENT");
 
-            // try to see if the rule GET_LAST_TICK has the tick
+            // try to see if the rule CURRENT_MARKET_DATA_EVENT has any events
             for (Map event : events) {
                 Integer securityId = (Integer) event.get("securityId");
                 if (securityId.equals(getId())) {
-                    Object obj = event.get("tick");
+                    Object obj = event.get("marketDataEvent");
                     if (obj instanceof WrapperEventBean) {
-                        return (Tick) ((WrapperEventBean) obj).getUnderlying();
+                        return (MarketDataEvent) ((WrapperEventBean) obj).getUnderlying();
                     } else {
-                        return (Tick) ((BeanEventBean) obj).getUnderlying();
+                        return (MarketDataEvent) ((BeanEventBean) obj).getUnderlying();
                     }
                 }
             }
@@ -55,7 +56,7 @@ public abstract class SecurityImpl extends Security {
             return null;
         } else {
 
-            // if we did not get the tick up to now go to the db an get the last tick
+            // if we did not get a marketDataEvent up to now go to the db an get the last tick
             Tick tick = ServiceLocator.instance().getLookupService().getLastTick(getId());
 
             if (tick == null) {
@@ -95,13 +96,13 @@ public abstract class SecurityImpl extends Security {
     @Override
     public double getMargin() {
 
-        Tick lastTick = getLastTick();
+        MarketDataEvent marketDataEvent = getCurrentMarketDataEvent();
 
         double marginPerContract = 0;
-        if (lastTick != null && lastTick.getCurrentValueDouble() > 0.0) {
+        if (marketDataEvent != null && marketDataEvent.getCurrentValueDouble() > 0.0) {
 
             int contractSize = getSecurityFamily().getContractSize();
-            marginPerContract = lastTick.getCurrentValueDouble() * contractSize / initialMarginMarkup;
+            marginPerContract = marketDataEvent.getCurrentValueDouble() * contractSize / initialMarginMarkup;
         } else {
             logger.warn("no last tick available or currentValue to low to set margin on " + this);
         }

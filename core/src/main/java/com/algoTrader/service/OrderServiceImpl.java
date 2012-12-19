@@ -1,5 +1,6 @@
 package com.algoTrader.service;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,10 +15,12 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.trade.AlgoOrder;
 import com.algoTrader.entity.trade.Fill;
 import com.algoTrader.entity.trade.FillImpl;
+import com.algoTrader.entity.trade.LimitOrderI;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.entity.trade.OrderValidationException;
 import com.algoTrader.entity.trade.SimpleOrder;
+import com.algoTrader.enumeration.Direction;
 import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
@@ -25,7 +28,6 @@ import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.BeanUtils;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.OrderStatusVO;
 
 public abstract class OrderServiceImpl extends OrderServiceBase {
@@ -66,7 +68,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         }
 
         // external validation of the order
-        if (order instanceof SimpleOrder) {
+        if (!this.simulation && order instanceof SimpleOrder) {
             getExternalOrderService(order).validateOrder((SimpleOrder) order);
         }
 
@@ -119,15 +121,18 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         fill.setSide(order.getSide());
         fill.setQuantity(order.getQuantity());
 
-        // in simulation orders are executed at the market
-        double price = 0.0;
-        if (Side.SELL.equals(order.getSide())) {
-            price = security.getLastTick().getBid().doubleValue();
+        BigDecimal price = new BigDecimal(0);
+        if (order instanceof LimitOrderI) {
+
+            // limitorders are executed at their limit price
+            price = ((LimitOrderI) order).getLimit();
 
         } else {
-            price = security.getLastTick().getAsk().doubleValue();
+
+            // all other orders are executed the the market
+            price = security.getCurrentMarketDataEvent().getRelevantPrice(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG);
         }
-        fill.setPrice(RoundUtil.getBigDecimal(price));
+        fill.setPrice(price);
 
         fill.setOrd(order);
 
