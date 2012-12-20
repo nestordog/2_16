@@ -63,7 +63,7 @@ public class PositionImpl extends Position {
 
             MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
             if (marketDataEvent != null) {
-                return marketDataEvent.getRelevantPriceDouble(getDirection());
+                return marketDataEvent.getMarketValueDouble(getDirection());
             } else {
                 return Double.NaN;
             }

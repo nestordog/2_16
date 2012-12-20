@@ -22,7 +22,7 @@ public class BarImpl extends Bar {
     }
 
     @Override
-    public BigDecimal getRelevantPrice(Direction direction) {
+    public BigDecimal getMarketValue(Direction direction) {
 
         if (simulation && simulateBidAsk) {
 

@@ -88,7 +88,7 @@ public class TickImpl extends Tick {
     }
 
     @Override
-    public BigDecimal getRelevantPrice(Direction direction) {
+    public BigDecimal getMarketValue(Direction direction) {
 
         if (Direction.LONG.equals(direction)) {
             return getBid();

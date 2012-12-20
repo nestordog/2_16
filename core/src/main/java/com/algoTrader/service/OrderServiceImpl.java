@@ -130,7 +130,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         } else {
 
             // all other orders are executed the the market
-            price = security.getCurrentMarketDataEvent().getRelevantPrice(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG);
+            price = security.getCurrentMarketDataEvent().getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG);
         }
         fill.setPrice(price);
 

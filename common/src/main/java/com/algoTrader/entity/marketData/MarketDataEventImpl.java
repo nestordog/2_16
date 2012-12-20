@@ -31,9 +31,9 @@ public abstract class MarketDataEventImpl extends MarketDataEvent {
     }
 
     @Override
-    public double getRelevantPriceDouble(Direction direction) {
+    public double getMarketValueDouble(Direction direction) {
 
-        return getRelevantPrice(direction).doubleValue();
+        return getMarketValue(direction).doubleValue();
     }
 
     @Override

@@ -8198,7 +8198,7 @@
                                     </type>
                                 </ownedParameter>
                             </ownedOperation>
-                            <ownedOperation xmi:type='uml:Operation' xmi:id='_16_5_4_8b60294_1354113548489_668555_3159' name='getRelevantPrice' visibility='public' isAbstract='true'>
+                            <ownedOperation xmi:type='uml:Operation' xmi:id='_16_5_4_8b60294_1354113548489_668555_3159' name='getMarketValue' visibility='public' isAbstract='true'>
                                 <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1354113564998_161341_3173' visibility='public' direction='return'>
                                     <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_946801_65'>
                                         <xmi:Extension extender='MagicDraw UML 16.5'>
@@ -8208,7 +8208,7 @@
                                 </ownedParameter>
                                 <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1354113591912_96558_3189' name='direction' visibility='public' direction='in' type='_9_5_1_8b60294_1302789146218_279787_10845'/>
                             </ownedOperation>
-                            <ownedOperation xmi:type='uml:Operation' xmi:id='_16_5_4_8b60294_1354113565039_372406_3174' name='getRelevantPriceDouble' visibility='public'>
+                            <ownedOperation xmi:type='uml:Operation' xmi:id='_16_5_4_8b60294_1354113565039_372406_3174' name='getMarketValueDouble' visibility='public'>
                                 <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1354113572635_15865_3188' visibility='public' direction='return'>
                                     <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_794756_24'>
                                         <xmi:Extension extender='MagicDraw UML 16.5'>
@@ -25024,7 +25024,7 @@
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='true'/>
                     <diagramWindowBounds>2, 24, 1685, 917</diagramWindowBounds>
-                    <diagramScrollPositionX xmi:value='254'/>
+                    <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
                     <active xmi:value='false'/>
@@ -25462,7 +25462,7 @@
                     <diagramOpened xmi:value='true'/>
                     <diagramFrameInitialSizeSet xmi:value='false'/>
                     <diagramWindowBounds>2, 24, 1685, 917</diagramWindowBounds>
-                    <diagramScrollPositionX xmi:value='106'/>
+                    <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
                     <active xmi:value='false'/>
@@ -27182,7 +27182,7 @@
                         <mdElement elementClass='StringProperty'>
                             <propertyID>INFO_PROPERTY</propertyID>
                             <propertyDescriptionID>INFO_PROPERTY_DESCRIPTION</propertyDescriptionID>
-                            <value>3c 68 67 20 40 d 55 c 2 79 3f f9 7b be 63 6 89 9d 3e 33 8b 74 ad 6a 59 c5 47 9 8d 86 a8 ca 16 35 a8 a5 d0 18 1c 45 90 6d 3a 8e f 7c 47 c7 f8 d4 4e 63 84 ee 7e ac f8 1e 44 9d 7e b9 2a ef 58 cd 61 dd 85 40 3 </value>
+                            <value>3c 68 67 20 40 d 55 c 2 79 3f fa 76 af 63 6 89 9d 3e 30 82 74 ad 6b 59 c5 44 9 8c 86 a8 ca 16 35 a8 a5 d0 18 1c 45 90 6d 3a 8e f 7c 47 c7 f8 d4 4e 63 84 ee 7e ac f8 1e 44 9d 7e b9 2a ef 58 cd 61 dd 85 40 3 </value>
                         </mdElement>
                         <mdElement elementClass='LIST_PROPERTY'>
                             <propertyID>ADDITIONAL_CONTAINMENT_TREES</propertyID>
