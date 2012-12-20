@@ -218,14 +218,31 @@ public class PositionUtil {
 
     private static Transaction cloneTransaction(Transaction transaction, long quantity) {
 
-        Transaction clonedTransaction;
+        Transaction clone;
         try {
-            clonedTransaction = (Transaction)BeanUtils.cloneBean(transaction);
-            clonedTransaction.setQuantity(quantity);
+            clone = (Transaction) BeanUtils.cloneBean(transaction);
+
+            // reduce commissions
+            int scale = transaction.getSecurity().getSecurityFamily().getScale();
+            if (clone.getExecutionCommission() != null) {
+                double executionCommission = clone.getExecutionCommission().doubleValue();
+                double newExecutionCommission = executionCommission / clone.getQuantity() * quantity;
+                clone.setExecutionCommission(RoundUtil.getBigDecimal(newExecutionCommission, scale));
+            }
+
+            if (clone.getClearingCommission() != null) {
+                double clearingCommission = clone.getClearingCommission().doubleValue();
+                double newClearingCommission = clearingCommission / clone.getQuantity() * quantity;
+                clone.setClearingCommission(RoundUtil.getBigDecimal(newClearingCommission, scale));
+            }
+
+            // set new quantity
+            clone.setQuantity(quantity);
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        return clonedTransaction;
+        return clone;
     }
 }

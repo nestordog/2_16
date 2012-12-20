@@ -195,8 +195,16 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 // evaluate the profit in closing transactions
                 // must be done before attaching the new transaction
                 if (Long.signum(position.getQuantity()) * Long.signum(transaction.getQuantity()) == -1) {
-                    double cost = position.getCostDouble() * Math.abs((double) transaction.getQuantity() / (double) position.getQuantity());
-                    double value = transaction.getNetValueDouble();
+
+                    double cost, value;
+                    if (Math.abs(transaction.getQuantity()) <= Math.abs(position.getQuantity())) {
+                        cost = position.getCostDouble() * Math.abs((double) transaction.getQuantity() / (double) position.getQuantity());
+                        value = transaction.getNetValueDouble();
+                    } else {
+                        cost = position.getCostDouble();
+                        value = transaction.getNetValueDouble() * Math.abs((double) position.getQuantity() / (double) transaction.getQuantity());
+                    }
+
                     profit = value - cost;
                     profitPct = Direction.LONG.equals(position.getDirection()) ? ((value - cost) / cost) : ((cost - value) / cost);
                     avgAge = position.getAverageAge();
