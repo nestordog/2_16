@@ -54,6 +54,7 @@ public class SubscriberCreator {
                 //@formatter:off
                 String updateMethodBody =
                         "{" +
+                        "   org.apache.log4j.Logger logger = com.algoTrader.util.MyLogger.getLogger(\"" + serviceClassName + "\"); " +
                         "    logger.debug(\"" + serviceMethodName + " start\"); " +
                         "    long startTime = System.nanoTime(); " +
                         "    (("+ serviceClassName + ") getService())." + serviceMethodName + "($$); " +
