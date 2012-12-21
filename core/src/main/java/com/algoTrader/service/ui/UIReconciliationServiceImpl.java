@@ -25,6 +25,7 @@ import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.util.CollectionUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.ZipUtil;
@@ -89,7 +90,7 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
         String description = "UI Fees";
         Collection<Transaction> transactions = getTransactionDao().findByDescriptionAndMaxDate(1, 1, description, date);
         if (!transactions.isEmpty()) {
-            oldFees = -transactions.iterator().next().getPrice().doubleValue();
+            oldFees = -CollectionUtil.getFirstElement(transactions).getPrice().doubleValue();
         }
 
         Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);

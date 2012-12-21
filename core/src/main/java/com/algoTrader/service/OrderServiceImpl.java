@@ -25,7 +25,7 @@ import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.EsperManager;
-import com.algoTrader.util.BeanUtils;
+import com.algoTrader.util.BeanUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.OrderStatusVO;
@@ -226,7 +226,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         if (order != null) {
 
             // populte the properties
-            BeanUtils.populate(order, properties);
+            BeanUtil.populate(order, properties);
 
             modifyOrder(order);
 

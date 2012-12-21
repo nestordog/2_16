@@ -1,7 +1,7 @@
 package com.algoTrader.entity.strategy;
 
 import com.algoTrader.entity.trade.Order;
-import com.algoTrader.util.BeanUtils;
+import com.algoTrader.util.BeanUtil;
 
 public class OrderPreferenceImpl extends OrderPreference {
 
@@ -16,7 +16,7 @@ public class OrderPreferenceImpl extends OrderPreference {
             Order order = (Order) orderClazz.newInstance();
 
             // populate the order with the properities
-            BeanUtils.populate(order, getPropertyValueMap());
+            BeanUtil.populate(order, getPropertyValueMap());
 
             return order;
         } catch (Exception e) {

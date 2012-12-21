@@ -51,6 +51,7 @@ import com.algoTrader.esper.io.CsvTickInputAdapter;
 import com.algoTrader.esper.io.CsvTickInputAdapterSpec;
 import com.algoTrader.esper.io.DBInputAdapter;
 import com.algoTrader.esper.subscriber.SubscriberCreator;
+import com.algoTrader.util.CollectionUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.util.metric.MetricsUtil;
@@ -669,12 +670,8 @@ public class EsperManager {
 
     public static void addTradeCallback(String strategyName, Collection<Order> orders, TradeCallback callback) {
 
-        if (orders.size() == 0) {
-            throw new IllegalArgumentException("at least 1 order has to be specified");
-        }
-
         // get the securityIds sorted asscending and check that all orders are from the same strategy
-        final Order firstOrder = orders.iterator().next();
+        final Order firstOrder = CollectionUtil.getFirstElement(orders);
         Set<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(orders, new Transformer<Order, Integer>() {
 
             @Override

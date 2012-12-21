@@ -34,7 +34,7 @@ import com.algoTrader.entity.trade.VariableIncrementalOrder;
 import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.esper.EsperManager;
-import com.algoTrader.util.BeanUtils;
+import com.algoTrader.util.BeanUtil;
 import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
 import com.algoTrader.vo.BarVO;
@@ -297,7 +297,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
             }
 
             // populte the properties
-            BeanUtils.populate(order, properties);
+            BeanUtil.populate(order, properties);
         }
 
         // send orders

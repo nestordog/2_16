@@ -27,6 +27,7 @@ import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.esper.subscriber.Subscriber;
+import com.algoTrader.util.CollectionUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.metric.MetricsUtil;
@@ -316,7 +317,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 totalPrice += fill.getPrice().doubleValue() * fill.getQuantity();
             }
 
-            Fill fill = fills.iterator().next();
+            Fill fill = CollectionUtil.getFirstElement(fills);
 
             //@formatter:off
             mailLogger.info("executed transaction: " +
