@@ -17,10 +17,10 @@ public class LongMap<K> extends ConcurrentHashMap<K, AtomicLong> {
         super.put(key, new AtomicLong(value));
     }
 
-    public void increment(K key, long value) {
+    public long increment(K key, long value) {
 
         super.putIfAbsent(key, new AtomicLong(0));
-        super.get(key).addAndGet(value);
+        return super.get(key).addAndGet(value);
     }
 
     public long getLong(K key) {

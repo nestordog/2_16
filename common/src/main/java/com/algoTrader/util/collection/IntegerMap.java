@@ -17,10 +17,10 @@ public class IntegerMap<K> extends ConcurrentHashMap<K, AtomicInteger> {
         super.put(key, new AtomicInteger(value));
     }
 
-    public void increment(K key, int value) {
+    public int increment(K key, int value) {
 
         super.putIfAbsent(key, new AtomicInteger(0));
-        super.get(key).addAndGet(value);
+        return super.get(key).addAndGet(value);
     }
 
     public long getInt(K key) {
