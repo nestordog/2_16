@@ -59,7 +59,7 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         Security security = order.getSecurityInitialized();
 
         // use system time for orderNumber
-        order.setNumber(FixIdGenerator.getInstance().getNextOrderId());
+        order.setNumber(getFixClient().getNextOrderId(getMarketChannel()));
 
         NewOrderSingle newOrder = new NewOrderSingle();
 
@@ -143,7 +143,7 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
 
         // assign a new order number
         long origNumber = order.getNumber();
-        order.setNumber(FixIdGenerator.getInstance().getNextOrderId());
+        order.setNumber(getFixClient().getNextOrderId(getMarketChannel()));
 
         OrderCancelReplaceRequest replaceRequest = new OrderCancelReplaceRequest();
 
@@ -217,7 +217,7 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         OrderCancelRequest cancelRequest = new OrderCancelRequest();
 
         // common info
-        cancelRequest.set(new ClOrdID(String.valueOf(FixIdGenerator.getInstance().getNextOrderId())));
+        cancelRequest.set(new ClOrdID(String.valueOf(getFixClient().getNextOrderId(getMarketChannel()))));
         cancelRequest.set(new OrigClOrdID(String.valueOf(order.getNumber())));
 
         cancelRequest.set(FixUtil.getFixSymbol(security));
