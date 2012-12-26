@@ -180,7 +180,7 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getExitValueDoubleBase() {
+    public double getExitValueBaseDouble() {
 
         return getExitValueDouble() * getSecurity().getFXRateBase();
     }

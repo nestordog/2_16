@@ -727,11 +727,11 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Tick handleGetTickFromRawTick(RawTickVO rawTick) {
 
-        long beforeCompleteRawTick = System.nanoTime();
+        long beforeCompleteRaw = System.nanoTime();
         Tick tick = getTickDao().rawTickVOToEntity(rawTick);
-        long afterCompleteRawTick = System.nanoTime();
+        long afterCompleteRawT = System.nanoTime();
 
-        MetricsUtil.account("LookupService.getTickFromRawTick", (afterCompleteRawTick - beforeCompleteRawTick));
+        MetricsUtil.account("LookupService.getMarketDataEventFromRaw", (afterCompleteRawT - beforeCompleteRaw));
 
         return tick;
     }
@@ -739,6 +739,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Bar handleGetBarFromRawBar(RawBarVO barVO) {
 
-        return getBarDao().rawBarVOToEntity(barVO);
+        long beforeCompleteRaw = System.nanoTime();
+        Bar bar = getBarDao().rawBarVOToEntity(barVO);
+        long afterCompleteRawT = System.nanoTime();
+
+        MetricsUtil.account("LookupService.getMarketDataEventFromRaw", (afterCompleteRawT - beforeCompleteRaw));
+
+        return bar;
     }
 }

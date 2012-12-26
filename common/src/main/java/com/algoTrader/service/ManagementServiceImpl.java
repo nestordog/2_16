@@ -343,7 +343,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected void handleSetExitValue(int positionId, double exitValue) throws Exception {
 
-        getPositionService().setExitValue(positionId, exitValue, true);
+        getPositionService().setExitValue(positionId, new BigDecimal(exitValue), true);
     }
 
     @Override

@@ -244,22 +244,22 @@ public class PositionServiceImpl extends PositionServiceBase {
     }
 
     @Override
-    protected Position handleSetExitValue(int positionId, double exitValue, boolean force) throws Exception {
+    protected Position handleSetExitValue(int positionId, BigDecimal exitValue, boolean force) throws Exception {
 
         Position position = getPositionDao().getLocked(positionId);
 
         // prevent exitValues near Zero
-        if (!(position.getSecurityInitialized() instanceof Combination) && exitValue <= 0.05) {
+        if (!(position.getSecurityInitialized() instanceof Combination) && exitValue.doubleValue() <= 0.05) {
             logger.warn("setting of exitValue below 0.05 is prohibited: " + exitValue);
             return position;
         }
 
         // in generall, exit value should not be set higher (lower) than existing exitValue for long (short) positions
         if (!force) {
-            if (Direction.SHORT.equals(position.getDirection()) && position.getExitValue() != null && exitValue > position.getExitValueDouble()) {
+            if (Direction.SHORT.equals(position.getDirection()) && position.getExitValue() != null && exitValue.compareTo(position.getExitValue()) > 0) {
                 logger.warn("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of short position " + positionId);
                 return position;
-            } else if (Direction.LONG.equals(position.getDirection()) && position.getExitValue() != null && exitValue < position.getExitValueDouble()) {
+            } else if (Direction.LONG.equals(position.getDirection()) && position.getExitValue() != null && exitValue.compareTo(position.getExitValue()) < 0) {
                 logger.warn("exit value " + exitValue + " is lower than existing exit value " + position.getExitValue() + " of long position " + positionId);
                 return position;
             }
@@ -268,18 +268,20 @@ public class PositionServiceImpl extends PositionServiceBase {
         // exitValue cannot be lower than currentValue
         MarketDataEvent marketDataEvent = position.getSecurity().getCurrentMarketDataEvent();
         if (marketDataEvent != null) {
-            double currentValue = marketDataEvent.getCurrentValueDouble();
-            if (Direction.SHORT.equals(position.getDirection()) && exitValue < currentValue) {
+            BigDecimal currentValue = marketDataEvent.getCurrentValue();
+            if (Direction.SHORT.equals(position.getDirection()) && exitValue.compareTo(currentValue) < 0) {
                 throw new PositionServiceException("ExitValue (" + exitValue + ") for short-position " + position.getId() + " is lower than currentValue: " + currentValue);
-            } else if (Direction.LONG.equals(position.getDirection()) && exitValue > currentValue) {
+            } else if (Direction.LONG.equals(position.getDirection()) && exitValue.compareTo(currentValue) > 0) {
                 throw new PositionServiceException("ExitValue (" + exitValue + ") for long-position " + position.getId() + " is higher than currentValue: " + currentValue);
             }
         }
 
+        // set the exitValue (with the correct scale)
+        int scale = position.getSecurity().getSecurityFamily().getScale();
+        exitValue.setScale(scale);
         position.setExitValue(exitValue);
 
-        int scale = position.getSecurity().getSecurityFamily().getScale();
-        logger.info("set exit value of position " + position.getId() + " to " + RoundUtil.getBigDecimal(exitValue, scale));
+        logger.info("set exit value of position " + position.getId() + " to " + exitValue);
 
         return position;
     }

@@ -23,23 +23,30 @@ public class CustomSender extends AbstractSender {
         // raw Ticks are always sent using MarketDataService
         if (beanToSend instanceof RawTickVO) {
 
-            long beforeCompleteRawTick = System.nanoTime();
+            long beforeCompleteRawT = System.nanoTime();
             Tick tick = ServiceLocator.instance().getLookupService().getTickFromRawTick((RawTickVO) beanToSend);
-            long afterCompleteRawTick = System.nanoTime();
+            long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();
             EsperManager.sendEvent(StrategyImpl.BASE, tick);
             long afterSendEvent = System.nanoTime();
 
-            MetricsUtil.account("CustomSender.completeRawTick", (afterCompleteRawTick - beforeCompleteRawTick));
-            MetricsUtil.account("CustomSender.sendTick", (afterSendEvent - beforeSendEvent));
+            MetricsUtil.account("CustomSender.completeRaw", (afterCompleteRaw - beforeCompleteRawT));
+            MetricsUtil.account("CustomSender.sendMarketDataEvent", (afterSendEvent - beforeSendEvent));
 
             // Bars are always sent using MarketDataService
         } else if (beanToSend instanceof RawBarVO) {
 
+            long beforeCompleteRawT = System.nanoTime();
             Bar bar = ServiceLocator.instance().getLookupService().getBarFromRawBar((RawBarVO) beanToSend);
+            long afterCompleteRaw = System.nanoTime();
 
+            long beforeSendEvent = System.nanoTime();
             EsperManager.sendEvent(StrategyImpl.BASE, bar);
+            long afterSendEvent = System.nanoTime();
+
+            MetricsUtil.account("CustomSender.completeRaw", (afterCompleteRaw - beforeCompleteRawT));
+            MetricsUtil.account("CustomSender.sendMarketDataEvent", (afterSendEvent - beforeSendEvent));
 
             // currentTimeEvents are sent to all started strategies
         } else if (beanToSend instanceof CurrentTimeEvent) {

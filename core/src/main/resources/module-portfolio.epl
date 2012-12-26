@@ -44,18 +44,18 @@ select
     position.id as positionId,
     false as unsubscribe
 from
-    Tick as tick,
+    MarketDataEvent as marketDataEvent,
     method:LookupUtil.getOpenPositions() as position
 where
-    position.security.id = tick.security.id
+    position.security.id = marketDataEvent.security.id
 and
     position.exitValue is not null
 and
     position.direction != Direction.FLAT
 and
-    ((position.direction = Direction.SHORT and (tick.currentValue >= position.exitValue))
+    ((position.direction = Direction.SHORT and (marketDataEvent.currentValue >= position.exitValue))
     or
-    (position.direction = Direction.LONG and (tick.currentValue <= position.exitValue)))
+    (position.direction = Direction.LONG and (marketDataEvent.currentValue <= position.exitValue)))
 and
     // there should not be any open trades from this strategy for the same security
     position.security.id not in

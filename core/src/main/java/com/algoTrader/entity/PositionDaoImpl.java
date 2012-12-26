@@ -42,7 +42,7 @@ public class PositionDaoImpl extends PositionDaoBase {
         positionVO.setCost(RoundUtil.getBigDecimal(position.getCostDouble()));
         positionVO.setUnrealizedPL(RoundUtil.getBigDecimal(position.getUnrealizedPLDouble()));
         positionVO.setRealizedPL(RoundUtil.getBigDecimal(position.getRealizedPLDouble()));
-        positionVO.setExitValue(position.getExitValue() != null ? RoundUtil.getBigDecimal(position.getExitValue(), scale) : null);
+        positionVO.setExitValue(position.getExitValue());
         positionVO.setMaxLoss(RoundUtil.getBigDecimal(position.getMaxLossDouble()));
         positionVO.setMargin(position.getMaintenanceMargin());
 
@@ -99,11 +99,9 @@ public class PositionDaoImpl extends PositionDaoBase {
 
     private void completeClosePositionVO(Position position, ClosePositionVO closePositionVO) {
 
-        int scale = position.getSecurity().getSecurityFamily().getScale();
-
         closePositionVO.setSecurityId(position.getSecurity().getId());
         closePositionVO.setStrategyName(position.getStrategy().getName());
-        closePositionVO.setExitValue(position.getExitValue() != null ? RoundUtil.getBigDecimal(position.getExitValue(), scale) : null);
+        closePositionVO.setExitValue(position.getExitValue());
         closePositionVO.setDirection(position.getDirection());
     }
 

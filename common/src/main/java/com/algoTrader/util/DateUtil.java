@@ -83,6 +83,16 @@ public class DateUtil {
         return compareTime(getCurrentEPTime(), time);
     }
 
+    public static boolean isAfterTime(Date time) {
+
+        return compareToTime(time) > 0;
+    }
+
+    public static boolean isBeforeTime(Date time) {
+
+        return compareToTime(time) < 0;
+    }
+
     private static Date getNext3rdFriday(Date input) {
 
         Calendar cal = new GregorianCalendar();

@@ -71,10 +71,10 @@ public class TickDaoImpl extends TickDaoBase {
     @Override
     public Tick rawTickVOToEntity(RawTickVO rawTickVO) {
 
-        long beforeRawTickToEntity = System.nanoTime();
+        long beforeRawToEntity = System.nanoTime();
         Tick tick = new TickImpl();
         super.rawTickVOToEntity(rawTickVO, tick, true);
-        long afterRawTickToEntity = System.nanoTime();
+        long afterRawToEntity = System.nanoTime();
 
         // cache security id, as queries byIsin get evicted from cache whenever any change to security table happens
         long beforeGetSecurityId = System.nanoTime();
@@ -93,14 +93,14 @@ public class TickDaoImpl extends TickDaoBase {
 
         long beforeInitialization = System.nanoTime();
         security.initialize();
+        tick.setSecurity(security);
         long afterInitialization = System.nanoTime();
 
-        MetricsUtil.account("TickDao.rawTickToEntity", (afterRawTickToEntity - beforeRawTickToEntity));
-        MetricsUtil.account("TickDao.getSecurityId", (afterGetSecurityId - beforeGetSecurityId));
-        MetricsUtil.account("TickDao.securityLookup", (afterSecurityLookup - beforeSecurityLookup));
-        MetricsUtil.account("TickDao.initialization", (afterInitialization - beforeInitialization));
+        MetricsUtil.account("MarketDataEventDao.rawToEntity", (afterRawToEntity - beforeRawToEntity));
+        MetricsUtil.account("MarketDataEventDao.getSecurityId", (afterGetSecurityId - beforeGetSecurityId));
+        MetricsUtil.account("MarketDataEventDao.securityLookup", (afterSecurityLookup - beforeSecurityLookup));
+        MetricsUtil.account("MarketDataEventDao.initialization", (afterInitialization - beforeInitialization));
 
-        tick.setSecurity(security);
 
         return tick;
     }
