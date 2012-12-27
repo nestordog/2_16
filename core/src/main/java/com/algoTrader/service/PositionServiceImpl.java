@@ -96,7 +96,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         Side side = (position.getQuantity() > 0) ? Side.SELL : Side.BUY;
 
         // prepare the order
-        DefaultOrderPreference defaultOrderPreference = getDefaultOrderPreferenceDao().findByStrategyAndSecurityFamily(strategy.getName(), security.getSecurityFamily().getId());
+        DefaultOrderPreference defaultOrderPreference = getDefaultOrderPreferenceDao().findByStrategyAndSecurityFamilyInclOrderPreference(strategy.getName(), security.getSecurityFamily().getId());
 
         if (defaultOrderPreference == null) {
             throw new IllegalStateException("no defaultOrderPreference defined for " + security.getSecurityFamily() + " and " + strategy);
@@ -278,7 +278,7 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         // set the exitValue (with the correct scale)
         int scale = position.getSecurity().getSecurityFamily().getScale();
-        exitValue.setScale(scale);
+        exitValue.setScale(scale, BigDecimal.ROUND_HALF_UP);
         position.setExitValue(exitValue);
 
         logger.info("set exit value of position " + position.getId() + " to " + exitValue);

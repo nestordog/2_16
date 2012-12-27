@@ -157,7 +157,7 @@ public abstract class SecurityImpl extends Security {
     public long getComponentTotalQuantity() {
 
         long quantity = 0;
-        for (Component component : getComponents()) {
+        for (Component component : getComponentsInitialized()) {
             quantity += component.getQuantity();
         }
         return quantity;

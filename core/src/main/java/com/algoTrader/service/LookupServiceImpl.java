@@ -266,21 +266,18 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Future handleGetFutureByExpiration(int futureFamilyId, Date expirationDate) throws Exception {
 
-        Future future = getFutureDao().findByExpiration(futureFamilyId, expirationDate);
+        Future future = getFutureDao().findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
 
         // if no future was found, create the missing part of the future-chain
         if (this.simulation && future == null && (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures)) {
 
             getFutureService().createDummyFutures(futureFamilyId);
-            future = getFutureDao().findByExpiration(futureFamilyId, expirationDate);
+            future = getFutureDao().findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
         }
 
         if (future == null) {
             throw new LookupServiceException("no future available targetExpiration " + expirationDate);
         } else {
-
-            // init SecurityFamily to make sure that it is available for future.getDuration
-            future.getSecurityFamilyInitialized();
 
             return future;
         }
@@ -292,13 +289,13 @@ public class LookupServiceImpl extends LookupServiceBase {
         FutureFamily futureFamily = getFutureFamilyDao().get(futureFamilyId);
 
         Date expirationDate = DateUtil.getExpirationDateNMonths(futureFamily.getExpirationType(), targetExpirationDate, duration);
-        Future future = getFutureDao().findByExpiration(futureFamilyId, expirationDate);
+        Future future = getFutureDao().findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
 
         // if no future was found, create the missing part of the future-chain
         if (this.simulation && future == null && (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures)) {
 
             getFutureService().createDummyFutures(futureFamily.getId());
-            future = getFutureDao().findByExpiration(futureFamilyId, expirationDate);
+            future = getFutureDao().findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
         }
 
         if (future == null) {
@@ -331,7 +328,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         List<Subscription> subscriptions = getSubscriptionDao().findByStrategy(strategyName);
 
-        // even when fetching components by the query they are sometimes not initialized, so initializing them manally
+        // initialize components
         for (Subscription subscription : subscriptions) {
             subscription.getSecurity().getComponentsInitialized();
         }
@@ -344,7 +341,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         List<Subscription> subscriptions = getSubscriptionDao().findForAutoActivateStrategies();
 
-        // even when fetching components by the query they are sometimes not initialized, so initializing them manally
+        // initialize components
         for (Subscription subscription : subscriptions) {
             subscription.getSecurity().getComponentsInitialized();
         }
@@ -415,9 +412,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Position handleGetPositionInclSecurityAndSecurityFamily(int id) throws Exception {
 
-        Position position = getPositionDao().findByIdInclSecurityAndSecurityFamily(id);
-        position.getSecurityInitialized().getSecurityFamilyInitialized();
-        return position;
+        return getPositionDao().findByIdInclSecurityAndSecurityFamily(id);
     }
 
     @Override
@@ -577,9 +572,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected OrderPreference handleGetOrderPreferenceByStrategyAndSecurityFamily(String strategyName, int securityFamilyId) throws Exception {
 
-        DefaultOrderPreference orderPreference = getDefaultOrderPreferenceDao().findByStrategyAndSecurityFamily(strategyName, securityFamilyId);
+        DefaultOrderPreference orderPreference = getDefaultOrderPreferenceDao().findByStrategyAndSecurityFamilyInclOrderPreference(strategyName, securityFamilyId);
         if (orderPreference != null) {
-            return orderPreference.getOrderPreferenceInitialized();
+            return orderPreference.getOrderPreference();
         } else {
             throw new IllegalStateException("no default order preference defined for securityFamilyId " + securityFamilyId + " and " + strategyName);
         }

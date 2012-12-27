@@ -27,7 +27,7 @@ public class CombinationImpl extends Combination {
         return (getSymbol() != null ? getSymbol() + " " : "") + StringUtils.join(CollectionUtils.collect(getComponentsInitialized(), new Transformer<Component, String>() {
             @Override
             public String transform(Component component) {
-                return component.getQuantity() + " " + component.getSecurityInitialized();
+                return component.getQuantity() + " " + component.getSecurity();
             }
         }), " / ");
     }
