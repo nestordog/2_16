@@ -248,6 +248,10 @@ public class PositionServiceImpl extends PositionServiceBase {
 
         Position position = getPositionDao().getLocked(positionId);
 
+        // set the scale
+        int scale = position.getSecurity().getSecurityFamily().getScale();
+        exitValue = exitValue.setScale(scale, BigDecimal.ROUND_HALF_UP);
+
         // prevent exitValues near Zero
         if (!(position.getSecurityInitialized() instanceof Combination) && exitValue.doubleValue() <= 0.05) {
             logger.warn("setting of exitValue below 0.05 is prohibited: " + exitValue);
@@ -276,9 +280,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             }
         }
 
-        // set the exitValue (with the correct scale)
-        int scale = position.getSecurity().getSecurityFamily().getScale();
-        exitValue.setScale(scale, BigDecimal.ROUND_HALF_UP);
+        // set the exitValue
         position.setExitValue(exitValue);
 
         logger.info("set exit value of position " + position.getId() + " to " + exitValue);
