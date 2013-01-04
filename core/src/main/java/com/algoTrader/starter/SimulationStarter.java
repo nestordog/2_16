@@ -70,6 +70,20 @@ public class SimulationStarter {
                 ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeSingleParamLinear(parameter, min, max, increment);
 
             }
+
+        } else if (args[0].equals("optimizeSingleParamByValues")) {
+
+            for (int i = 1; i < args.length; i++) {
+                String[] params = args[i].split(":");
+                String parameter = params[0];
+                double[] values = new double[params.length - 1];
+                for (int j = 1; j < params.length; j++) {
+                    values[j-1] = Double.valueOf(params[j]);
+                }
+
+                ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeSingleParamByValues(parameter, values);
+
+            }
         } else if (args[0].equals("optimizeSingleParam")) {
 
             String[] params = args[1].split(":");

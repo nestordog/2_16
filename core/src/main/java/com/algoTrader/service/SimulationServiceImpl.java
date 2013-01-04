@@ -289,8 +289,6 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     @Override
     protected void handleOptimizeSingleParamLinear(String parameter, double min, double max, double increment) throws Exception {
 
-        double result = min;
-        double functionValue = 0;
         for (double i = min; i <= max; i += increment) {
 
             getConfiguration().setProperty(parameter, format.format(i));
@@ -298,13 +296,19 @@ public class SimulationServiceImpl extends SimulationServiceBase {
             SimulationResultVO resultVO = runByUnderlyings();
             resultLogger.info(parameter + "=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
 
-            double value = resultVO.getPerformanceKeys().getSharpRatio();
-            if (value > functionValue) {
-                functionValue = value;
-                result = i;
-            }
         }
-        resultLogger.info("optimal value of " + parameter + " is " + format.format(result) + " (functionValue: " + format.format(functionValue) + ")");
+    }
+
+    @Override
+    protected void handleOptimizeSingleParamByValues(String parameter, double[] values) throws Exception {
+
+        for (double value : values) {
+
+            getConfiguration().setProperty(parameter, format.format(value));
+
+            SimulationResultVO resultVO = runByUnderlyings();
+            resultLogger.info(parameter + "=" + format.format(value) + " " + convertStatisticsToShortString(resultVO));
+        }
     }
 
     @Override
@@ -449,6 +453,7 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         }
 
         buffer.append("avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100.0) + "%");
+        buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "%");
         buffer.append(" sharpe=" + twoDigitFormat.format(performanceKeys.getSharpRatio()));
         buffer.append(" maxDDM=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
         buffer.append(" bestMP=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");

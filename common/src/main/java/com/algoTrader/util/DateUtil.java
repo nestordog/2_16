@@ -71,6 +71,11 @@ public class DateUtil {
         return firstCal.compareTo(secondCal);
     }
 
+    public static int compareTime(long firstMillis, long secondMills) {
+
+        return compareTime(new Date(firstMillis), new Date(secondMills));
+    }
+
     /**
      *
      * @param time
@@ -83,14 +88,44 @@ public class DateUtil {
         return compareTime(getCurrentEPTime(), time);
     }
 
+    public static int compareToTime(long millis) {
+
+        return compareToTime(new Date(millis));
+    }
+
+    public static boolean isEqualTime(Date time) {
+
+        return compareToTime(time) == 0;
+    }
+
+    public static boolean isEqualTime(long millis) {
+
+        return isEqualTime(new Date(millis));
+    }
+
     public static boolean isAfterTime(Date time) {
 
         return compareToTime(time) > 0;
     }
 
+    public static boolean isAfterTime(long millis) {
+
+        return isAfterTime(new Date(millis));
+    }
+
     public static boolean isBeforeTime(Date time) {
 
         return compareToTime(time) < 0;
+    }
+
+    public static boolean isBeforeTime(long millis) {
+
+        return isBeforeTime(new Date(millis));
+    }
+
+    public static boolean isMultipleOff(Date date, long millis) {
+
+        return date.getTime() % millis == 0;
     }
 
     private static Date getNext3rdFriday(Date input) {
