@@ -459,9 +459,13 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         buffer.append(" bestMP=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
         buffer.append(" maxDD=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100.0) + "%");
         buffer.append(" maxDDPer=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000));
-        buffer.append(" avgPPctWin=" + twoDigitFormat.format(resultVO.getWinningTrades().getAvgProfitPct() * 100.0) + "%");
-        buffer.append(" avgPPctLoos=" + twoDigitFormat.format(resultVO.getLoosingTrades().getAvgProfitPct() * 100.0) + "%");
+        buffer.append(" winTrds=" + resultVO.getWinningTrades().getCount());
         buffer.append(" winTrdsPct=" + twoDigitFormat.format(100.0 * resultVO.getWinningTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
+        buffer.append(" avgPPctWin=" + twoDigitFormat.format(resultVO.getWinningTrades().getAvgProfitPct() * 100.0) + "%");
+        buffer.append(" loosTrds=" + resultVO.getLoosingTrades().getCount());
+        buffer.append(" loosTrdsPct=" + twoDigitFormat.format(100.0 * resultVO.getLoosingTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
+        buffer.append(" avgPPctLoos=" + twoDigitFormat.format(resultVO.getLoosingTrades().getAvgProfitPct() * 100.0) + "%");
+        buffer.append(" totalTrds=" + resultVO.getAllTrades().getCount());
 
         return buffer.toString();
     }
@@ -550,23 +554,24 @@ public class SimulationServiceImpl extends SimulationServiceBase {
         }
 
         buffer.append("WinningTrades:");
-        buffer.append(printTrades(resultVO.getWinningTrades()));
+        buffer.append(printTrades(resultVO.getWinningTrades(), resultVO.getAllTrades().getCount()));
 
         buffer.append("LoosingTrades:");
-        buffer.append(printTrades(resultVO.getLoosingTrades()));
+        buffer.append(printTrades(resultVO.getLoosingTrades(), resultVO.getAllTrades().getCount()));
 
         buffer.append("AllTrades:");
-        buffer.append(printTrades(resultVO.getAllTrades()));
-
-        buffer.append("winningTradesPct: " + twoDigitFormat.format(100.0 * resultVO.getWinningTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
+        buffer.append(printTrades(resultVO.getAllTrades(), resultVO.getAllTrades().getCount()));
 
         return buffer.toString();
     }
 
-    private static StringBuffer printTrades(TradesVO tradesVO) {
+    private static StringBuffer printTrades(TradesVO tradesVO, long totalTrades) {
 
         StringBuffer buffer = new StringBuffer();
         buffer.append(" count=" + tradesVO.getCount());
+        if (tradesVO.getCount() != totalTrades) {
+            buffer.append("(" + twoDigitFormat.format(100.0 * tradesVO.getCount() / totalTrades) + "%)");
+        }
         buffer.append(" totalProfit=" + twoDigitFormat.format(tradesVO.getTotalProfit()));
         buffer.append(" avgProfit=" + twoDigitFormat.format(tradesVO.getAvgProfit()));
         buffer.append(" avgProfitPct=" + twoDigitFormat.format(tradesVO.getAvgProfitPct() * 100) + "%");
