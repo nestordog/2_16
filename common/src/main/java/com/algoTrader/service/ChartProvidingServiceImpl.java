@@ -41,4 +41,10 @@ public class ChartProvidingServiceImpl extends ChartProvidingServiceBase {
 
         return new HashSet<MarkerVO>();
     }
+
+    @Override
+    protected String handleGetDescription() throws Exception {
+
+        return null;
+    }
 }

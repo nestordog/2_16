@@ -12,6 +12,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Property;
@@ -47,6 +48,8 @@ import com.algoTrader.vo.TransactionVO;
 public class ManagementServiceImpl extends ManagementServiceBase {
 
     private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
+
+    private @Value("${misc.displayClosedPositions}") boolean displayClosedPositions;
 
     @Override
     protected String handleGetCurrentTime() throws Exception {
@@ -196,7 +199,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected List<PositionVO> handleGetDataPositions() throws Exception {
 
-        return getLookupService().getOpenPositionsVO(StrategyUtil.getStartedStrategyName());
+        return getLookupService().getPositionsVO(StrategyUtil.getStartedStrategyName(), this.displayClosedPositions);
     }
 
     @Override

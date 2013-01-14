@@ -62,11 +62,18 @@ public class SecurityFamilyImpl extends SecurityFamily {
     @Override
     public int getSpreadTicks(BigDecimal bid, BigDecimal ask) {
 
-        BigDecimal price = bid;
         int ticks = 0;
-        while (price.compareTo(ask) < 0) {
-            ticks++;
-            price = adjustPrice(price, 1);
+        BigDecimal price = bid;
+        if (bid.compareTo(ask) <= 0) {
+            while (price.compareTo(ask) < 0) {
+                ticks++;
+                price = adjustPrice(price, 1);
+            }
+        } else {
+            while (price.compareTo(ask) > 0) {
+                ticks--;
+                price = adjustPrice(price, -1);
+            }
         }
         return ticks;
     }

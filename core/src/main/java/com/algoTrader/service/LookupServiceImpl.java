@@ -484,19 +484,27 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<PositionVO> handleGetOpenPositionsVO(String strategyName) throws Exception {
+    protected List<PositionVO> handleGetPositionsVO(String strategyName, boolean displayClosedPositions) throws Exception {
 
         if (strategyName.equals(StrategyImpl.BASE)) {
-            return (List<PositionVO>) getPositionDao().findOpenPositions(PositionDao.TRANSFORM_POSITIONVO);
+            if (displayClosedPositions) {
+                return (List<PositionVO>) getPositionDao().loadAll(PositionDao.TRANSFORM_POSITIONVO);
+            } else {
+                return (List<PositionVO>) getPositionDao().findOpenPositions(PositionDao.TRANSFORM_POSITIONVO);
+            }
         } else {
-            return (List<PositionVO>) getPositionDao().findOpenPositionsByStrategy(PositionDao.TRANSFORM_POSITIONVO, strategyName);
+            if (displayClosedPositions) {
+                return (List<PositionVO>) getPositionDao().findByStrategy(PositionDao.TRANSFORM_POSITIONVO, strategyName);
+            } else {
+                return (List<PositionVO>) getPositionDao().findOpenPositionsByStrategy(PositionDao.TRANSFORM_POSITIONVO, strategyName);
+            }
         }
     }
 
     @Override
     protected double handleGetPositionMarketPriceByDate(Security security, Date date) throws Exception {
 
-        List<Tick> ticks = getTickDao().findTicksForSecurityAndMinDate(1, 1, security.getId(), date, this.intervalDays);
+        List<Tick> ticks = getTickDao().findTicksAfterDate(1, 1, security.getId(), date, this.intervalDays);
         if (ticks.isEmpty()) {
             throw new IllegalStateException("not tick available for " + security);
         } else {
@@ -583,7 +591,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Tick handleGetLastTick(int securityId) throws Exception {
 
-        List<Tick> list = getTickDao().findTicksForSecurityAndMaxDate(1, 1, securityId, DateUtil.getCurrentEPTime(), this.intervalDays);
+        List<Tick> list = getTickDao().findTicksBeforeDate(1, 1, securityId, DateUtil.getCurrentEPTime(), this.intervalDays);
 
         Tick tick = null;
         if (!list.isEmpty()) {
@@ -592,6 +600,18 @@ public class LookupServiceImpl extends LookupServiceBase {
         }
 
         return tick;
+    }
+
+    @Override
+    protected List<Tick> handleGetTicksBeforeDate(int securityId, Date maxDate) throws Exception {
+
+        return getTickDao().findTicksBeforeDate(securityId, maxDate, this.intervalDays);
+    }
+
+    @Override
+    protected List<Tick> handleGetTicksAfterDate(int securityId, Date minDate) throws Exception {
+
+        return getTickDao().findTicksAfterDate(securityId, minDate, this.intervalDays);
     }
 
     @Override

@@ -82,6 +82,11 @@ public class LookupUtil {
         return ServiceLocator.instance().getLookupService().getOpenPositionsByStrategyAndSecurityFamily(strategyName, securityFamily).toArray(new Position[] {});
     }
 
+    public static boolean hasOpenPositions(String strategyName) {
+
+        return ServiceLocator.instance().getLookupService().getOpenPositionsByStrategy(strategyName).size() > 0;
+    }
+
     public static Position getPositionBySecurityAndStrategy(int securityId, String strategyName) {
 
         return ServiceLocator.instance().getLookupService().getPositionBySecurityAndStrategy(securityId, strategyName);

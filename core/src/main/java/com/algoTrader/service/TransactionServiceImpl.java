@@ -270,7 +270,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         ((profit != 0.0) ? (
             " profit: " + RoundUtil.getBigDecimal(profit) +
             " profitPct: " + RoundUtil.getBigDecimal(profitPct) +
-            " avgAge: " + RoundUtil.getBigDecimal(avgAge))
+            " avgAge: " + RoundUtil.getBigDecimal(avgAge, 4))
             : "");
         //@formatter:on
 

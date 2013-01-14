@@ -10,6 +10,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.supercsv.exception.SuperCSVException;
 
 import com.algoTrader.entity.marketData.Bar;
+import com.algoTrader.util.DateUtil;
 
 public class CsvBarGapFiller {
 
@@ -35,23 +36,23 @@ public class CsvBarGapFiller {
 
                 // check day gap
                 long timeDiff = (newBar.getDateTime().getTime() - lastBar.getDateTime().getTime()) / 60000;
-                //                if (timeDiff > weekendDiff) {
-                //
-                //                    // weekend gap
-                //                    System.out.println(readerFile.getName() + " " + dateFormat.format(newBar.getDateTime()) + " gap of " + timeDiff + " minutes");
-                //
-                //                    writer.write(lastBar);
-                //
-                //                    // fill gap until endTime
-                //                    Bar bar = cloneBar(lastBar, lastBar.getClose());
-                //                    bar.setDateTime(lastBar.getDateTime());
-                //
-                //                    do {
-                //                        bar.setDateTime(DateUtils.addMinutes(bar.getDateTime(), 1));
-                //                        writer.write(bar);
-                //                    } while (DateUtil.compareTime(bar.getDateTime(), timeFormat.parse(endTime)) < 0);
+                if (timeDiff > weekendDiff) {
 
-                if (timeDiff == 0) {
+                    // weekend gap
+                    System.out.println(readerFile.getName() + " " + dateFormat.format(newBar.getDateTime()) + " gap of " + timeDiff + " minutes");
+
+                    writer.write(lastBar);
+
+                    // fill gap until endTime
+                    Bar bar = cloneBar(lastBar, lastBar.getClose());
+                    bar.setDateTime(lastBar.getDateTime());
+
+                    do {
+                        bar.setDateTime(DateUtils.addMinutes(bar.getDateTime(), 1));
+                        writer.write(bar);
+                    } while (DateUtil.compareTime(bar.getDateTime(), timeFormat.parse(endTime)) < 0);
+
+                } else if (timeDiff == 0) {
 
                     System.out.println(readerFile.getName() + " " + dateFormat.format(newBar.getDateTime()) + " no gap");
 

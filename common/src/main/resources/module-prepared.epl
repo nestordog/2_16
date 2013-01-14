@@ -26,9 +26,9 @@ from
 
 @Name('ON_CLOSE_POSITION')
 select
-    *
+    closePosition
 from
-    pattern[ClosePosition(securityId = ?)];
+    pattern[closePosition=ClosePosition(securityId = ?)];
 
 @Name('FIX_SESSION')
 select
