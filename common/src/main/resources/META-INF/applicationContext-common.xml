@@ -55,7 +55,7 @@
                             <bean class="com.algoTrader.vo.DatasetDefinitionVO" p:type="time">
                                 <property name="seriesDefinitions">
                                     <set>
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="netLiqValue" p:label="netLiqValue" p:color="RED" p:selected="true" />
+                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="netLiqValue" p:label="netLiqValue" p:color="RED" p:selected="false" />
                                         <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="securitiesCurrentValue" p:label="securitiesCurrentValue" p:color="BLUE" p:selected="false" />
                                         <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="cashBalance" p:label="cashBalance" p:color="GREEN" p:selected="false" />
                                         <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="maintenanceMargin" p:label="maintenanceMargin" p:color="YELLOW" p:selected="false" />
