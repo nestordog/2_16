@@ -18,16 +18,20 @@ public class PortfolioChartServiceImpl extends PortfolioChartServiceBase {
 
         Set<IndicatorVO> set = new HashSet<IndicatorVO>();
 
-        String strategyName = StrategyUtil.getStartedStrategyName();
-        for (PortfolioValueVO portfolioValue : getPortfolioService().getPortfolioValuesSinceDate(strategyName, new Date(startDateTime))) {
+        // only push values if chart is being reset
+        if (startDateTime == 0) {
 
-            set.add(new IndicatorVO("netLiqValue", portfolioValue.getDateTime(), portfolioValue.getNetLiqValue().doubleValue()));
-            set.add(new IndicatorVO("securitiesCurrentValue", portfolioValue.getDateTime(), portfolioValue.getSecuritiesCurrentValue().doubleValue()));
-            set.add(new IndicatorVO("cashBalance", portfolioValue.getDateTime(), portfolioValue.getCashBalance().doubleValue()));
-            set.add(new IndicatorVO("maintenanceMargin", portfolioValue.getDateTime(), portfolioValue.getMaintenanceMargin().doubleValue()));
-            set.add(new IndicatorVO("performance", portfolioValue.getDateTime(), portfolioValue.getPerformance()));
-            set.add(new IndicatorVO("leverage", portfolioValue.getDateTime(), portfolioValue.getLeverage()));
-            set.add(new IndicatorVO("allocation", portfolioValue.getDateTime(), portfolioValue.getAllocation()));
+            String strategyName = StrategyUtil.getStartedStrategyName();
+            for (PortfolioValueVO portfolioValue : getPortfolioService().getPortfolioValuesSinceDate(strategyName, new Date(startDateTime))) {
+
+                set.add(new IndicatorVO("netLiqValue", portfolioValue.getDateTime(), portfolioValue.getNetLiqValue().doubleValue()));
+                set.add(new IndicatorVO("securitiesCurrentValue", portfolioValue.getDateTime(), portfolioValue.getSecuritiesCurrentValue().doubleValue()));
+                set.add(new IndicatorVO("cashBalance", portfolioValue.getDateTime(), portfolioValue.getCashBalance().doubleValue()));
+                set.add(new IndicatorVO("maintenanceMargin", portfolioValue.getDateTime(), portfolioValue.getMaintenanceMargin().doubleValue()));
+                set.add(new IndicatorVO("performance", portfolioValue.getDateTime(), portfolioValue.getPerformance()));
+                set.add(new IndicatorVO("leverage", portfolioValue.getDateTime(), portfolioValue.getLeverage()));
+                set.add(new IndicatorVO("allocation", portfolioValue.getDateTime(), portfolioValue.getAllocation()));
+            }
         }
 
         return set;
