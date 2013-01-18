@@ -33,6 +33,7 @@ import com.algoTrader.entity.trade.StopOrder;
 import com.algoTrader.entity.trade.TickwiseIncrementalOrder;
 import com.algoTrader.entity.trade.VariableIncrementalOrder;
 import com.algoTrader.enumeration.MarketChannel;
+import com.algoTrader.enumeration.MarketDataType;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.BeanUtil;
@@ -482,7 +483,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
         // create an empty MarketDataEventVO if non exists
         if (marketDataEventVO == null) {
-            marketDataEventVO = new MarketDataEventVO();
+            if (MarketDataType.TICK.equals(getConfiguration().getDataSetType())) {
+                marketDataEventVO = new TickVO();
+            } else if (MarketDataType.BAR.equals(getConfiguration().getDataSetType())) {
+                marketDataEventVO = new BarVO();
+            } else {
+                throw new IllegalStateException("unknown dataSetType " + getConfiguration().getDataSetType());
+            }
         }
 
         // set db data
