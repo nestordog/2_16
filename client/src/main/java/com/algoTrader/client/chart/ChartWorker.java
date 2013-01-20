@@ -8,8 +8,9 @@ import javax.management.ObjectName;
 import javax.swing.SwingWorker;
 
 import com.algoTrader.service.ChartProvidingService;
+import com.algoTrader.vo.ChartDataVO;
 
-public class ChartWorker extends SwingWorker<Map<ObjectName, ChartData>, Object> {
+public class ChartWorker extends SwingWorker<Map<ObjectName, ChartDataVO>, Object> {
 
     private ChartPlugin chartPlugin;
 
@@ -20,7 +21,7 @@ public class ChartWorker extends SwingWorker<Map<ObjectName, ChartData>, Object>
     @Override
     protected void done() {
 
-        Map<ObjectName, ChartData> result;
+        Map<ObjectName, ChartDataVO> result;
         try {
             result = get();
         } catch (Exception e) {
@@ -28,8 +29,8 @@ public class ChartWorker extends SwingWorker<Map<ObjectName, ChartData>, Object>
             return;
         }
 
-        // process all ChartData
-        for (Map.Entry<ObjectName, ChartData> entry : result.entrySet()) {
+        // process all ChartDataVO
+        for (Map.Entry<ObjectName, ChartDataVO> entry : result.entrySet()) {
 
             // get the chartTab by its name
             ChartTab chartTab = this.chartPlugin.getChartTabs().get(entry.getKey());
@@ -48,12 +49,12 @@ public class ChartWorker extends SwingWorker<Map<ObjectName, ChartData>, Object>
     }
 
     @Override
-    public Map<ObjectName, ChartData> doInBackground() {
+    public Map<ObjectName, ChartDataVO> doInBackground() {
 
-        Map<ObjectName, ChartData> chartDataMap = new HashMap<ObjectName, ChartData>();
+        Map<ObjectName, ChartDataVO> chartDataMap = new HashMap<ObjectName, ChartDataVO>();
         for (Map.Entry<ObjectName, ChartTab> entry : this.chartPlugin.getChartTabs().entrySet()) {
 
-            ChartData chartData = new ChartData();
+            ChartDataVO chartData = new ChartDataVO();
 
             // see if the service is available
             try {
@@ -77,14 +78,20 @@ public class ChartWorker extends SwingWorker<Map<ObjectName, ChartData>, Object>
                 startDateTime = 0;
             }
 
-            // retrieve bars for the selected chart and securityIds
+            // retrieve bars
             chartData.setBars(chartProvidingService.getBars(startDateTime));
 
-            // retrieve indicators for the selected chart and securityIds
+            // retrieve indicators
             chartData.setIndicators(chartProvidingService.getIndicators(startDateTime));
 
-            // retrieve markers for the selected chart and securityIds
+            // retrieve markers
             chartData.setMarkers(chartProvidingService.getMarkers());
+
+            // retrieve annotations
+            chartData.setAnnotations(chartProvidingService.getAnnotations(startDateTime));
+
+            // retrieve description
+            chartData.setDescription(chartProvidingService.getDescription());
 
             chartDataMap.put(entry.getKey(), chartData);
         }

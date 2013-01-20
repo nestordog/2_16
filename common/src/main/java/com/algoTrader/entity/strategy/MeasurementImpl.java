@@ -9,20 +9,25 @@ public class MeasurementImpl extends Measurement {
     @Override
     public String toString() {
 
-        String value;
-        if (getIntValue() != null) {
-            value = getIntValue().toString();
-        } else if (getDoubleValue() != null) {
-            value = getDoubleValue().toString();
-        } else if (getMoneyValue() != null) {
-            value = getMoneyValue().toString();
-        } else if (getBooleanValue() != null) {
-            value = getBooleanValue().toString();
-        } else {
-            value = "";
-        }
+        return getName() + " " + getDate() + " " + getValue();
+    }
 
-        return getName() + " " + getDate() + " " + value;
+    @Override
+    public Object getValue() {
+
+        if (getIntValue() != null) {
+            return getIntValue();
+        } else if (getDoubleValue() != null) {
+            return getDoubleValue();
+        } else if (getMoneyValue() != null) {
+            return getMoneyValue();
+        } else if (getTextValue() != null) {
+            return getTextValue();
+        } else if (getBooleanValue() != null) {
+            return getBooleanValue();
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -32,6 +37,7 @@ public class MeasurementImpl extends Measurement {
         setIntValue(null);
         setDoubleValue(null);
         setMoneyValue(null);
+        setTextValue(null);
         setBooleanValue(null);
 
         // set the value of the correct type
@@ -41,6 +47,8 @@ public class MeasurementImpl extends Measurement {
             setDoubleValue((Double) value);
         } else if (value instanceof BigDecimal) {
             setMoneyValue((BigDecimal) value);
+        } else if (value instanceof String) {
+            setTextValue((String) value);
         } else if (value instanceof Boolean) {
             setBooleanValue((Boolean) value);
         } else {

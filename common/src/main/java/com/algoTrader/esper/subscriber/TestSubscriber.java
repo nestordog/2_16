@@ -12,6 +12,6 @@ public class TestSubscriber {
 
     public void update(Map<?, ?> map) {
 
-        logger.info(map);
+        logger.debug(map);
     }
 }

@@ -35,6 +35,12 @@ public class MeasurementServiceImpl extends MeasurementServiceBase {
     }
 
     @Override
+    protected Measurement handleCreateMeasurement(String strategyName, String name, Object value) throws Exception {
+
+        return createMeasurement(strategyName, name, new Date(), value);
+    }
+
+    @Override
     protected  void handleDeleteMeasurement(int measurementId) throws Exception {
 
         getMeasurementDao().remove(measurementId);

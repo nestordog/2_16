@@ -10,6 +10,7 @@ import javax.management.ObjectName;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
+import com.algoTrader.vo.ChartDataVO;
 import com.sun.tools.jconsole.JConsolePlugin;
 
 public class ChartPlugin extends JConsolePlugin {
@@ -67,7 +68,7 @@ public class ChartPlugin extends JConsolePlugin {
     }
 
     @Override
-    public SwingWorker<Map<ObjectName, ChartData>, Object> newSwingWorker() {
+    public SwingWorker<Map<ObjectName, ChartDataVO>, Object> newSwingWorker() {
         return new ChartWorker(this);
     }
 }

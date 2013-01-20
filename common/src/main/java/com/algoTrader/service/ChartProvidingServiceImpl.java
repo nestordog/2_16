@@ -1,8 +1,10 @@
 package com.algoTrader.service;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.algoTrader.vo.AnnotationVO;
 import com.algoTrader.vo.BarVO;
 import com.algoTrader.vo.ChartDefinitionVO;
 import com.algoTrader.vo.IndicatorVO;
@@ -40,6 +42,12 @@ public class ChartProvidingServiceImpl extends ChartProvidingServiceBase {
     protected Set<MarkerVO> handleGetMarkers() throws Exception {
 
         return new HashSet<MarkerVO>();
+    }
+
+    @Override
+    protected Collection<AnnotationVO> handleGetAnnotations(long startDateTime) throws Exception {
+
+        return new HashSet<AnnotationVO>();
     }
 
     @Override

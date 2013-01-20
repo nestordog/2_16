@@ -110,21 +110,21 @@ public class PositionServiceImpl extends PositionServiceBase {
         order.setSide(side);
 
         // unsubscribe is requested / notify non-full executions
-        EsperManager.addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback(true) {
-            @Override
-            public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
-                for (OrderStatus orderStatus : orderStati) {
-                    Order order = orderStatus.getOrd();
-                    if (Status.EXECUTED.equals(orderStatus.getStatus())) {
-                        if (unsubscribe) {
+        if (unsubscribe) {
+            EsperManager.addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback(true) {
+                @Override
+                public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
+                    for (OrderStatus orderStatus : orderStati) {
+                        Order order = orderStatus.getOrd();
+                        if (Status.EXECUTED.equals(orderStatus.getStatus())) {
                             // use ServiceLocator because TradeCallback is executed in a new thread
                             MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
                             marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
                         }
                     }
                 }
-            }
-        });
+            });
+        }
 
         getOrderService().sendOrder(order);
     }

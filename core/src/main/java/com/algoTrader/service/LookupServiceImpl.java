@@ -4,10 +4,14 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.jms.IllegalStateException;
 
+import org.apache.commons.collections.map.MultiValueMap;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.Position;
@@ -722,18 +726,56 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Measurement> handleGetMeasurementsAfterDate(String strategyName, String type, Date date) throws Exception {
+    protected Map<Date, Object> handleGetMeasurementsBeforeDate(String strategyName, String name, Date date) throws Exception {
 
-        return getMeasurementDao().findMeasurementsAfterDate(strategyName, type, date);
+        List<Measurement> measurements = getMeasurementDao().findMeasurementsBeforeDate(strategyName, name, date);
+
+        return getValuesByDate(measurements);
     }
 
     @Override
-    protected Measurement handleGetMeasurementForMaxDate(String strategyName, String type, Date maxDate) throws Exception {
+    protected Map<Date, Map<String, Object>> handleGetAllMeasurementsBeforeDate(String strategyName, Date date) throws Exception {
 
-        List<Measurement> list = getMeasurementDao().findMeasurementsBeforeDate(1, 1, strategyName, type, maxDate);
+        List<Measurement> measurements = getMeasurementDao().findAllMeasurementsBeforeDate(strategyName, date);
+
+        return getNameValuePairsByDate(measurements);
+    }
+
+    @Override
+    protected Map<Date, Object> handleGetMeasurementsAfterDate(String strategyName, String name, Date date) throws Exception {
+
+        List<Measurement> measurements = getMeasurementDao().findMeasurementsAfterDate(strategyName, name, date);
+
+        return getValuesByDate(measurements);
+    }
+
+    @Override
+    protected Map<Date, Map<String, Object>> handleGetAllMeasurementsAfterDate(String strategyName, Date date) throws Exception {
+
+        List<Measurement> measurements = getMeasurementDao().findAllMeasurementsAfterDate(strategyName, date);
+
+        return getNameValuePairsByDate(measurements);
+    }
+
+    @Override
+    protected Object handleGetMeasurementForMaxDate(String strategyName, String name, Date maxDate) throws Exception {
+
+        List<Measurement> list = getMeasurementDao().findMeasurementsBeforeDate(1, 1, strategyName, name, maxDate);
 
         if (!list.isEmpty()) {
-            return list.get(0);
+            return list.get(0).getValue();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    protected Object handleGetMeasurementForMinDate(String strategyName, String name, Date minDate) throws Exception {
+
+        List<Measurement> list = getMeasurementDao().findMeasurementsAfterDate(1, 1, strategyName, name, minDate);
+
+        if (!list.isEmpty()) {
+            return list.get(0).getValue();
         } else {
             return null;
         }
@@ -761,5 +803,37 @@ public class LookupServiceImpl extends LookupServiceBase {
         MetricsUtil.account("LookupService.getMarketDataEventFromRaw", (afterCompleteRawT - beforeCompleteRaw));
 
         return bar;
+    }
+
+    private Map<Date, Object> getValuesByDate(List<Measurement> measurements) {
+
+        Map<Date, Object> valuesByDate = new HashMap<Date, Object>();
+        for (Measurement measurement : measurements) {
+            valuesByDate.put(measurement.getDate(), measurement.getValue());
+        }
+
+        return valuesByDate;
+    }
+
+    private Map<Date, Map<String, Object>> getNameValuePairsByDate(List<Measurement> measurements) {
+
+        // group Measurements by date
+        MultiValueMap measurementsByDate = new MultiValueMap();
+        for (Measurement measurement : measurements) {
+            measurementsByDate.put(measurement.getDate(), measurement);
+        }
+
+        // create a nameValuePair Map per date
+        Map<Date, Map<String, Object>> nameValuePairsByDate = new HashMap<Date, Map<String, Object>>();
+        for (Date dt : (Set<Date>) measurementsByDate.keySet()) {
+
+            Map<String, Object> nameValuePairs = new HashMap<String, Object>();
+            for (Measurement measurement : (Collection<Measurement>) measurementsByDate.get(dt)) {
+                nameValuePairs.put(measurement.getName(), measurement.getValue());
+            }
+            nameValuePairsByDate.put(dt, nameValuePairs);
+        }
+
+        return nameValuePairsByDate;
     }
 }

@@ -106,12 +106,12 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     }
 
     @Override
-    public Map<String, Object> getPropertyValueMap() {
+    public Map<String, Object> getPropertyNameValueMap() {
 
-        Map<String, Object> values = new HashMap<String, Object>();
+        Map<String, Object> nameValuePairs = new HashMap<String, Object>();
         for (Property property : getProperties().values()) {
-            values.put(property.getName(), property.getValue());
+            nameValuePairs.put(property.getName(), property.getValue());
         }
-        return values;
+        return nameValuePairs;
     }
 }

@@ -61,13 +61,21 @@ public class ResetServiceImpl extends ResetServiceBase {
             }
             getCashBalanceDao().remove(toRemoveCashBalance);
             strategy.setCashBalances(toKeepCashBalances);
+        }
 
-            // delete all positions and references to them
-            Collection<Position> positions = getPositionDao().findByStrategy(strategy.getName());
-            for (Position position : positions) {
-                position.getSecurity().removePositions(position);
-            }
-            getPositionDao().remove(positions);
+        // delete all non-persistent positions and references to them
+        Collection<Position> nonPersistentPositions = getPositionDao().findNonPersistent();
+        for (Position position : nonPersistentPositions) {
+            position.getSecurity().removePositions(position);
+        }
+        getPositionDao().remove(nonPersistentPositions);
+
+        // reset persistent positions
+        Collection<Position> persistentPositions = getPositionDao().findPersistent();
+        for (Position position : persistentPositions) {
+            position.setQuantity(0);
+            position.setExitValue(null);
+            position.setMaintenanceMargin(null);
         }
 
         // delete all non-presistent subscriptions and references to them

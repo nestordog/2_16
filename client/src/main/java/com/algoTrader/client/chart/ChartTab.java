@@ -1,6 +1,7 @@
 package com.algoTrader.client.chart;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
@@ -10,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -19,17 +21,23 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYPointerAnnotation;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.axis.SegmentedTimeline;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.HighLowItemLabelGenerator;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
+import org.jfree.chart.plot.IntervalMarker;
+import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.CandlestickRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.title.Title;
 import org.jfree.data.Range;
 import org.jfree.data.time.Minute;
 import org.jfree.data.time.RegularTimePeriod;
@@ -39,20 +47,26 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.ohlc.OHLCSeries;
 import org.jfree.data.time.ohlc.OHLCSeriesCollection;
 import org.jfree.data.xy.XYDataset;
+import org.jfree.ui.Layer;
 import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.TextAnchor;
 
 import com.algoTrader.enumeration.Color;
+import com.algoTrader.enumeration.DatasetType;
+import com.algoTrader.vo.AnnotationVO;
 import com.algoTrader.vo.AxisDefinitionVO;
 import com.algoTrader.vo.BarDefinitionVO;
 import com.algoTrader.vo.BarVO;
+import com.algoTrader.vo.ChartDataVO;
 import com.algoTrader.vo.ChartDefinitionVO;
 import com.algoTrader.vo.DatasetDefinitionVO;
 import com.algoTrader.vo.IndicatorDefinitionVO;
 import com.algoTrader.vo.IndicatorVO;
+import com.algoTrader.vo.IntervalMarkerVO;
 import com.algoTrader.vo.MarkerDefinitionVO;
 import com.algoTrader.vo.MarkerVO;
 import com.algoTrader.vo.SeriesDefinitionVO;
+import com.algoTrader.vo.ValueMarkerVO;
 
 public class ChartTab extends ChartPanel {
 
@@ -62,7 +76,7 @@ public class ChartTab extends ChartPanel {
 
     private Map<Integer, OHLCSeries> bars;
     private Map<String, TimeSeries> indicators;
-    private Map<String, ValueMarker> markers;
+    private Map<String, Marker> markers;
     private ChartPlugin chartPlugin;
 
     public ChartTab(ChartPlugin chartPlugin) {
@@ -132,13 +146,18 @@ public class ChartTab extends ChartPanel {
         // init the maps
         this.bars = new HashMap<Integer, OHLCSeries>();
         this.indicators = new HashMap<String, TimeSeries>();
-        this.markers = new HashMap<String, ValueMarker>();
+        this.markers = new HashMap<String, Marker>();
 
         // init domain axis
         initDomainAxis(chartDefinition);
 
         // init range axis
         initRangeAxis(chartDefinition);
+
+        // create a subtitle
+        TextTitle title = new TextTitle();
+        title.setFont(new Font("SansSerif", 0, 9));
+        chart.addSubtitle(title);
     }
 
     private void resetPopupMenu() {
@@ -182,8 +201,12 @@ public class ChartTab extends ChartPanel {
                 rangeAxis.setUpperBound(axisDefinition.getUpperBound());
             }
 
-            if (axisDefinition.isPercent()) {
-                rangeAxis.setNumberFormatOverride(new DecimalFormat("##0.00%"));
+            if (axisDefinition.getTickUnit() != 0) {
+                rangeAxis.setTickUnit(new NumberTickUnit(axisDefinition.getTickUnit()));
+            }
+
+            if (axisDefinition.getNumberFormat() != null) {
+                rangeAxis.setNumberFormatOverride(new DecimalFormat(axisDefinition.getNumberFormat())); //##0.00% / "##0.000"
             }
 
             getPlot().setRangeAxis(axisNumber, rangeAxis);
@@ -192,7 +215,7 @@ public class ChartTab extends ChartPanel {
             for (DatasetDefinitionVO datasetDefinition : axisDefinition.getDatasetDefinitions()) {
 
                 XYDataset dataset;
-                if ("time".equals(datasetDefinition.getType())) {
+                if (DatasetType.TIME.equals(datasetDefinition.getType())) {
 
                     // create the time series collection
                     dataset = new TimeSeriesCollection();
@@ -204,7 +227,7 @@ public class ChartTab extends ChartPanel {
 
                     getPlot().setRenderer(datasetNumber, renderer);
 
-                } else if ("ohlc".equals(datasetDefinition.getType())) {
+                } else if (DatasetType.OHLC.equals(datasetDefinition.getType())) {
 
                     // create the ohlc series collection
                     dataset = new OHLCSeriesCollection();
@@ -323,12 +346,22 @@ public class ChartTab extends ChartPanel {
 
         MarkerDefinitionVO markerDefinition = (MarkerDefinitionVO) seriesDefinition;
 
-        final ValueMarker marker = new ValueMarker(0);
+        final Marker marker;
+        if (markerDefinition.isInterval()) {
+            marker = new IntervalMarker(0, 0);
+            marker.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT); // position of the label
+            marker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT); // position of the text within the label
+        } else {
+            marker = new ValueMarker(0);
+            marker.setLabelAnchor(RectangleAnchor.TOP_RIGHT);
+            marker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
+        }
+
         marker.setPaint(getColor(markerDefinition.getColor()));
         marker.setLabel(markerDefinition.getLabel());
-        marker.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
-        marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
-        getPlot().addRangeMarker(marker);
+        marker.setLabelFont(new Font("SansSerif", 0, 9));
+
+        getPlot().addRangeMarker(marker, markerDefinition.isInterval() ? Layer.BACKGROUND : Layer.FOREGROUND);
 
         this.markers.put(markerDefinition.getName(), marker);
 
@@ -346,7 +379,8 @@ public class ChartTab extends ChartPanel {
         this.getPopupMenu().add(menuItem);
     }
 
-    public void updateData(ChartData chartData) {
+    @SuppressWarnings("unchecked")
+    public void updateData(ChartDataVO chartData) {
 
         resetAxis();
 
@@ -377,15 +411,56 @@ public class ChartTab extends ChartPanel {
             }
         }
 
+        // make all invisible since they might not currently have a value
+        for (Marker marker : this.markers.values()) {
+            marker.setAlpha(0);
+        }
+
         // update markers
         for (MarkerVO markerVO : chartData.getMarkers()) {
 
-            ValueMarker marker = this.markers.get(markerVO.getName());
-            marker.setValue(markerVO.getValue());
-
+            Marker marker = this.markers.get(markerVO.getName());
             String name = marker.getLabel().split(":")[0];
-            String label = name + ": " + markerVO.getValue();
-            marker.setLabel(label);
+            if (marker instanceof ValueMarker && markerVO instanceof ValueMarkerVO) {
+
+                ValueMarker valueMarker = (ValueMarker) marker;
+                ValueMarkerVO valueMarkerVO = (ValueMarkerVO) markerVO;
+                valueMarker.setValue(valueMarkerVO.getValue());
+                marker.setLabel(name + ": " + valueMarkerVO.getValue());
+                marker.setAlpha(1.0f);
+
+            } else if (marker instanceof IntervalMarker && markerVO instanceof IntervalMarkerVO) {
+
+                IntervalMarker intervalMarker = (IntervalMarker) marker;
+                IntervalMarkerVO intervalMarkerVO = (IntervalMarkerVO) markerVO;
+                intervalMarker.setStartValue(intervalMarkerVO.getStart());
+                intervalMarker.setEndValue(intervalMarkerVO.getEnd());
+                marker.setLabel(name + ": " + intervalMarkerVO.getStart() + " - " + intervalMarkerVO.getEnd());
+                marker.setAlpha(0.5f);
+
+            } else {
+                throw new RuntimeException(marker.getClass() + " does not match " + markerVO.getClass());
+            }
+        }
+
+        // update annotations
+        for (AnnotationVO annotationVO : chartData.getAnnotations()) {
+
+            XYPointerAnnotation annotation = new XYPointerAnnotation(annotationVO.getText(), annotationVO.getDateTime().getTime(), annotationVO.getValue(), 3.926990816987241D);
+            annotation.setToolTipText(annotationVO.getDescription());
+            annotation.setTipRadius(0);
+            annotation.setBaseRadius(20);
+            annotation.setTextAnchor(TextAnchor.BOTTOM_RIGHT);
+            annotation.setFont(new Font("SansSerif", 0, 9));
+
+            getPlot().addAnnotation(annotation);
+        }
+
+        // update description
+        for (Title title : (List<Title>) this.getChart().getSubtitles()) {
+            if (title instanceof TextTitle && chartData.getDescription() != null) {
+                ((TextTitle) title).setText(chartData.getDescription());
+            }
         }
 
         initAxis();
@@ -437,19 +512,43 @@ public class ChartTab extends ChartPanel {
             domainAxis.setTimeline(timeline);
         }
 
-
         // make sure the markers are within the rangeAxis
         ValueAxis rangeAxis = getPlot().getRangeAxis();
-        for (ValueMarker marker : this.markers.values()) {
+        for (Marker marker : this.markers.values()) {
 
-            if (marker.getAlpha() > 0 && marker.getValue() != 0.0) {
+            if (marker instanceof ValueMarker) {
 
-                if (marker.getValue() < rangeAxis.getLowerBound()) {
-                    rangeAxis.setLowerBound(marker.getValue() - rangeAxis.getLowerMargin());
+                ValueMarker valueMarker = (ValueMarker) marker;
+                if (marker.getAlpha() > 0 && valueMarker.getValue() != 0.0) {
+
+                    if (valueMarker.getValue() < rangeAxis.getLowerBound()) {
+                        rangeAxis.setLowerBound(valueMarker.getValue());
+                        marker.setLabelAnchor(RectangleAnchor.TOP_RIGHT);
+                        marker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
+                    }
+
+                    if (valueMarker.getValue() > rangeAxis.getUpperBound()) {
+                        rangeAxis.setUpperBound(valueMarker.getValue());
+                        marker.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
+                        marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
+                    }
                 }
+            } else {
 
-                if (marker.getValue() > rangeAxis.getUpperBound()) {
-                    rangeAxis.setUpperBound(marker.getValue() + rangeAxis.getUpperMargin());
+                IntervalMarker intervalMarker = (IntervalMarker) marker;
+                if (marker.getAlpha() > 0 && intervalMarker.getStartValue() != 0.0) {
+
+                    if (intervalMarker.getStartValue() < rangeAxis.getLowerBound()) {
+                        rangeAxis.setLowerBound(intervalMarker.getStartValue());
+                        marker.setLabelAnchor(RectangleAnchor.TOP_RIGHT);
+                        marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
+                    }
+
+                    if (intervalMarker.getEndValue() > rangeAxis.getUpperBound()) {
+                        rangeAxis.setUpperBound(intervalMarker.getEndValue());
+                        marker.setLabelAnchor(RectangleAnchor.BOTTOM_RIGHT);
+                        marker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
+                    }
                 }
             }
         }

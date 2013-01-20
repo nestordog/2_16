@@ -28,6 +28,7 @@ import org.apache.commons.math.optimization.direct.MultiDirectional;
 import org.apache.commons.math.optimization.univariate.BrentOptimizer;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
@@ -53,7 +54,7 @@ import com.algoTrader.vo.SimulationResultVO;
 import com.algoTrader.vo.TradesVO;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
-public class SimulationServiceImpl extends SimulationServiceBase {
+public class SimulationServiceImpl extends SimulationServiceBase implements InitializingBean {
 
     private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
     private static Logger resultLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
@@ -68,8 +69,12 @@ public class SimulationServiceImpl extends SimulationServiceBase {
     private @Value("${dataSource.dataSetLocation}") String dataSetLocation;
     private @Value("${dataSource.feedGenericEvents}") boolean feedGenericEvents;
 
-    {
+    @Override
+    public void afterPropertiesSet() throws Exception {
+
+        format.setGroupingUsed(false);
         format.setMinimumFractionDigits(this.roundDigits);
+        format.setMaximumFractionDigits(this.roundDigits);
     }
 
     @Override

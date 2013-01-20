@@ -52,7 +52,7 @@
                 <bean class="com.algoTrader.vo.AxisDefinitionVO" p:label="Balances" p:autoRange="true" p:autoRangeIncludesZero="false">
                     <property name="datasetDefinitions">
                         <set>
-                            <bean class="com.algoTrader.vo.DatasetDefinitionVO" p:type="time">
+                            <bean class="com.algoTrader.vo.DatasetDefinitionVO" p:type="TIME">
                                 <property name="seriesDefinitions">
                                     <set>
                                         <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="netLiqValue" p:label="netLiqValue" p:color="RED" p:selected="false" />
@@ -65,10 +65,10 @@
                         </set>
                     </property>
                 </bean>
-                <bean class="com.algoTrader.vo.AxisDefinitionVO" p:label="Performance / Leverage / Allocation" p:autoRange="true" p:autoRangeIncludesZero="false" p:percent="true">
+                <bean class="com.algoTrader.vo.AxisDefinitionVO" p:label="Performance / Leverage / Allocation" p:autoRange="true" p:autoRangeIncludesZero="false" p:numberFormat="##0.00%">
                     <property name="datasetDefinitions">
                         <set>
-                            <bean class="com.algoTrader.vo.DatasetDefinitionVO" p:type="time">
+                            <bean class="com.algoTrader.vo.DatasetDefinitionVO" p:type="TIME">
                                 <property name="seriesDefinitions">
                                     <set>
                                         <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="performance" p:label="performance" p:color="BLACK" p:selected="true" />

@@ -16,7 +16,7 @@ public class OrderPreferenceImpl extends OrderPreference {
             Order order = (Order) orderClazz.newInstance();
 
             // populate the order with the properities
-            BeanUtil.populate(order, getPropertyValueMap());
+            BeanUtil.populate(order, getPropertyNameValueMap());
 
             return order;
         } catch (Exception e) {
@@ -27,6 +27,6 @@ public class OrderPreferenceImpl extends OrderPreference {
     @Override
     public String toString() {
 
-        return getName() + " " + getOrderType() + " " + getPropertyValueMap();
+        return getName() + " " + getOrderType() + " " + getPropertyNameValueMap();
     }
 }
