@@ -12,6 +12,11 @@ import java.util.TimeZone;
 
 import org.quickfixj.jmx.JmxExporter;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
+import org.springframework.jmx.export.annotation.ManagedResource;
 
 import quickfix.CompositeLogFactory;
 import quickfix.ConfigError;
@@ -38,11 +43,12 @@ import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.collection.IntegerMap;
 
+@ManagedResource(objectName = "com.algoTrader.fix:name=FixClient")
 public class FixClient implements InitializingBean {
 
     private SocketInitiator initiator = null;
     private SessionSettings settings = null;
-    private IntegerMap<SessionID> orderIds = new IntegerMap<SessionID>();
+    private IntegerMap<MarketChannel> orderIds = new IntegerMap<MarketChannel>();
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -86,6 +92,7 @@ public class FixClient implements InitializingBean {
         throw new IllegalStateException("SessionID missing in settings " + marketChannel);
     }
 
+    @ManagedAttribute
     public Map<String, ConnectionState> getConnectionStates() {
 
         Map<String, ConnectionState> connectionStates = new HashMap<String, ConnectionState>();
@@ -122,11 +129,26 @@ public class FixClient implements InitializingBean {
 
     public int getNextOrderId(MarketChannel marketChannel) {
 
-        SessionID sessionId = getSessionID(marketChannel);
-        if (!this.orderIds.containsKey(sessionId)) {
-            initOrderId(sessionId);
+        if (!this.orderIds.containsKey(marketChannel)) {
+            initOrderId(marketChannel);
         }
-        return this.orderIds.increment(sessionId, 1);
+        return this.orderIds.increment(marketChannel, 1);
+    }
+
+    @ManagedAttribute
+    public IntegerMap<MarketChannel> getOrderIds() {
+
+        return this.orderIds;
+    }
+
+    @ManagedOperation
+    @ManagedOperationParameters({
+        @ManagedOperationParameter(name = "marketChannel", description = ""),
+        @ManagedOperationParameter(name = "nextOrderId", description = "orderId (will be incremented by 1 for the next order)")
+    })
+    public void setOrderId(String marketChannel, int nextOrderId) {
+
+        this.orderIds.put(MarketChannel.fromString(marketChannel), nextOrderId);
     }
 
     private SessionID getSessionID(MarketChannel marketChannel) {
@@ -173,8 +195,9 @@ public class FixClient implements InitializingBean {
         }
     }
 
-    private void initOrderId(SessionID sessionId) {
+    private void initOrderId(MarketChannel marketChannel) {
 
+        SessionID sessionId = getSessionID(marketChannel);
         File file = new File("log" + File.separator + FileUtil.sessionIdFileName(sessionId) + ".messages.log");
         RandomAccessFile fileHandler = null;
         StringBuilder sb = new StringBuilder();
@@ -190,7 +213,7 @@ public class FixClient implements InitializingBean {
                 fileHandler.seek(pointer);
                 if (fileHandler.read(bytes) == -1) {
                     fileHandler.close();
-                    this.orderIds.put(sessionId, 1); // no last orderId
+                    this.orderIds.put(marketChannel, 1); // no last orderId
                 } else {
                     if (Arrays.equals(bytes, clOrdId)) {
                         break;
@@ -218,6 +241,6 @@ public class FixClient implements InitializingBean {
             }
         }
 
-        this.orderIds.put(sessionId, Integer.valueOf(sb.toString()));
+        this.orderIds.put(marketChannel, Integer.valueOf(sb.toString()));
     }
 }
