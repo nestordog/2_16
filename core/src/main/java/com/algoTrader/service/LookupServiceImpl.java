@@ -559,9 +559,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Order handleGetOpenOrderByNumber(int number) throws Exception {
+    protected Order handleGetOpenOrderByExtId(int extId) throws Exception {
 
-        return getOrderDao().findOpenOrderByNumber(number);
+        return getOrderDao().findOpenOrderByExtId(extId);
     }
 
     @Override

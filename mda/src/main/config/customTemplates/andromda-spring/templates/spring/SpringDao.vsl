@@ -139,7 +139,7 @@ public interface $entity.daoName
 #set($identifierTypeName="${entity.fullyQualifiedIdentifierTypeName}")
 #set($identifierName="${entity.identifierName}")
 #set ($argumentName = $stringUtils.uncapitalize($entity.name))
-#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent')))
+#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_transient')))
     /**
      * Gets an instance of $entity.fullyQualifiedEntityName from the persistent store.
      * @param $identifierName
@@ -741,7 +741,7 @@ $operation.getDocumentation("     * ")
 #end
 #set ($fullyQualifiedPagingResultName = $springUtils.getFullyQualifiedClassName($springCommonTypesPackage, "PaginationResult"))
 #set ($fullyQualifiedSearchClassName = $springUtils.getFullyQualifiedClassName($springTypesPackage, "Search"))
-#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent')))
+#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_transient')))
 
     /**
      * Does the same thing as {@link ${esc.hash}search(int, ${fullyQualifiedSearchClassName})} but with an
@@ -831,7 +831,7 @@ $operation.getDocumentation("     * ")
      */
     public void transformEntities(final int transform, final java.util.Collection#if($enableTemplating)<?>#end entities);
 
-#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent')))	
+#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_transient')))	
 #set ($attributes = $entity.getAttributes(true, $entity.usingAssignedIdentifier))
 #foreach ($attribute in $attributes)
 #if ($attribute.unique)

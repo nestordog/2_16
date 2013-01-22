@@ -59,13 +59,13 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         Security security = order.getSecurityInitialized();
 
         // use system time for orderNumber
-        order.setNumber(getFixClient().getNextOrderId(getMarketChannel()));
+        order.setExtId(getFixClient().getNextOrderId(getMarketChannel()));
 
         NewOrderSingle newOrder = new NewOrderSingle();
 
         // common info
         newOrder.set(new TransactTime(new Date()));
-        newOrder.set(new ClOrdID(String.valueOf(order.getNumber())));
+        newOrder.set(new ClOrdID(String.valueOf(order.getExtId())));
 
         newOrder.set(FixUtil.getFixSymbol(security));
         newOrder.set(FixUtil.getFixSide(order.getSide()));
@@ -142,14 +142,14 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         Security security = order.getSecurityInitialized();
 
         // assign a new order number
-        long origNumber = order.getNumber();
-        order.setNumber(getFixClient().getNextOrderId(getMarketChannel()));
+        long origClOrdID = order.getExtId();
+        order.setExtId(getFixClient().getNextOrderId(getMarketChannel()));
 
         OrderCancelReplaceRequest replaceRequest = new OrderCancelReplaceRequest();
 
         // common info
-        replaceRequest.set(new ClOrdID(String.valueOf(order.getNumber())));
-        replaceRequest.set(new OrigClOrdID(String.valueOf(origNumber)));
+        replaceRequest.set(new ClOrdID(String.valueOf(order.getExtId())));
+        replaceRequest.set(new OrigClOrdID(String.valueOf(origClOrdID)));
 
         replaceRequest.set(FixUtil.getFixSymbol(security));
         replaceRequest.set(FixUtil.getFixSide(order.getSide()));
@@ -218,7 +218,7 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
 
         // common info
         cancelRequest.set(new ClOrdID(String.valueOf(getFixClient().getNextOrderId(getMarketChannel()))));
-        cancelRequest.set(new OrigClOrdID(String.valueOf(order.getNumber())));
+        cancelRequest.set(new OrigClOrdID(String.valueOf(order.getExtId())));
 
         cancelRequest.set(FixUtil.getFixSymbol(security));
         cancelRequest.set(FixUtil.getFixSide(order.getSide()));

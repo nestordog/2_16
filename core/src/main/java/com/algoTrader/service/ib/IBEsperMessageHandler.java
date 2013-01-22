@@ -45,12 +45,12 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
 
         if (!(execution.m_execId.startsWith("F-")) && !(execution.m_execId.startsWith("U+"))) {
 
-            int number = execution.m_orderId;
+            int extOrderId = execution.m_orderId;
 
             // get the order from the OpenOrderWindow
-            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByNumber(number);
+            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByExtId(extOrderId);
             if (order == null) {
-                logger.error("order could not be found " + number + " for execution " + contract + " " + execution);
+                logger.error("order could not be found " + extOrderId + " for execution " + contract + " " + execution);
                 return;
             }
 
@@ -60,7 +60,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
             Side side = IBUtil.getSide(execution);
             long quantity = execution.m_shares;
             BigDecimal price = RoundUtil.getBigDecimal(execution.m_price, order.getSecurity().getSecurityFamily().getScale());
-            String extId = execution.m_execId;
+            String extExecId = execution.m_execId;
 
             // assemble the fill
             Fill fill = Fill.Factory.newInstance();
@@ -69,7 +69,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
             fill.setSide(side);
             fill.setQuantity(quantity);
             fill.setPrice(price);
-            fill.setExtId(extId);
+            fill.setExtId(extExecId);
 
             // associate the fill with the order
             order.addFills(fill);
@@ -85,7 +85,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
             final int parentId, final double lastFillPrice, final int clientId, final String whyHeld) {
 
         // get the order from the OpenOrderWindow
-        Order order = ServiceLocator.instance().getLookupService().getOpenOrderByNumber(orderId);
+        Order order = ServiceLocator.instance().getLookupService().getOpenOrderByExtId(orderId);
 
         if (order != null) {
 

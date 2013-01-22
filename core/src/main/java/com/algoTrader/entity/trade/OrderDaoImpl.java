@@ -21,9 +21,9 @@ public class OrderDaoImpl extends OrderDaoBase {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Order handleFindOpenOrderByNumber(int number) throws Exception {
+    protected Order handleFindOpenOrderByExtId(int extId) throws Exception {
 
-        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where number = " + number));
+        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where extId = " + extId));
         if (pair == null) {
             return null;
         } else {
@@ -33,9 +33,9 @@ public class OrderDaoImpl extends OrderDaoBase {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Collection<Order> handleFindOpenOrdersByParentNumber(int parentNumber) throws Exception {
+    protected Collection<Order> handleFindOpenOrdersByParentExtId(int parentExtId) throws Exception {
 
-        return convertPairCollectionToOrderCollection(EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where not algoOrder and parentOrder.number = " + parentNumber));
+        return convertPairCollectionToOrderCollection(EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where not algoOrder and parentOrder.extId = " + parentExtId));
     }
 
     @SuppressWarnings("unchecked")
@@ -43,7 +43,7 @@ public class OrderDaoImpl extends OrderDaoBase {
     protected int handleFindOpenOrderCountByStrategySecurityAndAlgoOrder(String strategyName, int securityId, boolean algoOrder) throws Exception {
 
         return ((Long)((Map<String,?>)EsperManager.executeSingelObjectQuery(StrategyImpl.BASE,
-                "select count(number) as cnt from OpenOrderWindow as openOrderWindow" +
+                "select count(extId) as cnt from OpenOrderWindow as openOrderWindow" +
                 " where openOrderWindow.security.id = " + securityId +
                 " and openOrderWindow.strategy.name = '" + strategyName + "'" +
                 " and openOrderWindow.algoOrder = " + algoOrder)).get("cnt")).intValue();

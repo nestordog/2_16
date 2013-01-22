@@ -1,6 +1,6 @@
 ## AlgoTrader: 15250
-## line 32: only output hbm.xml if tag algoTrader_entity_nonPersistent is not set
-## line 165 + 167 : only output EntityDao if tag algoTrader_entity_nonPersistent is not set
+## line 32: only output hbm.xml if tag algoTrader_entity_transient is not set
+## line 165 + 167 : only output EntityDao if tag algoTrader_entity_transient is not set
 ## line 149: set service name instead of fqdn className
 ## line 170 - 180: outcomment generation of DAO Proxies
 ## line 194 - 196: only assign a transaction if specified using tagged-value
@@ -32,7 +32,7 @@
             <list>
                 <!-- applicationContext hibernateMappingLocations merge-point -->
 #foreach($entity in $entities)
-#if ($entity.requiresHibernateMapping && $stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent')))
+#if ($entity.requiresHibernateMapping && $stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_transient')))
                 <value>classpath:${entity.packagePath}/${entity.entityName}.hbm.xml</value>
 #end
 #end
@@ -165,7 +165,7 @@
 #set($propertyPrefix="")
     <bean id="$entity.getBeanName(false)" class="$entity.fullyQualifiedDaoImplementationName">
 #end
-#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent')))
+#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_transient')))
         <${propertyPrefix}property name="sessionFactory" ref="${beanNamePrefix}sessionFactory"/>
 #end		
 ## Because of a bug in Spring with circular references (and using AOP proxies),

@@ -31,7 +31,7 @@ public class FixMessageHandler {
 
         try {
 
-            Integer number = Integer.parseInt(executionReport.getClOrdID().getValue());
+            Integer clOrdID = Integer.parseInt(executionReport.getClOrdID().getValue());
 
             // ignore PENDING_NEW, PENDING_CANCEL and PENDING_REPLACE
             if (executionReport.getExecType().getValue() == ExecType.PENDING_NEW || executionReport.getExecType().getValue() == ExecType.PENDING_REPLACE
@@ -40,7 +40,7 @@ public class FixMessageHandler {
             }
 
             if (executionReport.getExecType().getValue() == ExecType.REJECTED) {
-                logger.error("order " + number + " has been rejected, reason: " + executionReport.getText().getValue());
+                logger.error("order " + clOrdID + " has been rejected, reason: " + executionReport.getText().getValue());
             }
 
             if (executionReport.getExecType().getValue() == ExecType.CANCELED) {
@@ -48,21 +48,21 @@ public class FixMessageHandler {
                 // check if there are errors
                 if (!executionReport.isSetExecRestatementReason()) {
 
-                    // get the number from OrigClOrdID (if it exists)
+                    // get the clOrdID from OrigClOrdID (if it exists)
                     if (executionReport.isSetOrigClOrdID()) {
-                        number = Integer.parseInt(executionReport.getOrigClOrdID().getValue());
+                        clOrdID = Integer.parseInt(executionReport.getOrigClOrdID().getValue());
                     }
 
                     // if the field ExecRestatementReason exists, there is something wrong
                 } else {
-                    logger.error("order " + number + " has been canceled, reason: " + executionReport.getText().getValue());
+                    logger.error("order " + clOrdID + " has been canceled, reason: " + executionReport.getText().getValue());
                 }
             }
 
             // get the order from the OpenOrderWindow
-            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByNumber(number);
+            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByExtId(clOrdID);
             if (order == null) {
-                logger.error("order could not be found " + number + " for execution " + executionReport);
+                logger.error("order could not be found " + clOrdID + " for execution " + executionReport);
                 return;
             }
 

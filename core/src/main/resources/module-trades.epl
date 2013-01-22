@@ -34,7 +34,7 @@ set
     filledQuantity = orderStatus.filledQuantity,
     remainingQuantity = orderStatus.remainingQuantity
 where
-    number = orderStatus.ord.number;
+    extId = orderStatus.ord.extId;
 
 @Name('DELETE_FROM_OPEN_ORDER_WINDOW')
 @RunTimeOnly()
@@ -45,7 +45,7 @@ delete from
 where
     orderStatus.ord is null
 or
-    orderStatus.ord.number = openOrderWindow.number;
+    orderStatus.ord.extId = openOrderWindow.extId;
 
 // ------------------------------ALGO ORDERS--------------------------------
 
@@ -62,7 +62,7 @@ from
     OrderStatus(status = Status.SUBMITTED, ord.parentOrder.algoOrder) as orderStatus unidirectional,
     OpenOrderWindow(status = Status.OPEN) as openOrderWindow
 where
-    openOrderWindow.number = orderStatus.ord.parentOrder.number;
+    openOrderWindow.extId = orderStatus.ord.parentOrder.extId;
 
 @Name('INSERT_INTO_ALGO_ORDER_STATUS_FROM_FILL')
 @RunTimeOnly()
@@ -77,7 +77,7 @@ from
     Fill(ord.parentOrder.algoOrder) as fill unidirectional,
     OpenOrderWindow() as openOrderWindow
 where
-    openOrderWindow.number = fill.ord.parentOrder.number;
+    openOrderWindow.extId = fill.ord.parentOrder.extId;
 
 @Name('ALGO_ORDER_DONE')
 @RunTimeOnly
@@ -98,8 +98,8 @@ select
 from
     pattern [every fill=Fill -> orderStatus=OrderStatus(
         status = Status.EXECUTED or status = Status.CANCELED,
-        (not fill.ord.parentOrder is null and ord.number = fill.ord.parentOrder.number) or
-        (fill.ord.parentOrder is null and ord.number = fill.ord.number))];
+        (not fill.ord.parentOrder is null and ord.extId = fill.ord.parentOrder.extId) or
+        (fill.ord.parentOrder is null and ord.extId = fill.ord.extId))];
 
 @Name('PROPAGATE_ORDER_STATUS')
 @RunTimeOnly()

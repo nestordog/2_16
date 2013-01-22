@@ -77,6 +77,7 @@ public class ChartTab extends ChartPanel {
     private Map<Integer, OHLCSeries> bars;
     private Map<String, TimeSeries> indicators;
     private Map<String, Marker> markers;
+    private Map<Marker, Boolean> markersSelectionStatus;
     private ChartPlugin chartPlugin;
 
     public ChartTab(ChartPlugin chartPlugin) {
@@ -147,6 +148,7 @@ public class ChartTab extends ChartPanel {
         this.bars = new HashMap<Integer, OHLCSeries>();
         this.indicators = new HashMap<String, TimeSeries>();
         this.markers = new HashMap<String, Marker>();
+        this.markersSelectionStatus = new HashMap<Marker, Boolean>();
 
         // init domain axis
         initDomainAxis(chartDefinition);
@@ -364,6 +366,7 @@ public class ChartTab extends ChartPanel {
         getPlot().addRangeMarker(marker, markerDefinition.isInterval() ? Layer.BACKGROUND : Layer.FOREGROUND);
 
         this.markers.put(markerDefinition.getName(), marker);
+        this.markersSelectionStatus.put(marker, seriesDefinition.isSelected());
 
         // add the menu item
         JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(seriesDefinition.getLabel());
@@ -372,7 +375,17 @@ public class ChartTab extends ChartPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 resetAxis();
-                marker.setAlpha(((JCheckBoxMenuItem) e.getSource()).isSelected() ? 1 : 0);
+                boolean selected = ((JCheckBoxMenuItem) e.getSource()).isSelected();
+                ChartTab.this.markersSelectionStatus.put(marker, selected);
+                if (selected) {
+                    if (marker instanceof ValueMarker) {
+                        marker.setAlpha(1.0f);
+                    } else {
+                        marker.setAlpha(0.5f);
+                    }
+                } else {
+                    marker.setAlpha(0);
+                }
                 initAxis();
             }
         });
@@ -420,6 +433,7 @@ public class ChartTab extends ChartPanel {
         for (MarkerVO markerVO : chartData.getMarkers()) {
 
             Marker marker = this.markers.get(markerVO.getName());
+            boolean selected = this.markersSelectionStatus.get(marker);
             String name = marker.getLabel().split(":")[0];
             if (marker instanceof ValueMarker && markerVO instanceof ValueMarkerVO) {
 
@@ -427,7 +441,7 @@ public class ChartTab extends ChartPanel {
                 ValueMarkerVO valueMarkerVO = (ValueMarkerVO) markerVO;
                 valueMarker.setValue(valueMarkerVO.getValue());
                 marker.setLabel(name + ": " + valueMarkerVO.getValue());
-                marker.setAlpha(1.0f);
+                marker.setAlpha(selected ? 1.0f : 0.0f);
 
             } else if (marker instanceof IntervalMarker && markerVO instanceof IntervalMarkerVO) {
 
@@ -436,7 +450,7 @@ public class ChartTab extends ChartPanel {
                 intervalMarker.setStartValue(intervalMarkerVO.getStart());
                 intervalMarker.setEndValue(intervalMarkerVO.getEnd());
                 marker.setLabel(name + ": " + intervalMarkerVO.getStart() + " - " + intervalMarkerVO.getEnd());
-                marker.setAlpha(0.5f);
+                marker.setAlpha(selected ? 0.5f : 0.0f);
 
             } else {
                 throw new RuntimeException(marker.getClass() + " does not match " + markerVO.getClass());
@@ -458,8 +472,14 @@ public class ChartTab extends ChartPanel {
 
         // update description
         for (Title title : (List<Title>) this.getChart().getSubtitles()) {
-            if (title instanceof TextTitle && chartData.getDescription() != null) {
-                ((TextTitle) title).setText(chartData.getDescription());
+            if (title instanceof TextTitle) {
+                TextTitle textTitle = ((TextTitle) title);
+                if (chartData.getDescription() != null && !("".equals(chartData.getDescription()))) {
+                    textTitle.setText(chartData.getDescription());
+                    textTitle.setVisible(true);
+                } else {
+                    textTitle.setVisible(false);
+                }
             }
         }
 

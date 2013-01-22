@@ -1,5 +1,5 @@
 ## AlgoTraderRevision: 15256
-## line 67 97 1492:  algoTrader_entity_nonPersistent
+## line 67 97 1492:  algoTrader_entity_transient
 ## line 73: add simulation
 ## line 270: criteria.setCacheable(true)
 ## line 887 - 891: handle algoTrader_finder_method_native_query / 
@@ -63,7 +63,7 @@ package $entity.packageName;
 public abstract class $entity.daoBaseName
 #if ($daoInheritance)
     extends $entity.generalization.fullyQualifiedDaoImplementationName
-#elseif ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent')))
+#elseif ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_transient')))
     extends ${hibernateUtils.springHibernatePackage}.support.HibernateDaoSupport
 #end
     implements $entity.fullyQualifiedDaoName
@@ -93,7 +93,7 @@ public abstract class $entity.daoBaseName
     }
 
 #end
-#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent')))
+#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_transient')))
 #set ($argumentName = $stringUtils.uncapitalize($entity.name))
     /**
      * {@inheritDoc}
@@ -1488,7 +1488,7 @@ $xmlIndent        return transformEntity(transform, ($entity.fullyQualifiedName)
         return $principalStoreCall
     }
 *#
-#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_nonPersistent')))
+#if ($stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_transient')))
 #set ($fullyQualifiedPagingResultName = $springUtils.getFullyQualifiedClassName($springCommonTypesPackage, "PaginationResult"))
 #set ($fullyQualifiedSearchClassName = $springUtils.getFullyQualifiedClassName($springTypesPackage, "Search"))
 #set ($fullyQualifiedPropertySearchClassName = $springUtils.getFullyQualifiedClassName($springTypesPackage, "PropertySearch"))

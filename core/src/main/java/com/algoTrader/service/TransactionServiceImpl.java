@@ -33,6 +33,7 @@ import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.ClosePositionVO;
 import com.algoTrader.vo.OpenPositionVO;
+import com.algoTrader.vo.PositionMutationVO;
 import com.algoTrader.vo.TradePerformanceVO;
 
 public abstract class TransactionServiceImpl extends TransactionServiceBase {
@@ -45,7 +46,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     private @Value("${simulation.logTransactions}") boolean logTransactions;
 
     @Override
-    protected void handleCreateTransaction(Fill fill) throws Exception {
+    protected void handleCreateTransaction(Fill fill) {
 
         Order order = fill.getOrd();
 
@@ -76,14 +77,12 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setClearingCommission(clearingCommission);
         transaction.setMarketChannel(order.getMarketChannel());
 
-        persistTransaction(transaction);
-
-        propagateTransaction(transaction);
+        processTransaction(transaction);
     }
 
     @Override
     protected void handleCreateTransaction(int securityId, String strategyName, String extId, Date dateTime, long quantity, BigDecimal price, BigDecimal executionCommission,
-            BigDecimal clearingCommission, Currency currency, TransactionType transactionType, MarketChannel marketChannel) throws Exception {
+            BigDecimal clearingCommission, Currency currency, TransactionType transactionType, MarketChannel marketChannel) {
 
         // validations
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -148,17 +147,41 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setClearingCommission(clearingCommission);
         transaction.setMarketChannel(marketChannel);
 
-        persistTransaction(transaction);
-
-        propagateTransaction(transaction);
+        processTransaction(transaction);
     }
 
     @Override
-    protected void handlePersistTransaction(Transaction transaction) throws Exception {
+    protected void handleProcessTransaction(Transaction transaction) {
+
+        // need to access transactionService through serviceLocator to get a new transaction
+        TransactionService transactionService = ServiceLocator.instance().getService("transactionService", TransactionService.class);
+
+        PositionMutationVO positionMutationEvent = transactionService.persistTransaction(transaction);
+
+        // check if esper is initialized
+        if (EsperManager.isInitialized(StrategyImpl.BASE)) {
+
+            // propagate the positionMutationEvent to the corresponding strategy
+            if (positionMutationEvent != null) {
+                EsperManager.sendEvent(positionMutationEvent.getStrategyName(), positionMutationEvent);
+            }
+
+            // propagate the transaction to the corresponding strategy
+            if (!StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
+                EsperManager.sendEvent(transaction.getStrategy().getName(), transaction);
+            }
+        }
+    }
+
+    @Override
+    protected PositionMutationVO handlePersistTransaction(Transaction transaction) {
 
         double profit = 0.0;
         double profitPct = 0.0;
         double avgAge = 0;
+
+        OpenPositionVO openPositionVO = null;
+        ClosePositionVO closePositionVO = null;
 
         // position handling (incl ClosePositionVO and TradePerformanceVO)
         if (transaction.getSecurity() != null) {
@@ -189,12 +212,10 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
                 existingOpenPosition = position.isOpen();
 
-                // get the closePositionVO
-                // must be done before closing the position
-                ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
+                // get the closePositionVO (must be done before closing the position)
+                closePositionVO = getPositionDao().toClosePositionVO(position);
 
-                // evaluate the profit in closing transactions
-                // must be done before attaching the new transaction
+                // evaluate the profit in closing transactions (must be done before attaching the new transaction)
                 if (Long.signum(position.getQuantity()) * Long.signum(transaction.getQuantity()) == -1) {
 
                     double cost, value;
@@ -213,33 +234,26 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
                 position.setQuantity(position.getQuantity() + transaction.getQuantity());
 
-                // in case a position was closed do the following
+                // in case a position was closed reset exitValue and margin
                 if (!position.isOpen()) {
 
                     // set all values to null
                     position.setExitValue(null);
                     position.setMaintenanceMargin(null);
+                } else {
 
-                    // propagate the ClosePosition event
-                    if (EsperManager.isInitialized(StrategyImpl.BASE)) {
-                        EsperManager.sendEvent(position.getStrategy().getName(), closePositionVO);
-                    }
+                    // reset the closePosition event
+                    closePositionVO = null;
                 }
 
                 // associate the position
                 position.addTransactions(transaction);
             }
 
-            // if no position was open before
+            // if no position was open before initialize the openPosition event
             if (!existingOpenPosition) {
 
-                // get the OpenPositionVO
-                OpenPositionVO openPositionVO = getPositionDao().toOpenPositionVO(position);
-
-                // propagate the OpenPosition event
-                if (EsperManager.isInitialized(StrategyImpl.BASE)) {
-                    EsperManager.sendEvent(position.getStrategy().getName(), openPositionVO);
-                }
+                openPositionVO = getPositionDao().toOpenPositionVO(position);
             }
         }
 
@@ -252,8 +266,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         // update all entities
         getTransactionDao().create(transaction);
 
-        // create a TradePerformanceVO and send it into Esper
-        if (profit != 0.0) {
+        // propagate the TradePerformance event
+        if (profit != 0.0 && this.simulation) {
             TradePerformanceVO tradePerformance = new TradePerformanceVO();
             tradePerformance.setProfit(profit);
             tradePerformance.setProfitPct(profitPct);
@@ -279,19 +293,19 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         } else {
             logger.info(logMessage);
         }
-    }
 
-    @Override
-    protected void handlePropagateTransaction(Transaction transaction) throws Exception {
-
-        // propagate the transaction to the corresponding strategy
-        if (!StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
-            EsperManager.sendEvent(transaction.getStrategy().getName(), transaction);
+        // return PositionMutation event if existent
+        if (openPositionVO != null) {
+            return openPositionVO;
+        } else if (closePositionVO != null)
+            return closePositionVO;
+         else {
+            return null;
         }
     }
 
     @Override
-    protected void handlePropagateFill(Fill fill) throws Exception {
+    protected void handlePropagateFill(Fill fill) {
 
         // send the fill to the strategy that placed the corresponding order
         if (!StrategyImpl.BASE.equals(fill.getOrd().getStrategy().getName())) {
@@ -304,7 +318,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     }
 
     @Override
-    protected void handleLogFillSummary(List<Fill> fills) throws Exception {
+    protected void handleLogFillSummary(List<Fill> fills) {
 
         if (fills.size() > 0 && !this.simulation) {
 
