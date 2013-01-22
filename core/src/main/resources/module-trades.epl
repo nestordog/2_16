@@ -26,7 +26,7 @@ from
 @Name('UPDATE_OPEN_ORDER_WINDOW')
 @RunTimeOnly()
 on
-    OrderStatus(status != Status.EXECUTED and status != Status.CANCELED) as orderStatus
+    OrderStatus as orderStatus
 update
     OpenOrderWindow
 set
@@ -39,7 +39,7 @@ where
 @Name('DELETE_FROM_OPEN_ORDER_WINDOW')
 @RunTimeOnly()
 on
-    OrderStatus(status = Status.EXECUTED or status = Status.CANCELED) as orderStatus
+    pattern[every orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED) -> timer:interval(1 sec)]
 delete from
     OpenOrderWindow as openOrderWindow
 where
