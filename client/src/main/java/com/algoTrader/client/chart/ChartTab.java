@@ -1,5 +1,6 @@
 package com.algoTrader.client.chart;
 
+import java.awt.BasicStroke;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -22,9 +23,9 @@ import org.apache.commons.lang.time.DateUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYPointerAnnotation;
+import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.axis.SegmentedTimeline;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.HighLowItemLabelGenerator;
@@ -160,6 +161,12 @@ public class ChartTab extends ChartPanel {
         TextTitle title = new TextTitle();
         title.setFont(new Font("SansSerif", 0, 9));
         chart.addSubtitle(title);
+
+        // crosshair
+        plot.setDomainCrosshairVisible(true);
+        plot.setDomainCrosshairLockedOnData(true);
+        plot.setRangeCrosshairVisible(true);
+        plot.setDomainCrosshairLockedOnData(true);
     }
 
     private void resetPopupMenu() {
@@ -203,15 +210,12 @@ public class ChartTab extends ChartPanel {
                 rangeAxis.setUpperBound(axisDefinition.getUpperBound());
             }
 
-            if (axisDefinition.getTickUnit() != 0) {
-                rangeAxis.setTickUnit(new NumberTickUnit(axisDefinition.getTickUnit()));
-            }
-
             if (axisDefinition.getNumberFormat() != null) {
                 rangeAxis.setNumberFormatOverride(new DecimalFormat(axisDefinition.getNumberFormat())); //##0.00% / "##0.000"
             }
 
             getPlot().setRangeAxis(axisNumber, rangeAxis);
+            getPlot().setRangeAxisLocation(axisNumber, AxisLocation.BOTTOM_OR_RIGHT);
 
             // initialize datasets
             for (DatasetDefinitionVO datasetDefinition : axisDefinition.getDatasetDefinitions()) {
@@ -328,6 +332,7 @@ public class ChartTab extends ChartPanel {
         final XYItemRenderer renderer = getPlot().getRenderer(datasetNumber);
         renderer.setSeriesPaint(seriesNumber, getColor(indicatorDefinition.getColor()));
         renderer.setSeriesVisible(seriesNumber, seriesDefinition.isSelected());
+        renderer.setSeriesStroke(seriesNumber, new BasicStroke(0.5f));
         renderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
 
         // add the menu item

@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.Position;
@@ -41,6 +42,8 @@ import com.algoTrader.vo.ExpirePositionVO;
 public class PositionServiceImpl extends PositionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(PositionServiceImpl.class.getName());
+
+    private @Value("${simulation}") boolean simulation;
 
     @Override
     protected void handleCloseAllPositionsByStrategy(String strategyName, boolean unsubscribe) throws Exception {
@@ -109,17 +112,21 @@ public class PositionServiceImpl extends PositionServiceBase {
         order.setQuantity(Math.abs(quantity));
         order.setSide(side);
 
-        // unsubscribe is requested / notify non-full executions
-        if (unsubscribe) {
+        // unsubscribe is requested / notify non-full executions in live-trading
+        if (this.simulation && unsubscribe) {
+            getMarketDataService().unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
+        } else {
             EsperManager.addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback(true) {
                 @Override
                 public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
-                    for (OrderStatus orderStatus : orderStati) {
-                        Order order = orderStatus.getOrd();
-                        if (Status.EXECUTED.equals(orderStatus.getStatus())) {
-                            // use ServiceLocator because TradeCallback is executed in a new thread
-                            MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
-                            marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
+                    if (unsubscribe) {
+                        for (OrderStatus orderStatus : orderStati) {
+                            Order order = orderStatus.getOrd();
+                            if (Status.EXECUTED.equals(orderStatus.getStatus())) {
+                                // use ServiceLocator because TradeCallback is executed in a new thread
+                                MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
+                                marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
+                            }
                         }
                     }
                 }
