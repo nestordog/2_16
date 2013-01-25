@@ -113,8 +113,10 @@ public class PositionServiceImpl extends PositionServiceBase {
         order.setSide(side);
 
         // unsubscribe is requested / notify non-full executions in live-trading
-        if (this.simulation && unsubscribe) {
-            getMarketDataService().unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
+        if (this.simulation) {
+            if (unsubscribe) {
+                getMarketDataService().unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
+            }
         } else {
             EsperManager.addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback(true) {
                 @Override

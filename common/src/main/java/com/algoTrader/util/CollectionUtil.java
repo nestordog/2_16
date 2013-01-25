@@ -8,7 +8,7 @@ public class CollectionUtil {
 
         if (collection.isEmpty()) {
             throw new IllegalStateException("collection is empty");
-        } else if (collection.size() > 0) {
+        } else if (collection.size() > 1) {
             throw new IllegalStateException("collection has more than one elements");
         } else {
             return collection.iterator().next();
@@ -19,7 +19,7 @@ public class CollectionUtil {
 
         if (collection.isEmpty()) {
             return null;
-        } else if (collection.size() > 0) {
+        } else if (collection.size() > 1) {
             throw new IllegalStateException("collection has more than one elements");
         } else {
             return collection.iterator().next();

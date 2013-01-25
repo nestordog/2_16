@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -833,6 +834,8 @@ public class EsperManager {
                     Object castedObj = null;
                     if (clazz.isEnum()) {
                         castedObj = Enum.valueOf(clazz, value);
+                    } else if (clazz == BigDecimal.class) {
+                        castedObj = new BigDecimal(value);
                     } else {
                         castedObj = JavaClassHelper.parse(clazz, value);
                     }
