@@ -332,14 +332,17 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             }
 
             Fill fill = CollectionUtil.getFirstElement(fills);
+            Order order = fill.getOrd();
+            SecurityFamily securityFamily = order.getSecurity().getSecurityFamily();
 
             //@formatter:off
             mailLogger.info("executed transaction: " +
                     fill.getSide() +
                     " " + totalQuantity +
-                    " " + fill.getOrd().getSecurity() +
-                    " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity) + " " + fill.getOrd().getSecurity().getSecurityFamily().getCurrency() +
-                    " strategy: " + fill.getOrd().getStrategy());
+                    " " + order.getSecurity() +
+                    " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity, securityFamily.getScale()) +
+                    " " + securityFamily.getCurrency() +
+                    " strategy: " + order.getStrategy());
             //@formatter:on
         }
     }

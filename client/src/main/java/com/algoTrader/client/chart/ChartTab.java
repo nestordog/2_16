@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -22,6 +23,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.AbstractXYAnnotation;
+import org.jfree.chart.annotations.XYBoxAnnotation;
 import org.jfree.chart.annotations.XYPointerAnnotation;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.DateAxis;
@@ -58,6 +61,7 @@ import com.algoTrader.vo.AnnotationVO;
 import com.algoTrader.vo.AxisDefinitionVO;
 import com.algoTrader.vo.BarDefinitionVO;
 import com.algoTrader.vo.BarVO;
+import com.algoTrader.vo.BoxAnnotationVO;
 import com.algoTrader.vo.ChartDataVO;
 import com.algoTrader.vo.ChartDefinitionVO;
 import com.algoTrader.vo.DatasetDefinitionVO;
@@ -66,19 +70,22 @@ import com.algoTrader.vo.IndicatorVO;
 import com.algoTrader.vo.IntervalMarkerVO;
 import com.algoTrader.vo.MarkerDefinitionVO;
 import com.algoTrader.vo.MarkerVO;
+import com.algoTrader.vo.PointerAnnotationVO;
 import com.algoTrader.vo.SeriesDefinitionVO;
 import com.algoTrader.vo.ValueMarkerVO;
 
 public class ChartTab extends ChartPanel {
 
     private static final long serialVersionUID = -1511949341697529944L;
+    private static DateFormat formatter = new SimpleDateFormat("EEE dd.MM.yyyy HH:mm:ss");
+
 
     private ChartDefinitionVO chartDefinition;
 
     private Map<Integer, OHLCSeries> bars;
     private Map<String, TimeSeries> indicators;
     private Map<String, Marker> markers;
-    private Map<Marker, Boolean> markersSelectionStatus;
+    private Map<String, Boolean> markersSelectionStatus;
     private ChartPlugin chartPlugin;
 
     public ChartTab(ChartPlugin chartPlugin) {
@@ -149,7 +156,7 @@ public class ChartTab extends ChartPanel {
         this.bars = new HashMap<Integer, OHLCSeries>();
         this.indicators = new HashMap<String, TimeSeries>();
         this.markers = new HashMap<String, Marker>();
-        this.markersSelectionStatus = new HashMap<Marker, Boolean>();
+        this.markersSelectionStatus = new HashMap<String, Boolean>();
 
         // init domain axis
         initDomainAxis(chartDefinition);
@@ -332,8 +339,13 @@ public class ChartTab extends ChartPanel {
         final XYItemRenderer renderer = getPlot().getRenderer(datasetNumber);
         renderer.setSeriesPaint(seriesNumber, getColor(indicatorDefinition.getColor()));
         renderer.setSeriesVisible(seriesNumber, seriesDefinition.isSelected());
-        renderer.setSeriesStroke(seriesNumber, new BasicStroke(0.5f));
         renderer.setBaseToolTipGenerator(StandardXYToolTipGenerator.getTimeSeriesInstance());
+
+        if (seriesDefinition.isDashed()) {
+            renderer.setSeriesStroke(seriesNumber, new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 5.0f }, 0.0f));
+        } else {
+            renderer.setSeriesStroke(seriesNumber, new BasicStroke(0.5f));
+        }
 
         // add the menu item
         JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(seriesDefinition.getLabel());
@@ -351,7 +363,7 @@ public class ChartTab extends ChartPanel {
 
     private void initMarker(SeriesDefinitionVO seriesDefinition) {
 
-        MarkerDefinitionVO markerDefinition = (MarkerDefinitionVO) seriesDefinition;
+        final MarkerDefinitionVO markerDefinition = (MarkerDefinitionVO) seriesDefinition;
 
         final Marker marker;
         if (markerDefinition.isInterval()) {
@@ -368,10 +380,16 @@ public class ChartTab extends ChartPanel {
         marker.setLabel(markerDefinition.getLabel());
         marker.setLabelFont(new Font("SansSerif", 0, 9));
 
+        if (seriesDefinition.isDashed()) {
+            marker.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[] { 5.0f }, 0.0f));
+        } else {
+            marker.setStroke(new BasicStroke(1.0f));
+        }
+
         getPlot().addRangeMarker(marker, markerDefinition.isInterval() ? Layer.BACKGROUND : Layer.FOREGROUND);
 
         this.markers.put(markerDefinition.getName(), marker);
-        this.markersSelectionStatus.put(marker, seriesDefinition.isSelected());
+        this.markersSelectionStatus.put(markerDefinition.getName(), seriesDefinition.isSelected());
 
         // add the menu item
         JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(seriesDefinition.getLabel());
@@ -381,7 +399,7 @@ public class ChartTab extends ChartPanel {
             public void actionPerformed(ActionEvent e) {
                 resetAxis();
                 boolean selected = ((JCheckBoxMenuItem) e.getSource()).isSelected();
-                ChartTab.this.markersSelectionStatus.put(marker, selected);
+                ChartTab.this.markersSelectionStatus.put(markerDefinition.getName(), selected);
                 if (selected) {
                     if (marker instanceof ValueMarker) {
                         marker.setAlpha(1.0f);
@@ -438,7 +456,7 @@ public class ChartTab extends ChartPanel {
         for (MarkerVO markerVO : chartData.getMarkers()) {
 
             Marker marker = this.markers.get(markerVO.getName());
-            boolean selected = this.markersSelectionStatus.get(marker);
+            Boolean selected = this.markersSelectionStatus.get(markerVO.getName());
             String name = marker.getLabel().split(":")[0];
             if (marker instanceof ValueMarker && markerVO instanceof ValueMarkerVO) {
 
@@ -452,9 +470,9 @@ public class ChartTab extends ChartPanel {
 
                 IntervalMarker intervalMarker = (IntervalMarker) marker;
                 IntervalMarkerVO intervalMarkerVO = (IntervalMarkerVO) markerVO;
-                intervalMarker.setStartValue(intervalMarkerVO.getStart());
-                intervalMarker.setEndValue(intervalMarkerVO.getEnd());
-                marker.setLabel(name + ": " + intervalMarkerVO.getStart() + " - " + intervalMarkerVO.getEnd());
+                intervalMarker.setStartValue(intervalMarkerVO.getStartValue());
+                intervalMarker.setEndValue(intervalMarkerVO.getEndValue());
+                marker.setLabel(name + ": " + intervalMarkerVO.getStartValue() + " - " + intervalMarkerVO.getEndValue());
                 marker.setAlpha(selected ? 0.5f : 0.0f);
 
             } else {
@@ -465,14 +483,56 @@ public class ChartTab extends ChartPanel {
         // update annotations
         for (AnnotationVO annotationVO : chartData.getAnnotations()) {
 
-            XYPointerAnnotation annotation = new XYPointerAnnotation(annotationVO.getText(), annotationVO.getDateTime().getTime(), annotationVO.getValue(), 3.926990816987241D);
-            annotation.setToolTipText(annotationVO.getDescription());
-            annotation.setTipRadius(0);
-            annotation.setBaseRadius(20);
-            annotation.setTextAnchor(TextAnchor.BOTTOM_RIGHT);
-            annotation.setFont(new Font("SansSerif", 0, 9));
+            AbstractXYAnnotation annotation;
+            if (annotationVO instanceof PointerAnnotationVO) {
 
-            getPlot().addAnnotation(annotation);
+                PointerAnnotationVO pointerAnnotationVO = (PointerAnnotationVO)annotationVO;
+                XYPointerAnnotation pointerAnnotation = new XYPointerAnnotation(
+                        pointerAnnotationVO.getText(),
+                        pointerAnnotationVO.getDateTime().getTime(),
+                        pointerAnnotationVO.getValue(),
+                        3.926990816987241D);
+                pointerAnnotation.setTipRadius(0);
+                pointerAnnotation.setBaseRadius(20);
+                pointerAnnotation.setTextAnchor(TextAnchor.BOTTOM_RIGHT);
+                pointerAnnotation.setFont(new Font("SansSerif", 0, 9));
+                pointerAnnotation.setToolTipText(
+                        "<html>" +
+                        formatter.format(pointerAnnotationVO.getDateTime()) +
+                        "<br>" +
+                        pointerAnnotationVO.getValue() +
+                        "</html>");
+
+                annotation = pointerAnnotation;
+
+            } else if (annotationVO instanceof BoxAnnotationVO) {
+
+                BoxAnnotationVO boxAnnotationVO = (BoxAnnotationVO)annotationVO;
+                XYBoxAnnotation boxAnnotation = new XYBoxAnnotation(
+                        boxAnnotationVO.getStartDateTime().getTime(),
+                        boxAnnotationVO.getStartValue(),
+                        boxAnnotationVO.getEndDateTime().getTime(),
+                        boxAnnotationVO.getEndValue(),
+                        null, null, new java.awt.Color(0, 0, 0, 60)
+                        );
+                boxAnnotation.setToolTipText(
+                        "<html>" +
+                        formatter.format(boxAnnotationVO.getStartDateTime()) + " - " +
+                        formatter.format(boxAnnotationVO.getEndDateTime()) +
+                        "<br>" +
+                        boxAnnotationVO.getStartValue() + " - " +
+                        boxAnnotationVO.getEndValue() +
+                        "</html>");
+
+
+                annotation = boxAnnotation;
+            } else {
+                throw new RuntimeException("unkown annotation type" + annotationVO.getClass());
+            }
+
+            if (!getPlot().getAnnotations().contains(annotation)) {
+                getPlot().addAnnotation(annotation);
+            }
         }
 
         // update description
