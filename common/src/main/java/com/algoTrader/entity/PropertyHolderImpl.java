@@ -55,7 +55,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     }
 
     @Override
-    public String getTestProperty(String name) {
+    public String getTextProperty(String name) {
 
         Property property = getPropertiesInitialized().get(name);
         if (property != null) {
