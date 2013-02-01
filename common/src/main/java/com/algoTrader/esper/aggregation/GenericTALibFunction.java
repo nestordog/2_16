@@ -9,7 +9,7 @@ import java.util.Map;
 import org.apache.commons.collections15.buffer.CircularFifoBuffer;
 import org.apache.commons.lang.ArrayUtils;
 
-import com.espertech.esper.epl.agg.AggregationMethod;
+import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.tictactec.ta.lib.CoreAnnotated;
 import com.tictactec.ta.lib.MInteger;
 import com.tictactec.ta.lib.RetCode;

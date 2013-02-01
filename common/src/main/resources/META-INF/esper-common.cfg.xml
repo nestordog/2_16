@@ -63,17 +63,19 @@
 
     <plugin-aggregation-function name="talib" factory-class="com.algoTrader.esper.aggregation.GenericTALibFunctionFactory"/>
 
+    <!-- Constants -->
+    <variable name="simulation" type="boolean" constant="true"/>
+    <variable name="engineStrategy" type="com.algoTrader.entity.Strategy" constant="true"/>
+    <variable name="dataSource_barSize" type="com.algoTrader.enumeration.Duration" constant="true"/>
+    <variable name="dataSource_dataSetType" type="com.algoTrader.enumeration.MarketDataType" constant="true"/>
+
     <!-- Variables -->
-    <variable name="simulation" type="boolean"/>
-    <variable name="engineStrategy" type="com.algoTrader.entity.Strategy"/>
     <variable name="internal_clock" type="boolean" initialization-value="false"/>
-    <variable name="dataSource_barSize" type="com.algoTrader.enumeration.Duration"/>
-    <variable name="dataSource_dataSetType" type="com.algoTrader.enumeration.MarketDataType"/>
 
     <!-- Esper JMX -->
-    <plugin-loader name="EsperJMX" class-name="com.espertech.esper.jmx.client.EsperJMXPlugin">
-        <init-arg name="use-platform-mbean-server" value="true" />
-    </plugin-loader>
+<!--     <plugin-loader name="EsperJMX" class-name="com.espertech.esper.jmx.client.EsperJMXPlugin"> -->
+<!--         <init-arg name="use-platform-mbean-server" value="true" /> -->
+<!--     </plugin-loader>         -->
 
     <!-- Esper EE -->
 <!--     <plugin-loader name="BrokerMgmt" class-name="com.espertech.esperdds.client.JMSProviderMgmtPlugin"> -->

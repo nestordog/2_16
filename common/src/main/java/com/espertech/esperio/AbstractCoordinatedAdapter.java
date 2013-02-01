@@ -275,10 +275,10 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
     {
         if(eventsToSend.isEmpty())
         {
-            SendableEvent event = read();
-            if(event != null)
+            SendableEvent theEvent = read();
+            if(theEvent != null)
             {
-                eventsToSend.add(event);
+                eventsToSend.add(theEvent);
             }
         }
     }

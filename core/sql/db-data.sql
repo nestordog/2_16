@@ -579,7 +579,7 @@ INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODUL
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (9,'ATR','\0',0,'market-data-fut-and-opt,market-data-vix,exposure,direction,subscription,bars,charting,exit-value,signal,intraday,atr',NULL,0);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (10,'ROLLYIELD','\0',0,'market-data-fut-and-opt,market-data-vix,exposure,subscription,bars,charting,swing,rollyield,exit-value',NULL,0);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (11,'COUNTERTREND','\0',0,'market-data-fut-and-opt,exposure,subscription,bars,charting,swing,countertrend',NULL,0);
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (12,'ENDOFDAY','\0',0,'market-data-fut-and-opt,exposure,subscription,bars,charting,exit-value,swing,edm',NULL,0);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (12,'ENDOFDAY','\0',0,'market-data-fut-and-opt,exposure,subscription,bars,charting,swing,endofday',NULL,0);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (13,'SWINGSET','\0',0,'swingset-init','swingset-run',0);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (14,'BOX','\0',0,'box-init','box-run',0);
 /*!40000 ALTER TABLE `strategy` ENABLE KEYS */;

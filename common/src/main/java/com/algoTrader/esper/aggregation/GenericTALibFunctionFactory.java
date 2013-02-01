@@ -21,8 +21,8 @@ import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
-import com.espertech.esper.epl.agg.AggregationMethod;
-import com.espertech.esper.epl.agg.AggregationValidationContext;
+import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
+import com.espertech.esper.epl.agg.service.AggregationValidationContext;
 import com.espertech.esper.epl.expression.ExprEvaluator;
 import com.tictactec.ta.lib.CoreAnnotated;
 import com.tictactec.ta.lib.MAType;

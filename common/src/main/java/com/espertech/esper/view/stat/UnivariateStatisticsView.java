@@ -30,18 +30,18 @@ import java.util.Map;
  * View for computing statistics, which the view exposes via fields representing the sum, count, standard deviation
  * for sample and for population and variance.
  */
-public final class UnivariateStatisticsView extends ViewSupport implements CloneableView
+public class UnivariateStatisticsView extends ViewSupport implements CloneableView
 {
-    private final AgentInstanceContext agentInstanceContext;
+    protected final AgentInstanceContext agentInstanceContext;
     private final EventType eventType;
     private final ExprNode fieldExpression;
     private final ExprEvaluator fieldExpressionEvaluator;
-    private final BaseStatisticsBean baseStatisticsBean = new BaseStatisticsBean();
-    private final StatViewAdditionalProps additionalProps;
+    protected final BaseStatisticsBean baseStatisticsBean = new BaseStatisticsBean();
+    protected final StatViewAdditionalProps additionalProps;
 
     private EventBean lastNewEvent;
     private EventBean[] eventsPerStream = new EventBean[1];
-    private Object[] lastValuesEventNew;
+    protected Object[] lastValuesEventNew;
 
     /**
      * Constructor requires the name of the field to use in the parent view to compute the statistics.
@@ -71,7 +71,7 @@ public final class UnivariateStatisticsView extends ViewSupport implements Clone
         return fieldExpression;
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
+    public void update(EventBean[] newData, EventBean[] oldData)
     {
         // If we have child views, keep a reference to the old values, so we can update them as old data event.
         EventBean oldDataMap = null;
@@ -201,5 +201,17 @@ public final class UnivariateStatisticsView extends ViewSupport implements Clone
                 );
         String outputEventTypeName = statementContext.getStatementId() + "_statview_" + streamNum;
         return statementContext.getEventAdapterService().createAnonymousMapType(outputEventTypeName, eventTypeMap);
+    }
+
+    public BaseStatisticsBean getBaseStatisticsBean() {
+        return baseStatisticsBean;
+    }
+
+    public Object[] getLastValuesEventNew() {
+        return lastValuesEventNew;
+    }
+
+    public void setLastValuesEventNew(Object[] lastValuesEventNew) {
+        this.lastValuesEventNew = lastValuesEventNew;
     }
 }

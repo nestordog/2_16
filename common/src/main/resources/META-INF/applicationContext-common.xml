@@ -55,10 +55,10 @@
                             <bean class="com.algoTrader.vo.DatasetDefinitionVO" p:type="TIME">
                                 <property name="seriesDefinitions">
                                     <set>
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="netLiqValue" p:label="netLiqValue" p:color="RED" p:selected="false" />
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="securitiesCurrentValue" p:label="securitiesCurrentValue" p:color="BLUE" p:selected="false" />
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="cashBalance" p:label="cashBalance" p:color="GREEN" p:selected="false" />
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="maintenanceMargin" p:label="maintenanceMargin" p:color="YELLOW" p:selected="false" />
+                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="netLiqValue" p:label="NetLiqValue" p:color="RED" p:selected="false" />
+                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="securitiesCurrentValue" p:label="SecuritiesCurrentValue" p:color="BLUE" p:selected="false" />
+                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="cashBalance" p:label="CashBalance" p:color="GREEN" p:selected="false" />
+                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="maintenanceMargin" p:label="MaintenanceMargin" p:color="YELLOW" p:selected="false" />
                                     </set>
                                 </property>
                             </bean>
@@ -71,9 +71,9 @@
                             <bean class="com.algoTrader.vo.DatasetDefinitionVO" p:type="TIME">
                                 <property name="seriesDefinitions">
                                     <set>
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="performance" p:label="performance" p:color="BLACK" p:selected="true" />
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="leverage" p:label="leverage" p:color="DARK_GRAY" p:selected="false" />
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="allocation" p:label="allocation" p:color="LIGHT_GRAY" p:selected="false" />
+                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="performance" p:label="Performance" p:color="BLACK" p:selected="true" />
+                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="leverage" p:label="Leverage" p:color="DARK_GRAY" p:selected="false" />
+                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="allocation" p:label="Allocation" p:color="LIGHT_GRAY" p:selected="false" />
                                     </set>
                                 </property>
                             </bean>

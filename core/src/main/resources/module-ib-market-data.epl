@@ -36,7 +36,7 @@ set
     tickWindow.last = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
     tickWindow.refresh = true
 where
-    tickPrice.field = com.ib.client.TickType.`LAST`
+    tickPrice.field = 4 // TickType.LAST (LAST is a reserved keyword)
 and
     tickWindow.tickerId = tickPrice.tickerId;
 

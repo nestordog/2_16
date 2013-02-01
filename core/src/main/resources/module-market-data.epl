@@ -123,7 +123,7 @@ and
 and
     DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0
 and
-    tickWindow.security.securityFamily.periodicity = Period.`HOUR`;
+    tickWindow.security.securityFamily.periodicity = TimePeriod.fromString('HOUR'); // (HOUR is a reserved keyword)
 
 @Name('PERSIST_MINUTE_TICKS')
 @RunTimeOnly()
@@ -141,4 +141,4 @@ and
 and
     DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0
 and
-    tickWindow.security.securityFamily.periodicity = Period.`MINUTE`;
+    tickWindow.security.securityFamily.periodicity = TimePeriod.fromString('MINUTE'); // (MINUTE is a reserved keyword)

@@ -1,4 +1,4 @@
-// AlgoTrader: add rounding
+// AlgoTrader line 80: add rounding
 /**************************************************************************************
  * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
  * http://esper.codehaus.org                                                          *
@@ -7,7 +7,7 @@
  * The software in this package is published under the terms of the GPL license       *
  * a copy of which has been included with this distribution in the license.txt file.  *
  **************************************************************************************/
-package com.espertech.esper.epl.agg;
+package com.espertech.esper.epl.agg.aggregator;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -19,16 +19,16 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Average that generates a BigDecimal numbers.
  */
-public class BigDecimalAvgAggregator implements AggregationMethod
+public class AggregatorAvgBigDecimal implements AggregationMethod
 {
-    private static final Log log = LogFactory.getLog(BigDecimalAvgAggregator.class);
-    private BigDecimal sum;
-    private long numDataPoints;
+    private static final Log log = LogFactory.getLog(AggregatorAvgBigDecimal.class);
+    protected BigDecimal sum;
+    protected long numDataPoints;
 
     /**
      * Ctor.
      */
-    public BigDecimalAvgAggregator()
+    public AggregatorAvgBigDecimal()
     {
         sum = new BigDecimal(0.0);
     }

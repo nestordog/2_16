@@ -4,7 +4,7 @@
 select
     null
 from
-    pattern[every timer:at(0, 14:23, *, *, 1:5)]
+    pattern[every timer:at(0, *, *, *, 1:5)]
 where
     LookupUtil.hasCurrentMarketDataEvents();
 

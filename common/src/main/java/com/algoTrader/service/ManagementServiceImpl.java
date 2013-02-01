@@ -351,6 +351,12 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
+    protected void handleRemoveExitValue(int positionId) throws Exception {
+
+        getPositionService().removeExitValue(positionId);
+    }
+
+    @Override
     protected void handleSetVariableValue(String variableName, String value) {
 
         EsperManager.setVariableValueFromString(StrategyUtil.getStartedStrategyName(), variableName, value);

@@ -27,11 +27,8 @@
 
     <auto-import import-name="com.algoTrader.entity.trade.AlgoOrder"/>
 
-    <!-- Variables -->
-    <variable name="misc_marketIntrest" type="double"/>
-    <variable name="misc_defaultRetrievalSeconds" type="double"/>
-
-    <variable name="engineStrategy" type="com.algoTrader.entity.Strategy"/>
-    <variable name="internal_clock" type="boolean" initialization-value="false"/>
+    <!-- Constants -->
+    <variable name="misc_marketIntrest" type="double" constant="true"/>
+    <variable name="misc_defaultRetrievalSeconds" type="double" constant="true"/>
 
 </esper-configuration>

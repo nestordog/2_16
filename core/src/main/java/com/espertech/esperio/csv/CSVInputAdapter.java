@@ -1,4 +1,4 @@
-// line 428 - 32: parse Date
+// line 428 - 432: parse Date
 /**************************************************************************************
  * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
  * http://esper.codehaus.org                                                          *
@@ -127,9 +127,9 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
             }
             else
             {
-                SendableEvent event = eventsToSend.first();
-                eventsToSend.remove(event);
-                return event;
+                SendableEvent theEvent = eventsToSend.first();
+                eventsToSend.remove(theEvent);
+                return theEvent;
             }
         }
         catch (EOFException e)
@@ -187,10 +187,10 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
     protected void replaceFirstEventToSend()
     {
         eventsToSend.remove(eventsToSend.first());
-        SendableEvent event = read();
-        if(event != null)
+        SendableEvent theEvent = read();
+        if(theEvent != null)
         {
-            eventsToSend.add(event);
+            eventsToSend.add(theEvent);
         }
     }
 

@@ -1,4 +1,6 @@
-// 122 - 132 check if TimerTask exists, line 161 outcomment daemon
+// AlgoTrader
+// line 123 - 125: check if TimerTask exists,
+// line 163: outcomment daemon
 /**************************************************************************************
  * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
  * http://esper.codehaus.org                                                          *
@@ -162,6 +164,8 @@ public final class TimerServiceImpl implements TimerService
             }
         });
         timer.setMaximumPoolSize(timer.getCorePoolSize());
+        timer.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+        timer.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
     }
 
     private static final Log log = LogFactory.getLog(TimerServiceImpl.class);

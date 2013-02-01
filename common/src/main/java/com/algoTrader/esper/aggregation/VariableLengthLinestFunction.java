@@ -3,8 +3,8 @@ package com.algoTrader.esper.aggregation;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.espertech.esper.epl.agg.AggregationSupport;
-import com.espertech.esper.epl.agg.AggregationValidationContext;
+import com.espertech.esper.epl.agg.service.AggregationSupport;
+import com.espertech.esper.epl.agg.service.AggregationValidationContext;
 
 public class VariableLengthLinestFunction extends AggregationSupport {
 

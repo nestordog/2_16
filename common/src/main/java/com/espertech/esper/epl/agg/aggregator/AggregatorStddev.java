@@ -1,4 +1,4 @@
-//AlgoTrader line 66 - 69: check if variance is below zero
+//AlgoTrader line 63 - 68: check if variance is below zero
 /**************************************************************************************
  * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
  * http://esper.codehaus.org                                                          *
@@ -7,18 +7,16 @@
  * The software in this package is published under the terms of the GPL license       *
  * a copy of which has been included with this distribution in the license.txt file.  *
  **************************************************************************************/
-package com.espertech.esper.epl.agg;
-
-import com.espertech.esper.epl.core.MethodResolutionService;
+package com.espertech.esper.epl.agg.aggregator;
 
 /**
  * Standard deviation always generates double-typed numbers.
  */
-public class StddevAggregator implements AggregationMethod
+public class AggregatorStddev implements AggregationMethod
 {
-    private double sum;
-    private double sumSq;
-    private long numDataPoints;
+    protected double sum;
+    protected double sumSq;
+    protected long numDataPoints;
 
     public void clear()
     {
