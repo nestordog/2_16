@@ -106,10 +106,18 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         }
     }
 
+    protected void handleRequestCurrentTicks(String strategyName) throws Exception {
+
+        Collection<Tick> ticks = getTickDao().findCurrentTicksByStrategy(strategyName);
+
+        for (Tick tick : ticks) {
+            EsperManager.sendEvent(strategyName, tick);
+        }
+    }
+
     @Override
     protected void handleUnsubscribe(String strategyName, int securityId) throws Exception {
 
-        Strategy strategy = getStrategyDao().findByName(strategyName);
         Security security = getSecurityDao().get(securityId);
 
         Subscription subscription = getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId);

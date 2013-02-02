@@ -73,9 +73,9 @@
     <variable name="internal_clock" type="boolean" initialization-value="false"/>
 
     <!-- Esper JMX -->
-<!--     <plugin-loader name="EsperJMX" class-name="com.espertech.esper.jmx.client.EsperJMXPlugin"> -->
-<!--         <init-arg name="use-platform-mbean-server" value="true" /> -->
-<!--     </plugin-loader>         -->
+    <plugin-loader name="EsperJMX" class-name="com.espertech.esper.jmx.client.EsperJMXPlugin">
+        <init-arg name="use-platform-mbean-server" value="true" />
+    </plugin-loader>
 
     <!-- Esper EE -->
 <!--     <plugin-loader name="BrokerMgmt" class-name="com.espertech.esperdds.client.JMSProviderMgmtPlugin"> -->

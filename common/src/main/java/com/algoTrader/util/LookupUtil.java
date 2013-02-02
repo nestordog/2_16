@@ -13,6 +13,7 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.strategy.PortfolioValue;
 import com.algoTrader.esper.EsperManager;
+import com.espertech.esper.collection.Pair;
 
 public class LookupUtil {
 
@@ -125,5 +126,13 @@ public class LookupUtil {
     public static Component[] getComponentsBySecurity(int securityId) {
 
         return ServiceLocator.instance().getLookupService().getSubscribedComponentsBySecurity(securityId).toArray(new Component[] {});
+    }
+
+    public static Tick completeTick(Pair<Tick, Object> pair, Date date) {
+
+        Tick tick = pair.getFirst();
+        tick.setDateTime(date);
+        tick.setSecurity(ServiceLocator.instance().getLookupService().getSecurityInitialized(tick.getSecurity().getId()));
+        return tick;
     }
 }

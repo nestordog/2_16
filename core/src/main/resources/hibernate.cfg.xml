@@ -23,7 +23,6 @@
 
     <mapping resource="META-INF/Hibernate.hbm.xml" />
     <mapping resource="com/algoTrader/entity/PropertyHolder.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/Strategy.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Transaction.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Property.hbm.xml" />
     <mapping resource="com/algoTrader/entity/marketData/MarketDataEvent.hbm.xml" />

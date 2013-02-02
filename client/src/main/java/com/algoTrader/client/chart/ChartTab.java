@@ -645,7 +645,7 @@ public class ChartTab extends ChartPanel {
         try {
             awtColor = (java.awt.Color) java.awt.Color.class.getField(color.getValue()).get(null);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return awtColor;
     }
@@ -662,7 +662,7 @@ public class ChartTab extends ChartPanel {
             regularTimePeriod = timePeriodConstructor.newInstance(date);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
         return regularTimePeriod;

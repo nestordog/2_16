@@ -375,6 +375,12 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
+    protected void handleRequestCurrentTicks() throws Exception {
+
+        getMarketDataService().requestCurrentTicks(StrategyUtil.getStartedStrategyName());
+    }
+
+    @Override
     protected void handleAddProperty(int propertyHolderId, String name, String value, String type) throws Exception {
 
         Object obj;
@@ -413,6 +419,12 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected void handleRemoveComponent(int combinationId, final int securityId) {
 
         getCombinationService().removeComponent(combinationId, securityId);
+    }
+
+    @Override
+    protected void handleCheckIsAlive() throws Exception {
+
+        getLookupService().getCurrentDBTime();
     }
 
     @Override

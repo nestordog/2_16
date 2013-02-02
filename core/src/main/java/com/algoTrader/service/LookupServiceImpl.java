@@ -805,6 +805,12 @@ public class LookupServiceImpl extends LookupServiceBase {
         return bar;
     }
 
+    @Override
+    protected Date handleGetCurrentDBTime() throws Exception {
+
+        return getStrategyDao().findCurrentDBTime();
+    }
+
     private Map<Date, Object> getValuesByDate(List<Measurement> measurements) {
 
         Map<Date, Object> valuesByDate = new HashMap<Date, Object>();

@@ -1,4 +1,6 @@
-// Algotrader: 88-90 change tab order
+// Algotrader
+// line 92 - 97: change tab order
+// line 577 - 597: add timeout
 /*
  * Copyright (c) 2004, 2008, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
@@ -34,10 +36,13 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.List;
 import java.util.Timer;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.*;
 import javax.swing.plaf.*;
 
+import com.algoTrader.client.WarningProducer;
 import com.sun.tools.jconsole.JConsolePlugin;
 import com.sun.tools.jconsole.JConsoleContext;
 import static com.sun.tools.jconsole.JConsoleContext.ConnectionState.*;
@@ -568,13 +573,25 @@ public class VMPanel extends JTabbedPane implements PropertyChangeListener {
             for (JConsolePlugin p : plugins.keySet()) {
                 SwingWorker<?, ?> sw = p.newSwingWorker();
                 SwingWorker<?, ?> prevSW = plugins.get(p);
-                // schedule SwingWorker to run only if the previous
-                // SwingWorker has finished its task and it hasn't started.
-                if (prevSW == null || prevSW.isDone()) {
-                    if (sw == null || sw.getState() == SwingWorker.StateValue.PENDING) {
-                        plugins.put(p, sw);
-                        if (sw != null) {
-                            sw.execute();
+
+                // cancel previous SwingWorker if it is not done yet
+                if (prevSW != null && !prevSW.isDone()) {
+                    if (prevSW.cancel(true)) {
+                        System.out.println("cancelled existing SwingWorker");
+                    }
+                }
+
+                if (sw == null || sw.getState() == SwingWorker.StateValue.PENDING) {
+                    plugins.put(p, sw);
+                    if (sw != null) {
+                        sw.execute();
+                        try {
+                            sw.get(this.updateInterval - 1000, TimeUnit.MILLISECONDS); // updateInterval minus 1 second
+                        } catch (TimeoutException e) {
+                            System.out.println("timeout occured after " + (this.updateInterval - 1000) / 1000 + " seconds");
+                            WarningProducer.produceWarning("server timeout");
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
                 }

@@ -13,10 +13,6 @@ sun.tools.jconsole.JConsole ^
 -interval=60 ^
 -debug ^
 base.quant.linardcapital.com:1099 ^
-macro.quant.linardcapital.com:1097 ^
-tailhedge.quant.linardcapital.com:1095 ^
-static.quant.linardcapital.com:1093 ^
-fixed.quant.linardcapital.com:1091 ^
-atr.quant.linardcapital.com:1089 ^
-rollyield.quant.linardcapital.com:1087 ^
-countertrend.quant.linardcapital.com:1085
+swingset.quant.linardcapital.com:1097 ^
+box1.quant.linardcapital.com:1095 ^
+box2.quant.linardcapital.com:1093

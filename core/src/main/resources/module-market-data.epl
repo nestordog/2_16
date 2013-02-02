@@ -37,20 +37,6 @@ delete from
 where
     tickWindow.security.id = unsubscribeEvent.securityId;
 
-@Name('UPDATE_TICK_WINDOW')
-@RunTimeOnly()
-on
-    pattern [every timer:interval(misc_defaultRetrievalSeconds sec)]
-update
-    TickWindow as tickWindow
-set
-    tickWindow.refresh = true
-where
-    tickWindow.security.id not in (
-        select
-            security.id
-        from
-            Tick.win:time(misc_defaultRetrievalSeconds sec));
 
 @Name('INSERT_INTO_TICK')
 @RunTimeOnly()
@@ -59,17 +45,7 @@ on
 insert into
     Tick
 select
-    current_timestamp.toDate() as dateTime,
-    tickWindow.last as last,
-    tickWindow.lastDateTime as lastDateTime,
-    tickWindow.vol as vol,
-    tickWindow.volBid as volBid,
-    tickWindow.volAsk as volAsk,
-    tickWindow.bid as bid,
-    tickWindow.ask as ask,
-    tickWindow.openIntrest as openIntrest,
-    tickWindow.settlement as settlement,
-    LookupUtil.getSecurityInitialized(tickWindow.security.id) as security
+    transpose(LookupUtil.completeTick(tickWindow, current_timestamp.toDate()))
 from
     TickWindow as tickWindow
 where
@@ -141,4 +117,4 @@ and
 and
     DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0
 and
-    tickWindow.security.securityFamily.periodicity = TimePeriod.fromString('MINUTE'); // (MINUTE is a reserved keyword)
+    tickWindow.security.securityFamily.periodicity = TimePeriod.fromString('MINUTE');

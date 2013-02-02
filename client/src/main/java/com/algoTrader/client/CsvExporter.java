@@ -28,7 +28,7 @@ public class CsvExporter {
 
             out.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }

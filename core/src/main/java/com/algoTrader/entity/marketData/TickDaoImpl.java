@@ -1,14 +1,19 @@
 package com.algoTrader.entity.marketData;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.RawTickVO;
 import com.algoTrader.vo.TickVO;
+import com.espertech.esper.collection.Pair;
 
 @SuppressWarnings("unchecked")
 public class TickDaoImpl extends TickDaoBase {
@@ -109,11 +114,27 @@ public class TickDaoImpl extends TickDaoBase {
     protected Integer handleFindTickerIdBySecurity(int securityId) throws Exception {
 
         // sometimes Esper returns a Map instead of scalar
-        Object obj = EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select tickerId from TickWindow where security.id = " + securityId);
+        String query = "select tickerId from TickWindow where security.id = " + securityId;
+        Object obj = EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, query);
         if (obj instanceof Map) {
             return ((Map<String, Integer>) obj).get("tickerId");
         } else {
             return (Integer) obj;
         }
+    }
+
+    @Override
+    protected Collection<Tick> handleFindCurrentTicksByStrategy(String strategyName) throws Exception {
+
+        List<Subscription> subscriptions = getSubscriptionDao().findByStrategy(strategyName);
+
+        Collection<Tick> ticks = new ArrayList<Tick>();
+        for (Subscription subscription : subscriptions) {
+            String query = "select * from TickWindow where security.id = " + subscription.getSecurity().getId();
+            Pair<Tick, Object> pair = (Pair<Tick, Object>)EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, query);
+            ticks.add(pair.getFirst());
+        }
+
+        return ticks;
     }
 }
