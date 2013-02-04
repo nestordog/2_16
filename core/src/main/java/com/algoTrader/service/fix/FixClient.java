@@ -144,11 +144,11 @@ public class FixClient implements InitializingBean {
     @ManagedOperation
     @ManagedOperationParameters({
         @ManagedOperationParameter(name = "marketChannel", description = ""),
-        @ManagedOperationParameter(name = "nextOrderId", description = "orderId (will be incremented by 1 for the next order)")
+        @ManagedOperationParameter(name = "orderId", description = "orderId (will be incremented by 1 for the next order)")
     })
-    public void setOrderId(String marketChannel, int nextOrderId) {
+    public void setOrderId(String marketChannel, int orderId) {
 
-        this.orderIds.put(MarketChannel.fromString(marketChannel), nextOrderId);
+        this.orderIds.put(MarketChannel.fromString(marketChannel), orderId);
     }
 
     private SessionID getSessionID(MarketChannel marketChannel) {
@@ -211,14 +211,15 @@ public class FixClient implements InitializingBean {
             long pointer;
             for (pointer = fileLength; pointer != -1; pointer--) {
                 fileHandler.seek(pointer);
-                if (fileHandler.read(bytes) == -1) {
-                    fileHandler.close();
-                    this.orderIds.put(marketChannel, 1); // no last orderId
-                } else {
-                    if (Arrays.equals(bytes, clOrdId)) {
-                        break;
-                    }
+                fileHandler.read(bytes);
+                if (Arrays.equals(bytes, clOrdId)) {
+                    break;
                 }
+            }
+
+            if (pointer == -1) {
+                this.orderIds.put(marketChannel, 1); // no last orderId
+                return;
             }
 
             for (; pointer != fileLength; pointer++) {

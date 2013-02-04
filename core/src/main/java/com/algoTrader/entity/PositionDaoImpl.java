@@ -1,5 +1,6 @@
 package com.algoTrader.entity;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import com.algoTrader.util.RoundUtil;
@@ -42,9 +43,9 @@ public class PositionDaoImpl extends PositionDaoBase {
         positionVO.setCost(RoundUtil.getBigDecimal(position.getCostDouble()));
         positionVO.setUnrealizedPL(RoundUtil.getBigDecimal(position.getUnrealizedPLDouble()));
         positionVO.setRealizedPL(RoundUtil.getBigDecimal(position.getRealizedPLDouble()));
-        positionVO.setExitValue(position.getExitValue());
+        positionVO.setExitValue(position.getExitValue() != null ? position.getExitValue().setScale(scale, BigDecimal.ROUND_HALF_UP) : null);
         positionVO.setMaxLoss(RoundUtil.getBigDecimal(position.getMaxLossDouble()));
-        positionVO.setMargin(position.getMaintenanceMargin());
+        positionVO.setMargin(position.getMaintenanceMargin() != null ? position.getMaintenanceMargin().setScale(scale, BigDecimal.ROUND_HALF_UP) : null);
 
         // add properties if any
         Map<String, Property> properties = position.getPropertiesInitialized();

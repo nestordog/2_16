@@ -132,7 +132,9 @@ public class TickDaoImpl extends TickDaoBase {
         for (Subscription subscription : subscriptions) {
             String query = "select * from TickWindow where security.id = " + subscription.getSecurity().getId();
             Pair<Tick, Object> pair = (Pair<Tick, Object>)EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, query);
-            ticks.add(pair.getFirst());
+            if (pair != null) {
+                ticks.add(pair.getFirst());
+            }
         }
 
         return ticks;

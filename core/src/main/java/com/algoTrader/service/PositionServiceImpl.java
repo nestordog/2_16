@@ -59,6 +59,10 @@ public class PositionServiceImpl extends PositionServiceBase {
     protected void handleClosePosition(int positionId, final boolean unsubscribe) throws Exception {
 
         final Position position = getPositionDao().get(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
+        }
+
         Security security = position.getSecurityInitialized();
 
         if (position.isOpen()) {
@@ -83,6 +87,9 @@ public class PositionServiceImpl extends PositionServiceBase {
     protected void handleReducePosition(int positionId, long quantity) throws Exception {
 
         Position position = getPositionDao().get(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
+        }
 
         if (Math.abs(quantity) > Math.abs(position.getQuantity())) {
             throw new PositionServiceException("position reduction of " + quantity + " for position " + position.getId() + " is greater than current quantity " + position.getQuantity());
@@ -172,10 +179,10 @@ public class PositionServiceImpl extends PositionServiceBase {
     protected void handleTransferPosition(int positionId, String targetStrategyName) throws Exception {
 
         Position position = getPositionDao().get(positionId);
-
         if (position == null) {
-            throw new PositionServiceException("position " + positionId + " could not be found");
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
         }
+
 
         Strategy targetStrategy =  getStrategyDao().findByName(targetStrategyName);
         Security security = position.getSecurity();
@@ -214,9 +221,8 @@ public class PositionServiceImpl extends PositionServiceBase {
     protected Position handleModifyNonTradeablePosition(int positionId, long quantity) {
 
         Position position = getPositionDao().getLocked(positionId);
-
         if (position == null) {
-            throw new PositionServiceException("position " + positionId + " could not be found");
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
         }
 
         position.setQuantity(quantity);
@@ -230,6 +236,9 @@ public class PositionServiceImpl extends PositionServiceBase {
     protected void handleDeleteNonTradeablePosition(int positionId, boolean unsubscribe) throws Exception {
 
         Position position = getPositionDao().get(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
+        }
 
         Security security = position.getSecurity();
 
@@ -256,6 +265,9 @@ public class PositionServiceImpl extends PositionServiceBase {
     protected Position handleSetExitValue(int positionId, BigDecimal exitValue, boolean force) throws Exception {
 
         Position position = getPositionDao().getLocked(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
+        }
 
         // set the scale
         int scale = position.getSecurity().getSecurityFamily().getScale();
@@ -301,6 +313,9 @@ public class PositionServiceImpl extends PositionServiceBase {
     protected Position handleRemoveExitValue(int positionId) throws Exception {
 
         Position position = getPositionDao().getLocked(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
+        }
 
         if (position.getExitValue() != null) {
 
@@ -316,6 +331,9 @@ public class PositionServiceImpl extends PositionServiceBase {
     protected Position handleSetMargin(int positionId) throws Exception {
 
         Position position = getPositionDao().get(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
+        }
 
         setMargin(position);
 
@@ -414,7 +432,11 @@ public class PositionServiceImpl extends PositionServiceBase {
 
     @Override
     protected void handleExpirePosition(int positionId) throws Exception {
+
         Position position = getPositionDao().get(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
+        }
 
         expirePosition(position);
     }
