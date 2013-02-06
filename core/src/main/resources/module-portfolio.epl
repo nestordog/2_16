@@ -4,7 +4,7 @@
 select
     null
 from
-    pattern[every timer:at(0, *, *, *, 1:5)]
+    pattern[every timer:at(0, misc_portfolioStartHour:misc_portfolioEndHour, *, *, 1:5)]
 where
     LookupUtil.hasCurrentMarketDataEvents();
 
@@ -16,7 +16,7 @@ insert into
 select
     transpose(LookupUtil.getPortfolioValue())
 from
-    pattern[every (timer:at (0, 23, *, *, 1:5) or EndOfSimulation)]
+    pattern[every (timer:at (0, 0, *, *, 1:5) or EndOfSimulation)]
 where
     LookupUtil.hasCurrentMarketDataEvents();
 
@@ -78,17 +78,6 @@ group by
     position.id
 output
     first every 5 seconds;
-
-@Name('RECONCILE_IB')
-@RunTimeOnly
-@Condition(key='statement.reconcile')
-@Subscriber(className='com.algoTrader.service.ib.IBReconciliationService.reconcile')
-select
-    null
-from
-    pattern[every timer:at (0, 9, *, *, 1:5)]
-where
-    simulation = false;
 
 @Name('EQUALIZE_FOREX_PORTFOLIO')
 @Condition(key='statement.equalizeForex')

@@ -567,7 +567,7 @@ public class ChartTab extends ChartPanel {
         DateAxis domainAxis = (DateAxis) getPlot().getDomainAxis();
 
         // configure the Date Axis (if startTime & endTime is set)
-        if (this.chartDefinition.getStartTime() != null && this.chartDefinition.getEndTime() != null) {
+        if (this.chartDefinition.getStartTime() != null && this.chartDefinition.getEndTime() != null && !this.chartDefinition.getStartTime().equals(this.chartDefinition.getEndTime())) {
 
             // creat the SegmentedTimeline
             long startTime = this.chartDefinition.getStartTime().getTime();

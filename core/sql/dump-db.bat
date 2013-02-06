@@ -1,25 +1,27 @@
+set db=algotradertest
+
 mysqldump.exe --skip-triggers --no-data -u @localhost -r ^
 D:\AlgoTrader\core\sql\db-structure.sql ^
-algotrader
+%db%
 
 mysqldump.exe ^
 --skip-extended-insert  --skip-triggers ^
---ignore-table=algotrader.bar ^
---ignore-table=algotrader.cash_balance ^
---ignore-table=algotrader.combination ^
---ignore-table=algotrader.component ^
---ignore-table=algotrader.forex_future ^
---ignore-table=algotrader.future ^
---ignore-table=algotrader.measurement ^
---ignore-table=algotrader.portfolio_value ^
---ignore-table=algotrader.position ^
---ignore-table=algotrader.stock_option ^
---ignore-table=algotrader.synthetic_index ^
---ignore-table=algotrader.tick ^
+--ignore-table=%db%.bar ^
+--ignore-table=%db%.cash_balance ^
+--ignore-table=%db%.combination ^
+--ignore-table=%db%.component ^
+--ignore-table=%db%.forex_future ^
+--ignore-table=%db%.future ^
+--ignore-table=%db%.measurement ^
+--ignore-table=%db%.portfolio_value ^
+--ignore-table=%db%.position ^
+--ignore-table=%db%.stock_option ^
+--ignore-table=%db%.synthetic_index ^
+--ignore-table=%db%.tick ^
 --where="id<1000" ^
 --complete-insert --no-create-info -u @localhost ^
 -r D:\AlgoTrader\core\sql\db-data.sql ^
-algotrader
+%db%
 
 "D:\AlgoTrader\core\sql\unix2dos.exe" D:\AlgoTrader\core\sql\db-structure.sql
 "D:\AlgoTrader\core\sql\unix2dos.exe" D:\AlgoTrader\core\sql\db-data.sql

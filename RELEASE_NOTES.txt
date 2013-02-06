@@ -72,7 +72,7 @@ GenericEvents
 update Charting Functionality (add Indicators & Bars)
 JMX over SSL
 
-1.11 (R5299)
+1.11 (R5364)
 Reconciliation (IB / RBS / UI)
 SimpleOrders vs AlgoOrders (e.g. SlicingOrder)
 Fix Interface
@@ -82,3 +82,22 @@ MailMessageReceiver
 AndroMDA 3.4
 ForexFuture / FX Hedging by ForexFuture
 
+1.12
+Esper 4.8
+use Spring Integration for Mail Reconciliation
+Esper Threading
+Hibernate Locking
+Portfolio Value Restoring
+OpenPositionCallback / ClosePositionCallback
+Generic approach for Bars and Ticks
+FIX:
+    Init orderId from log-file
+    Weekly Fix logon/logoff
+Client:
+    Markers, Annotations, Description & Crosshair
+    Monitoring & Rechability Checking & Notifications
+Market Data Snapshots
+Strategy Properties
+Market Data Gap Checking
+Position Realized P/L
+Handle crossed spreads

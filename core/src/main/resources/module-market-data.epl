@@ -37,7 +37,6 @@ delete from
 where
     tickWindow.security.id = unsubscribeEvent.securityId;
 
-
 @Name('INSERT_INTO_TICK')
 @RunTimeOnly()
 on
@@ -55,15 +54,18 @@ and
 and
     tickWindow.security.validateTick(cast(tickWindow.getFirst(),com.algoTrader.entity.marketData.Tick))
 and
-    (simulation
-or
-    (current_timestamp.getDayOfWeek() >= Calendar.MONDAY
-and
-    current_timestamp.getDayOfWeek() <= Calendar.FRIDAY
-and
-    DateUtil.compareTime(tickWindow.security.securityFamily.marketOpen, current_timestamp.toDate()) <= 0
-and
-    DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0));
+    DateUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate());
+
+@Name('CHECK_TICK_GAPS')
+@Subscriber(className='com.algoTrader.service.MarketDataService.logTickGap')
+@RunTimeOnly()
+select
+    tick.security.id
+from
+    pattern [every tick=Tick(not security.securityFamily.maxGap is null)
+            -> (timer:interval(tick.security.securityFamily.maxGap * 60) and not Tick(security.id = tick.security.id))]
+where
+    DateUtil.isMarketOpen(tick.security.securityFamily, current_timestamp.toDate());
 
 @Name('PROPAGATE_MARKET_DATA_EVENTS')
 @Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PropagateMarketDataEventSubscriber')
@@ -87,7 +89,7 @@ from
 @RunTimeOnly()
 @Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
 on pattern
-    [every timer:at(0, *, *, *, 1:5)]
+    [every timer:at(0, *, *, *, *)]
 select
     *
 from
@@ -95,9 +97,7 @@ from
 where
     tickWindow.security.validateTick(cast(tickWindow.getFirst(),com.algoTrader.entity.marketData.Tick))
 and
-    DateUtil.compareTime(tickWindow.security.securityFamily.marketOpen, current_timestamp.toDate()) <= 0
-and
-    DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0
+    DateUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate())
 and
     tickWindow.security.securityFamily.periodicity = TimePeriod.fromString('HOUR'); // (HOUR is a reserved keyword)
 
@@ -105,7 +105,7 @@ and
 @RunTimeOnly()
 @Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
 on pattern
-    [every timer:at(*, *, *, *, 1:5)]
+    [every timer:at(*, *, *, *, *)]
 select
     *
 from
@@ -113,8 +113,6 @@ from
 where
     tickWindow.security.validateTick(cast(tickWindow.getFirst(),com.algoTrader.entity.marketData.Tick))
 and
-    DateUtil.compareTime(tickWindow.security.securityFamily.marketOpen, current_timestamp.toDate()) <= 0
-and
-    DateUtil.compareTime(tickWindow.security.securityFamily.marketClose, current_timestamp.toDate()) >= 0
+    DateUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate())
 and
     tickWindow.security.securityFamily.periodicity = TimePeriod.fromString('MINUTE');

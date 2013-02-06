@@ -106,15 +106,6 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         }
     }
 
-    protected void handleRequestCurrentTicks(String strategyName) throws Exception {
-
-        Collection<Tick> ticks = getTickDao().findCurrentTicksByStrategy(strategyName);
-
-        for (Tick tick : ticks) {
-            EsperManager.sendEvent(strategyName, tick);
-        }
-    }
-
     @Override
     protected void handleUnsubscribe(String strategyName, int securityId) throws Exception {
 
@@ -160,6 +151,24 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         for (Subscription subscription : subscriptions) {
             unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
         }
+    }
+
+    @Override
+    protected void handleRequestCurrentTicks(String strategyName) throws Exception {
+
+        Collection<Tick> ticks = getTickDao().findCurrentTicksByStrategy(strategyName);
+
+        for (Tick tick : ticks) {
+            EsperManager.sendEvent(strategyName, tick);
+        }
+    }
+
+    @Override
+    protected void handleLogTickGap(int securityId) {
+
+        Security security = getSecurityDao().get(securityId);
+
+        logger.error(security + " has not received any ticks for " + security.getSecurityFamily().getMaxGap() + " minutes");
     }
 
     public static class PropagateMarketDataEventSubscriber {

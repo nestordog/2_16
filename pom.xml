@@ -153,11 +153,10 @@
     <modules>
         <module>common</module>
         <module>core</module>
-        <module>core/bin</module>
-        <module>mda</module>
         <module>client</module>
+        <module>mda</module>
+        <module>core/bin</module>
         <module>client/bin</module>
-        <module>crud</module>
     </modules>
     <dependencyManagement>
         <dependencies>
