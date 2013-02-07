@@ -894,6 +894,10 @@ public class EsperManager {
 
     private static boolean isEligibleStatement(EPServiceProvider serviceProvider, ModuleItem item, String statementName) {
 
+        if (item.isCommentOnly()) {
+            return false;
+        }
+
         String expression = item.getExpression().replace("?", "1"); // replace ? to prevent error during compile
         EPStatementObjectModel objectModel = serviceProvider.getEPAdministrator().compileEPL(expression);
         List<AnnotationPart> annotationParts = objectModel.getAnnotations();
