@@ -63,13 +63,6 @@ public class IBDefaultMessageHandler implements EWrapper {
                 logger.warn(message);
                 break;
 
-            case 201:
-
-                // Cannot cancel the filled order
-                // do nothing, we cancelled the order just a little bit too late
-                logger.warn(message);
-                break;
-
             case 202:
 
                 // Order cancelled
