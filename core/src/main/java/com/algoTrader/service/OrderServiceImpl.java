@@ -158,7 +158,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
     private void sendAlgoOrder(AlgoOrder order) {
 
-        order.setExtId(AlgoIdGenerator.getInstance().getNextOrderId());
+        order.setIntId(AlgoIdGenerator.getInstance().getNextOrderId());
 
         logger.info("send algo order: " + order);
 
@@ -175,13 +175,13 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     }
 
     @Override
-    protected void handleCancelOrder(int extId) throws Exception {
+    protected void handleCancelOrder(int intId) throws Exception {
 
-        Order order = getOrderDao().findOpenOrderByExtId(extId);
+        Order order = getOrderDao().findOpenOrderByIntId(intId);
         if (order != null) {
             cancelOrder(order);
         } else {
-            throw new IllegalArgumentException("order does not exist " + extId);
+            throw new IllegalArgumentException("order does not exist " + intId);
         }
     }
 
@@ -198,12 +198,12 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     private void cancelAlgoOrder(AlgoOrder order) {
 
         // cancel existing child orders
-        for (Order childOrder : getOrderDao().findOpenOrdersByParentExtId(order.getExtId())) {
+        for (Order childOrder : getOrderDao().findOpenOrdersByParentIntId(order.getIntId())) {
             getExternalOrderService(order).cancelOrder((SimpleOrder) childOrder);
         }
 
         // get the current OrderStatusVO
-        OrderStatusVO orderStatusVO = getOrderStatusDao().findOrderStatusByExtId(order.getExtId());
+        OrderStatusVO orderStatusVO = getOrderStatusDao().findOrderStatusByIntId(order.getIntId());
 
         // assemble a new OrderStatus Entity
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
@@ -220,9 +220,9 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
     @SuppressWarnings("rawtypes")
     @Override
-    protected void handleModifyOrder(int extId, Map properties) throws Exception {
+    protected void handleModifyOrder(int intId, Map properties) throws Exception {
 
-        Order order = getOrderDao().findOpenOrderByExtId(extId);
+        Order order = getOrderDao().findOpenOrderByIntId(intId);
         if (order != null) {
 
             // populte the properties
@@ -231,7 +231,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
             modifyOrder(order);
 
         } else {
-            throw new IllegalArgumentException("order does not exist " + extId);
+            throw new IllegalArgumentException("order does not exist " + intId);
         }
     }
 

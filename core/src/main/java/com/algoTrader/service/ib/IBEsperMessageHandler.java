@@ -48,7 +48,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
             int extOrderId = execution.m_orderId;
 
             // get the order from the OpenOrderWindow
-            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByExtId(extOrderId);
+            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByIntId(extOrderId);
             if (order == null) {
                 logger.error("order could not be found " + extOrderId + " for execution " + contract + " " + execution);
                 return;
@@ -85,7 +85,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
             final int parentId, final double lastFillPrice, final int clientId, final String whyHeld) {
 
         // get the order from the OpenOrderWindow
-        Order order = ServiceLocator.instance().getLookupService().getOpenOrderByExtId(orderId);
+        Order order = ServiceLocator.instance().getLookupService().getOpenOrderByIntId(orderId);
 
         if (order != null) {
 

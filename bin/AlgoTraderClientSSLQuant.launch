@@ -21,7 +21,7 @@
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="sun.tools.jconsole.JConsole"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-interval=60 -debug &#13;&#10;base.quant.linardcapital.com:1099 &#13;&#10;macro.quant.linardcapital.com:1097&#13;&#10;tailhedge.quant.linardcapital.com:1095&#13;&#10;static.quant.linardcapital.com:1093&#13;&#10;fixed.quant.linardcapital.com:1091&#13;&#10;atr.quant.linardcapital.com:1089&#13;&#10;rollyield.quant.linardcapital.com:1087&#13;&#10;countertrend.quant.linardcapital.com:1085"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-interval=60 -debug &#13;&#10;base.quant.linardcapital.com:1099&#13;&#10;swingset.quant.linardcapital.com:1097&#13;&#10;box1.quant.linardcapital.com:1095&#13;&#10;box2.quant.linardcapital.com:1093"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="algotrader-client"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djavax.net.ssl.keyStore=${env_var:ALGOTRADER_CLIENT_HOME}/bin/keystore&#13;&#10;-Djavax.net.ssl.keyStorePassword=Zermatt11&#13;&#10;-Djavax.net.ssl.trustStore=${env_var:ALGOTRADER_CLIENT_HOME}/bin/truststore&#13;&#10;-Djavax.net.ssl.trustStorePassword=Zermatt11"/>

@@ -49,7 +49,7 @@ public class FixUtil {
                 return Status.PARTIALLY_EXECUTED;
             }
         } else {
-            throw new IllegalArgumentException("unknown orderStatus " + execType.getValue());
+            throw new IllegalArgumentException("unknown execType " + execType.getValue());
         }
     }
 

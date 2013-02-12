@@ -59,7 +59,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
     protected void handleSendOrder(SimpleOrder order) throws Exception {
 
         int orderNumber = IBIdGenerator.getInstance().getNextOrderId();
-        order.setExtId(orderNumber);
+        order.setIntId(orderNumber);
         sendOrModifyOrder(order);
     }
 
@@ -77,7 +77,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
             return;
         }
 
-        client.cancelOrder(order.getExtId());
+        client.cancelOrder(order.getIntId());
 
         logger.info("requested order cancellation for order: " + order);
     }
@@ -182,7 +182,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
         getOrderService().propagateOrder(order);
 
         // place the order through IBClient
-        client.placeOrder(order.getExtId(), contract, ibOrder);
+        client.placeOrder(order.getIntId(), contract, ibOrder);
 
         logger.info("placed or modified order: " + order);
     }

@@ -139,7 +139,7 @@
         <bean id="iBClientFactory" class="com.algoTrader.service.ib.IBClientFactory"/>
     </beans>
 
-    <beans profile="jPMFix,iBFix">
+    <beans profile="jPMFix,iBFix,dCFix">
         <bean id="fixClient" class="com.algoTrader.service.fix.FixClient"/>
     </beans>
 

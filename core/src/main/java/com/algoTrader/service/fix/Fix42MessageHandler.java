@@ -23,9 +23,9 @@ import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 
-public class FixMessageHandler {
+public class Fix42MessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(FixMessageHandler.class.getName());
+    private static Logger logger = MyLogger.getLogger(Fix42MessageHandler.class.getName());
 
     public void onMessage(ExecutionReport executionReport, SessionID sessionID) {
 
@@ -43,24 +43,13 @@ public class FixMessageHandler {
                 logger.error("order " + clOrdID + " has been rejected, reason: " + executionReport.getText().getValue());
             }
 
-            if (executionReport.getExecType().getValue() == ExecType.CANCELED) {
-
-                // check if there are errors
-                if (!executionReport.isSetExecRestatementReason()) {
-
-                    // get the clOrdID from OrigClOrdID (if it exists)
-                    if (executionReport.isSetOrigClOrdID()) {
-                        clOrdID = Integer.parseInt(executionReport.getOrigClOrdID().getValue());
-                    }
-
-                    // if the field ExecRestatementReason exists, there is something wrong
-                } else {
-                    logger.error("order " + clOrdID + " has been canceled, reason: " + executionReport.getText().getValue());
-                }
+            // check if there are errors
+            if (executionReport.isSetExecRestatementReason()) {
+                logger.error("order " + clOrdID + " has been canceled, reason: " + executionReport.getText().getValue());
             }
 
             // get the order from the OpenOrderWindow
-            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByExtId(clOrdID);
+            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByIntId(clOrdID);
             if (order == null) {
                 logger.error("order could not be found " + clOrdID + " for execution " + executionReport);
                 return;

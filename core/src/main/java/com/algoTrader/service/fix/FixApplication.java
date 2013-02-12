@@ -58,7 +58,12 @@ public class FixApplication extends MessageCracker implements quickfix.Applicati
 
     @Override
     public void toAdmin(Message message, SessionID sessionID) {
-        // do nothing
+
+        try {
+            crack(message, sessionID);
+        } catch (Exception e) {
+            logger.error(e);
+        }
     }
 
     @Override
@@ -73,7 +78,7 @@ public class FixApplication extends MessageCracker implements quickfix.Applicati
                 throw new DoNotSend();
             }
         } catch (FieldNotFound e) {
-            // MsgType is always available
+            logger.error(e);
         }
     }
 

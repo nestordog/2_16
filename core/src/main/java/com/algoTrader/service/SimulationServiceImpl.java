@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
@@ -42,6 +43,7 @@ import com.algoTrader.esper.EsperManager;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
 import com.algoTrader.esper.io.CsvTickInputAdapterSpec;
 import com.algoTrader.esper.io.GenericEventInputAdapterSpec;
+import com.algoTrader.util.CollectionUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.util.spring.Configuration;
@@ -421,6 +423,9 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             }
         }
 
+        // get potential strategy specific results
+        StrategyService strategyService = CollectionUtil.getSingleElement(ServiceLocator.instance().getServices(StrategyService.class));
+
         // assemble the result
         SimulationResultVO resultVO = new SimulationResultVO();
         resultVO.setMins(((double) (System.currentTimeMillis() - startTime)) / 60000);
@@ -433,10 +438,12 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         resultVO.setAllTrades(allTrades);
         resultVO.setWinningTrades(winningTrades);
         resultVO.setLoosingTrades(loosingTrades);
+        resultVO.setStrategyResults(strategyService.getSimulationResults());
 
         return resultVO;
     }
 
+    @SuppressWarnings("unchecked")
     private static String convertStatisticsToShortString(SimulationResultVO resultVO) {
 
         StringBuffer buffer = new StringBuffer();
@@ -473,9 +480,14 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         buffer.append(" avgPPctLoos=" + twoDigitFormat.format(resultVO.getLoosingTrades().getAvgProfitPct() * 100.0) + "%");
         buffer.append(" totalTrds=" + resultVO.getAllTrades().getCount());
 
+        for (Map.Entry<String, Object> entry : ((Map<String, Object>) resultVO.getStrategyResults()).entrySet()) {
+            buffer.append(" " + entry.getKey() + "=" + entry.getValue());
+        }
+
         return buffer.toString();
     }
 
+    @SuppressWarnings("unchecked")
     private String convertStatisticsToLongString(SimulationResultVO resultVO) {
 
         if (resultVO.getAllTrades().getCount() == 0) {
@@ -567,6 +579,10 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         buffer.append("AllTrades:");
         buffer.append(printTrades(resultVO.getAllTrades(), resultVO.getAllTrades().getCount()));
+
+        for (Map.Entry<String, Object> entry : ((Map<String, Object>) resultVO.getStrategyResults()).entrySet()) {
+            buffer.append(entry.getKey() + "=" + entry.getValue() + " ");
+        }
 
         return buffer.toString();
     }

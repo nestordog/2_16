@@ -15,7 +15,7 @@ select
     cast(currentOrder.parentOrder, com.algoTrader.entity.trade.IncrementalOrder).modifyOrder()
 from
     pattern [every currentOrder=GenericOrder(instanceof(parentOrder,com.algoTrader.entity.trade.IncrementalOrder))
-        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.extId = currentOrder.extId))]
+        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.intId = currentOrder.intId))]
 where
     cast(currentOrder.parentOrder, com.algoTrader.entity.trade.IncrementalOrder).checkLimit();
 
@@ -26,7 +26,7 @@ select
     currentOrder.parentOrder
 from
     pattern [every currentOrder=GenericOrder(instanceof(parentOrder,com.algoTrader.entity.trade.IncrementalOrder))
-        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.extId = currentOrder.extId))]
+        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.intId = currentOrder.intId))]
 where
     not cast(currentOrder.parentOrder, com.algoTrader.entity.trade.IncrementalOrder).checkLimit();
 
@@ -40,8 +40,8 @@ select
 from
     //every GenericOrder -> (OrderStatusC and not OrderStatusEorPE)
     pattern [every currentOrder=GenericOrder(instanceof(parentOrder,com.algoTrader.entity.trade.SlicingOrder))
-        -> (OrderStatus(status = Status.CANCELED, ord.extId = currentOrder.extId)
-            and not OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, ord.extId = currentOrder.extId))];
+        -> (OrderStatus(status = Status.CANCELED, ord.intId = currentOrder.intId)
+            and not OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, ord.intId = currentOrder.intId))];
 
 @Name('SLICINING_INCREASE_OFFSET_TICKS')
 @RunTimeOnly
@@ -51,8 +51,8 @@ select
 from
     //every GenericOrder -> (OrderStatusEorPE and not OrderStatusC)
     pattern [every currentOrder=GenericOrder(instanceof(parentOrder,com.algoTrader.entity.trade.SlicingOrder))
-        -> (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, ord.extId = currentOrder.extId)
-            and not OrderStatus(status = Status.CANCELED, ord.extId = currentOrder.extId))];
+        -> (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, ord.intId = currentOrder.intId)
+            and not OrderStatus(status = Status.CANCELED, ord.intId = currentOrder.intId))];
 
 @Name('SLICINING_CANCEL_ORDER')
 @RunTimeOnly
@@ -63,7 +63,7 @@ from
     //every GenericOrder -> (timer:interval and not OrderStatusEorC)
     pattern [every currentOrder=GenericOrder(instanceof(parentOrder,com.algoTrader.entity.trade.SlicingOrder))
         -> (timer:interval(cast(currentOrder.parentOrder.minDuration?,double) + (cast(currentOrder.parentOrder.maxDuration?,double) - cast(currentOrder.parentOrder.minDuration?,double)) * Math.random())
-            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.extId = currentOrder.extId))];
+            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.intId = currentOrder.intId))];
 
 @Name('SLICINING_FIRST_ORDER')
 @RunTimeOnly
@@ -81,9 +81,9 @@ select
 from
     // every SlicingOrder -> every ((OrderStatusLimit -> timer:interval) and not OrderStatusSlicing)
     pattern [every slicingOrder=com.algoTrader.entity.trade.SlicingOrder
-            -> every ((OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.parentOrder.extId = slicingOrder.extId)
+            -> every ((OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.parentOrder.intId = slicingOrder.intId)
             -> timer:interval(slicingOrder.minDelay + (slicingOrder.maxDelay - slicingOrder.minDelay) * Math.random()))
-            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.extId = slicingOrder.extId))] unidirectional,
+            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.intId = slicingOrder.intId))] unidirectional,
     OpenOrderWindow() as openOrderWindow
 where
-    openOrderWindow.extId = slicingOrder.extId;
+    openOrderWindow.intId = slicingOrder.intId;
