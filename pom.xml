@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>algotrader</groupId>
     <artifactId>algotrader</artifactId>
-    <version>1.12</version>
+    <version>1.13-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>AlgoTrader</name>
     <description>The AlgoTrader Project.</description>
@@ -22,7 +22,7 @@
         </developer>
     </developers>
     <scm>
-        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/tags/AlgoTrader-1.12</developerConnection>
+        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</developerConnection>
     </scm>
     <build>
         <defaultGoal>install</defaultGoal>
