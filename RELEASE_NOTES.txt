@@ -82,7 +82,7 @@ MailMessageReceiver
 AndroMDA 3.4
 ForexFuture / FX Hedging by ForexFuture
 
-1.12
+1.12 (R5597)
 Esper 4.8
 use Spring Integration for Mail Reconciliation
 Esper Threading
@@ -91,6 +91,8 @@ Portfolio Value Restoring
 OpenPositionCallback / ClosePositionCallback
 Generic approach for Bars and Ticks
 FIX:
+    FIX 4.4
+    DukasCopy Fix Interface
     Init orderId from log-file
     Weekly Fix logon/logoff
 Client:
