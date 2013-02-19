@@ -1,13 +1,11 @@
-cd %ALGOTRADER_CLIENT_HOME%
-
 start javaw.exe ^
--classpath target\*;^
-%ALGOTRADER_CLIENT_HOME%\lib\indicator-plugin.jar;^
+-classpath ..\target\*;^
+..\lib\indicator-plugin.jar;^
 %JAVA_HOME%\lib\jconsole.jar;^
 %JAVA_HOME%\lib\tools.jar ^
--Djavax.net.ssl.keyStore=%ALGOTRADER_CLIENT_HOME%/bin/keystore ^
+-Djavax.net.ssl.keyStore=keystore ^
 -Djavax.net.ssl.keyStorePassword=Zermatt11 ^
--Djavax.net.ssl.trustStore=%ALGOTRADER_CLIENT_HOME%/bin/truststore ^
+-Djavax.net.ssl.trustStore=truststore ^
 -Djavax.net.ssl.trustStorePassword=Zermatt11 ^
 sun.tools.jconsole.JConsole ^
 -interval=60 ^
@@ -17,6 +15,6 @@ macro.test.linardcapital.com:1097 ^
 tailhedge.test.linardcapital.com:1095 ^
 static.test.linardcapital.com:1093 ^
 fixed.test.linardcapital.com:1091 ^
-atr.test.linardcapital.com:1089 ^
 rollyield.test.linardcapital.com:1087 ^
-countertrend.test.linardcapital.com:1085
+countertrend.test.linardcapital.com:1085 ^
+endofday.test.linardcapital.com:1083
