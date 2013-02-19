@@ -174,7 +174,8 @@ public class PositionUtil {
         // add the transactions to a map by their id
         Map<Integer, Transaction> transactionMap = new HashMap<Integer, Transaction>();
         for (Transaction transaction : transactions) {
-            transactionMap.put(transaction.getId(), transaction);
+            Transaction clone = cloneTransaction(transaction, transaction.getQuantity());
+            transactionMap.put(transaction.getId(), clone);
         }
 
         // go through the list of openPositionTransactions
