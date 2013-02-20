@@ -1,11 +1,13 @@
 package com.algoTrader.entity.marketData;
 
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.security.Security;
@@ -133,7 +135,17 @@ public class TickDaoImpl extends TickDaoBase {
             String query = "select * from TickWindow where security.id = " + subscription.getSecurity().getId();
             Pair<Tick, Object> pair = (Pair<Tick, Object>)EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, query);
             if (pair != null) {
-                ticks.add(pair.getFirst());
+
+                Tick tick = pair.getFirst();
+                tick.setDateTime(new Date());
+
+                // refresh the security (associated entities might have been modified
+                Security security = ServiceLocator.instance().getLookupService().getSecurityInitialized(tick.getSecurity().getId());
+                tick.setSecurity(security);
+
+                if (security.validateTick(tick)) {
+                    ticks.add(tick);
+                }
             }
         }
 
