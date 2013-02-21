@@ -6,11 +6,13 @@
     xmlns:int-file="http://www.springframework.org/schema/integration/file"
     xmlns:int-mail="http://www.springframework.org/schema/integration/mail"
     xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
     xsi:schemaLocation="http://www.springframework.org/schema/integration/mail http://www.springframework.org/schema/integration/mail/spring-integration-mail-2.1.xsd
         http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.1.xsd
         http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file-2.1.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
     <!-- ============================= Data Source an Transaction Management ============================ -->
 
@@ -179,6 +181,12 @@
         <int:service-activator
             input-channel="outputChannel"
             expression="headers.reconciliationService.reconcile(headers.file_name, payload)"/>
+
+        <util:properties id="javaMailProperties">
+            <prop key="mail.imap.timeout">180000</prop>
+<!--             <prop key="mail.debug">true</prop> -->
+        </util:properties>
+
     </beans>
 
     <beans profile="ucitsReconciliation">
@@ -187,7 +195,8 @@
             store-uri="imap://vola:Zermatt11@mail.linardcapital.com/INBOX"
             channel="inputChannel"
             auto-startup="true"
-            should-delete-messages="true"/>
+            should-delete-messages="true"
+            java-mail-properties="javaMailProperties"/>
 
         <bean id="dispositions" class="org.springframework.beans.factory.config.SetFactoryBean">
             <property name="sourceSet">
@@ -207,7 +216,8 @@
             store-uri="imap://quant:Zermatt11@mail.linardcapital.com/INBOX"
             channel="inputChannel"
             auto-startup="true"
-            should-delete-messages="true"/>
+            should-delete-messages="true"
+            java-mail-properties="javaMailProperties"/>
 
         <bean id="dispositions" class="org.springframework.beans.factory.config.SetFactoryBean">
             <property name="sourceSet">
