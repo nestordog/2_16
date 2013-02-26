@@ -67,39 +67,52 @@ public class DataViewer extends JPanel {
             List<Object> list = new ArrayList<Object>(col);
             Class<?> cl = list.get(0).getClass();
 
-            Field[] allFields = new Field[0];
-            do {
-                allFields = (Field[]) ArrayUtils.addAll(cl.getDeclaredFields(), allFields);
-                cl = cl.getSuperclass();
-            } while (cl != null && cl != Object.class);
+            if (cl.getPackage().getName().startsWith("java.lang")) {
 
-            AccessibleObject.setAccessible(allFields, true);
-            List<Field> fields = new ArrayList<Field>();
-            for (Field field : allFields) {
-                if (field.getName().startsWith("set")) {
-                    continue;
-                } else if (Modifier.isTransient(field.getModifiers())) {
-                    continue;
-                } else if (Modifier.isStatic(field.getModifiers())) {
-                    continue;
+                this.columnNames = new String[] { "" };
+                this.columnClasses = new Class<?>[] { cl };
+                this.cells = new Object[list.size()][1];
+
+                for (int i = 0; i < list.size(); i++) {
+                    this.cells[i][0] = list.get(i);
                 }
-                fields.add(field);
-            }
-            this.columnNames = new String[fields.size()];
-            this.columnClasses = new Class<?>[fields.size()];
-            this.cells = new Object[list.size()][fields.size()];
-            for (int i = 0; i < fields.size(); i++) {
-                this.columnNames[i] = fields.get(i).getName();
-                this.columnClasses[i] = convertClassIfNecessary(fields.get(i).getType());
-            }
-            for (int i = 0; i < list.size(); i++) {
-                Object obj = list.get(i);
-                for (int j = 0; j < fields.size(); j++) {
-                    Field field = fields.get(j);
-                    try {
-                        this.cells[i][j] = field.get(obj);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
+
+            } else {
+
+                Field[] allFields = new Field[0];
+                do {
+                    allFields = (Field[]) ArrayUtils.addAll(cl.getDeclaredFields(), allFields);
+                    cl = cl.getSuperclass();
+                } while (cl != null && cl != Object.class);
+
+                AccessibleObject.setAccessible(allFields, true);
+                List<Field> fields = new ArrayList<Field>();
+                for (Field field : allFields) {
+                    if (field.getName().startsWith("set")) {
+                        continue;
+                    } else if (Modifier.isTransient(field.getModifiers())) {
+                        continue;
+                    } else if (Modifier.isStatic(field.getModifiers())) {
+                        continue;
+                    }
+                    fields.add(field);
+                }
+                this.columnNames = new String[fields.size()];
+                this.columnClasses = new Class<?>[fields.size()];
+                this.cells = new Object[list.size()][fields.size()];
+                for (int i = 0; i < fields.size(); i++) {
+                    this.columnNames[i] = fields.get(i).getName();
+                    this.columnClasses[i] = convertClassIfNecessary(fields.get(i).getType());
+                }
+                for (int i = 0; i < list.size(); i++) {
+                    Object obj = list.get(i);
+                    for (int j = 0; j < fields.size(); j++) {
+                        Field field = fields.get(j);
+                        try {
+                            this.cells[i][j] = field.get(obj);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
             }
