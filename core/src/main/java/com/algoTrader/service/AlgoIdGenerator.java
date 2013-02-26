@@ -16,8 +16,8 @@ public final class AlgoIdGenerator {
         return instance;
     }
 
-    public int getNextOrderId() {
+    public String getNextOrderId() {
 
-        return this.orderId++;
+        return String.valueOf(this.orderId++);
     }
 }

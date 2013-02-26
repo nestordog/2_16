@@ -16,6 +16,53 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `account`
+--
+
+DROP TABLE IF EXISTS `account`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `account` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `NAME` varchar(20) NOT NULL,
+  `ACTIVE` bit(1) NOT NULL,
+  `ORDER_SERVICE_TYPE` enum('IB_NATIVE','IB_FIX','JPM_FIX','DC_FIX') NOT NULL,
+  `SESSION_QUALIFIER` varchar(10) DEFAULT NULL,
+  `EXT_ACCOUNT` varchar(20) DEFAULT NULL,
+  `EXT_ACCOUNT_GROUP` varchar(20) DEFAULT NULL,
+  `EXT_ALLOCATION_PROFILE` varchar(20) DEFAULT NULL,
+  `EXT_CLEARING_ACCOUNT` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `NAME` (`NAME`),
+  UNIQUE KEY `EXT_ACCOUNT` (`EXT_ACCOUNT`),
+  UNIQUE KEY `EXT_ACCOUNT_GROUP` (`EXT_ACCOUNT_GROUP`),
+  UNIQUE KEY `EXT_ALLOCATION_PROFILE` (`EXT_ALLOCATION_PROFILE`),
+  UNIQUE KEY `EXT_CLEARING_ACCOUNT` (`EXT_CLEARING_ACCOUNT`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `allocation`
+--
+
+DROP TABLE IF EXISTS `allocation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `allocation` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `VALUE` double NOT NULL,
+  `ORDER_PREFERENCE_FK` int(11) DEFAULT NULL,
+  `ACCOUNT_FK` int(11) NOT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `ORDER_PREFERENCE_ACCOUNT_UNIQUE` (`ORDER_PREFERENCE_FK`,`ACCOUNT_FK`),
+  KEY `ALLOCATION_ACCOUNT_FKC` (`ACCOUNT_FK`),
+  KEY `ALLOCATION_ORDER_PREFERENCE_FC` (`ORDER_PREFERENCE_FK`),
+  CONSTRAINT `ALLOCATION_ACCOUNT_FKC` FOREIGN KEY (`ACCOUNT_FK`) REFERENCES `account` (`ID`),
+  CONSTRAINT `ALLOCATION_ORDER_PREFERENCE_FC` FOREIGN KEY (`ORDER_PREFERENCE_FK`) REFERENCES `order_preference` (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `bar`
 --
 
@@ -31,8 +78,9 @@ CREATE TABLE `bar` (
   `LOW` decimal(12,5) NOT NULL,
   `CLOSE` decimal(12,5) NOT NULL,
   `VOL` int(11) NOT NULL,
-  `OPEN_INTEREST` int(11) NOT NULL,
+  `OPEN_INTREST` int(11) NOT NULL,
   `SETTLEMENT` decimal(12,5) DEFAULT NULL,
+  `BAR_SIZE` bigint(20) NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `MARKET_DATA_EVENT_SECURITY_FKC17c13` (`SECURITY_FK`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
@@ -273,6 +321,22 @@ CREATE TABLE `intrest_rate` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Temporary table structure for view `jpm_trades_per_day`
+--
+
+DROP TABLE IF EXISTS `jpm_trades_per_day`;
+/*!50001 DROP VIEW IF EXISTS `jpm_trades_per_day`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE TABLE `jpm_trades_per_day` (
+  `date(transaction.date_time)` date,
+  `SECURITY_FK` int(11),
+  `type` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST_PAID','INTREST_RECEIVED','FEES','REFUND','REBALANCE','TRANSFER'),
+  `sum(transaction.QUANTITY)` decimal(41,0)
+) ENGINE=MyISAM */;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Table structure for table `measurement`
 --
 
@@ -322,9 +386,12 @@ CREATE TABLE `order_preference` (
   `ID` int(11) NOT NULL,
   `NAME` varchar(50) NOT NULL,
   `ORDER_TYPE` enum('MARKET','LIMIT','STOP','STOP_LIMIT','SLICING','TICKWISE_INCREMENTAL','VARIABLE_INCREMENTAL') NOT NULL,
+  `DEFAULT_ACCOUNT_FK` int(11) DEFAULT NULL,
   `VERSION` int(11) NOT NULL,
   PRIMARY KEY (`ID`),
-  UNIQUE KEY `NAME_UNIQUE` (`NAME`)
+  UNIQUE KEY `NAME_UNIQUE` (`NAME`),
+  KEY `ORDER_PREFERENCE_DEFAULT_ACCOC` (`DEFAULT_ACCOUNT_FK`),
+  CONSTRAINT `ORDER_PREFERENCE_DEFAULT_ACCOC` FOREIGN KEY (`DEFAULT_ACCOUNT_FK`) REFERENCES `account` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -628,11 +695,11 @@ CREATE TABLE `transaction` (
   `CLEARING_COMMISSION` decimal(15,2) DEFAULT NULL,
   `CURRENCY` enum('CHF','EUR','USD','GBP') NOT NULL,
   `TYPE` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST_PAID','INTREST_RECEIVED','FEES','REFUND','REBALANCE','TRANSFER') NOT NULL,
-  `MARKET_CHANNEL` enum('IB_NATIVE','IB_FIX','JPM_FIX','RBS_MANUAL') DEFAULT NULL,
   `DESCRIPTION` varchar(255) DEFAULT NULL,
   `SECURITY_FK` int(11) DEFAULT NULL,
   `STRATEGY_FK` int(11) DEFAULT NULL,
   `POSITION_FK` int(11) DEFAULT NULL,
+  `ACCOUNT_FK` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `DATE_TIME_PRICE_TYPE_DESCRIPTION_UNIQUE` (`DATE_TIME`,`PRICE`,`TYPE`,`DESCRIPTION`),
   UNIQUE KEY `EXT_ID_UNIQUE` (`EXT_ID`),
@@ -641,12 +708,34 @@ CREATE TABLE `transaction` (
   KEY `TRANSACTION_POSITION_FKC` (`POSITION_FK`),
   KEY `TRANSACTION_SECURITY_FKC` (`SECURITY_FK`),
   KEY `TRANSACTION_STRATEGY_FKC` (`STRATEGY_FK`),
+  KEY `TRANSACTION_ACCOUNT_FKC` (`ACCOUNT_FK`),
+  CONSTRAINT `TRANSACTION_ACCOUNT_FKC` FOREIGN KEY (`ACCOUNT_FK`) REFERENCES `account` (`ID`),
   CONSTRAINT `TRANSACTION_POSITION_FKC` FOREIGN KEY (`POSITION_FK`) REFERENCES `position` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `TRANSACTION_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `TRANSACTION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+--
+-- Final view structure for view `jpm_trades_per_day`
+--
+
+/*!50001 DROP TABLE IF EXISTS `jpm_trades_per_day`*/;
+/*!50001 DROP VIEW IF EXISTS `jpm_trades_per_day`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = latin1 */;
+/*!50001 SET character_set_results     = latin1 */;
+/*!50001 SET collation_connection      = latin1_swedish_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `jpm_trades_per_day` AS select cast(`transaction`.`DATE_TIME` as date) AS `date(transaction.date_time)`,`transaction`.`SECURITY_FK` AS `SECURITY_FK`,`transaction`.`TYPE` AS `type`,sum(`transaction`.`QUANTITY`) AS `sum(transaction.QUANTITY)` from `transaction` where (`transaction`.`MARKET_CHANNEL` = 'JPM_FIX') group by cast(`transaction`.`DATE_TIME` as date),`transaction`.`SECURITY_FK`,`transaction`.`TYPE` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
@@ -656,4 +745,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-02-06 19:08:08
+-- Dump completed on 2013-02-26 16:51:19

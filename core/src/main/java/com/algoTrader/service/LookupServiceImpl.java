@@ -31,6 +31,7 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.security.StockOptionFamily;
+import com.algoTrader.entity.strategy.Account;
 import com.algoTrader.entity.strategy.CashBalance;
 import com.algoTrader.entity.strategy.DefaultOrderPreference;
 import com.algoTrader.entity.strategy.Measurement;
@@ -38,6 +39,7 @@ import com.algoTrader.entity.strategy.OrderPreference;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
+import com.algoTrader.enumeration.OrderServiceType;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.PositionUtil;
@@ -559,9 +561,21 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Order handleGetOpenOrderByIntId(int intId) throws Exception {
+    protected Order handleGetOpenOrderByIntId(String intId) throws Exception {
 
         return getOrderDao().findOpenOrderByIntId(intId);
+    }
+
+    @Override
+    protected Order handleGetOpenOrderByRootIntId(String intId) throws Exception {
+
+        return getOrderDao().findOpenOrderByRootIntId(intId);
+    }
+
+    @Override
+    protected Order handleGetOpenOrderByExtId(String extId) throws Exception {
+
+        return getOrderDao().findOpenOrderByExtId(extId);
     }
 
     @Override
@@ -590,6 +604,18 @@ public class LookupServiceImpl extends LookupServiceBase {
         } else {
             throw new IllegalStateException("no default order preference defined for securityFamilyId " + securityFamilyId + " and " + strategyName);
         }
+    }
+
+    @Override
+    protected Account handleGetAccountByName(String accountName) throws Exception {
+
+        return getAccountDao().findByName(accountName);
+    }
+
+    @Override
+    protected Collection<String> handleGetActiveSessionsByOrderServiceType(OrderServiceType orderServiceType) throws Exception {
+
+        return getAccountDao().findActiveSessionsByOrderServiceType(orderServiceType);
     }
 
     @Override

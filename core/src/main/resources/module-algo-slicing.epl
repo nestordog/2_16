@@ -1,35 +1,3 @@
-// ------------------------------ Incremental Limit Order ---------------------------------------
-
-@Name('INCREMENTAL_FIRST_ORDER')
-@RunTimeOnly
-@Subscriber(className='com.algoTrader.service.OrderService.sendOrder')
-select
-    incrementalOrder.firstOrder()
-from
-    com.algoTrader.entity.trade.IncrementalOrder as incrementalOrder;
-
-@Name('INCREMENTAL_MODIFY_ORDER')
-@RunTimeOnly
-@Subscriber(className='com.algoTrader.service.OrderService.modifyOrder')
-select
-    cast(currentOrder.parentOrder, com.algoTrader.entity.trade.IncrementalOrder).modifyOrder()
-from
-    pattern [every currentOrder=GenericOrder(instanceof(parentOrder,com.algoTrader.entity.trade.IncrementalOrder))
-        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.intId = currentOrder.intId))]
-where
-    cast(currentOrder.parentOrder, com.algoTrader.entity.trade.IncrementalOrder).checkLimit();
-
-@Name('INCREMENTAL_CANCEL_ORDER')
-@RunTimeOnly
-@Subscriber(className='com.algoTrader.service.OrderService.cancelOrder')
-select
-    currentOrder.parentOrder
-from
-    pattern [every currentOrder=GenericOrder(instanceof(parentOrder,com.algoTrader.entity.trade.IncrementalOrder))
-        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.intId = currentOrder.intId))]
-where
-    not cast(currentOrder.parentOrder, com.algoTrader.entity.trade.IncrementalOrder).checkLimit();
-
 // ------------------------------ Slicing Limit Order ---------------------------------------
 
 @Name('SLICINING_DECREASE_OFFSET_TICKS')
@@ -38,10 +6,10 @@ where
 select
     cast(currentOrder.parentOrder, com.algoTrader.entity.trade.SlicingOrder).decreaseOffsetTicks()
 from
-    //every GenericOrder -> (OrderStatusC and not OrderStatusEorPE)
+    //every GenericOrder -> (OrderStatusC and not (OrderStatusEorPE or GenericOrder))
     pattern [every currentOrder=GenericOrder(instanceof(parentOrder,com.algoTrader.entity.trade.SlicingOrder))
         -> (OrderStatus(status = Status.CANCELED, ord.intId = currentOrder.intId)
-            and not OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, ord.intId = currentOrder.intId))];
+            and not (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, ord.intId = currentOrder.intId) or GenericOrder(intId = currentOrder.intId)))];
 
 @Name('SLICINING_INCREASE_OFFSET_TICKS')
 @RunTimeOnly
@@ -49,10 +17,10 @@ from
 select
     cast(currentOrder.parentOrder, com.algoTrader.entity.trade.SlicingOrder).increaseOffsetTicks()
 from
-    //every GenericOrder -> (OrderStatusEorPE and not OrderStatusC)
+    //every GenericOrder -> (OrderStatusEorPE and not (OrderStatusC or GenericOrder))
     pattern [every currentOrder=GenericOrder(instanceof(parentOrder,com.algoTrader.entity.trade.SlicingOrder))
         -> (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, ord.intId = currentOrder.intId)
-            and not OrderStatus(status = Status.CANCELED, ord.intId = currentOrder.intId))];
+            and not (OrderStatus(status = Status.CANCELED, ord.intId = currentOrder.intId) or GenericOrder(intId = currentOrder.intId)))];
 
 @Name('SLICINING_CANCEL_ORDER')
 @RunTimeOnly

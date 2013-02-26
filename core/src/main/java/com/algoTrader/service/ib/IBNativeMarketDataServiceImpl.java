@@ -14,10 +14,10 @@ import com.algoTrader.vo.SubscribeTickVO;
 import com.algoTrader.vo.UnsubscribeTickVO;
 import com.ib.client.Contract;
 
-public class IBMarketDataServiceImpl extends IBMarketDataServiceBase implements DisposableBean {
+public class IBNativeMarketDataServiceImpl extends IBMarketDataServiceBase implements DisposableBean {
 
     private static final long serialVersionUID = -4704799803078842628L;
-    private static Logger logger = MyLogger.getLogger(IBMarketDataServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBNativeMarketDataServiceImpl.class.getName());
     private static IBClient client;
 
     private @Value("${ib.genericTickList}") String genericTickList;

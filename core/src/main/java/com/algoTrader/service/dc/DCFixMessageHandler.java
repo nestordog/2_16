@@ -5,11 +5,15 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
+import quickfix.ConfigError;
+import quickfix.FieldConvertError;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
+import quickfix.SessionSettings;
 import quickfix.field.CumQty;
 import quickfix.field.OrdStatus;
-import quickfix.field.OrderID;
+import quickfix.field.Password;
+import quickfix.field.Username;
 import quickfix.fix44.ExecutionReport;
 import quickfix.fix44.Logon;
 import quickfix.fix44.OrderCancelReject;
@@ -32,31 +36,29 @@ public class DCFixMessageHandler {
 
     private static Logger logger = MyLogger.getLogger(DCFixMessageHandler.class.getName());
 
-    private String username = ServiceLocator.instance().getConfiguration().getString("dc.username");
-    private String password = ServiceLocator.instance().getConfiguration().getString("dc.password");
+    private final SessionSettings settings;
+
+    public DCFixMessageHandler(SessionSettings settings) {
+
+        this.settings = settings;
+    }
 
     public void onMessage(ExecutionReport executionReport, SessionID sessionID) {
 
         try {
 
-            Integer clOrdID = Integer.parseInt(executionReport.getClOrdID().getValue());
+            String intId = executionReport.getClOrdID().getValue();
 
             // NOTE: DukasCopy does not use ExecType instead it uses only OrdStatus
             if (executionReport.getOrdStatus().getValue() == OrdStatus.REJECTED) {
-                logger.error("order " + clOrdID + " has been rejected, reason: " + executionReport.getText().getValue());
+                logger.error("order " + intId + " has been rejected, reason: " + executionReport.getText().getValue());
             }
 
             // get the order from the OpenOrderWindow
-            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByIntId(clOrdID);
+            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByRootIntId(intId);
             if (order == null) {
-                logger.error("order could not be found " + clOrdID + " for execution " + executionReport);
+                logger.error("order with intId " + intId + " could not be found for execution " + executionReport);
                 return;
-            }
-
-            // Note: DukasCopy requires OrderID for cancels and replaces
-            if (order.getExtId() == null && executionReport.isSet(new OrderID())) {
-                order.setExtId(executionReport.getOrderID().getValue());
-                EsperManager.sendEvent(StrategyImpl.BASE, order);
             }
 
             // get the other fields
@@ -70,6 +72,16 @@ public class DCFixMessageHandler {
             orderStatus.setFilledQuantity(filledQuantity);
             orderStatus.setRemainingQuantity(remainingQuantity);
             orderStatus.setOrd(order);
+
+            // update intId in case it has changed
+            if (!order.getIntId().equals(intId)) {
+                orderStatus.setIntId(intId);
+            }
+
+            // Note: store OrderID sind DukasCopy requires it for cancels and replaces
+            if (order.getExtId() == null) {
+                orderStatus.setExtId(executionReport.getOrderID().getValue());
+            }
 
             EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
 
@@ -127,27 +139,25 @@ public class DCFixMessageHandler {
         }
     }
 
-    public void onMessage(Logon logon, SessionID sessionID) {
+    public void onMessage(Logon logon, SessionID sessionID) throws ConfigError, FieldConvertError {
 
-        logon.setString(553, this.username);
-        logon.setString(554, this.password);
+        logon.set(new Username(this.settings.getString(sessionID, "Username")));
+        logon.set(new Password(this.settings.getString(sessionID, "Password")));
     }
 
     public static Status getStatus(OrdStatus ordStatus, CumQty cumQty) {
 
         // Note: DukasCopy uses CALCULATED instead of NEW
         if (ordStatus.getValue() == OrdStatus.CALCULATED || ordStatus.getValue() == OrdStatus.PENDING_NEW) {
-            return Status.SUBMITTED;
-        } else if (ordStatus.getValue() == OrdStatus.FILLED) {
-            return Status.EXECUTED;
-        } else if (ordStatus.getValue() == OrdStatus.CANCELED || ordStatus.getValue() == OrdStatus.REJECTED) {
-            return Status.CANCELED;
-        } else if (ordStatus.getValue() == OrdStatus.REPLACED) {
             if (cumQty.getValue() == 0) {
                 return Status.SUBMITTED;
             } else {
                 return Status.PARTIALLY_EXECUTED;
             }
+        } else if (ordStatus.getValue() == OrdStatus.FILLED) {
+            return Status.EXECUTED;
+        } else if (ordStatus.getValue() == OrdStatus.CANCELED || ordStatus.getValue() == OrdStatus.REJECTED) {
+            return Status.CANCELED;
         } else {
             throw new IllegalArgumentException("unknown orderStatus " + ordStatus.getValue());
         }

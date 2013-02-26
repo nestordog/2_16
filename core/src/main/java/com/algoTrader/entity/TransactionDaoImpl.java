@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.strategy.Account;
 import com.algoTrader.vo.TransactionVO;
 
 public class TransactionDaoImpl extends TransactionDaoBase {
@@ -41,9 +42,14 @@ public class TransactionDaoImpl extends TransactionDaoBase {
             transactionVO.setPrice(transaction.getPrice().setScale(this.portfolioDigits, BigDecimal.ROUND_HALF_UP));
         }
 
-        transactionVO.setStrategyName(transaction.getStrategy().getName());
+        transactionVO.setStrategy(transaction.getStrategy().toString());
         transactionVO.setValue(transaction.getNetValue());
         transactionVO.setCommission(transaction.getTotalCommission());
+
+        Account account = transaction.getAccount();
+        if (account != null) {
+            transactionVO.setAccount(account.toString());
+        }
     }
 
     @Override

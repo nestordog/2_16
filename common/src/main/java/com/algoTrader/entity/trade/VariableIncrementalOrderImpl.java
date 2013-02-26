@@ -85,7 +85,7 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
         order.setSide(this.getSide());
         order.setQuantity(this.getQuantity());
         order.setLimit(this.startLimit);
-        order.setMarketChannel(this.getMarketChannel());
+        order.setAccount(this.getAccount());
 
         return order;
     }

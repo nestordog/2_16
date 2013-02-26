@@ -22,10 +22,10 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.ib.client.Contract;
 
-public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase implements DisposableBean {
+public class IBNativeHistoricalDataServiceImpl extends IBHistoricalDataServiceBase implements DisposableBean {
 
     private static final long serialVersionUID = 8656307573474662794L;
-    private static Logger logger = MyLogger.getLogger(IBHistoricalDataServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBNativeHistoricalDataServiceImpl.class.getName());
     private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 
@@ -51,13 +51,13 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
             public void historicalData(int requestId, String dateString, double open, double high, double low, double close, int volume, int count, double WAP,
                     boolean hasGaps) {
 
-                IBHistoricalDataServiceImpl.this.lock.lock();
+                IBNativeHistoricalDataServiceImpl.this.lock.lock();
                 try {
 
                     if (dateString.startsWith("finished")) {
 
-                        IBHistoricalDataServiceImpl.this.success = true;
-                        IBHistoricalDataServiceImpl.this.condition.signalAll();
+                        IBNativeHistoricalDataServiceImpl.this.success = true;
+                        IBNativeHistoricalDataServiceImpl.this.condition.signalAll();
 
                         return;
                     }
@@ -77,7 +77,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
                     bar.setClose(RoundUtil.getBigDecimal(close));
                     bar.setVol(volume);
 
-                    IBHistoricalDataServiceImpl.this.barList.add(bar);
+                    IBNativeHistoricalDataServiceImpl.this.barList.add(bar);
 
                     if (hasGaps) {
 
@@ -99,7 +99,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
                 } catch (Exception e) {
                     throw new HistoricalDataServiceException(e);
                 } finally {
-                    IBHistoricalDataServiceImpl.this.lock.unlock();
+                    IBNativeHistoricalDataServiceImpl.this.lock.unlock();
                 }
             }
 
@@ -108,7 +108,7 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
 
                 super.connectionClosed();
 
-                IBHistoricalDataServiceImpl.this.client.connect();
+                IBNativeHistoricalDataServiceImpl.this.client.connect();
             }
 
             @Override
@@ -121,24 +121,24 @@ public class IBHistoricalDataServiceImpl extends IBHistoricalDataServiceBase imp
                 // but should be available upon demand.
                 if (code == 162 || code == 165 || code == 2105 || code == 2106 || code == 2107) {
 
-                    IBHistoricalDataServiceImpl.this.lock.lock();
+                    IBNativeHistoricalDataServiceImpl.this.lock.lock();
                     try {
 
                         if (code == 2105 || code == 2107) {
 
                             super.error(requestId, code, errorMsg);
-                            IBHistoricalDataServiceImpl.this.success = false;
+                            IBNativeHistoricalDataServiceImpl.this.success = false;
                         }
 
                         if (code == 162) {
 
                             logger.warn("HMDS query returned no data");
-                            IBHistoricalDataServiceImpl.this.success = true;
+                            IBNativeHistoricalDataServiceImpl.this.success = true;
                         }
 
-                        IBHistoricalDataServiceImpl.this.condition.signalAll();
+                        IBNativeHistoricalDataServiceImpl.this.condition.signalAll();
                     } finally {
-                        IBHistoricalDataServiceImpl.this.lock.unlock();
+                        IBNativeHistoricalDataServiceImpl.this.lock.unlock();
                     }
                 } else {
                     super.error(requestId, code, errorMsg);

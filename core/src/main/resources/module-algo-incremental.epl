@@ -1,0 +1,31 @@
+// ------------------------------ Incremental Limit Order ---------------------------------------
+
+@Name('INCREMENTAL_FIRST_ORDER')
+@RunTimeOnly
+@Subscriber(className='com.algoTrader.service.OrderService.sendOrder')
+select
+    incrementalOrder.firstOrder()
+from
+    com.algoTrader.entity.trade.IncrementalOrder as incrementalOrder;
+
+@Name('INCREMENTAL_MODIFY_ORDER')
+@RunTimeOnly
+@Subscriber(className='com.algoTrader.service.OrderService.modifyOrder')
+select
+    cast(currentOrder.parentOrder, com.algoTrader.entity.trade.IncrementalOrder).modifyOrder()
+from
+    pattern [every currentOrder=GenericOrder(instanceof(parentOrder,com.algoTrader.entity.trade.IncrementalOrder))
+        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.intId = currentOrder.intId))]
+where
+    cast(currentOrder.parentOrder, com.algoTrader.entity.trade.IncrementalOrder).checkLimit();
+
+@Name('INCREMENTAL_CANCEL_ORDER')
+@RunTimeOnly
+@Subscriber(className='com.algoTrader.service.OrderService.cancelOrder')
+select
+    currentOrder.parentOrder
+from
+    pattern [every currentOrder=GenericOrder(instanceof(parentOrder,com.algoTrader.entity.trade.IncrementalOrder))
+        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.intId = currentOrder.intId))]
+where
+    not cast(currentOrder.parentOrder, com.algoTrader.entity.trade.IncrementalOrder).checkLimit();

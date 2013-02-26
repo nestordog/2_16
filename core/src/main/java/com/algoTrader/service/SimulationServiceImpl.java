@@ -176,7 +176,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         }
 
         // rebalance portfolio (to distribute initial CREDIT to strategies)
-        getAccountService().rebalancePortfolio();
+        getPortfolioPersistenceService().rebalancePortfolio();
 
         // init StrategyService
         StrategyService strategyService = CollectionUtil.getSingleElement(ServiceLocator.instance().getServices(StrategyService.class));

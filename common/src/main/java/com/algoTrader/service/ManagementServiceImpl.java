@@ -23,6 +23,7 @@ import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.strategy.Account;
 import com.algoTrader.entity.strategy.OrderPreference;
 import com.algoTrader.entity.trade.LimitOrder;
 import com.algoTrader.entity.trade.MarketOrder;
@@ -32,7 +33,6 @@ import com.algoTrader.entity.trade.StopLimitOrder;
 import com.algoTrader.entity.trade.StopOrder;
 import com.algoTrader.entity.trade.TickwiseIncrementalOrder;
 import com.algoTrader.entity.trade.VariableIncrementalOrder;
-import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.MarketDataType;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.esper.EsperManager;
@@ -245,13 +245,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected void handleSendOrder(int securityId, long quantity, String sideString, String type, String marketChannelString, String propertiesString) throws Exception {
+    protected void handleSendOrder(int securityId, long quantity, String sideString, String type, String accountName, String propertiesString) throws Exception {
 
         Side side = Side.fromValue(sideString);
         String strategyName = StrategyUtil.getStartedStrategyName();
 
         Strategy strategy = getLookupService().getStrategyByName(strategyName);
-        final Security security = getLookupService().getSecurity(securityId);
+        Security security = getLookupService().getSecurity(securityId);
 
         // instantiate the order
         Order order;
@@ -286,9 +286,10 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         order.setQuantity(Math.abs(quantity));
         order.setSide(side);
 
-        // set the marketChannel (if defined)
-        if (!"".equals(marketChannelString)) {
-            order.setMarketChannel(MarketChannel.fromString(marketChannelString));
+        // set the account (if defined)
+        if (!"".equals(accountName)) {
+            Account account = getLookupService().getAccountByName(accountName);
+            order.setAccount(account);
         }
 
         // set additional properties
@@ -309,13 +310,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected void handleCancelOrder(int orderNumber) throws Exception {
+    protected void handleCancelOrder(String intId) throws Exception {
 
-        getOrderService().cancelOrder(orderNumber);
+        getOrderService().cancelOrder(intId);
     }
 
     @Override
-    protected void handleModifyOrder(int orderNumber, String propertiesString) throws Exception {
+    protected void handleModifyOrder(String intId, String propertiesString) throws Exception {
 
         // get the properties
         Map<String, String> properties = new HashMap<String, String>();
@@ -323,7 +324,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
             properties.put(nameValue.split("=")[0], nameValue.split("=")[1]);
         }
 
-        getOrderService().modifyOrder(orderNumber, properties);
+        getOrderService().modifyOrder(intId, properties);
     }
 
     @Override

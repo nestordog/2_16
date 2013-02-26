@@ -1,9 +1,8 @@
 package com.algoTrader.service;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,40 +20,22 @@ import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.entity.trade.OrderValidationException;
 import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.enumeration.Direction;
-import com.algoTrader.enumeration.MarketChannel;
+import com.algoTrader.enumeration.OrderServiceType;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.BeanUtil;
+import com.algoTrader.util.CollectionUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.vo.OrderStatusVO;
 
 public abstract class OrderServiceImpl extends OrderServiceBase {
 
-    private static final long serialVersionUID = -135731394908062298L;
-
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
     private static Logger notificationLogger = MyLogger.getLogger("com.algoTrader.service.NOTIFICATION");
 
-    private @Value("#{T(com.algoTrader.enumeration.MarketChannel).fromString('${misc.defaultMarketChannel}')}") MarketChannel defaultMarketChannel;
     private @Value("${simulation}") boolean simulation;
-
-    private Map<MarketChannel, ExternalOrderService> externalOrderServices = new HashMap<MarketChannel, ExternalOrderService>();
-
-    @Override
-    protected void handleInit() {
-
-        for (ExternalOrderService externalOrderService : ServiceLocator.instance().getServices(ExternalOrderService.class)) {
-
-            MarketChannel marketChannel = externalOrderService.getMarketChannel();
-            this.externalOrderServices.put(marketChannel, externalOrderService);
-        }
-
-        if (!this.externalOrderServices.containsKey(this.defaultMarketChannel)) {
-            throw new IllegalStateException("defaultMarketChannel was not found: " + this.defaultMarketChannel);
-        }
-    }
 
     @Override
     protected void handleValidateOrder(Order order) throws Exception {
@@ -103,6 +84,13 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
             sendAlgoOrder((AlgoOrder) order);
         } else {
             getExternalOrderService(order).sendOrder((SimpleOrder) order);
+        }
+    }
+
+    protected void handleSendOrders(Set<Order> orders) throws Exception {
+
+        for (Order order : orders) {
+            sendOrder(order);
         }
     }
 
@@ -175,11 +163,11 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     }
 
     @Override
-    protected void handleCancelOrder(int intId) throws Exception {
+    protected void handleCancelOrder(String intId) throws Exception {
 
         Order order = getOrderDao().findOpenOrderByIntId(intId);
         if (order != null) {
-            cancelOrder(order);
+            internalCancelOrder(order);
         } else {
             throw new IllegalArgumentException("order does not exist " + intId);
         }
@@ -188,6 +176,16 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     @Override
     protected void handleCancelOrder(Order order) throws Exception {
 
+        // check if order exists
+        if (getOrderDao().findOpenOrderByIntId(order.getIntId()) != null) {
+            internalCancelOrder(order);
+        } else {
+            throw new IllegalArgumentException("order does not exist " + order.getIntId());
+        }
+    }
+
+    private void internalCancelOrder(Order order) throws Exception {
+
         if (order instanceof AlgoOrder) {
             cancelAlgoOrder((AlgoOrder) order);
         } else {
@@ -195,7 +193,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         }
     }
 
-    private void cancelAlgoOrder(AlgoOrder order) {
+    private void cancelAlgoOrder(AlgoOrder order) throws Exception {
 
         // cancel existing child orders
         for (Order childOrder : getOrderDao().findOpenOrdersByParentIntId(order.getIntId())) {
@@ -220,7 +218,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
     @SuppressWarnings("rawtypes")
     @Override
-    protected void handleModifyOrder(int intId, Map properties) throws Exception {
+    protected void handleModifyOrder(String intId, Map properties) throws Exception {
 
         Order order = getOrderDao().findOpenOrderByIntId(intId);
         if (order != null) {
@@ -228,8 +226,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
             // populte the properties
             BeanUtil.populate(order, properties);
 
-            modifyOrder(order);
-
+            internalModifyOrder(order);
         } else {
             throw new IllegalArgumentException("order does not exist " + intId);
         }
@@ -237,6 +234,16 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
     @Override
     protected void handleModifyOrder(Order order) throws Exception {
+
+        // check if order exists
+        if (getOrderDao().findOpenOrderByIntId(order.getIntId()) != null) {
+            internalModifyOrder(order);
+        } else {
+            throw new IllegalArgumentException("order does not exist " + order.getIntId());
+        }
+    }
+
+    private void internalModifyOrder(Order order) throws Exception {
 
         if (order instanceof AlgoOrder) {
             throw new UnsupportedOperationException("modification of AlgoOrders are not permitted");
@@ -276,46 +283,26 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         }
     }
 
-    @Override
-    protected Collection<MarketChannel> handleGetMarketChannels() throws Exception {
-
-        return this.externalOrderServices.keySet();
-    }
-
-    @Override
-    protected MarketChannel handleGetDefaultMarketChannel() throws Exception {
-
-        return this.defaultMarketChannel;
-    }
-
-    @Override
-    protected void handleSetDefaultMarketChannel(MarketChannel marketChannel) throws Exception {
-
-        if (this.externalOrderServices.containsKey(marketChannel)) {
-
-            this.defaultMarketChannel = marketChannel;
-            logger.info("SetDefaultMarketChannel to : " + marketChannel);
-        } else {
-            throw new OrderServiceException("marketChannel not active: " + marketChannel);
-        }
-    }
-
     /**
      * if a marketChannel is defined, return the corresponding orderService otherwise
      * assign the defaultMarketChannel and return it
      */
-    private ExternalOrderService getExternalOrderService(Order order) {
+    @SuppressWarnings("unchecked")
+    private ExternalOrderService getExternalOrderService(Order order) throws Exception {
 
-        // add the marketChannel if none was defined
-        if (order.getMarketChannel() == null) {
-            order.setMarketChannel(this.defaultMarketChannel);
+        if (order.getAccount() == null) {
+            throw new IllegalStateException("account missing for order: " + order);
         }
 
-        ExternalOrderService externalOrderService = this.externalOrderServices.get(order.getMarketChannel());
-        if (externalOrderService != null) {
-            return externalOrderService;
-        } else {
-            throw new IllegalStateException("externalOrderService does not exist " + order.getMarketChannel());
+        OrderServiceType orderServiceType = order.getAccount().getOrderServiceType();
+        Class<ExternalOrderService> orderServiceClass = (Class<ExternalOrderService>) Class.forName(orderServiceType.getValue());
+
+        ExternalOrderService externalOrderService = CollectionUtil.getSingleElementOrNull(ServiceLocator.instance().getServices(orderServiceClass));
+
+        if (externalOrderService == null) {
+            throw new IllegalStateException("externalOrderService was not found: " + orderServiceType);
         }
+
+        return externalOrderService;
     }
 }

@@ -24,7 +24,7 @@ public class FixApplicationFactory {
             } else {
                 throw new IllegalStateException(SETTING_HANDLER_CLASS_NAME + " not defined");
             }
-            Object messageHandler = Class.forName(className).newInstance();
+            Object messageHandler = Class.forName(className).getConstructor(SessionSettings.class).newInstance(this.settings);
             return new FixApplication(messageHandler);
         } catch (ClassNotFoundException e) {
             throw new ConfigError(SETTING_HANDLER_CLASS_NAME + "=" + className + " class not found");

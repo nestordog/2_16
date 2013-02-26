@@ -47,14 +47,15 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
 
         Security security = order.getSecurityInitialized();
 
-        // use system time for orderNumber
-        order.setIntId(getFixClient().getNextOrderId(getMarketChannel()));
+        // assign a new clOrdID
+        String clOrdID = getFixClient().getNextOrderId(order.getAccount());
+        order.setIntId(clOrdID);
 
         NewOrderSingle newOrder = new NewOrderSingle();
 
         // common info
         newOrder.set(new TransactTime(new Date()));
-        newOrder.set(new ClOrdID(String.valueOf(order.getIntId())));
+        newOrder.set(new ClOrdID(String.valueOf(clOrdID)));
 
         newOrder.set(FixUtil.getFixSymbol(security));
         newOrder.set(FixUtil.getFixSide(order.getSide()));
@@ -111,7 +112,7 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
         sendOrder(order, newOrder);
 
         // send the message
-        sendAndPropagateMessage(order, newOrder);
+        sendAndPropagateOrder(order, newOrder);
     }
 
     @Override
@@ -119,15 +120,15 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
 
         Security security = order.getSecurityInitialized();
 
-        // assign a new order number
-        long origClOrdID = order.getIntId();
-        order.setIntId(getFixClient().getNextOrderId(getMarketChannel()));
+        // get origClOrdID and assign a new clOrdID
+        String origClOrdID = order.getIntId();
+        String clOrdID = getFixClient().getNextChildOrderId(origClOrdID);
 
         OrderCancelReplaceRequest replaceRequest = new OrderCancelReplaceRequest();
 
         // common info
-        replaceRequest.set(new ClOrdID(String.valueOf(order.getIntId())));
-        replaceRequest.set(new OrigClOrdID(String.valueOf(origClOrdID)));
+        replaceRequest.set(new ClOrdID(clOrdID));
+        replaceRequest.set(new OrigClOrdID(origClOrdID));
 
         replaceRequest.set(FixUtil.getFixSymbol(security));
         replaceRequest.set(FixUtil.getFixSide(order.getSide()));
@@ -173,7 +174,7 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
         modifyOrder(order, replaceRequest);
 
         // send the message
-        sendAndPropagateMessage(order, replaceRequest);
+        sendAndPropagateOrder(order, replaceRequest);
     }
 
     @Override
@@ -181,15 +182,15 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
 
         Security security = order.getSecurityInitialized();
 
-        // assign a new order number
-        long origClOrdID = order.getIntId();
-        order.setIntId(getFixClient().getNextOrderId(getMarketChannel()));
+        // get origClOrdID and assign a new clOrdID
+        String origClOrdID = order.getIntId();
+        String clOrdID = getFixClient().getNextChildOrderId(origClOrdID);
 
         OrderCancelRequest cancelRequest = new OrderCancelRequest();
 
         // common info
-        cancelRequest.set(new ClOrdID(String.valueOf(order.getIntId())));
-        cancelRequest.set(new OrigClOrdID(String.valueOf(origClOrdID)));
+        cancelRequest.set(new ClOrdID(clOrdID));
+        cancelRequest.set(new OrigClOrdID(origClOrdID));
 
         cancelRequest.set(FixUtil.getFixSymbol(security));
         cancelRequest.set(FixUtil.getFixSide(order.getSide()));
@@ -224,6 +225,6 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
         cancelOrder(order, cancelRequest);
 
         // send the message
-        sendAndPropagateMessage(order, cancelRequest);
+        sendAndPropagateOrder(order, cancelRequest);
     }
 }

@@ -2,16 +2,11 @@ package com.algoTrader.service;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
-
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Transformer;
 
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.enumeration.Currency;
-import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.esper.EsperManager;
@@ -21,28 +16,6 @@ import com.algoTrader.util.metric.MetricsUtil;
 public class BaseManagementServiceImpl extends BaseManagementServiceBase {
 
     @Override
-    protected Collection<String> handleGetMarketChannels() throws Exception {
-
-        return CollectionUtils.collect(getOrderService().getMarketChannels(), new Transformer<MarketChannel, String>() {
-            @Override
-            public String transform(MarketChannel marketChannel) {
-                return marketChannel.toString();
-            }
-        });
-    }
-
-    @Override
-    protected String handleGetDefaultMarketChannel() throws Exception {
-        return getOrderService().getDefaultMarketChannel().toString();
-    }
-
-    @Override
-    protected void handleSetDefaultMarketChannel(String marketChannel) throws Exception {
-
-        getOrderService().setDefaultMarketChannel(MarketChannel.fromString(marketChannel));
-    }
-
-    @Override
     protected void handleCancelAllOrders() throws Exception {
 
         getOrderService().cancelAllOrders();
@@ -50,7 +23,7 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
 
     @Override
     protected void handleRecordTransaction(int securityId, String strategyName, String extIdString, String dateTimeString, long quantity, double priceDouble, double executionCommissionDouble,
-            double clearingCommissionDouble, String currencyString, String transactionTypeString, String marketChannelString) throws Exception {
+            double clearingCommissionDouble, String currencyString, String transactionTypeString, String accountName) throws Exception {
 
         String extId = !"".equals(extIdString) ? extIdString : null;
         Date dateTime = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(dateTimeString);
@@ -59,9 +32,8 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
         BigDecimal clearingCommission = (clearingCommissionDouble != 0) ? RoundUtil.getBigDecimal(clearingCommissionDouble) : null;
         Currency currency = !"".equals(currencyString) ? Currency.fromValue(currencyString) : null;
         TransactionType transactionType = TransactionType.fromValue(transactionTypeString);
-        MarketChannel marketChannel = !"".equals(marketChannelString) ? MarketChannel.fromValue(marketChannelString) : null;
 
-        getTransactionService().createTransaction(securityId, strategyName, extId, dateTime, quantity, price, executionCommission, clearingCommission, currency, transactionType, marketChannel);
+        getTransactionService().createTransaction(securityId, strategyName, extId, dateTime, quantity, price, executionCommission, clearingCommission, currency, transactionType, accountName);
     }
 
     @Override
@@ -85,7 +57,7 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     @Override
     protected void handleRebalancePortfolio() throws Exception {
 
-        getAccountService().rebalancePortfolio();
+        getPortfolioPersistenceService().rebalancePortfolio();
     }
 
     @Override

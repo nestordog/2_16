@@ -28,13 +28,15 @@ from
 on
     OrderStatus as orderStatus
 update
-    OpenOrderWindow
+    OpenOrderWindow  as openOrderWindow
 set
-    status = orderStatus.status,
-    filledQuantity = orderStatus.filledQuantity,
-    remainingQuantity = orderStatus.remainingQuantity
+    openOrderWindow.status = orderStatus.status,
+    openOrderWindow.filledQuantity = orderStatus.filledQuantity,
+    openOrderWindow.remainingQuantity = orderStatus.remainingQuantity,
+    openOrderWindow.intId = case when orderStatus.intId is not null then orderStatus.intId else orderStatus.ord.intId end,
+    openOrderWindow.extId = case when orderStatus.extId is not null then orderStatus.extId else orderStatus.ord.extId end
 where
-    intId = orderStatus.ord.intId;
+    openOrderWindow.intId = orderStatus.ord.intId;
 
 @Name('DELETE_FROM_OPEN_ORDER_WINDOW')
 @RunTimeOnly()
@@ -45,7 +47,17 @@ delete from
 where
     orderStatus.ord is null
 or
-    orderStatus.ord.intId = openOrderWindow.intId;
+    orderStatus.ord.intId = openOrderWindow.intId
+or
+    orderStatus.intId = openOrderWindow.intId;
+
+@Name('NOTIFY_MISSING_ORDER_REPLY')
+@Subscriber(className='com.algoTrader.esper.subscriber.ExceptionSubscriber')
+@RunTimeOnly()
+select
+    "missing reply on order: " || currentOrder.toString() as reason
+from
+    pattern[every currentOrder=GenericOrder -> (timer:interval(1 sec) and not OrderStatus(ord.intId = currentOrder.intId))];
 
 // ------------------------------ALGO ORDERS--------------------------------
 

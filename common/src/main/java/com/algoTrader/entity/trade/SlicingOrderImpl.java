@@ -60,7 +60,7 @@ public class SlicingOrderImpl extends SlicingOrder {
     @Override
     public void decreaseOffsetTicks() {
         this.currentOffsetTicks = Math.max(this.currentOffsetTicks - 1, 0);
-        logger.debug("decreaseOffsetTicks " + toString() + " to " + this.currentOffsetTicks);
+        logger.debug("decreaseOffsetTicks of " + toString() + " to " + this.currentOffsetTicks);
     }
 
     @Override
@@ -134,7 +134,7 @@ public class SlicingOrderImpl extends SlicingOrder {
         order.setSide(this.getSide());
         order.setQuantity(quantity);
         order.setLimit(limit);
-        order.setMarketChannel(this.getMarketChannel());
+        order.setAccount(this.getAccount());
 
         // associate the childOrder with the parentOrder(this)
         order.setParentOrder(this);
@@ -143,7 +143,7 @@ public class SlicingOrderImpl extends SlicingOrder {
         this.pairs.add(new Pair<LimitOrder, Tick>(order, tick));
 
         //@formatter:off
-        MyLogger.getLogger(SlicingOrderImpl.class.getName()).info(
+        logger.info(
                 "next slice for " + toString() +
                 " qty: " + order.getQuantity() +
                 " vol: "+ (Side.BUY.equals(order.getSide()) ? tick.getVolAsk() : tick.getVolBid()) +

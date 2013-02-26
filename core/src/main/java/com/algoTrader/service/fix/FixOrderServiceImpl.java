@@ -7,7 +7,6 @@ import quickfix.StringField;
 import quickfix.field.MsgType;
 
 import com.algoTrader.entity.trade.Order;
-import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.util.MyLogger;
 
 public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
@@ -19,18 +18,14 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
     @Override
     protected void handleInit() throws Exception {
 
-        getFixClient().createSession(getMarketChannel());
+        getFixClient().createSession(getOrderServiceType());
     }
 
     @Override
-    protected void handleSendAndPropagateMessage(Order order, Message message) throws Exception {
-
-        if (!getFixClient().getConnectionState(getMarketChannel()).equals(ConnectionState.LOGGED_ON)) {
-            throw new FixOrderServiceException("FIX Session is not logged on " + getMarketChannel());
-        }
+    protected void handleSendAndPropagateOrder(Order order, Message message) throws Exception {
 
         // send the message to the FixClient
-        getFixClient().sendMessage(message, getMarketChannel());
+        getFixClient().sendMessage(message, order.getAccount());
 
         StringField msgType = message.getHeader().getField(new MsgType());
         if (msgType.getValue().equals(MsgType.ORDER_SINGLE)) {
@@ -40,10 +35,11 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REQUEST)) {
             logger.info("sent order cancellation: " + order);
         } else {
-
             throw new IllegalArgumentException("unsupported messagetype: " + msgType);
         }
 
+        // propagateOrder even for cancels (where nothing actually changed) to be able to identify missing replies
         getOrderService().propagateOrder(order);
+
     }
 }

@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.field.ExecTransType;
 import quickfix.field.ExecType;
 import quickfix.fix42.ExecutionReport;
 import quickfix.fix42.OrderCancelReject;
@@ -27,11 +29,13 @@ public class Fix42MessageHandler {
 
     private static Logger logger = MyLogger.getLogger(Fix42MessageHandler.class.getName());
 
+    public Fix42MessageHandler(SessionSettings settings) {
+        // do nothing
+    }
+
     public void onMessage(ExecutionReport executionReport, SessionID sessionID) {
 
         try {
-
-            Integer clOrdID = Integer.parseInt(executionReport.getClOrdID().getValue());
 
             // ignore PENDING_NEW, PENDING_CANCEL and PENDING_REPLACE
             if (executionReport.getExecType().getValue() == ExecType.PENDING_NEW || executionReport.getExecType().getValue() == ExecType.PENDING_REPLACE
@@ -39,19 +43,21 @@ public class Fix42MessageHandler {
                 return;
             }
 
-            if (executionReport.getExecType().getValue() == ExecType.REJECTED) {
-                logger.error("order " + clOrdID + " has been rejected, reason: " + executionReport.getText().getValue());
+            String intId = executionReport.getClOrdID().getValue();
+
+            // check ExecTransType
+            if (executionReport.isSetExecTransType() && executionReport.getExecTransType().getValue() != ExecTransType.NEW) {
+                throw new UnsupportedOperationException("order " + intId + " has received an ussupported ExecTransType of: " + executionReport.getExecTransType().getValue());
             }
 
-            // check if there are errors
-            if (executionReport.isSetExecRestatementReason()) {
-                logger.error("order " + clOrdID + " has been canceled, reason: " + executionReport.getText().getValue());
+            if (executionReport.getExecType().getValue() == ExecType.REJECTED) {
+                logger.error("order " + intId + " has been rejected, reason: " + executionReport.getText().getValue());
             }
 
             // get the order from the OpenOrderWindow
-            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByIntId(clOrdID);
+            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByRootIntId(intId);
             if (order == null) {
-                logger.error("order could not be found " + clOrdID + " for execution " + executionReport);
+                logger.error("order with intId " + intId + " could not be found for execution " + executionReport);
                 return;
             }
 
@@ -66,6 +72,11 @@ public class Fix42MessageHandler {
             orderStatus.setFilledQuantity(filledQuantity);
             orderStatus.setRemainingQuantity(remainingQuantity);
             orderStatus.setOrd(order);
+
+            // update intId in case it has changed
+            if (!order.getIntId().equals(intId)) {
+                orderStatus.setIntId(intId);
+            }
 
             EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
 
@@ -102,7 +113,7 @@ public class Fix42MessageHandler {
     public void onMessage(OrderCancelReject orderCancelReject, SessionID sessionID)  {
 
         try {
-            if ("Too late to cancel".equals(orderCancelReject.getText().getValue())) {
+            if ("Too late to cancel".equals(orderCancelReject.getText().getValue()) || "Cannot cancel the filled order".equals(orderCancelReject.getText().getValue())) {
                 logger.info("cannot cancel, order has already been executed, clOrdID: " + orderCancelReject.getClOrdID().getValue() +
                         " origOrdID: " + orderCancelReject.getOrigClOrdID().getValue());
             } else {

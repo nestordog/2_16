@@ -3,14 +3,11 @@ package com.algoTrader.service.ib;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.algoTrader.entity.Position;
 import com.algoTrader.entity.trade.LimitOrderI;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.entity.trade.StopOrderI;
 import com.algoTrader.enumeration.ConnectionState;
-import com.algoTrader.enumeration.MarketChannel;
-import com.algoTrader.enumeration.Side;
 import com.algoTrader.util.MyLogger;
 import com.ib.client.Contract;
 
@@ -22,23 +19,12 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
 
     private static IBClient client;
 
-    private @Value("${ib.faEnabled}") boolean faEnabled;
-    private @Value("${ib.faGroup}") String faGroup;
-    private @Value("${ib.faOpenMethod}") String faOpenMethod;
-    private @Value("${ib.faCloseMethod}") String faCloseMethod;
-    private @Value("${ib.account}") String account;
-    private @Value("${ib.clearingAccount}") String clearingAccount;
+    private @Value("${ib.faMethod}") String faMethod;
 
     @Override
     protected void handleInit() throws Exception {
 
         client = getIBClientFactory().getDefaultClient();
-    }
-
-    @Override
-    protected MarketChannel handleGetMarketChannel() {
-
-        return MarketChannel.IB_NATIVE;
     }
 
     @Override
@@ -58,8 +44,8 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
     @Override
     protected void handleSendOrder(SimpleOrder order) throws Exception {
 
-        int orderNumber = IBIdGenerator.getInstance().getNextOrderId();
-        order.setIntId(orderNumber);
+        String intId = IBIdGenerator.getInstance().getNextOrderId();
+        order.setIntId(intId);
         sendOrModifyOrder(order);
     }
 
@@ -77,7 +63,10 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
             return;
         }
 
-        client.cancelOrder(order.getIntId());
+        // progapate the order (even though nothing actually changed) to be able to identify missing replies
+        getOrderService().propagateOrder(order);
+
+        client.cancelOrder(Integer.parseInt(order.getIntId()));
 
         logger.info("requested order cancellation for order: " + order);
     }
@@ -96,75 +85,63 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
         Contract contract = IBUtil.getContract(order.getSecurityInitialized());
 
         com.ib.client.Order ibOrder = new com.ib.client.Order();
+        ibOrder.m_totalQuantity = (int) order.getQuantity();
         ibOrder.m_action = order.getSide().toString();
         ibOrder.m_orderType = IBUtil.getIBOrderType(order);
         ibOrder.m_transmit = true;
 
         // handle a potentially defined account
-        if (order.getAccount() != null && !"".equals(order.getAccount())) {
+        if (order.getAccount().getExtAccount() != null) {
 
-            ibOrder.m_totalQuantity = (int) order.getQuantity();
+            ibOrder.m_account = order.getAccount().getExtAccount();
 
-            ibOrder.m_account = order.getAccount();
+        // handling for financial advisor account groups
+        } else if (order.getAccount().getExtAccountGroup() != null) {
 
-        // handling for financial advisor accounts
-        } else if (this.faEnabled) {
+            ibOrder.m_faGroup = order.getAccount().getExtAccountGroup();
+            ibOrder.m_faMethod = this.faMethod;
 
-            if (this.faGroup != null && !"".equals(this.faGroup)) {
+            //            long existingQuantity = 0;
+            //            for (Position position : order.getSecurity().getPositions()) {
+            //                existingQuantity += position.getQuantity();
+            //            }
+            //
+            //            // evaluate weather the transaction is opening or closing
+            //            boolean opening = false;
+            //            if (existingQuantity > 0 && Side.SELL.equals(order.getSide())) {
+            //                opening = false;
+            //            } else if (existingQuantity <= 0 && Side.SELL.equals(order.getSide())) {
+            //                opening = true;
+            //            } else if (existingQuantity < 0 && Side.BUY.equals(order.getSide())) {
+            //                opening = false;
+            //            } else if (existingQuantity >= 0 && Side.BUY.equals(order.getSide())) {
+            //                opening = true;
+            //            }
+            //
+            //            ibOrder.m_faGroup = order.getAccount().getExtAccountGroup();
+            //
+            //            if (opening) {
+            //
+            //                // open by specifying the actual quantity
+            //                ibOrder.m_faMethod = this.faOpenMethod;
+            //
+            //            } else {
+            //
+            //                // reduce by percentage
+            //                ibOrder.m_faMethod = "PctChange";
+            //                ibOrder.m_totalQuantity = 0; // bacause the order is percent based
+            //                ibOrder.m_faPercentage = "-" + Math.abs(order.getQuantity() * 100 / (existingQuantity - order.getQuantity()));
+            //            }
 
-                long existingQuantity = 0;
-                for (Position position : order.getSecurity().getPositions()) {
-                    existingQuantity += position.getQuantity();
-                }
+        // handling for financial advisor allocation profiles
+        } else if (order.getAccount().getExtAllocationProfile() != null) {
 
-                // evaluate weather the transaction is opening or closing
-                boolean opening = false;
-                if (existingQuantity > 0 && Side.SELL.equals(order.getSide())) {
-                    opening = false;
-                } else if (existingQuantity <= 0 && Side.SELL.equals(order.getSide())) {
-                    opening = true;
-                } else if (existingQuantity < 0 && Side.BUY.equals(order.getSide())) {
-                    opening = false;
-                } else if (existingQuantity >= 0 && Side.BUY.equals(order.getSide())) {
-                    opening = true;
-                }
-
-                ibOrder.m_faGroup = this.faGroup;
-
-                if (opening) {
-
-                    // open by specifying the actual quantity
-                    ibOrder.m_faMethod = this.faOpenMethod;
-                    ibOrder.m_totalQuantity = (int) order.getQuantity();
-
-                } else {
-
-                    // reduce by percentage
-                    ibOrder.m_faMethod = this.faCloseMethod;
-                    ibOrder.m_faPercentage = "-" + Math.abs(order.getQuantity() * 100 / (existingQuantity - order.getQuantity()));
-                }
-
-            } else {
-
-                ibOrder.m_totalQuantity = (int) order.getQuantity();
-
-                ibOrder.m_faProfile = order.getStrategy().getName().toUpperCase();
-
-            }
-
-        } else {
-
-            ibOrder.m_totalQuantity = (int) order.getQuantity();
-
-            // if fa is disabled, it is still possible to work with an IB FA setup if a single client account is specified
-            if (this.account != null) {
-                ibOrder.m_account = this.account;
-            }
+            ibOrder.m_faProfile = order.getAccount().getExtAllocationProfile();
         }
 
         // add clearing information
-        if (this.clearingAccount != null && !"".equals(this.clearingAccount)) {
-            ibOrder.m_clearingAccount = this.clearingAccount;
+        if (order.getAccount().getExtClearingAccount() != null) {
+            ibOrder.m_clearingAccount = order.getAccount().getExtClearingAccount();
             ibOrder.m_clearingIntent = "Away";
         }
 
@@ -182,7 +159,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
         getOrderService().propagateOrder(order);
 
         // place the order through IBClient
-        client.placeOrder(order.getIntId(), contract, ibOrder);
+        client.placeOrder(Integer.parseInt(order.getIntId()), contract, ibOrder);
 
         logger.info("placed or modified order: " + order);
     }

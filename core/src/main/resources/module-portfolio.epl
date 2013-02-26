@@ -1,6 +1,6 @@
 @Name('SAVE_PORTFOLIO_VALUE')
 @RunTimeOnly()
-@Subscriber(className='com.algoTrader.service.AccountService.savePortfolioValues')
+@Subscriber(className='com.algoTrader.service.PortfolioPersistenceService.savePortfolioValues')
 select
     null
 from
@@ -89,7 +89,7 @@ from
 
 @Name('REBALANCE_PORTFOLIO')
 @Condition(key='statement.rebalancePortfolio')
-@Subscriber(className='com.algoTrader.service.AccountService.rebalancePortfolio')
+@Subscriber(className='com.algoTrader.service.PortfolioPersistenceService.rebalancePortfolio')
 select
     null
 from

@@ -103,7 +103,7 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
         this.limitOrder.setSide(this.getSide());
         this.limitOrder.setQuantity(this.getQuantity());
         this.limitOrder.setLimit(this.currentLimit);
-        this.limitOrder.setMarketChannel(this.getMarketChannel());
+        this.limitOrder.setAccount(this.getAccount());
 
         // associate the childOrder with the parentOrder(this)
         this.limitOrder.setParentOrder(this);

@@ -28,8 +28,8 @@ import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.strategy.Account;
 import com.algoTrader.enumeration.Currency;
-import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
@@ -41,11 +41,10 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
 
     private @Value("${simulation}") boolean simulation;
     private @Value("${misc.portfolioDigits}") int portfolioDigits;
-    private @Value("${ib.faEnabled}") boolean faEnabled;
 
+    private @Value("${ib.faEnabled}") boolean faEnabled;
+    private @Value("${ib.reconciliationAccount}") String reconciliationAccount;
     private @Value("${ib.masterAccount}") String masterAccount;
-    private @Value("${ib.flexToken}") String flexToken;
-    private @Value("${ib.flexQueryId}") String flexQueryId;
     private @Value("${ib.timeDifferenceHours}") int timeDifferenceHours;
     private @Value("${ib.recreateTransactions}") boolean recreateTransactions;
 
@@ -167,7 +166,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
 
         // rebalance portfolio if necessary
         if (transactions.size() > 0) {
-            getAccountService().rebalancePortfolio();
+            getPortfolioPersistenceService().rebalancePortfolio();
         }
     }
 
@@ -278,6 +277,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
 
             Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
             Security security = getSecurityDao().findByConid(conid);
+            Account account = getAccountDao().findByName(this.reconciliationAccount);
 
             if (security == null) {
                 throw new IllegalStateException("unknown security for conid " + conid);
@@ -296,7 +296,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
             transaction.setType(transactionType);
             transaction.setCurrency(currency);
             transaction.setExecutionCommission(commission);
-            transaction.setMarketChannel(MarketChannel.IB_NATIVE);
+            transaction.setAccount(account);
 
             getTransactionService().persistTransaction(transaction);
 

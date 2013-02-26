@@ -26,9 +26,9 @@ public class OrderStatusDaoImpl extends OrderStatusDaoBase {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected OrderStatusVO handleFindOrderStatusByIntId(int intId) throws Exception {
+    protected OrderStatusVO handleFindOrderStatusByIntId(String intId) throws Exception {
 
-        Pair<Order, Map<String, ?>> pair = (Pair<Order, Map<String, ?>>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where intId = " + intId);
+        Pair<Order, Map<String, ?>> pair = (Pair<Order, Map<String, ?>>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where intId = '" + intId + "'");
         return convertPairToOrderStatusVO(pair);
     }
 
@@ -60,8 +60,8 @@ public class OrderStatusDaoImpl extends OrderStatusDaoBase {
         orderStatusVO.setQuantity(order.getQuantity());
         orderStatusVO.setType(StringUtils.substringBefore(ClassUtils.getShortClassName(order.getClass()), "OrderImpl"));
         orderStatusVO.setName(order.getSecurity().toString());
-        orderStatusVO.setMarketChannel(order.getMarketChannel() != null ? order.getMarketChannel().getValue() : "");
-        orderStatusVO.setNumber(order.getIntId());
+        orderStatusVO.setAccount(order.getAccount() != null ? order.getAccount().toString() : "");
+        orderStatusVO.setIntId(order.getIntId());
         orderStatusVO.setStatus((Status) map.get("status"));
         orderStatusVO.setFilledQuantity((Long) map.get("filledQuantity"));
         orderStatusVO.setRemainingQuantity((Long) map.get("remainingQuantity"));

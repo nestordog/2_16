@@ -24,11 +24,11 @@ import org.xml.sax.InputSource;
 
 import com.algoTrader.util.MyLogger;
 
-public class IBAccountServiceImpl extends IBAccountServiceBase implements DisposableBean {
+public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase implements DisposableBean {
 
     private static final long serialVersionUID = -9010045320078819079L;
 
-    private static Logger logger = MyLogger.getLogger(IBAccountServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBNativeAccountServiceImpl.class.getName());
 
     private @Value("${ib.faEnabled}") boolean faEnabled;
 
@@ -54,24 +54,24 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
             @Override
             public void updateAccountValue(String key, String value, String currency, String accountName) {
 
-                IBAccountServiceImpl.this.lock.lock();
+                IBNativeAccountServiceImpl.this.lock.lock();
 
                 try {
 
-                    Map<String, String> values = IBAccountServiceImpl.this.allAccountValues.get(accountName);
+                    Map<String, String> values = IBNativeAccountServiceImpl.this.allAccountValues.get(accountName);
                     values.put(key, value);
 
-                    IBAccountServiceImpl.this.condition.signalAll();
+                    IBNativeAccountServiceImpl.this.condition.signalAll();
 
                 } finally {
-                    IBAccountServiceImpl.this.lock.unlock();
+                    IBNativeAccountServiceImpl.this.lock.unlock();
                 }
             }
 
             @Override
             public void receiveFA(int faDataType, String xml) {
 
-                IBAccountServiceImpl.this.lock.lock();
+                IBNativeAccountServiceImpl.this.lock.lock();
 
                 try {
 
@@ -86,9 +86,9 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
                         // get accounts
                         Node node;
-                        IBAccountServiceImpl.this.accounts = new HashSet<String>();
+                        IBNativeAccountServiceImpl.this.accounts = new HashSet<String>();
                         while ((node = iterator.nextNode()) != null) {
-                            IBAccountServiceImpl.this.accounts.add(node.getFirstChild().getNodeValue());
+                            IBNativeAccountServiceImpl.this.accounts.add(node.getFirstChild().getNodeValue());
                         }
 
                     } else if (faDataType == 2) {
@@ -97,7 +97,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
                         NodeIterator profileIterator = XPathAPI.selectNodeIterator(document, "//AllocationProfile");
 
                         Node profileNode;
-                        IBAccountServiceImpl.this.profiles = new HashMap<String, Map<String, Double>>();
+                        IBNativeAccountServiceImpl.this.profiles = new HashMap<String, Map<String, Double>>();
                         while ((profileNode = profileIterator.nextNode()) != null) {
                             String name = XPathAPI.selectSingleNode(profileNode, "name/text()").getNodeValue();
 
@@ -110,16 +110,16 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
                                 String amount = XPathAPI.selectSingleNode(allocationNode, "amount/text()").getNodeValue();
                                 allocations.put(account, Double.valueOf(amount));
                             }
-                            IBAccountServiceImpl.this.profiles.put(name, allocations);
+                            IBNativeAccountServiceImpl.this.profiles.put(name, allocations);
                         }
                     }
 
-                    IBAccountServiceImpl.this.condition.signalAll();
+                    IBNativeAccountServiceImpl.this.condition.signalAll();
 
                 } catch (Exception e) {
-                    IBAccountServiceImpl.logger.error("error parsing fa document", e);
+                    IBNativeAccountServiceImpl.logger.error("error parsing fa document", e);
                 } finally {
-                    IBAccountServiceImpl.this.lock.unlock();
+                    IBNativeAccountServiceImpl.this.lock.unlock();
                 }
             }
 
@@ -128,7 +128,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
                 super.connectionClosed();
 
-                IBAccountServiceImpl.this.client.connect();
+                IBNativeAccountServiceImpl.this.client.connect();
             }
         };
 
@@ -143,11 +143,11 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
     private String retrieveAccountValue(String accountName, String currency, String key) throws InterruptedException {
 
-        IBAccountServiceImpl.this.lock.lock();
+        IBNativeAccountServiceImpl.this.lock.lock();
 
         try {
 
-            IBAccountServiceImpl.this.allAccountValues.put(accountName, new HashMap<String, String>());
+            IBNativeAccountServiceImpl.this.allAccountValues.put(accountName, new HashMap<String, String>());
 
             this.client.reqAccountUpdates(true, accountName);
 
@@ -158,7 +158,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
                 }
             }
         } finally {
-            IBAccountServiceImpl.this.lock.unlock();
+            IBNativeAccountServiceImpl.this.lock.unlock();
         }
         return this.allAccountValues.get(accountName).get(key);
     }
@@ -167,7 +167,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
         if (this.accounts.size() == 0) {
 
-            IBAccountServiceImpl.this.lock.lock();
+            IBNativeAccountServiceImpl.this.lock.lock();
 
             try {
 
@@ -180,7 +180,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
                     }
                 }
             } finally {
-                IBAccountServiceImpl.this.lock.unlock();
+                IBNativeAccountServiceImpl.this.lock.unlock();
             }
         }
         return this.accounts;
@@ -190,7 +190,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
 
         if (this.profiles.size() == 0) {
 
-            IBAccountServiceImpl.this.lock.lock();
+            IBNativeAccountServiceImpl.this.lock.lock();
 
             try {
 
@@ -203,7 +203,7 @@ public class IBAccountServiceImpl extends IBAccountServiceBase implements Dispos
                     }
                 }
             } finally {
-                IBAccountServiceImpl.this.lock.unlock();
+                IBNativeAccountServiceImpl.this.lock.unlock();
             }
         }
 

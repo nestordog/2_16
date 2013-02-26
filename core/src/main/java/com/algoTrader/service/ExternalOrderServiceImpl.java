@@ -1,7 +1,7 @@
 package com.algoTrader.service;
 
 import com.algoTrader.entity.trade.SimpleOrder;
-import com.algoTrader.enumeration.MarketChannel;
+import com.algoTrader.enumeration.OrderServiceType;
 
 public abstract class ExternalOrderServiceImpl extends ExternalOrderServiceBase {
 
@@ -18,5 +18,8 @@ public abstract class ExternalOrderServiceImpl extends ExternalOrderServiceBase 
     protected abstract void handleModifyOrder(SimpleOrder order) throws Exception;
 
     @Override
-    protected abstract MarketChannel handleGetMarketChannel() throws Exception;
+    protected OrderServiceType handleGetOrderServiceType() throws Exception {
+
+        return OrderServiceType.fromValue(this.getClass().getName().split("Impl")[0]);
+    }
 }

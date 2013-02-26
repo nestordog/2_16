@@ -1,5 +1,6 @@
 package com.algoTrader.entity.strategy;
 
+import com.algoTrader.entity.trade.AlgoOrder;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.util.BeanUtil;
 
@@ -17,6 +18,22 @@ public class OrderPreferenceImpl extends OrderPreference {
 
             // populate the order with the properities
             BeanUtil.populate(order, getPropertyNameValueMap());
+
+            // set the account if defined
+            if (getDefaultAccount() != null) {
+                order.setAccount(getDefaultAccount());
+            }
+
+            // set allocations if defined
+            if (getAllocationsInitialized().size() > 0) {
+
+                if (order instanceof AlgoOrder) {
+                    AlgoOrder algoOrder = (AlgoOrder) order;
+                    algoOrder.setAllocations(getAllocations());
+                } else {
+                    throw new IllegalStateException("allocatoins can only be assigend to AlgoOrders");
+                }
+            }
 
             return order;
         } catch (Exception e) {

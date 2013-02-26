@@ -16,7 +16,7 @@ public abstract class OpenPositionCallback {
         String alias = "ON_OPEN_POSITION_" + positionVO.getSecurityId();
 
         // undeploy the statement
-        EsperManager.undeployStatement(positionVO.getStrategyName(), alias);
+        EsperManager.undeployStatement(positionVO.getStrategy(), alias);
 
         long startTime = System.nanoTime();
         logger.debug("onOpenPosition start " + positionVO.getSecurityId());
@@ -26,7 +26,7 @@ public abstract class OpenPositionCallback {
 
         logger.debug("onOpenPosition end " + positionVO.getSecurityId());
 
-        MetricsUtil.accountEnd("OpenPositionCallback." + positionVO.getStrategyName(), startTime);
+        MetricsUtil.accountEnd("OpenPositionCallback." + positionVO.getStrategy(), startTime);
     }
 
     public abstract void onOpenPosition(OpenPositionVO positionVO) throws Exception;

@@ -35,7 +35,7 @@ public class PositionDaoImpl extends PositionDaoBase {
         int scale = position.getSecurity().getSecurityFamily().getScale();
         positionVO.setSecurityId(position.getSecurity().getId());
         positionVO.setName(position.getSecurity().toString());
-        positionVO.setStrategyName(position.getStrategy().getName());
+        positionVO.setStrategy(position.getStrategy().toString());
         positionVO.setCurrency(position.getSecurity().getSecurityFamily().getCurrency());
         positionVO.setMarketPrice(RoundUtil.getBigDecimal(position.getMarketPriceDouble(), scale));
         positionVO.setMarketValue(RoundUtil.getBigDecimal(position.getMarketValueDouble()));
@@ -75,7 +75,7 @@ public class PositionDaoImpl extends PositionDaoBase {
     private void completeOpenPositionVO(Position position, OpenPositionVO openPositionVO) {
 
         openPositionVO.setSecurityId(position.getSecurity().getId());
-        openPositionVO.setStrategyName(position.getStrategy().getName());
+        openPositionVO.setStrategy(position.getStrategy().toString());
 
         openPositionVO.setDirection(position.getDirection());
     }
@@ -101,7 +101,7 @@ public class PositionDaoImpl extends PositionDaoBase {
     private void completeClosePositionVO(Position position, ClosePositionVO closePositionVO) {
 
         closePositionVO.setSecurityId(position.getSecurity().getId());
-        closePositionVO.setStrategyName(position.getStrategy().getName());
+        closePositionVO.setStrategy(position.getStrategy().toString());
         closePositionVO.setExitValue(position.getExitValue());
         closePositionVO.setDirection(position.getDirection());
     }

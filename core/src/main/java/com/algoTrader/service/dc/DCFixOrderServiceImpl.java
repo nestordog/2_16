@@ -17,7 +17,6 @@ import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.entity.trade.StopLimitOrder;
 import com.algoTrader.entity.trade.StopOrder;
 import com.algoTrader.entity.trade.StopOrderI;
-import com.algoTrader.enumeration.MarketChannel;
 
 public class DCFixOrderServiceImpl extends DCFixOrderServiceBase {
 
@@ -84,10 +83,5 @@ public class DCFixOrderServiceImpl extends DCFixOrderServiceBase {
 
         // dc does not support Securitytype
         cancelRequest.removeField(SecurityType.FIELD);
-    }
-
-    @Override
-    protected MarketChannel handleGetMarketChannel() throws Exception {
-        return MarketChannel.DC_FIX;
     }
 }

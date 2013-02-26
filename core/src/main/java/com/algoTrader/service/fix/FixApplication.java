@@ -60,7 +60,9 @@ public class FixApplication extends MessageCracker implements quickfix.Applicati
     public void toAdmin(Message message, SessionID sessionID) {
 
         try {
-            crack(message, sessionID);
+            if (!message.getHeader().getField(new MsgType()).getValue().equals(MsgType.HEARTBEAT)) {
+                crack(message, sessionID);
+            }
         } catch (Exception e) {
             logger.error(e);
         }

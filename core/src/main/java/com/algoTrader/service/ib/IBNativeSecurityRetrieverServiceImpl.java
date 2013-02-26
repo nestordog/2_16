@@ -35,11 +35,11 @@ import com.algoTrader.util.RoundUtil;
 import com.ib.client.Contract;
 import com.ib.client.ContractDetails;
 
-public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBase {
+public class IBNativeSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBase {
 
     private static final long serialVersionUID = 6446509772400405052L;
 
-    private static Logger logger = MyLogger.getLogger(IBSecurityRetrieverServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBNativeSecurityRetrieverServiceImpl.class.getName());
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMddkkmmss");
 
     private IBClient client;
@@ -215,7 +215,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
 
         this.contractDetailsList = new ArrayList<ContractDetails>();
 
-        IBSecurityRetrieverServiceImpl.this.lock.lock();
+        IBNativeSecurityRetrieverServiceImpl.this.lock.lock();
 
         try {
 
@@ -236,7 +236,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             this.condition.await();
 
         } finally {
-            IBSecurityRetrieverServiceImpl.this.lock.unlock();
+            IBNativeSecurityRetrieverServiceImpl.this.lock.unlock();
         }
     }
 
@@ -260,18 +260,18 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
             @Override
             public void contractDetails(int reqId, ContractDetails contractDetails) {
 
-                IBSecurityRetrieverServiceImpl.this.contractDetailsList.add(contractDetails);
+                IBNativeSecurityRetrieverServiceImpl.this.contractDetailsList.add(contractDetails);
             }
 
             @Override
             public void contractDetailsEnd(int reqId) {
 
-                IBSecurityRetrieverServiceImpl.this.lock.lock();
+                IBNativeSecurityRetrieverServiceImpl.this.lock.lock();
 
                 try {
-                    IBSecurityRetrieverServiceImpl.this.condition.signalAll();
+                    IBNativeSecurityRetrieverServiceImpl.this.condition.signalAll();
                 } finally {
-                    IBSecurityRetrieverServiceImpl.this.lock.unlock();
+                    IBNativeSecurityRetrieverServiceImpl.this.lock.unlock();
                 }
             }
 
@@ -280,7 +280,7 @@ public class IBSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBa
 
                 super.connectionClosed();
 
-                IBSecurityRetrieverServiceImpl.this.client.connect();
+                IBNativeSecurityRetrieverServiceImpl.this.client.connect();
             }
         };
 

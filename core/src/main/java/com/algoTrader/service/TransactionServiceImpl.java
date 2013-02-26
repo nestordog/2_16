@@ -18,11 +18,11 @@ import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.SecurityFamily;
+import com.algoTrader.entity.strategy.Account;
 import com.algoTrader.entity.trade.Fill;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Direction;
-import com.algoTrader.enumeration.MarketChannel;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.esper.EsperManager;
@@ -75,14 +75,14 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setCurrency(securityFamily.getCurrency());
         transaction.setExecutionCommission(executionCommission);
         transaction.setClearingCommission(clearingCommission);
-        transaction.setMarketChannel(order.getMarketChannel());
+        transaction.setAccount(order.getAccount());
 
         processTransaction(transaction);
     }
 
     @Override
     protected void handleCreateTransaction(int securityId, String strategyName, String extId, Date dateTime, long quantity, BigDecimal price, BigDecimal executionCommission,
-            BigDecimal clearingCommission, Currency currency, TransactionType transactionType, MarketChannel marketChannel) {
+            BigDecimal clearingCommission, Currency currency, TransactionType transactionType, String accountName) {
 
         // validations
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -133,6 +133,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             throw new IllegalArgumentException("transaction type REBALANCE not allowed");
         }
 
+        Account account = getAccountDao().findByName(accountName);
+
         // create the transaction
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(dateTime);
@@ -145,7 +147,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setCurrency(currency);
         transaction.setExecutionCommission(executionCommission);
         transaction.setClearingCommission(clearingCommission);
-        transaction.setMarketChannel(marketChannel);
+        transaction.setAccount(account);
 
         processTransaction(transaction);
     }
@@ -163,7 +165,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
             // propagate the positionMutationEvent to the corresponding strategy
             if (positionMutationEvent != null) {
-                EsperManager.sendEvent(positionMutationEvent.getStrategyName(), positionMutationEvent);
+                EsperManager.sendEvent(positionMutationEvent.getStrategy(), positionMutationEvent);
             }
 
             // propagate the transaction to the corresponding strategy
@@ -261,7 +263,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         getCashBalanceService().processTransaction(transaction);
 
         // save a portfolioValue (if necessary)
-        getAccountService().savePortfolioValue(transaction.getStrategy(), transaction);
+        getPortfolioPersistenceService().savePortfolioValue(transaction.getStrategy(), transaction);
 
         // update all entities
         getTransactionDao().create(transaction);

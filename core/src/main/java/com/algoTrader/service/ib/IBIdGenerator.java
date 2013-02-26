@@ -15,8 +15,8 @@ public final class IBIdGenerator {
         return instance;
     }
 
-    public int getNextOrderId() {
-        return this.orderId++;
+    public String getNextOrderId() {
+        return String.valueOf(this.orderId++);
     }
 
     public int getNextRequestId() {
