@@ -73,7 +73,6 @@
         <application.id>algotrader</application.id>
         <application.package>com.algoTrader</application.package>
         <application.name>AlgoTrader</application.name>
-        <application.version>1.4-SNAPSHOT</application.version>
         <dataSource.name>jdbc/${application.id}</dataSource.name>
         <dataSource>java:comp/env/${dataSource.name}</dataSource>
         <!-- Avoid JDK6 XJC runtime error on wdsl2java from conflicting Jaxb2.2 -->
