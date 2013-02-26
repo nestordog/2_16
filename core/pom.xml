@@ -131,7 +131,7 @@
             <version>1.5.2</version>
         </dependency><dependency>
             <groupId>quickfixj</groupId>
-            <artifactId>quickfixj-msg-fix42</artifactId>
+            <artifactId>quickfixj-msg-fix42-custom</artifactId>
             <version>1.5.2</version>
         </dependency><dependency>
             <groupId>quickfixj</groupId>
