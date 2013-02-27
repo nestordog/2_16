@@ -1,6 +1,8 @@
 package com.algoTrader.entity.trade;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
@@ -34,21 +36,27 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
     @Override
     public void validate() throws OrderValidationException {
 
-        // do nothing
-    }
-
-    @Override
-    public LimitOrder firstOrder() {
-
         MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
 
         if (marketDataEvent == null) {
-            throw new IllegalStateException("no marketDataEvent available to initialize SlicingOrder");
+            throw new OrderValidationException("no marketDataEvent available to initialize SlicingOrder");
         } else if (!(marketDataEvent instanceof Tick)) {
-            throw new IllegalStateException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
+            throw new OrderValidationException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
         }
 
+        // check spead and adjust offsetTicks if spead is too narrow
         Tick tick = (Tick) marketDataEvent;
+        SecurityFamily family = getSecurity().getSecurityFamily();
+        int spreadTicks = family.getSpreadTicks(tick.getBid(), tick.getAsk());
+        if (spreadTicks < 0) {
+            throw new OrderValidationException("markets are crossed: bid " + tick.getBid() + " ask " + tick.getAsk());
+        }
+    }
+
+    @Override
+    public List<Order> getInitialOrders() {
+
+        Tick tick = (Tick) getSecurity().getCurrentMarketDataEvent();
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 
@@ -56,11 +64,6 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
         int spreadTicks = family.getSpreadTicks(tick.getBid(), tick.getAsk());
         int adjustedStartOffsetTicks = getStartOffsetTicks();
         int adjustedEndOffsetTicks = getEndOffsetTicks();
-        if (spreadTicks < 0) {
-
-            throw new IllegalStateException("markets are crossed: bid " + tick.getBid() + " ask " + tick.getAsk());
-
-        }
 
         // adjust offsetTicks if needed
         if (spreadTicks < (getStartOffsetTicks() - getEndOffsetTicks())) {
@@ -108,7 +111,7 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
         // associate the childOrder with the parentOrder(this)
         this.limitOrder.setParentOrder(this);
 
-        return this.limitOrder;
+        return Collections.singletonList((Order) this.limitOrder);
     }
 
     @Override
@@ -141,10 +144,5 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
         } else {
             return family.adjustPrice(this.currentLimit, -1).compareTo(this.endLimit) >= 0;
         }
-    }
-
-    @Override
-    public void done() {
-        // do nothing
     }
 }

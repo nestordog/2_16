@@ -1,8 +1,8 @@
 package com.algoTrader.service;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,11 +67,6 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         order.setStrategy(strategy);
         order.setSecurity(security);
 
-        // make sure there is no order for the same security / strategy
-        if (getOrderDao().findOpenOrderCountByStrategySecurityAndAlgoOrder(strategy.getName(), security.getId(), order.isAlgoOrder()) > 0) {
-                throw new OrderServiceException("existing " + (order instanceof AlgoOrder ? "AlgoOrder" : "SimpleOrder") + " for " + order.getSecurity() + " strategy " + order.getStrategy());
-        }
-
         // validate the order before sending it
         validateOrder(order);
 
@@ -87,7 +82,8 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         }
     }
 
-    protected void handleSendOrders(Set<Order> orders) throws Exception {
+    @Override
+    protected void handleSendOrders(Collection<Order> orders) throws Exception {
 
         for (Order order : orders) {
             sendOrder(order);
@@ -284,8 +280,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     }
 
     /**
-     * if a marketChannel is defined, return the corresponding orderService otherwise
-     * assign the defaultMarketChannel and return it
+     * get the externalOrderService defined by the account
      */
     @SuppressWarnings("unchecked")
     private ExternalOrderService getExternalOrderService(Order order) throws Exception {

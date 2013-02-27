@@ -41,6 +41,7 @@ import quickfix.SocketInitiator;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.strategy.Account;
+import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.OrderServiceType;
 import com.algoTrader.esper.EsperManager;
@@ -146,12 +147,12 @@ public class FixClient implements InitializingBean {
         }
 
         int rootOrderId = this.orderIds.increment(sessionQualifier, 1);
-        return rootOrderId + ".0";
+        return account.getSessionQualifier().toLowerCase() + rootOrderId + ".0";
     }
 
-    public String getNextChildOrderId(String orderId) {
+    public String getNextOrderIdVersion(Order order) {
 
-        String[] segments = orderId.split("\\.");
+        String[] segments = order.getIntId().split("\\.");
 
         return segments[0] + "." + (Integer.parseInt(segments[1]) + 1);
     }
@@ -278,8 +279,10 @@ public class FixClient implements InitializingBean {
             }
         }
 
+        // strip out the session qualifier
+        String value = sb.toString().replaceAll("[a-z]", "");
+
         // strip out child order number
-        String value = sb.toString();
         if (value.contains(".")) {
             value = value.split("\\.")[0];
         }

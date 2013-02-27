@@ -33,14 +33,6 @@ from
         -> (timer:interval(cast(currentOrder.parentOrder.minDuration?,double) + (cast(currentOrder.parentOrder.maxDuration?,double) - cast(currentOrder.parentOrder.minDuration?,double)) * Math.random())
             and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.intId = currentOrder.intId))];
 
-@Name('SLICINING_FIRST_ORDER')
-@RunTimeOnly
-@Subscriber(className='com.algoTrader.service.OrderService.sendOrder')
-select
-    slicingOrder.nextOrder(slicingOrder.quantity)
-from
-    com.algoTrader.entity.trade.SlicingOrder as slicingOrder;
-
 @Name('SLICINING_NEXT_ORDER')
 @RunTimeOnly
 @Subscriber(className='com.algoTrader.service.OrderService.sendOrder')

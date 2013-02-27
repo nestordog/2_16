@@ -3,6 +3,7 @@ package com.algoTrader.entity.trade;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -49,6 +50,19 @@ public class SlicingOrderImpl extends SlicingOrder {
         } else if (getMaxDelay() == 0.0) {
             throw new OrderValidationException("maxDelay cannot be 0 for " + this);
         }
+
+        MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
+        if (marketDataEvent == null) {
+            throw new OrderValidationException("no marketDataEvent available to initialize SlicingOrder");
+        } else if (!(marketDataEvent instanceof Tick)) {
+            throw new OrderValidationException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
+        }
+    }
+
+    @Override
+    public List<Order> getInitialOrders() {
+
+        return Collections.singletonList((Order) nextOrder(getQuantity()));
     }
 
     @Override
@@ -67,16 +81,7 @@ public class SlicingOrderImpl extends SlicingOrder {
     public LimitOrder nextOrder(long remainingQuantity) {
 
         SecurityFamily family = getSecurity().getSecurityFamily();
-
-        MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
-
-        if (marketDataEvent == null) {
-            throw new IllegalStateException("no marketDataEvent available to initialize SlicingOrder");
-        } else if (!(marketDataEvent instanceof Tick)) {
-            throw new IllegalStateException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
-        }
-
-        Tick tick = (Tick) marketDataEvent;
+        Tick tick = (Tick) getSecurity().getCurrentMarketDataEvent();
 
         // limit (at least one tick above market but do not exceed the market)
         BigDecimal limit;

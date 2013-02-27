@@ -63,17 +63,6 @@ public class OrderDaoImpl extends OrderDaoBase {
         return convertPairCollectionToOrderCollection(EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where not algoOrder and parentOrder.intId = '" + parentIntId + "'"));
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected int handleFindOpenOrderCountByStrategySecurityAndAlgoOrder(String strategyName, int securityId, boolean algoOrder) throws Exception {
-
-        return ((Long)((Map<String,?>)EsperManager.executeSingelObjectQuery(StrategyImpl.BASE,
-                "select count(intId) as cnt from OpenOrderWindow as openOrderWindow" +
-                " where openOrderWindow.security.id = " + securityId +
-                " and openOrderWindow.strategy.name = '" + strategyName + "'" +
-                " and openOrderWindow.algoOrder = " + algoOrder)).get("cnt")).intValue();
-    }
-
     private Collection<Order> convertPairCollectionToOrderCollection(Collection<Pair<Order, Map<?, ?>>> pairs) {
 
         return CollectionUtils.collect(pairs, new Transformer<Pair<Order, Map<?, ?>>, Order>() {

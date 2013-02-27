@@ -8,4 +8,9 @@ public abstract class AlgoOrderImpl extends AlgoOrder {
     public boolean isAlgoOrder() {
         return true;
     }
+
+    @Override
+    public void done() {
+        // do nothing
+    }
 }

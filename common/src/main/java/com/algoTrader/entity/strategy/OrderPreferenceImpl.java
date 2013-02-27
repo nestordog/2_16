@@ -27,11 +27,21 @@ public class OrderPreferenceImpl extends OrderPreference {
             // set allocations if defined
             if (getAllocationsInitialized().size() > 0) {
 
-                if (order instanceof AlgoOrder) {
+                if (!(order instanceof AlgoOrder)) {
+                    throw new IllegalStateException("allocations cannot be assigned to " + orderClazz + " (only AlgoOrders can have allocations)");
+                } else {
+
+                    double totalAllocation = 0;
+                    for (Allocation allocation : getAllocations()) {
+                        totalAllocation += allocation.getValue();
+                    }
+
+                    if (totalAllocation != 1.0) {
+                        throw new IllegalStateException("sum of allocations are not 1.0 for " + toString());
+                    }
+
                     AlgoOrder algoOrder = (AlgoOrder) order;
                     algoOrder.setAllocations(getAllocations());
-                } else {
-                    throw new IllegalStateException("allocatoins can only be assigend to AlgoOrders");
                 }
             }
 

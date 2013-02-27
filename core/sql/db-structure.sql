@@ -329,10 +329,10 @@ DROP TABLE IF EXISTS `jpm_trades_per_day`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 /*!50001 CREATE TABLE `jpm_trades_per_day` (
-  `date(transaction.date_time)` date,
+  `dateTime` date,
   `SECURITY_FK` int(11),
-  `type` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST_PAID','INTREST_RECEIVED','FEES','REFUND','REBALANCE','TRANSFER'),
-  `sum(transaction.QUANTITY)` decimal(41,0)
+  `TYPE` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST_PAID','INTREST_RECEIVED','FEES','REFUND','REBALANCE','TRANSFER'),
+  `qty` decimal(41,0)
 ) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
@@ -385,7 +385,7 @@ DROP TABLE IF EXISTS `order_preference`;
 CREATE TABLE `order_preference` (
   `ID` int(11) NOT NULL,
   `NAME` varchar(50) NOT NULL,
-  `ORDER_TYPE` enum('MARKET','LIMIT','STOP','STOP_LIMIT','SLICING','TICKWISE_INCREMENTAL','VARIABLE_INCREMENTAL') NOT NULL,
+  `ORDER_TYPE` enum('MARKET','LIMIT','STOP','STOP_LIMIT','SLICING','TICKWISE_INCREMENTAL','VARIABLE_INCREMENTAL','DISTRIBUTIONAL') NOT NULL,
   `DEFAULT_ACCOUNT_FK` int(11) DEFAULT NULL,
   `VERSION` int(11) NOT NULL,
   PRIMARY KEY (`ID`),
@@ -715,7 +715,6 @@ CREATE TABLE `transaction` (
   CONSTRAINT `TRANSACTION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 --
 -- Final view structure for view `jpm_trades_per_day`
@@ -731,11 +730,11 @@ CREATE TABLE `transaction` (
 /*!50001 SET collation_connection      = latin1_swedish_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `jpm_trades_per_day` AS select cast(`transaction`.`DATE_TIME` as date) AS `date(transaction.date_time)`,`transaction`.`SECURITY_FK` AS `SECURITY_FK`,`transaction`.`TYPE` AS `type`,sum(`transaction`.`QUANTITY`) AS `sum(transaction.QUANTITY)` from `transaction` where (`transaction`.`MARKET_CHANNEL` = 'JPM_FIX') group by cast(`transaction`.`DATE_TIME` as date),`transaction`.`SECURITY_FK`,`transaction`.`TYPE` */;
+/*!50001 VIEW `jpm_trades_per_day` AS select cast(`transaction`.`DATE_TIME` as date) AS `dateTime`,`transaction`.`SECURITY_FK` AS `SECURITY_FK`,`transaction`.`TYPE` AS `TYPE`,sum(`transaction`.`QUANTITY`) AS `qty` from (`transaction` join `account` on((`transaction`.`ACCOUNT_FK` = `account`.`ID`))) where (`account`.`NAME` = 'JPM_VOLA') group by cast(`transaction`.`DATE_TIME` as date),`transaction`.`SECURITY_FK`,`transaction`.`TYPE` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
-
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
@@ -745,4 +744,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-02-26 16:51:19
+-- Dump completed on 2013-02-27 20:00:05

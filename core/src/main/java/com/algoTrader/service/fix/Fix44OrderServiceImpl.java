@@ -122,7 +122,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
 
         // get origClOrdID and assign a new clOrdID
         String origClOrdID = order.getIntId();
-        String clOrdID = getFixClient().getNextChildOrderId(origClOrdID);
+        String clOrdID = getFixClient().getNextOrderIdVersion(order);
 
         OrderCancelReplaceRequest replaceRequest = new OrderCancelReplaceRequest();
 
@@ -184,7 +184,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
 
         // get origClOrdID and assign a new clOrdID
         String origClOrdID = order.getIntId();
-        String clOrdID = getFixClient().getNextChildOrderId(origClOrdID);
+        String clOrdID = getFixClient().getNextOrderIdVersion(order);
 
         OrderCancelRequest cancelRequest = new OrderCancelRequest();
 

@@ -1,12 +1,11 @@
 package com.algoTrader.service;
 
-import com.algoTrader.enumeration.Duration;
 
 public final class AlgoIdGenerator {
 
     private static AlgoIdGenerator instance;
 
-    private int orderId = (int) (Duration.ONE_DAY.getValue() / 1000);
+    private int orderId = 0;
 
     public static synchronized AlgoIdGenerator getInstance() {
 
@@ -17,7 +16,6 @@ public final class AlgoIdGenerator {
     }
 
     public String getNextOrderId() {
-
-        return String.valueOf(this.orderId++);
+        return "a" + String.valueOf(this.orderId++);
     }
 }

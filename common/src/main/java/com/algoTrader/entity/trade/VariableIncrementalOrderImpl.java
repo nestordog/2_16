@@ -1,6 +1,8 @@
 package com.algoTrader.entity.trade;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
@@ -38,20 +40,19 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
         if (getIncrement() == 0.0) {
             throw new OrderValidationException("increment cannot be 0 for " + this);
         }
+
+        MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
+        if (marketDataEvent == null) {
+            throw new OrderValidationException("no marketDataEvent available to initialize SlicingOrder");
+        } else if (!(marketDataEvent instanceof Tick)) {
+            throw new OrderValidationException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
+        }
     }
 
     @Override
-    public LimitOrder firstOrder() {
+    public List<Order> getInitialOrders() {
 
-        MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
-
-        if (marketDataEvent == null) {
-            throw new IllegalStateException("no marketDataEvent available to initialize SlicingOrder");
-        } else if (!(marketDataEvent instanceof Tick)) {
-            throw new IllegalStateException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
-        }
-
-        Tick tick = (Tick) marketDataEvent;
+        Tick tick = (Tick) getSecurity().getCurrentMarketDataEvent();
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 
@@ -79,15 +80,15 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
         this.endLimit = RoundUtil.getBigDecimal(maxLimit, family.getScale());
         this.currentLimit = this.startLimit;
 
-        LimitOrder order = LimitOrder.Factory.newInstance();
-        order.setSecurity(this.getSecurity());
-        order.setStrategy(this.getStrategy());
-        order.setSide(this.getSide());
-        order.setQuantity(this.getQuantity());
-        order.setLimit(this.startLimit);
-        order.setAccount(this.getAccount());
+        LimitOrder limitOrder = LimitOrder.Factory.newInstance();
+        limitOrder.setSecurity(this.getSecurity());
+        limitOrder.setStrategy(this.getStrategy());
+        limitOrder.setSide(this.getSide());
+        limitOrder.setQuantity(this.getQuantity());
+        limitOrder.setLimit(this.startLimit);
+        limitOrder.setAccount(this.getAccount());
 
-        return order;
+        return Collections.singletonList((Order) limitOrder);
     }
 
     @Override
@@ -138,10 +139,5 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
 
             return this.currentLimit.subtract(roundedIncrement).compareTo(this.endLimit) >= 0;
         }
-    }
-
-    @Override
-    public void done() {
-        // do nothing
     }
 }

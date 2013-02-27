@@ -1,6 +1,5 @@
 package com.algoTrader.entity.trade;
 
-import java.math.BigDecimal;
 
 public class LimitOrderImpl extends LimitOrder {
 
@@ -17,13 +16,5 @@ public class LimitOrderImpl extends LimitOrder {
         if (getLimit() == null) {
             throw new OrderValidationException("no limit defined for " + this);
         }
-    }
-
-    @Override
-    public Order modifyLimit(BigDecimal limit) {
-
-        LimitOrder order = (LimitOrder) cloneOrder();
-        order.setLimit(limit);
-        return order;
     }
 }

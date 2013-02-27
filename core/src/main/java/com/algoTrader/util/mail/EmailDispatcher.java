@@ -40,7 +40,7 @@ public class EmailDispatcher {
 
             logger.info("processing message \"" + mm.getSubject() + "\" from " + mm.getFrom()[0] + " sent on " + mm.getSentDate() + " by disposition " + disposition.getName());
 
-            // set the marketChannel header
+            // set the headers
             return MessageBuilder.fromMessage(message)
                     .setHeader("directory", disposition.getDirectory())
                     .setHeader("reconciliationService", disposition.getReconciliationService())

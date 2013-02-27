@@ -2,7 +2,7 @@
 
 @Name('OPEN_ORDER_WINDOW')
 create
-    window OpenOrderWindow.std:groupwin(security.id, strategy.id, algoOrder).std:lastevent()
+    window OpenOrderWindow.std:groupwin(rootIntId).std:lastevent()
 as select
     *,
     Status.OPEN as status,
@@ -60,6 +60,14 @@ from
     pattern[every currentOrder=GenericOrder -> (timer:interval(1 sec) and not OrderStatus(ord.intId = currentOrder.intId))];
 
 // ------------------------------ALGO ORDERS--------------------------------
+
+@Name('SEND_INITIAL_ALGO_ORDERS')
+@RunTimeOnly
+@Subscriber(className='com.algoTrader.service.OrderService.sendOrders')
+select
+    algoOrder.getInitialOrders()
+from
+    com.algoTrader.entity.trade.AlgoOrder as algoOrder;
 
 @Name('INSERT_INTO_ALGO_ORDER_STATUS_SUBMITTED')
 @RunTimeOnly()
