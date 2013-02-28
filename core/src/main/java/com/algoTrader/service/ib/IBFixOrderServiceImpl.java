@@ -30,20 +30,18 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
         newOrder.set(new CustomerOrFirm(0));
         newOrder.set(new ExDestination(order.getSecurity().getSecurityFamily().getMarket().toString()));
 
-        // handle a potentially defined account
+        // handling for accounts
         if (order.getAccount().getExtAccount() != null) {
-
             newOrder.set(new Account(order.getAccount().getExtAccount()));
+        }
 
-            // handling for financial advisor account groups
-        } else if (order.getAccount().getExtAccountGroup() != null) {
-
+        // handling for financial advisor account groups
+        if (order.getAccount().getExtAccountGroup() != null) {
             newOrder.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
             newOrder.set(new AllocationMethod(this.faMethod));
 
             // handling for financial advisor allocation profiles
         } else if (order.getAccount().getExtAllocationProfile() != null) {
-
             newOrder.set(new AllocationProfile(order.getAccount().getExtAllocationProfile()));
         }
 
@@ -60,20 +58,18 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
         replaceRequest.set(new CustomerOrFirm(0));
         replaceRequest.set(new ExDestination(order.getSecurity().getSecurityFamily().getMarket().toString()));
 
-        // handle a potentially defined account
+        // handling for accounts
         if (order.getAccount().getExtAccount() != null) {
-
             replaceRequest.set(new Account(order.getAccount().getExtAccount()));
+        }
 
-            // handling for financial advisor account groups
-        } else if (order.getAccount().getExtAccountGroup() != null) {
-
+        // handling for financial advisor account groups
+        if (order.getAccount().getExtAccountGroup() != null) {
             replaceRequest.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
             replaceRequest.set(new AllocationMethod(this.faMethod));
 
             // handling for financial advisor allocation profiles
         } else if (order.getAccount().getExtAllocationProfile() != null) {
-
             replaceRequest.set(new AllocationProfile(order.getAccount().getExtAllocationProfile()));
         }
 
@@ -86,23 +82,19 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
     @Override
     protected void handleCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
 
-        // handle a potentially defined account
+        // handling for accounts
         if (order.getAccount().getExtAccount() != null) {
-
             cancelRequest.set(new Account(order.getAccount().getExtAccount()));
+        }
 
-            // handling for financial advisor account groups
-        } else if (order.getAccount().getExtAccountGroup() != null) {
-
+        // handling for financial advisor account groups
+        if (order.getAccount().getExtAccountGroup() != null) {
             cancelRequest.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
             cancelRequest.set(new AllocationMethod(this.faMethod));
 
             // handling for financial advisor allocation profiles
         } else if (order.getAccount().getExtAllocationProfile() != null) {
-
             cancelRequest.set(new AllocationProfile(order.getAccount().getExtAllocationProfile()));
         }
-
     }
-
 }

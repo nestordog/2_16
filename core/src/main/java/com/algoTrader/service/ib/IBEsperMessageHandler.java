@@ -43,41 +43,43 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
     @Override
     public void execDetails(final int reqId, final Contract contract, final Execution execution) {
 
-        if (!(execution.m_execId.startsWith("F-")) && !(execution.m_execId.startsWith("U+"))) {
-
-            String intId = String.valueOf(execution.m_orderId);
-
-            // get the order from the OpenOrderWindow
-            Order order = ServiceLocator.instance().getLookupService().getOpenOrderByIntId(intId);
-            if (order == null) {
-                logger.error("order could not be found " + intId + " for execution " + contract + " " + execution);
-                return;
-            }
-
-            // get the fields
-            Date dateTime = DateUtil.getCurrentEPTime();
-            Date extDateTime = IBUtil.getExecutionDateTime(execution);
-            Side side = IBUtil.getSide(execution);
-            long quantity = execution.m_shares;
-            BigDecimal price = RoundUtil.getBigDecimal(execution.m_price, order.getSecurity().getSecurityFamily().getScale());
-            String extExecId = execution.m_execId;
-
-            // assemble the fill
-            Fill fill = Fill.Factory.newInstance();
-            fill.setDateTime(dateTime);
-            fill.setExtDateTime(extDateTime);
-            fill.setSide(side);
-            fill.setQuantity(quantity);
-            fill.setPrice(price);
-            fill.setExtId(extExecId);
-
-            // associate the fill with the order
-            order.addFills(fill);
-
-            logger.debug(EWrapperMsgGenerator.execDetails(reqId, contract, execution));
-
-            EsperManager.sendEvent(StrategyImpl.BASE, fill);
+        // ignore FA transfer execution reporst
+        if (execution.m_execId.startsWith("F-") || execution.m_execId.startsWith("U+")) {
+            return;
         }
+
+        String intId = String.valueOf(execution.m_orderId);
+
+        // get the order from the OpenOrderWindow
+        Order order = ServiceLocator.instance().getLookupService().getOpenOrderByIntId(intId);
+        if (order == null) {
+            logger.error("order could not be found " + intId + " for execution " + contract + " " + execution);
+            return;
+        }
+
+        // get the fields
+        Date dateTime = DateUtil.getCurrentEPTime();
+        Date extDateTime = IBUtil.getExecutionDateTime(execution);
+        Side side = IBUtil.getSide(execution);
+        long quantity = execution.m_shares;
+        BigDecimal price = RoundUtil.getBigDecimal(execution.m_price, order.getSecurity().getSecurityFamily().getScale());
+        String extExecId = execution.m_execId;
+
+        // assemble the fill
+        Fill fill = Fill.Factory.newInstance();
+        fill.setDateTime(dateTime);
+        fill.setExtDateTime(extDateTime);
+        fill.setSide(side);
+        fill.setQuantity(quantity);
+        fill.setPrice(price);
+        fill.setExtId(extExecId);
+
+        // associate the fill with the order
+        order.addFills(fill);
+
+        logger.debug(EWrapperMsgGenerator.execDetails(reqId, contract, execution));
+
+        EsperManager.sendEvent(StrategyImpl.BASE, fill);
     }
 
     @Override

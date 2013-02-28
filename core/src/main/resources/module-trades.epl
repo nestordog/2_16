@@ -65,9 +65,9 @@ from
 @RunTimeOnly
 @Subscriber(className='com.algoTrader.service.OrderService.sendOrders')
 select
-    algoOrder.getInitialOrders()
+    currentOrder.getInitialOrders()
 from
-    com.algoTrader.entity.trade.AlgoOrder as algoOrder;
+    com.algoTrader.entity.trade.AlgoOrder as currentOrder;
 
 @Name('INSERT_INTO_ALGO_ORDER_STATUS_SUBMITTED')
 @RunTimeOnly()

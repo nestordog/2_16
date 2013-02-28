@@ -205,7 +205,18 @@ public class FixClient implements InitializingBean {
 
             // logon
             String[] logonPattern = this.initiator.getSettings().getString(sessionId, "LogonPattern").split("\\W");
-            Object[] logonParams = { Integer.valueOf(logonPattern[2]), Integer.valueOf(logonPattern[1]) + hourOffset, Integer.valueOf(logonPattern[0]), Integer.valueOf(logonPattern[3]) };
+
+            int logonDay = Integer.valueOf(logonPattern[0]);
+            int logonHour = Integer.valueOf(logonPattern[1]) + hourOffset;
+            int logonMinute = Integer.valueOf(logonPattern[2]);
+            int logonSecond = Integer.valueOf(logonPattern[3]);
+
+            if (logonHour >= 24) {
+                logonHour -= 24;
+                logonDay += 1;
+            }
+
+            Object[] logonParams = { logonMinute, logonHour, logonDay, logonSecond };
 
             EsperManager.deployStatement(StrategyImpl.BASE, "prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGON", logonParams, new Object() {
                 @SuppressWarnings("unused")
@@ -217,7 +228,18 @@ public class FixClient implements InitializingBean {
 
             // logout
             String[] logoutPattern = this.initiator.getSettings().getString(sessionId, "LogoutPattern").split("\\W");
-            Object[] logoutParams = { Integer.valueOf(logoutPattern[2]), Integer.valueOf(logoutPattern[1]) + hourOffset, Integer.valueOf(logoutPattern[0]), Integer.valueOf(logoutPattern[3]) };
+
+            int logoutDay = Integer.valueOf(logoutPattern[0]);
+            int logoutHour = Integer.valueOf(logoutPattern[1]) + hourOffset;
+            int logoutMinute = Integer.valueOf(logoutPattern[2]);
+            int logoutSecond = Integer.valueOf(logoutPattern[3]);
+
+            if (logoutHour >= 24) {
+                logoutHour -= 24;
+                logoutDay += 1;
+            }
+
+            Object[] logoutParams = { logoutMinute, logoutHour, logoutDay, logoutSecond };
 
             EsperManager.deployStatement(StrategyImpl.BASE, "prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGOUT", logoutParams, new Object() {
                 @SuppressWarnings("unused")
