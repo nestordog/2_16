@@ -60,8 +60,10 @@ public class OrderStatusDaoImpl extends OrderStatusDaoBase {
         orderStatusVO.setQuantity(order.getQuantity());
         orderStatusVO.setType(StringUtils.substringBefore(ClassUtils.getShortClassName(order.getClass()), "OrderImpl"));
         orderStatusVO.setName(order.getSecurity().toString());
+        orderStatusVO.setStrategy(order.getStrategy().toString());
         orderStatusVO.setAccount(order.getAccount() != null ? order.getAccount().toString() : "");
         orderStatusVO.setIntId(order.getIntId());
+        orderStatusVO.setExtId(order.getExtId());
         orderStatusVO.setStatus((Status) map.get("status"));
         orderStatusVO.setFilledQuantity((Long) map.get("filledQuantity"));
         orderStatusVO.setRemainingQuantity((Long) map.get("remainingQuantity"));
