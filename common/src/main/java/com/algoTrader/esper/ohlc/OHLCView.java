@@ -4,9 +4,23 @@
  * http://esper.codehaus.org                                                          *
  * http://www.espertech.com                                                           *
  * ---------------------------------------------------------------------------------- *
- * The software in this package is published under the terms of the GPL license       *
- * a copy of which has been included with this distribution in the license.txt file.  *
- **************************************************************************************/
+ * The software in this /***********************************************************************************
+ * AlgoTrader Enterprise Trading Framework
+ *
+ * Copyright (C) 2013 Flury Trading - All rights reserved
+ *
+ * All information contained herein is, and remains the property of Flury Trading.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * Flury Trading. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from Flury Trading
+ *
+ * Fur detailed terms and conditions consult the file LICENSE.txt or contact
+ *
+ * Flury Trading
+ * Badenerstrasse 16
+ * 8004 Zurich
+ ***********************************************************************************/
 package com.algoTrader.esper.ohlc;
 
 import java.util.Collections;
@@ -97,20 +111,21 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
         // schedule the first callback
         if (isStartEager)
         {
-            if (currentReferencePoint == null)
+            if (this.currentReferencePoint == null)
             {
-                currentReferencePoint = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
+                this.currentReferencePoint = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
             }
             scheduleCallback();
-            isCallbackScheduled = true;
+            this.isCallbackScheduled = true;
         }
 
         agentInstanceContext.getTerminationCallbacks().add(this);
     }
 
+    @Override
     public View cloneView()
     {
-        return ohlcViewFactory.makeView(agentInstanceContext);
+        return this.ohlcViewFactory.makeView(this.agentInstanceContext);
     }
 
     /**
@@ -119,7 +134,7 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
      */
     public final long getMsecIntervalSize()
     {
-        return msecIntervalSize;
+        return this.msecIntervalSize;
     }
 
     /**
@@ -128,7 +143,7 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
      */
     public final Long getInitialReferencePoint()
     {
-        return initialReferencePoint;
+        return this.initialReferencePoint;
     }
 
     /**
@@ -137,7 +152,7 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
      */
     public boolean isForceOutput()
     {
-        return isForceOutput;
+        return this.isForceOutput;
     }
 
     /**
@@ -146,14 +161,16 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
      */
     public boolean isStartEager()
     {
-        return isStartEager;
+        return this.isStartEager;
     }
 
+    @Override
     public final EventType getEventType()
     {
-        return parent.getEventType();
+        return this.parent.getEventType();
     }
 
+    @Override
     public final void update(EventBean[] newData, EventBean[] oldData)
     {
         // we don't care about removed data from a prior view
@@ -163,22 +180,22 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
         }
 
         // If we have an empty window about to be filled for the first time, schedule a callback
-        if (currentBar.getOpen() == null)
+        if (this.currentBar.getOpen() == null)
         {
-            if (currentReferencePoint == null)
+            if (this.currentReferencePoint == null)
             {
-                currentReferencePoint = initialReferencePoint;
-                if (currentReferencePoint == null)
+                this.currentReferencePoint = this.initialReferencePoint;
+                if (this.currentReferencePoint == null)
                 {
-                    currentReferencePoint = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
+                    this.currentReferencePoint = this.agentInstanceContext.getStatementContext().getSchedulingService().getTime();
                 }
             }
 
             // Schedule the next callback if there is none currently scheduled
-            if (!isCallbackScheduled)
+            if (!this.isCallbackScheduled)
             {
                 scheduleCallback();
-                isCallbackScheduled = true;
+                this.isCallbackScheduled = true;
             }
 
             this.currentStartTime = this.agentInstanceContext.getStatementContext().getSchedulingService().getTime();
@@ -186,7 +203,7 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
 
         // update the ohlc with new events
         for (EventBean bean : newData) {
-            updateOHLCBar(currentBar, bean);
+            updateOHLCBar(this.currentBar, bean);
         }
 
         // We do not update child views, since we batch the events.
@@ -198,7 +215,7 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
      */
     protected final void sendBatch()
     {
-        isCallbackScheduled = false;
+        this.isCallbackScheduled = false;
 
         // If there are child views and the batch was filled, fireStatementStopped update method
         if (this.hasViews())
@@ -206,21 +223,21 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
             // Convert to object arrays
             OHLCBar newData = null;
             OHLCBar oldData = null;
-            if (currentBar.getOpen() != null)
+            if (this.currentBar.getOpen() != null)
             {
-                newData = currentBar;
+                newData = this.currentBar;
             }
-            if ((lastBar != null) && (lastBar.getOpen() != null))
+            if ((this.lastBar != null) && (this.lastBar.getOpen() != null))
             {
-                oldData = lastBar;
+                oldData = this.lastBar;
             }
 
             // Post new data (current batch) and old data (prior batch)
-            if (viewUpdatedCollection != null)
+            if (this.viewUpdatedCollection != null)
             {
                 throw new UnsupportedOperationException("viewUpdatedCollection.update not supported");
             }
-            if ((newData != null) || (oldData != null) || (isForceOutput))
+            if ((newData != null) || (oldData != null) || (this.isForceOutput))
             {
                 updateChildren(getEventBeans(newData), getEventBeans(oldData));
             }
@@ -229,14 +246,14 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
         // Only if forceOutput is enabled or
         // there have been any events in this or the last interval do we schedule a callback,
         // such as to not waste resources when no events arrive.
-        if ((currentBar.getOpen() != null) || ((lastBar != null) && (lastBar.getOpen() != null)) || (isForceOutput))
+        if ((this.currentBar.getOpen() != null) || ((this.lastBar != null) && (this.lastBar.getOpen() != null)) || (this.isForceOutput))
         {
             scheduleCallback();
-            isCallbackScheduled = true;
+            this.isCallbackScheduled = true;
         }
 
-        lastBar = currentBar;
-        currentBar = new OHLCBar();
+        this.lastBar = this.currentBar;
+        this.currentBar = new OHLCBar();
     }
 
     /**
@@ -245,42 +262,45 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
      */
     public boolean isEmpty()
     {
-        if (lastBar != null)
+        if (this.lastBar != null)
         {
-            if (lastBar.getOpen() == null)
+            if (this.lastBar.getOpen() == null)
             {
                 return true;
             }
         }
-        return currentBar.getOpen() == null;
+        return this.currentBar.getOpen() == null;
     }
 
+    @Override
     public final Iterator<EventBean> iterator()
     {
-        EventBean bean = this.agentInstanceContext.getStatementContext().getEventAdapterService().adapterForBean(currentBar);
+        EventBean bean = this.agentInstanceContext.getStatementContext().getEventAdapterService().adapterForBean(this.currentBar);
         return Collections.singleton(bean).iterator();
     }
 
+    @Override
     public final String toString()
     {
         return this.getClass().getName() +
-                " msecIntervalSize=" + msecIntervalSize +
-                " initialReferencePoint=" + initialReferencePoint;
+                " msecIntervalSize=" + this.msecIntervalSize +
+                " initialReferencePoint=" + this.initialReferencePoint;
     }
 
     private void scheduleCallback()
     {
-        long current = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
+        long current = this.agentInstanceContext.getStatementContext().getSchedulingService().getTime();
         long afterMSec = computeWaitMSec(current, this.currentReferencePoint, this.msecIntervalSize);
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
+            @Override
             public void scheduledTrigger(ExtensionServicesContext extensionServicesContext)
             {
                 OHLCView.this.sendBatch();
             }
         };
-        handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);
-        agentInstanceContext.getStatementContext().getSchedulingService().add(afterMSec, handle, scheduleSlot);
+        this.handle = new EPStatementHandleCallback(this.agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);
+        this.agentInstanceContext.getStatementContext().getSchedulingService().add(afterMSec, this.handle, this.scheduleSlot);
     }
 
     /**
@@ -316,18 +336,20 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
         return solution;
     }
 
+    @Override
     public void stopView() {
         stopSchedule();
-        agentInstanceContext.getTerminationCallbacks().remove(this);
+        this.agentInstanceContext.getTerminationCallbacks().remove(this);
     }
 
+    @Override
     public void stop() {
         stopSchedule();
     }
 
     public void stopSchedule() {
-        if (handle != null) {
-            agentInstanceContext.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
+        if (this.handle != null) {
+            this.agentInstanceContext.getStatementContext().getSchedulingService().remove(this.handle, this.scheduleSlot);
         }
     }
 

@@ -1,3 +1,20 @@
+/***********************************************************************************
+ * AlgoTrader Enterprise Trading Framework
+ *
+ * Copyright (C) 2013 Flury Trading - All rights reserved
+ *
+ * All information contained herein is, and remains the property of Flury Trading.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * Flury Trading. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from Flury Trading
+ *
+ * Fur detailed terms and conditions consult the file LICENSE.txt or contact
+ *
+ * Flury Trading
+ * Badenerstrasse 16
+ * 8004 Zurich
+ ***********************************************************************************/
 package com.algoTrader.client;
 
 import java.awt.Component;
@@ -27,6 +44,11 @@ import javax.swing.table.TableModel;
  * This class was designed to be used with tables that use an auto resize mode of AUTO_RESIZE_OFF. With all other modes you are constrained as the width of the
  * columns must fit inside the table. So if you increase one column, one or more of the other columns must decrease. Because of this the resize mode of
  * RESIZE_ALL_COLUMNS will work the best.
+ */
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
  */
 public class TableColumnAdjuster implements PropertyChangeListener, TableModelListener {
     private JTable table;

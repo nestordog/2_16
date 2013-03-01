@@ -4,10 +4,26 @@
  * http://esper.codehaus.org                                                          *
  * http://www.espertech.com                                                           *
  * ---------------------------------------------------------------------------------- *
- * The software in this package is published under the terms of the GPL license       *
- * a copy of which has been included with this distribution in the license.txt file.  *
- **************************************************************************************/
+ * The software in this /***********************************************************************************
+ * AlgoTrader Enterprise Trading Framework
+ *
+ * Copyright (C) 2013 Flury Trading - All rights reserved
+ *
+ * All information contained herein is, and remains the property of Flury Trading.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * Flury Trading. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from Flury Trading
+ *
+ * Fur detailed terms and conditions consult the file LICENSE.txt or contact
+ *
+ * Flury Trading
+ * Badenerstrasse 16
+ * 8004 Zurich
+ ***********************************************************************************/
 package com.algoTrader.esper.ohlc;
+
+import java.util.List;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
@@ -15,13 +31,26 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.ExprEvaluator;
 import com.espertech.esper.epl.expression.ExprNode;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.view.*;
-import com.espertech.esper.view.window.*;
-
-import java.util.List;
+import com.espertech.esper.view.DataWindowBatchingViewFactory;
+import com.espertech.esper.view.DataWindowViewFactory;
+import com.espertech.esper.view.DataWindowViewWithPrevious;
+import com.espertech.esper.view.View;
+import com.espertech.esper.view.ViewFactory;
+import com.espertech.esper.view.ViewFactoryContext;
+import com.espertech.esper.view.ViewFactorySupport;
+import com.espertech.esper.view.ViewParameterException;
+import com.espertech.esper.view.ViewServiceHelper;
+import com.espertech.esper.view.window.IStreamRelativeAccess;
+import com.espertech.esper.view.window.RelativeAccessByEventNIndexMap;
+import com.espertech.esper.view.window.TimeBatchViewFactoryParams;
 
 /**
  * Factory for {@link OHLCView}.
+ */
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
  */
 public class OHLCViewFactory extends TimeBatchViewFactoryParams implements DataWindowViewFactory, DataWindowViewWithPrevious, DataWindowBatchingViewFactory
 {
@@ -34,6 +63,7 @@ public class OHLCViewFactory extends TimeBatchViewFactoryParams implements DataW
 
     private List<ExprNode> exprNodes;
 
+    @Override
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
     {
         List<Object> viewParameters = ViewFactorySupport.validateAndEvaluate("OHLC view", viewFactoryContext.getStatementContext(), expressionParameters.subList(1, expressionParameters.size()));
@@ -58,7 +88,7 @@ public class OHLCViewFactory extends TimeBatchViewFactoryParams implements DataW
                 {
                     throw new ViewParameterException("OHLC view requires a Long-typed reference point in msec as a second parameter");
                 }
-                optionalReferencePoint = ((Number) paramRef).longValue();
+                this.optionalReferencePoint = ((Number) paramRef).longValue();
             }
 
             if (viewParameters.size() == 3)
@@ -69,6 +99,7 @@ public class OHLCViewFactory extends TimeBatchViewFactoryParams implements DataW
         this.exprNodes = expressionParameters;
     }
 
+    @Override
     public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
     {
         ExprNode[] validated = ViewFactorySupport.validate("OHLC View", parentEventType, statementContext, this.exprNodes, true);
@@ -81,10 +112,12 @@ public class OHLCViewFactory extends TimeBatchViewFactoryParams implements DataW
         this.eventType = statementContext.getEventAdapterService().addBeanType(OHLCBar.class.getName(), OHLCBar.class, false, false, false);
     }
 
+    @Override
     public Object makePreviousGetter() {
         return new RelativeAccessByEventNIndexMap();
     }
 
+    @Override
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
         IStreamRelativeAccess relativeAccessByEvent = ViewServiceHelper.getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
@@ -94,15 +127,17 @@ public class OHLCViewFactory extends TimeBatchViewFactoryParams implements DataW
         }
         else
         {
-            return new OHLCView(this, agentInstanceViewFactoryContext, valueExpressionEval, millisecondsBeforeExpiry, optionalReferencePoint, isForceUpdate, isStartEager, relativeAccessByEvent);
+            return new OHLCView(this, agentInstanceViewFactoryContext, this.valueExpressionEval, this.millisecondsBeforeExpiry, this.optionalReferencePoint, this.isForceUpdate, this.isStartEager, relativeAccessByEvent);
         }
     }
 
+    @Override
     public EventType getEventType()
     {
-        return eventType;
+        return this.eventType;
     }
 
+    @Override
     public boolean canReuse(View view)
     {
         if (!(view instanceof OHLCView))
@@ -111,25 +146,25 @@ public class OHLCViewFactory extends TimeBatchViewFactoryParams implements DataW
         }
 
         OHLCView myView = (OHLCView) view;
-        if (myView.getMsecIntervalSize() != millisecondsBeforeExpiry)
+        if (myView.getMsecIntervalSize() != this.millisecondsBeforeExpiry)
         {
             return false;
         }
 
-        if ((myView.getInitialReferencePoint() != null) && (optionalReferencePoint != null))
+        if ((myView.getInitialReferencePoint() != null) && (this.optionalReferencePoint != null))
         {
-            if (!myView.getInitialReferencePoint().equals(optionalReferencePoint.longValue()))
+            if (!myView.getInitialReferencePoint().equals(this.optionalReferencePoint.longValue()))
             {
                 return false;
             }
         }
-        if ( ((myView.getInitialReferencePoint() == null) && (optionalReferencePoint != null)) ||
-             ((myView.getInitialReferencePoint() != null) && (optionalReferencePoint == null)) )
+        if ( ((myView.getInitialReferencePoint() == null) && (this.optionalReferencePoint != null)) ||
+             ((myView.getInitialReferencePoint() != null) && (this.optionalReferencePoint == null)) )
         {
             return false;
         }
 
-        if (myView.isForceOutput() != isForceUpdate)
+        if (myView.isForceOutput() != this.isForceUpdate)
         {
             return false;
         }

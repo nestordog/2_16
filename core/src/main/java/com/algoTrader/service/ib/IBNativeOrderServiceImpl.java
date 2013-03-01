@@ -1,3 +1,20 @@
+/***********************************************************************************
+ * AlgoTrader Enterprise Trading Framework
+ *
+ * Copyright (C) 2013 Flury Trading - All rights reserved
+ *
+ * All information contained herein is, and remains the property of Flury Trading.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * Flury Trading. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from Flury Trading
+ *
+ * Fur detailed terms and conditions consult the file LICENSE.txt or contact
+ *
+ * Flury Trading
+ * Badenerstrasse 16
+ * 8004 Zurich
+ ***********************************************************************************/
 package com.algoTrader.service.ib;
 
 import org.apache.log4j.Logger;
@@ -11,6 +28,11 @@ import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.util.MyLogger;
 import com.ib.client.Contract;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
 
     private static final long serialVersionUID = -7426452967133280762L;
