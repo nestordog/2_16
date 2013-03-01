@@ -1,0 +1,84 @@
+AlgoTrader Lizenzvertrag
+
+Lizenzgeber:
+Flury Trading
+Binzallee 33
+8055 Zürich
+Schweiz
+
+Software: AlgoTrader Enterprise Trading Framework
+
+Der Lizenzgeber erteilt dem Lizenznehmer die Nutzungslizenz der oben aufgeführten Software. Die Lizenzerteilung wird zu den untenstehenden Lizenzbedingungen erfolgen.
+
+I. Inhalt und Umfang der Softwarelizenz
+
+1. Der Lizenzgeber erteilt dem Lizenznehmer das nicht ausschliessliche und nicht übertragbare Recht (Lizenz), die im Lizenzvertrag bezeichnete Software bestimmungsgemäss zu nutzen.
+
+2. Das Lizenzmaterial umfasst das dem Lizenznehmer zur Verfügung gestellte Computerprogramm im ausführbaren Programmcodeformat sowie die Dokumentation. Die Installation und Inbetriebnahme der Software liegt in der alleinigen Verantwortung des Lizenznehmers.
+
+3. Bestimmungsgemässer Gebrauch im Sinne dieser Vertragsbestimmungen umfasst abschliessend:
+   - das Laden, Starten und Ausführen des Programmes auf dem System des Lizenznehmers
+   - die hierfür erforderliche vorübergehende Herstellung von Kopien
+   - die Verwendung der Dokumentation im Zusammenhang mit dem bestimmungsgemässen Gebrauch der Software.
+
+4. Es ist ohne vorherige schriftliche Einwilligung des Lizenzgebers untersagt, Programme und Dokumentationen zu kopieren, abzuändern, an Dritte zu übergeben, an Dritte zu verkaufen oder Dritten sonst wie zugänglich zu machen.
+
+5. Das Recht zur Benutzung des Lizenzmaterials kann nur mit vorheriger schriftlicher Einwilligung des Lizenzgebers und nur unter den Bedingungen dieses Vertrages an einen Dritten übertragen werden. Verschenken, Vermieten, Verpachten, Verleihen oder anderweitiges Zurverfügungstellung des Lizenzmaterials sind ausdrücklich untersagt.
+
+6. Der Lizenznehmer erhält mit diesem Vertrag ein Nutzungsrecht an der Software. Ein Erwerb von Rechten an der Software selbst ist damit nicht verbunden. Der Lizenzgeber behält sich alle Urheberrechte, insbesondere alle Veröffentlichungs-, Vervielfältigungs-, Bearbeitungs- und Verwertungsrechte, sowie alle sonstigen Verfügungs-, Eigentums- sowie Schutzrechte an der Software vor. Die Vertragsbedingungen haben auch bezüglich der Updates und New Releases uneingeschränkte Gültigkeit.
+
+7. Der Lizenznehmer anerkennt ausdrücklich, dass das Lizenzmaterial Geschäftsgeheimnisse des Lizenzgebers enthält und verpflichtet sich, diese sowohl während als auch nach Beendigung der Nutzungsberechtigung bzw. des vorliegenden Lizenzvertrages vollumfänglich zu waren.
+
+8. Bei Verletzung dieses Vertrages durch den Lizenznehmer kann der Lizenzgeber Schadenersatzansprüchen geltend machen. Ausserdem hat er das Recht auf Beseitigung des vertragswidrigen Zustandes sowie das Recht den Vertrag sofort zu beenden.
+
+II. Gewährleistung und Haftung
+
+9. Der Lizenzgeber garantiert dem Lizenznehmer, dass das Lizenzmaterial der im Zeitpunkt der Zurverfügungstellung gültigen Spezifikationen des Lizenzgebers entspricht. Es wird vom Lizenznehmer anerkannt, dass es nach dem Stand der Technik nicht möglich ist, Software so herzustellen, dass sie fehlerfrei arbeitet. Der Lizenzgeber kann keine Garantie dafür übernehmen, dass die Software ununterbrochen und fehlerfrei in allen vom Kunden gewünschten Kombinationen, mit beliebigen Daten, EDV Systemen und weiteren Programmen eingesetzt werden kann, noch dass durch die Korrektur eines Programmfehlers das Auftreten anderer Programmfehler ausgeschlossen wird. Die Verantwortung für die richtige Auswahl und die Folgen der Benutzung sowie der mit der Software beabsichtigten oder erzielten Ergebnisse trägt alleine der Lizenznehmer.
+
+10. Nicht den Spezifikationen entsprechendes Lizenzmaterial wird von der Lizenzgeber innert nützlicher Frist nach ihrer Wahl kostenlos korrigiert oder ausgewechselt. Als rechtsgenügliche Korrekturmassnahmen gelten insbesondere auch die Lieferung von Updates, Korrektur-Datenträger oder einer dem Lizenznehmer dienlichen Umgehungslösung. Jede weitere Haftung irgendwelcher Art, insbesondere für Folgeschäden und indirekte Schäden, wird ausdrücklich ausgeschlossen.
+
+11. Für Mängel am Lizenzmaterial haftet der Lizenzgeber während 6 Monaten ab Lieferung. Mängel sind innerhalb von zehn Tagen nach Feststellung schriftlich und ordnungsgemäss dokumentiert bei dem Lizenzgeber geltend zu machen. Der Lizenzgeber übernimmt keinerlei Garantie, wenn die Software unsachgemäss behandelt wird oder in einer defekten oder nicht kompatiblen Hard- und Softwareumgebung benutzt wird.
+
+12. Der Lizenzgeber haftet für unmittelbare und mittelbare Schäden, welche dem Lizenznehmer infolge Verletzung des vorliegenden Vertrages entstanden sind, jedoch nur bei Absicht oder grober Fahrlässigkeit. Der Lizenzgeber schliesst zudem die Haftung für Erfüllungsgehilfen und Dritte ausdrücklich aus. Betragsmässig wird die Haftung auf jeden Fall auf die vom Lizenznehmer bereits bezahlten Gebühren beschränkt.
+
+III. Inkrafttreten und Dauer des Lizenzvertrages
+
+13. Dieser Vertrag tritt mit der vollständigen Unterzeichnung durch beide Parteien in Kraft.
+
+14. Dieser Vertrag wird auf unbestimmte Zeit abgeschlossen und kann von beiden Parteien mittels eingeschriebenen Briefs jeweils unter Einhaltung einer einmonatigen Kündigungsfrist auf Ende Monat beendet werden.
+
+15. Verstösst der Lizenznehmer gegen eine Bestimmung des vorliegenden Vertrages, ist der Lizenzgeber zudem berechtigt, den vorliegenden Vertrag fristlos zu kündigen.
+
+16. Bei Beendigung des Vertrages erlöschen sämtliche Nutzungsrechte des Lizenznehmers am Lizenzmaterial (Software inkl. sämtlicher Kopien sowie Benutzerdokumentation). Der Lizenznehmer ist verpflichtet, das Lizenzmaterial spätestens am letzten Tag der Vertragsdauer zurückzugeben. Er hat zudem schriftlich zu bestätigen, dass sämtliche Kopien der Software und des Lizenzcodes auf seinen System und/oder externen Datenträgern vollständig gelöscht worden und keine Kopien der Benutzerdokumentation mehr vorhanden sind.
+
+17. Aus der Beendigung des Benutzungsrechtes bzw. des Lizenzvertrages entstehen gegenüber dem Lizenzgeber keinerlei Ansprüche auf Rückerstattung von Zahlungen und/oder auf Schadenersatz.
+
+IV. Wartungsleistungen
+
+18. Der Lizenzgeber stellt dem Lizenznehmer die jeweils verfügbaren technischen Aktualisierungen, Korrekturen und Verbesserungen der Software (Updates) zur Verfügung.
+
+19. Die Updates und New Releases werden vom Lizenznehmer selber installiert. Der Lizenznehmer hat die nötigen Vorkehrungen zu treffen, dass durch das Update und die New Releases kein Datenverlust entstehen kann.
+
+V. Support
+
+20. Der Lizenzgeber verpflichtet sich, zusätzlich zu den Wartungsleistungen für die im Vertrag bezeichnete Software Support Leistungen zu erbringen.
+
+21. Die Supportleistung für programmspezifische Fragen wird während den üblichen Bürozeiten erbracht.
+
+VI. Gebühren und Zahlungsbedingungen
+
+22. Die in diesem Vertrag angegebene Lizenzgebühr umfasst die Nutzungs-, Wartungs- und Support-Gebühr für die in diesem Vertrag angegebene Software (Pauschalgebühr). Die Gebühren sind jeweils per Ende Monat zu entrichten.
+
+23. Gerät der Lizenznehmer mit der Zahlung in Verzug, so ist der Lizenzgeber berechtigt, vorliegenden Vertrag ohne Nachfristsetzung mit sofortiger Wirkung zu kündigen.
+
+VII. Allgemeine Bestimmungen
+
+24. Diese Vertragsbedingungen regeln abschliessend die Rechte und Pflichten zwischen dem Lizenzgeber und dem Lizenznehmer. Änderungen oder Ergänzungen dieses Vertrages bedürfen zu ihrer Gültigkeit der Schriftform und Unterzeichnung durch beide Parteien.
+
+25. Sollte eine Bestimmung dieses Vertrages nichtig sein oder rechtsunwirksam werden, so gelten die übrigen Bestimmungen weiter. Die nichtigen oder rechtsunwirksamen Teile des Vertrages sollen in diesem Fall durch eine wirksame Bestimmung ersetzt werden, die in ihrer wirtschaftlichen Auswirkung derjenigen der unwirksamen Bestimmung so nahe kommt wie rechtlich möglich.
+
+26. Der vorliegende Vertrag untersteht dem schweizerischen Recht.
+
+27. Gerichtsstand für sämtliche sich aus diesem Vertrag ergebenden Streitigkeiten ist Zürich.
+
+Der Lizenznehmer erklärt mit seiner Unterschrift, dass er die vorliegenden Vertragsbedingungen der Lizenzgeber gelesen, verstanden und als integraler Bestandteil des Lizenzvertrages akzeptiert hat.

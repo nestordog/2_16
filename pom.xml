@@ -21,11 +21,28 @@
             <timezone>UTC+1</timezone>
         </developer>
     </developers>
+    <licenses>
+        <license>
+            <name>AlgoTrader License Agreement</name>
+            <url>LICENSE.txt</url>
+        </license>
+    </licenses>
     <scm>
         <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</developerConnection>
     </scm>
     <build>
         <defaultGoal>install</defaultGoal>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${basedir}/..</directory>
+                <includes>
+                    <include>LICENSE.txt</include>
+                </includes>
+            </resource>
+        </resources>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -67,6 +84,11 @@
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>2.3</version>
+<!--                     <configuration> -->
+<!--                           <includes> -->
+<!--                             <include>**/LICENSE.txt</include> -->
+<!--                           </includes> -->
+<!--                     </configuration>                     -->
                 </plugin>
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
