@@ -72,10 +72,6 @@ import com.tictactec.ta.lib.RetCode;
  * <li><a href="http://www.javassist.org/">Javaassist</a></li> </p>
  * </ul>
  *
- * @author Andy Flury
- *
- */
-/**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

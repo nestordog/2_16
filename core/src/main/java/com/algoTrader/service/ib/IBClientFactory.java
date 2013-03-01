@@ -29,12 +29,12 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import com.algoTrader.enumeration.ConnectionState;
 
-@ManagedResource(objectName = "com.algoTrader.ib:name=IBClientFactory")
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
+@ManagedResource(objectName = "com.algoTrader.ib:name=IBClientFactory")
 public class IBClientFactory {
 
     private @Value("${simulation}") boolean simulation;

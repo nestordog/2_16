@@ -18,6 +18,11 @@
 package com.algoTrader.service.ib;
 
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public final class IBIdGenerator {
 
     private static IBIdGenerator instance;

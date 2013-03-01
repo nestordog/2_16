@@ -24,6 +24,11 @@ import org.springframework.beans.PropertyEditorRegistrar;
 import org.springframework.beans.PropertyEditorRegistry;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public final class DatePropertyEditorRegistrar implements PropertyEditorRegistrar {
 
     @Override

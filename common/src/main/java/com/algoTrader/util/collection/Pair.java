@@ -23,6 +23,10 @@ import java.io.Serializable;
  * General-purpose pair of values of any type. The pair only equals another pair if
  * the objects that form the pair equal, ie. first pair first object equals (.equals) the second pair first object,
  * and the first pair second object equals the second pair second object.
+ *
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
  */
 public final class Pair<First,Second> implements Serializable
 {

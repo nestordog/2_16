@@ -64,12 +64,12 @@ import com.algoTrader.enumeration.OrderServiceType;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.collection.IntegerMap;
 
-@ManagedResource(objectName = "com.algoTrader.fix:name=FixClient")
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
+@ManagedResource(objectName = "com.algoTrader.fix:name=FixClient")
 public class FixClient implements InitializingBean {
 
     private SocketInitiator initiator = null;

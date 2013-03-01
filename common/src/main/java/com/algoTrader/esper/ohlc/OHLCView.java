@@ -56,6 +56,10 @@ import com.espertech.esper.view.ViewSupport;
  *
  * If there are no events in the current and prior batch, the view will not invoke the update method of child views.
  * In that case also, no next callback is scheduled with the scheduling service until the next event arrives.
+ *
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
  */
 public final class OHLCView extends ViewSupport implements CloneableView, StoppableView, StopCallback, DataWindowView {
     // View parameters

@@ -28,6 +28,11 @@ import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.util.MyLogger;
 import com.ib.client.EClientSocket;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public final class IBClient extends EClientSocket {
 
     private static Logger logger = MyLogger.getLogger(IBClient.class.getName());

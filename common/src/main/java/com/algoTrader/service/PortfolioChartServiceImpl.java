@@ -27,12 +27,12 @@ import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.IndicatorVO;
 import com.algoTrader.vo.PortfolioValueVO;
 
-@ManagedResource(objectName = "com.algoTrader.service:name=PortfolioChart,type=chart")
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
+@ManagedResource(objectName = "com.algoTrader.service:name=PortfolioChart,type=chart")
 public class PortfolioChartServiceImpl extends PortfolioChartServiceBase {
 
     @Override

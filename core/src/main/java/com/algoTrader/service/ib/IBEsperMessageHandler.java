@@ -37,6 +37,11 @@ import com.ib.client.Contract;
 import com.ib.client.EWrapperMsgGenerator;
 import com.ib.client.Execution;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
 
     private static Logger logger = MyLogger.getLogger(IBEsperMessageHandler.class.getName());
