@@ -53,6 +53,11 @@ import com.algoTrader.vo.OpenPositionVO;
 import com.algoTrader.vo.PositionMutationVO;
 import com.algoTrader.vo.TradePerformanceVO;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());

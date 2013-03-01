@@ -45,6 +45,11 @@ import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersistenceServiceBase {
 
     private static Logger logger = MyLogger.getLogger(PortfolioPersistenceServiceImpl.class.getName());

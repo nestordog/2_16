@@ -40,6 +40,11 @@ import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.io.CsvTickWriter;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class HistoricalDataServiceImpl extends HistoricalDataServiceBase {
 
     private static Logger logger = MyLogger.getLogger(HistoricalDataServiceImpl.class.getName());

@@ -19,6 +19,11 @@ package com.algoTrader.entity.trade;
 
 import org.apache.commons.lang.ClassUtils;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class OrderImpl extends Order {
 
     private static final long serialVersionUID = -6501807818853981164L;

@@ -20,6 +20,11 @@ package com.algoTrader.service;
 import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.enumeration.OrderServiceType;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class ExternalOrderServiceImpl extends ExternalOrderServiceBase {
 
     @Override

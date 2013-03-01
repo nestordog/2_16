@@ -17,6 +17,11 @@
  ***********************************************************************************/
 package com.algoTrader.entity.trade;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class SimpleOrderImpl extends SimpleOrder {
 
     private static final long serialVersionUID = -7687451249870091145L;

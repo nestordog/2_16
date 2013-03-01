@@ -31,6 +31,11 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.metric.MetricsUtil;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class TickCallback {
 
     private static Logger logger = MyLogger.getLogger(TickCallback.class.getName());

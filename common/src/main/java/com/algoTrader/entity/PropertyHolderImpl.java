@@ -22,6 +22,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class PropertyHolderImpl extends PropertyHolder {
 
     private static final long serialVersionUID = 2154726089257967279L;

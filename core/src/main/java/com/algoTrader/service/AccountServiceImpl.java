@@ -17,6 +17,11 @@
  ***********************************************************************************/
 package com.algoTrader.service;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class AccountServiceImpl extends AccountServiceBase {
 
     @Override

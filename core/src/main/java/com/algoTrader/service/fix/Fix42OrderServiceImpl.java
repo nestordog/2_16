@@ -47,6 +47,11 @@ import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.entity.trade.StopOrderI;
 import com.algoTrader.enumeration.OptionType;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
 
     private static final long serialVersionUID = -3694423160435186473L;

@@ -17,6 +17,11 @@
  ***********************************************************************************/
 package com.algoTrader.entity.trade;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class AlgoOrderImpl extends AlgoOrder {
 
     private static final long serialVersionUID = 5310975560518020161L;

@@ -25,6 +25,11 @@ import org.springframework.beans.factory.annotation.Value;
 import com.algoTrader.enumeration.Direction;
 import com.algoTrader.util.CustomToStringStyle;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class MarketDataEventImpl extends MarketDataEvent {
 
     private static final long serialVersionUID = 8758212212560594623L;

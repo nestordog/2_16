@@ -30,6 +30,11 @@ import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.metric.MetricsUtil;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class TradeCallback {
 
     private static Logger logger = MyLogger.getLogger(TradeCallback.class.getName());

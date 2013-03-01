@@ -17,6 +17,11 @@
  ***********************************************************************************/
 package com.algoTrader.entity.trade;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class IncrementalOrderImpl extends IncrementalOrder {
 
     private static final long serialVersionUID = -3834520928717471963L;

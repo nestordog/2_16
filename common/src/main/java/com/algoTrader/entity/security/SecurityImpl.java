@@ -38,6 +38,11 @@ import com.algoTrader.util.metric.MetricsUtil;
 import com.espertech.esper.event.WrapperEventBean;
 import com.espertech.esper.event.bean.BeanEventBean;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class SecurityImpl extends Security {
 
     private static final long serialVersionUID = -6631052475125813394L;

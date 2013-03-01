@@ -26,6 +26,11 @@ import quickfix.field.MsgType;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.util.MyLogger;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
 
     private static final long serialVersionUID = -1571841567775158540L;

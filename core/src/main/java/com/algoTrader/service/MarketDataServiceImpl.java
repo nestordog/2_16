@@ -47,6 +47,11 @@ import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.GenericEventVO;
 import com.espertech.esper.collection.Pair;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
     private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());

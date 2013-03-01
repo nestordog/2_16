@@ -23,6 +23,11 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.OpenPositionVO;
 
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public abstract class OpenPositionCallback {
 
     private static Logger logger = MyLogger.getLogger(OpenPositionCallback.class.getName());
