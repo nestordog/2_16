@@ -41,7 +41,6 @@ import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.strategy.Account;
-import com.algoTrader.entity.strategy.OrderPreference;
 import com.algoTrader.entity.trade.LimitOrder;
 import com.algoTrader.entity.trade.MarketOrder;
 import com.algoTrader.entity.trade.Order;
@@ -294,12 +293,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         } else {
 
             // create the order from an OrderPreference
-            OrderPreference orderPreference = getLookupService().getOrderPreferenceByName(type);
-            if (orderPreference != null) {
-                order = orderPreference.createOrder();
-            } else {
-                throw new IllegalArgumentException("unknown OrderType or OrderPreference");
-            }
+            order = getLookupService().getOrderByName(type);
         }
 
         // set common values

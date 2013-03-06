@@ -35,7 +35,6 @@ import com.algoTrader.entity.security.Forex;
 import com.algoTrader.entity.security.ForexFuture;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.FutureFamily;
-import com.algoTrader.entity.trade.MarketOrder;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Side;
@@ -90,7 +89,7 @@ public class ForexServiceImpl extends ForexServiceBase {
 
                 if (forexFuture.getTimeToExpiration() < this.fxFutureEqualizationMinTimeToExpiration) {
 
-                    Order order = MarketOrder.Factory.newInstance();
+                    Order order = getLookupService().getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, forexFuture.getSecurityFamily().getId());
                     order.setStrategy(base);
                     order.setSecurity(forexFuture);
                     order.setQuantity(Math.abs(position.getQuantity()));
@@ -135,7 +134,7 @@ public class ForexServiceImpl extends ForexServiceBase {
                 double tradeValue = forex.getBaseCurrency().equals(this.portfolioBaseCurrency) ? netLiqValueBase : netLiqValue;
 
                 // create the order
-                Order order = MarketOrder.Factory.newInstance();
+                Order order = getLookupService().getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, forex.getSecurityFamily().getId());
                 order.setStrategy(base);
 
                 // if a hedging family is defined for this Forex use it instead of the Forex directly

@@ -612,20 +612,26 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected OrderPreference handleGetOrderPreferenceByName(String name) throws Exception {
+    protected Order handleGetOrderByName(String name) throws Exception {
 
-        return getOrderPreferenceDao().findByName(name);
+        OrderPreference orderPreference = getOrderPreferenceDao().findByName(name);
+
+        if (orderPreference == null) {
+            throw new IllegalArgumentException("unknown OrderType or OrderPreference");
+        }
+
+        return orderPreference.createOrder();
     }
 
     @Override
-    protected OrderPreference handleGetOrderPreferenceByStrategyAndSecurityFamily(String strategyName, int securityFamilyId) throws Exception {
+    protected Order handleGetOrderByStrategyAndSecurityFamily(String strategyName, int securityFamilyId) throws Exception {
 
-        DefaultOrderPreference orderPreference = getDefaultOrderPreferenceDao().findByStrategyAndSecurityFamilyInclOrderPreference(strategyName, securityFamilyId);
-        if (orderPreference != null) {
-            return orderPreference.getOrderPreference();
-        } else {
+        DefaultOrderPreference defaultOrderPreference = getDefaultOrderPreferenceDao().findByStrategyAndSecurityFamilyInclOrderPreference(strategyName, securityFamilyId);
+        if (defaultOrderPreference == null) {
             throw new IllegalStateException("no default order preference defined for securityFamilyId " + securityFamilyId + " and " + strategyName);
         }
+
+        return defaultOrderPreference.getOrderPreference().createOrder();
     }
 
     @Override
