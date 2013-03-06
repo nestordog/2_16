@@ -327,6 +327,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlying.getId());
 
         double years = duration / 12.0;
+        int days = duration * 30;
 
         Tick underlyingTick = getTickDao().findByDateAndSecurity(date, underlying.getId());
         if (underlyingTick == null || underlyingTick.getLast() == null) {
@@ -337,7 +338,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
         double forward = StockOptionUtil.getForward(underlyingSpot, years, family.getIntrest(), family.getDividend());
 
-        List<Tick> ticks = getTickDao().findBySecurityDateAndDuration(underlying, date, duration);
+        List<Tick> ticks = getTickDao().findBySecurityDateAndDuration(underlying, date, days);
         if (ticks.size() < 3) {
             return null;
         }
@@ -349,10 +350,16 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
             ImpliedVolatility impliedVola = (ImpliedVolatility) tick.getSecurity();
 
-            double strike = underlyingSpot / (2.0 - impliedVola.getMoneyness() / 100.0);
+            double strike;
+            if (OptionType.CALL.equals(impliedVola.getType())) {
+                strike = underlyingSpot * (1.0 - impliedVola.getMoneyness());
+            } else {
+                strike = underlyingSpot * (1.0 + impliedVola.getMoneyness());
+            }
+
             double volatility = tick.getCurrentValueDouble();
 
-            if (impliedVola.getMoneyness() == 100) {
+            if (impliedVola.getMoneyness() == 0.0) {
                 atmVola = volatility;
             }
 
