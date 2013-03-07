@@ -33,7 +33,7 @@ import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.vo.HlocVO;
+import com.algoTrader.vo.HLOCVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -82,16 +82,16 @@ public class CsvHlocReader {
 
         CsvHlocReader csvReader = new CsvHlocReader("CH0008616382");
 
-        HlocVO hloc;
+        HLOCVO hloc;
         while ((hloc = csvReader.readHloc()) != null) {
             System.out.println(hloc);
         }
     }
 
-    public HlocVO readHloc() throws SuperCSVReflectionException, IOException {
+    public HLOCVO readHloc() throws SuperCSVReflectionException, IOException {
 
-        HlocVO hloc;
-        if ((hloc = this.reader.read(HlocVO.class, this.header, processor)) != null) {
+        HLOCVO hloc;
+        if ((hloc = this.reader.read(HLOCVO.class, this.header, processor)) != null) {
             return hloc;
         } else {
             this.reader.close();

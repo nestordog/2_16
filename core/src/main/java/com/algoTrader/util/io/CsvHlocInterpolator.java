@@ -30,7 +30,7 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
 import com.algoTrader.util.RoundUtil;
-import com.algoTrader.vo.HlocVO;
+import com.algoTrader.vo.HLOCVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -57,7 +57,7 @@ public class CsvHlocInterpolator {
         CsvHlocReader csvReader = new CsvHlocReader(args[0]);
         CsvTickWriter csvWriter = new CsvTickWriter(args[1]);
 
-        HlocVO hloc;
+        HLOCVO hloc;
         while ((hloc = csvReader.readHloc()) != null) {
 
             double open = hloc.getOpen().doubleValue();

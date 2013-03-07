@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package com.algoTrader.sabr;
 
-import com.algoTrader.vo.SabrVO;
+import com.algoTrader.vo.SABRVO;
 import com.mathworks.toolbox.javabuilder.MWException;
 import com.mathworks.toolbox.javabuilder.MWNumericArray;
 
@@ -48,7 +48,7 @@ public class SABRCalibration {
         }
     }
 
-    public SabrVO calibrate(Double[] strikes, Double[] volatilities, double ATMvol, double forward, double years, double beta) throws MWException {
+    public SABRVO calibrate(Double[] strikes, Double[] volatilities, double ATMvol, double forward, double years, double beta) throws MWException {
 
         Object[] input = new Object[6];
 
@@ -61,7 +61,7 @@ public class SABRCalibration {
 
         Object[] y = this.sabr.calibration(3, input);
 
-        SabrVO params = new SabrVO();
+        SABRVO params = new SABRVO();
 
         params.setRho(((MWNumericArray) y[0]).getDouble());
         params.setVolVol(((MWNumericArray) y[1]).getDouble());
