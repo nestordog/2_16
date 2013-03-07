@@ -3276,7 +3276,13 @@
                             <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1362670590308_137503_3830' body='calculates the SABRVO (containing alpha / rho / volvol) for defined underlying, optionType and expirationDate for the specified date'>
                                 <annotatedElement xmi:idref='_9_5_1_8b60294_1302789146216_566151_10567'/>
                             </ownedComment>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146216_472720_10562' name='underlying' visibility='public' type='_9_5_1_8b60294_1302789146209_985225_9979'/>
+                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146216_472720_10562' name='underlyingId' visibility='public'>
+                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                                    <xmi:Extension extender='MagicDraw UML 16.5'>
+                                        <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                    </xmi:Extension>
+                                </type>
+                            </ownedParameter>
                             <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146216_65534_10563' name='type' visibility='public' type='_9_5_1_8b60294_1302789146218_901642_10881'/>
                             <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146216_307997_10565' name='expirationDate' visibility='public'>
                                 <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_195604_13'>
@@ -3298,7 +3304,13 @@
                             <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1362670599781_238984_3831' body='calculates a SABRVO (containing alpha / rho / volvol) for defined underlying, and duration for the specified date'>
                                 <annotatedElement xmi:idref='_9_5_1_8b60294_1311776010819_546369_942'/>
                             </ownedComment>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1311776010819_765996_937' name='underlying' visibility='public' type='_9_5_1_8b60294_1302789146209_985225_9979'/>
+                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1311776010819_765996_937' name='underlyingId' visibility='public'>
+                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                                    <xmi:Extension extender='MagicDraw UML 16.5'>
+                                        <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                    </xmi:Extension>
+                                </type>
+                            </ownedParameter>
                             <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1311776010819_606660_940' name='duration' visibility='public' type='_16_5_4_8b60294_1355157705138_183197_3088'/>
                             <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1311776010819_134970_939' name='date' visibility='public'>
                                 <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_195604_13'>
@@ -3313,7 +3325,13 @@
                             <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1362675964618_834272_3926' body='calculates a SABRVO (containing alpha / rho / volvol) for defined underlying, and duration for the specified date'>
                                 <annotatedElement xmi:idref='_16_5_4_8b60294_1362675964617_519810_3925'/>
                             </ownedComment>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1362675964618_869425_3927' name='underlying' visibility='public' type='_9_5_1_8b60294_1302789146209_985225_9979'/>
+                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1362675964618_869425_3927' name='underlyingId' visibility='public'>
+                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                                    <xmi:Extension extender='MagicDraw UML 16.5'>
+                                        <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                    </xmi:Extension>
+                                </type>
+                            </ownedParameter>
                             <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1362675964619_188195_3929' name='date' visibility='public'>
                                 <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_195604_13'>
                                     <xmi:Extension extender='MagicDraw UML 16.5'>
@@ -9206,7 +9224,13 @@
                                 </ownedParameter>
                             </ownedOperation>
                             <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1302789146209_414006_9874' name='findStockOptionTicksBySecurityDateTypeAndExpirationInclSecurity' visibility='public' isStatic='true' isQuery='true'>
-                                <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146209_733322_9869' name='underlying' visibility='public' type='_9_5_1_8b60294_1302789146209_985225_9979'/>
+                                <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146209_733322_9869' name='underlyingId' visibility='public'>
+                                    <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                                        <xmi:Extension extender='MagicDraw UML 16.5'>
+                                            <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                        </xmi:Extension>
+                                    </type>
+                                </ownedParameter>
                                 <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146209_388570_9870' name='date' visibility='public'>
                                     <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_195604_13'>
                                         <xmi:Extension extender='MagicDraw UML 16.5'>
@@ -9228,7 +9252,13 @@
                                 </ownedParameter>
                             </ownedOperation>
                             <ownedOperation xmi:type='uml:Operation' xmi:id='_16_5_4_8b60294_1362675773115_582253_3899' name='findImpliedVolatilityTicksBySecurityDate' visibility='public' isStatic='true' isQuery='true'>
-                                <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1362675773116_698493_3901' name='underlying' visibility='public' type='_9_5_1_8b60294_1302789146209_985225_9979'/>
+                                <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1362675773116_698493_3901' name='underlyingId' visibility='public'>
+                                    <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                                        <xmi:Extension extender='MagicDraw UML 16.5'>
+                                            <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                        </xmi:Extension>
+                                    </type>
+                                </ownedParameter>
                                 <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1362675773116_728139_3902' name='date' visibility='public'>
                                     <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_195604_13'>
                                         <xmi:Extension extender='MagicDraw UML 16.5'>
@@ -9242,7 +9272,13 @@
                                 </ownedParameter>
                             </ownedOperation>
                             <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1311775282594_119339_856' name='findImpliedVolatilityTicksBySecurityDateAndDuration' visibility='public' isStatic='true' isQuery='true'>
-                                <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1311775282594_426618_851' name='underlying' visibility='public' type='_9_5_1_8b60294_1302789146209_985225_9979'/>
+                                <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1311775282594_426618_851' name='underlyingId' visibility='public'>
+                                    <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                                        <xmi:Extension extender='MagicDraw UML 16.5'>
+                                            <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                        </xmi:Extension>
+                                    </type>
+                                </ownedParameter>
                                 <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1311777424987_208334_951' name='date' visibility='public'>
                                     <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_195604_13'>
                                         <xmi:Extension extender='MagicDraw UML 16.5'>
@@ -14367,7 +14403,7 @@
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
-                    <active xmi:value='false'/>
+                    <active xmi:value='true'/>
                     <mdOwnedViews>
                         <mdElement elementClass='DiagramFrame' xmi:id='_16_5_4_8b60294_1322591618335_333050_4601'>
                             <elementID xmi:idref='_9_5_1_8b60294_1305552684238_436779_870'/>
@@ -27075,7 +27111,7 @@
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='977'/>
                     <maximized xmi:value='false'/>
-                    <active xmi:value='true'/>
+                    <active xmi:value='false'/>
                     <mdOwnedViews>
                         <mdElement elementClass='DiagramFrame' xmi:id='_16_5_4_8b60294_1322591618366_609995_4604'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146191_278544_9548'/>
@@ -29212,7 +29248,7 @@
                         <mdElement elementClass='StringProperty'>
                             <propertyID>DIAGRAMS_LAYOUT</propertyID>
                             <propertyDescriptionID>DIAGRAMS_LAYOUT_DESCRIPTION</propertyDescriptionID>
-                            <value>0 0 0 14 0 0 0 1 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 32 0 37 0 38 0 35 0 34 0 34 0 5f 0 39 0 35 0 34 0 38 0 0 0 1 0 0 0 cc 0 0 0 e2 0 0 0 6 0 0 0 13 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 31 0 31 0 33 0 38 0 38 0 36 0 5f 0 39 0 35 0 35 0 32 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 30 0 34 0 32 0 34 0 39 0 31 0 39 0 37 0 38 0 35 0 5f 0 33 0 31 0 36 0 37 0 30 0 38 0 5f 0 34 0 36 0 31 0 33 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 33 0 33 0 38 0 39 0 36 0 38 0 31 0 35 0 33 0 36 0 5f 0 33 0 39 0 32 0 33 0 31 0 35 0 5f 0 35 0 31 0 39 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 35 0 35 0 35 0 32 0 36 0 38 0 34 0 32 0 33 0 38 0 5f 0 34 0 33 0 36 0 37 0 37 0 39 0 5f 0 38 0 37 0 30 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 32 0 36 0 39 0 35 0 31 0 36 0 30 0 31 0 33 0 34 0 5f 0 36 0 33 0 35 0 36 0 32 0 34 0 5f 0 34 0 39 0 35 0 35 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 31 0 36 0 35 0 35 0 37 0 34 0 5f 0 34 0 37 0 38 0 33 0 31 0 30 0 5f 0 36 0 34 0 35 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 32 0 37 0 38 0 35 0 34 0 34 0 5f 0 39 0 35 0 34 0 38 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 37 0 35 0 36 0 31 0 31 0 37 0 5f 0 32 0 39 0 34 0 30 0 32 0 31 0 5f 0 34 0 39 0 30 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 36 0 36 0 37 0 35 0 35 0 34 0 5f 0 39 0 37 0 35 0 38 0 38 0 33 0 5f 0 34 0 35 0 33 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 35 0 38 0 38 0 38 0 32 0 31 0 5f 0 31 0 37 0 31 0 31 0 31 0 36 0 5f 0 31 0 37 0 38 0 34 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 36 0 31 0 35 0 35 0 37 0 30 0 37 0 37 0 32 0 31 0 35 0 5f 0 35 0 39 0 32 0 30 0 31 0 34 0 5f 0 35 0 33 0 32 0 35 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 34 0 32 0 37 0 30 0 37 0 33 0 35 0 35 0 31 0 35 0 39 0 5f 0 39 0 33 0 35 0 31 0 35 0 38 0 5f 0 32 0 38 0 35 0 33 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 34 0 38 0 38 0 32 0 38 0 30 0 38 0 36 0 38 0 31 0 37 0 5f 0 33 0 36 0 32 0 35 0 31 0 32 0 5f 0 33 0 31 0 33 0 39 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 34 0 36 0 33 0 33 0 31 0 37 0 30 0 31 0 30 0 37 0 31 0 5f 0 38 0 39 0 33 0 31 0 39 0 30 0 5f 0 33 0 31 0 33 0 30 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 32 0 31 0 37 0 37 0 37 0 39 0 5f 0 39 0 35 0 34 0 39 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 35 0 36 0 30 0 39 0 30 0 32 0 30 0 36 0 33 0 31 0 5f 0 33 0 33 0 38 0 34 0 32 0 39 0 5f 0 34 0 36 0 30 0 30 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 31 0 34 0 36 0 38 0 30 0 39 0 5f 0 39 0 35 0 34 0 37 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 39 0 36 0 30 0 39 0 34 0 35 0 31 0 32 0 31 0 39 0 5f 0 39 0 31 0 34 0 36 0 33 0 36 0 5f 0 32 0 39 0 30 0 38 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 37 0 33 0 37 0 33 0 38 0 30 0 5f 0 39 0 35 0 35 0 31 0 0 0 0 </value>
+                            <value>0 0 0 14 0 0 0 1 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 35 0 35 0 35 0 32 0 36 0 38 0 34 0 32 0 33 0 38 0 5f 0 34 0 33 0 36 0 37 0 37 0 39 0 5f 0 38 0 37 0 30 0 0 0 1 0 0 0 cc 0 0 0 e2 0 0 0 3 0 0 0 13 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 31 0 31 0 33 0 38 0 38 0 36 0 5f 0 39 0 35 0 35 0 32 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 30 0 34 0 32 0 34 0 39 0 31 0 39 0 37 0 38 0 35 0 5f 0 33 0 31 0 36 0 37 0 30 0 38 0 5f 0 34 0 36 0 31 0 33 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 33 0 33 0 38 0 39 0 36 0 38 0 31 0 35 0 33 0 36 0 5f 0 33 0 39 0 32 0 33 0 31 0 35 0 5f 0 35 0 31 0 39 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 35 0 35 0 35 0 32 0 36 0 38 0 34 0 32 0 33 0 38 0 5f 0 34 0 33 0 36 0 37 0 37 0 39 0 5f 0 38 0 37 0 30 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 32 0 36 0 39 0 35 0 31 0 36 0 30 0 31 0 33 0 34 0 5f 0 36 0 33 0 35 0 36 0 32 0 34 0 5f 0 34 0 39 0 35 0 35 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 31 0 36 0 35 0 35 0 37 0 34 0 5f 0 34 0 37 0 38 0 33 0 31 0 30 0 5f 0 36 0 34 0 35 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 32 0 37 0 38 0 35 0 34 0 34 0 5f 0 39 0 35 0 34 0 38 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 37 0 35 0 36 0 31 0 31 0 37 0 5f 0 32 0 39 0 34 0 30 0 32 0 31 0 5f 0 34 0 39 0 30 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 36 0 36 0 37 0 35 0 35 0 34 0 5f 0 39 0 37 0 35 0 38 0 38 0 33 0 5f 0 34 0 35 0 33 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 35 0 38 0 38 0 38 0 32 0 31 0 5f 0 31 0 37 0 31 0 31 0 31 0 36 0 5f 0 31 0 37 0 38 0 34 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 36 0 31 0 35 0 35 0 37 0 30 0 37 0 37 0 32 0 31 0 35 0 5f 0 35 0 39 0 32 0 30 0 31 0 34 0 5f 0 35 0 33 0 32 0 35 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 34 0 32 0 37 0 30 0 37 0 33 0 35 0 35 0 31 0 35 0 39 0 5f 0 39 0 33 0 35 0 31 0 35 0 38 0 5f 0 32 0 38 0 35 0 33 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 34 0 38 0 38 0 32 0 38 0 30 0 38 0 36 0 38 0 31 0 37 0 5f 0 33 0 36 0 32 0 35 0 31 0 32 0 5f 0 33 0 31 0 33 0 39 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 34 0 36 0 33 0 33 0 31 0 37 0 30 0 31 0 30 0 37 0 31 0 5f 0 38 0 39 0 33 0 31 0 39 0 30 0 5f 0 33 0 31 0 33 0 30 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 32 0 31 0 37 0 37 0 37 0 39 0 5f 0 39 0 35 0 34 0 39 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 35 0 36 0 30 0 39 0 30 0 32 0 30 0 36 0 33 0 31 0 5f 0 33 0 33 0 38 0 34 0 32 0 39 0 5f 0 34 0 36 0 30 0 30 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 31 0 34 0 36 0 38 0 30 0 39 0 5f 0 39 0 35 0 34 0 37 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 39 0 36 0 30 0 39 0 34 0 35 0 31 0 32 0 31 0 39 0 5f 0 39 0 31 0 34 0 36 0 33 0 36 0 5f 0 32 0 39 0 30 0 38 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 37 0 33 0 37 0 33 0 38 0 30 0 5f 0 39 0 35 0 35 0 31 0 0 0 0 </value>
                         </mdElement>
                         <mdElement elementClass='StringProperty'>
                             <propertyID>MT_LAST_SELECTED_TRANSFORMATION</propertyID>
@@ -29288,7 +29324,7 @@
                         <mdElement elementClass='StringProperty'>
                             <propertyID>INFO_PROPERTY</propertyID>
                             <propertyDescriptionID>INFO_PROPERTY_DESCRIPTION</propertyDescriptionID>
-                            <value>2f 3f 1a 4d 62 2 68 4d 2b 49 bd 5b 9f 97 82 d5 93 4f 48 2e 31 58 b3 6a f1 4a 1a 94 96 d0 20 21 a4 3 3d 36 49 5d d3 e0 d7 ad e 68 9f 98 46 3b 0 f5 94 96 ab e8 f9 e0 7f 78 45 2b ad ee 6a 81 bb 53 9e a6 dd 6d 5d </value>
+                            <value>2f 3f 1a 4d 62 2 68 4d 2b 49 bd 5b 9f 97 82 d5 93 4f 48 2e 31 58 b3 6b f1 4c 13 94 94 d4 20 21 a4 3 3d 36 49 5d d3 e0 d7 ad e 68 9f 98 46 3b 0 f5 94 96 ab e8 f9 e0 7f 78 45 2b ad ee 6a 81 bb 53 9e a6 dd 6d 5d </value>
                         </mdElement>
                         <mdElement elementClass='LIST_PROPERTY'>
                             <propertyID>ADDITIONAL_CONTAINMENT_TREES</propertyID>
@@ -37109,7 +37145,7 @@
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1342448700333_991955_3193' base_Operation='_16_5_4_8b60294_1342447728603_274040_2831' andromda_hibernate_query='select new Position(sum(t.quantity), t.strategy, t.security) &#10;from TransactionImpl as t &#10;where t.security != null &#10;group by t.security.id, t.strategy &#10;having sum(t.quantity) != 0&#10;order by t.security.id'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1344519126653_13575_2714' base_Operation='_16_5_4_8b60294_1344519034663_269622_2705' andromda_hibernate_query='from PortfolioValueImpl&#10;where dateTime &gt; :minDate&#10;and strategy.name = :strategyName&#10;order by dateTime' andromda_hibernate_query_useCache='true'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1351177653794_995225_2969' base_Operation='_16_5_4_8b60294_1351177653792_23518_2968' andromda_hibernate_query='select sum(t.quantity * t.price) &#10;from TransactionImpl as t&#10;where t.dateTime &lt; :dateTime&#10;and (t.type = &#39;FEES&#39; or t.type = &#39;REFUND&#39;)&#10;'/>
-    <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463522_736787_3403' base_Operation='_9_5_1_8b60294_1302789146209_414006_9874' andromda_hibernate_query='from TickImpl as t &#10;join fetch t.security as s &#10;where t.dateTime = :date&#10;and s.underlying = :underlying&#10;and s.type = :type&#10;and s.expiration = :expiration&#10;order by s.strike' andromda_hibernate_query_useCache='true'/>
+    <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463522_736787_3403' base_Operation='_9_5_1_8b60294_1302789146209_414006_9874' andromda_hibernate_query='from TickImpl as t &#10;join fetch t.security as s &#10;where t.dateTime = :date&#10;and s.underlying.id = :underlyingId&#10;and s.type = :type&#10;and s.expiration = :expiration&#10;order by s.strike' andromda_hibernate_query_useCache='true'/>
     <andromda_service:Service xmi:id='_16_5_4_8b60294_1360315233032_460134_3322' base_Class='_16_5_4_8b60294_1360315233030_249161_3321' andromda_service_private='true'/>
     <algoTrader_profile:AlgoTraderService xmi:id='_16_5_4_8b60294_1360315233032_460134_3322application1' base_Class='_16_5_4_8b60294_1360315233030_249161_3321' algoTrader_service_profile='dCFix'/>
     <algoTrader_profile:AlgoTraderServiceMethod xmi:id='_16_5_4_8b60294_1327770525708_717147_4482' base_Operation='_9_5_1_8b60294_1302789146213_664460_10257' algoTrader_service_method_manageable_attribute='true'/>
@@ -37251,7 +37287,7 @@
     <algoTrader_profile:AlgoTraderEntity xmi:id='_16_5_4_8b60294_1322591463512_771892_3383application1' base_Class='_9_5_1_8b60294_1314816165575_923876_671' algoTrader_entity_transient='true'/>
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1322591463705_693082_3602' base_Class='_9_5_1_8b60294_1302789146211_954098_10114'/>
     <algoTrader_profile:AlgoTraderValueObject xmi:id='_16_5_4_8b60294_1322591463705_693082_3602application1' base_Class='_9_5_1_8b60294_1302789146211_954098_10114' algoTrader_value_object_private='true'/>
-    <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1362675773116_480997_3900' base_Operation='_16_5_4_8b60294_1362675773115_582253_3899' andromda_hibernate_query='select t&#10;from ImpliedVolatilityImpl as i,&#10;TickImpl as t&#10;where t.security = i&#10;and t.dateTime = :date&#10;and i.underlying = :underlying&#10;order by i.moneyness desc' andromda_hibernate_query_useCache='true'/>
+    <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1362675773116_480997_3900' base_Operation='_16_5_4_8b60294_1362675773115_582253_3899' andromda_hibernate_query='select t&#10;from ImpliedVolatilityImpl as i,&#10;TickImpl as t&#10;where t.security = i&#10;and t.dateTime = :date&#10;and i.underlying.id = :underlyingId&#10;order by i.moneyness desc' andromda_hibernate_query_useCache='true'/>
     <andromda_persistence:Entity xmi:id='_16_5_4_8b60294_1333011887008_88027_6205' base_Class='_16_5_4_8b60294_1333011771203_706423_6171' andromda_hibernate_version='version' andromda_hibernate_generator_class='increment' andromda_hibernate_inheritance='union-subclass'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463517_194440_3391' base_Operation='_9_5_1_8b60294_1302789146207_591886_9648' andromda_hibernate_query='from StrategyImpl&#10;where name = :name&#10;' andromda_hibernate_query_useCache='true'/>
     <algoTrader_profile:AlgoTraderServiceMethod xmi:id='_16_5_4_8b60294_1343306705359_748747_3975' base_Operation='_16_5_4_8b60294_1343306673497_352269_3968' algoTrader_service_method_manageable_attribute='true'/>
@@ -37260,7 +37296,7 @@
     <andromda_common:ValueObject xmi:id='_16_5_4_8b60294_1335952375289_907149_5753' base_Class='_16_5_4_8b60294_1335952361873_514031_5735'/>
     <algoTrader_profile:AlgoTraderServiceMethod xmi:id='_16_5_4_8b60294_1340700145221_894226_2454' base_Operation='_9_5_1_8b60294_1302789146214_542237_10380' algoTrader_service_method_manageable='true'/>
     <andromda_service:ServiceElement xmi:id='_16_5_4_8b60294_1334070071914_22795_4973' base_Operation='_16_5_4_8b60294_1334070071914_784339_4972' andromda_spring_transaction_type='PROPAGATION_REQUIRED'/>
-    <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463481_989693_3332' base_Operation='_9_5_1_8b60294_1311775282594_119339_856' andromda_hibernate_query='select t&#10;from ImpliedVolatilityImpl as i,&#10;TickImpl as t&#10;where t.security = i&#10;and t.dateTime = :date&#10;and i.underlying = :underlying&#10;and i.duration = :duration&#10;order by i.moneyness desc' andromda_hibernate_query_useCache='true'/>
+    <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1322591463481_989693_3332' base_Operation='_9_5_1_8b60294_1311775282594_119339_856' andromda_hibernate_query='select t&#10;from ImpliedVolatilityImpl as i,&#10;TickImpl as t&#10;where t.security = i&#10;and t.dateTime = :date&#10;and i.underlying.id = :underlyingId&#10;and i.duration = :duration&#10;order by i.moneyness desc' andromda_hibernate_query_useCache='true'/>
     <andromda_persistence:Entity xmi:id='_16_5_4_8b60294_1322591463538_28335_3427' base_Class='_9_5_1_8b60294_1302789146209_735440_9846'/>
     <andromda_persistence:FinderMethod xmi:id='_16_5_4_8b60294_1332769916356_767901_5488' base_Operation='_16_5_4_8b60294_1332769916355_543391_5487' andromda_hibernate_query='select so&#10;from StockOptionImpl as so, TickImpl as t&#10;where so.id = t.security.id &#10;and so.underlying.id = :underlyingId &#10;and so.expiration &gt;= :targetExpirationDate &#10;and so.type = :optionType&#10;and t.dateTime = :date&#10;order by so.expiration asc, abs(:underlyingSpot - so.strike) asc&#10;' andromda_hibernate_query_useCache='true'/>
     <andromda_persistence:Entity xmi:id='_16_5_4_8b60294_1322591463640_284654_3548' base_Class='_9_5_1_8b60294_1314816165577_544780_701'/>

@@ -48,7 +48,7 @@ select
     option as security
 from
     Tick(instanceof(security, com.algoTrader.entity.security.Forex)) as fxTick,
-    method:LookupUtil.getSABRSurface(fxTick.security, current_timestamp.toDate()) as surface,
+    method:LookupUtil.getSABRSurface(fxTick.security.id, current_timestamp.toDate()) as surface,
     method:LookupUtil.getStockOptionsOnWatchlist() as option
 
 @Name('INSERT_INTO_TICK_SIMULATED_FUTURES_BY_UNDERLYING')

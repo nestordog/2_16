@@ -30,6 +30,7 @@ public class SABRCalibration {
 
     private SABR sabr;
     private static SABRCalibration instance;
+    private double beta = 1.0;
 
     public static SABRCalibration getInstance() throws MWException {
 
@@ -48,7 +49,7 @@ public class SABRCalibration {
         }
     }
 
-    public SABRSmileVO calibrate(Double[] strikes, Double[] volatilities, double atmVol, double forward, double years, double beta) throws MWException {
+    public SABRSmileVO calibrate(Double[] strikes, Double[] volatilities, double atmVol, double forward, double years) throws MWException {
 
         Object[] input = new Object[6];
 
@@ -57,7 +58,7 @@ public class SABRCalibration {
         input[2] = atmVol;
         input[3] = forward;
         input[4] = years;
-        input[5] = beta;
+        input[5] = this.beta;
 
         Object[] y = this.sabr.calibration(3, input);
 

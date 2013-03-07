@@ -103,16 +103,6 @@ public class Configuration {
         return this.portfolioDigits;
     }
 
-    private @Value("${misc.sabrEnabled}") boolean sabrEnabled;
-    public boolean getSabrEnabled() {
-        return this.sabrEnabled;
-    }
-
-    private @Value("${misc.sabrBeta}") double sabrBeta;
-    public double getSabrBeta() {
-        return this.sabrBeta;
-    }
-
     private @Value("${misc.marketIntrest}") double marketIntrest;
     public double getMarketIntrest() {
         return this.marketIntrest;

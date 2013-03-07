@@ -30,7 +30,6 @@ import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.ImpliedVolatility;
@@ -62,8 +61,6 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
     private static int advanceMinutes = 10;
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
-
-    private @Value("${misc.sabrBeta}") double beta;
 
     @Override
     protected StockOption handleCreateDummyStockOption(int stockOptionFamilyId, Date expirationDate, BigDecimal targetStrike, OptionType type) throws Exception {
@@ -99,7 +96,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     }
 
     @Override
-    protected void handlePrintSABRByOptionPrice(String isin, Date expirationDate, OptionType optionType, Date startDate) throws Exception {
+    protected void handlePrintSABRSmileByOptionPrice(String isin, Date expirationDate, OptionType optionType, Date startDate) throws Exception {
 
         Security underlying = getSecurityDao().findByIsin(isin);
 
@@ -121,7 +118,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
                 System.out.print(outputFormat.format(cal.getTime()));
 
-                SABRSmileVO SABRparams = calibrateSABRSmileByOptionPrice(underlying, optionType, cal.getTime(), expirationDate);
+                SABRSmileVO SABRparams = calibrateSABRSmileByOptionPrice(underlying.getId(), optionType, cal.getTime(), expirationDate);
 
                 if (SABRparams != null && SABRparams.getAlpha() < 100) {
                     System.out.print(outputFormat.format(cal.getTime()) + " " + SABRparams.getAlpha() + " " + SABRparams.getRho() + " "
@@ -147,7 +144,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     }
 
     @Override
-    protected void handlePrintSABRByIVol(String isin, Duration duration, Date startDate, Date endDate) throws Exception {
+    protected void handlePrintSABRSmileByIVol(String isin, Duration duration, Date startDate, Date endDate) throws Exception {
 
         Security underlying = getSecurityDao().findByIsin(isin);
 
@@ -165,7 +162,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
                 continue;
             }
 
-            SABRSmileVO SABRparams = calibrateSABRSmileByIVol(underlying, duration, cal.getTime());
+            SABRSmileVO SABRparams = calibrateSABRSmileByIVol(underlying.getId(), duration, cal.getTime());
 
             if (SABRparams != null) {
                 System.out.println(outputFormat.format(cal.getTime()) + " " + SABRparams.getAlpha() + " " + SABRparams.getRho() + " " + SABRparams.getVolVol());
@@ -178,13 +175,13 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     }
 
     @Override
-    protected SABRSmileVO handleCalibrateSABRSmileByOptionPrice(Security underlying, OptionType optionType, Date expirationDate, Date date) throws MWException {
+    protected SABRSmileVO handleCalibrateSABRSmileByOptionPrice(int underlyingId, OptionType optionType, Date expirationDate, Date date) throws MWException {
 
-        StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlying.getId());
+        StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
         double years = (expirationDate.getTime() - date.getTime()) / Duration.YEAR_1.getValue();
 
-        Tick underlyingTick = getTickDao().findByDateAndSecurity(date, underlying.getId());
+        Tick underlyingTick = getTickDao().findByDateAndSecurity(date, underlyingId);
         if (underlyingTick == null || underlyingTick.getLast() == null) {
             return null;
         }
@@ -194,7 +191,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         double forward = StockOptionUtil.getForward(underlyingSpot.doubleValue(), years, family.getIntrest(), family.getDividend());
         double atmStrike = RoundUtil.roundStockOptionStrikeToNextN(underlyingSpot, family.getStrikeDistance(), optionType).doubleValue();
 
-        List<Tick> ticks = getTickDao().findStockOptionTicksBySecurityDateTypeAndExpirationInclSecurity(underlying, date, optionType, expirationDate);
+        List<Tick> ticks = getTickDao().findStockOptionTicksBySecurityDateTypeAndExpirationInclSecurity(underlyingId, date, optionType, expirationDate);
         List<Double> strikes = new ArrayList<Double>();
         List<Double> currentValues = new ArrayList<Double>();
         List<Double> volatilities = new ArrayList<Double>();
@@ -233,43 +230,43 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         Double[] strikesArray = strikes.toArray(new Double[0]);
         Double[] volatilitiesArray = volatilities.toArray(new Double[0]);
 
-        return SABRCalibration.getInstance().calibrate(strikesArray, volatilitiesArray, atmVola, forward, years, this.beta);
+        return SABRCalibration.getInstance().calibrate(strikesArray, volatilitiesArray, atmVola, forward, years);
     }
 
     @Override
-    protected SABRSmileVO handleCalibrateSABRSmileByIVol(Security underlying, Duration duration, Date date) throws MWException {
+    protected SABRSmileVO handleCalibrateSABRSmileByIVol(int underlyingId, Duration duration, Date date) throws MWException {
 
-        Tick underlyingTick = getTickDao().findByDateAndSecurity(date, underlying.getId());
+        Tick underlyingTick = getTickDao().findByDateAndSecurity(date, underlyingId);
         if (underlyingTick == null || underlyingTick.getLast() == null) {
             return null;
         }
 
         double underlyingSpot = underlyingTick.getLast().doubleValue();
 
-        List<Tick> ticks = getTickDao().findImpliedVolatilityTicksBySecurityDateAndDuration(underlying, date, duration);
+        List<Tick> ticks = getTickDao().findImpliedVolatilityTicksBySecurityDateAndDuration(underlyingId, date, duration);
         if (ticks.size() < 3) {
             return null;
         }
 
-        return internalCalibrateSABRByIVol(underlying, duration, ticks, underlyingSpot);
+        return internalCalibrateSABRByIVol(underlyingId, duration, ticks, underlyingSpot);
     }
 
     @Override
-    protected SABRSurfaceVO handleCalibrateSABRSurfaceByIVol(Security underlying, Date date) throws MWException {
+    protected SABRSurfaceVO handleCalibrateSABRSurfaceByIVol(int underlyingId, Date date) throws MWException {
 
-        Tick underlyingTick = getTickDao().findByDateAndSecurity(date, underlying.getId());
+        Tick underlyingTick = getTickDao().findByDateAndSecurity(date, underlyingId);
         if (underlyingTick == null || underlyingTick.getLast() == null) {
             return null;
         }
 
         double underlyingSpot = underlyingTick.getLast().doubleValue();
 
-        List<Tick> allTicks = getTickDao().findImpliedVolatilityTicksBySecurityDate(underlying, date);
+        List<Tick> allTicks = getTickDao().findImpliedVolatilityTicksBySecurityDate(underlyingId, date);
 
         // group by duration
         MultiMap<Duration, Tick> durationMap = new MultiHashMap<Duration, Tick>();
         for (Tick tick : allTicks) {
-            ImpliedVolatility impliedVolatility = (ImpliedVolatility) tick.getSecurity();
+            ImpliedVolatility impliedVolatility = (ImpliedVolatility) tick.getSecurityInitialized();
             durationMap.put(impliedVolatility.getDuration(), tick);
         }
 
@@ -279,18 +276,18 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
             Collection<Tick> ticksPerDuration = durationMap.get(duration);
 
-            SABRSmileVO sabr = internalCalibrateSABRByIVol(underlying, duration, ticksPerDuration, underlyingSpot);
+            SABRSmileVO sabr = internalCalibrateSABRByIVol(underlyingId, duration, ticksPerDuration, underlyingSpot);
             surface.getSmiles().add(sabr);
         }
 
         return surface;
     }
 
-    private SABRSmileVO internalCalibrateSABRByIVol(Security underlying, Duration duration, Collection<Tick> ticks, double underlyingSpot) throws MWException {
+    private SABRSmileVO internalCalibrateSABRByIVol(int underlyingId, Duration duration, Collection<Tick> ticks, double underlyingSpot) throws MWException {
 
-        StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlying.getId());
+        StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
-        double years = duration.getValue() / Duration.YEAR_1.getValue();
+        double years = (double) duration.getValue() / Duration.YEAR_1.getValue();
 
         double forward = StockOptionUtil.getForward(underlyingSpot, years, family.getIntrest(), family.getDividend());
 
@@ -321,7 +318,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         Double[] strikesArray = strikes.toArray(new Double[0]);
         Double[] volatilitiesArray = volatilities.toArray(new Double[0]);
 
-        return SABRCalibration.getInstance().calibrate(strikesArray, volatilitiesArray, atmVola, forward, years, this.beta);
+        return SABRCalibration.getInstance().calibrate(strikesArray, volatilitiesArray, atmVola, forward, years);
     }
 
     @Override

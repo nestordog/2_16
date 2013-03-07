@@ -159,8 +159,8 @@ public class LookupUtil {
         return tick;
     }
 
-    public static SABRSurfaceVO getSABRSurface(Security underlying, Date date) {
+    public static SABRSurfaceVO getSABRSurface(int underlyingId, Date date) {
 
-        return ServiceLocator.instance().getStockOptionService().calibrateSABRSurfaceByIVol(underlying, date);
+        return ServiceLocator.instance().getStockOptionService().calibrateSABRSurfaceByIVol(underlyingId, date);
     }
 }
