@@ -20,13 +20,18 @@ package com.algoTrader.stockOption;
 import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
+import org.apache.commons.math.analysis.interpolation.SplineInterpolator;
+import org.apache.commons.math.analysis.polynomials.PolynomialSplineFunction;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolver;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.enumeration.OptionType;
+import com.algoTrader.sabr.SABRVol;
 import com.algoTrader.util.DateUtil;
+import com.algoTrader.vo.SABRSmileVO;
+import com.algoTrader.vo.SABRSurfaceVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -36,6 +41,8 @@ import com.algoTrader.util.DateUtil;
 public class StockOptionUtil {
 
     private static final double MILLISECONDS_PER_YEAR = 31536000000l;
+
+    private static double beta = 1.0;
 
     public static double getOptionPrice(double underlyingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
 
@@ -141,6 +148,40 @@ public class StockOptionUtil {
 
         return getImpliedVolatilityNR(underlyingSpot, stockOption.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(),
                 stockOption.getType());
+    }
+
+    public static double getImpliedVolatilitySABR(final double underlyingSpot, final double strike, final double years, final double intrest, final double dividend,
+            final OptionType type, final SABRSurfaceVO surface) throws MathException {
+
+        double forward = getForward(underlyingSpot, years, intrest, dividend);
+
+        // get sabrVolas for all durations at the specified strike
+        int i = 0;
+        double[] yearsArray = new double[surface.getSmiles().size()];
+        double[] volArray = new double[surface.getSmiles().size()];
+        for (SABRSmileVO smile : surface.getSmiles()) {
+
+            double vol = SABRVol.volByAtmVol(forward, strike, smile.getAtmVol(), smile.getYears(), beta, smile.getRho(), smile.getVolVol());
+
+            yearsArray[i] = smile.getYears();
+            volArray[i] = vol;
+            i++;
+        }
+
+        // spline interpolation for years
+        SplineInterpolator interpolator = new SplineInterpolator();
+        PolynomialSplineFunction function = interpolator.interpolate(yearsArray, volArray);
+
+        return function.value(years);
+    }
+
+    public static double getImpliedVolatilitySABR(StockOption stockOption, double underlyingSpot, final SABRSurfaceVO surface) throws MathException {
+
+        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
+
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+
+        return getImpliedVolatilitySABR(underlyingSpot, stockOption.getStrike().doubleValue(), years, family.getIntrest(), family.getDividend(), stockOption.getType(), surface);
     }
 
     public static double getIntrinsicValue(double underlyingSpot, double strike, OptionType type) {

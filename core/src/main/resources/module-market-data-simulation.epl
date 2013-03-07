@@ -34,6 +34,23 @@ where
 order by
        tick.security.id;
 
+@Name('INSERT_INTO_TICK_SIMULATED_OPTIONS_BY_IVOL')
+@SimulationOnly
+@Condition(key='statement.simulateStockOptionsByIVol')
+@Priority(2)
+insert into
+    Tick
+select
+    current_timestamp.toDate() as dateTime,
+    RoundUtil.getBigDecimal(StockOptionUtil.getOptionPrice(option, indexTick.currentValueDouble, StockOptionUtil.getImpliedVolatilitySABR(option, indexTick.currentValueDouble, surface))) as last,
+    current_timestamp.toDate() as lastDateTime,
+    0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
+    option as security
+from
+    Tick(instanceof(security, com.algoTrader.entity.security.Forex)) as fxTick,
+    method:LookupUtil.getSABRSurface(fxTick.security, current_timestamp.toDate()) as surface,
+    method:LookupUtil.getStockOptionsOnWatchlist() as option
+
 @Name('INSERT_INTO_TICK_SIMULATED_FUTURES_BY_UNDERLYING')
 @SimulationOnly
 @Condition(key='statement.simulateFuturesByUnderlying')

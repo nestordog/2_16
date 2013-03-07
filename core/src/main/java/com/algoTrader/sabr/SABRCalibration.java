@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package com.algoTrader.sabr;
 
-import com.algoTrader.vo.SABRVO;
+import com.algoTrader.vo.SABRSmileVO;
 import com.mathworks.toolbox.javabuilder.MWException;
 import com.mathworks.toolbox.javabuilder.MWNumericArray;
 
@@ -48,36 +48,38 @@ public class SABRCalibration {
         }
     }
 
-    public SABRVO calibrate(Double[] strikes, Double[] volatilities, double ATMvol, double forward, double years, double beta) throws MWException {
+    public SABRSmileVO calibrate(Double[] strikes, Double[] volatilities, double atmVol, double forward, double years, double beta) throws MWException {
 
         Object[] input = new Object[6];
 
         input[0] = strikes;
         input[1] = volatilities;
-        input[2] = ATMvol;
+        input[2] = atmVol;
         input[3] = forward;
         input[4] = years;
         input[5] = beta;
 
         Object[] y = this.sabr.calibration(3, input);
 
-        SABRVO params = new SABRVO();
+        SABRSmileVO params = new SABRSmileVO();
 
+        params.setYears(years);
         params.setRho(((MWNumericArray) y[0]).getDouble());
         params.setVolVol(((MWNumericArray) y[1]).getDouble());
         params.setAlpha(((MWNumericArray) y[2]).getDouble());
+        params.setAtmVol(atmVol);
 
         return params;
     }
 
-    public double findAlpha(double forward, double strike, double atmVola, double years, double b, double r, double v) throws MWException {
+    public double findAlpha(double forward, double strike, double atmVol, double years, double b, double r, double v) throws MWException {
 
         Object[] input = new Object[7];
 
         input[0] = forward;
         input[1] = strike;
         input[2] = years;
-        input[3] = atmVola;
+        input[3] = atmVol;
         input[4] = b;
         input[5] = r;
         input[6] = v;

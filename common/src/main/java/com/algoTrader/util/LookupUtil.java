@@ -30,6 +30,7 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.strategy.PortfolioValue;
 import com.algoTrader.esper.EsperManager;
+import com.algoTrader.vo.SABRSurfaceVO;
 import com.espertech.esper.collection.Pair;
 
 /**
@@ -156,5 +157,10 @@ public class LookupUtil {
         tick.setDateTime(date);
         tick.setSecurity(ServiceLocator.instance().getLookupService().getSecurityInitialized(tick.getSecurity().getId()));
         return tick;
+    }
+
+    public static SABRSurfaceVO getSABRSurface(Security underlying, Date date) {
+
+        return ServiceLocator.instance().getStockOptionService().calibrateSABRSurfaceByIVol(underlying, date);
     }
 }
