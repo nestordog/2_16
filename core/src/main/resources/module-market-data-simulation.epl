@@ -24,11 +24,11 @@ select
     tick.ask as ask,
     tick.openIntrest as openIntrest,
     tick.settlement as settlement,
-    tick.security as security
+    LookupUtil.getSecurityInitialized(tick.security.id) as security
 from
     NaturalIndexTick as indexTick,
     method:LookupUtil.getSubscribedStockOptions() as stockOption,
-    method:LookupUtil.getTickByDateAndSecurityInclSecurityInitialized(indexTick.dateTime, stockOption.id) as tick
+    method:LookupUtil.getTickByDateAndSecurity(indexTick.dateTime, stockOption.id) as tick
 where
     stockOption.underlying.id = indexTick.security.id
 order by
@@ -36,20 +36,20 @@ order by
 
 @Name('INSERT_INTO_TICK_SIMULATED_OPTIONS_BY_IVOL')
 @SimulationOnly
-@Condition(key='statement.simulateStockOptionsByIVol')
+@Condition(key='statement.simulateStockOptions')
 @Priority(2)
 insert into
     Tick
 select
     current_timestamp.toDate() as dateTime,
-    RoundUtil.getBigDecimal(StockOptionUtil.getOptionPrice(option, indexTick.currentValueDouble, StockOptionUtil.getImpliedVolatilitySABR(option, indexTick.currentValueDouble, surface))) as last,
+    RoundUtil.getBigDecimal(StockOptionUtil.getOptionPrice(option, fxTick.currentValueDouble, StockOptionUtil.getImpliedVolatilitySABR(option, fxTick.currentValueDouble, surface))) as last,
     current_timestamp.toDate() as lastDateTime,
     0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
-    option as security
+    LookupUtil.getSecurityInitialized(option.id) as security
 from
     Tick(instanceof(security, com.algoTrader.entity.security.Forex)) as fxTick,
     method:LookupUtil.getSABRSurface(fxTick.security.id, current_timestamp.toDate()) as surface,
-    method:LookupUtil.getStockOptionsOnWatchlist() as option
+    method:LookupUtil.getSubscribedStockOptions() as option;
 
 @Name('INSERT_INTO_TICK_SIMULATED_FUTURES_BY_UNDERLYING')
 @SimulationOnly

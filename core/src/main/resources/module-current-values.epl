@@ -8,7 +8,7 @@ from
 where
     marketDataEvent.security is not null
 and
-    marketDataEvent.dateTime.time > (current_timestamp - DateUtil.getDuration('ONE_WEEK'))
+    marketDataEvent.dateTime.time > (current_timestamp - DateUtil.getDuration('WEEK_1'))
 and
     (
         (

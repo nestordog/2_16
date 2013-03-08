@@ -309,7 +309,7 @@ public class StockOptionUtil {
 
     public static double getForward(double spot, double years, double intrest, double dividend) {
 
-        return spot * (1 - years * dividend) * Math.exp(years * intrest);
+        return spot * Math.exp(years * (intrest - dividend));
     }
 
     public static double getMoneyness(StockOption stockOption, double underlyingSpot) {
@@ -319,5 +319,18 @@ public class StockOptionUtil {
         } else {
             return (stockOption.getStrike().doubleValue() - underlyingSpot) / underlyingSpot;
         }
+    }
+
+    /**
+     * Based on FX conventions as reported in "FX Volatility Smile Construction" by Dimitri Reiswich and Uwe Wystrup
+     */
+    public static double getStrikeByDelta(double delta, double impliedVol, double years, double forward, double intrest, OptionType type) {
+
+        double midTerm = 1.0;
+        if (years <= 1) {
+            midTerm = Math.exp(intrest * years);
+        }
+
+        return forward * Math.exp((OptionType.CALL.equals(type) ? -1.0 : 1.0) * Gaussian.PhiInverse(midTerm * delta) * impliedVol * Math.sqrt(years) + 0.5 * Math.pow(impliedVol, 2) * years);
     }
 }

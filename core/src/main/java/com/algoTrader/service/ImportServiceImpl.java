@@ -207,7 +207,7 @@ public class ImportServiceImpl extends ImportServiceBase {
                 BigDecimal strike = iVol.getStrike();
                 Date expiration = DateUtils.setHours(DateUtils.addDays(iVol.getExpiration(), -1), 13); // adjusted expiration date
                 OptionType type = "C".equals(iVol.getType()) ? OptionType.CALL : OptionType.PUT;
-                String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike);
+                String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike, false);
                 String isin = StockOptionSymbol.getIsin(family, expiration, type, strike);
                 String ric = StockOptionSymbol.getRic(family, expiration, type, strike);
 

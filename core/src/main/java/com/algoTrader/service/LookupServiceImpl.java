@@ -707,16 +707,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Tick handleGetTickByDateAndSecurityInclSecurityInitialized(Date date, int securityId) {
+    protected Tick handleGetTickByDateAndSecurity(Date date, int securityId) {
 
-        Tick tick = getTickDao().findByDateAndSecurity(date, securityId);
-
-        // initialize the security
-        if (tick != null) {
-            tick.getSecurityInitialized().initialize();
-        }
-
-        return tick;
+        return getTickDao().findByDateAndSecurity(date, securityId);
     }
 
     @Override

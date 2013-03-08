@@ -40,10 +40,11 @@ public class StockOptionSymbol {
     private static final String[] monthCallEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
     private static final String[] monthPutEnc = { "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X" };
     private static final String[] yearEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
-    private static SimpleDateFormat monthFormat = new SimpleDateFormat("MMM");
+    private static SimpleDateFormat dayMonthYearFormat = new SimpleDateFormat("dd/MMM/yy");
+    private static SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMM/yy");
     private static SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
 
-    public static String getSymbol(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike) {
+    public static String getSymbol(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike, boolean includeDay) {
 
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(expiration);
@@ -51,9 +52,8 @@ public class StockOptionSymbol {
         StringBuffer buffer = new StringBuffer();
         buffer.append(family.getBaseSymbol());
         buffer.append(" ");
-        buffer.append(monthFormat.format(cal.getTime()).toUpperCase());
-        buffer.append("/");
-        buffer.append((cal.get(Calendar.YEAR) + "-").substring(2));
+        buffer.append(includeDay ? dayMonthYearFormat.format(cal.getTime()) : monthYearFormat.format(cal.getTime()).toUpperCase());
+        buffer.append("-");
         buffer.append(type.toString().substring(0, 1));
         buffer.append(" ");
         buffer.append(strike);

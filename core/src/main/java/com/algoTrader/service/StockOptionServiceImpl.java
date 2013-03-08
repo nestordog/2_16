@@ -22,9 +22,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
@@ -63,27 +65,52 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
 
     @Override
-    protected StockOption handleCreateDummyStockOption(int stockOptionFamilyId, Date expirationDate, BigDecimal targetStrike, OptionType type) throws Exception {
+    protected StockOption handleCreateOTCStockOption(int stockOptionFamilyId, Date expirationDate, BigDecimal strike, OptionType type) throws Exception {
 
         StockOptionFamily family = getStockOptionFamilyDao().get(stockOptionFamilyId);
         Security underlying = family.getUnderlying();
 
-        // set third Friday of the month
-        Date expiration = DateUtil.getExpirationDate(family.getExpirationType(), expirationDate);
+        // symbol / isin
+        String symbol = StockOptionSymbol.getSymbol(family, expirationDate, type, strike, true);
 
+        StockOption stockOption = new StockOptionImpl();
+        stockOption.setSymbol(symbol);
+        stockOption.setStrike(strike);
+        stockOption.setExpiration(expirationDate);
+        stockOption.setType(type);
+        stockOption.setUnderlying(underlying);
+        stockOption.setSecurityFamily(family);
+
+        getStockOptionDao().create(stockOption);
+
+        logger.info("created OTC option " + stockOption);
+
+        return stockOption;
+    }
+
+    @Override
+    protected StockOption handleCreateDummyStockOption(int stockOptionFamilyId, Date targetExpirationDate, BigDecimal targetStrike, OptionType type) throws Exception {
+
+        StockOptionFamily family = getStockOptionFamilyDao().get(stockOptionFamilyId);
+        Security underlying = family.getUnderlying();
+
+        // get next expiration date after targetExpirationDate according to expirationType
+        Date expirationDate = DateUtil.getExpirationDate(family.getExpirationType(), targetExpirationDate);
+
+        // get nearest strike according to strikeDistance
         BigDecimal strike = RoundUtil.roundStockOptionStrikeToNextN(targetStrike, family.getStrikeDistance(), type);
 
         // symbol / isin
-        String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike);
-        String isin = StockOptionSymbol.getIsin(family, expiration, type, strike);
-        String ric = StockOptionSymbol.getRic(family, expiration, type, strike);
+        String symbol = StockOptionSymbol.getSymbol(family, expirationDate, type, strike, false);
+        String isin = StockOptionSymbol.getIsin(family, expirationDate, type, strike);
+        String ric = StockOptionSymbol.getRic(family, expirationDate, type, strike);
 
         StockOption stockOption = new StockOptionImpl();
         stockOption.setSymbol(symbol);
         stockOption.setIsin(isin);
         stockOption.setRic(ric);
         stockOption.setStrike(strike);
-        stockOption.setExpiration(expiration);
+        stockOption.setExpiration(expirationDate);
         stockOption.setType(type);
         stockOption.setUnderlying(underlying);
         stockOption.setSecurityFamily(family);
@@ -270,9 +297,18 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
             durationMap.put(impliedVolatility.getDuration(), tick);
         }
 
+        // sort durations ascending
+        TreeSet<Duration> durations = new TreeSet<Duration>(new Comparator<Duration>() {
+            @Override
+            public int compare(Duration d1, Duration d2) {
+                return ((d1.getValue() == d2.getValue()) ? 0 : (d1.getValue() < d2.getValue()) ? -1 : 1);
+            }
+        });
+        durations.addAll(durationMap.keySet());
+
         // process each duration
         SABRSurfaceVO surface = new SABRSurfaceVO();
-        for (Duration duration : durationMap.keySet()) {
+        for (Duration duration : durations) {
 
             Collection<Tick> ticksPerDuration = durationMap.get(duration);
 
@@ -285,6 +321,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
     private SABRSmileVO internalCalibrateSABRByIVol(int underlyingId, Duration duration, Collection<Tick> ticks, double underlyingSpot) throws MWException {
 
+        // we need the StockOptionFamily because the IVol Family does not have intrest and dividend
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
         double years = (double) duration.getValue() / Duration.YEAR_1.getValue();
@@ -298,17 +335,31 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
             ImpliedVolatility impliedVola = (ImpliedVolatility) tick.getSecurity();
 
-            double strike;
-            if (OptionType.CALL.equals(impliedVola.getType())) {
-                strike = underlyingSpot * (1.0 - impliedVola.getMoneyness());
-            } else {
-                strike = underlyingSpot * (1.0 + impliedVola.getMoneyness());
-            }
-
             double volatility = tick.getCurrentValueDouble();
+            double strike = 0;
+            if (impliedVola.getDelta() != null) {
 
-            if (impliedVola.getMoneyness() == 0.0) {
-                atmVola = volatility;
+                if (impliedVola.getDelta() == 0.5) {
+                    atmVola = volatility;
+                    strike = forward;
+                } else {
+                    strike = StockOptionUtil.getStrikeByDelta(impliedVola.getDelta(), volatility, years, forward, family.getIntrest(), impliedVola.getType());
+                }
+
+            } else if (impliedVola.getMoneyness() != null) {
+
+                if (impliedVola.getMoneyness() == 0.0) {
+                    atmVola = volatility;
+                    strike = forward;
+                } else {
+                    if (OptionType.CALL.equals(impliedVola.getType())) {
+                        strike = underlyingSpot * (1.0 - impliedVola.getMoneyness());
+                    } else {
+                        strike = underlyingSpot * (1.0 + impliedVola.getMoneyness());
+                    }
+                }
+            } else {
+                throw new IllegalArgumentException("either moneynewss or delta is needd for SABR calibration");
             }
 
             strikes.add(strike);

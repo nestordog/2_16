@@ -126,7 +126,7 @@ public class LookupUtil {
         return (EsperManager.getLastEvent(StrategyUtil.getStartedStrategyName(), "CURRENT_MARKET_DATA_EVENT") != null);
     }
 
-    public static Tick getTickByDateAndSecurityInclSecurityInitialized(Date date, int securityId) {
+    public static Tick getTickByDateAndSecurity(Date date, int securityId) {
 
         return ServiceLocator.instance().getLookupService().getTickByDateAndSecurityInclSecurityInitialized(date, securityId);
     }

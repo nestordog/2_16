@@ -117,7 +117,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBSecurityRetrieverSer
             }
 
             final String isin = StockOptionSymbol.getIsin(family, expiration, type, strike);
-            String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike);
+            String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike, false);
             String ric = StockOptionSymbol.getRic(family, expiration, type, strike);
             String conid = String.valueOf(contract.m_conId);
 
