@@ -128,7 +128,7 @@ public class LookupUtil {
 
     public static Tick getTickByDateAndSecurity(Date date, int securityId) {
 
-        return ServiceLocator.instance().getLookupService().getTickByDateAndSecurityInclSecurityInitialized(date, securityId);
+        return ServiceLocator.instance().getLookupService().getTickByDateAndSecurity(date, securityId);
     }
 
     public static Subscription getSubscription(String strategyName, int securityId) {
