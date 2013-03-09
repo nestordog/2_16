@@ -41,7 +41,7 @@ import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.entity.security.StockOptionImpl;
 import com.algoTrader.enumeration.Duration;
 import com.algoTrader.enumeration.OptionType;
-import com.algoTrader.sabr.SABRCalibration;
+import com.algoTrader.stockOption.SABRCalibration;
 import com.algoTrader.stockOption.StockOptionSymbol;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.CollectionUtil;

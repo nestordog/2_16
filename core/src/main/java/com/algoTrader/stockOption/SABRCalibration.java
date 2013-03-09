@@ -15,8 +15,9 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.sabr;
+package com.algoTrader.stockOption;
 
+import com.algoTrader.sabr.SABR;
 import com.algoTrader.vo.SABRSmileVO;
 import com.mathworks.toolbox.javabuilder.MWException;
 import com.mathworks.toolbox.javabuilder.MWNumericArray;
