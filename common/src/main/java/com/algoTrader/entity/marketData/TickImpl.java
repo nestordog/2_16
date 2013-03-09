@@ -51,7 +51,7 @@ public class TickImpl extends Tick {
                 }
 
                 // spread depends on the pricePerContract (i.e. spread should be the same
-                // for 12.- à contractSize 10 as for 1.20 à contractSize 100)
+                // for 12.- at contractSize 10 as for 1.20 at contractSize 100)
                 double pricePerContract = getLast().doubleValue() * family.getContractSize();
                 double spread = pricePerContract * family.getSpreadSlope() + family.getSpreadConstant();
                 double dummyBid = (pricePerContract - (spread / 2.0)) / family.getContractSize();
@@ -76,7 +76,7 @@ public class TickImpl extends Tick {
                 }
 
                 // spread depends on the pricePerContract (i.e. spread should be the same
-                // for 12.- à contractSize 10 as for 1.20 à contractSize 100)
+                // for 12.- at contractSize 10 as for 1.20 at contractSize 100)
                 double pricePerContract = getLast().doubleValue() * family.getContractSize();
                 double spread = pricePerContract * family.getSpreadSlope() + family.getSpreadConstant();
                 double dummyAsk = (pricePerContract + (spread / 2.0)) / family.getContractSize();

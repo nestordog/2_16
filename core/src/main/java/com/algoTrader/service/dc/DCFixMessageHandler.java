@@ -37,7 +37,7 @@ import quickfix.fix44.OrderCancelReject;
 import quickfix.fix44.Reject;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.entity.trade.Fill;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;

@@ -31,7 +31,7 @@ import quickfix.fix42.ExecutionReport;
 import quickfix.fix42.OrderCancelReject;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.entity.trade.Fill;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;

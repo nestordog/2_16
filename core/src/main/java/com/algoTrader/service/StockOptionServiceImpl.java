@@ -359,7 +359,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
                     }
                 }
             } else {
-                throw new IllegalArgumentException("either moneynewss or delta is needd for SABR calibration");
+                throw new IllegalArgumentException("either moneyness or delta is needed for SABR calibration");
             }
 
             strikes.add(strike);

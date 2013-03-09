@@ -15,7 +15,9 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.entity.strategy;
+package com.algoTrader.entity;
+
+import com.algoTrader.entity.strategy.AccountDaoBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

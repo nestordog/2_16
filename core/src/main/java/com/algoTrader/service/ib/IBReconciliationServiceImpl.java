@@ -39,13 +39,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 
+import com.algoTrader.entity.Account;
 import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.strategy.Account;
+import com.algoTrader.entity.strategy.Strategy;
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.MyLogger;

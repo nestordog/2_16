@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
-import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.util.StrategyUtil;
 

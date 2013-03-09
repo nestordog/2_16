@@ -194,12 +194,12 @@ public class IBNativeHistoricalDataServiceImpl extends IBHistoricalDataServiceBa
 
             String durationString = duration + " ";
             switch (durationPeriod) {
-                case MILLISECOND:
+                case MSEC:
                     throw new IllegalArgumentException("MILLISECOND durationPeriod is not allowed");
-                case SECOND:
+                case SEC:
                     durationString += "S";
                     break;
-                case MINUTE:
+                case MIN:
                     throw new IllegalArgumentException("MINUTE durationPeriod is not allowed");
                 case HOUR:
                     throw new IllegalArgumentException("HOUR durationPeriod is not allowed");
@@ -211,8 +211,6 @@ public class IBNativeHistoricalDataServiceImpl extends IBHistoricalDataServiceBa
                     break;
                 case MONTH:
                     throw new IllegalArgumentException("MONTH durationPeriod is not allowed");
-                case QUARTER:
-                    throw new IllegalArgumentException("QUARTER durationPeriod is not allowed");
                 case YEAR:
                     durationString += "Y";
                     break;
@@ -220,12 +218,12 @@ public class IBNativeHistoricalDataServiceImpl extends IBHistoricalDataServiceBa
 
             String barSizeString = barSize + " ";
             switch (barSizePeriod) {
-                case MILLISECOND:
+                case MSEC:
                     throw new IllegalArgumentException("MILLISECOND barSize is not allowed");
-                case SECOND:
+                case SEC:
                     barSizeString += "sec";
                     break;
-                case MINUTE:
+                case MIN:
                     barSizeString += "min";
                     break;
                 case HOUR:
@@ -238,8 +236,6 @@ public class IBNativeHistoricalDataServiceImpl extends IBHistoricalDataServiceBa
                     throw new IllegalArgumentException("WEEK barSize is not allowed");
                 case MONTH:
                     throw new IllegalArgumentException("MONTH barSize is not allowed");
-                case QUARTER:
-                    throw new IllegalArgumentException("QUARTER barSize is not allowed");
                 case YEAR:
                     throw new IllegalArgumentException("YEAR barSize is not allowed");
             }

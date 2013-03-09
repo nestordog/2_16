@@ -35,11 +35,11 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.strategy.Strategy;
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.CollectionUtil;

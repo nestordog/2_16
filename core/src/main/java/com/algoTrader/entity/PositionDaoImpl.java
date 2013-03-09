@@ -20,6 +20,7 @@ package com.algoTrader.entity;
 import java.math.BigDecimal;
 import java.util.Map;
 
+import com.algoTrader.entity.property.Property;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.ClosePositionVO;
 import com.algoTrader.vo.ExpirePositionVO;

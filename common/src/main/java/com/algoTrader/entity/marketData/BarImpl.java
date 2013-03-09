@@ -57,7 +57,7 @@ public class BarImpl extends Bar {
                 }
 
                 // spread depends on the pricePerContract (i.e. spread should be the same
-                // for 12.- à contractSize 10 as for 1.20 à contractSize 100)
+                // for 12.- at contractSize 10 as for 1.20 at contractSize 100)
                 double pricePerContract = getClose().doubleValue() * family.getContractSize();
                 double spread = pricePerContract * family.getSpreadSlope() + family.getSpreadConstant();
                 double relevantPrice = (pricePerContract + (Direction.LONG.equals(direction) ? -1 : 1) * (spread / 2.0)) / family.getContractSize();

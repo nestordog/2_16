@@ -21,9 +21,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.MyLogger;

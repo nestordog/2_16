@@ -51,11 +51,11 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.strategy.Strategy;
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.esper.annotation.Condition;
 import com.algoTrader.esper.annotation.Listeners;

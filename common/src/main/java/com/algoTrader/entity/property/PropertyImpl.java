@@ -15,10 +15,12 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.entity;
+package com.algoTrader.entity.property;
 
 import java.math.BigDecimal;
 import java.util.Date;
+
+import com.algoTrader.entity.property.Property;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

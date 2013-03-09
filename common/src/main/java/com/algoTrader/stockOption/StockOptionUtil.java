@@ -27,6 +27,7 @@ import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
 import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.security.StockOptionFamily;
+import com.algoTrader.enumeration.Duration;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.sabr.SABRVol;
 import com.algoTrader.util.DateUtil;
@@ -39,8 +40,6 @@ import com.algoTrader.vo.SABRSurfaceVO;
  * @version $Revision$ $Date$
  */
 public class StockOptionUtil {
-
-    private static final double MILLISECONDS_PER_YEAR = 31536000000l;
 
     private static double beta = 1.0;
 
@@ -70,7 +69,7 @@ public class StockOptionUtil {
 
         StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
 
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / Duration.YEAR_1.getValue();
 
         return getOptionPrice(underlyingSpot, stockOption.getStrike().doubleValue(), vola, years, family.getIntrest(), family.getDividend(), stockOption.getType());
     }
@@ -106,7 +105,7 @@ public class StockOptionUtil {
 
         StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
 
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / Duration.YEAR_1.getValue();
 
         return getImpliedVolatility(underlyingSpot, stockOption.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(),
                 stockOption.getType());
@@ -144,7 +143,7 @@ public class StockOptionUtil {
 
         StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
 
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / Duration.YEAR_1.getValue();
 
         return getImpliedVolatilityNR(underlyingSpot, stockOption.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(),
                 stockOption.getType());
@@ -179,7 +178,7 @@ public class StockOptionUtil {
 
         StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
 
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / Duration.YEAR_1.getValue();
 
         return getImpliedVolatilitySABR(underlyingSpot, stockOption.getStrike().doubleValue(), years, family.getIntrest(), family.getDividend(), stockOption.getType(), surface);
     }
@@ -219,7 +218,7 @@ public class StockOptionUtil {
         StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
 
         double strike = stockOption.getStrike().doubleValue();
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / Duration.YEAR_1.getValue();
         double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
         return StockOptionUtil.getDelta(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), stockOption.getType());
 
@@ -240,7 +239,7 @@ public class StockOptionUtil {
         StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
 
         double strike = stockOption.getStrike().doubleValue();
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / Duration.YEAR_1.getValue();
         double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
         return StockOptionUtil.getVega(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend());
     }
@@ -271,7 +270,7 @@ public class StockOptionUtil {
         StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
 
         double strike = stockOption.getStrike().doubleValue();
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / Duration.YEAR_1.getValue();
         double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
         return StockOptionUtil.getTheta(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), stockOption.getType());
 
@@ -296,7 +295,7 @@ public class StockOptionUtil {
 
         StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
 
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / Duration.YEAR_1.getValue();
 
         return getTotalMargin(underlyingSettlement, stockOption.getStrike().doubleValue(), stockOptionSettlement, years, family.getIntrest(),
                 family.getDividend(), stockOption.getType(), family.getMarginParameter());

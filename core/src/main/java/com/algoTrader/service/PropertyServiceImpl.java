@@ -19,8 +19,8 @@ package com.algoTrader.service;
 
 import org.apache.log4j.Logger;
 
-import com.algoTrader.entity.Property;
-import com.algoTrader.entity.PropertyHolder;
+import com.algoTrader.entity.property.Property;
+import com.algoTrader.entity.property.PropertyHolder;
 import com.algoTrader.util.MyLogger;
 
 /**

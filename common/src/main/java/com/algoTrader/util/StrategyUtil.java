@@ -18,7 +18,7 @@
 package com.algoTrader.util;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.entity.strategy.StrategyImpl;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

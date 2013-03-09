@@ -23,7 +23,7 @@ import java.util.Map;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Transformer;
 
-import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.esper.EsperManager;
 import com.espertech.esper.collection.Pair;
 

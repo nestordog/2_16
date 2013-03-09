@@ -56,8 +56,8 @@ import quickfix.SessionSettings;
 import quickfix.SocketInitiator;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.StrategyImpl;
-import com.algoTrader.entity.strategy.Account;
+import com.algoTrader.entity.Account;
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.enumeration.OrderServiceType;

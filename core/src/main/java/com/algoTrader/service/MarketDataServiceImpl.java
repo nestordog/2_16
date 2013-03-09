@@ -32,12 +32,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Strategy;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.SubscriptionImpl;
 import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.strategy.Strategy;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;

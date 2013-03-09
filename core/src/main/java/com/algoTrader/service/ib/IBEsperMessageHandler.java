@@ -23,7 +23,7 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.entity.trade.Fill;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.OrderStatus;

@@ -28,13 +28,13 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.security.Forex;
 import com.algoTrader.entity.security.ForexFuture;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.FutureFamily;
+import com.algoTrader.entity.strategy.Strategy;
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Side;

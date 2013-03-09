@@ -15,28 +15,15 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.entity;
+package com.algoTrader.entity.strategy;
 
+import com.algoTrader.entity.StrategyDaoBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class StrategyImpl extends Strategy {
+public class StrategyDaoImpl extends StrategyDaoBase {
 
-    public static final String BASE = "BASE";
-
-    private static final long serialVersionUID = -2271735085273721632L;
-
-    @Override
-    public boolean isBase() {
-        return (BASE.equals(getName()));
-    }
-
-    @Override
-    public String toString() {
-
-        return getName();
-    }
 }

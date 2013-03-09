@@ -15,13 +15,15 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.entity;
+package com.algoTrader.entity.property;
+
+import com.algoTrader.entity.PropertyDaoBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class StrategyDaoImpl extends StrategyDaoBase {
+public class PropertyDaoImpl extends PropertyDaoBase {
 
 }

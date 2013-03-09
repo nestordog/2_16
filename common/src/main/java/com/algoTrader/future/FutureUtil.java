@@ -19,6 +19,7 @@ package com.algoTrader.future;
 
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.FutureFamily;
+import com.algoTrader.enumeration.Duration;
 import com.algoTrader.util.DateUtil;
 
 /**
@@ -28,13 +29,11 @@ import com.algoTrader.util.DateUtil;
  */
 public class FutureUtil {
 
-    private static final double MILLISECONDS_PER_YEAR = 31536000000l;
-
     public static double getFuturePrice(Future future, double underlyingSpot) {
 
         FutureFamily family = (FutureFamily) future.getSecurityFamily();
 
-        double years = (future.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / MILLISECONDS_PER_YEAR;
+        double years = (future.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / Duration.YEAR_1.getValue();
 
         return getFuturePrice(underlyingSpot, years, family.getIntrest(), family.getDividend());
     }

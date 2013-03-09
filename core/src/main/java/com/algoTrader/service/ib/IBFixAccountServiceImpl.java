@@ -41,7 +41,7 @@ import quickfix.field.XMLContent;
 import quickfix.fix42.IBFAModification;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.strategy.Account;
+import com.algoTrader.entity.Account;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

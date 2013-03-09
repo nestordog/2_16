@@ -22,6 +22,7 @@ import com.algoTrader.entity.security.Forex;
 import com.algoTrader.entity.security.ForexI;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.SecurityFamily;
+import com.algoTrader.entity.strategy.Strategy;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Direction;
 import com.algoTrader.util.PositionUtil;

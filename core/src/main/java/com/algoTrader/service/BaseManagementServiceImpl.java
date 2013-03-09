@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.algoTrader.entity.StrategyImpl;
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Status;

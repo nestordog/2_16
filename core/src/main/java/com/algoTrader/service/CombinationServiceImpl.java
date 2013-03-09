@@ -25,12 +25,12 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.entity.Position;
-import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.Subscription;
 import com.algoTrader.entity.security.Combination;
 import com.algoTrader.entity.security.Component;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.SecurityFamily;
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.enumeration.CombinationType;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.HibernateUtil;

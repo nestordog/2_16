@@ -20,9 +20,9 @@ package com.algoTrader.esper.io;
 import java.util.Map;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.RawBarVO;

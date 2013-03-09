@@ -25,9 +25,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Strategy;
-import com.algoTrader.entity.StrategyImpl;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.strategy.Strategy;
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.entity.trade.AlgoOrder;
 import com.algoTrader.entity.trade.Fill;
 import com.algoTrader.entity.trade.FillImpl;

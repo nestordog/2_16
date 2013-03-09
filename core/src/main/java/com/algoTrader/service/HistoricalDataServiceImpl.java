@@ -87,7 +87,7 @@ public abstract class HistoricalDataServiceImpl extends HistoricalDataServiceBas
         // run all barTypes and get the ticks
         for (BarType barType : barTypes) {
 
-            List<Bar> bars = getHistoricalBars(security.getId(), date, 1, TimePeriod.DAY, 1, TimePeriod.MINUTE, barType);
+            List<Bar> bars = getHistoricalBars(security.getId(), date, 1, TimePeriod.DAY, 1, TimePeriod.MIN, barType);
 
             // filter Bars by date
             for (Iterator<Bar> it = bars.iterator(); it.hasNext();) {
