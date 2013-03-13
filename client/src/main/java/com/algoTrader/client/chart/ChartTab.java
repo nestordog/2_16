@@ -594,6 +594,10 @@ public class ChartTab extends ChartPanel {
             // creat the SegmentedTimeline
             long startTime = this.chartDefinition.getStartTime().getTime();
             long endTime = this.chartDefinition.getEndTime().getTime();
+            if (endTime == -3600000) {
+                // adjust 00:00
+                endTime += 86400000;
+            }
             long segmentSize = 60 * 1000; // minute
             int segmentsIncluded = (int) (endTime - startTime) / (60 * 1000);
             int segmentsExcluded = 24 * 60 - segmentsIncluded;
