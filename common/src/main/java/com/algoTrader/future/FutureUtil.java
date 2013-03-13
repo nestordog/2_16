@@ -33,7 +33,7 @@ public class FutureUtil {
 
         FutureFamily family = (FutureFamily) future.getSecurityFamily();
 
-        double years = (future.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / Duration.YEAR_1.getValue();
+        double years = (future.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
 
         return getFuturePrice(underlyingSpot, years, family.getIntrest(), family.getDividend());
     }

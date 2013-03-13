@@ -42,7 +42,7 @@ insert into
     Tick
 select
     current_timestamp.toDate() as dateTime,
-    RoundUtil.getBigDecimal(StockOptionUtil.getOptionPrice(option, fxTick.currentValueDouble, StockOptionUtil.getImpliedVolatilitySABR(option, fxTick.currentValueDouble, surface))) as last,
+    RoundUtil.getBigDecimal(StockOptionUtil.getOptionPrice(option, fxTick.currentValueDouble, StockOptionUtil.getImpliedVolatilitySABR(option, fxTick.currentValueDouble, surface)), option.securityFamily.scale) as last,
     current_timestamp.toDate() as lastDateTime,
     0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
     LookupUtil.getSecurityInitialized(option.id) as security

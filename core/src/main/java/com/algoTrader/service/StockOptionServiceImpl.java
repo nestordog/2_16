@@ -206,7 +206,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
-        double years = (expirationDate.getTime() - date.getTime()) / Duration.YEAR_1.getValue();
+        double years = (expirationDate.getTime() - date.getTime()) / (double) Duration.YEAR_1.getValue();
 
         Tick underlyingTick = getTickDao().findByDateAndSecurity(date, underlyingId);
         if (underlyingTick == null || underlyingTick.getLast() == null) {
@@ -398,7 +398,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
             return null;
         }
 
-        double years = (callOption.getExpiration().getTime() - date.getTime()) / Duration.YEAR_1.getValue();
+        double years = (callOption.getExpiration().getTime() - date.getTime()) / (double) Duration.YEAR_1.getValue();
 
         double callVola = StockOptionUtil.getImpliedVolatility(underlyingTick.getCurrentValueDouble(), callOption.getStrike().doubleValue(),
                 callTick.getCurrentValueDouble(), years, family.getIntrest(), family.getDividend(), OptionType.CALL);
