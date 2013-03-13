@@ -57,6 +57,7 @@ import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.OrderServiceType;
+import com.algoTrader.util.CollectionUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.PositionUtil;
@@ -172,13 +173,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected StockOption handleGetStockOptionByMinExpirationAndMinStrikeDistance(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot,
             OptionType optionType) throws Exception {
 
-
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndMinStrikeDistance(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType);
-
-        StockOption stockOption = null;
-        if (!list.isEmpty()) {
-            stockOption = list.get(0);
-        }
+        StockOption stockOption = CollectionUtil.getSingleElementOrNull(getStockOptionDao().findByMinExpirationAndMinStrikeDistance(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
 
         // if no future was found, create it if simulating options
         if (this.simulation && this.simulateStockOptions) {
@@ -201,13 +196,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected StockOption handleGetStockOptionByMinExpirationAndMinStrikeDistanceWithTicks(int underlyingId, Date targetExpirationDate,
             BigDecimal underlyingSpot, OptionType optionType, Date date) throws Exception {
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date);
-
-        if (!list.isEmpty()) {
-            return list.get(0);
-        } else {
-            return null;
-        }
+        return CollectionUtil.getSingleElementOrNull(getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date));
     }
 
     @Override
@@ -217,12 +206,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimit(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType);
-
-        StockOption stockOption = null;
-        if (!list.isEmpty()) {
-            stockOption = list.get(0);
-        }
+        StockOption stockOption = CollectionUtil.getSingleElementOrNull(getStockOptionDao().findByMinExpirationAndStrikeLimit(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
 
         // if no future was found, create it if simulating options
         if (this.simulation && this.simulateStockOptions) {
@@ -245,15 +229,8 @@ public class LookupServiceImpl extends LookupServiceBase {
             OptionType optionType,
             Date date) throws Exception {
 
-        List<StockOption> list = getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date);
-
-        if (!list.isEmpty()) {
-            return list.get(0);
-        } else {
-            return null;
-        }
+        return CollectionUtil.getSingleElementOrNull(getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date));
     }
-
 
     @Override
     protected List<StockOption> handleGetSubscribedStockOptions() throws Exception {
@@ -264,23 +241,14 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Future handleGetFutureByMinExpiration(int futureFamilyId, Date expirationDate) throws Exception {
 
-        List<Future> list = getFutureDao().findByMinExpiration(1, 1, futureFamilyId, expirationDate);
-
-        Future future = null;
-        if (!list.isEmpty()) {
-            future = list.get(0);
-        }
+        Future future = CollectionUtil.getSingleElementOrNull(getFutureDao().findByMinExpiration(1, 1, futureFamilyId, expirationDate));
 
         // if no future was found, create the missing part of the future-chain
         if (this.simulation && future == null && (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures)) {
 
             getFutureService().createDummyFutures(futureFamilyId);
 
-            list = getFutureDao().findByMinExpiration(1, 1, futureFamilyId, expirationDate);
-
-            if (!list.isEmpty()) {
-                future = list.get(0);
-            }
+            future = CollectionUtil.getSingleElementOrNull(getFutureDao().findByMinExpiration(1, 1, futureFamilyId, expirationDate));
         }
 
         if (future == null) {
@@ -288,7 +256,6 @@ public class LookupServiceImpl extends LookupServiceBase {
         } else {
             return future;
         }
-
     }
 
     @Override
@@ -649,11 +616,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Tick handleGetLastTick(int securityId) throws Exception {
 
-        List<Tick> list = getTickDao().findTicksBeforeDate(1, 1, securityId, DateUtil.getCurrentEPTime(), this.intervalDays);
+        Tick tick = CollectionUtil.getSingleElementOrNull(getTickDao().findTicksBeforeDate(1, 1, securityId, DateUtil.getCurrentEPTime(), this.intervalDays));
 
-        Tick tick = null;
-        if (!list.isEmpty()) {
-            tick = list.get(0);
+        if (tick != null) {
             tick.getSecurity().initialize();
         }
 
@@ -807,25 +772,13 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Object handleGetMeasurementForMaxDate(String strategyName, String name, Date maxDate) throws Exception {
 
-        List<Measurement> list = getMeasurementDao().findMeasurementsBeforeDate(1, 1, strategyName, name, maxDate);
-
-        if (!list.isEmpty()) {
-            return list.get(0).getValue();
-        } else {
-            return null;
-        }
+        return CollectionUtil.getSingleElementOrNull(getMeasurementDao().findMeasurementsBeforeDate(1, 1, strategyName, name, maxDate)).getValue();
     }
 
     @Override
     protected Object handleGetMeasurementForMinDate(String strategyName, String name, Date minDate) throws Exception {
 
-        List<Measurement> list = getMeasurementDao().findMeasurementsAfterDate(1, 1, strategyName, name, minDate);
-
-        if (!list.isEmpty()) {
-            return list.get(0).getValue();
-        } else {
-            return null;
-        }
+        return CollectionUtil.getSingleElementOrNull(getMeasurementDao().findMeasurementsAfterDate(1, 1, strategyName, name, minDate)).getValue();
     }
 
     @Override
