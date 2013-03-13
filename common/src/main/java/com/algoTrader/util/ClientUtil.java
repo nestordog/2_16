@@ -35,14 +35,14 @@ public class ClientUtil {
     @SuppressWarnings("unchecked")
     public static <E extends SeriesDefinitionVO> Collection<E> getSeriesDefinitions(Class<E> type, ChartDefinitionVO chartDefinition) {
 
-        AxisDefinitionVO axisDefinition = chartDefinition.getAxisDefinitions().iterator().next();
-        DatasetDefinitionVO datasetDefinition = axisDefinition.getDatasetDefinitions().iterator().next();
-
         Collection<E> barDefinitions = new HashSet<E>();
-        for (SeriesDefinitionVO seriesDefinition : datasetDefinition.getSeriesDefinitions()) {
-
-            if (seriesDefinition.getClass().isAssignableFrom(type)) {
-                barDefinitions.add((E) seriesDefinition);
+        for (AxisDefinitionVO axisDefinition : chartDefinition.getAxisDefinitions()) {
+            for (DatasetDefinitionVO datasetDefinition : axisDefinition.getDatasetDefinitions()) {
+                for (SeriesDefinitionVO seriesDefinition : datasetDefinition.getSeriesDefinitions()) {
+                    if (seriesDefinition.getClass().isAssignableFrom(type)) {
+                        barDefinitions.add((E) seriesDefinition);
+                    }
+                }
             }
         }
 
