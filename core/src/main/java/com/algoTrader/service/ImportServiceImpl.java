@@ -59,10 +59,6 @@ public class ImportServiceImpl extends ImportServiceBase {
 
     private @Value("${dataSource.dataSet}") String dataSet;
 
-    /**
-     * must be run with simulation=false (to get correct values for bid, ask and settlement)
-     * also recommended to turn of ehache on commandline (to avoid out of memory error)
-     */
     @Override
     protected void handleImportTicks(String isin) throws Exception {
 

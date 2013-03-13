@@ -502,18 +502,32 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
         // calculate the performance
         double lastNetLiqValue = 0;
+        double lastDayNetLiqValue = 0;
         double performance = 1.0;
+        double dailyPerformance = 1.0;
         for (PortfolioValueVO portfolioValue : portfolioValues) {
 
-            if (lastNetLiqValue != 0) {
-                double adjustedNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
-                if (portfolioValue.getCashFlow() != null) {
-                    adjustedNetLiqValue -= portfolioValue.getCashFlow().doubleValue();
+            // for BASE reset performance at the 24:00 based on NetLiqValue of prior day
+            if (StrategyImpl.BASE.equals(strategyName) && DateUtils.getFragmentInHours(portfolioValue.getDateTime(), Calendar.DAY_OF_YEAR) == 0) {
+                if (lastDayNetLiqValue != 0) {
+                    dailyPerformance = dailyPerformance
+                            * (portfolioValue.getNetLiqValue().doubleValue() / (lastDayNetLiqValue + (portfolioValue.getCashFlow() != null ? portfolioValue.getCashFlow().doubleValue() : 0)));
+                    performance = dailyPerformance;
+                    portfolioValue.setPerformance(performance - 1.0);
                 }
-                performance = performance * (adjustedNetLiqValue / lastNetLiqValue);
-                portfolioValue.setPerformance(performance - 1.0);
+
+                lastDayNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
+                lastNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
+
+            } else {
+                if (lastNetLiqValue != 0) {
+                    performance = performance
+                            * (portfolioValue.getNetLiqValue().doubleValue() / (lastNetLiqValue + (portfolioValue.getCashFlow() != null ? portfolioValue.getCashFlow().doubleValue() : 0)));
+                    portfolioValue.setPerformance(performance - 1.0);
+                }
+
+                lastNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
             }
-            lastNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
         }
 
         return portfolioValues;

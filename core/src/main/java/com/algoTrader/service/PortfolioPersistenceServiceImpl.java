@@ -20,14 +20,14 @@ package com.algoTrader.service;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.TimeZone;
-import java.util.TreeSet;
 
+import org.apache.commons.collections15.keyvalue.MultiKey;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
@@ -161,19 +161,10 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
     protected void handleRestorePortfolioValues(Date fromDate, Date toDate) throws Exception {
 
         // same cron as SAVE_PORTFOLIO_VALUE
-        CronSequenceGenerator cron = new CronSequenceGenerator("0 0 14-23 * * 1-5", TimeZone.getDefault());
+        CronSequenceGenerator cron = new CronSequenceGenerator("0 0 13-23 * * 1-5", TimeZone.getDefault());
 
-        // sort by dateTime and strategy
-        Set<PortfolioValue> portfolioValues = new TreeSet<PortfolioValue>(new Comparator<PortfolioValue>() {
-            @Override
-            public int compare(PortfolioValue p1, PortfolioValue p2) {
-                if (!p1.getDateTime().equals(p2.getDateTime())) {
-                    return p1.getDateTime().compareTo(p2.getDateTime());
-                } else {
-                    return p1.getStrategy().compareTo(p2.getStrategy());
-                }
-            }
-        });
+        // group PortfolioValues by strategyId and date
+        Map<MultiKey<Long>, PortfolioValue> portfolioValueMap = new HashMap<MultiKey<Long>, PortfolioValue>();
 
         // save values for all autoActiveStrategies
         List<Strategy> strategies = getStrategyDao().findAutoActivateStrategies();
@@ -183,12 +174,14 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
         while (date.compareTo(toDate) <= 0) {
 
             date = cron.next(date);
+            Date actualDate = DateUtils.addHours(date, 1); // to get 14 - 24
             for (Strategy strategy : strategies) {
 
-                PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName(), date);
-                portfolioValues.add(portfolioValue);
+                PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName(), actualDate);
+                MultiKey<Long> key = new MultiKey<Long>((long)strategy.getId(), actualDate.getTime());
+                portfolioValueMap.put(key, portfolioValue);
 
-                logger.info("processed portfolioValue for " + strategy.getName() + " " + date);
+                logger.info("processed portfolioValue for " + strategy.getName() + " " + actualDate);
             }
         }
 
@@ -196,35 +189,55 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
         List<Transaction> transactions = getTransactionDao().findAllCashflows();
         for (Transaction transaction : transactions) {
 
-            // trades do not affect netLiqValue / performance so no portfolioValues are saved
-            if (transaction.isTrade()) {
-                continue;
-
-            // do not save a portfolioValue for BASE when rebalancing
-            } else if (TransactionType.REBALANCE.equals(transaction.getType()) && transaction.getStrategy().isBase()) {
+            // only consider autoActivate strategies
+            if (!strategies.contains(transaction.getStrategy())) {
                 continue;
             }
 
-            // don not save before fromDate
+            // for BASE only save PortfolioValue for CREDIT and DEBIT (REBALANCE do not affect NetLiqValue and FEES, REFUND etc. are part of the performance)
+            if (transaction.getStrategy().isBase()) {
+                if(!TransactionType.CREDIT.equals(transaction.getType()) && !TransactionType.DEBIT.equals(transaction.getType())) {
+                    continue;
+                }
+
+            // for strategies only save PortfolioValue for REBALANCE
+            } else {
+                if(!TransactionType.REBALANCE.equals(transaction.getType())) {
+                    continue;
+                }
+            }
+
+            // do not save before fromDate
             if (transaction.getDateTime().compareTo(fromDate) < 0) {
                 continue;
             }
 
-            PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(transaction.getStrategy().getName(), transaction.getDateTime());
-            portfolioValue.setCashFlow(transaction.getGrossValue());
-            portfolioValues.add(portfolioValue);
+            // if there is an existing PortfolioValue, add the cashFlow
+            MultiKey<Long> key = new MultiKey<Long>((long)transaction.getStrategy().getId(), transaction.getDateTime().getTime());
+            if (portfolioValueMap.containsKey(key)) {
+                PortfolioValue portfolioValue = portfolioValueMap.get(key);
+                if (portfolioValue.getCashFlow() != null) {
+                    portfolioValue.setCashFlow(portfolioValue.getCashFlow().add(transaction.getGrossValue()));
+                } else {
+                    portfolioValue.setCashFlow(transaction.getGrossValue());
+                }
+            } else {
+                PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(transaction.getStrategy().getName(), transaction.getDateTime());
+                portfolioValue.setCashFlow(transaction.getGrossValue());
+                portfolioValueMap.put(key, portfolioValue);
+            }
 
-            logger.info("processed portfolioValue for " + transaction.getStrategy().getName() + " " + transaction.getDateTime());
+            logger.info("processed portfolioValue for " + transaction.getStrategy().getName() + " " + transaction.getDateTime() + " cashflow " + transaction.getGrossValue());
         }
 
         // netLiqValue might simply be zero because the strategy is not active yet
-        for (Iterator<PortfolioValue> it = portfolioValues.iterator(); it.hasNext();) {
+        for (Iterator<PortfolioValue> it = portfolioValueMap.values().iterator(); it.hasNext();) {
             PortfolioValue portfolioValue = it.next();
             if (portfolioValue.getNetLiqValueDouble() == 0) {
                 it.remove();
             }
         }
 
-        getPortfolioValueDao().create(portfolioValues);
+        getPortfolioValueDao().create(portfolioValueMap.values());
     }
 }

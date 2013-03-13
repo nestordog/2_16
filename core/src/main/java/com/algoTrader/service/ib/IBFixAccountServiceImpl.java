@@ -159,9 +159,6 @@ public class IBFixAccountServiceImpl extends IBFixAccountServiceBase {
         postGroups(accountName);
     }
 
-    /**
-     * called by the IBFixMessageHandler
-     */
     @Override
     protected void handleUpdateGroups(String account, String xmlContent) throws Exception {
 

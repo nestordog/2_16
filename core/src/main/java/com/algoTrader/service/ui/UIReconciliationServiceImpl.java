@@ -30,22 +30,26 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.entity.strategy.PortfolioValue;
 import com.algoTrader.entity.strategy.Strategy;
 import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.util.CollectionUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.util.ZipUtil;
+import com.algoTrader.util.collection.LongMap;
 import com.algoTrader.util.collection.Pair;
 
 /**
@@ -62,6 +66,7 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
     private static NumberFormat numberFormat = NumberFormat.getInstance(Locale.GERMANY);
 
     private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private @Value("${ib.adjustmentThreshold}") long adjustmentThreshold;
 
     @Override
     protected void handleReconcile(String fileName, byte[] data) throws Exception {
@@ -81,61 +86,126 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
             data = entries.get(0).getSecond();
         }
 
-        // create the cash transaction based on todays and yesterdays fees
-        createCashTransaction(fileName, data);
+        // get the statement date (Bewertungsdatum)
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(data), "ISO-8859-1"));
+        String[] values = reader.readLine().split("\u00b6");
+        Date date = dateFormat.parse(values[2]);
+        reader.close();
+
+        /// proces Subscriptions / Redemptions
+        processCashTransactions(date, data);
+
+        // adjust NAV if necessary
+        adjustNAV(date, data);
 
         // reconcile positions
-        reconcilePositions(fileName, data);
+        reconcilePositions(date, data);
     }
 
-    private void createCashTransaction(String fileName, byte[] data) throws FileNotFoundException, IOException, ParseException {
+    private void processCashTransactions(Date date, byte[] data) throws FileNotFoundException, IOException, ParseException {
 
-        String dateString = fileName.substring(16, 26);
-        Date date = dateFormat.parse(dateString);
+        Date endOfDay = DateUtils.addDays(date, 1);
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(data), "ISO-8859-1"));
 
-        // calculate the fee total by adding all items of type 090 (Verbindlichkeiten)
+        // get the current nav based on 090 (Vermoegensdaten)
         String line;
-        double newFees = 0;
+        double sharePrice = 0;
+        int shares = 0;
         while ((line = reader.readLine()) != null) {
 
             String[] values = line.split("\u00b6");
-            if ("090".equals(values[0])) {
-                newFees += parseDouble(values, 11);
+            if ("020".equals(values[0])) {
+                sharePrice = parseDouble(values, 13);
+                shares = (int)parseLong(values, 14);
+                break;
             }
         }
         reader.close();
 
-        // get yesterdays fees from the database
-        double oldFees = 0.0;
-        String description = "UI Fees";
-        Collection<Transaction> transactions = getTransactionDao().findByDescriptionAndMaxDate(1, 1, description, date);
-        if (!transactions.isEmpty()) {
-            oldFees = -CollectionUtil.getFirstElement(transactions).getPrice().doubleValue();
-        }
+        // store shares and sharePrice as measurement
+        getMeasurementService().createMeasurement(StrategyImpl.BASE, "shares", endOfDay, shares);
+        getMeasurementService().createMeasurement(StrategyImpl.BASE, "sharePrice", endOfDay, sharePrice);
 
-        Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
-        double totalFees = newFees - oldFees;
-        BigDecimal price = RoundUtil.getBigDecimal(totalFees).abs(); // price is always positive
-        int quantity = totalFees < 0 ? -1 : 1;
-        TransactionType transactionType = totalFees < 0 ? TransactionType.FEES : TransactionType.REFUND;
+        // get last shares and sharePrice
+        Integer oldShares = (Integer)getLookupService().getMeasurementForMaxDate(StrategyImpl.BASE, "shares", date);
+        Double oldSharePrice = (Double)getLookupService().getMeasurementForMaxDate(StrategyImpl.BASE, "sharePrice", date);
 
-        if (getTransactionDao().findByDateTimePriceTypeAndDescription(date, price, transactionType, description) != null) {
+        // create a Subscription / Redemption if necessary
+        if (oldShares != null && oldSharePrice != null && oldShares.intValue() != shares) {
 
-            // @formatter:off
-            logger.warn("cash transaction already exists" +
-                    " dateTime: " + dateFormat.format(date) +
-                    " price: " + price +
-                    " type: " + transactionType +
-                    " description: " + description);
-            // @formatter:on
-
-        } else {
+            int deltaShares = shares - oldShares.intValue();
+            int quantity = deltaShares > 0 ? 1 : -1;
+            BigDecimal price = RoundUtil.getBigDecimal(deltaShares * oldSharePrice).abs(); // price is always positive
+            TransactionType transactionType = deltaShares > 0 ? TransactionType.CREDIT : TransactionType.DEBIT;
+            Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
+            String description = (deltaShares > 0 ? "Subscription" : "Redemption") + " of " + deltaShares + " shares at " + oldSharePrice;
 
             // create the transaction
             Transaction transaction = new TransactionImpl();
-            transaction.setDateTime(date);
+            transaction.setDateTime(endOfDay);
+            transaction.setQuantity(quantity);
+            transaction.setPrice(price);
+            transaction.setCurrency(this.portfolioBaseCurrency);
+            transaction.setType(transactionType);
+            transaction.setStrategy(strategy);
+            transaction.setDescription(description);
+
+            if (getTransactionDao().findByDateTimePriceTypeAndDescription(endOfDay, price, transactionType, description) != null) {
+
+                // @formatter:off
+                logger.warn("cash transaction already exists" +
+                        " dateTime: " + dateFormat.format(endOfDay) +
+                        " price: " + price +
+                        " type: " + transactionType +
+                        " description: " + description);
+                // @formatter:on
+
+            } else {
+
+                // persist the transaction
+                getTransactionService().persistTransaction(transaction);
+
+                notificationLogger.info(dateFormat.format(date) + " subscription/redemption of " + deltaShares + " shares at " + oldSharePrice + " totalAmount " + price);
+            }
+        }
+    }
+
+    private void adjustNAV(Date date, byte[] data) throws FileNotFoundException, IOException, ParseException {
+
+        Date endOfDay = DateUtils.addDays(date, 1);
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(data), "ISO-8859-1"));
+
+        // get the current nav based on 090 (Vermoegensdaten)
+        String line;
+        double nav = 0;
+        while ((line = reader.readLine()) != null) {
+
+            String[] values = line.split("\u00b6");
+            if ("020".equals(values[0])) {
+                nav = parseDouble(values, 11);
+                break;
+            }
+        }
+        reader.close();
+
+        // get the end-of-day portfolioValue based on transactions in the db
+        PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(StrategyImpl.BASE, endOfDay);
+
+        // create the transaction
+        double adjustment = nav - portfolioValue.getNetLiqValueDouble();
+        BigDecimal price = RoundUtil.getBigDecimal(adjustment).abs(); // price is always positive
+        int quantity = adjustment < 0 ? -1 : 1;
+        TransactionType transactionType = adjustment < 0 ? TransactionType.FEES : TransactionType.REFUND;
+        Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
+        String description = "UI NAV Adjustment";
+
+        if (price.doubleValue() != 0.0) {
+
+            // create the transaction
+            Transaction transaction = new TransactionImpl();
+            transaction.setDateTime(endOfDay);
             transaction.setQuantity(quantity);
             transaction.setPrice(price);
             transaction.setCurrency(this.portfolioBaseCurrency);
@@ -146,14 +216,31 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
             // persist the transaction
             getTransactionService().persistTransaction(transaction);
         }
+
+        if (price.longValue() > adjustmentThreshold) {
+            notificationLogger.warn(dateFormat.format(date) + " verify adjustment of " + price);
+        }
     }
 
-    private void reconcilePositions(String fileName, byte[] data) throws FileNotFoundException, IOException, ParseException {
+    private void reconcilePositions(Date date, byte[] data) throws FileNotFoundException, IOException, ParseException {
+
+        Date endOfDay = DateUtils.addDays(date, 1);
+
+        // get open positions by the end of the statement date
+        Collection<Position> positions = getPositionDao().findOpenPositionsByDateAggregated(endOfDay);
+
+        // group position quantities per security
+        LongMap<Security> quantitiesPerSecurity = new LongMap<Security>();
+        for (Position position : positions) {
+            quantitiesPerSecurity.put(position.getSecurity(), position.getQuantity());
+        }
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(data), "ISO-8859-1"));
 
         // reoncile all futures and option positions
         String line;
+        String ric = null;
+        long quantity = 0;
         while ((line = reader.readLine()) != null) {
 
             String[] values = line.split("\u00b6");
@@ -161,10 +248,9 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
             // Futures
             if ("050".equals(values[0])) {
 
-                Date date = parseDate(values, 2);
-                long quantity = parseLong(values, 27);
+                quantity = parseLong(values, 27);
 
-                String ric = values[43];
+                ric = values[43];
                 if (!ric.endsWith(":VE")) {
                     ric = ric + ":VE";
                 }
@@ -173,40 +259,36 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
                     ric = ric.replace("URO", "EC");
                 }
 
-                // reconcile position
-                reconcilePosition(ric, quantity, date);
-
                 // Options
             } else if ("060".equals(values[0])) {
 
-                Date date = parseDate(values, 2);
-                long quantity = parseLong(values, 27);
-                String ric = values[43];
-
-                // reconcile position
-                reconcilePosition(ric, quantity, date);
+                quantity = parseLong(values, 27);
+                ric = values[43];
+            } else {
+                continue;
             }
-        }
-        reader.close();
-    }
 
-    private void reconcilePosition(String ric, long quantity, Date date) {
+            Security security = getSecurityDao().findByRic(ric);
+            if (security == null) {
+                notificationLogger.warn("security does not exist, ric: " + ric);
+                continue;
+            }
 
-        Security security = getSecurityDao().findByRic(ric);
-        if (security != null) {
-
-            // get the actual quantity of the position as of the specified date
-            Long actualyQuantity = getTransactionDao().findQuantityBySecurityAndDate(security.getId(), DateUtils.addDays(date, 1));
-
+            // compare quantities
+            Long actualyQuantity = quantitiesPerSecurity.getLong(security);
             if (actualyQuantity == null) {
                 notificationLogger.warn("position " + dateFormat.format(date) + " " + security + " does not exist");
             } else if (actualyQuantity != quantity) {
                 notificationLogger.warn("position " + dateFormat.format(date) + " " + security + " quantity does not match db: " + actualyQuantity + " broker: " + quantity);
             } else {
+                quantitiesPerSecurity.remove(security);
                 logger.info("position " + dateFormat.format(date) + " " + security + " ok");
             }
-        } else {
-            notificationLogger.warn("security does not exist, ric: " + ric);
+        }
+        reader.close();
+
+        for (Map.Entry<Security, AtomicLong> entry : quantitiesPerSecurity.entrySet()) {
+            notificationLogger.warn("position " + dateFormat.format(date) + " " + entry.getKey() + " unmatched db quantitiy " + entry.getValue());
         }
     }
 
@@ -226,15 +308,5 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
         } else {
             return numberFormat.parse(values[idx].trim()).longValue();
         }
-    }
-
-    private Date parseDate(String[] values, int idx) throws ParseException {
-
-        return dateFormat.parse(values[idx]);
-    }
-
-    @Override
-    protected void handleReconcileNAV(Date date, boolean ignoreExecutionCommission, Collection<Integer> ignoredTransactions, Collection<Date> ignoredOptionCommisionDates, Collection<Date> ignoredFutureCommisionDates) {
-
     }
 }

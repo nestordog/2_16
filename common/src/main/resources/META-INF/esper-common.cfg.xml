@@ -65,7 +65,7 @@
 
     <!-- Constants -->
     <variable name="simulation" type="boolean" constant="true"/>
-    <variable name="engineStrategy" type="com.algoTrader.entity.Strategy" constant="true"/>
+    <variable name="engineStrategy" type="com.algoTrader.entity.strategy.Strategy" constant="true"/>
     <variable name="dataSource_barSize" type="com.algoTrader.enumeration.Duration" constant="true"/>
     <variable name="dataSource_dataSetType" type="com.algoTrader.enumeration.MarketDataType" constant="true"/>
     <variable name="misc_portfolioStartHour" type="int" constant="true"/>

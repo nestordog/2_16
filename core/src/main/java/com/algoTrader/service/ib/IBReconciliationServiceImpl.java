@@ -89,8 +89,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
         reconcileUnbookedTrades(document);
     }
 
-    @Override
-    protected void handleProcessCashTransactions(Document document) throws Exception {
+    private void processCashTransactions(Document document) throws Exception {
 
         NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//CashTransaction");
 
@@ -192,8 +191,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
         }
     }
 
-    @Override
-    protected void handleReconcilePositions(Document document) throws Exception {
+    private void reconcilePositions(Document document) throws Exception {
 
         NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//OpenPosition");
 
@@ -225,8 +223,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
         }
     }
 
-    @Override
-    protected void handleReconcileTrades(Document document) throws Exception {
+    private void reconcileTrades(Document document) throws Exception {
 
         NodeIterator iterator;
         if (this.faEnabled) {
@@ -259,8 +256,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
         }
     }
 
-    @Override
-    protected void handleReconcileUnbookedTrades(Document document) throws Exception {
+    private void reconcileUnbookedTrades(Document document) throws Exception {
 
         NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//UnbookedTrade");
 

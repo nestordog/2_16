@@ -76,9 +76,6 @@ public class PositionImpl extends Position {
         }
     }
 
-    /**
-     * always positive
-     */
     @Override
     public double getMarketPriceDouble() {
 
@@ -101,9 +98,6 @@ public class PositionImpl extends Position {
         return getMarketPriceDouble() * getSecurity().getFXRateBase();
     }
 
-    /**
-     * short positions: negative long positions: positive
-     */
     @Override
     public double getMarketValueDouble() {
 
@@ -121,9 +115,6 @@ public class PositionImpl extends Position {
         return getMarketValueDouble() * getSecurity().getFXRateBase();
     }
 
-    /**
-     * always positive
-     */
     @Override
     public double getAveragePriceDouble() {
 
@@ -136,18 +127,12 @@ public class PositionImpl extends Position {
         return getAveragePriceDouble() * getSecurity().getFXRateBase();
     }
 
-    /**
-     * in days
-     */
     @Override
     public double getAverageAge() {
 
         return PositionUtil.getAverageAge(getTransactions());
     }
 
-    /**
-     * short positions: negative long positions: positive
-     */
     @Override
     public double getCostDouble() {
 

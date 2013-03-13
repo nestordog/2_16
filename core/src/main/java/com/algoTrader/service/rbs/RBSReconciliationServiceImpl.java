@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
@@ -34,13 +35,16 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.supercsv.exception.SuperCSVReflectionException;
 
+import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.TransactionType;
+import com.algoTrader.util.CollectionUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
+import com.algoTrader.util.collection.LongMap;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -69,15 +73,28 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
 
     private void reconcilePositions(byte[] data) throws IOException {
 
-        List<Map<String, ? super Object>> positions = CsvRBSPositionReader.readPositions(data);
-        for (Map<String, ? super Object> position : positions) {
+        // get open positions by statement date
+        Map<String, ? super Object> firstPosition = CollectionUtil.getFirstElementOrNull(CsvRBSPositionReader.readPositions(data));
+        if (firstPosition == null) {
+            return;
+        }
+
+        Date date = (Date) firstPosition.get("Statement Date");
+        Collection<Position> positions = getPositionDao().findOpenPositionsByDateAggregated(date);
+
+        // group position quantities per security
+        LongMap<Security> quantitiesPerSecurity = new LongMap<Security>();
+        for (Position position : positions) {
+            quantitiesPerSecurity.put(position.getSecurity(), position.getQuantity());
+        }
+
+        for (Map<String, ? super Object> position : CsvRBSPositionReader.readPositions(data)) {
 
             // parse parameters
             String securityCode = (String) position.get("Security Code");
             String tradeType = (String) position.get("Trade Type");
             Date exerciseDate = DateUtils.addHours((Date) position.get("Exercise Date"), 13); // expiration is at 13:00:00
             BigDecimal strikePrice = (BigDecimal) position.get("Strike Price");
-            Date statementDate = (Date) position.get("Statement Date");
             Long quantity = (Long) position.get("Quantity");
 
             // find the securities by ricRoot, expiration, strike and type
@@ -96,21 +113,25 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
                 throw new IllegalArgumentException("unkown tradeType: " + tradeType);
             }
 
-            if (security != null) {
-
-                // get the actual quantity of the position as of the specified date
-                Long actualyQuantity = getTransactionDao().findQuantityBySecurityAndDate(security.getId(), statementDate);
-
-                if (actualyQuantity == null) {
-                    notificationLogger.warn("position " + format.format(statementDate) + " " + quantity + " " + security + " does not exist");
-                } else if (actualyQuantity.longValue() != quantity.longValue()) {
-                    notificationLogger.warn("position " + format.format(statementDate) + " " + security + " quantity does not match db: " + actualyQuantity + " file: " + quantity);
-                } else {
-                    logger.info("position " + format.format(statementDate) + " " + quantity + " " + security + " ok");
-                }
-            } else {
+            if (security == null) {
                 notificationLogger.warn("security does not exist, product: " + securityCode + " expiration: " + format.format(exerciseDate) + " strike: " + strikePrice + " tradeType: " + tradeType);
+                continue;
             }
+
+            // compare quantities
+            Long actualyQuantity = quantitiesPerSecurity.getLong(security);
+            if (actualyQuantity == null) {
+                notificationLogger.warn("position " + format.format(date) + " " + quantity + " " + security + " does not exist");
+            } else if (actualyQuantity.longValue() != quantity.longValue()) {
+                notificationLogger.warn("position " + format.format(date) + " " + security + " quantity does not match db: " + actualyQuantity + " file: " + quantity);
+            } else {
+                quantitiesPerSecurity.remove(security);
+                logger.info("position " + format.format(date) + " " + quantity + " " + security + " ok");
+            }
+        }
+
+        for (Map.Entry<Security, AtomicLong> entry : quantitiesPerSecurity.entrySet()) {
+            notificationLogger.warn("position " + format.format(date) + " " + entry.getKey() + " unmatched db quantitiy " + entry.getValue());
         }
     }
 
