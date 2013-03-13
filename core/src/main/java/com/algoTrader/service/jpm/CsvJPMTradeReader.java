@@ -55,7 +55,7 @@ public class CsvJPMTradeReader {
     };
     //@formatter:on
 
-    public static List<Map<String, ? super Object>> readPositions(byte[] data) throws SuperCSVReflectionException, IOException {
+    public static List<Map<String, ? super Object>> readTrades(byte[] data) throws SuperCSVReflectionException, IOException {
 
         Reader isr = new InputStreamReader(new ByteArrayInputStream(data));
         CsvMapReader reader = new CsvMapReader(isr, CsvPreference.EXCEL_PREFERENCE);

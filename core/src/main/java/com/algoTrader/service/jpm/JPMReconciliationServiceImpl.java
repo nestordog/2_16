@@ -52,7 +52,7 @@ public class JPMReconciliationServiceImpl extends JPMReconciliationServiceBase {
     protected void handleReconcile(String fileName, byte[] data) throws Exception {
 
         // read the file
-        List<Map<String, ? super Object>> trades = CsvJPMTradeReader.readPositions(data);
+        List<Map<String, ? super Object>> trades = CsvJPMTradeReader.readTrades(data);
 
         for (Map<String, ? super Object> trade : trades) {
 
