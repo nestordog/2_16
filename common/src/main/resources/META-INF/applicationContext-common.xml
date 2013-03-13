@@ -46,7 +46,7 @@
 
     <!-- ================================= Portfolio Chart Definition======================================= -->
 
-    <bean id="portfolioChartDefinition" class="com.algoTrader.vo.ChartDefinitionVO" p:timePeriod="MINUTE" p:startTime="${misc.portfolioStartHour}:00" p:endTime="${misc.portfolioEndHour}:00" >
+    <bean id="portfolioChartDefinition" class="com.algoTrader.vo.ChartDefinitionVO" p:timePeriod="MIN" p:startTime="${misc.portfolioStartHour}:00" p:endTime="${misc.portfolioEndHour}:00" >
         <property name="axisDefinitions">
             <set>
                 <bean class="com.algoTrader.vo.AxisDefinitionVO" p:label="Balances" p:autoRange="true" p:autoRangeIncludesZero="false">
