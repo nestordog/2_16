@@ -157,6 +157,9 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         Account account = getAccountDao().findByName(accountName);
 
+        // set scale
+        price = price.setScale(security.getSecurityFamily().getScale());
+
         // create the transaction
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(dateTime);
