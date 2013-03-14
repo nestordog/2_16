@@ -285,7 +285,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         getCashBalanceService().processTransaction(transaction);
 
         // save a portfolioValue (if necessary)
-        getPortfolioPersistenceService().savePortfolioValue(transaction.getStrategy(), transaction);
+        getPortfolioPersistenceService().savePortfolioValue(transaction);
 
         // update all entities
         getTransactionDao().create(transaction);

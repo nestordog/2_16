@@ -22,7 +22,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -56,6 +55,7 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
 
     private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
     private @Value("${misc.rebalanceMinAmount}") double rebalanceMinAmount;
+    private @Value("${simulation}") boolean simulation;
 
     @Override
     protected void handleRebalancePortfolio() throws Exception {
@@ -139,72 +139,80 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
     }
 
     @Override
-    protected void handleSavePortfolioValue(Strategy strategy, Transaction transaction) throws Exception {
+    protected void handleSavePortfolioValue(Transaction transaction) throws Exception {
 
-        // trades do not affect netLiqValue / performance so no portfolioValues are saved
-        if (transaction.isTrade()) {
-            return;
-
-        // do not save a portfolioValue for BASE when rebalancing
-        } else if (TransactionType.REBALANCE.equals(transaction.getType()) && strategy.isBase()) {
+        // do not save PortfolioValue in simulation
+        if (this.simulation) {
             return;
         }
 
-        PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName());
+        // only process performanceRelevant transactions
+        if (transaction.isPerformanceRelevant()) {
 
-        portfolioValue.setCashFlow(transaction.getGrossValue());
+            // create and save the portfolio value
+            PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(transaction.getStrategy().getName());
 
-        getPortfolioValueDao().create(portfolioValue);
+            portfolioValue.setCashFlow(transaction.getGrossValue());
+
+            getPortfolioValueDao().create(portfolioValue);
+        }
+
+        // if there have been PortfolioValues created since this transaction, they will need to be recreated (including PortfolioValues of Base)
+        List<PortfolioValue> portfolioValues = getPortfolioValueDao().findByStrategyOrBaseAndMinDate(transaction.getStrategy().getName(), transaction.getDateTime());
+
+        if (portfolioValues.size() > 0) {
+
+            getPortfolioValueDao().remove(portfolioValues);
+
+            restorePortfolioValues(transaction.getStrategy(), transaction.getDateTime(), new Date());
+
+            if (!StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
+
+                Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
+                restorePortfolioValues(strategy, transaction.getDateTime(), new Date());
+            }
+        }
     }
 
     @Override
-    protected void handleRestorePortfolioValues(Date fromDate, Date toDate) throws Exception {
+    protected void handleRestorePortfolioValues(Strategy strategy, Date fromDate, Date toDate) throws Exception {
 
-        // same cron as SAVE_PORTFOLIO_VALUE
+        // same cron as SAVE_PORTFOLIO_VALUE (but one hour behind to get 14 - 24)
         CronSequenceGenerator cron = new CronSequenceGenerator("0 0 13-23 * * 1-5", TimeZone.getDefault());
+
+        // adjust fromDate and toDate by one one or to be inline with above
+        fromDate = DateUtils.addHours(fromDate, -1);
+        toDate = DateUtils.addHours(toDate, -1);
 
         // group PortfolioValues by strategyId and date
         Map<MultiKey<Long>, PortfolioValue> portfolioValueMap = new HashMap<MultiKey<Long>, PortfolioValue>();
 
-        // save values for all autoActiveStrategies
-        List<Strategy> strategies = getStrategyDao().findAutoActivateStrategies();
-
         // create portfolioValues for all cron time slots
-        Date date = fromDate;
+        Date date = cron.next(fromDate);
         while (date.compareTo(toDate) <= 0) {
 
-            date = cron.next(date);
             Date actualDate = DateUtils.addHours(date, 1); // to get 14 - 24
-            for (Strategy strategy : strategies) {
 
-                PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName(), actualDate);
-                MultiKey<Long> key = new MultiKey<Long>((long)strategy.getId(), actualDate.getTime());
-                portfolioValueMap.put(key, portfolioValue);
-
-                logger.info("processed portfolioValue for " + strategy.getName() + " " + actualDate);
-            }
-        }
-
-        // save values for all cashFlows
-        List<Transaction> transactions = getTransactionDao().findAllCashflows();
-        for (Transaction transaction : transactions) {
-
-            // only consider autoActivate strategies
-            if (!strategies.contains(transaction.getStrategy())) {
+            PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName(), actualDate);
+            if (portfolioValue.getNetLiqValueDouble() == 0) {
                 continue;
             }
 
-            // for BASE only save PortfolioValue for CREDIT and DEBIT (REBALANCE do not affect NetLiqValue and FEES, REFUND etc. are part of the performance)
-            if (transaction.getStrategy().isBase()) {
-                if(!TransactionType.CREDIT.equals(transaction.getType()) && !TransactionType.DEBIT.equals(transaction.getType())) {
-                    continue;
-                }
+            MultiKey<Long> key = new MultiKey<Long>((long) strategy.getId(), actualDate.getTime());
+            portfolioValueMap.put(key, portfolioValue);
 
-            // for strategies only save PortfolioValue for REBALANCE
-            } else {
-                if(!TransactionType.REBALANCE.equals(transaction.getType())) {
-                    continue;
-                }
+            logger.info("processed portfolioValue for " + strategy.getName() + " " + actualDate);
+
+            date = cron.next(date);
+        }
+
+        // save values for all cashFlows
+        List<Transaction> transactions = getTransactionDao().findCashflowsByStrategyAndMinDate(strategy.getName(), fromDate);
+        for (Transaction transaction : transactions) {
+
+            // only process performanceRelevant transactions
+            if (!transaction.isPerformanceRelevant()) {
+                continue;
             }
 
             // do not save before fromDate
@@ -230,14 +238,7 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
             logger.info("processed portfolioValue for " + transaction.getStrategy().getName() + " " + transaction.getDateTime() + " cashflow " + transaction.getGrossValue());
         }
 
-        // netLiqValue might simply be zero because the strategy is not active yet
-        for (Iterator<PortfolioValue> it = portfolioValueMap.values().iterator(); it.hasNext();) {
-            PortfolioValue portfolioValue = it.next();
-            if (portfolioValue.getNetLiqValueDouble() == 0) {
-                it.remove();
-            }
-        }
-
+        // perisist the PortfolioValues
         getPortfolioValueDao().create(portfolioValueMap.values());
     }
 }

@@ -139,6 +139,25 @@ public class TransactionImpl extends Transaction {
     }
 
     @Override
+    public boolean isPerformanceRelevant() {
+
+        // for BASE only save PortfolioValue for CREDIT and DEBIT (REBALANCE do not affect NetLiqValue and FEES, REFUND etc. are part of the performance)
+        if (getStrategy().isBase()) {
+            if (TransactionType.CREDIT.equals(getType()) || TransactionType.DEBIT.equals(getType())) {
+                return true;
+            }
+
+            // for strategies only save PortfolioValue for REBALANCE
+        } else {
+            if (TransactionType.REBALANCE.equals(getType())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
     public String toString() {
 
         if (isTrade()) {
