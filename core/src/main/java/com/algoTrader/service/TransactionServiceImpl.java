@@ -191,7 +191,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             }
 
             // propagate the transaction to the corresponding strategy
-            if (!StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
+            if (!transaction.getStrategy().isBase()) {
                 EsperManager.sendEvent(transaction.getStrategy().getName(), transaction);
             }
         }

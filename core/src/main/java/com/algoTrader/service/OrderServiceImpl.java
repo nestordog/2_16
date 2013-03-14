@@ -283,7 +283,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         EsperManager.sendEvent(StrategyImpl.BASE, order);
 
         // also send the order to the strategy that placed the order
-        if (!StrategyImpl.BASE.equals(order.getStrategy().getName())) {
+        if (!order.getStrategy().isBase()) {
             EsperManager.sendEvent(order.getStrategy().getName(), order);
         }
     }
@@ -292,7 +292,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     protected void handlePropagateOrderStatus(OrderStatus orderStatus) throws Exception {
 
         // send the fill to the strategy that placed the corresponding order
-        if (orderStatus.getOrd() != null && !StrategyImpl.BASE.equals(orderStatus.getOrd().getStrategy().getName())) {
+        if (orderStatus.getOrd() != null && !orderStatus.getOrd().getStrategy().isBase()) {
             EsperManager.sendEvent(orderStatus.getOrd().getStrategy().getName(), orderStatus);
         }
 
