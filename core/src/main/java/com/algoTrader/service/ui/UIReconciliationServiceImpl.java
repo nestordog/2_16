@@ -128,8 +128,8 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
         getMeasurementService().createMeasurement(StrategyImpl.BASE, "sharePrice", endOfDay, sharePrice);
 
         // get last shares and sharePrice
-        Integer oldShares = (Integer)getLookupService().getMeasurementForMaxDate(StrategyImpl.BASE, "shares", date);
-        Double oldSharePrice = (Double)getLookupService().getMeasurementForMaxDate(StrategyImpl.BASE, "sharePrice", date);
+        Integer oldShares = (Integer) getLookupService().getMeasurementByMaxDate(StrategyImpl.BASE, "shares", date);
+        Double oldSharePrice = (Double) getLookupService().getMeasurementByMaxDate(StrategyImpl.BASE, "sharePrice", date);
 
         // create a Subscription / Redemption if necessary
         if (oldShares != null && oldSharePrice != null && oldShares.intValue() != shares) {
@@ -138,7 +138,7 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
             int quantity = deltaShares > 0 ? 1 : -1;
             BigDecimal price = RoundUtil.getBigDecimal(deltaShares * oldSharePrice).abs(); // price is always positive
             TransactionType transactionType = deltaShares > 0 ? TransactionType.CREDIT : TransactionType.DEBIT;
-            Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
+            Strategy strategy = getStrategyDao().findBase();
             String description = (deltaShares > 0 ? "Subscription" : "Redemption") + " of " + deltaShares + " shares at " + oldSharePrice;
 
             // create the transaction
@@ -198,7 +198,7 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
         BigDecimal price = RoundUtil.getBigDecimal(adjustment).abs(); // price is always positive
         int quantity = adjustment < 0 ? -1 : 1;
         TransactionType transactionType = adjustment < 0 ? TransactionType.FEES : TransactionType.REFUND;
-        Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
+        Strategy strategy = getStrategyDao().findBase();
         String description = "UI NAV Adjustment";
 
         if (price.doubleValue() != 0.0) {
@@ -217,7 +217,7 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
             getTransactionService().persistTransaction(transaction);
         }
 
-        if (price.longValue() > adjustmentThreshold) {
+        if (price.longValue() > this.adjustmentThreshold) {
             notificationLogger.warn(dateFormat.format(date) + " verify adjustment of " + price);
         }
     }

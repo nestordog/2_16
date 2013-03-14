@@ -62,7 +62,7 @@ public class ForexServiceImpl extends ForexServiceBase {
     @Override
     protected void handleEqualizeForex() throws Exception {
 
-        Strategy base = getStrategyDao().findByName(StrategyImpl.BASE);
+        Strategy base = getStrategyDao().findBase();
 
         // potentially close a ForexFuture position if it is below the MinTimeToExpiration
         if (this.fxFutureEqualizationEnabled) {

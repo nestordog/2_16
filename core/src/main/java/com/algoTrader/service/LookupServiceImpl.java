@@ -499,7 +499,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected double handleGetPositionMarketPriceByDate(Security security, Date date) throws Exception {
 
-        List<Tick> ticks = getTickDao().findTicksAfterDate(1, 1, security.getId(), date, this.intervalDays);
+        List<Tick> ticks = getTickDao().findTicksByMinDate(1, 1, security.getId(), date, this.intervalDays);
         if (ticks.isEmpty()) {
             throw new IllegalStateException("not tick available for " + security);
         } else {
@@ -616,7 +616,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Tick handleGetLastTick(int securityId) throws Exception {
 
-        Tick tick = CollectionUtil.getSingleElementOrNull(getTickDao().findTicksBeforeDate(1, 1, securityId, DateUtil.getCurrentEPTime(), this.intervalDays));
+        Tick tick = CollectionUtil.getSingleElementOrNull(getTickDao().findTicksByMaxDate(1, 1, securityId, DateUtil.getCurrentEPTime(), this.intervalDays));
 
         if (tick != null) {
             tick.getSecurity().initialize();
@@ -626,15 +626,15 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Tick> handleGetTicksBeforeDate(int securityId, Date maxDate) throws Exception {
+    protected List<Tick> handleGetTicksByMaxDate(int securityId, Date maxDate) throws Exception {
 
-        return getTickDao().findTicksBeforeDate(securityId, maxDate, this.intervalDays);
+        return getTickDao().findTicksByMaxDate(securityId, maxDate, this.intervalDays);
     }
 
     @Override
-    protected List<Tick> handleGetTicksAfterDate(int securityId, Date minDate) throws Exception {
+    protected List<Tick> handleGetTicksByMinDate(int securityId, Date minDate) throws Exception {
 
-        return getTickDao().findTicksAfterDate(securityId, minDate, this.intervalDays);
+        return getTickDao().findTicksByMinDate(securityId, minDate, this.intervalDays);
     }
 
     @Override
@@ -738,47 +738,47 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Map<Date, Object> handleGetMeasurementsBeforeDate(String strategyName, String name, Date date) throws Exception {
+    protected Map<Date, Object> handleGetMeasurementsByMaxDate(String strategyName, String name, Date maxDate) throws Exception {
 
-        List<Measurement> measurements = getMeasurementDao().findMeasurementsBeforeDate(strategyName, name, date);
-
-        return getValuesByDate(measurements);
-    }
-
-    @Override
-    protected Map<Date, Map<String, Object>> handleGetAllMeasurementsBeforeDate(String strategyName, Date date) throws Exception {
-
-        List<Measurement> measurements = getMeasurementDao().findAllMeasurementsBeforeDate(strategyName, date);
-
-        return getNameValuePairsByDate(measurements);
-    }
-
-    @Override
-    protected Map<Date, Object> handleGetMeasurementsAfterDate(String strategyName, String name, Date date) throws Exception {
-
-        List<Measurement> measurements = getMeasurementDao().findMeasurementsAfterDate(strategyName, name, date);
+        List<Measurement> measurements = getMeasurementDao().findMeasurementsByMaxDate(strategyName, name, maxDate);
 
         return getValuesByDate(measurements);
     }
 
     @Override
-    protected Map<Date, Map<String, Object>> handleGetAllMeasurementsAfterDate(String strategyName, Date date) throws Exception {
+    protected Map<Date, Map<String, Object>> handleGetAllMeasurementsByMaxDate(String strategyName, Date maxDate) throws Exception {
 
-        List<Measurement> measurements = getMeasurementDao().findAllMeasurementsAfterDate(strategyName, date);
+        List<Measurement> measurements = getMeasurementDao().findAllMeasurementsByMaxDate(strategyName, maxDate);
 
         return getNameValuePairsByDate(measurements);
     }
 
     @Override
-    protected Object handleGetMeasurementForMaxDate(String strategyName, String name, Date maxDate) throws Exception {
+    protected Map<Date, Object> handleGetMeasurementsByMinDate(String strategyName, String name, Date minDate) throws Exception {
 
-        return CollectionUtil.getSingleElementOrNull(getMeasurementDao().findMeasurementsBeforeDate(1, 1, strategyName, name, maxDate)).getValue();
+        List<Measurement> measurements = getMeasurementDao().findMeasurementsByMinDate(strategyName, name, minDate);
+
+        return getValuesByDate(measurements);
     }
 
     @Override
-    protected Object handleGetMeasurementForMinDate(String strategyName, String name, Date minDate) throws Exception {
+    protected Map<Date, Map<String, Object>> handleGetAllMeasurementsByMinDate(String strategyName, Date minDate) throws Exception {
 
-        return CollectionUtil.getSingleElementOrNull(getMeasurementDao().findMeasurementsAfterDate(1, 1, strategyName, name, minDate)).getValue();
+        List<Measurement> measurements = getMeasurementDao().findAllMeasurementsByMinDate(strategyName, minDate);
+
+        return getNameValuePairsByDate(measurements);
+    }
+
+    @Override
+    protected Object handleGetMeasurementByMaxDate(String strategyName, String name, Date maxDate) throws Exception {
+
+        return CollectionUtil.getSingleElementOrNull(getMeasurementDao().findMeasurementsByMaxDate(1, 1, strategyName, name, maxDate)).getValue();
+    }
+
+    @Override
+    protected Object handleGetMeasurementByMinDate(String strategyName, String name, Date minDate) throws Exception {
+
+        return CollectionUtil.getSingleElementOrNull(getMeasurementDao().findMeasurementsByMinDate(1, 1, strategyName, name, minDate)).getValue();
     }
 
     @Override

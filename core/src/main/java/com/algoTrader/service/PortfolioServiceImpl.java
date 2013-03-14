@@ -155,9 +155,9 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
             Security security = openPosition.getSecurityInitialized();
             if (security instanceof Forex) {
-                List<Tick> ticks = getTickDao().findTicksBeforeDate(1, 1, security.getId(), date, this.intervalDays);
+                List<Tick> ticks = getTickDao().findTicksByMaxDate(1, 1, security.getId(), date, this.intervalDays);
                 if (ticks.isEmpty()) {
-                    ticks = getTickDao().findTicksAfterDate(1, 1, security.getId(), date, this.intervalDays);
+                    ticks = getTickDao().findTicksByMinDate(1, 1, security.getId(), date, this.intervalDays);
                     if (ticks.isEmpty()) {
                         logger.warn("no tick available for " + security + " on " + date);
                         continue;
@@ -256,9 +256,9 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
             Security security = openPosition.getSecurityInitialized();
             if (!(security instanceof Forex)) {
-                List<Tick> ticks = getTickDao().findTicksBeforeDate(1, 1, security.getId(), date, this.intervalDays);
+                List<Tick> ticks = getTickDao().findTicksByMaxDate(1, 1, security.getId(), date, this.intervalDays);
                 if (ticks.isEmpty()) {
-                    ticks = getTickDao().findTicksAfterDate(1, 1, security.getId(), date, this.intervalDays);
+                    ticks = getTickDao().findTicksByMinDate(1, 1, security.getId(), date, this.intervalDays);
                     if (ticks.isEmpty()) {
                         logger.warn("no tick available for " + security + " on " + date);
                         continue;

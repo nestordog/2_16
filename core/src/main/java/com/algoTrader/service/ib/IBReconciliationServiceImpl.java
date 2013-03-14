@@ -45,7 +45,6 @@ import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.strategy.Strategy;
-import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.MyLogger;
@@ -94,7 +93,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
         NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//CashTransaction");
 
         Node node;
-        Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
+        Strategy strategy = getStrategyDao().findBase();
         List<Transaction> transactions = new ArrayList<Transaction>();
         while ((node = iterator.nextNode()) != null) {
 
@@ -293,7 +292,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
 
         } else if (transaction == null) {
 
-            Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
+            Strategy strategy = getStrategyDao().findBase();
             Security security = getSecurityDao().findByConid(conid);
             Account account = getAccountDao().findByName(this.reconciliationAccount);
 

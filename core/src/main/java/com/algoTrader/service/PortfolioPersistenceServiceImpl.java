@@ -37,7 +37,6 @@ import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.TransactionImpl;
 import com.algoTrader.entity.strategy.PortfolioValue;
 import com.algoTrader.entity.strategy.Strategy;
-import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.DateUtil;
@@ -60,7 +59,7 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
     @Override
     protected void handleRebalancePortfolio() throws Exception {
 
-        Strategy base = getStrategyDao().findByName(StrategyImpl.BASE);
+        Strategy base = getStrategyDao().findBase();
         Collection<Strategy> strategies = getStrategyDao().loadAll();
         double portfolioNetLiqValue = getPortfolioService().getNetLiqValueDouble();
 
@@ -71,7 +70,7 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
 
             totalAllocation += strategy.getAllocation();
 
-            if (StrategyImpl.BASE.equals(strategy.getName())) {
+            if (strategy.isBase()) {
                 continue;
             }
 
@@ -166,9 +165,9 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
 
             restorePortfolioValues(transaction.getStrategy(), transaction.getDateTime(), new Date());
 
-            if (!StrategyImpl.BASE.equals(transaction.getStrategy().getName())) {
+            if (!transaction.getStrategy().isBase()) {
 
-                Strategy strategy = getStrategyDao().findByName(StrategyImpl.BASE);
+                Strategy strategy = getStrategyDao().findBase();
                 restorePortfolioValues(strategy, transaction.getDateTime(), new Date());
             }
         }

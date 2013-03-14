@@ -66,7 +66,7 @@ public class ForexDaoImpl extends ForexDaoBase {
 
         Forex forex = getForex(baseCurrency, transactionCurrency);
 
-        List<Tick> ticks = getTickDao().findTicksBeforeDate(1, 1, forex.getId(), date, intervalDays);
+        List<Tick> ticks = getTickDao().findTicksByMaxDate(1, 1, forex.getId(), date, intervalDays);
         if (ticks.isEmpty()) {
             throw new IllegalStateException("cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no last tick is available for date " + date);
         }

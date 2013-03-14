@@ -332,7 +332,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     protected void handlePropagateFill(Fill fill) {
 
         // send the fill to the strategy that placed the corresponding order
-        if (!StrategyImpl.BASE.equals(fill.getOrd().getStrategy().getName())) {
+        if (!fill.getOrd().getStrategy().isBase()) {
             EsperManager.sendEvent(fill.getOrd().getStrategy().getName(), fill);
         }
 
