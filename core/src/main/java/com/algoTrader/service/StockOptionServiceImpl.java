@@ -41,7 +41,7 @@ import com.algoTrader.entity.security.StockOptionFamily;
 import com.algoTrader.entity.security.StockOptionImpl;
 import com.algoTrader.enumeration.Duration;
 import com.algoTrader.enumeration.OptionType;
-import com.algoTrader.stockOption.SABRCalibration;
+import com.algoTrader.stockOption.SABR;
 import com.algoTrader.stockOption.StockOptionSymbol;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.CollectionUtil;
@@ -51,7 +51,6 @@ import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.ATMVolVO;
 import com.algoTrader.vo.SABRSmileVO;
 import com.algoTrader.vo.SABRSurfaceVO;
-import com.mathworks.toolbox.javabuilder.MWException;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -132,8 +131,6 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(startDate);
 
-        SABRCalibration.getInstance();
-
         while (cal.getTime().compareTo(expirationDate) < 0) {
 
             if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
@@ -166,8 +163,6 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
             cal.set(Calendar.HOUR_OF_DAY, 9);
             cal.set(Calendar.MINUTE, 00);
         }
-
-        SABRCalibration.getInstance().dispose();
     }
 
     @Override
@@ -179,8 +174,6 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         cal.setTime(startDate);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
-
-        SABRCalibration.getInstance();
 
         while (cal.getTime().compareTo(endDate) < 0) {
 
@@ -197,12 +190,10 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
             cal.add(Calendar.DAY_OF_YEAR, 1);
         }
-
-        SABRCalibration.getInstance().dispose();
     }
 
     @Override
-    protected SABRSmileVO handleCalibrateSABRSmileByOptionPrice(int underlyingId, OptionType optionType, Date expirationDate, Date date) throws MWException {
+    protected SABRSmileVO handleCalibrateSABRSmileByOptionPrice(int underlyingId, OptionType optionType, Date expirationDate, Date date) throws Exception {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
 
@@ -257,11 +248,11 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         Double[] strikesArray = strikes.toArray(new Double[0]);
         Double[] volatilitiesArray = volatilities.toArray(new Double[0]);
 
-        return SABRCalibration.getInstance().calibrate(strikesArray, volatilitiesArray, atmVola, forward, years);
+        return SABR.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years);
     }
 
     @Override
-    protected SABRSmileVO handleCalibrateSABRSmileByIVol(int underlyingId, Duration duration, Date date) throws MWException {
+    protected SABRSmileVO handleCalibrateSABRSmileByIVol(int underlyingId, Duration duration, Date date) throws Exception {
 
         Tick underlyingTick = getTickDao().findByDateAndSecurity(date, underlyingId);
         if (underlyingTick == null || underlyingTick.getLast() == null) {
@@ -279,7 +270,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     }
 
     @Override
-    protected SABRSurfaceVO handleCalibrateSABRSurfaceByIVol(int underlyingId, Date date) throws MWException {
+    protected SABRSurfaceVO handleCalibrateSABRSurfaceByIVol(int underlyingId, Date date) throws Exception {
 
         Tick underlyingTick = getTickDao().findByDateAndSecurity(date, underlyingId);
         if (underlyingTick == null || underlyingTick.getLast() == null) {
@@ -319,7 +310,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         return surface;
     }
 
-    private SABRSmileVO internalCalibrateSABRByIVol(int underlyingId, Duration duration, Collection<Tick> ticks, double underlyingSpot) throws MWException {
+    private SABRSmileVO internalCalibrateSABRByIVol(int underlyingId, Duration duration, Collection<Tick> ticks, double underlyingSpot) throws Exception {
 
         // we need the StockOptionFamily because the IVol Family does not have intrest and dividend
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
@@ -369,7 +360,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         Double[] strikesArray = strikes.toArray(new Double[0]);
         Double[] volatilitiesArray = volatilities.toArray(new Double[0]);
 
-        return SABRCalibration.getInstance().calibrate(strikesArray, volatilitiesArray, atmVola, forward, years);
+        return SABR.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years);
     }
 
     @Override

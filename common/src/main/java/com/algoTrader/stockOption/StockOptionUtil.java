@@ -159,7 +159,7 @@ public class StockOptionUtil {
         double[] volArray = new double[surface.getSmiles().size()];
         for (SABRSmileVO smile : surface.getSmiles()) {
 
-            double vol = SABRVol.volByAtmVol(forward, strike, smile.getAtmVol(), smile.getYears(), beta, smile.getRho(), smile.getVolVol());
+            double vol = SABR.volByAtmVol(forward, strike, smile.getAtmVol(), smile.getYears(), beta, smile.getRho(), smile.getVolVol());
 
             yearsArray[i] = smile.getYears();
             volArray[i] = vol;
