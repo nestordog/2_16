@@ -176,7 +176,7 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
             while (this.allAccountValues.get(accountName) == null || this.allAccountValues.get(accountName).get(key) == null) {
 
                 if (!this.condition.await(this.retrievalTimeout, TimeUnit.SECONDS)) {
-                    throw new IBAccountServiceException("could not get EquityWithLoanValue for account: " + accountName);
+                    throw new IBNativeAccountServiceException("could not get EquityWithLoanValue for account: " + accountName);
                 }
             }
         } finally {
@@ -198,7 +198,7 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
                 while (this.accounts.size() == 0) {
 
                     if (!this.condition.await(this.retrievalTimeout, TimeUnit.SECONDS)) {
-                        throw new IBAccountServiceException("could not get FA ");
+                        throw new IBNativeAccountServiceException("could not get FA ");
                     }
                 }
             } finally {
@@ -221,7 +221,7 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
                 while (this.profiles.size() == 0) {
 
                     if (!this.condition.await(this.retrievalTimeout, TimeUnit.SECONDS)) {
-                        throw new IBAccountServiceException("could not get FA ");
+                        throw new IBNativeAccountServiceException("could not get FA ");
                     }
                 }
             } finally {

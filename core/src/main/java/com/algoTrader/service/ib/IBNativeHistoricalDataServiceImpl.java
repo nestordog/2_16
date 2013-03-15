@@ -44,7 +44,7 @@ import com.ib.client.Contract;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeHistoricalDataServiceImpl extends IBHistoricalDataServiceBase implements DisposableBean {
+public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataServiceBase implements DisposableBean {
 
     private static final long serialVersionUID = 8656307573474662794L;
     private static Logger logger = MyLogger.getLogger(IBNativeHistoricalDataServiceImpl.class.getName());

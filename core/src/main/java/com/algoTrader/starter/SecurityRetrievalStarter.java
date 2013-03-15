@@ -20,7 +20,7 @@ package com.algoTrader.starter;
 import java.text.ParseException;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.service.ib.IBSecurityRetrieverService;
+import com.algoTrader.service.ib.IBNativeSecurityRetrieverService;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -32,7 +32,7 @@ public class SecurityRetrievalStarter {
     public static void main(String[] args) throws ParseException {
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        IBSecurityRetrieverService service = ServiceLocator.instance().getService("iBSecurityRetrieverService", IBSecurityRetrieverService.class);
+        IBNativeSecurityRetrieverService service = ServiceLocator.instance().getService("iBSecurityRetrieverService", IBNativeSecurityRetrieverService.class);
 
         service.init();
 

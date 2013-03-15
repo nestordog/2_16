@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package com.algoTrader.entity.property;
 
-import com.algoTrader.entity.PropertyDaoBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

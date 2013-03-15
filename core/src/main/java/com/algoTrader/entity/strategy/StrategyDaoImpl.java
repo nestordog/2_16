@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package com.algoTrader.entity.strategy;
 
-import com.algoTrader.entity.StrategyDaoBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

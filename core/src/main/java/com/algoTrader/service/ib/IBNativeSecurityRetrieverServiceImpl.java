@@ -57,7 +57,7 @@ import com.ib.client.ContractDetails;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeSecurityRetrieverServiceImpl extends IBSecurityRetrieverServiceBase {
+public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrieverServiceBase {
 
     private static final long serialVersionUID = 6446509772400405052L;
 

@@ -25,7 +25,7 @@ import java.util.Set;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.BarType;
-import com.algoTrader.service.ib.IBHistoricalDataService;
+import com.algoTrader.service.ib.IBNativeHistoricalDataService;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -54,7 +54,7 @@ public class HistoricalDataStarter {
         }
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        IBHistoricalDataService service = ServiceLocator.instance().getService("iBHistoricalDataService", IBHistoricalDataService.class);
+        IBNativeHistoricalDataService service = ServiceLocator.instance().getService("iBHistoricalDataService", IBNativeHistoricalDataService.class);
 
         service.init();
 

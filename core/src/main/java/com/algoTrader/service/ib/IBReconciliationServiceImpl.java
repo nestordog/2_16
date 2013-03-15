@@ -140,7 +140,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
                     quantity = -1;
                 }
             } else {
-                throw new IBAccountServiceException("unknown cast transaction type " + typeString);
+                throw new IllegalArgumentException("unknown transaction type " + typeString);
             }
 
             BigDecimal price = RoundUtil.getBigDecimal(Math.abs(amountDouble));

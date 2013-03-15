@@ -36,7 +36,7 @@ import com.ib.client.Contract;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeMarketDataServiceImpl extends IBMarketDataServiceBase implements DisposableBean {
+public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase implements DisposableBean {
 
     private static final long serialVersionUID = -4704799803078842628L;
     private static Logger logger = MyLogger.getLogger(IBNativeMarketDataServiceImpl.class.getName());
@@ -68,7 +68,7 @@ public class IBNativeMarketDataServiceImpl extends IBMarketDataServiceBase imple
     protected void handleExternalSubscribe(Security security) throws Exception {
 
         if (client.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
-            throw new IBMarketDataServiceException("IB is not logged on to subscribe " + security);
+            throw new IBNativeMarketDataServiceException("IB is not logged on to subscribe " + security);
         }
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
@@ -94,13 +94,13 @@ public class IBNativeMarketDataServiceImpl extends IBMarketDataServiceBase imple
     protected void handleExternalUnsubscribe(Security security) throws Exception {
 
         if (!client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED)) {
-            throw new IBMarketDataServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
+            throw new IBNativeMarketDataServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
         }
 
         // get the tickerId by querying the TickWindow
         Integer tickerId = getTickDao().findTickerIdBySecurity(security.getId());
         if (tickerId == null) {
-            throw new IBMarketDataServiceException("tickerId for security " + security + " was not found");
+            throw new IBNativeMarketDataServiceException("tickerId for security " + security + " was not found");
         }
 
         client.cancelMktData(tickerId);
