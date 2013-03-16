@@ -194,15 +194,16 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
 
             PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName(), actualDate);
             if (portfolioValue.getNetLiqValueDouble() == 0) {
+                date = cron.next(date);
                 continue;
+            } else {
+                MultiKey<Long> key = new MultiKey<Long>((long) strategy.getId(), actualDate.getTime());
+                portfolioValueMap.put(key, portfolioValue);
+
+                logger.info("processed portfolioValue for " + strategy.getName() + " " + actualDate);
+
+                date = cron.next(date);
             }
-
-            MultiKey<Long> key = new MultiKey<Long>((long) strategy.getId(), actualDate.getTime());
-            portfolioValueMap.put(key, portfolioValue);
-
-            logger.info("processed portfolioValue for " + strategy.getName() + " " + actualDate);
-
-            date = cron.next(date);
         }
 
         // save values for all cashFlows
