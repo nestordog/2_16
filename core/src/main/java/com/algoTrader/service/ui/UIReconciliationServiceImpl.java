@@ -259,7 +259,7 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
                     ric = ric.replace("URO", "EC");
                 }
 
-                if (ric.startsWith("ECM")) {
+                if (ric.length() == 5 && ric.startsWith("ECM")) {
                     ric = ric.replace("ECM", "M6E");
                 }
 
