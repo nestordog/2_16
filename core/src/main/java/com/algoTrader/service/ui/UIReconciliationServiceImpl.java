@@ -251,9 +251,6 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
                 quantity = parseLong(values, 27);
 
                 ric = values[43];
-                if (!ric.endsWith(":VE")) {
-                    ric = ric + ":VE";
-                }
 
                 if (ric.startsWith("URO")) {
                     ric = ric.replace("URO", "EC");
@@ -261,6 +258,10 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
 
                 if (ric.length() == 5 && ric.startsWith("ECM")) {
                     ric = ric.replace("ECM", "M6E");
+                }
+
+                if (!ric.endsWith(":VE")) {
+                    ric = ric + ":VE";
                 }
 
                 // Options
