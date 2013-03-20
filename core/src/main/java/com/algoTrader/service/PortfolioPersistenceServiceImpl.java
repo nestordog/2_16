@@ -185,29 +185,29 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
         CronSequenceGenerator cron = new CronSequenceGenerator("0 0 13-23 * * 1-5", TimeZone.getDefault());
 
         // adjust fromDate and toDate by one one or to be inline with above
-        fromDate = DateUtils.addHours(fromDate, -1);
-        toDate = DateUtils.addHours(toDate, -1);
+        Date adjustedFromDate = DateUtils.addHours(fromDate, -1);
+        Date adjustedToDate = DateUtils.addHours(toDate, -1);
 
         // group PortfolioValues by strategyId and date
         Map<MultiKey<Long>, PortfolioValue> portfolioValueMap = new HashMap<MultiKey<Long>, PortfolioValue>();
 
         // create portfolioValues for all cron time slots
-        Date date = cron.next(fromDate);
-        while (date.compareTo(toDate) <= 0) {
+        Date adjustedDate = cron.next(adjustedFromDate);
+        while (adjustedDate.compareTo(adjustedToDate) <= 0) {
 
-            Date actualDate = DateUtils.addHours(date, 1); // to get 14 - 24
+            Date date = DateUtils.addHours(adjustedDate, 1); // to get 14 - 24
 
-            PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName(), actualDate);
+            PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName(), date);
             if (portfolioValue.getNetLiqValueDouble() == 0) {
-                date = cron.next(date);
+                adjustedDate = cron.next(adjustedDate);
                 continue;
             } else {
-                MultiKey<Long> key = new MultiKey<Long>((long) strategy.getId(), actualDate.getTime());
+                MultiKey<Long> key = new MultiKey<Long>((long) strategy.getId(), date.getTime());
                 portfolioValueMap.put(key, portfolioValue);
 
-                logger.info("processed portfolioValue for " + strategy.getName() + " " + actualDate);
+                logger.info("processed portfolioValue for " + strategy.getName() + " " + date);
 
-                date = cron.next(date);
+                adjustedDate = cron.next(adjustedDate);
             }
         }
 
