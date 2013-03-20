@@ -145,6 +145,8 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
             return;
         }
 
+        Date date = transaction.getDateTime();
+
         // only process performanceRelevant transactions
         if (transaction.isPerformanceRelevant()) {
 
@@ -154,10 +156,13 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
             portfolioValue.setCashFlow(transaction.getGrossValue());
 
             getPortfolioValueDao().create(portfolioValue);
+
+            // use the date of the portfolioValue as it might be slightly after the transaction date
+            date = portfolioValue.getDateTime();
         }
 
         // if there have been PortfolioValues created since this transaction, they will need to be recreated (including PortfolioValues of Base)
-        List<PortfolioValue> portfolioValues = getPortfolioValueDao().findByStrategyOrBaseAndMinDate(transaction.getStrategy().getName(), transaction.getDateTime());
+        List<PortfolioValue> portfolioValues = getPortfolioValueDao().findByStrategyOrBaseAndMinDate(transaction.getStrategy().getName(), date);
 
         if (portfolioValues.size() > 0) {
 
