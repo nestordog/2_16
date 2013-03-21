@@ -27,10 +27,12 @@ import quickfix.field.ClearingAccount;
 import quickfix.field.CustomerOrFirm;
 import quickfix.field.ExDestination;
 import quickfix.field.HandlInst;
+import quickfix.field.OpenClose;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
 
+import com.algoTrader.entity.security.StockOption;
 import com.algoTrader.entity.trade.SimpleOrder;
 import com.algoTrader.service.InitializingServiceI;
 
@@ -70,6 +72,10 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
         // add clearing information
         if (order.getAccount().getExtClearingAccount() != null) {
             newOrder.set(new ClearingAccount(order.getAccount().getExtClearingAccount()));
+        }
+
+        if (order.getSecurity() instanceof StockOption) {
+            newOrder.set(new OpenClose(OpenClose.OPEN));
         }
     }
 
