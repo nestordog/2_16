@@ -25,7 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +53,6 @@ import com.algoTrader.entity.Position;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.strategy.Strategy;
 import com.algoTrader.entity.strategy.StrategyImpl;
-import com.algoTrader.entity.trade.Order;
 import com.algoTrader.enumeration.MarketDataType;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
@@ -183,7 +181,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     }
 
     @Override
-    protected SimulationResultVO handleRunByUnderlyings() {
+    protected SimulationResultVO handleRunSimulation() {
 
         long startTime = System.currentTimeMillis();
 
@@ -237,62 +235,9 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     }
 
     @Override
-    protected void handleRunByActualTransactions() {
-
-        long startTime = System.currentTimeMillis();
-
-        // get the existingTransactions before they are deleted
-        //        Collection<Transaction> transactions = ServiceLocator.instance().getLookupService().getAllTrades();
-
-        // create orders
-        List<Order> orders = new ArrayList<Order>();
-        //        for (Transaction transaction : transactions) {
-        //
-        //            // TODO needs to be redone with the new Async Order
-        //            Order order = new OrderImpl();
-        //            order.setStrategy(transaction.getStrategy());
-        //            order.setRequestedQuantity(Math.abs(transaction.getQuantity()));
-        //            order.setTransactionType(transaction.getType());
-        //            order.setStatus(Status.PREARRANGED);
-        //            order.getTransactions().add(transaction);
-        //            order.setSecurity(transaction.getSecurity());
-        //
-        //            orders.add(order);
-        //        }
-
-        getResetService().resetDB();
-
-        EsperManager.initServiceProvider(StrategyImpl.BASE);
-
-        // activate the necessary rules
-        EsperManager.deployStatement(StrategyImpl.BASE, "base", "CREATE_PORTFOLIO_VALUE");
-        EsperManager.deployStatement(StrategyImpl.BASE, "base", "CREATE_MONTHLY_PERFORMANCE");
-        EsperManager.deployStatement(StrategyImpl.BASE, "base", "GET_LAST_MARKET_DATA_EVENT");
-        EsperManager.deployStatement(StrategyImpl.BASE, "base", "CREATE_PERFORMANCE_KEYS");
-        EsperManager.deployStatement(StrategyImpl.BASE, "base", "KEEP_MONTHLY_PERFORMANCE");
-        EsperManager.deployStatement(StrategyImpl.BASE, "base", "CREATE_DRAW_DOWN");
-        EsperManager.deployStatement(StrategyImpl.BASE, "base", "CREATE_MAX_DRAW_DOWN");
-        EsperManager.deployStatement(StrategyImpl.BASE, "base", "PROCESS_PREARRANGED_ORDERS");
-
-        // initialize the coordination
-        EsperManager.initCoordination(StrategyImpl.BASE);
-
-        EsperManager.coordinateTicks(StrategyImpl.BASE, new Date(this.start));
-
-        EsperManager.coordinate(StrategyImpl.BASE, orders, "transactions[0].dateTime");
-
-        EsperManager.startCoordination(StrategyImpl.BASE);
-
-        SimulationResultVO resultVO = getSimulationResultVO(startTime);
-        logMultiLineString(convertStatisticsToLongString(resultVO));
-
-        EsperManager.destroyServiceProvider(StrategyImpl.BASE);
-    }
-
-    @Override
     protected void handleSimulateWithCurrentParams() throws Exception {
 
-        SimulationResultVO resultVO = runByUnderlyings();
+        SimulationResultVO resultVO = runSimulation();
         logMultiLineString(convertStatisticsToLongString(resultVO));
     }
 
@@ -301,7 +246,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         getConfiguration().setProperty(parameter, value);
 
-        SimulationResultVO resultVO = runByUnderlyings();
+        SimulationResultVO resultVO = runSimulation();
         resultLogger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
     }
 
@@ -315,7 +260,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             getConfiguration().setProperty(parameters[i], values[i]);
         }
 
-        SimulationResultVO resultVO = runByUnderlyings();
+        SimulationResultVO resultVO = runSimulation();
         buffer.append(convertStatisticsToShortString(resultVO));
         resultLogger.info(buffer.toString());
     }
@@ -327,7 +272,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
             getConfiguration().setProperty(parameter, format.format(i));
 
-            SimulationResultVO resultVO = runByUnderlyings();
+            SimulationResultVO resultVO = runSimulation();
             resultLogger.info(parameter + "=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
 
         }
@@ -340,7 +285,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
             getConfiguration().setProperty(parameter, format.format(value));
 
-            SimulationResultVO resultVO = runByUnderlyings();
+            SimulationResultVO resultVO = runSimulation();
             resultLogger.info(parameter + "=" + format.format(value) + " " + convertStatisticsToShortString(resultVO));
         }
     }
@@ -382,16 +327,16 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
                             configuration.setProperty(parameters[2], format.format(i2));
                             String message2 = parameters[2] + "=" + format.format(MathUtils.round(i2, this.roundDigits));
 
-                            SimulationResultVO resultVO = runByUnderlyings();
+                            SimulationResultVO resultVO = runSimulation();
                             resultLogger.info(message0 + " " + message1 + " " + message2 + " " + convertStatisticsToShortString(resultVO));
                         }
                     } else {
-                        SimulationResultVO resultVO = runByUnderlyings();
+                        SimulationResultVO resultVO = runSimulation();
                         resultLogger.info(message0 + " " + message1 + " " + convertStatisticsToShortString(resultVO));
                     }
                 }
             } else {
-                SimulationResultVO resultVO = runByUnderlyings();
+                SimulationResultVO resultVO = runSimulation();
                 resultLogger.info(message0 + " " + convertStatisticsToShortString(resultVO));
             }
         }
@@ -651,7 +596,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
             ServiceLocator.instance().getConfiguration().setProperty(this.param, String.valueOf(input));
 
-            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
+            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runSimulation();
             double result = resultVO.getPerformanceKeys().getSharpRatio();
 
             resultLogger.info("optimize on " + this.param + "=" + SimulationServiceImpl.format.format(input) + " "
@@ -684,7 +629,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
                 buffer.append(param + "=" + SimulationServiceImpl.format.format(value) + " ");
             }
 
-            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runByUnderlyings();
+            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runSimulation();
             double result = resultVO.getPerformanceKeys().getSharpRatio();
 
             resultLogger.info(buffer.toString() + SimulationServiceImpl.convertStatisticsToShortString(resultVO));

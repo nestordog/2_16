@@ -27,6 +27,32 @@ import com.algoTrader.service.SimulationServiceImpl;
 import com.algoTrader.util.MyLogger;
 
 /**
+ * Starts a simulation run.</p>
+ * <b>simulateWithCurrentParams</b></p>
+ * One Simulation run with the currently defined parameters.
+ * <pre>simulateWithCurrentParams</pre>
+ * <b>simulateBySingleParam</b></p>
+ * One Simulation run with a parameter set to the defined value. The example below will do one run with paramter a set to 0.8
+ * <pre>simulateBySingleParam a:0.8</pre>
+ * <b>simulateByMultiParam</b></p>
+ * One Simulation run with multiple parameters set to defined values. The example below will do one run with paramter a set to 0.8 and b set to 12.0
+ * <pre>simulateByMultiParam a:0.8,b:12.0</pre>
+ * <b>optimizeSingleParamLinear</b></p>
+ * Multiple Simulation runs by incrementing the value of one parameter within a defined interval. The example below will increment the value of parameter a starting at 0.1 to 0.9, incrementing by 0.1 for each run
+ * <pre>optimizeSingleParamLinear a:0.1:0.9:0.1</pre>
+ * <b>optimizeSingleParamByValues</b></p>
+ * Multiple Simulation runs by iterating the value of one parameter according to defined list. The example below will iterate the value of parameter a through the following list: 0.2, 0.8, 0.9 and 1.2
+ * <pre>optimizeSingleParamByValues a:0.2:0.8:0.9:1.2</pre>
+ * <b>optimizeSingleParam</b></p>
+ * Multiple Simulation runs by setting the value of one parameter within the defined range and trying to find the maximum ShareRatio. The optimizer being used is <code>UnivariateRealOptimizer</code>. The example below will set the value of parameter a between 0.1 and 1.0 (accuracy 0.01).
+ * <pre>optimizeSingleParam a:0.1:1.0:0.01</pre>
+ * <b>optimizeMultiParamLinear</b></p>
+ * Multiple Simulation runs by doing a matrix Optimization of 2 or 3 parameters by incrementing their values within a defined intervals. The example below will iterate through all possible combinations by incrementing the value of parameter a starting at 0.1 to 0.9 (increment: 0.1), and incrementing the value of parameter b starting at 10.0 to 100.0 (increment: 5.0)
+ * <pre>optimizeMultiParamLinear a:0.1:0.9:0.1 b:10.0:100.0:5.0</pre>
+ * <b>optimizeMultiParam</b></p>
+ * Multiple Simulation runs by adjusting the value of multiple parameters around their start values and trying to find the maximum ShareRatio. The example below will start the optimiziation by settting the value of parameter a to 85.0 and parameter b to 150.0
+ * <pre>optimizeMultiParam SMI a:85.0 b:150.0</pre>
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -35,19 +61,6 @@ public class SimulationStarter {
 
     public static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
 
-    /**
-     * example calls:
-     *         simulateWithCurrentParams
-     *         runByActualTransactions
-     *
-     *         simulateBySingleParam SMI putTrigger:0.8 putTrigger:0.9
-     *        simulateByMultiParam SMI macdFast:85.0,macdSlow:150.0 macdFast:80.0,macdSlow:140.0
-     *
-     *        optimizeSingleParamLinear SMI flatRange:0.001:0.004:0.0005 putVolaPeriod:0.4:0.45:0.01
-     *         optimizeSingleParam SMI putVolaPeriod:0.4:0.45:0.01
-     *         optimizeMultiParamLinear SMI flatRange:0.001:0.004:0.0005 putVolaPeriod:0.4:0.45:0.01
-     *         optimizeMultiParam SMI macdFast:85.0 macdSlow:150.0
-     */
     public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
 
         ServiceLocator.instance().init(ServiceLocator.SIMULATION_BEAN_REFERENCE_LOCATION);
@@ -56,9 +69,6 @@ public class SimulationStarter {
 
             ServiceLocator.instance().getService("simulationService", SimulationService.class).simulateWithCurrentParams();
 
-        } else if (args[0].equals("runByActualTransactions")) {
-
-            ServiceLocator.instance().getService("simulationService", SimulationService.class).runByActualTransactions();
 
         } else if (args[0].equals("simulateBySingleParam")) {
 
