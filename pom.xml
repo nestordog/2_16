@@ -179,6 +179,7 @@
         <module>mda</module>
         <module>core/bin</module>
         <module>client/bin</module>
+        <module>doc</module>
     </modules>
     <dependencyManagement>
         <dependencies>
