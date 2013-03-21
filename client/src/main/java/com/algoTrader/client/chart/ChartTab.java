@@ -22,7 +22,6 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.Constructor;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -36,7 +35,6 @@ import java.util.Map;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -60,11 +58,18 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
 import org.jfree.data.Range;
+import org.jfree.data.time.Day;
+import org.jfree.data.time.Hour;
+import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.Minute;
+import org.jfree.data.time.Month;
 import org.jfree.data.time.RegularTimePeriod;
+import org.jfree.data.time.Second;
 import org.jfree.data.time.TimePeriodAnchor;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.time.Week;
+import org.jfree.data.time.Year;
 import org.jfree.data.time.ohlc.OHLCSeries;
 import org.jfree.data.time.ohlc.OHLCSeriesCollection;
 import org.jfree.data.xy.XYDataset;
@@ -74,6 +79,7 @@ import org.jfree.ui.TextAnchor;
 
 import com.algoTrader.enumeration.Color;
 import com.algoTrader.enumeration.DatasetType;
+import com.algoTrader.enumeration.TimePeriod;
 import com.algoTrader.vo.AnnotationVO;
 import com.algoTrader.vo.AxisDefinitionVO;
 import com.algoTrader.vo.BarDefinitionVO;
@@ -676,21 +682,26 @@ public class ChartTab extends ChartPanel {
         return awtColor;
     }
 
-    @SuppressWarnings("unchecked")
     private RegularTimePeriod getRegularTimePeriod(Date date) {
 
-        RegularTimePeriod regularTimePeriod = new Minute(date); // use Minute as default
-        try {
-            String timePeriodString = StringUtils.capitalize(this.chartDefinition.getTimePeriod().getValue().toLowerCase());
-            Class<RegularTimePeriod> timePeriodClass = (Class<RegularTimePeriod>) Class.forName("org.jfree.data.time." + timePeriodString);
-            Constructor<RegularTimePeriod> timePeriodConstructor = timePeriodClass.getConstructor(Date.class);
-
-            regularTimePeriod = timePeriodConstructor.newInstance(date);
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (TimePeriod.MSEC.equals(this.chartDefinition.getTimePeriod())) {
+            return new Millisecond(date);
+        } else if (TimePeriod.SEC.equals(this.chartDefinition.getTimePeriod())) {
+            return new Second(date);
+        } else if (TimePeriod.MIN.equals(this.chartDefinition.getTimePeriod())) {
+            return new Minute(date);
+        } else if (TimePeriod.HOUR.equals(this.chartDefinition.getTimePeriod())) {
+            return new Hour(date);
+        } else if (TimePeriod.DAY.equals(this.chartDefinition.getTimePeriod())) {
+            return new Day(date);
+        } else if (TimePeriod.WEEK.equals(this.chartDefinition.getTimePeriod())) {
+            return new Week(date);
+        } else if (TimePeriod.MONTH.equals(this.chartDefinition.getTimePeriod())) {
+            return new Month(date);
+        } else if (TimePeriod.YEAR.equals(this.chartDefinition.getTimePeriod())) {
+            return new Year(date);
+        } else {
+            throw new IllegalArgumentException("unkown TimePeriod: " + this.chartDefinition.getTimePeriod());
         }
-
-        return regularTimePeriod;
     }
 }
