@@ -9,84 +9,107 @@
     <artifactId>algotrader-doc</artifactId>
     <name>AlgoTrader Documentation</name>
     <packaging>jdocbook</packaging>
-
-  <repositories>
-    <!-- Conventions are described in http://community.jboss.org/wiki/MavenGettingStarted-Developers -->
-    <repository>
-      <id>jboss-public-repository-group</id>
-      <name>JBoss Public Repository Group</name>
-      <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>jboss-public-repository-group</id>
-      <name>JBoss Public Repository Group</name>
-      <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-    </pluginRepository>
-  </pluginRepositories>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.jboss.maven.plugins</groupId>
-          <artifactId>maven-jdocbook-plugin</artifactId>
-          <version>2.3.5</version>
-          <extensions>true</extensions>
-          <dependencies>
-            <dependency>
-              <groupId>org.jboss.pressgang</groupId>
-              <!--Non-namespaced version for DocBook 4.5 compatibility. For XSD namespaced version, use pressgang-xslt-ns-->
-              <artifactId>pressgang-xslt</artifactId>
-              <version>2.0.0</version>
-            </dependency>
-            <dependency>
-              <groupId>org.jboss.pressgang</groupId>
-              <artifactId>pressgang-jdocbook-style</artifactId>
-              <type>jdocbook-style</type>
-              <version>2.0.0</version>
-            </dependency>
-          </dependencies>
-          <configuration>
-            <sourceDirectory>${project.basedir}/src/docbook</sourceDirectory>
-            <sourceDocumentName>book.xml</sourceDocumentName>
-            <masterTranslation>en-US</masterTranslation>
-            <imageResource>
-              <directory>${project.basedir}/src/docbook/en-US</directory>
-              <includes>
-                <include>images/*.png</include>
-              </includes>
-            </imageResource>
-            <formats>
-              <format>
-                <formatName>pdf</formatName>
-                <stylesheetResource>classpath:/xslt/org/jboss/pdf.xsl</stylesheetResource>
-                <finalName>${docname}.pdf</finalName>
-              </format>
-              <format>
-                <formatName>html_single</formatName>
-                <stylesheetResource>classpath:/xslt/org/jboss/xhtml-single.xsl</stylesheetResource>
-                <finalName>index.html</finalName>
-              </format>
-            </formats>
-            <options>
-              <xmlTransformerType>saxon</xmlTransformerType>
-              <xincludeSupported>true</xincludeSupported>
-              <docbookVersion>1.72.0</docbookVersion>
-              <useRelativeImageUris>true</useRelativeImageUris>
-            </options>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-    <plugins>
-      <plugin>
-        <!-- Entry needed to enable jdocbook packaging -->
-        <groupId>org.jboss.maven.plugins</groupId>
-        <artifactId>maven-jdocbook-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
-
+    <repositories>
+        <!-- Conventions are described in http://community.jboss.org/wiki/MavenGettingStarted-Developers -->
+        <repository>
+            <id>jboss-public-repository-group</id>
+            <name>JBoss Public Repository Group</name>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jboss-public-repository-group</id>
+            <name>JBoss Public Repository Group</name>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.jboss.maven.plugins</groupId>
+                    <artifactId>maven-jdocbook-plugin</artifactId>
+                    <version>2.3.5</version>
+                    <extensions>true</extensions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.jboss.pressgang</groupId>
+                            <!--Non-namespaced version for DocBook 4.5 compatibility. For XSD
+                                namespaced version, use pressgang-xslt-ns -->
+                            <artifactId>pressgang-xslt</artifactId>
+                            <version>2.0.0</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.jboss.pressgang</groupId>
+                            <artifactId>pressgang-jdocbook-style</artifactId>
+                            <type>jdocbook-style</type>
+                            <version>2.0.0</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <sourceDirectory>${project.basedir}/src/docbook</sourceDirectory>
+                        <sourceDocumentName>book.xml</sourceDocumentName>
+                        <masterTranslation>en-US</masterTranslation>
+                        <imageResource>
+                            <directory>${project.basedir}/src/docbook/en-US</directory>
+                            <includes>
+                                <include>images/*.png</include>
+                            </includes>
+                        </imageResource>
+                        <formats>
+                            <format>
+                                <formatName>pdf</formatName>
+                                <stylesheetResource>classpath:/xslt/org/jboss/pdf.xsl</stylesheetResource>
+                                <finalName>${docname}.pdf</finalName>
+                            </format>
+                            <format>
+                                <formatName>html_single</formatName>
+                                <stylesheetResource>classpath:/xslt/org/jboss/xhtml-single.xsl</stylesheetResource>
+                                <finalName>index.html</finalName>
+                            </format>
+                        </formats>
+                        <options>
+                            <xmlTransformerType>saxon</xmlTransformerType>
+                            <xincludeSupported>true</xincludeSupported>
+                            <docbookVersion>1.72.0</docbookVersion>
+                            <useRelativeImageUris>true</useRelativeImageUris>
+                        </options>
+                    </configuration>
+                </plugin>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.jboss.maven.plugins</groupId>
+                                        <artifactId> maven-jdocbook-plugin</artifactId>
+                                        <versionRange>[2.3.5,)</versionRange>
+                                        <goals>
+                                            <goal>resources</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <!-- Entry needed to enable jdocbook packaging -->
+                <groupId>org.jboss.maven.plugins</groupId>
+                <artifactId>maven-jdocbook-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>
