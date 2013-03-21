@@ -32,7 +32,7 @@ public class SecurityRetrievalStarter {
     public static void main(String[] args) throws ParseException {
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        IBNativeSecurityRetrieverService service = ServiceLocator.instance().getService("iBSecurityRetrieverService", IBNativeSecurityRetrieverService.class);
+        IBNativeSecurityRetrieverService service = ServiceLocator.instance().getService("iBNativeSecurityRetrieverService", IBNativeSecurityRetrieverService.class);
 
         service.init();
 
