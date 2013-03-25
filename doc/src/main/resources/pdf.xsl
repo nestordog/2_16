@@ -36,6 +36,7 @@
 <!--xsl:param name="hyphenate.verbatim" select="0"/-->
 <xsl:param name="hyphenate">true</xsl:param>
 <!--xsl:param name="ulink.hyphenate" select="1"/-->
+<xsl:param name="ulink.footnotes" select="1"/>
 
 <xsl:param name="line-height" select="1.5"/>
 
@@ -308,9 +309,7 @@ Reason: This includes the callout.icon.size attribute for SVGs, we also add padd
 </xsl:attribute-set>
 
 <xsl:param name="generate.toc">
-set toc
-book toc
-article toc
+book toc,title,figure,table
 </xsl:param>
 
    <!--###################################################
@@ -391,7 +390,7 @@ article toc
 <xsl:param name="table.frame.border.left.color">white</xsl:param>
 <!-- Paper type, no headers on blank pages, no double sided printing -->
 <xsl:param name="paper.type" select="'A4'"/>
-<xsl:param name="double.sided">1</xsl:param>
+<xsl:param name="double.sided">0</xsl:param>
 <xsl:param name="headers.on.blank.pages">1</xsl:param>
 <xsl:param name="footers.on.blank.pages">1</xsl:param>
 <!--xsl:param name="header.column.widths" select="'1 4 1'"/-->
@@ -408,8 +407,8 @@ article toc
 <xsl:param name="region.after.extent">10mm</xsl:param>
 <xsl:param name="page.margin.bottom">15mm</xsl:param>
 
-<xsl:param name="page.margin.outer">30mm</xsl:param>
-<xsl:param name="page.margin.inner">30mm</xsl:param>
+<xsl:param name="page.margin.outer">20mm</xsl:param>
+<xsl:param name="page.margin.inner">20mm</xsl:param>
 
 <!-- No intendation of Titles -->
 <xsl:param name="body.start.indent">0pt</xsl:param>

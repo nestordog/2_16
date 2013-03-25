@@ -34,10 +34,10 @@
               doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
               standalone="no"/>
 
-  <xsl:param name="siteHref" select="'http://www.jboss.org'"/>
-  <xsl:param name="docHref" select="'http://docs.jboss.org/'"/>
-  <xsl:param name="siteLinkText" select="'JBoss.org'"/>
-  <xsl:param name="docLinkText" select="'Community Documentation'"/>
+  <xsl:param name="siteHref" select="'http://www.algotrader.ch'"/>
+  <xsl:param name="docHref" select="'http://www.algotrader.ch/documentation'"/>
+  <xsl:param name="siteLinkText" select="'AlgoTrader'"/>
+  <xsl:param name="docLinkText" select="'AlgoTrader Documentation'"/>
 
    <xsl:param name="graphicsize.extension">0</xsl:param>
 
@@ -395,6 +395,7 @@ Version: 1.72.0
     </xsl:if>
 
     <meta xmlns="http://www.w3.org/1999/xhtml" name="generator" content="DocBook {$DistroTitle} V{$VERSION}"/>
+    <meta xmlns="http://www.w3.org/1999/xhtml" http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 
     <xsl:if test="$generate.meta.abstract != 0">
         <xsl:variable name="info" select="(articleinfo |bookinfo |prefaceinfo |chapterinfo |appendixinfo |sectioninfo |sect1info |sect2info |sect3info |sect4info |sect5info |referenceinfo |refentryinfo |partinfo |info |docinfo)[1]"/>
