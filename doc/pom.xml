@@ -50,10 +50,6 @@
                         <masterTranslation>en-US</masterTranslation>
                         <imageResource>
                             <directory>${project.basedir}/src/docbook/en-US</directory>
-                            <includes>
-                                <include>images/*.png</include>
-                                <include>images/*.gif</include>
-                            </includes>
                         </imageResource>
                         <cssResource>
                             <directory>${project.basedir}/src/main/resources/css</directory>
