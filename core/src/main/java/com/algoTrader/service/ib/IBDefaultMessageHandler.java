@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.enumeration.ConnectionState;
 import com.algoTrader.util.MyLogger;
+import com.ib.client.CommissionReport;
 import com.ib.client.Contract;
 import com.ib.client.ContractDetails;
 import com.ib.client.EWrapper;
@@ -350,5 +351,9 @@ public class IBDefaultMessageHandler implements EWrapper {
     @Override
     public void updatePortfolio(Contract contract, int position, double marketPrice, double marketValue, double averageCost, double unrealizedPNL,
             double realizedPNL, String accountName) {
+    }
+
+    @Override
+    public void commissionReport(CommissionReport paramCommissionReport) {
     }
 }
