@@ -638,9 +638,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Tick> handleGetDailyTicksBeforeTime(int securityId, Date maxDate, Date time) {
+    protected List<Tick> handleGetDailyTicksBeforeTime(int securityId, Date time) {
 
-        List<Integer> ids = getTickDao().findDailyTickIdsBeforeTime(securityId, maxDate, time);
+        List<Integer> ids = getTickDao().findDailyTickIdsBeforeTime(securityId, time);
         if (ids.size() > 0) {
             return getTickDao().findByIdsInclSecurityAndUnderlying(ids);
         } else {
@@ -649,9 +649,31 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Tick> handleGetDailyTicksAfterTime(int securityId, Date maxDate, Date time) {
+    protected List<Tick> handleGetDailyTicksAfterTime(int securityId, Date time) {
 
-        List<Integer> ids = getTickDao().findDailyTickIdsAfterTime(securityId, maxDate, time);
+        List<Integer> ids = getTickDao().findDailyTickIdsAfterTime(securityId, time);
+        if (ids.size() > 0) {
+            return getTickDao().findByIdsInclSecurityAndUnderlying(ids);
+        } else {
+            return new ArrayList<Tick>();
+        }
+    }
+
+    @Override
+    protected List<Tick> handleGetHourlyTicksBeforeMinutesByMinDate(int securityId, int minutes, Date minDate) throws Exception {
+
+        List<Integer> ids = getTickDao().findHourlyTickIdsBeforeMinutesByMinDate(securityId, minutes, minDate);
+        if (ids.size() > 0) {
+            return getTickDao().findByIdsInclSecurityAndUnderlying(ids);
+        } else {
+            return new ArrayList<Tick>();
+        }
+    }
+
+    @Override
+    protected List<Tick> handleGetHourlyTicksAfterMinutesByMinDate(int securityId, int minutes, Date minDate) throws Exception {
+
+        List<Integer> ids = getTickDao().findHourlyTickIdsAfterMinutesByMinDate(securityId, minutes, minDate);
         if (ids.size() > 0) {
             return getTickDao().findByIdsInclSecurityAndUnderlying(ids);
         } else {
