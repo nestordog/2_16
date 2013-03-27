@@ -886,6 +886,8 @@ Version: 1.72
   <xsl:param name="position" select="''"/>
   <xsl:param name="gentext-key" select="''"/>
     <xsl:param name="title-limit" select="'30'"/>
+  <xsl:param name="confidential" select="'1'"/>
+
 <!--
   <fo:block>
     <xsl:value-of select="$pageclass"/>
@@ -916,9 +918,9 @@ body, blank, left, chapter
               </xsl:choose>
           </fo:inline>
       </xsl:when-->
-      <xsl:when test="$confidential = 1 and (($sequence='odd' and $position='left') or ($sequence='even' and $position='right'))">
+      <xsl:when test="$confidential = 1 and $position='center'">
           <fo:inline keep-together.within-line="always" font-weight="bold">
-            <xsl:text>RED HAT CONFIDENTIAL</xsl:text>
+            <xsl:text>CONFIDENTIAL</xsl:text>
           </fo:inline>
       </xsl:when>
       <xsl:when test="$sequence = 'blank'">
