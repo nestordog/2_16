@@ -128,15 +128,13 @@
                             <replaceable>package-version-release</replaceable>
                         </command>.</para>
                 </blockquote>
-                <para>Note the words in bold italics above &mdash; username, domain.name,
-                    file-system, package, version and release. Each word is a placeholder, either
-                    for text you enter when issuing a command or for text displayed by the system.
-                </para>
+                <para>Note the words in italics above &mdash; username, domain.name, file-system, package,
+                    version and release. Each word is a placeholder, either for text you enter when
+                    issuing a command or for text displayed by the system. </para>
             </section>
             <section>
                 <title>Pull-quote Conventions</title>
-                <para>Two, commonly multi-line, data types are set off visually from the
-                    surrounding text.</para>
+                <para>Two commonly multi-line data types are set off visually from the surrounding text.</para>
                 <para>Output sent to a terminal is presented as follows:</para>
                 <screen>books        Desktop   documentation  drafts  mss    photos   stuff  svn
 books_tests  Desktop1  downloads      images  notes  scripts  svgs</screen>
@@ -513,7 +511,7 @@ public class ExClient {
                         </row>
                         <row>
                             <entry> ActiveMQ </entry>
-                            <entry> this is the JMS (Java Messaging Service) Broker that is responsible to transfer
+                            <entry> this is the JMS (Java Messaging Service) Broker that is responsible for transfering
                                 messages between the Base and the Strategies </entry>
                         </row>
                         <row>
@@ -624,7 +622,7 @@ public class ExClient {
                         </imageobject>
                     </mediaobject>
                 </figure>
-                <para>There are several classes, that are directly related to the strategy</para>
+                <para>There are several classes that are directly related to the strategy</para>
                 <table frame="all" pgwide="1">
                     <title>Strategy Classes</title>
                     <tgroup cols="2">
@@ -657,7 +655,7 @@ public class ExClient {
                             <row>
                                 <entry> OrderPreference </entry>
                                 <entry> This class allows the definition of certain order default values for an order (e.g.
-                                    quantity, orderType, delays, etc.), except for the orderType,
+                                    quantity, orderType, delays, etc.). Except for the orderType,
                                     all values have to be defined through Properties. The method
                                         <classname>LookupService.getOrderByName()</classname> will
                                     lookup an orderPreference by its name, instantiate the
@@ -678,9 +676,9 @@ public class ExClient {
                             <row>
                                 <entry> Allocation </entry>
                                 <entry>
-                                    <para>If an OrderPreference is defined for an OrderType, that
-                                        sends orders to multiple accounts (e.g. DistributingOrder),
-                                        allocations to different accounts can be defined.</para>
+                                    <para>If an OrderPreference is defined for an OrderType that sends orders to multiple
+                                        accounts (e.g. DistributingOrder), allocations to different
+                                        accounts can be defined.</para>
                                     <para><emphasis>Note: the total of all allocations needs to be
                                             1.0</emphasis>
                                     </para>
@@ -766,16 +764,15 @@ public class ExClient {
                                     </entry>
                                 </row>
                                 <row>
-                                    <entry>Comination</entry>
+                                    <entry>Combination</entry>
                                     <entry>A synthetic security composed of one or many Components
                                         (see <xref linkend="Synthetic_Instruments_and_Derivative_Spreads"/>)</entry>
                                 </row>
                                 <row>
                                     <entry>SyntheticIndex</entry>
-                                    <entry>A synthetic security based on an arbitrary class which
-                                        implements the pricing logic (e.g. a Volatility Index
-                                        calculating it's price based on the Implied Volatility of
-                                        it's underlying Options)</entry>
+                                    <entry>A synthetic security based on an arbitrary class which implements the pricing logic
+                                        (e.g. a Volatility Index calculating its price based on the
+                                        Implied Volatility of its underlying Options)</entry>
                                 </row>
                             </tbody>
                         </tgroup>
@@ -888,12 +885,12 @@ public class ExClient {
                             </row>
                             <row>
                                 <entry> AlgoOrder </entry>
-                                <entry> A composite order that will generate multiple SimpleOrders.
-                                    A AlgoOrder cannot be sent directly to the market </entry>
+                                <entry> A composite order that will generate multiple SimpleOrders. An AlgoOrder cannot be
+                                    sent directly to the market </entry>
                             </row>
                             <row>
                                 <entry> SlicingOrder </entry>
-                                <entry> AlgoOrder, that will split a large trade into multiple "slices". The size of the
+                                <entry> An AlgoOrder, that will split a large trade into multiple "slices". The size of the
                                     slice, time in the market and delay between orders are
                                     randomized </entry>
                             </row>
@@ -990,9 +987,9 @@ public class ExClient {
                     from the abstract class PropertyHolder. Therefore one or more Properties can be
                     assigned to them. A Property can be of type int, double, money, text, date or
                     boolean (but only one at a time).</para>
-                <para>Because PropertyHolders use Hibernate Union-Subclass strategy, Id's of
-                    different PropertyHolder tables may not overlap. For directly in the database
-                    created PropertyHolders the following range of Id's are reserved:</para>
+                <para>Because PropertyHolders use Hibernate Union-Subclass strategy, Id's of different
+                    PropertyHolder tables may not overlap. For PropertyHolders created directly in
+                    the database, the following range of Id's are reserved:</para>
                 <table frame="all" pgwide="1">
                     <title>PropertyHolder Ranges</title>
                     <tgroup cols="2">
@@ -1030,8 +1027,8 @@ public class ExClient {
         <section>
             <title>Services </title>
             <para>The system is based on a Service Oriented Architecture (SOA). All operations of the system
-                are provided as Spring Services / Beans. Available services are grouped into these
-                three groups: <orderedlist numeration="arabic">
+                are provided as Spring Services / Beans. The following groups of services exist:
+                    <orderedlist numeration="arabic">
                     <listitem>
                         <para>Base Services</para>
                     </listitem>
@@ -1044,7 +1041,6 @@ public class ExClient {
                     </listitem>
                 </orderedlist>
             </para>
-            <para>The purpose of the Main Services is explained by the following diagrams and tables:</para>
             <section>
                 <title>Base Services </title>
                 <table frame="all" pgwide="1">
@@ -1062,20 +1058,19 @@ public class ExClient {
 
                             <row>
                                 <entry> MarketDataService </entry>
-                                <entry> Responsible for the retrieval of MarketData as well as
-                                    Subscription Management. This service is also responsible to
-                                    generate simulated ticks in simulation mode (i.e. generate
-                                    option ticks based on underlying and volatility ticks) </entry>
+                                <entry> Responsible for the retrieval of MarketData as well as Subscription Management. This
+                                    service is also responsible for generating simulated ticks in
+                                    simulation mode (i.e. generate option ticks based on underlying
+                                    and volatility ticks) </entry>
                             </row>
                             <row>
                                 <entry> OrderService </entry>
-                                <entry> Responsible to send orders to the Market via defined Broker
-                                    Interface </entry>
+                                <entry> Responsible for sending orders to the Market via defined Broker Interface </entry>
                             </row>
                             <row>
                                 <entry> PositionService </entry>
-                                <entry> Responsible for management of positions. I.e. close
-                                    position, reduce position and set an exit value </entry>
+                                <entry> Responsible for management of positions, i.e. close position, reduce position and
+                                    set an exit value </entry>
                             </row>
                             <row>
                                 <entry> AccountService </entry>
@@ -1088,8 +1083,8 @@ public class ExClient {
                             </row>
                             <row>
                                 <entry> CombinationService </entry>
-                                <entry> The CombinationService is responsible to handle all Combination / Component related
-                                    DB-Operations. </entry>
+                                <entry> The CombinationService is responsible for handling all Combination / Component
+                                    related DB-Operations. </entry>
                             </row>
                             <row>
                                 <entry> LazyLoaderService </entry>
@@ -1118,8 +1113,8 @@ public class ExClient {
                             </row>
                             <row>
                                 <entry> PortfolioService </entry>
-                                <entry> This service is responsible to provide actual database
-                                    values to the ManagementService </entry>
+                                <entry> This service is responsible for providing actual database values to the
+                                    ManagementService </entry>
                             </row>
                             <row>
                                 <entry> MeasurementService</entry>
@@ -1170,8 +1165,7 @@ public class ExClient {
                             </row>
                             <row>
                                 <entry> SecurityRetrieverService </entry>
-                                <entry> This service downloads current option and future chains
-                                    usign the broker interface </entry>
+                                <entry> This service downloads current option and future chains using the broker interface </entry>
                             </row>
                             <row>
                                 <entry> BaseManagementService </entry>
@@ -1305,8 +1299,8 @@ public class ExClient {
                 </figure>
                 <para>If AlgoTrader is used in a Managed Account setup, subclasses of the abstract
                     AccountService have to provide methods for checking the order quantity of an
-                    order to make sure, that an even number of shares is allocated to each account.
-                    In addition subclasses of AccountService can implement methods for manipulationg
+                    order to ensure that an even number of shares is allocated to each account. In
+                    addition subclasses of AccountService can implement methods for manipulationg
                     Account Groups, Allocation Profiles or similar Broker specific
                     functionality.</para>
             </section>
@@ -1367,7 +1361,7 @@ public class ExClient {
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>Enumerations correspond are generated into JDK 5 Enumerations.</para>
+            <para>Enumerations are generated into JDK 5 Enumerations.</para>
         </section>
         <section>
             <title>Dependencies </title>
@@ -1392,31 +1386,31 @@ public class ExClient {
             AndroMDA: <itemizedlist>
                 <listitem>
                     <para>
-                        <ulink url="http://www.andromda.org/docs/contrib/birds-eye-view.html"> A
-                            Bird's Eye view of AndroMDA</ulink>
+                        <ulink url="http://www.andromda.org/contrib/birds-eye-view.html">A Bird's
+                            Eye view of AndroMDA</ulink>
                     </para>
                 </listitem>
                 <listitem>
                     <para>
-                        <ulink url="http://www.andromda.org/docs/starting.html#My20first20AndroMDA20project"> Getting started with AndroMDA</ulink> or <ulink url="http://www.andromda.org/docs-3.3/andromda-documentation/andromda-getting-started-java/java/env-setup.html"> Prepare the Development Environment</ulink>
+                        <ulink url="http://www.andromda.org/starting.html">Getting started with
+                            AndroMDA</ulink></para>
+                </listitem>
+                <listitem>
+                    <para><ulink
+                            url="http://www.andromda.org/andromda-documentation/getting-started-java/index.html"
+                            > Getting started Java</ulink>
                     </para>
                 </listitem>
                 <listitem>
                     <para>
-                        <ulink url="http://www.andromda.org/docs/andromda-documentation/getting-started-java/index.html"> Getting Started Java - long winded 'TimeTrackingService'
-                            example</ulink>
+                        <ulink
+                            url="http://www.andromda.org/docs/andromda-cartridges/andromda-spring-cartridge/howto.html"
+                            >Spring Cartridge HowTo</ulink>
                     </para>
                 </listitem>
                 <listitem>
                     <para>
-                        <ulink url="http://www.andromda.org/docs/andromda-cartridges/andromda-spring-cartridge/howto.html"> Spring Cartridge example - short and focused on buisness tier of
-                            3-tier application architecture</ulink>
-                    </para>
-                </listitem>
-                <listitem>
-                    <para>
-                        <ulink url="http://forum.andromda.org/"> AndroMDA's forum where you can get
-                            FREE support</ulink>
+                        <ulink url="http://forum.andromda.org/">AndroMDA's forum</ulink>
                     </para>
                 </listitem>
             </itemizedlist>
@@ -1525,7 +1519,7 @@ public class ExClient {
                 <varlistentry>
                     <term>algoTrader_service_profile </term>
                     <listitem>
-                        <para>assigns one ore more SpringFramework profiles to this service</para>
+                        <para>assigns one or more SpringFramework profiles to this service</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -2364,7 +2358,7 @@ public class ExClient {
 
                         <row>
                             <entry> module-algo-xxx.epl </entry>
-                            <entry> Each Execution Algos has it's own module</entry>
+                            <entry> Each Execution Algo has it's own module</entry>
                         </row>
                         <row>
                             <entry> module-combination.epl</entry>
@@ -2580,7 +2574,7 @@ for (Security security : securities) {
                     the parameter <parameter>expectFullExecution</parameter> is set onto the
                     TradeCallback constructor, there will be an error logged if the order did not
                     execute fully. In addition there is a concrete class FullExecutionTradeCallback
-                    that does nothing except check for full execution of the order</para>
+                    that does nothing except check for full execution of the order.</para>
                 <para>A typical use case of a TradeCallback looks like this:</para>
                 <programlisting language="Java">EsperManager.addTradeCallback(strategyName, orders, new TradeCallback(true) {
   @Override
@@ -2624,7 +2618,7 @@ getOrderService().sendOrders(orders);</programlisting>
   }
 });  </programlisting>
                 <note>
-                    <para>It is guaranteed, that the position is fully removed from the database by the time the
+                    <para>It is guaranteed that the position is fully removed from the database by the time the
                         method <classname>ClosePositionCallback.onClosePosition()</classname> is
                         called.</para>
                 </note>
@@ -2691,19 +2685,18 @@ getOrderService().sendOrders(orders);</programlisting>
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>The Entity Relationship Model of the system is displayed on the right. For a
-                description of tables please see <xref linkend="Code_Generation"/>
+            <para>The Entity Relationship Model of the system is displayed above. For a description of tables
+                please see <xref linkend="Code_Generation"/>
             </para>
         </section>
         <section>
             <title>Transaction Handling </title>
-            <para>Using AndroMDA and Spring Transaction Boundaries can be declared inside the UML
-                model using the tagged value
-                    <parameter>@andromda.spring.transaction.type</parameter>. Transaction Boundaries
-                will be generated into the file <filename>applicationContext.xml</filename> and
-                handled by the
+            <para>Using AndroMDA and Spring, Transaction Boundaries can be declared inside the UML model
+                using the tagged value <parameter>@andromda.spring.transaction.type</parameter>.
+                Transaction Boundaries will be generated into the file
+                    <filename>applicationContext.xml</filename> and handled by the
                     <classname>org.springframework.transaction.interceptor.TransactionInterceptor</classname>.</para>
-            <para>for additional info see <xref linkend="Hibernate_Locking"/>
+            <para>For additional info see <xref linkend="Hibernate_Locking"/>
             </para>
         </section>
     </chapter>
@@ -2755,8 +2748,7 @@ getOrderService().sendOrders(orders);</programlisting>
                             </row>
                             <row>
                                 <entry> Orders </entry>
-                                <entry> currently open orders (might contain AlgoOrders an their
-                                    associated SimpleOrders) </entry>
+                                <entry> currently open orders (might contain AlgoOrders and their associated SimpleOrders) </entry>
                             </row>
                             <row>
                                 <entry> Positions </entry>
@@ -2805,8 +2797,7 @@ getOrderService().sendOrders(orders);</programlisting>
                             </row>
                             <row>
                                 <entry> NetLiqValue </entry>
-                                <entry> Netto Liquidation Value of the system / of the strategy
-                                </entry>
+                                <entry> Net Liquidation Value of the system / of the strategy </entry>
                             </row>
                             <row>
                                 <entry> Performance </entry>
@@ -2941,7 +2932,7 @@ getOrderService().sendOrders(orders);</programlisting>
                         </imageobject>
                     </mediaobject>
                 </figure>
-                <para>The Base Management Service is only available when connection to the Base.</para>
+                <para>The Base Management Service is only available when connected to the Base.</para>
                 <para>The service currently only has the Attributes
                         <emphasis>MarketChannels</emphasis> and
                         <emphasis>DefaultMarketChannel</emphasis>
@@ -3157,7 +3148,7 @@ getOrderService().sendOrders(orders);</programlisting>
                     <title>Chart Definition</title>
                     <mediaobject>
                         <imageobject>
-                            <imagedata fileref="images/ChartDefinition.png"/>
+                            <imagedata fileref="images/ChartDefinition.png" scalefit="1"/>
                         </imageobject>
                     </mediaobject>
                 </figure>
@@ -3191,9 +3182,8 @@ getOrderService().sendOrders(orders);</programlisting>
                             </row>
                             <row>
                                 <entry> DatasetDefinitionVO </entry>
-                                <entry> Each Axis can have multiple Datasets. Datasets are of type
-                                    OHLC (for Bar Charts) or TIME (for general Indicator based
-                                    Chars) </entry>
+                                <entry> Each Axis can have multiple Datasets. Datasets are of type OHLC (for Bar Charts) or
+                                    TIME (for general Indicator based Charts) </entry>
                             </row>
                             <row>
                                 <entry> SeriesDefinitionVO </entry>
@@ -3222,10 +3212,10 @@ getOrderService().sendOrders(orders);</programlisting>
                         </tbody>
                     </tgroup>
                 </table>
-                <para>A Custom Chart is wired to a corresponding <classname>ChartService</classname>
-                    (a subclass of <classname>ChartProvidingServiceImpl</classname>) which will
-                    provide the Chart with the actual ChartData to display. The following class
-                    diagram show a summary of all CharData Value Objects.</para>
+                <para>A Custom Chart is wired to a corresponding <classname>ChartService</classname> (a subclass
+                    of <classname>ChartProvidingServiceImpl</classname>) which will provide the
+                    Chart with the actual ChartData to display. The following class diagram show a
+                    summary of all ChartData Value Objects.</para>
                 <figure>
                     <title>Chart Data</title>
                     <mediaobject>
@@ -3234,7 +3224,7 @@ getOrderService().sendOrders(orders);</programlisting>
                         </imageobject>
                     </mediaobject>
                 </figure>
-                <para>A ChartProvidingService can optinally overwrite any of the following methods to provide
+                <para>A ChartProvidingService can optionally overwrite any of the following methods to provide
                     ChartData. Most of these methods contain a dateTime parameter. The Chart will
                     pass the latest Date, that is currently displayed on the Chart. Through this, a
                     ChartService can choose to return only ChartData that is not yet displayed on a
@@ -3279,10 +3269,10 @@ getOrderService().sendOrders(orders);</programlisting>
                             </row>
                             <row>
                                 <entry> getAnnotations() </entry>
-                                <entry> A Custom Chart can optionally display any number of
-                                    annotations. These are either PointerAnnotations (represented
-                                    through an arrow) or BoxAnnotions (represented by a box). See
-                                    Annotation Chart example diagram above. </entry>
+                                <entry> A Custom Chart can optionally display any number of annotations. These are either
+                                    PointerAnnotations (represented through an arrow) or
+                                    BoxAnnotations (represented by a box). See Annotation Chart
+                                    example diagram above. </entry>
                             </row>
                             <row>
                                 <entry> getDescription() </entry>
@@ -3293,8 +3283,8 @@ getOrderService().sendOrders(orders);</programlisting>
                         </tbody>
                     </tgroup>
                 </table>
-                <para>A ChartService has be exposed via JMX so that the client can retrieve current
-                    chart data. This is done by annotating the ChartService like this:</para>
+                <para>A ChartService has to be exposed via JMX so that the client can retrieve current chart
+                    data. This is done by annotating the ChartService like this:</para>
                 <programlisting language="Java">@ManagedResource(objectName = "com.algoTrader.strategy.xyz:name=XYZChart,type=chart")</programlisting>
                 <para>Because of the <parameter>type=chart</parameter> this Service will not be
                     visible as a ManagedBean in the client.</para>
@@ -3462,7 +3452,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
             <title>CRUD Application</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="images/CrudApplication.gif"/>
+                    <imagedata fileref="images/CrudApplication.gif" scalefit="1"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -3497,23 +3487,26 @@ public class MovChartService extends ChartProvidingServiceImpl {
             which has a feature called scaffolding, that is able to automatically create a CRUD
             application based on hibernate mapping files and Java Domain classes (= AndroMDA
             Entities).</para>
-        <para>Please make sure, that the <filename>algotrader/code</filename> project is available in the
-            local maven repository by issuing the following maven command inside algotrader-code:</para>
+        <para>Please make sure that the <filename>algotrader/code</filename> project is available in the
+            local maven repository by issuing the following maven command inside
+            algotrader-code:</para>
         <screen>mvn install</screen>
         <section>
             <title>Run using Maven </title>
-            <para>to run the application using maven the following two files have to be patched in
-                the local maven repository: <itemizedlist>
+            <para>To run the application using maven the following two files have to be patched in the local
+                maven repository: <itemizedlist>
                     <listitem>
                         <para>
-                            <ulink url="http://algo-trader.googlecode.com/files/grails-gorm-1.3.7.jar">
+                            <ulink
+                                url="http://algo-trader.googlecode.com/files/grails-gorm-1.3.7.jar">
                                 grails-gorm-1.3.7.jar</ulink> to
                                 <filename>user_home\.m2\repository\org\grails\grails-gorm\1.3.7</filename>
                         </para>
                     </listitem>
                     <listitem>
                         <para>
-                            <ulink url="http://algo-trader.googlecode.com/files/grails-web-1.3.7.jar">
+                            <ulink
+                                url="http://algo-trader.googlecode.com/files/grails-web-1.3.7.jar">
                                 grails-web-1.3.7.jar</ulink> to
                                 <filename>user_home\.m2\repository\org\grails\grails-web\1.3.7</filename>
                         </para>
@@ -3531,7 +3524,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
             <para>Please install version 1.3.7 from <ulink url="http://grails.org/Download">http://grails.org/download</ulink>
             </para>
             <para>Set the environment variable <parameter>GRAILS_HOME</parameter> to the directory where you
-                installed grails. and also add the <filename>GRAILS_HOME/bin</filename> directory to
+                installed grails and also add the <filename>GRAILS_HOME/bin</filename> directory to
                 the PATH environment variable.</para>
             <para>In addition the following two files have to be patched in the local ivy2
                 repository: <itemizedlist>
@@ -3567,8 +3560,8 @@ public class MovChartService extends ChartProvidingServiceImpl {
                             application before starting up</para>
                 </listitem>
                 <listitem>
-                    <para>Also it might help to do a "mvn install" on all AlgoTrader maven projects
-                        to make sure, that the latest version exists in the local repository</para>
+                    <para>Also it might help to do a "mvn install" on all AlgoTrader maven projects to ensure that
+                            the latest version exists in the local repository</para>
                 </listitem>
             </itemizedlist>
         </note>
@@ -3726,7 +3719,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
             </important>
             <para>Select the following SVN Location:</para>
             <screen>svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</screen>
-            <para>This will create the following 3 projects in Eclipse:</para>
+            <para>This will create the following projects in Eclipse:</para>
             <itemizedlist>
                 <listitem>
                     <para>
@@ -3877,16 +3870,15 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <varlistentry>
                     <term><filename>/src/main/resources/module-mov-init.epl</filename></term>
                     <listitem>
-                        <para>Esper Modules containing statements related to indicators or signal
-                            generation </para>
+                        <para>Esper Module containing statements related to indicators or signal generation </para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term><filename>/src/main/resources/module-mov-run.epl</filename></term>
                     <listitem>
-                        <para>Esper Module containing statements, that invoke actions on the Java
-                            side (e.g. send orders). These statements will only be active in Live
-                            Trading but not in Prefeeding Mode.</para>
+                        <para>Esper Module containing statements that invoke actions on the Java side (e.g. send
+                            orders). These statements will only be active in Live Trading but not in
+                            Prefeeding Mode.</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -3992,21 +3984,20 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <para>The main method contains the following steps:
                 </para>
 <calloutlist>
-    <callout arearefs="movStarter-initServiceLocator"><para>initialize the ServiceLocator to let the Spring Environment know,
-                                that we are in Live Trading Mode on the strategy side</para></callout>
+    <callout arearefs="movStarter-initServiceLocator"><para>initialize the ServiceLocator to let the Spring Environment know that we are in Live Trading
+                            Mode on the strategy side</para></callout>
     <callout arearefs="movStarter-getMovService"><para>get a reference to the MovService</para></callout>
     <callout arearefs="movStarter-initEsper"><para>initialize the Esper Engine for the MOV Strategy</para></callout>
     <callout arearefs="movStarter-initModules"><para>deploy all init-modules</para></callout>
-    <callout arearefs="movStarter-prefeed"><para>start feeding historical market data events (of a certain time period) to initialize
-                                the moving average indicators.  The Esper Engine is set to
-                                externalClock, which means, that it's time is advanced according to
-                                prefeeded market data events</para></callout>
+    <callout arearefs="movStarter-prefeed"><para>start feeding historical market data events (of a certain time period) to initialize the
+                            moving average indicators. The Esper Engine is set to externalClock,
+                            which means that it's time is advanced according to prefeeded market
+                            data events</para></callout>
     <callout arearefs="movStarter-internalClock"><para>switch to internalClock. After this, the Esper Engine's time is advanced according to
                                 the Wall Clock.</para></callout>
     <callout arearefs="movStarter-runModules"><para>deploy the run modules.</para></callout>
-    <callout arearefs="movStarter-subscriptions"><para>init marketDataSubscriptions so that the strategy receives life
-                                market data events for the securities, that it is subscribed to
-                            </para></callout>
+    <callout arearefs="movStarter-subscriptions"><para>init marketDataSubscriptions so that the strategy receives live market data events for the
+                            securities that it is subscribed to </para></callout>
 </calloutlist>
 
             </section>
@@ -4022,7 +4013,7 @@ select
   talib("movingAverage", currentValueDouble, movLengthFast, "Sma")
   - talib("movingAverage", currentValueDouble, movLengthSlow, "Sma") as value
 from
-  Tick(security.isin = underlayingIsin);</programlisting>
+  Tick(security.isin = underlyingIsin);</programlisting>
             </section>
             <section>
                 <title>module-mov-run.epl </title>
@@ -4035,10 +4026,10 @@ from
 @Subscriber(className='com.algoTrader.strategy.MovService.openPosition')
 select
   engineStrategy.name as strategyName,
-  indexTick.security.id as underlayingid,
-  indexTick.currentValue as underlayingSpot
+  indexTick.security.id as underlyingid,
+  indexTick.currentValue as underlyingSpot
 from
-  pattern [every (indexTick=Tick(security.isin=underlayingIsin)
+  pattern [every (indexTick=Tick(security.isin=underlyingIsin)
     -> indicator=Indicator)]
 where
   indicator.value > 0
@@ -4049,11 +4040,11 @@ and
                 <title>conf-mov.properties </title>
                 <para>In addition there is the configuration file, which contains the necessary
                     parameters for the strategy:</para>
-                <screen>underlayingIsin = US38259P5089
+                <screen>underlyingIsin = US38259P5089
 movLengthFast = 1000
 movLengthSlow = 2000</screen>
-                <para>In our case we use <literal>Tick(security.isin = underlayingIsin)</literal>
-                    and the fast/slow lengths to create the two moving average lines.</para>
+                <para>In our case we use <literal>Tick(security.isin = underlyingIsin)</literal> and the
+                    fast/slow lengths to create the two moving average lines.</para>
             </section>
             <section>
                 <title>esper-mov.cfg.xml </title>
@@ -4064,7 +4055,7 @@ movLengthSlow = 2000</screen>
   xsi:schemaLocation="http://www.espertech.com/schema/esper
   http://www.espertech.com/schema/esper/esper-configuration-4-0.xsd">
 
-  &lt;variable name="underlayingIsin" type="String"/>
+  &lt;variable name="underlyingIsin" type="String"/>
   &lt;variable name="movLengthFast" type="int"/>
   &lt;variable name="movLengthSlow" type="int"/>
 
@@ -4074,8 +4065,8 @@ movLengthSlow = 2000</screen>
   &lt;/plugin-loader>
 
 &lt;/esper-configuration></programlisting>
-                <para>The above file configures the required variables along with their type. the
-                    actual values for the variables are taken from conf-mov.properties.</para>
+                <para>The above file configures the required variables along with their type. The actual values
+                    for the variables are taken from conf-mov.properties.</para>
             </section>
             <section>
                 <title>applicationContext-client-mov.xml </title>
@@ -4123,25 +4114,24 @@ movLengthSlow = 2000</screen>
                         </tbody>
                     </tgroup>
                 </table>
-                <para>AUTO_ACTIVATE means, that the strategy will be automatically run in simulation
-                    mode. By using this field, several strategies can be run in parallel to see how
-                    they interact.</para>
-                <para>ALLOCATION is the percentage of total assets, that will be allocated to this
+                <para>AUTO_ACTIVATE means that the strategy will be automatically run in simulation mode. By
+                    using this field, several strategies can be run in parallel to see how they
+                    interact.</para>
+                <para>ALLOCATION is the percentage of total assets that will be allocated to this
                     strategy.</para>
 
                 <note>
-                    <para>the total of all allocations need to add up to 100%. If only 50% is allocated to our
-                        Strategy MOV, the reminder of 50% need to be allocated to the "BASE"
+                    <para>The total of all allocations need to add up to 100%. If only 50% is allocated to our
+                        Strategy MOV, the reminder of 50% needs to be allocated to the "BASE"
                         strategy, which represents the Base itself.</para>
                 </note>
             </section>
         </section>
         <section>
             <title>Hints for Strategy Development </title>
-            <para>It is generally recommended to do Time-based Market Data Analysis and Signal
-                Generation inside Esper Statements. On the other hand procedural actions like
-                placing an order or subscribing to a Security are predominantly is doe inside Java
-                Code.</para>
+            <para>It is generally recommended to do Time-based Market Data Analysis and Signal Generation
+                inside Esper Statements. On the other hand procedural actions like placing an order
+                or subscribing to a Security are predominantly is done inside Java Code.</para>
             <section>
                 <title>Print Statement Selects</title>
                 <para>By means of the TestSubscriber, selected values of a Statement can be printed
@@ -4172,9 +4162,8 @@ from
             </section>
             <section>
                 <title>Access to Esper Variables </title>
-                <para>Esper has a very sophisticated variable management functionality. It is
-                    possible to access those variables from the Java Side through the following
-                    methods:</para>
+                <para>Esper has a very sophisticated variable management functionality. It is possible to access
+                    those variables from the Java side through the following methods:</para>
                 <programlisting language="Java">// set variable value
 EsperManager.setVariableValue(strategyName, "target", target);
 
@@ -4214,8 +4203,7 @@ from
   Tick as tick,
   method:LookupUtil.getPositionBySecurityAndStrategy(
     tick.security.id, engineStrategy.name) as position,
-  method:MovUtil.getExitValue(
-    engineStrategy.name, position.direction, tick.currentValue) as exitValue
+  method:MovUtil.getExitValue(position.direction, tick.currentValue) as exitValue
 where
   ((position.direction = Direction.SHORT and exitValue.val &lt; position.exitValue)
   or
@@ -4242,7 +4230,7 @@ where
   marketDataEvent.dateTime.time >
   (current_timestamp - DateUtil.getDuration('WEEK_1'));</programlisting>
                 <para>If all market data events over a certain period need to be kept (e.g. for display in a
-                    chart), it is recommended to use an named window in the following fashion:</para>
+                    chart), it is recommended to use a named window in the following fashion:</para>
                 <programlisting>@Name('MARKET_DATA_WINDOW')
 @RunTimeOnly()
 create window
@@ -4306,20 +4294,20 @@ from
             </section>
             <section>
                 <title>Expose a strategy specific method through the client </title>
-                <para>Some strategies might need manual interventions. for this purpose a
-                    StrategyService can expose any type of method through JMX. for further details
-                    see <xref linkend="StrategyServices"/>
+                <para>Some strategies might need manual interventions. For this purpose a StrategyService can
+                    expose any type of method through JMX. For further details see <xref
+                        linkend="StrategyServices"/>
                 </para>
             </section>
             <section>
                 <title>Prevent an action from happening multiple times </title>
                 <para>Often a Java Action is triggered multiple times by a certain situation,
                     because the underlying cause takes a finite amount of time to be resolved.</para>
-                <para>Example: The current market level exceeds a defined stops, therefore a closing
-                    order is placed. However during the time that the order is being executed at the
-                    market, another market data event is received. Because the position is not yet
-                    closed by that time, another closing order is placed, which is not desired.</para>
-                <para>The prevent this, the following Output Limit Clause should be appended to the
+                <para>Example: The current market level exceeds a defined stop, therefore a closing order is
+                    placed. However during the time that the order is being executed at the market,
+                    another market data event is received. Because the position is not yet closed by
+                    that time, another closing order is placed, which is not desired.</para>
+                <para>To prevent this, the following Output Limit Clause should be appended to the
                     statement:</para>
                 <programlisting>output first every 1 minutes; </programlisting>
             </section>
@@ -4361,9 +4349,9 @@ where
             </section>
             <section>
                 <title>Handle Constant Maturity Futures </title>
-                <para>Since Future have an expiration date and are therefor not continuous, it is
-                    often not possible to base any indicators on them. With the following statements
-                    it is however possible to calculate a constant maturity market value:</para>
+                <para>Since Future have an expiration date and are therefore not continuous, it is often not
+                    possible to base any indicators on them. With the following statements it is
+                    however possible to calculate a constant maturity market value:</para>
                 <para>
                     <programlisting>@Name('INSERT_INTO_FRONT_FUTURE_TICK')
 insert into
@@ -4412,9 +4400,9 @@ from
             </section>
             <section>
                 <title>State based Strategy </title>
-                <para>Often a strategy has several states, that it runs through during execution
-                    (e.g. WAITING_FOR_SIGNAL, LONG_POSITION, SHORT_POSITION, etc.). For these
-                    situations it is advisable to use a Java Enum, eg:</para>
+                <para>Often a strategy has several states that it runs through during execution (e.g.
+                    WAITING_FOR_SIGNAL, LONG_POSITION, SHORT_POSITION, etc.). For these situations
+                    it is advisable to use a Java Enum, eg:</para>
                 <programlisting language="Java">package com.algoTrader.strategy;
 
 public enum State {
@@ -4427,7 +4415,7 @@ public enum State {
                 <programlisting>@Name('CREATE_VAR_STATE')
 create variable com.algoTrader.enumeration.State state =
   State.WAITING_FOR_SIGNAL;        </programlisting>
-                <para>it is then possible to query current state inside Esper statements like this:</para>
+                <para>It is then possible to query current state inside Esper statements like this:</para>
                 <programlisting>select * from ... where state = State.WAITING_FOR_SIGNAL;</programlisting>
             </section>
         </section>
@@ -4436,9 +4424,9 @@ create variable com.algoTrader.enumeration.State state =
         <title>Strategy Backtesting </title>
         <para>In simulation mode the Base as well as all strategies marked as autoActivate (in the
             database table <literal>strategy</literal>) are started inside the same JVM.</para>
-        <para>All Esper engine instances are set to use external timing, meaning that Esper time
-            will advance according to supplied market data files. The AdapterCoordinator is
-            responsible to create the necessary CurrentTimeEvents and send them to the Esper engine
+        <para>All Esper engine instances are set to use external timing, meaning that Esper time will
+            advance according to supplied market data files. The AdapterCoordinator is responsible
+            for creating the necessary CurrentTimeEvents and send them to the Esper engine
             instances.</para>
         <para>Securities specified within the table subscription are fed to the corresponding Esper engine
             instances. The field <parameter>persistent</parameter> has the following meaning: <itemizedlist>
@@ -4459,10 +4447,10 @@ create variable com.algoTrader.enumeration.State state =
         </para>
         <section>
             <title>Exchange Simulator </title>
-            <para>In Simulation Mode, the system provides an Exchange Simulator Functionality, where
-                the OrderService itself creates Fills based on the placed Order. Currently all
-                orders, get filled. MarketOrders get filled at the actual market prices supplied by
-                market data events, whereas LimitOrders get filled at their LimitPrice.</para>
+            <para>In Simulation Mode, the system provides an Exchange Simulator Functionality, where the
+                OrderService itself creates Fills based on the placed Order. Currently all orders
+                get filled. MarketOrders get filled at the actual market prices supplied by market
+                data events, whereas LimitOrders get filled at their LimitPrice.</para>
         </section>
         <section>
             <title>Simulation Proces </title>
@@ -4632,9 +4620,8 @@ AllTrds: cnt=2139 avgPrft=1'315.89 avgPrftPct=0.86% avgAge=9.14</screen>
                 corresponding perforamnce statistics of one run on one single line:</para>
             <screen>a=90 avgY=39.86% stdY=20.16% sharpe=1.97 maxDDM=11.29% bestMP=8.35% ...
 a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </screen>
-            <para>After the simulation the database modifications (mainly transactions and
-                positions) are kept, in order to be able to perform further DB based analysis.
-            </para>
+            <para>After the simulation the database modifications (mainly transactions and positions) are
+                kept in order to be able to perform further DB based analysis. </para>
         </section>
     </chapter>
     <chapter id="Performance_Measurement">
@@ -4690,7 +4677,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
             <title>PortfolioValue Logging </title>
             <para>In Live-Trading Mode PortfolioValues are recorded to the database for all running
                 strategies on an hourly basis. In addition PortfolioValues are recorded every time a
-                transaction occurs that actually influences the performance. For the Base these are
+                transaction occurs that actually influences performance. For the Base these are
                 Credits and Debits and for strategies, these are Rebalances. The corresponding value
                 of the transaction is recorded in the optional attribute cashFlow of the
                 PortfolioValue.</para>
@@ -4717,7 +4704,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
         </section>
         <section>
             <title>PortfolioValue Restoration Feature </title>
-            <para>In case a transaction (that actually influences the performance) needs to be recorded for a
+            <para>In case a transaction (that actually influences performance) needs to be recorded for a
                 prior period in time, all PortfolioValues since that time period are invalid and
                 need to be restored. Usage of this feature is quite common in Reconciliation where a
                 CashTransaction has to be recorded for the last trading day as soon as the external
@@ -4768,7 +4755,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
             <para>In most cases securities are attributed in their currency (as defined by
                 SecurityFamily). Their market value is attributed towards Securities (e.g.
                 SecuritiesCurrentValue).</para>
-            <para>Their are however the following exceptions.</para>
+            <para>There are however the following exceptions.</para>
             <section>
                 <title>Futures </title>
                 <itemizedlist>
@@ -4968,7 +4955,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
             <title>Option Pricing </title>
             <para>Based on the SABR Calibration the actual option pricing takes place. This is handled
                 through the class <classname>StockOptionUtil</classname> with the method
-                    <methodname>getImpliedVolatilitySABR</methodname>. this method takes SABRSurface
+                    <methodname>getImpliedVolatilitySABR</methodname>. This method takes SABRSurface
                 parameter. The actual option pricing happens in two steps:</para>
             <orderedlist numeration="arabic">
                 <listitem>
@@ -5001,7 +4988,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
         <title>Reconciliation </title>
         <section>
             <title>Partner Systems </title>
-            <para>Reconciliation is the automated process to compare the status of the system with
+            <para>Reconciliation is the automated process for comparing the status of the system with
                 external partner systems (e.g. executed trades, current positions, cash
                 transactions).</para>
             <para>Currently Reconciliation is available for the following partners:</para>
@@ -5173,9 +5160,9 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
         <para>AlgoTrader uses <ulink url="http://www.quickfixj.org/"> QuickFix/J</ulink> for all fix
             interfaces.</para>
         <para>The generic broker interface consists of the two abstract services ExternalOrderService and
-            MarketDataService. Every broker specific implementation has to be subclass these
-            services e.g. IBNativeOrderService or FixOrderService (with corresponding subclasses
-            like Fix42OrderService or IBFixOrderService).</para>
+            MarketDataService. Every broker specific implementation has to subclass these services
+            e.g. IBNativeOrderService or FixOrderService (with corresponding subclasses like
+            Fix42OrderService or IBFixOrderService).</para>
         <section>
             <title>Orders &amp; Fills </title>
             <para>The UML Activity Diagram on the right explains a typical order/execution process.</para>
@@ -5206,13 +5193,13 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                     validate method will be called (again) inside the sendOrder method, in case the
                     validation fails, this time an Exception will be thrown.</para>
                 <para>The method <methodname>sendOrder</methodname> of the <classname>OrderService</classname>
-                    is responsible to place Orders. This method takes an
+                    is responsible for placing Orders. This method takes an
                         <classname>Order</classname> object as parameter. If the second parameter
-                    named suggest is set to true, there will not be an actual Order going to the
-                    Broker but instead an Email with a Order Suggestion is sent to the registered
-                    Email addresses.</para>
-                <para>The <methodname>sendOrder</methodname> method is responsible to invoke the broker specific
-                    method <methodname>sendOrder</methodname> of the
+                    named <parameter>suggest</parameter> is set to true, there will not be an actual
+                    Order going to the Broker but instead an Email with a Order Suggestion is sent
+                    to the registered Email addresses.</para>
+                <para>The <methodname>sendOrder</methodname> method is responsible for invoking the broker
+                    specific method <methodname>sendOrder</methodname> of the
                         <classname>ExternalOrderService</classname>. The method
                         <methodname>sendOrder</methodname> is contained within the generic
                         <classname>ExternalOrderService</classname>, where it is marked abstract, so
@@ -5227,7 +5214,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                         order</emphasis> or <emphasis>modify order</emphasis> can be
                     executed).</para>
                 <para>In addition Open Orders are stored in the <classname>OpenOrderWindow</classname> until
-                    there full execution or cancellation.</para>
+                    their full execution or cancellation.</para>
             </section>
             <section>
                 <title>Receive Fills </title>
@@ -5242,15 +5229,15 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 <note>
                     <para>Fills and Transactions are separated from each other for the following reason. A Fill
                         contains all the information received from the broker (and a reference to
-                        the Order). Where as a Transaction contains all the information related to
+                        the Order). Whereas a Transaction contains all the information related to
                         accounting (i.e. references to position and strategy). In addition to
-                        Transactions related to Fills, there are Transactions, that are independent
-                        of Fills (i.e. Deposits, Withdrawls, Interest, etc.).</para>
+                        Transactions related to Fills, there are Transactions that are independent
+                        of Fills (i.e. Deposits, Withdrawls, Intrest, etc.).</para>
                 </note>
                 <para>Like Fills and Transactions the generic <classname>OrderStatus</classname> will also be
                     propagated to the corresponding strategy.</para>
                 <para>The statement LOG_TRANSACTION_SUMMARY of the <filename>module-trades.epl</filename> is
-                    responsible to "collect" all OrderStatus events for an order an produce one
+                    responsible for collecting all OrderStatus events for an order an produce one
                     combined log statement.</para>
                 <para>The <classname>OpenOrderWindow</classname> is updated based on every OrderStatus event
                     (e.g. increase filledQuantity &amp; reduce remainingQuantity). Once the Order is
@@ -5263,12 +5250,12 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
             <section>
                 <title>Fix Interface </title>
                 <para>AlgoTrader uses <ulink url="http://www.quickfixj.org/"> QuickFix/J</ulink> for it's Fix
-                    connections and currently supports FIX 4.2 and 4.4. Because FIX message are not
+                    connections and currently supports FIX 4.2 and 4.4. Because FIX messages are not
                     compatible between different version, the two distinct services
                         <classname>Fix42OrderService</classname> and
                         <classname>Fix44OrderService</classname> exist. Incoming messages are
                     handled by there corresponding <classname>Fix42MessageHandler</classname> and
-                    Fix44MessageHandler, which are responsible to create OrderStatus and Fill
+                    Fix44MessageHandler, which are responsible for creating OrderStatus and Fill
                     events.</para>
                 <para>The Fix infrastructure consists of the following classes:</para>
                 <table frame="all" pgwide="1">
@@ -5288,15 +5275,15 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                                 <entry>
                                     <classname>FixClient</classname>
                                 </entry>
-                                <entry> the main entry point into the Fix environment. It is responsible to start up the
-                                    QuickFix/J engine, create dynamic sessions, send Messages and
-                                    managed OrderIds. </entry>
+                                <entry> the main entry point into the Fix environment. It is responsible for starting up the
+                                    QuickFix/J engine, creating dynamic sessions, sending Messages
+                                    and managing OrderIds. </entry>
                             </row>
                             <row>
                                 <entry>
                                     <classname>FixApplication</classname>
                                 </entry>
-                                <entry> for each session a <classname>FixApplication</classname> object is created. it will
+                                <entry> for each session a <classname>FixApplication</classname> object is created. It will
                                     forward incoming messages to the corresponding
                                         <classname>MessageHandler</classname>
                                 </entry>
@@ -5378,20 +5365,19 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
             </section>
             <section>
                 <title>IB Fix Interface </title>
-                <para>Die IB Fix Interface provides the same Order Management features as the IB
-                    Native Interface. However Market Data is not available through this
-                    interface.</para>
+                <para>The IB Fix Interface provides the same Order Management features as the IB Native
+                    Interface. However Market Data is not available through this interface.</para>
                 <para>The interface is fully capable of handling IB's Financial Advisor
                     functionality like Sub Accounts, Account Groups and Allocation Profiles.</para>
             </section>
             <section>
                 <title>JP Morgan Fix Interface </title>
-                <para>as the JP Morgan Fix Implementation is well conformant with the Fix Standard
-                    no customizations had to be made</para>
+                <para>As the JP Morgan Fix Implementation is well conformant with the Fix Standard no
+                    customizations had to be made</para>
             </section>
             <section>
                 <title>DukasCopy Fix Interface </title>
-                <para>the DukasCopy Fix Implementation does not follow the Fix Standard very well, so quite a
+                <para>The DukasCopy Fix Implementation does not follow the Fix Standard very well, so quite a
                     few customizations had to be made including a fully independent
                         <classname>MessageHandler</classname> (not subclassing any of the existing
                         <classname>FixMessageHandler</classname> classes)</para>
@@ -5435,8 +5421,8 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                         information like last price, last time, bid, ask, volume, etc.)</para>
                 </listitem>
                 <listitem>
-                    <para>PriceEvent (with it's subclasses Trade, Quote, Bid and Ask representing a
-                        single atomic event in the market)</para>
+                    <para>PriceEvent (with its subclasses Trade, Quote, Bid and Ask representing a single atomic
+                        event in the market)</para>
                 </listitem>
             </itemizedlist>
         </para>
@@ -5462,10 +5448,10 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
             securities are persisted within the DB-table <parameter>subscription</parameter>. The
             actual subscription of securities to the external broker is done through the broker
             specific MarketDataService.</para>
-        <para>Broker Interfaces are responsible to receive Broker specific Market Data and send them
+        <para>Broker Interfaces are responsible for receiving Broker specific Market Data and sending them
             into the Esper Service Instance Base. The Esper Service Instance Base will then convert
             these Events into generic MarketDataEvents (i.e. Ticks or Bars) which will be propagated
-            to subscribed Strategies</para>
+            to subscribed Strategies.</para>
         <para>
             <figure>
                 <title>Market Data Propagation</title>
@@ -5500,8 +5486,8 @@ from
   Tick.win:expr_batch(sum(volume) > 1000)
 group by
   security.id;</programlisting>
-                In addition there is a custom view, that can be used to create Bars from Ticks with
-                an explicit definition off a cutoff time:</para>
+                In addition there is a custom view that can be used to create Bars from Ticks with
+                an explicit definition of a cutoff time:</para>
             <programlisting>select
   open,
   high,
@@ -5547,8 +5533,8 @@ from
                 </listitem>
             </itemizedlist>
             <para>The first line within the file is the header row.</para>
-            <para>If external provided Tickdata uses other time formats (i.e. DDMMYYY-hhmmss), these
-                should be converted to milliseconds before using with AlgoTrader.</para>
+            <para>If externally provided Tickdata uses other time formats (i.e. DDMMYYY-hhmmss), these should
+                be converted to milliseconds before using with AlgoTrader.</para>
             <section>
                 <title>Tick Data Files </title>
                 <para>The Format of the Tick Data Files is based on a standard CSV Structure: <itemizedlist>
@@ -5731,7 +5717,7 @@ from
                 Events that can contain any type of information (e.g. virtual market data, signals,
                 exposure values, etc.). In contrary to MarketDataEvents, which are sent from the
                 Base to the subscribed strategies, these Generic Events are sent from one strategy
-                to one ore more receiving strategies. A Generic Event class has to subclass
+                to one or more receiving strategies. A Generic Event class has to subclass
                     <classname>GenericEventVO</classname>. Subscription to Generic Events is based
                 on the class of the Generic Event.</para>
             <para>Example: To subscribe to a Generic Event of type Signal (which is a subclass of
@@ -5761,7 +5747,7 @@ subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
         </section>
         <section>
             <title>Market Data Gap Checking </title>
-            <para>Since a continuous data feed of market data is essential for most trading strategies.
+            <para>Since a continuous data feed of market data is essential for most trading strategies,
                 AlgoTrader contains a feature that automatically warns if no market data has been
                 received for a prolonged period of time. For this purpose the class
                     <classname>SecurityFamily</classname> has a property
@@ -5778,8 +5764,8 @@ subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
                 <varlistentry>
                     <term>SlicingOrder</term>
                     <listitem>
-                        <para>Splits an order into several slices, where the quantity of each slice
-                            is randomized between <parameter>minVolPct</parameter> and
+                        <para>Splits an order into several slices, where the quantity of each slice is randomized
+                            between <parameter>minVolPct</parameter> and
                                 <parameter>maxVolPct</parameter> of the current volume offered at
                             the market. Each order will stay in the market for
                                 <parameter>minDuration</parameter> to
@@ -5791,8 +5777,8 @@ subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
                             above the market. Depending on whether a slice gets filled, the price of
                             the next slice is adjusted. If a slice get filled, the price of the next
                             slice will be reduced by one tick (for BUY orders). If the slice does
-                            not get filled, the price of the next slice is increase by one tick (for
-                            BUY orders)</para>
+                            not get filled, the price of the next slice is increased by one tick
+                            (for BUY orders)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -5823,10 +5809,10 @@ subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
                 <varlistentry>
                     <term>DistributingOrder</term>
                     <listitem>
-                        <para>Distributes an order according to defined Allocations (AlgoOrder has a
-                            one-to-many relation to Allocation) to different accounts / brokers. The
-                            individual orders are sent as market orders. Optionally, the individual
-                            orders could again be AlgoOrder</para>
+                        <para>Distributes an order according to defined Allocations (AlgoOrder has a one-to-many
+                            relation to Allocation) to different accounts / brokers. The individual
+                            orders are sent as market orders. Optionally, the individual orders
+                            could again be AlgoOrders</para>
                     </listitem>
                 </varlistentry>
             </variablelist>
@@ -5836,18 +5822,18 @@ subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
             <para>Additional Execution Algos can be added to the system without much effort. Execution Algos
                 consist of the following two artifacts <itemizedlist>
                     <listitem>
-                        <para>a subclass of AlgoOrder. See chapter <xref linkend="Order"/>. An
-                            AlgoOrder has to implement the method
-                                <methodname>validate()</methodname> to validate the order parameters
-                            and the method<methodname>getInitialOrders()</methodname> to return one
-                            or more child orders (subclass of <classname>SimpleOrder</classname>)
-                            that need to be send to the market right away when the AlgoOrder is
-                            created (and sent to the <classname>OrderService</classname>). In
-                            addition the class can implement any additional logic needed in
-                            conjunction with custom esper statements. AlgoOrders also provide a
-                            reporting functionality (e.g. on the success of the AlgoOrder), to use
-                            it the method <methodname>done()</methodname> has to be overridden. This
-                            method will be invoked after the AlgoOrder has been fully executed or
+                        <para>a subclass of AlgoOrder. See chapter <xref linkend="Order"/>. An AlgoOrder has to
+                            implement the method <methodname>validate()</methodname> to validate the
+                            order parameters and the
+                                method<methodname>getInitialOrders()</methodname> to return one or
+                            more child orders (subclass of <classname>SimpleOrder</classname>) that
+                            need to be sent to the market right away when the AlgoOrder is created
+                            (and sent to the <classname>OrderService</classname>). In addition the
+                            class can implement any additional logic needed in conjunction with
+                            custom esper statements. AlgoOrders also provide a reporting
+                            functionality (e.g. on the success of the AlgoOrder), to use it the
+                            method <methodname>done()</methodname> has to be overridden. This method
+                            will be invoked after the AlgoOrder has been fully executed or
                             cancelled</para>
                     </listitem>
                     <listitem>
@@ -5904,12 +5890,12 @@ subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
         </figure>
         <para>AlgoTrader provides a feature to create Synthetic Instruments &amp; Derivative Spreads
             based on the two Entities Combination and Component.</para>
-        <para>Combinations are handled like every other Security except, that they cannot be traded
-            externally. A Combination consists of one ore many Components. Each component has a
+        <para>Combinations are handled like every other Security except that they cannot be traded
+            externally. A Combination consists of one or many Components. Each component has a
             quantity.</para>
-        <para>It is possible to create non-tradeable Positions based Combinations. It is also possible to
-            assign exit-values to these combination-positions, which will initiate closing trades to
-            the corresponding securities if the marketPrice of the combination reaches the
+        <para>It is possible to create non-tradeable Positions based on Combinations. It is also possible
+            to assign exit-values to these combination-positions, which will initiate closing trades
+            to the corresponding securities if the marketPrice of the combination reaches the
             exitValue.</para>
         <para>The Base generates Ticks based on the size of the components of the combination and the
             current marketValues of the associated securities. This calculation is handled by the
@@ -5929,17 +5915,17 @@ subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
                     </mediaobject>
                 </figure>
             </para>
-            <para>The example above shows a Combination based on 39 VIX April 2013 Futures and 5 VIX
-                May 2013 Futures. There is a non-tradeable position with quantity -1 based on that
+            <para>The example above shows a Combination based on 39 VIX April 2013 Futures and 5 VIX May 2013
+                Futures. There is a non-tradeable position with quantity -1 based on that
                 Combination. Also there are two physical Positions in the portfolio, that mirror the
                 Components of the Combination (-39 VIX April 2013 Futures and -5 VIX May 2013
-                Futures). Also the example shows, that the marketPrice of the combination is based
-                on a weighted average of the prices of both combinations, i.e.:</para>
+                Futures). Also the example shows that the marketPrice of the combination is based on
+                a weighted average of the prices of both combinations, i.e.:</para>
             <screen>(39 * 14.90 + 5 * 15.95 ) / 44 = 15.02</screen>
         </section>
         <section>
             <title>CombinationService </title>
-            <para>The <classname>CombinationService</classname> is responsible to handle all Combination /
+            <para>The <classname>CombinationService</classname> is responsible for handling all Combination /
                 Component related DB-Operations.</para>
             <section>
                 <title>Create Combination </title>
@@ -6044,7 +6030,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                 <tgroup cols="3">
                     <colspec colwidth="0.8*"/>
                     <colspec colwidth="1*"/>
-                    <colspec colwidth="2*"/>
+                    <colspec colwidth="1*"/>
                     <thead>
                         <row>
                             <entry> BeanRefFactoriy </entry>
@@ -6056,24 +6042,24 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
 
                         <row>
                             <entry> beanRefFactoryLocal.xml </entry>
-                            <entry> LOCAL_BEAN_REFERENCE_LOCATION </entry>
+                            <entry> LOCAL</entry>
                             <entry> used when no remoting or strategy related functionality is
                                 needed (i.e. HistoricalDataStarter) </entry>
                         </row>
                         <row>
                             <entry> beanRefFactoryServer.xml </entry>
-                            <entry> SERVER_BEAN_REFERENCE_LOCATION </entry>
+                            <entry> SERVER </entry>
                             <entry> used to export Services through RMI </entry>
                         </row>
                         <row>
                             <entry> beanRefFactoryClient.xml </entry>
-                            <entry> CLIENT_BEAN_REFERENCE_LOCATION </entry>
+                            <entry> CLIENT </entry>
                             <entry> used by the Strategies in Live Trading Mode to connect to Base
                                 Services through RMI </entry>
                         </row>
                         <row>
                             <entry> beanRefFactorySimulation </entry>
-                            <entry> SIMULATION_BEAN_REFERENCE_LOCATION </entry>
+                            <entry> SIMULATION </entry>
                             <entry> used in simulation </entry>
                         </row>
                     </tbody>
@@ -6245,7 +6231,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
             <para>For many use cases abstract services are in place which can be extended for
                 different market channels.</para>
             <para>For abstract services where there will only be one concrete implementation active (through
-                profiles), and alias can be defined for the concrete service (e.g.
+                profiles), an alias can be defined for the concrete service (e.g.
                     <classname>iBAccountService</classname>,
                     <classname>iBMarketDataService</classname>). A typical Profile configuration
                 inside <filename>applicationContext-xxx.xml</filename> looks like this:</para>
@@ -6343,7 +6329,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                     </listitem>
                     <listitem>
                         <para>JMS Market Data and a JMS Generic Topic as well as corresponding
-                                <classname>MessageListenerContainer</classname>. It's selector
+                                <classname>MessageListenerContainer</classname>. Its selector
                             property is used for message selection</para>
                     </listitem>
                 </itemizedlist>
@@ -6392,7 +6378,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                     <listitem>
                         <para>Http Parameters</para>
                     </listitem>
-                </itemizedlist> In addition each Broker Interface has it's own settings file.
+                </itemizedlist> In addition each Broker Interface has its own settings file.
                     e.g.<filename> conf-ib.properties</filename> for IB.</para>
             <para>Configuration parameters can also be provided as a VM argument when starting up
                 the system, they will overwrite existing parameters.</para>
@@ -6411,9 +6397,9 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
         </section>
         <section>
             <title>Esper Variables </title>
-            <para>The configuration files are also used to define values for Esper variables.
-                Because the Esper Variable system is strong typed, variables with their type has to
-                be configured within the corresponding Esper configuration files. i.e.</para>
+            <para>The configuration files are also used to define values for Esper variables. Because the
+                Esper Variable system is strong typed, variables with their type have to be
+                configured within the corresponding Esper configuration files. i.e.</para>
             <programlisting language="XML">&lt;variable name="simulation_eventsPerDay" type="long"/&gt;    </programlisting>
             <para>Namespaces have to be specified using an underscore instead of a period. i.e.
                     <parameter>simulation_eventsPerDay</parameter> corresponds to
@@ -6423,8 +6409,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
         </section>
         <section>
             <title>Access to Configuration Values </title>
-            <para>the following five Spring Services are used to gain access to Configuration
-                Values:</para>
+            <para>The following five Spring Services are used to gain access to Configuration Values:</para>
             <variablelist>
                 <varlistentry>
                     <term><classname>org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor</classname></term>
@@ -6616,8 +6601,8 @@ private @Value("#{T(com.algoTrader.enumeration.Currency)
                 long as they do not modify the same Entity at the same time. However if two
                 Subscribers / Listeners modify the same Entity (e.g. a Position) at the same time,
                 this could lead to an inconsistent state in the database.</para>
-            <para>For this purpose AlgoTrader uses general database isolation levels as well as
-                Hibernate's optimistic an pessimistic locking.</para>
+            <para>For this purpose AlgoTrader uses general database isolation levels as well as Hibernate's
+                optimistic and pessimistic locking.</para>
             <para>For debugging reasons AlgoTrader logs the name of the thread using log4j, see
                     <xref linkend="Logging"/>
             </para>
@@ -6629,14 +6614,14 @@ private @Value("#{T(com.algoTrader.enumeration.Currency)
         </section>
         <section id="Hibernate_Locking">
             <title>Hibernate Locking </title>
-            <para>Per default no concurrency control is enabled. If two session operate on the same
-                entity at the same time, that last update wins and the first update is lost.</para>
+            <para>Per default no concurrency control is enabled. If two sessions operate on the same entity
+                at the same time, that last update wins and the first update is lost.</para>
             <section>
                 <title>Optimistic Locking </title>
-                <para>This option is best for situations where concurrent modifications happen
-                    rarely, but one wishes to be notified in case two session operate on the same
-                    entity at the same time. In this case the first update wins and the second
-                    update throws an exception.</para>
+                <para>This option is best for situations where concurrent modifications happen rarely, but one
+                    wishes to be notified in case two sessions operate on the same entity at the
+                    same time. In this case the first update wins and the second update throws an
+                    exception.</para>
                 <para>Hibernate uses versions for this purpose. To enable add the following to the
                     class-mapping:</para>
                 <programlisting language="XML">&lt;version name="version"/&gt;</programlisting>
@@ -6692,10 +6677,10 @@ session.buildLockRequest(LockOptions.NONE).lock(entity)</programlisting>
                     </itemizedlist>
                 </para>
                 <warning>
-                    <para>session.buildLockRequest might through a StaleObjectException if the
-                        other session holding the lock actually modified the object in the meantime.
-                        If the exception is thrown, the session has to be aborted because recovery
-                        of the Exception is not possible</para>
+                    <para>session.buildLockRequest might throw a StaleObjectException if the other session holding
+                        the lock actually modified the object in the meantime. If the exception is
+                        thrown, the session has to be aborted because recovery of the Exception is
+                        not possible</para>
                 </warning>
                 <section>
                     <title>Transactions </title>
@@ -6806,9 +6791,9 @@ where and s.name = 'BASE'</programlisting>
         </section>
         <section>
             <title>Metrics Reporting </title>
-            <para>AlgoTrader Metrics Reporting loges a detailed summary of all metrics as well as
-                statement time consumption to the console. Displayed values are Execution time (in
-                nano seconds) and Execution Count.</para>
+            <para>AlgoTrader Metrics Reporting logs a detailed summary of all metrics as well as statement
+                time consumption to the console. Displayed values are Execution time (in nano
+                seconds) and Execution Count.</para>
             <para>Metrics Reporting is invoked by one of the following two methods: <itemizedlist>
                     <listitem>
                         <para>In Live Trading Mode a metrics report can be invoked through the
@@ -7051,7 +7036,7 @@ where and s.name = 'BASE'</programlisting>
                         </row>
                         <row>
                             <entry> FILE </entry>
-                            <entry> Logs Info and up to a appending file </entry>
+                            <entry> Logs Info and up to an appending file </entry>
                         </row>
                         <row>
                             <entry> ERROR</entry>
@@ -7080,9 +7065,8 @@ where and s.name = 'BASE'</programlisting>
                             see nohup.log)</para>
                     </listitem>
                     <listitem>
-                        <para>log4j-prod.xml defines AsyncAppenders for appenders that send
-                            Emails/SMS to make sure that calling code is not blocked by the send
-                            operation</para>
+                        <para>log4j-prod.xml defines AsyncAppenders for appenders that send Emails/SMS to ensure that
+                            calling code is not blocked by the send operation</para>
                     </listitem>
                     <listitem>
                         <para>To prevent saturation of the logs several loggers have been defined
