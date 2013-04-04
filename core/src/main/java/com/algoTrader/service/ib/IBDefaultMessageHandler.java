@@ -86,6 +86,27 @@ public class IBDefaultMessageHandler implements EWrapper {
                 logger.warn(message);
                 break;
 
+            case 201:
+
+                if ("Cannot cancel the filled order".equals(errorMsg)) {
+
+                    // Cannot cancel the filled order
+                    // do nothing, we cancelled the order just a little bit too late
+                    logger.warn(message);
+
+                } else {
+
+                    // The exchange is closed
+                    // The account does not have trading permissions for this product
+                    // No Trading Permission
+                    // The maximum order size of xxx is exceeded
+                    // The maximum order value of xxx is exceeded
+                    // No clearing rule found
+                    // etc.
+                    logger.error(message);
+                }
+                break;
+
             case 202:
 
                 // Order cancelled
