@@ -43,7 +43,7 @@ public class OrderPreferenceImpl extends OrderPreference {
 
             // set the account if defined
             if (getDefaultAccount() != null) {
-                order.setAccount(getDefaultAccount());
+                order.setAccount(getDefaultAccountInitialized());
             }
 
             // set allocations if defined
@@ -54,7 +54,7 @@ public class OrderPreferenceImpl extends OrderPreference {
                 } else {
 
                     double totalAllocation = 0;
-                    for (Allocation allocation : getAllocations()) {
+                    for (Allocation allocation : getAllocationsInitialized()) {
                         totalAllocation += allocation.getValue();
                     }
 
@@ -63,7 +63,7 @@ public class OrderPreferenceImpl extends OrderPreference {
                     }
 
                     AlgoOrder algoOrder = (AlgoOrder) order;
-                    algoOrder.setAllocations(getAllocations());
+                    algoOrder.setAllocations(getAllocationsInitialized());
                 }
             }
 

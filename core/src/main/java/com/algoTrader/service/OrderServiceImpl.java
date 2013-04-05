@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.strategy.Strategy;
 import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.entity.trade.AlgoOrder;
 import com.algoTrader.entity.trade.Fill;
@@ -82,12 +81,13 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     protected void handleSendOrder(Order order) throws Exception {
 
         // reload the strategy and security to get potential changes
-        Strategy strategy = getStrategyDao().load(order.getStrategy().getId());
-        Security security = getSecurityDao().load(order.getSecurity().getId());
+        order.setStrategy(getStrategyDao().load(order.getStrategy().getId()));
+        order.setSecurity(getSecurityDao().load(order.getSecurity().getId()));
 
-        // also update the strategy and security of the order
-        order.setStrategy(strategy);
-        order.setSecurity(security);
+        // reload the if necessary to get potential changes
+        if (order.getAccount() != null) {
+            order.setAccount(getAccountDao().load(order.getAccount().getId()));
+        }
 
         // validate the order before sending it
         validateOrder(order);
