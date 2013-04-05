@@ -2754,14 +2754,31 @@ getOrderService().sendOrders(orders);</programlisting>
     </chapter>
     <chapter id="Client">
         <title>Client</title>
-        <para>The system does not provide a GUI Frontend. Instead it uses <ulink url="http://docs.oracle.com/javase/tutorial/jmx/index.html"> Java Management
-                Extension</ulink> (JMX) and <ulink url="http://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html">
-                JConsole</ulink>. Services tagged with
-                <parameter>@algoTrader.service.manageable</parameter> are automatically exposed
-            through JMX by means of the
-                <classname>org.springframework.jmx.export.annotation.AnnotationMBeanExporter</classname>.</para>
+        <para>The system uses <ulink url="http://docs.oracle.com/javase/tutorial/jmx/index.html"> Java
+                Management Extension</ulink> (JMX) and the generic Java Client<ulink
+                url="http://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html">
+                JConsole</ulink> as it's frontend. </para>
+        <para>When starting up the AlgoTraderClient there will be one window per JVM. The JConsole
+            provides management functionality for many technical aspects of the JVM (see the <ulink
+                url="http://docs.oracle.com/javase/6/docs/technotes/guides/management/jconsole.html"
+                >Java Documentation</ulink> for details). The business related features of
+            AlgoTrader are available on the Tab <literal>MBeans</literal> through the
+                <classname>BaseManagementService</classname> and the
+                <classname>ManagementService</classname> under
+                <package>com.algoTrader.service</package>:</para>
+        <figure>
+            <title>AlgoTrader Client</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata scalefit="1" fileref="images/Client.gif"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <section>
             <title>AlgoTrader Managed Beans</title>
+            <para>Services tagged with <parameter>@algoTrader.service.manageable</parameter> are
+                automatically exposed through JMX by means of the
+                    <classname>org.springframework.jmx.export.annotation.AnnotationMBeanExporter</classname>.</para>
             <para>The following AlgoTader Services are exposed as Managed Beans</para>
             <section>
                 <title>Management Service</title>
@@ -3885,7 +3902,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     <parameter>AUTO_ACTIVATE</parameter>. In addition the strategy should have an
                 allocation amount greater than 0.0 and the total of all allocations needs to be 1.0
                 (e.g. <literal>BASE</literal> = 0.0 and <parameter>strategyName</parameter> = 1.0).</para>
-            <section>
+            <section id="Simulation_Mode">
                 <title>Simulation Mode</title>
                 <para>To run a strategy in Simulation Mode the class
                         <classname>com.algoTrader.starter.SimulationStarter</classname> inside the
@@ -3934,7 +3951,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     </varlistentry>
                 </variablelist>
             </section>
-            <section>
+            <section id="Live_Trading_Mode">
                 <title>Live Trading Mode</title>
                 <para>To run the Strategy in Live Trading Mode the corresponding Broker Interface
                     (e.g. local Client, local Gateway or VPN Connection) needs to be up and
@@ -3952,8 +3969,8 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         <para>Trusted IP Addresses: 127.0.0.1</para>
                     </listitem>
                 </itemizedlist>
-                <para>In Live Trading Mode the Base and the strategy run in separate
-                JVM's and have to be started separately.</para>
+                <para>In Live Trading Mode the Base and the strategy run in separate JVM's and have
+                    to be started separately.</para>
                 <section>
                     <title>Starting the Base</title>
                     <para>If using Eclipse specify the following in the Launch Configuration to
@@ -7404,7 +7421,7 @@ where and s.name = 'BASE'</programlisting>
             </note>
         </section>
     </chapter>
-    <appendix>
+    <appendix id="Box_Strategy">
         <title>Example Strategy "Box"</title>
         <section>
             <title>Trading Idea</title>
@@ -7414,14 +7431,14 @@ where and s.name = 'BASE'</programlisting>
                     frequent Draw Downs, it might lead to large losses. Even when modifying ore
                     extending the Strategy use extreme caution before trading it Live.</para>
             </warning>
-            <para>The Strategy trades the EUR.USD FX Market and is based on the Stairstep Breakouts Indicator
-                that is presented on <ulink
+            <para>The Strategy trades the EUR.USD FX Market and is based on the Stairstep Breakouts
+                Indicator that is presented on <ulink
                     url="http://www.forexfactory.com/showthread.php?t=302007"
                     >www.forexfactory.com</ulink> by <ulink
                     url="http://www.forexfactory.com/forexhard">forexhard</ulink>.</para>
-            <para>The Trading Idea behind the Strategy is the following. Markets will often stay within a
-                trading range for a considerable amount of time before they break-out in either
-                direction.  The following Chart shows some examples of trading ranges.</para>
+            <para>The Trading Idea behind the Strategy is the following. Markets will often stay
+                within a trading range for a considerable amount of time before they break-out in
+                either direction. The following Chart shows some examples of trading ranges.</para>
             <figure>
                 <title>Box Trading Ranges</title>
                 <mediaobject>
@@ -7430,8 +7447,8 @@ where and s.name = 'BASE'</programlisting>
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>After a break-out markets might return back into the trading range but will eventually make
-                a major move in one direction.</para>
+            <para>After a break-out markets might return back into the trading range but will
+                eventually make a major move in one direction.</para>
             <para>According to the defined settings, the Strategy looks for a trading range with a
                 minimum length in Minutes (e.g. 90 Minutes) and a maximum width in Pips (e.g. 30
                 Pips). The chart below displays a typical trading range in dark blue color.</para>
@@ -7443,20 +7460,22 @@ where and s.name = 'BASE'</programlisting>
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>As soon as trading range has been built according to these parameters, the Strategy waits
-                for the first break-out to happen. The strategy enters the market in the direction
-                of the breakout as soon as a small margin called buffer (dashed red line, e.g. 5
-                Pips) has been crossed. In the example above, this happened at 10:48.</para>
-            <para>The Strategy will set a stop at the opposite side of the box (e.g. 1.3618 = 39 Pips) and a
-                target with the same distance (e.g. 1.3544 = 39 Pips).</para>
+            <para>As soon as trading range has been built according to these parameters, the
+                Strategy waits for the first break-out to happen. The strategy enters the market in
+                the direction of the breakout as soon as a small margin called buffer (dashed red
+                line, e.g. 5 Pips) has been crossed. In the example above, this happened at
+                10:48.</para>
+            <para>The Strategy will set a stop at the opposite side of the box (e.g. 1.3618 = 39
+                Pips) and a target with the same distance (e.g. 1.3544 = 39 Pips).</para>
             <para>If the target is reached, the Strategy resets itself and waits for a new Box to
                 build itself.</para>
-            <para>If the Position gets stopped out (at the opposite side of the Box), The Strategy waits for
-                the next break-out to happen (on the same Box) and enters the market again after the
-                buffer-line has been crossed. This time the size of the position is doubled in order
-                to cover the losses of the first entry, in case the target is reached this time
-                around. Position size is doubled up to a defined maximum. Because of this doubling
-                the system can be categorized as a Martingale Strategy (see <ulink url="http://en.wikipedia.org/wiki/Martingale_%28betting_system%29">Martingale
+            <para>If the Position gets stopped out (at the opposite side of the Box), The Strategy
+                waits for the next break-out to happen (on the same Box) and enters the market again
+                after the buffer-line has been crossed. This time the size of the position is
+                doubled in order to cover the losses of the first entry, in case the target is
+                reached this time around. Position size is doubled up to a defined maximum. Because
+                of this doubling the system can be categorized as a Martingale Strategy (see <ulink
+                    url="http://en.wikipedia.org/wiki/Martingale_%28betting_system%29">Martingale
                     Betting System</ulink>).</para>
             <para>The following State Chart Diagram depicts the different states the Strategy will
                 pass through:</para>
@@ -7468,15 +7487,15 @@ where and s.name = 'BASE'</programlisting>
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>The default setting of the Strategy will go up to level 5 which will result in a position
-                size of 16 times the original size. So the individual sizes on the different levels
-                will be: 1, 2, 4, 8 &amp; 16. Each successful series will therefor present a profit
-                of 1 unit. Very often series will be successful on a level that is below the maximum
-                level (e.g. below level 5). However if the Strategy has a loosing set, which will be
-                terminated at the maximum level (e.g. at level 5), there will be a loss of 16 times
-                the original position size.</para>
-            <para>The Strategy will  often have multiple successful series in a row before having one major
-                draw down. A typical performance chart will therefore look like this:</para>
+            <para>The default setting of the Strategy will go up to level 5 which will result in a
+                position size of 16 times the original size. So the individual sizes on the
+                different levels will be: 1, 2, 4, 8 &amp; 16. Each successful series will therefor
+                present a profit of 1 unit. Very often series will be successful on a level that is
+                below the maximum level (e.g. below level 5). However if the Strategy has a loosing
+                set, which will be terminated at the maximum level (e.g. at level 5), there will be
+                a loss of 16 times the original position size.</para>
+            <para>The Strategy will often have multiple successful series in a row before having one
+                major draw down. A typical performance chart will therefore look like this:</para>
             <figure>
                 <title>Box Strategy Performance</title>
                 <mediaobject>
@@ -7485,24 +7504,25 @@ where and s.name = 'BASE'</programlisting>
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>To prevent having open positions over the weekend the Strategy does not create any new
-                boxes after a defined time on Friday (e.g. 4PM). Also, it will terminate a potential
-                ongoing series at a defined time on Friday (e.g. 10PM)</para>
+            <para>To prevent having open positions over the weekend the Strategy does not create any
+                new boxes after a defined time on Friday (e.g. 4PM). Also, it will terminate a
+                potential ongoing series at a defined time on Friday (e.g. 10PM)</para>
         </section>
         <section>
             <title>Implementation</title>
             <para>The main artifacts needed for the Implementation of a new Strategy are described
                 in chapter <xref linkend="Strategy_Development"/>.</para>
             <para>The following list will give an overview of the specific artifacts implemented by
-                the Box Strategy (Note: Most of the functionality is documented via JavaDoc or Esper comments):</para>
+                the Box Strategy (Note: Most of the functionality is documented via JavaDoc or Esper
+                comments):</para>
             <variablelist>
                 <varlistentry>
                     <term>
                         <filename>/src/main/java/com/algoTrader/strategy/forex/BoxServiceImpl.java</filename>
                     </term>
                     <listitem>
-                        <para>The strategy service class providing the main methods invoked by  different Esper
-                                statements.</para>
+                        <para>The strategy service class providing the main methods invoked by
+                            different Esper statements.</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -7510,7 +7530,8 @@ where and s.name = 'BASE'</programlisting>
                         <filename>/src/main/java/com/algoTrader/strategy/forex/BoxChartServiceImpl.java</filename>
                     </term>
                     <listitem>
-                        <para>This class provides input data for the Box Custom Chart (see <xref linkend="Custom_Chart"/>).</para>
+                        <para>This class provides input data for the Box Custom Chart (see <xref
+                                linkend="Custom_Chart"/>).</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -7519,9 +7540,9 @@ where and s.name = 'BASE'</programlisting>
                     </term>
                     <listitem>
                         <para>The class containing the main method to start the strategy in Live
-                                Trading Mode. It will also initiate a reset of all Esper variables
-                                to its prior state before the Engine was shut down and invoke
-                                prefeeding of Tick Data to initialize statements.</para>
+                            Trading Mode. It will also initiate a reset of all Esper variables to
+                            its prior state before the Engine was shut down and invoke prefeeding of
+                            Tick Data to initialize statements.</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -7529,10 +7550,10 @@ where and s.name = 'BASE'</programlisting>
                         <filename>/src/main/java/com/algoTrader/strategy/forex/Box.java</filename>
                     </term>
                     <listitem>
-                        <para>A POJO class representing all properties of a Box (e.g. <parameter>top</parameter>,
-                                    <parameter>bottom</parameter>,
-                                    <parameter>startDateTime</parameter> and
-                                    <parameter>endDateTime</parameter>)</para>
+                        <para>A POJO class representing all properties of a Box (e.g.
+                                <parameter>top</parameter>, <parameter>bottom</parameter>,
+                                <parameter>startDateTime</parameter> and
+                                <parameter>endDateTime</parameter>)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -7540,10 +7561,9 @@ where and s.name = 'BASE'</programlisting>
                         <filename>/src/main/java/com/algoTrader/strategy/forex/State.java</filename>
                     </term>
                     <listitem>
-                        <para>A Java Enum representing the different States the Strategy can
-                                pass through (<parameter>INIT</parameter>,
-                                    <parameter>CREATED</parameter>, <parameter>LONG</parameter>,
-                                    <parameter>SHORT</parameter>,
+                        <para>A Java Enum representing the different States the Strategy can pass
+                            through (<parameter>INIT</parameter>, <parameter>CREATED</parameter>,
+                                <parameter>LONG</parameter>, <parameter>SHORT</parameter>,
                                 <parameter>FLAT</parameter>)</para>
                     </listitem>
                 </varlistentry>
@@ -7553,9 +7573,9 @@ where and s.name = 'BASE'</programlisting>
                     </term>
                     <listitem>
                         <para>Esper does not provide any persistence mechanisms between JVM
-                                restarts. Therefor all variable values are persisted by means of
-                                this class. The <methodname>BoxServiceImpl.initVariable</methodname>
-                                method will reset all variable values after a restart.</para>
+                            restarts. Therefor all variable values are persisted by means of this
+                            class. The <methodname>BoxServiceImpl.initVariable</methodname> method
+                            will reset all variable values after a restart.</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -7563,9 +7583,9 @@ where and s.name = 'BASE'</programlisting>
                         <filename>/src/main/resources/module-box-init.epl</filename>
                     </term>
                     <listitem>
-                        <para>Esper Module containing statements for capturing market data, creating variables and
-                                creating Boxes. In Live Trading, these statements will be deployed
-                                before the prefeeding.</para>
+                        <para>Esper Module containing statements for capturing market data, creating
+                            variables and creating Boxes. In Live Trading, these statements will be
+                            deployed before the prefeeding.</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -7573,14 +7593,13 @@ where and s.name = 'BASE'</programlisting>
                         <filename>/src/main/resources/module-box-run.epl</filename>
                     </term>
                     <listitem>
-                        <para>Esper Module containing statements that invoke the business actions on the
-                                    <classname>BoxService</classname>
-                                    (<methodname>entry</methodname>,
-                                    <methodname>takeProfit</methodname>,
-                                    <methodname>closePosition</methodname>,
-                                    <methodname>reverse</methodname> and
-                                    <methodname>terminateSeries</methodname>). In Live Trading these
-                                statements will  be deployed after prefeeding is finished.</para>
+                        <para>Esper Module containing statements that invoke the business actions on
+                            the <classname>BoxService</classname> (<methodname>entry</methodname>,
+                                <methodname>takeProfit</methodname>,
+                                <methodname>closePosition</methodname>,
+                                <methodname>reverse</methodname> and
+                                <methodname>terminateSeries</methodname>). In Live Trading these
+                            statements will be deployed after prefeeding is finished.</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -7589,8 +7608,8 @@ where and s.name = 'BASE'</programlisting>
                     </term>
                     <listitem>
                         <para>Contains parameters used by the strategy (e.g.
-                                    <parameter>boxLength</parameter> and
-                                    <parameter>boxRange</parameter>)</para>
+                                <parameter>boxLength</parameter> and
+                            <parameter>boxRange</parameter>)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -7599,11 +7618,11 @@ where and s.name = 'BASE'</programlisting>
                     </term>
                     <listitem>
                         <para>Contains event-types definitions (i.e.
-                                    <classname>CurrentValue</classname>), imports (i.e.
-                                    <classname>Box</classname> and <classname>State</classname>),
-                                variables (e.g. <parameter>boxLength</parameter> and
-                                    <parameter>boxRange</parameter>) and the EsperJMS Plugin for
-                                receiving market data in Live Trading Mode.</para>
+                                <classname>CurrentValue</classname>), imports (i.e.
+                                <classname>Box</classname> and <classname>State</classname>),
+                            variables (e.g. <parameter>boxLength</parameter> and
+                                <parameter>boxRange</parameter>) and the EsperJMS Plugin for
+                            receiving market data in Live Trading Mode.</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -7612,16 +7631,16 @@ where and s.name = 'BASE'</programlisting>
                     </term>
                     <listitem>
                         <para>Contains the declaration of the <classname>BoxService</classname> and
-                                    <classname>BoxChartService</classname> Beans (using autowiring).
-                                The <classname>BoxChartService</classname> also contains the
-                                definition of the Chart including Axis, Dataset and Series (see
-                                    <xref linkend="Custom_Chart"/>). The file also contains the
-                                declaration of the JMS Queue (i.e.
-                                    <classname>ActiveMQQueue</classname>).</para>
+                                <classname>BoxChartService</classname> Beans (using autowiring). The
+                                <classname>BoxChartService</classname> also contains the definition
+                            of the Chart including Axis, Dataset and Series (see <xref
+                                linkend="Custom_Chart"/>). The file also contains the declaration of
+                            the JMS Queue (i.e. <classname>ActiveMQQueue</classname>).</para>
                     </listitem>
                 </varlistentry>
             </variablelist>
-            <para> To start the Strategy please see the explanations in chapter <xref linkend="Starting_a_Strategy"/>.</para>
+            <para> To start the Strategy please see the explanations in chapter <xref
+                    linkend="Starting_a_Strategy"/>.</para>
         </section>
     </appendix>
 </book>
