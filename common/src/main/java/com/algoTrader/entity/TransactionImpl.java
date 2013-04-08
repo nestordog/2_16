@@ -87,16 +87,16 @@ public class TransactionImpl extends Transaction {
     }
 
     @Override
+    public BigDecimal getTotalCommission() {
+
+        return RoundUtil.getBigDecimal(getTotalCommissionDouble(), portfolioDigits);
+    }
+
+    @Override
     public double getTotalCommissionDouble() {
 
         return (getExecutionCommission() != null ? getExecutionCommission().doubleValue() : 0.0) +
                 (getClearingCommission() != null ? getClearingCommission().doubleValue() : 0.0);
-    }
-
-    @Override
-    public BigDecimal getTotalCommission() {
-
-        return RoundUtil.getBigDecimal(getTotalCommissionDouble(), portfolioDigits);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class TransactionImpl extends Transaction {
     @Override
     public boolean isPerformanceRelevant() {
 
-        // for BASE only save PortfolioValue for CREDIT and DEBIT (REBALANCE do not affect NetLiqValue and FEES, REFUND etc. are part of the performance)
+        // for BASE only CREDIT and DEBIT are performance relevant (REBALANCE do not affect NetLiqValue and FEES, REFUND etc. are part of the performance)
         if (getStrategy().isBase()) {
             if (TransactionType.CREDIT.equals(getType()) || TransactionType.DEBIT.equals(getType())) {
                 return true;
