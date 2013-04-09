@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +59,6 @@ import com.algoTrader.esper.EsperManager;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
 import com.algoTrader.esper.io.CsvTickInputAdapterSpec;
 import com.algoTrader.esper.io.GenericEventInputAdapterSpec;
-import com.algoTrader.util.CollectionUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.util.spring.Configuration;
@@ -198,9 +198,10 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         // rebalance portfolio (to distribute initial CREDIT to strategies)
         getPortfolioPersistenceService().rebalancePortfolio();
 
-        // init StrategyService
-        StrategyService strategyService = CollectionUtil.getSingleElement(ServiceLocator.instance().getServices(StrategyService.class));
-        strategyService.initSimulation();
+        // init all StrategyServices in the classpath
+        for (StrategyService strategyService : ServiceLocator.instance().getServices(StrategyService.class)) {
+            strategyService.initSimulation();
+        }
 
         // feed the ticks
         inputCSV();
@@ -394,9 +395,6 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             }
         }
 
-        // get potential strategy specific results
-        StrategyService strategyService = CollectionUtil.getSingleElement(ServiceLocator.instance().getServices(StrategyService.class));
-
         // assemble the result
         SimulationResultVO resultVO = new SimulationResultVO();
         resultVO.setMins(((double) (System.currentTimeMillis() - startTime)) / 60000);
@@ -409,7 +407,13 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         resultVO.setAllTrades(allTrades);
         resultVO.setWinningTrades(winningTrades);
         resultVO.setLoosingTrades(loosingTrades);
-        resultVO.setStrategyResults(strategyService.getSimulationResults());
+
+        // get potential strategy specific results
+        Map<String, Object> strategyResults = new HashMap<String, Object>();
+        for (StrategyService strategyService : ServiceLocator.instance().getServices(StrategyService.class)) {
+            strategyResults.putAll(strategyService.getSimulationResults());
+        }
+        resultVO.setStrategyResults(strategyResults);
 
         return resultVO;
     }

@@ -40,7 +40,7 @@ import com.algoTrader.vo.SABRSurfaceVO;
  */
 public class StockOptionUtil {
 
-    private static double beta = 1.0;
+    private static double beta = 0.999;
 
     public static double getOptionPrice(double underlyingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
 
