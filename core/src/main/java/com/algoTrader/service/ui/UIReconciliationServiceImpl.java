@@ -227,7 +227,7 @@ public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
         Date endOfDay = DateUtils.addDays(date, 1);
 
         // get open positions by the end of the statement date
-        Collection<Position> positions = getPositionDao().findOpenPositionsByDateAggregated(endOfDay);
+        Collection<Position> positions = getPositionDao().findOpenPositionsByMaxDateAggregated(endOfDay);
 
         // group position quantities per security
         LongMap<Security> quantitiesPerSecurity = new LongMap<Security>();

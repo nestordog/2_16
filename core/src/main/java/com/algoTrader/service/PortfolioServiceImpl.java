@@ -123,7 +123,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
         Collection<Transaction> transactions = getTransactionDao().findByMaxDate(date);
 
-        Collection<Position> openPositions = getPositionDao().findOpenPositionsByDateAggregated(date);
+        Collection<Position> openPositions = getPositionDao().findOpenPositionsByMaxDateAggregated(date);
 
         return getCashBalanceDoubleInternal(transactions, openPositions, date);
     }
@@ -133,7 +133,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
         Collection<Transaction> transactions = getTransactionDao().findByStrategyAndMaxDate(strategyName, date);
 
-        Collection<Position> openPositions = getPositionDao().findOpenPositionsByStrategyAndDate(strategyName, date);
+        Collection<Position> openPositions = getPositionDao().findOpenPositionsByStrategyAndMaxDate(strategyName, date);
 
         return getCashBalanceDoubleInternal(transactions, openPositions, date);
     }
@@ -234,7 +234,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
     @Override
     protected double handleGetSecuritiesCurrentValueDouble(Date date) {
 
-        Collection<Position> openPositions = getPositionDao().findOpenPositionsByDateAggregated(date);
+        Collection<Position> openPositions = getPositionDao().findOpenPositionsByMaxDateAggregated(date);
 
         return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
     }
@@ -242,7 +242,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
     @Override
     protected double handleGetSecuritiesCurrentValueDouble(String strategyName, Date date) {
 
-        Collection<Position> openPositions = getPositionDao().findOpenPositionsByStrategyAndDate(strategyName, date);
+        Collection<Position> openPositions = getPositionDao().findOpenPositionsByStrategyAndMaxDate(strategyName, date);
 
         return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
     }

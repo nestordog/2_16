@@ -80,7 +80,7 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
         }
 
         Date date = (Date) firstPosition.get("Statement Date");
-        Collection<Position> positions = getPositionDao().findOpenPositionsByDateAggregated(date);
+        Collection<Position> positions = getPositionDao().findOpenPositionsByMaxDateAggregated(date);
 
         // group position quantities per security
         LongMap<Security> quantitiesPerSecurity = new LongMap<Security>();
