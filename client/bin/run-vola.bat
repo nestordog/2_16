@@ -16,5 +16,4 @@ tailhedge.vola.linardcapital.com:1095 ^
 static.vola.linardcapital.com:1093 ^
 fixed.vola.linardcapital.com:1091 ^
 rollyield.vola.linardcapital.com:1087 ^
-countertrend.vola.linardcapital.com:1085 ^
 endofday.vola.linardcapital.com:1089

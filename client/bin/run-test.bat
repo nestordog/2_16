@@ -16,5 +16,4 @@ tailhedge.test.linardcapital.com:1095 ^
 static.test.linardcapital.com:1093 ^
 fixed.test.linardcapital.com:1091 ^
 rollyield.test.linardcapital.com:1087 ^
-countertrend.test.linardcapital.com:1085 ^
 endofday.test.linardcapital.com:1083
