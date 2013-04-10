@@ -199,7 +199,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
         double years = (expirationDate.getTime() - date.getTime()) / (double) Duration.YEAR_1.getValue();
 
-        Tick underlyingTick = getTickDao().findByDateAndSecurity(date, underlyingId);
+        Tick underlyingTick = getTickDao().findBySecurityAndMaxDate(underlyingId, date);
         if (underlyingTick == null || underlyingTick.getLast() == null) {
             return null;
         }
@@ -254,7 +254,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     @Override
     protected SABRSmileVO handleCalibrateSABRSmileByIVol(int underlyingId, Duration duration, Date date) throws Exception {
 
-        Tick underlyingTick = getTickDao().findByDateAndSecurity(date, underlyingId);
+        Tick underlyingTick = getTickDao().findBySecurityAndMaxDate(underlyingId, date);
         if (underlyingTick == null || underlyingTick.getLast() == null) {
             return null;
         }
@@ -272,14 +272,14 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     @Override
     protected SABRSurfaceVO handleCalibrateSABRSurfaceByIVol(int underlyingId, Date date) throws Exception {
 
-        Tick underlyingTick = getTickDao().findByDateAndSecurity(date, underlyingId);
+        Tick underlyingTick = getTickDao().findBySecurityAndMaxDate(underlyingId, date);
         if (underlyingTick == null || underlyingTick.getLast() == null) {
             return null;
         }
 
         double underlyingSpot = underlyingTick.getLast().doubleValue();
 
-        List<Tick> allTicks = getTickDao().findImpliedVolatilityTicksBySecurityDate(underlyingId, date);
+        List<Tick> allTicks = getTickDao().findImpliedVolatilityTicksBySecurityAndDate(underlyingId, date);
 
         // group by duration
         MultiMap<Duration, Tick> durationMap = new MultiHashMap<Duration, Tick>();
@@ -368,7 +368,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
         StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlying.getId());
 
-        Tick underlyingTick = getTickDao().findByDateAndSecurity(date, underlying.getId());
+        Tick underlyingTick = getTickDao().findBySecurityAndMaxDate(underlying.getId(), date);
         if (underlyingTick == null || underlyingTick.getLast() == null) {
             return null;
         }
@@ -379,12 +379,12 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         StockOption callOption = CollectionUtil.getFirstElementOrNull(callOptions);
         StockOption putOption = CollectionUtil.getFirstElementOrNull(putOptions);
 
-        Tick callTick = getTickDao().findByDateAndSecurity(date, callOption.getId());
+        Tick callTick = getTickDao().findBySecurityAndMaxDate(callOption.getId(), date);
         if (callTick == null || callTick.getBid() == null || callTick.getAsk() == null) {
             return null;
         }
 
-        Tick putTick = getTickDao().findByDateAndSecurity(date, putOption.getId());
+        Tick putTick = getTickDao().findBySecurityAndMaxDate(putOption.getId(), date);
         if (putTick == null || putTick.getBid() == null || putTick.getAsk() == null) {
             return null;
         }

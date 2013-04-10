@@ -178,6 +178,7 @@
         <namespace name="java">
             <properties>
                 <property name="generateEqualPropertiesMethod">true</property>
+                <property name="mergeLocation">${conf.dir}/customTemplates/andromda-java</property>
                 <property name="mergeMappingsUri">file:${conf.dir}/mappings/JavaMergeMappings.xml</property>
                 <property name="enumerations">${common.generated.dir}</property>
                 <property name="exceptions">${common.generated.dir}</property>

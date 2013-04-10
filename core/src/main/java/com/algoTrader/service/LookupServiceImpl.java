@@ -499,7 +499,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected double handleGetPositionMarketPriceByDate(Security security, Date date) throws Exception {
 
-        List<Tick> ticks = getTickDao().findTicksByMinDate(1, 1, security.getId(), date, this.intervalDays);
+        List<Tick> ticks = getTickDao().findTicksBySecurityAndMinDate(1, 1, security.getId(), date, this.intervalDays);
         if (ticks.isEmpty()) {
             throw new IllegalStateException("not tick available for " + security);
         } else {
@@ -616,7 +616,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Tick handleGetLastTick(int securityId) throws Exception {
 
-        Tick tick = CollectionUtil.getSingleElementOrNull(getTickDao().findTicksByMaxDate(1, 1, securityId, DateUtil.getCurrentEPTime(), this.intervalDays));
+        Tick tick = CollectionUtil.getSingleElementOrNull(getTickDao().findTicksBySecurityAndMaxDate(1, 1, securityId, DateUtil.getCurrentEPTime(), this.intervalDays));
 
         if (tick != null) {
             tick.getSecurity().initialize();
@@ -628,13 +628,13 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<Tick> handleGetTicksByMaxDate(int securityId, Date maxDate) throws Exception {
 
-        return getTickDao().findTicksByMaxDate(securityId, maxDate, this.intervalDays);
+        return getTickDao().findTicksBySecurityAndMaxDate(securityId, maxDate, this.intervalDays);
     }
 
     @Override
     protected List<Tick> handleGetTicksByMinDate(int securityId, Date minDate) throws Exception {
 
-        return getTickDao().findTicksByMinDate(securityId, minDate, this.intervalDays);
+        return getTickDao().findTicksBySecurityAndMinDate(securityId, minDate, this.intervalDays);
     }
 
     @Override
@@ -684,7 +684,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<Bar> handleGetDailyBarsFromTicks(int securityId, Date fromDate, Date toDate) {
 
-        return getTickDao().findDailyBars(securityId, fromDate, toDate);
+        return getBarDao().findDailyBars(securityId, fromDate, toDate);
     }
 
     @Override
@@ -696,7 +696,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Tick handleGetTickByDateAndSecurity(Date date, int securityId) {
 
-        return getTickDao().findByDateAndSecurity(date, securityId);
+        return getTickDao().findBySecurityAndMaxDate(securityId, date);
     }
 
     @Override
