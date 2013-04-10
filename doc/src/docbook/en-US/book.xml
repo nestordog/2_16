@@ -235,8 +235,9 @@ public class ExClient {
                         combination of the two provides a best-of-both-worlds approach</para>
             </listitem>
             <listitem>
-                <para>AlgoTrader is extensible and fully customizable for situations where
-                        strategy specific functionalities are required</para>
+                <para>AlgoTrader is extensible and fully customizable for situations where strategy specific
+                    functionalities are required. The system accommodates integration of additional
+                    3rd party libraries.</para>
             </listitem>
             <listitem>
                 <para>AlgoTrader is best suited for quantitative strategies, that follow formal
@@ -248,9 +249,13 @@ public class ExClient {
                     be programed with traditional procedural programming languages</para>
             </listitem>
             <listitem>
-                <para>AlgoTrader is especially useful for strategies that need sophisticated
-                        time window functions and can be expressed with words like during, between,
-                        afterwards, parallel with, along with, finishes and begins with</para>
+                <para>AlgoTrader is especially useful for strategies that need sophisticated time
+                    window functions and can be expressed with words like during, between,
+                    afterwards, parallel with, along with, finishes and begins with</para>
+            </listitem>
+            <listitem>
+                <para>AlgoTrader  enables rapid development of quantitative strategies that process
+                    large volumes of market data </para>
             </listitem>
         </itemizedlist>
         <para>
@@ -345,10 +350,6 @@ public class ExClient {
                 </itemizedlist>
             </listitem>
             <listitem>
-                <para>Multi JVM approach RMI/JMS based communication vs. one JVM approach based
-                        (OSGI &amp; Spring DynamicModules)</para>
-            </listitem>
-            <listitem>
                 <para>Automated Reconciliation Process with external Brokers (Trades, Current
                         Positions,Subscriptions &amp; Redemptions)</para>
             </listitem>
@@ -379,6 +380,38 @@ public class ExClient {
                 <para>Automated Parameter Optimization</para>
             </listitem>
             <listitem>
+                <para>Multi JVM approach (RMI/JMS based communication) vs. One JVM based approach
+                    (OSGI &amp; Spring DynamicModules)</para>
+            </listitem>
+            <listitem>
+                <para>Scalable / Low Latency / High Throughput Architecture:</para>
+                <itemizedlist>
+                    <listitem>
+                        <para>Scalability - Deployment onto multiple JVM's and/or multiple
+                            Servers</para>
+                    </listitem>
+                    <listitem>
+                        <para>High Throughput - Processing of large volumes of market data events
+                            (1000 to 100'000 events per second) </para>
+                    </listitem>
+                    <listitem>
+                        <para>Low Latency - React in real-time to changing market conditions (from a
+                            few milliseconds) </para>
+                    </listitem>
+                </itemizedlist>
+            </listitem>
+            <listitem>
+                <para>High-Availability Server-Infrastructure based on a highly concurrent / memory
+                    efficient / multi-threaded architecture</para>
+            </listitem>
+            <listitem>
+                <para>Complex event processing (CEP) and event stream analysis of real-time or historical market
+                    data enable detection of patterns among market data events (event correlation),
+                    filter market data events, aggregate time or length windows of market data
+                    events, join market data event streams, trigger based on absence of market data
+                    events etc</para>
+            </listitem>
+            <listitem>
                 <para>Dynamic Datamodel which allows to define custom properties (e.g. integer
                         or string property) on Entities like Strategy, Position &amp; Subscription
                     </para>
@@ -391,13 +424,6 @@ public class ExClient {
             <listitem>
                 <para>Spring Profiles based system packaging to enable customization of deployed
                         Spring Services (e.g. FixOrderService types)</para>
-            </listitem>
-            <listitem>
-                <para>High-Availability Server-Infrastructure</para>
-            </listitem>
-            <listitem>
-                <para>Optimized for low latency and high throughput using a highly concurrent /
-                        multi-threaded architecture</para>
             </listitem>
             <listitem>
                 <para>Highly customizable Logging based on <ulink url="http://logging.apache.org/log4j/">log4j</ulink> including
@@ -607,12 +633,11 @@ public class ExClient {
                         </row>
                         <row>
                             <entry>MarketDataEvent</entry>
-                            <entry>Represents any type of market data related to a particular
-                                Security and Strategy</entry>
+                            <entry>Represents any type of market data related to a particular Security</entry>
                         </row>
                         <row>
                             <entry>Order</entry>
-                            <entry>Any type of Order for a particular security</entry>
+                            <entry>An Order for a particular security</entry>
                         </row>
                         <row>
                             <entry>Account</entry>
@@ -941,8 +966,8 @@ public class ExClient {
                             </row>
                             <row>
                                 <entry>DistributionalOrder</entry>
-                                <entry>an order that generates multiple simple orders, each targeted
-                                    at a different account according to defined allocation</entry>
+                                <entry>An order that generates multiple simple orders, each targeted at a different account
+                                    according to defined allocation</entry>
                             </row>
                         </tbody>
                     </tgroup>
@@ -1988,8 +2013,11 @@ public class ExClient {
             <para>AlgoTrader uses <ulink url="http://maven.apache.org/"> Maven</ulink> as its build
                 management framework. Every project/module therefore has it's own pom.xml (Project
                 Object Model) defining its structure and dependencies.</para>
-            <para>The entire Release Process of AlgoTrader is based on the <ulink url="http://maven.apache.org/maven-release/maven-release-plugin/"> Maven Release
-                    Plugin</ulink>. Releases are deployed to the following repository: <ulink url="https://repo.linardcapital.com/repo">https://repo.linardcapital.com/repo</ulink>
+            <para>The entire Release Process of AlgoTrader is based on the <ulink
+                    url="http://maven.apache.org/maven-release/maven-release-plugin/"> Maven Release
+                    Plugin</ulink>. Releases are deployed to the following repository: <ulink
+                    url="https://repo.algotrader.com/repo"
+                    >https://repo.algotrader.com/repo</ulink>
             </para>
             <para>The following maven dependencies exist</para>
             <section>
@@ -3826,7 +3854,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     exclamation marks) in the project path.</para>
             </important>
             <para>Select the following SVN Location:</para>
-            <screen>svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</screen>
+            <screen>svn+ssh://repo.algotrader.com/var/svn/repository/trunk/AlgoTrader</screen>
             <para>This will create the following projects in Eclipse:</para>
             <itemizedlist>
                 <listitem>
@@ -6918,7 +6946,7 @@ private @Value("#{T(com.algoTrader.enumeration.Currency)
             <screen>-javaagent:lib/agent.jar</screen>
             <para>In addition the following vm argument has to be specified, which defines the
                 public external host name</para>
-            <screen>-Djava.rmi.server.hostname=xxx.linardcapital.com</screen>
+            <screen>-Djava.rmi.server.hostname=algotrader.com</screen>
             <note>
                 <itemizedlist>
                     <listitem>
