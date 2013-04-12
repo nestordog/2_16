@@ -165,8 +165,8 @@ public class ExClient {
             </section>
             <section>
                 <title>Notes and Warnings</title>
-                <para>Finally, we use three visual styles to draw attention to information that
-                    might otherwise be overlooked.</para>
+                <para>Finally, three visual styles are used to draw attention to information that might
+                    otherwise be overlooked.</para>
                 <warning>
                     <title>Warning</title>
                     <para>A Warning should not be ignored. Ignoring warnings will most likely cause
@@ -236,8 +236,9 @@ public class ExClient {
             </listitem>
             <listitem>
                 <para>AlgoTrader is extensible and fully customizable for situations where strategy specific
-                    functionalities are required. The system accommodates integration of additional
-                    3rd party libraries.</para>
+                    functionalities are required. Full access to the Source Code of the System is
+                    provided. By its open architecture the system accommodates integration of
+                    additional 3rd party libraries.</para>
             </listitem>
             <listitem>
                 <para>AlgoTrader is best suited for quantitative strategies, that follow formal
@@ -263,14 +264,17 @@ public class ExClient {
         </para>
         <itemizedlist>
             <listitem>
-                <para>AlgoTrader is not a Chart based Trading Platform (like Tradestation,
-                        MetaTrader or NinjaTrader). It does not have a fancy GUI with drag-and-drop
-                        functionality and hundreds of indicators. It is our belief, that successful
-                        strategies are based on economic facts and not on extensive back-testing or
-                        chart pattern analysis based on many different technical indicators.
-                        AlgoTrader does have a charting functionality, but it's purpose is to give
-                        an overview of a strategy's current trading activities and state in Live
-                        Trading.</para>
+                <para>AlgoTrader is not a Chart based Trading Platform (like Tradestation, MetaTrader or
+                    NinjaTrader). It does not have a fancy GUI with drag-and-drop functionality and
+                    hundreds of indicators. It is our belief, that successful strategies are based
+                    on economic facts and not on extensive back-testing or chart pattern analysis
+                    based on many different technical indicators. AlgoTrader does have a charting
+                    functionality, but it's purpose is to give an overview of a strategy's current
+                    trading activities and state in Live Trading. If a strategy is simple enough
+                    that it can be developed with one of the above mentioned Platforms, it is
+                    recommended to use them. However if specific requirements of a Strategy cannot
+                    be met by these Platforms, AlgoTrader with its open architecture and available
+                    Source Code would be the right choice.</para>
             </listitem>
             <listitem>
                 <para>AlgoTrader is not a High-Frequency-Trading Application. If Latency in low
@@ -4551,8 +4555,8 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <para>The main method contains the following steps:</para>
                 <calloutlist>
                     <callout arearefs="movStarter-initServiceLocator">
-                        <para>initialize the ServiceLocator to let the Spring Environment know that
-                            we are in Live Trading Mode on the strategy side</para>
+                        <para>initialize the ServiceLocator to let the Spring Environment know that it is in Live
+                            Trading Mode on the strategy side</para>
                     </callout>
                     <callout arearefs="movStarter-getMovService">
                         <para>get a reference to the MovService</para>
@@ -4624,8 +4628,9 @@ and
                 <screen>underlyingIsin = US38259P5089
 movLengthFast = 1000
 movLengthSlow = 2000</screen>
-                <para>In our case we use <literal>Tick(security.isin = underlyingIsin)</literal> and
-                    the fast/slow lengths to create the two moving average lines.</para>
+                <para>In this case Ticks with <literal>security.isin = underlyingIsin</literal> are used. In
+                    addition the fast/slow lengths to create the two moving average lines are
+                    specified.</para>
             </section>
             <section>
                 <title>esper-mov.cfg.xml</title>
