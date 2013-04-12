@@ -294,9 +294,35 @@ public class ExClient {
                 <para>Develop, simulate and run several strategies in parallel</para>
             </listitem>
             <listitem>
-                <para>Multiple Broker Interfaces based on QuickFix/J or native interfaces
-                        (Interactive Brokers Native &amp; Fix, JP Morgan via FIX, DukasCopy via Fix,
-                        etc.)</para>
+                <para>Multiple Broker Interfaces: </para>
+                <itemizedlist>
+                    <listitem>
+                        <para>Interactive Brokers (IB) Native </para>
+                    </listitem>
+                    <listitem>
+                        <para>Interactive Brokers (IB) Fix (via  QuickFix/J)</para>
+                    </listitem>
+                    <listitem>
+                        <para>JP Morgan via FIX (via  QuickFix/J)</para>
+                    </listitem>
+                    <listitem>
+                        <para>DukasCopy via Fix (via  QuickFix/J)</para>
+                    </listitem>
+                    <listitem>
+                        <para>additional Broker Interfaces can be added with minimal effort</para>
+                    </listitem>
+                </itemizedlist>
+            </listitem>
+            <listitem>
+                <para>Multiple Market Data Providers:</para>
+                <itemizedlist>
+                    <listitem>
+                        <para>Interactive Brokers </para>
+                    </listitem>
+                    <listitem>
+                        <para>Bloomberg</para>
+                    </listitem>
+                </itemizedlist>
             </listitem>
             <listitem>
                 <para>Support for wide array of security types and asset classes: e.g. Equities,
@@ -513,8 +539,8 @@ public class ExClient {
         <para>On top of the Base any number of Strategies can be deployed. Each Strategy contains its own
             Esper Engine Instance. A Strategy can deploy any number of custom trading rules to
             analyse market data and generate signals. In addition procedural actions can be deployed
-            as Java Services available to the Strategy. Orders are delegated to the underlying Base
-            for execution.</para>
+            as Java Services available to the Strategy. Orders are delegated to the Base for
+            execution.</para>
         <figure>
             <title>Architecture Layers</title>
             <mediaobject>
@@ -546,14 +572,13 @@ public class ExClient {
                     <tbody>
                         <row>
                             <entry>Base</entry>
-                            <entry>This is the main process that should be kept running all the
-                                times in order to record market data without gaps</entry>
+                            <entry>This is the main process that should be kept running all the time in order to record
+                                market data without gaps</entry>
                         </row>
                         <row>
                             <entry>Strategies</entry>
-                            <entry>In Live Trading Mode each strategy runs in its on Java process.
-                                In simulation mode, the strategies run within the same process as
-                                the Base</entry>
+                            <entry>In Live Trading Mode each strategy runs in its own Java process. In simulation mode,
+                                the strategies run within the same process as the Base</entry>
                         </row>
                         <row>
                             <entry>ActiveMQ</entry>
@@ -628,8 +653,9 @@ public class ExClient {
                         </row>
                         <row>
                             <entry>Subscription</entry>
-                            <entry>Market Data Subscriptions of a Strategy for particular Securities
-                                are represented by this class</entry>
+                            <entry>Market Data Subscriptions of a Strategy for particular Securities are represented by
+                                this class. For every Subscription the Strategy will receive Live
+                                Market Data for the corresponding Security</entry>
                         </row>
                         <row>
                             <entry>MarketDataEvent</entry>
@@ -690,8 +716,8 @@ public class ExClient {
                             </row>
                             <row>
                                 <entry>Measurement</entry>
-                                <entry>Custom Measurements related to a strategy can be saved using
-                                    this class</entry>
+                                <entry>Custom Measurements (e.g. current value of a custom indicator) related to a strategy
+                                    can be saved using this class</entry>
                             </row>
                             <row>
                                 <entry>CashBalance</entry>
@@ -877,6 +903,7 @@ public class ExClient {
                         <xref linkend="Market_Data_File_Format"/>). In live trading Trades, Bids and
                     Asks are received by the broker specific MarketDataService and routed to the
                     Esper Service Instances.</para>
+                <para>Live Order Book Data will be available in near future.</para>
             </section>
             <section id="Order">
                 <title>Order</title>
@@ -946,9 +973,9 @@ public class ExClient {
                             </row>
                             <row>
                                 <entry>SlicingOrder</entry>
-                                <entry>An AlgoOrder, that will split a large trade into multiple
-                                    "slices". The size of the slice, time in the market and delay
-                                    between orders are randomized</entry>
+                                <entry>An AlgoOrder, that will split a large trade into multiple "slices". The size of the
+                                    slice, time in the market and delay between orders are
+                                    randomized within the specified range.</entry>
                             </row>
                             <row>
                                 <entry>Incremental Limit Order</entry>
@@ -995,13 +1022,13 @@ public class ExClient {
             </section>
             <section>
                 <title>Position</title>
-                <para>For any Strategy holding a particular Security in it's portfolio a Position
-                    will be created in the database. Even if this position is later on closed (i.e.
-                    quantity = 1) the position will still remain in the database, because the
-                    associated Transactions still have references to it.</para>
-                <para>In general, position values (e.g. marketPrice, marketValue, averagePrice,
-                    cost, unrealized / realized PL) are calculated per actual strategy related
-                    position.</para>
+                <para>For any Strategy holding a particular Security in its portfolio a Position will be created
+                    in the database. Even if this position is later on closed (i.e. quantity = 0)
+                    the position will still remain in the database, because the associated
+                    Transactions still have references to it.</para>
+                <para>In general, position values (e.g. marketPrice, marketValue, averagePrice, cost, unrealized
+                    / realized PL) are calculated per actual strategy related position and show the
+                    price that would need to payed if the position was closed at this moment</para>
                 <para>Since some values (e.g. marketValue) depend on whether the position is long or
                     short, aggregated position values for the same security (of different
                     strategies) cannot be retrieved just by adding position values from the
@@ -1237,11 +1264,6 @@ public class ExClient {
                                 <entry>This service is used for testing purposes only</entry>
                             </row>
                             <row>
-                                <entry>VerificationService</entry>
-                                <entry>This service is used to verify current transactions and ticks
-                                    in the database</entry>
-                            </row>
-                            <row>
                                 <entry>ForexService</entry>
                                 <entry>Responsible for the FX Hedging functionality</entry>
                             </row>
@@ -1252,8 +1274,8 @@ public class ExClient {
                             </row>
                             <row>
                                 <entry>PortfolioPersistenceService</entry>
-                                <entry>This service is responsible for operations like rebalancing
-                                    and presistence of PortfolioValues</entry>
+                                <entry>This service is responsible for operations like rebalancing and persistence of
+                                    PortfolioValues</entry>
                             </row>
                         </tbody>
                     </tgroup>
@@ -1994,7 +2016,7 @@ public class ExClient {
                         </row>
                         <row>
                             <entry>
-                                <classname> com.algoTrader.util.*</classname>
+                                <classname>com.algoTrader.util.*</classname>
                             </entry>
                             <entry>General Utility methods</entry>
                         </row>
@@ -2008,7 +2030,7 @@ public class ExClient {
                 </tgroup>
             </table>
         </section>
-        <section>
+        <section id="Maven_Environment">
             <title>Maven Environment</title>
             <para>AlgoTrader uses <ulink url="http://maven.apache.org/"> Maven</ulink> as its build
                 management framework. Every project/module therefore has it's own pom.xml (Project
@@ -2016,10 +2038,18 @@ public class ExClient {
             <para>The entire Release Process of AlgoTrader is based on the <ulink
                     url="http://maven.apache.org/maven-release/maven-release-plugin/"> Maven Release
                     Plugin</ulink>. Releases are deployed to the following repository: <ulink
-                    url="https://repo.algotrader.com/repo"
-                    >https://repo.algotrader.com/repo</ulink>
+                    url="https://repo.algotrader.com/repo">https://repo.algotrader.com/repo</ulink>
             </para>
-            <para>The following maven dependencies exist</para>
+            <para>The following parent-child relationships and dependencies exist between the
+                individual projects:</para>
+            <figure>
+                <title>IB Services</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata scalefit="1" fileref="images/MavenDependencies.gif"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <section>
                 <title>algotrader (dependency management)</title>
                 <table frame="all" pgwide="1">
@@ -2433,7 +2463,7 @@ public class ExClient {
                     <tbody>
                         <row>
                             <entry>module-algo-xxx.epl</entry>
-                            <entry>Each Execution Algo has it's own module</entry>
+                            <entry>Each Execution Algo has its own module</entry>
                         </row>
                         <row>
                             <entry>module-combination.epl</entry>
@@ -2458,7 +2488,7 @@ public class ExClient {
                         </row>
                         <row>
                             <entry>module-performance.epl</entry>
-                            <entry>evaluation performance indicators</entry>
+                            <entry>evaluation of performance indicators</entry>
                         </row>
                         <row>
                             <entry>module-portfolio.epl</entry>
@@ -2676,9 +2706,8 @@ getOrderService().sendOrders(orders);</programlisting>
   }
 });</programlisting>
                 <note>
-                    <para>It is guaranteed, that the position is fully persistent to the database by
-                        the time the method
-                            <classname>OpenPositionCallback.onOpenPosition()</classname> is
+                    <para>It is guaranteed that the position is fully persistent to the database by the time the
+                        method <classname>OpenPositionCallback.onOpenPosition()</classname> is
                         called.</para>
                 </note>
             </section>
@@ -2757,10 +2786,10 @@ getOrderService().sendOrders(orders);</programlisting>
                 </mediaobject>
             </figure>
             <figure>
-                <title>Market Data Tables</title>
+                <title>Strategy Tables</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata scalefit="1" fileref="images/SchemaMarketData.gif"/>
+                        <imagedata scalefit="1" fileref="images/SchemaStrategy.gif"/>
                     </imageobject>
                 </mediaobject>
             </figure>
@@ -2783,13 +2812,10 @@ getOrderService().sendOrders(orders);</programlisting>
     <chapter id="Client">
         <title>Client</title>
         <para>The system uses <ulink url="http://docs.oracle.com/javase/tutorial/jmx/index.html"> Java
-                Management Extension</ulink> (JMX) and the generic Java Client<ulink
-                url="http://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html">
+                Management Extension</ulink> (JMX) and the generic Java Client<ulink url="http://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html">
                 JConsole</ulink> as it's frontend. </para>
         <para>When starting up the AlgoTraderClient there will be one window per JVM. The JConsole
-            provides management functionality for many technical aspects of the JVM (see the <ulink
-                url="http://docs.oracle.com/javase/6/docs/technotes/guides/management/jconsole.html"
-                >Java Documentation</ulink> for details). The business related features of
+            provides management functionality for many technical aspects of the JVM (see the <ulink url="http://docs.oracle.com/javase/6/docs/technotes/guides/management/jconsole.html">Java Documentation</ulink> for details). The business related features of
             AlgoTrader are available on the Tab <literal>MBeans</literal> through the
                 <classname>BaseManagementService</classname> and the
                 <classname>ManagementService</classname> under
@@ -2853,7 +2879,7 @@ getOrderService().sendOrders(orders);</programlisting>
                                 <entry>All Positions of the system / of the strategy</entry>
                             </row>
                             <row>
-                                <entry>Ticks</entry>
+                                <entry>MarketDataEvents</entry>
                                 <entry>Latest ticks off all subscribed securities of the system / of
                                     the strategy</entry>
                             </row>
@@ -3093,8 +3119,8 @@ getOrderService().sendOrders(orders);</programlisting>
                             </row>
                             <row>
                                 <entry>transferPosition</entry>
-                                <entry>transfers a position from one strategy to another by taking
-                                    it's current market value</entry>
+                                <entry>transfers a position from one strategy to another by taking its current market
+                                    value</entry>
                             </row>
                         </tbody>
                     </tgroup>
@@ -3458,8 +3484,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
 -Djavax.net.ssl.trustStore=...
 -Djavax.net.ssl.trustStorePassword=...
 -javaagent:lib/agent.jar</screen>
-                <para>See chapter <xref linkend="Additional-VM-Arguments"/> for a description of
-                    above VM-Arguments.</para>
+                <para>See chapter <xref linkend="VM-Arguments"/> for a description of above VM-Arguments.</para>
                 <para>When accessing the system through a firewall, the  two ports 1099 and 1098
                     have to be opened.</para>
                 <para>When starting JConsole connect to <literal>&lt;serverURL>:1099</literal> with
@@ -3614,7 +3639,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <para>SecurityFamily</para>
             </listitem>
             <listitem>
-                <para>WatchListItem</para>
+                <para>Subscription</para>
             </listitem>
         </itemizedlist>
         <para>AlgoTrader CRUD is based on the <ulink url="http://grails.org"> grails</ulink>
@@ -3705,8 +3730,69 @@ public class MovChartService extends ChartProvidingServiceImpl {
     </chapter>
     <chapter id="Installation">
         <title>Installation</title>
+        <section>
+            <title>Common Installation Tasks</title>
+            <variablelist>
+                <varlistentry>
+                    <term>Java JDK</term>
+                    <listitem>
+                        <para>Install the latest Java JDK from <ulink
+                                url="http://www.oracle.com/technetwork/java/index.html"
+                                >Oracle</ulink></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Subversion</term>
+                    <listitem>
+                        <para>Install the latest 1.6 version of <ulink
+                                url="http://subversion.apache.org/">Subversion</ulink>. Subversion
+                            1.7 and later have a different repository structure and will therefore
+                            not work with the current AlgoTrader repository.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>MySql</term>
+                    <listitem>
+                        <para>Install the latest <ulink url="http://www.mysql.com/downloads/mysql/">
+                                MySql Community Server</ulink>
+                        </para>
+                        <itemizedlist>
+                            <listitem>
+                                <para>use password: password for the root user</para>
+                            </listitem>
+                            <listitem>
+                                <para>run the script:
+                                        <command>algotrader-core/sql/db-structure.sql</command>
+                                </para>
+                            </listitem>
+                            <listitem>
+                                <para>run the script:
+                                        <command>algotrader-core/sql/db-data.sql</command>
+                                </para>
+                            </listitem>
+                        </itemizedlist>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Maven</term>
+                    <listitem>
+                        <para>Install the latest version of <ulink url="http://maven.apache.org"
+                                >Maven</ulink>.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>ActiveMQ</term>
+                    <listitem>
+                        <para>Install the latest version of Apache <ulink
+                                url="http://activemq.apache.org/">ActiveMQ</ulink></para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section>
+        <title>Development Environment Installation</title>
         <section id="Platform_requirements">
-            <title>Platform requirements</title>
+            <title>Platform Requirements</title>
             <para>For development of new Strategies the following Platform requirements
                 exist:</para>
             <table frame="all" pgwide="1">
@@ -3725,23 +3811,18 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     <tbody>
                         <row>
                             <entry>Java JDK</entry>
-                            <entry>
-                                <ulink url="http://java.sun.com">http://java.sun.com</ulink>
-                            </entry>
+                            <entry><ulink url="http://java.sun.com">http://java.sun.com</ulink></entry>
                             <entry>1.7.0</entry>
                         </row>
                         <row>
                             <entry>Eclipse IDE</entry>
-                            <entry>
-                                <ulink url="http://www.eclipse.org">http://www.eclipse.org</ulink>
-                            </entry>
+                            <entry><ulink url="http://www.eclipse.org">http://www.eclipse.org</ulink></entry>
                             <entry>newest</entry>
                         </row>
                         <row>
                             <entry>Subversive SVN Team Provider</entry>
-                            <entry>
-                                <ulink url="http://download.eclipse.org/releases/...">http://download.eclipse.org/releases/...</ulink>
-                            </entry>
+                            <entry><ulink url="http://download.eclipse.org/releases/..."
+                                        >http://download.eclipse.org/releases/...</ulink></entry>
                             <entry>newest</entry>
                         </row>
                         <row>
@@ -3756,9 +3837,8 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         </row>
                         <row>
                             <entry>m2e</entry>
-                            <entry>
-                                <ulink url="http://download.eclipse.org/releases/...">http://download.eclipse.org/releases/...</ulink>
-                            </entry>
+                            <entry><ulink url="http://download.eclipse.org/releases/..."
+                                        >http://download.eclipse.org/releases/...</ulink></entry>
                             <entry>newest</entry>
                         </row>
                         <row>
@@ -3768,82 +3848,146 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         </row>
                         <row>
                             <entry>Eclipse XML Tools</entry>
-                            <entry>
-                                <ulink url="http://download.eclipse.org/releases/...">http://download.eclipse.org/releases/...</ulink>
-                            </entry>
-                            <entry>newest</entry>
-                        </row>
-                        <row>
-                            <entry>Eclipse Data Tools</entry>
-                            <entry>
-                                <ulink url="http://download.eclipse.org/releases/...">http://download.eclipse.org/releases/...</ulink>
-                            </entry>
+                            <entry><ulink url="http://download.eclipse.org/releases/..."
+                                        >http://download.eclipse.org/releases/...</ulink></entry>
                             <entry>newest</entry>
                         </row>
                         <row>
                             <entry>Hibernate Tools</entry>
-                            <entry>
-                                <ulink url="http://download.jboss.org/jbosstools/updates/development/xxx||">http://download.jboss.org/jbosstools/updates/development/xxx||</ulink>
-                                newest</entry>
+                            <entry><ulink url="http://download.jboss.org/jbosstools/updates/development/xxx"
+                                        >http://download.jboss.org/jbosstools/updates/development/...</ulink>
+                                </entry>
+                            <entry>newest</entry>
                         </row>
                         <row>
                             <entry>Spring IDE Core</entry>
-                            <entry>
-                                <ulink url="http://springide.org/updatesite">http://springide.org/updatesite</ulink>
-                            </entry>
+                            <entry><ulink url="http://springide.org/updatesite"
+                                    >http://springide.org/updatesite</ulink></entry>
                             <entry>newest</entry>
                         </row>
                         <row>
                             <entry>Spring IDE Autowire Extension</entry>
-                            <entry>
-                                <ulink url="http://springide.org/updatesite">http://springide.org/updatesite</ulink>
-                            </entry>
+                            <entry><ulink url="http://springide.org/updatesite"
+                                    >http://springide.org/updatesite</ulink></entry>
                             <entry>newest</entry>
                         </row>
                         <row>
                             <entry>Veloeclipse</entry>
-                            <entry>
-                                <ulink url="http://veloeclipse.googlecode.com">http://veloeclipse.googlecode.com</ulink>
-                            </entry>
+                            <entry><ulink url="http://veloeclipse.googlecode.com"
+                                        >http://veloeclipse.googlecode.com</ulink></entry>
                             <entry>newest</entry>
                         </row>
                         <row>
-                            <entry>Eclipse CheckStyle</entry>
-                            <entry>
-                                <ulink url="http://eclipse-cs.sourceforge.net/">http://eclipse-cs.sourceforge.net/</ulink>
-                            </entry>
+                            <entry>JDT Decompiler Feature</entry>
+                            <entry><ulink url="http://jadclipse.sf.net/update"
+                                    >http://jadclipse.sf.net/update</ulink></entry>
                             <entry>newest</entry>
                         </row>
-                        <row>
-                            <entry>JadClipse</entry>
-                            <entry>
-                                <ulink url="http://jadclipse.sf.net/update">http://jadclipse.sf.net/update</ulink>
-                            </entry>
-                            <entry>newest</entry>
-                        </row>
+                            <row>
+                                <entry>JD-Eclipse Plug-in</entry>
+                                <entry><ulink url="http://java.decompiler.free.fr/jd-eclipse/update"
+                                        >http://java.decompiler.free.fr/jd-eclipse/update</ulink></entry>
+                                <entry>newest</entry>
+                            </row>
+                            <row>
+                                <entry>Eclipse Colorer</entry>
+                                <entry><ulink url="http://colorer.sf.net/eclipsecolorer/"
+                                        >http://colorer.sf.net/eclipsecolorer/</ulink></entry>
+                                <entry>newest</entry>
+                            </row>
                         <row>
                             <entry>MagicDraw UML</entry>
-                            <entry>
-                                <ulink url="http://www.magicdraw.com">http://www.magicdraw.com</ulink> (commercial software)</entry>
+                            <entry><ulink url="http://www.magicdraw.com">http://www.magicdraw.com</ulink></entry>
                             <entry>16.5</entry>
                         </row>
                         <row>
                             <entry>MySql Database</entry>
-                            <entry>
-                                <ulink url="http://www.mysql.com">http://www.mysql.com</ulink>
-                            </entry>
-                            <entry>5.1</entry>
+                            <entry><ulink url="http://www.mysql.com">http://www.mysql.com</ulink></entry>
+                            <entry>newest</entry>
                         </row>
                         <row>
-                            <entry>A database management tool (i.e. TOAD for MySql)</entry>
-                            <entry>
-                                <ulink url="http://www.quest.com/toad-for-mysql">http://www.quest.com/toad-for-mysql</ulink>
-                            </entry>
-                            <entry>5.0</entry>
+                            <entry>TOAD for MySql</entry>
+                            <entry><ulink url="http://www.quest.com/toad-for-mysql"
+                                        >http://www.quest.com/toad-for-mysql</ulink></entry>
+                            <entry>newest</entry>
                         </row>
                     </tbody>
                 </tgroup>
             </table>
+                <section>
+                    <title>Esper Colorer</title>
+                    <para>AlgoTrader provides a custom  Esper EPL Syntax Highlighter based on the <ulink
+                            url="http://colorer.sourceforge.net/">Colorer</ulink> Library.</para>
+                    <para>Together with the <ulink url="http://colorer.sourceforge.net/eclipsecolorer/index.html"
+                            >Eclipse Colorer Plugin</ulink> it provides the following
+                        features:</para>
+                        <itemizedlist>
+                            <listitem>
+                                <para>Automatic Code Outlining</para>
+                            </listitem>
+                            <listitem>
+                                <para>Pairs/Brace Matching</para>
+                            </listitem>
+                            <listitem>
+                                <para>Automatic Code Folding</para>
+                            </listitem>
+                            <listitem>
+                                <para>Present different colors for:</para>
+                                <itemizedlist>
+                                    <listitem>
+                                        <para>Reserved Keywords</para>
+                                    </listitem>
+                                    <listitem>
+                                        <para>Symbols</para>
+                                    </listitem>
+                                    <listitem>
+                                        <para>Comments</para>
+                                    </listitem>
+                                    <listitem>
+                                        <para>Literals</para>
+                                    </listitem>
+                                    <listitem>
+                                        <para>Numbers</para>
+                                    </listitem>
+                                </itemizedlist>
+                            </listitem>
+                        </itemizedlist>
+                    <figure>
+                        <title>Syntax Highlighter</title>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scalefit="1" fileref="images/SyntaxHighlighter.png"/>
+                            </imageobject>
+                        </mediaobject>
+                    </figure>
+                    <para>Please follow these steps to install the custom EPL Syntax
+                        Highlighter:</para>
+                    <orderedlist>
+
+                                <listitem>
+                                    <para>Install the <ulink
+                                            url="http://colorer.sourceforge.net/eclipsecolorer/index.html"
+                                            >Eclipse Colorer Plugin</ulink></para>
+                                </listitem>
+                                <listitem>
+                                    <para>Copy the file <filename>/algotrader-core/src/main/resources/esper.hrc</filename> to
+                                    <filename>eclipse\plugins\net.sf.colorer_x.x.x\colorer\hrc\</filename></para>
+                                </listitem>
+                                <listitem>
+                                    <para>Add the following lines to
+                                    <filename>eclipse\plugins\net.sf.colorer_x.x.x\colorer\hrc\proto.hrc</filename></para>
+                                </listitem>
+                    </orderedlist>
+                    <programlisting language="XML">&lt;prototype name="esper" group="database" description="Esper">
+    &lt;location link="esper.hrc"/>
+    &lt;filename>/\.epl$/i&lt;/filename>
+&lt;/prototype></programlisting>
+                    <note>
+                        <para>The Syntax Highlighter does not provide Code Completion or Syntax
+                            Checking!</para>
+                    </note>
+
+                </section>
         </section>
         <section>
             <title>Subversion Checkout</title>
@@ -3905,22 +4049,6 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     configured. The source folder<filename> target/src/main/java</filename> might
                     have an Exclude defined (Star-Star), which needs to be removed.</para>
             </important>
-        </section>
-        <section>
-            <title>Install MySql</title>
-            <para>Install latest <ulink url="http://www.mysql.com/downloads/mysql/"> MySql Community
-                    Server</ulink>
-            </para>
-            <itemizedlist>
-                <listitem>
-                    <para>use password: password for the root user</para>
-                </listitem>
-                <listitem>
-                    <para>run the create-script:
-                            <command>algotrader-core/sql/algotrader.sql</command>
-                    </para>
-                </listitem>
-            </itemizedlist>
         </section>
         <section id="Starting_a_Strategy">
             <title>Starting a Strategy</title>
@@ -4061,120 +4189,186 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     </variablelist>
                 </section>
             </section>
-            <section id="Additional-VM-Arguments">
-                <title>Additional VM-Arguments</title>
-                <para>Many of the characteristics of the System can be customized with VM-Arguments,
-                    the following list provides an overview of commonly used settings. In addition
-                    any of the Configuration parameters can also be modified via VM argument <xref linkend="Configuration"/>.</para>
-                <variablelist>
-                    <varlistentry>
-                        <term>-DlogLevel</term>
-                        <listitem>
-                            <para>log4j log level (<literal>ERROR</literal>, <literal>WARN</literal>,
-                                    <literal>INFO</literal> or <literal>DEBUG</literal>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-Dspring.profiles.active</term>
-                        <listitem>
-                            <para>list of Spring Profiles to activate (see <xref linkend="Spring-Profiles"/>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-Dcom.algoTrarder.rmi.registryPort</term>
-                        <listitem>
-                            <para>the RMI registry Port, e.g. 1099 (for <xref linkend="Remote-JMX-Access"/>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-Dcom.algoTrarder.rmi.serverPort</term>
-                        <listitem>
-                            <para>the RMI server Port, e.g. 1098 (for <xref linkend="Remote-JMX-Access"/>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-Djava.rmi.server.hostname</term>
-                        <listitem>
-                            <para>the hostname of the system, e.g. localhost (for <xref linkend="Remote-JMX-Access"/>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-Dcom.sun.management.jmxremote.port</term>
-                        <listitem>
-                            <para>the RMI registry Port, e.g. 1099 (for <xref linkend="Local-JMX-Access"/>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-Dcom.sun.management.jmxremote.authenticate</term>
-                        <listitem>
-                            <para>use RMI authentication (true for <xref linkend="Remote-JMX-Access"/>; false for <xref linkend="Local-JMX-Access"/>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-Dcom.sun.management.jmxremote.ssl</term>
-                        <listitem>
-                            <para>use SSL encryption (true for <xref linkend="Remote-JMX-Access"/>; false for <xref linkend="Local-JMX-Access"/>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-Dcom.sun.management.jmxremote.ssl.need.client.auth</term>
-                        <listitem>
-                            <para>use SSL client authentication (true for <xref linkend="Remote-JMX-Access"/>; false for
-                                    <xref linkend="Local-JMX-Access"/>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-Dcom.sun.management.jmxremote.registry.ssl</term>
-                        <listitem>
-                            <para>use SSL encryption for the RMI registry (true for <xref linkend="Remote-JMX-Access"/>;
-                                false for <xref linkend="Local-JMX-Access"/>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-Djavax.net.ssl.keyStore</term>
-                        <listitem>
-                            <para>the keystore file (for <xref linkend="Remote-JMX-Access"/>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-Djavax.net.ssl.keyStorePassword</term>
-                        <listitem>
-                            <para>the keystore password (for <xref linkend="Remote-JMX-Access"/>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-Djavax.net.ssl.trustStore</term>
-                        <listitem>
-                            <para>the truststore file (for <xref linkend="Remote-JMX-Access"/>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-Djavax.net.ssl.trustStorePassword</term>
-                        <listitem>
-                            <para>the truststore password (for <xref linkend="Remote-JMX-Access"/>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-javaagent:lib/agent.jar</term>
-                        <listitem>
-                            <para>the custom JMX agent (for <xref linkend="Remote-JMX-Access"/>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-Xmx</term>
-                        <listitem>
-                            <para>increase the Java Heap Size to specified amount (e.g.
-                                    <literal>2048M</literal>)</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>-XX:MaxPermSize</term>
-                        <listitem>
-                            <para>increase the Java Perm Size to specified amount (e.g. <literal>1024M</literal>)</para>
-                        </listitem>
-                    </varlistentry>
-                </variablelist>
-            </section>
+        </section>
+    </section>
+        <section>
+            <title>Server Environment Installation</title>
+            <para>Typically Server Installations are based on the latest Maven Release and not on
+                Source Code from Subversion. The file
+                    <filename>algotrader/core/bin/pom.xml</filename> contains a single dependency to
+                the <filename>algotrader/core/pom.xml</filename>. By having a copy of this file the
+                Maven Dependency Mechanism will make sure that all necessary Maven Modules
+                (algotrader-common, algotrader-core and 3rd party libraries) are downloaded
+                automatically.</para>
+            <para>The installation process in a Server Environment would typically involve the
+                following steps</para>
+            <para>
+                <orderedlist>
+                    <listitem>
+                        <para> create a directory <filename>AlgoTrader</filename>
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para> checkout the following directory via SVN, which contains the
+                                <filename>pom.xml</filename> and different shell scripts:
+                                <literal>svn+ssh://aws@repo.algotrader.com/var/svn/repository/trunk/AlgoTrader/core/bin</literal>
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para> create directories <filename>data</filename>,
+                                <filename>log</filename> and <filename>data</filename> underneath
+                                <filename>AlgoTrader</filename></para>
+                    </listitem>
+                    <listitem>
+                        <para> run <filename>AlgoTrader/bin/update.sh</filename> which will resolve
+                            all Maven Dependencies</para>
+                    </listitem>
+                    <listitem>
+                        <para> if necessary modify <filename>AlgoTrader/bin/run-base.sh</filename>
+                            (i.e. add custom VM-Arguments) </para>
+                    </listitem>
+                    <listitem>
+                        <para> copy files <filename>keystore</filename> and
+                                <filename>truststore</filename> to
+                                <filename>AlgoTrader/bin</filename> (see <xref linkend="JMX"
+                            />)</para>
+                    </listitem>
+                </orderedlist>
+            </para>
+            <para>The Base can now be started via by calling the following shell script:</para>
+            <screen><filename>AlgoTrader/bin/run-base.sh</filename></screen>
+            <para>Depending on the actual requirements for the Server Environment (Operation System,
+                external Broker used, etc.) actual Configurations will vary substantially. </para>
+            <note>
+                <para>It is recommended to work with AlgoTrader Professional Services to plan an
+                    roll-out Server Environments</para>
+            </note>
+        </section>
+        <section id="VM-Arguments">
+            <title>VM-Arguments</title>
+            <para>Many of the characteristics of the System can be customized with VM-Arguments, the
+                following list provides an overview of commonly used settings. In addition any of
+                the Configuration parameters can also be modified via VM argument <xref
+                    linkend="Configuration"/>.</para>
+            <variablelist>
+                <varlistentry>
+                    <term>-DlogLevel</term>
+                    <listitem>
+                        <para>log4j log level (<literal>ERROR</literal>, <literal>WARN</literal>,
+                                <literal>INFO</literal> or <literal>DEBUG</literal>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Dspring.profiles.active</term>
+                    <listitem>
+                        <para>list of Spring Profiles to activate (see <xref
+                                linkend="Spring-Profiles"/>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Dcom.algoTrarder.rmi.registryPort</term>
+                    <listitem>
+                        <para>the RMI registry Port, e.g. 1099 (for <xref
+                                linkend="Remote-JMX-Access"/>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Dcom.algoTrarder.rmi.serverPort</term>
+                    <listitem>
+                        <para>the RMI server Port, e.g. 1098 (for <xref linkend="Remote-JMX-Access"
+                            />)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Djava.rmi.server.hostname</term>
+                    <listitem>
+                        <para>the hostname of the system, e.g. localhost (for <xref
+                                linkend="Remote-JMX-Access"/>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Dcom.sun.management.jmxremote.port</term>
+                    <listitem>
+                        <para>the RMI registry Port, e.g. 1099 (for <xref linkend="Local-JMX-Access"
+                            />)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Dcom.sun.management.jmxremote.authenticate</term>
+                    <listitem>
+                        <para>use RMI authentication (true for <xref linkend="Remote-JMX-Access"/>;
+                            false for <xref linkend="Local-JMX-Access"/>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Dcom.sun.management.jmxremote.ssl</term>
+                    <listitem>
+                        <para>use SSL encryption (true for <xref linkend="Remote-JMX-Access"/>;
+                            false for <xref linkend="Local-JMX-Access"/>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Dcom.sun.management.jmxremote.ssl.need.client.auth</term>
+                    <listitem>
+                        <para>use SSL client authentication (true for <xref
+                                linkend="Remote-JMX-Access"/>; false for <xref
+                                linkend="Local-JMX-Access"/>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Dcom.sun.management.jmxremote.registry.ssl</term>
+                    <listitem>
+                        <para>use SSL encryption for the RMI registry (true for <xref
+                                linkend="Remote-JMX-Access"/>; false for <xref
+                                linkend="Local-JMX-Access"/>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Djavax.net.ssl.keyStore</term>
+                    <listitem>
+                        <para>the keystore file (for <xref linkend="Remote-JMX-Access"/>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Djavax.net.ssl.keyStorePassword</term>
+                    <listitem>
+                        <para>the keystore password (for <xref linkend="Remote-JMX-Access"/>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Djavax.net.ssl.trustStore</term>
+                    <listitem>
+                        <para>the truststore file (for <xref linkend="Remote-JMX-Access"/>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Djavax.net.ssl.trustStorePassword</term>
+                    <listitem>
+                        <para>the truststore password (for <xref linkend="Remote-JMX-Access"
+                            />)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-javaagent:lib/agent.jar</term>
+                    <listitem>
+                        <para>the custom JMX agent (for <xref linkend="Remote-JMX-Access"/>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Xmx</term>
+                    <listitem>
+                        <para>increase the Java Heap Size to specified amount (e.g.
+                                <literal>2048M</literal>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-XX:MaxPermSize</term>
+                    <listitem>
+                        <para>increase the Java Perm Size to specified amount (e.g.
+                                <literal>1024M</literal>)</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
         </section>
     </chapter>
     <chapter id="Strategy_Development">
@@ -4189,7 +4383,6 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <imageobject>
                     <imagedata scalefit="1" fileref="images/StrategyDevelopmentProcess.gif"/>
                 </imageobject>
-                <caption> </caption>
             </mediaobject>
         </figure>
         <section>
@@ -4211,8 +4404,8 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         <filename>/src/main/java/com/algoTrader/strategy/MovStarter.java</filename>
                     </term>
                     <listitem>
-                        <para>The class containing the main method to start the strategy in it's own
-                            JVM in Live Trading Mode</para>
+                        <para>The class containing the main method to start the strategy in its own JVM in Live
+                            Trading Mode</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -4472,9 +4665,9 @@ movLengthSlow = 2000</screen>
     &lt;constructor-arg value="MOV.QUEUE" />
   &lt;/bean>
 &lt;/beans></programlisting>
-                <para>the most important part is the configuration of the movService through
-                    AutoWiring. In additional the JMS Queue <parameter>MOV.QUEUE</parameter> gets
-                    configured, see <xref linkend="Messaging"/>
+                <para>The most important part is the configuration of the movService through AutoWiring. In
+                    additional the JMS Queue <parameter>MOV.QUEUE</parameter> gets configured, see
+                        <xref linkend="Messaging"/>
                 </para>
             </section>
             <section>
@@ -4508,9 +4701,21 @@ movLengthSlow = 2000</screen>
                 <para>ALLOCATION is the percentage of total assets that will be allocated to this
                     strategy.</para>
                 <note>
-                    <para>The total of all allocations need to add up to 100%. If only 50% is
-                        allocated to our Strategy MOV, the reminder of 50% needs to be allocated to
-                        the "BASE" strategy, which represents the Base itself.</para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>The total of all allocations need to add up to 100%</para>
+                        </listitem>
+                        <listitem>
+                            <para>If only 50% is allocated to our Strategy MOV, the reminder of
+                                50% needs to be allocated to the "BASE" strategy, which
+                                represents the Base itself</para>
+                        </listitem>
+                        <listitem>
+                            <para>It is possible to allocate more than 100% to one or more
+                                strategies. In this case, the allocation of the Base will need
+                                be negative in order for the total to be 100%</para>
+                        </listitem>
+                    </itemizedlist>
                 </note>
             </section>
         </section>
@@ -4561,9 +4766,9 @@ Double target = (Double) EsperManager.getVariableValue(strategyName, "target"); 
             </section>
             <section>
                 <title>Esper Utility classes</title>
-                <para>If a computation is too complex, it is not advisable to do it inside an Esper
-                    Statement. For this purpose, it is often easier to create a small Utility class
-                    and use it's methods inside the statement. Example:</para>
+                <para>If a computation is too complex, it is not advisable to do it inside an Esper Statement.
+                    For this purpose, it is often easier to create a small Utility class and use its
+                    methods inside the statement. Example:</para>
                 <programlisting language="Java">package com.algoTrader.strategy;
 
 public class MovUtil {
@@ -4606,9 +4811,9 @@ output
             </section>
             <section>
                 <title>Storing the latest Market Data Events</title>
-                <para>For many parts of the strategy it is necessary to keep the last Market Data
-                    Event of each subscribed Security. The following statement will do exactly this
-                    and save the latest market data event per security for up to one week</para>
+                <para>For many parts of the strategy it is necessary to keep the last Market Data Event of each
+                    subscribed Security. The following statement will do exactly this and save the
+                    latest market data event per security for up to one week.</para>
                 <programlisting>@Name('CURRENT_MARKET_DATA_EVENT')
 select
   marketDataEvent.security.id as securityId,
@@ -4640,6 +4845,19 @@ select
   *
 from
   MarketDataEvent;</programlisting>
+            </section>
+            <section>
+                <title>Prioritizing Statements</title>
+                <para>If two statements are based on the same Event, it is necessary to set a
+                    priority for each statement to make sure, the system behaves
+                    deterministic:</para>
+                <programlisting>@Name('STATEMENT_1')
+@Priority(2)
+select * from A;
+
+@Name('STATEMENT_2')
+@Priority(1)
+select * from A;</programlisting>
             </section>
             <section>
                 <title>Market Data Event Prefeeding</title>
@@ -4691,6 +4909,26 @@ from
                 </para>
             </section>
             <section>
+                <title>Prevent <classname>LazyInitializationException</classname></title>
+                <para>Since Strategies run in different JVM's their entire operation (Esper
+                    Statements and Java Code) run outside of a Hibernate Session. Traversal along
+                    the Object Tree (beyond <classname>Security</classname>,
+                        <classname>SecurityFamily</classname>, Underlying
+                        <classname>Security</classname>, <classname>Subscriptions</classname> and
+                        <classname>Positions</classname> which get initialized when Market Data
+                    Events are sent to the Strategy) would  throw a
+                        <classname>LazyInitializationException</classname>. </para>
+                <para>However each Entity contains custom getter methods (e.g.
+                        <methodname>Transaction.getSecurityInitialized()</methodname> or
+                        <methodname>Security.getPositionsInitialized()</methodname>) that check if
+                    the requested association is already initialized. If not the
+                        <classname>LazyLoaderService</classname> is called, which loads the
+                    requested association (e.g. <classname>Security</classname> or
+                        <classname>Positions</classname>). Subsequent calls to the same association
+                    will then get access to the already initialized Entity or Collection. For
+                    further details see <xref linkend="HibernateSession_Handling"/>.</para>
+            </section>
+            <section>
                 <title>Prevent an action from happening multiple times</title>
                 <para>Often a Java Action is triggered multiple times by a certain situation,
                     because the underlying cause takes a finite amount of time to be
@@ -4703,6 +4941,25 @@ from
                 <para>To prevent this, the following Output Limit Clause should be appended to the
                     statement:</para>
                 <programlisting>output first every 1 minutes; </programlisting>
+                <para>the output first clause starts as soon as the first event arrives and then does not
+                    process any more events for 1 minute. However it is still possible that two
+                    events are processed, that are less than one minute apart from each other. See
+                    the following example:</para>
+                <itemizedlist>
+                    <listitem>
+                        <para>Tick 1 arrives at 18:00:00 and is processed</para>
+                    </listitem>
+                    <listitem>
+                        <para>Tick 2 arrives at 18:00:30 and is ignored </para>
+                    </listitem>
+                    <listitem>
+                        <para>Tick 3 arrives at 18:01:55 and is processed </para>
+                    </listitem>
+                    <listitem>
+                        <para>Tick 4 arrives at 18:02:05 and is processed</para>
+                    </listitem>
+                </itemizedlist>
+                <para>Tick 3 and Tick 4 are only 10 seconds apart, but they are still both processed!</para>
             </section>
             <section>
                 <title>Execute an action once a day at a certain time</title>
@@ -4716,8 +4973,7 @@ from
     tick.security.id, engineStrategy.name) as position
 where
   position.quantity != 0;</programlisting>
-                <para>The above statement will close an eventual open position at 18:00:00 Mo-Fri
-                </para>
+                <para>The above statement will close an eventual open position at 18:00:00 Mo-Fri.</para>
             </section>
             <section>
                 <title>Rolling of Futures and Options</title>
@@ -4742,9 +4998,9 @@ where
             </section>
             <section>
                 <title>Handle Constant Maturity Futures</title>
-                <para>Since Future have an expiration date and are therefore not continuous, it is
-                    often not possible to base any indicators on them. With the following statements
-                    it is however possible to calculate a constant maturity market value:</para>
+                <para>Since Future have an expiration date and are therefore not continuous, it is often not
+                    possible to base indicators on them. With the following statements it is however
+                    possible to calculate a constant maturity market value:</para>
                 <programlisting>@Name('INSERT_INTO_FRONT_FUTURE_TICK')
 insert into
   FrontFutureTick
@@ -4884,7 +5140,10 @@ create variable com.algoTrader.enumeration.State state =
                     <para>All open positions are closed</para>
                 </listitem>
                 <listitem>
-                    <para>Performance statistics are printed to the console, see <xref linkend="Performance_Statistics"/>
+                    <para>General Performance statistics as well as strategy specific performance statistics
+                        (gathered through
+                            <classname>StrategyService.getSimulationResults</classname>) are printed
+                        to the console, see <xref linkend="Performance_Statistics"/>
                     </para>
                 </listitem>
                 <listitem>
@@ -4956,11 +5215,14 @@ create variable com.algoTrader.enumeration.State state =
             <para>
                 <emphasis role="bold">optimizeMultiParam</emphasis>
             </para>
-            <para>Multiple Simulation runs by adjusting the value of multiple parameters around
-                their start values and trying to find the maximum ShareRatio. The example below will
-                start the optimiziation by settting the value of parameter a to 85.0 and parameter b
-                to 150.0</para>
+            <para>Multiple Simulation runs by adjusting the value of multiple parameters around their start
+                values and trying to find the maximum ShareRatio. The example below will start the
+                optimization by setting the value of parameter a to 85.0 and parameter b to
+                150.0</para>
             <screen>optimizeMultiParam SMI a:85.0 b:150.0</screen>
+            <para>In order to process parameters with the correct decimal scale the following VM
+                argument has to be set:</para>
+            <screen>-Dsimulation.roundDigits=4</screen>
         </section>
         <section id="Performance_Statistics">
             <title>Performance Statistics</title>
@@ -4982,9 +5244,14 @@ AllTrds: cnt=2139 avgPrft=1'315.89 avgPrftPct=0.86% avgAge=9.14</screen>
                 corresponding perforamnce statistics of one run on one single line:</para>
             <screen>a=90 avgY=39.86% stdY=20.16% sharpe=1.97 maxDDM=11.29% bestMP=8.35% ...
 a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </screen>
+            <para>In addition to above General Performance statistics, strategy specific performance
+                statistics are printed to the console. These are retrieved by calling the method
+                    <classname>StrategyService.getSimulationResults</classname> of the strategy.  </para>
             <para>After the simulation the database modifications (mainly transactions and
                 positions) are kept in order to be able to perform further DB based analysis.
             </para>
+            <para>The amount of output during the simulation can be adjusted by setting the Log Level
+                according to <xref linkend="Logging"/>.</para>
         </section>
     </chapter>
     <chapter id="Performance_Measurement">
@@ -5089,7 +5356,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 <para>Maximum Margin of the Portfolio</para>
             </listitem>
             <listitem>
-                <para>Trailing Stop-Loss Limit for each Position</para>
+                <para>Fixed and/or Trailing Stop-Loss Limit for each Position</para>
             </listitem>
             <listitem>
                 <para>Maximum Redemption Value / Cash-Balance</para>
@@ -5098,7 +5365,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 <para>Maximum Loss per Position</para>
             </listitem>
             <listitem>
-                <para>Maximum Overnight CVaR</para>
+                <para>Maximum Overnight Value-at-Risk (VaR or CVaR)</para>
             </listitem>
             <listitem>
                 <para>Maximum Leverage of the Portfolio</para>
@@ -5127,7 +5394,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                             actually influence cash but only the margin requirement.</para>
                     </listitem>
                     <listitem>
-                        <para>IB displays Future Unrealized P/L under Cash</para>
+                        <para>IB displays Future Unrealized P/L under Cash.</para>
                     </listitem>
                     <listitem>
                         <para>AlgoTrader however treats Futures as regular Securities (i.e. add
@@ -5152,19 +5419,21 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                             the BaseCurrency</para>
                     </listitem>
                     <listitem>
-                        <para>The gross value of a transaction is booked in the TransactionCurrency,
-                            whereas the commission is booked in the BaseCurrency. However TWS Trades
-                            Window displays commissions in Trade Currency, but IB Flex Reports
-                            displays commissions correctly in the BaseCurrency.</para>
+                        <para>The gross value of a transaction is booked in the TransactionCurrency, whereas the
+                            commission is booked in the BaseCurrency. However </para>
                     </listitem>
                 </itemizedlist>
+                <note>
+                    <para>The TWS Trades Window displays commissions in Trade Currency, but IB Flex Reports
+                        displays commissions correctly in the BaseCurrency.</para>
+                </note>
             </section>
             <section>
                 <title>ForexFutures</title>
                 <itemizedlist>
                     <listitem>
-                        <para>Like Forex, ForexFutures (e.g. EUR.USD) consists of the BaseCurrency
-                            (e.g. EUR) and TransactionCurrency(e.g. USD)</para>
+                        <para>Like Forex, ForexFutures (e.g. EUR.USD) consist of the BaseCurrency (e.g. EUR) and
+                            TransactionCurrency(e.g. USD)</para>
                     </listitem>
                     <listitem>
                         <para>In Balances Forex are attributed towards Securities (and not Cash like
@@ -5174,13 +5443,13 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                         <para>The entire transaction value (price + commission) is booked in the
                             TransactionCurrency</para>
                     </listitem>
-                    <listitem>
-                        <para>IB treats ForexFutures like regular Futures and displays their value
-                            under Cash in the TransactionCurrency. This way even if a
-                            Non-Base-Currency Exposure is hedged, the NetLiqValue will be none zero
-                        </para>
-                    </listitem>
                 </itemizedlist>
+                <note>
+                    <para>IB treats ForexFutures like regular Futures and displays their
+                        value under Cash in the TransactionCurrency. This way even if a
+                        Non-Base-Currency Exposure is hedged, the NetLiqValue will be none
+                        zero</para>
+                </note>
             </section>
             <section>
                 <title>Currency Attribution</title>
@@ -5267,20 +5536,19 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 actual Forex-Hedging the following two options exist</para>
             <section>
                 <title>Virtual FX Positions (IB only)</title>
-                <para>InteractiveBrokers offer virtual FX Positions, which are very convenient for
-                    Hedging purposes. Depending on the current exposure, a corresponding virtual FX
+                <para>InteractiveBrokers offer virtual FX Positions, which are very convenient for Hedging
+                    purposes. Depending on the current exposure, a corresponding virtual FX spot
                     position is maintained.</para>
             </section>
             <section>
                 <title>FX Future</title>
                 <para>The second option for FX Hedging is by means of FX Futures which is a subclass of
                     Future.</para>
-                <para>In case of EUR.USD there are three FXFutureFamilies available with different
-                    contract sizes of 12'500, 62'500 and 125'000 USD. Because of this the
-                    hedgingFamily has to be defined as a Property on the EUR.USD
-                    subscription.</para>
-                <para>Since FX Futures expire, the Hedging Position has to be rolled before
-                    Expiration, which is also done automatically</para>
+                <para>In case of EUR.USD there are three FX FutureFamilies available with different contract
+                    sizes of 12'500, 62'500 and 125'000 USD. Because of this the hedgingFamily has
+                    to be defined as a Property on the EUR.USD subscription.</para>
+                <para>Since FX Futures expire, the Hedging Position has to be rolled before Expiration, which is
+                    also done automatically based on configured parameters.</para>
             </section>
         </section>
     </chapter>
@@ -5321,8 +5589,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 parameter. The actual option pricing happens in two steps:</para>
             <orderedlist numeration="arabic">
                 <listitem>
-                    <para>For all expirations a volatility is calculated for the requested strike
-                    </para>
+                    <para>For all available expirations a volatility is calculated for the requested strike </para>
                 </listitem>
                 <listitem>
                     <para>Using spline interpolation the volatility for the requested expiration is
@@ -5389,7 +5656,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                             <entry>csv</entry>
                         </row>
                         <row>
-                            <entry>Universal</entry>
+                            <entry>Universal Invest</entry>
                             <entry/>
                             <entry>x</entry>
                             <entry>x</entry>
@@ -5601,9 +5868,9 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 </note>
                 <para>Like Fills and Transactions the generic <classname>OrderStatus</classname>
                     will also be propagated to the corresponding strategy.</para>
-                <para>The statement LOG_TRANSACTION_SUMMARY of the
-                        <filename>module-trades.epl</filename> is responsible for collecting all
-                    OrderStatus events for an order an produce one combined log statement.</para>
+                <para>The statement LOG_TRANSACTION_SUMMARY of the <filename>module-trades.epl</filename> is
+                    responsible for collecting all OrderStatus events for an order and produce one
+                    combined log statement.</para>
                 <para>The <classname>OpenOrderWindow</classname> is updated based on every
                     OrderStatus event (e.g. increase filledQuantity &amp; reduce remainingQuantity).
                     Once the Order is fully executed, it will be removed from the
@@ -5614,19 +5881,19 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
             </section>
             <section>
                 <title>Fix Interface</title>
-                <para>AlgoTrader uses <ulink url="http://www.quickfixj.org/"> QuickFix/J</ulink> for
-                    it's Fix connections and currently supports FIX 4.2 and 4.4. Because FIX
-                    messages are not compatible between different version, the two distinct services
+                <para>AlgoTrader uses <ulink url="http://www.quickfixj.org/"> QuickFix/J</ulink> for it's Fix
+                    connections and currently supports FIX 4.2 and 4.4. Because FIX messages are not
+                    compatible between different version, the two distinct services
                         <classname>Fix42OrderService</classname> and
                         <classname>Fix44OrderService</classname> exist. Incoming messages are
-                    handled by there corresponding <classname>Fix42MessageHandler</classname> and
+                    handled by their corresponding <classname>Fix42MessageHandler</classname> and
                     Fix44MessageHandler, which are responsible for creating OrderStatus and Fill
                     events.</para>
                 <para>The Fix infrastructure consists of the following classes:</para>
                 <table frame="all" pgwide="1">
                     <title>Fix Infrastructure</title>
                     <tgroup cols="2">
-                        <colspec colwidth="1*"/>
+                        <colspec colwidth="1.2*"/>
                         <colspec colwidth="2*"/>
                         <thead>
                             <row>
@@ -5804,7 +6071,6 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 <imageobject>
                     <imagedata fileref="images/MarketDataEvents.gif"/>
                 </imageobject>
-                <caption> </caption>
             </mediaobject>
         </figure>
         <para>Processing of MarketData is handled through the
@@ -5827,7 +6093,6 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 <imageobject>
                     <imagedata fileref="images/MarketDataPropagation.gif"/>
                 </imageobject>
-                <caption> </caption>
             </mediaobject>
         </figure>
         <section id="Creation_of_Bars_based_on_Ticks">
@@ -5881,7 +6146,7 @@ from
                     <para>
                         <parameter>eventType</parameter> is either <parameter>tickData</parameter>,
                             <parameter>barData</parameter> or <parameter>genericData</parameter>
-                    </para>
+                        (see <xref linkend="Generic_Events"/>). </para>
                 </listitem>
                 <listitem>
                     <para>
@@ -6110,6 +6375,28 @@ subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
             </itemizedlist>
         </section>
         <section>
+            <title>Numeric Precision</title>
+            <para>In General different Securities are traded with different numeric precision (e.g.
+                S&amp;P Futures prices ahve two digits, whereas FX prices are usually 5-6 digits).
+                To accommodate different numeric precisions, AlgoTrader provides the following two
+                Fields inside the class <classname>SecurityFamily</classname>:</para>
+            <itemizedlist>
+                <listitem>
+                    <para><parameter>scale</parameter>: which represents the number of
+                        digits</para>
+                </listitem>
+                <listitem>
+                    <para><parameter>tickSizePattern</parameter>: A
+                        <classname>java.text.ChoiceFormat.ChoiceFormat</classname>
+                        representing a pattern that defines the TickSize at different Price
+                        Levels. For example the pattern "<literal>0&lt;0.05 |
+                            3&lt;0.1</literal>" says, that the TickSize is 0.05 for prices from 0 to
+                        (but not including) 3 and 0.1 for prices above 3 </para>
+                </listitem>
+            </itemizedlist>
+
+        </section>
+        <section>
             <title>Market Data Gap Checking</title>
             <para>Since a continuous data feed of market data is essential for most trading
                 strategies, AlgoTrader contains a feature that automatically warns if no market data
@@ -6123,7 +6410,7 @@ subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
         <title>Execution Algos</title>
         <section>
             <title>Existing Execution Algos</title>
-            <para>AlgoTrader provides several build-in Execution Algos.</para>
+            <para>AlgoTrader provides several built-in Execution Algos.</para>
             <variablelist>
                 <varlistentry>
                     <term>SlicingOrder</term>
@@ -6275,7 +6562,7 @@ subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
                 <title>Combination Example</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata scalefit="1" fileref="images/CombinationExample.gif"/>
+                        <imagedata fileref="images/CombinationExample.gif"/>
                     </imageobject>
                 </mediaobject>
             </figure>
@@ -6362,6 +6649,15 @@ getSubscriptionService().subscribeMarketDataEvent(strategyName, combination.getI
 getPositionService().modifyNonTradeablePosition(positionId, quantity);
 
 getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</programlisting>
+                <important>
+                    <para>If Components are modified directly in the database, it is necessary to
+                        clear the cache as well as to call the method
+                            <methodname>BaseManagementService.resetComponentWindow</methodname>
+                        immediately afterwards. If this is not done within a short period of time
+                        this might lead to miss-pricing of the corresponding
+                            <classname>Cominbation</classname>. It is therefore preferable to modify
+                        Components via the Client directly.</para>
+                </important>
             </section>
         </section>
     </chapter>
@@ -6484,7 +6780,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                             <entry>applicationContext-remote.xml</entry>
                             <entry>contains beans used by strategies when run in remote mode</entry>
                             <entry/>
-                            <entry>i.e. Diagrams, Remote JMS</entry>
+                            <entry>Diagrams, Remote JMS</entry>
                         </row>
                         <row>
                             <entry>applicationContext-client.xml</entry>
@@ -6570,8 +6866,8 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
         </section>
         <section id="Spring-Profiles">
             <title>Spring Profiles</title>
-            <para>In addition to BeanRefFactories which define the different operational modes there
-                are Profiles which can be enabled on top for different use Cases or left disabled if
+            <para>In addition to BeanRefFactories which define the different operational modes there are
+                Profiles which can be enabled on top for different Use Cases or left disabled if
                 they are not needed (e.g. SecurityRetrieval in Live-Trading-Mode)</para>
             <figure>
                 <title>Spring Profiles</title>
@@ -6581,7 +6877,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>All other services not mentioned above are active in all profiles</para>
+            <para>All other services not mentioned above are active in all profiles.</para>
             <para>To enable a Profile on start-up, the following vm argument has to be used:</para>
             <screen>-Dspring.profiles.active=server,trading,iBNative</screen>
         </section>
@@ -6627,12 +6923,11 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
             <para>The following JMS Destinations are defined by the system</para>
             <itemizedlist>
                 <listitem>
-                    <para>one marketDataTopic (<literal>MARKETDATA.TOPIC</literal>): A Topic
-                            where all market data events as pushed into. On every event the
-                                <parameter>securityId</parameter> is set as a property, which can be
-                            used by the strategies to select market data events for securities
-                            subscribed to. Events are sent via
-                                <methodname>EsperManager.sendEvent()</methodname>
+                    <para>one marketDataTopic (<literal>MARKETDATA.TOPIC</literal>): A Topic where all market data
+                        events are pushed into. On every event the <parameter>securityId</parameter>
+                        is set as a property, which can be used by the strategies to select market
+                        data events for securities subscribed to. Events are sent via
+                            <methodname>EsperManager.sendEvent()</methodname>
                     </para>
                 </listitem>
                 <listitem>
@@ -6644,12 +6939,12 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                     </para>
                 </listitem>
                 <listitem>
-                    <para>one genericTopic (<literal>GENERIC.TOPIC</literal>): A Topic for
-                            Generic Messages. Any strategy can send messages into this Topic. On
-                            every event the <parameter>className</parameter> of the event is set as
-                            a property, which can be used by the strategy to select event types,
-                            that it is subscribed to. Events are sent via
-                                <methodname>EsperManager.sendGenericEvent()</methodname>
+                    <para>one genericTopic (<literal>GENERIC.TOPIC</literal>): A Topic for Generic Messages. Any
+                        strategy can send messages into this Topic. On every event the
+                            <parameter>className</parameter> of the event is set as a property,
+                        which can be used by the strategy to select event types that it is
+                        subscribed to. Events are sent via
+                            <methodname>EsperManager.sendGenericEvent()</methodname>
                     </para>
                 </listitem>
             </itemizedlist>
@@ -6717,8 +7012,8 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
         <title>Configuration</title>
         <section>
             <title>Configuration Files</title>
-            <para>For the Base as well as for each strategy one or multiple configuration file
-                exists in the directory <filename>/src/main/resources/META-INF</filename>.</para>
+            <para>For the Base as well as for each strategy one or multiple configuration files exist in the
+                directory <filename>/src/main/resources/META-INF</filename>.</para>
             <para>The Base contains the following two main configuration files.</para>
             <para>conf.properties (the main public configuration file). It contains settings related to:</para>
             <itemizedlist>
@@ -6773,7 +7068,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                     <parameter>simulation_eventsPerDay</parameter> corresponds to
                     <parameter>simulation.eventsPerDay</parameter> in the property file. It is not
                 mandatory to specify a namespace however. If a namespace is left out, the variable
-                value is searched in main config file of the corresponding strategy.</para>
+                value is searched in the main config file of the corresponding strategy.</para>
         </section>
         <section>
             <title>Access to Configuration Values</title>
@@ -6922,7 +7217,7 @@ private @Value("#{T(com.algoTrader.enumeration.Currency)
                 </tgroup>
             </table>
         </section>
-        <section>
+        <section id="JMX">
             <title>JMX</title>
             <para>Management is provided through JMX. The JMX connection is secured through SSL by
                 using the following vm arguments:</para>
@@ -6945,7 +7240,7 @@ private @Value("#{T(com.algoTrader.enumeration.Currency)
                 commandline:</para>
             <screen>-javaagent:lib/agent.jar</screen>
             <para>In addition the following vm argument has to be specified, which defines the
-                public external host name</para>
+                public external host name:</para>
             <screen>-Djava.rmi.server.hostname=algotrader.com</screen>
             <note>
                 <itemizedlist>
@@ -6955,17 +7250,15 @@ private @Value("#{T(com.algoTrader.enumeration.Currency)
                             file!!!</para>
                     </listitem>
                     <listitem>
-                        <para>It is easiest if the same keystore and truststore files are used
-                            on server and client.</para>
+                        <para>It is easiest if the same keystore and truststore files are used on
+                            server and client.</para>
                     </listitem>
                     <listitem>
-                        <para>the keystore password has to be the same as the key
-                            password.</para>
+                        <para>The keystore password has to be the same as the key password.</para>
                     </listitem>
                     <listitem>
-                        <para>In addition the truststore should also contain the default CA
-                            Certs (copied from<filename>
-                                jre/lib/security/cacerts</filename>).</para>
+                        <para>In addition the truststore should also contain the default CA Certs
+                            (copied from<filename> jre/lib/security/cacerts</filename>).</para>
                     </listitem>
                 </itemizedlist>
             </note>
@@ -6998,8 +7291,8 @@ private @Value("#{T(com.algoTrader.enumeration.Currency)
         </section>
         <section id="Hibernate_Locking">
             <title>Hibernate Locking</title>
-            <para>Per default no concurrency control is enabled. If two sessions operate on the same
-                entity at the same time, that last update wins and the first update is lost.</para>
+            <para>Per default no concurrency control is enabled. If two sessions operate on the same entity
+                at the same time, the last update wins and the first update is lost.</para>
             <section>
                 <title>Optimistic Locking</title>
                 <para>This option is best for situations where concurrent modifications happen
@@ -7019,7 +7312,7 @@ private @Value("#{T(com.algoTrader.enumeration.Currency)
                     </listitem>
                     <listitem>
                         <para>PropertyHolder (primarily used by Position, but for union-subclasses, version can only
-                            be set on the top-level class </para>
+                            be set on the top-level class) </para>
                     </listitem>
                     <listitem>
                         <para>Property</para>
@@ -7103,9 +7396,8 @@ where and s.name = 'BASE'</programlisting>
                                 client for locking issues</para>
                         </listitem>
                         <listitem>
-                            <para>locked queries should not be cached, because if they are, the
-                                second query would not go to the database and therefore would
-                                not be locked</para>
+                            <para>Locked queries should not be cached, because if they are, the second query would not go
+                                to the database and therefore would not be locked</para>
                         </listitem>
                         <listitem>
                             <para>If a query is unmatched (e.g. from PositionImpl where id = 10
@@ -7117,6 +7409,127 @@ where and s.name = 'BASE'</programlisting>
                         </listitem>
                     </itemizedlist>
                 </section>
+            </section>
+        </section>
+        <section id="HibernateSession_Handling">
+            <title>Hibernate Session Handling</title>
+            <para>Any access to the database needs to be accompanied by a Hibernate Session. The
+                Hibernate Session has its own First Level Cache and is also responsible to access
+                the Second Level Cache if necessary. In case an Object that is already loaded into
+                the current Hibernate Session, is modified outside the Session, the current Session
+                will not get notified of the change. For this reason it is important to know at what
+                poing a new Session is created and for how long it exists. There are basically two
+                scenarios in which Hibernate Session are created.</para>
+            <section>
+                <title>Market Data Event Hibernate Sessions</title>
+                <figure>
+                    <title>Market Data Event Hibernate Sessions</title>
+                    <mediaobject>
+                        <imageobject>
+                            <imagedata scalefit="1"
+                                fileref="images/MarketDataEventHibernateSessions.png"/>
+                        </imageobject>
+                    </mediaobject>
+                </figure>
+                <para>In Simulation Mode the <classname>CustomSender</classname> is responsible to
+                    send <classname>MarketDataEvents</classname> into the Base Esper Engine. </para>
+                <para>In Live Trading it is the <classname>MessageHandler</classname> of the
+                    corresponding BrokerInterface (e.g.
+                    <classname>IBEsperMessageHandler</classname>) who is responsible to send
+                        <classname>MarketDataEvents</classname> into the Base Esper Engine. </para>
+                <para>Before the <classname>MarketDataEvents</classname> are sent into the Esper
+                    Engine, both the <classname>CustomSender</classname> and the
+                        <classname>MessageHandler</classname> contact the
+                        <classname>LookupService</classname> to get an up-to-date version of the
+                    corresponding Security. This step involves opening a new Hibernate Session and
+                    initializing the corresponding <classname>SecurityFamily</classname>, Underlying
+                        <classname>Security</classname>, <classname>Subscriptions</classname> and
+                        <classname>Positions</classname>.</para>
+                <para>By the time the <classname>MarketDataEvent</classname> is sent into the Esper
+                    Engine of the Base, the session is already closed an the
+                        <classname>MarketDataEvent</classname> (along with its attached
+                        <classname>Security</classname>) are now in detached state, which means that
+                    traversal along the Object Tree (beyond <classname>Security</classname>,
+                        <classname>SecurityFamily</classname>, Underlying
+                        <classname>Security</classname>, <classname>Subscriptions</classname> and
+                        <classname>Positions</classname>) will throw a
+                        <classname>LazyInitializationException</classname>.</para>
+                <para>If any statement of the Base Esper Engine invokes a Service via Esper
+                    Subscriber a new Hibernate Session is stared (and immediately closed
+                    afterwards).</para>
+                <para>Market Data Events get transferred to the Strategies by the
+                        <classname>MarketeDataPropagator</classname>. Since Strategies run in
+                    different JVM's their entire operation (Esper Statements and Java Code) run
+                    outside of a Hibernate Session. Traversal along the Object Tree (beyond
+                        <classname>Security</classname>, <classname>SecurityFamily</classname>,
+                    Underlying <classname>Security</classname>, <classname>Subscriptions</classname>
+                    and <classname>Positions</classname>) would again throw a
+                        <classname>LazyInitializationException</classname>. </para>
+                <para>However custom getter methods generated into the Entities  (e.g.
+                        <methodname>Transaction.getSecurityInitialized()</methodname> or
+                        <methodname>Security.getPositionsInitialized()</methodname>) check if the
+                    requested association is already initialized. If not the
+                        <classname>LazyLoaderService</classname> is called, which loads the
+                    requested association. Subsequent calls to the same association will then get
+                    access to the already initialized Entity or Collection. By this technique the
+                    Lazy-Loading Mechanism that is normally only be available inside a Hibernate
+                    Session (and therefore only inside the Base) is also available to
+                    Strategies.</para>
+            </section>
+            <section>
+                <title>Trade Hibernate Sessions</title>
+                <figure>
+                    <title>Market Data Event Hibernate Sessions</title>
+                    <mediaobject>
+                        <imageobject>
+                            <imagedata scalefit="1" fileref="images/TradeHibernateSessions.png"/>
+                        </imageobject>
+                    </mediaobject>
+                </figure>
+                <para>An <classname>Order</classname> is either created by the
+                        <classname>StrategyService</classname> or manually through the
+                        <classname>ManagementService</classname>. </para>
+                <para>An <classname>Order</classname> is created in detached state (since Strategies
+                    run outside of a Hibernate Session). The <classname>Order</classname> object is
+                    sent to the <classname>OrderService</classname> (via RMI) at which point a
+                    Hibernate Session is created. The
+                        <methodname>OrderService.sendOrder</methodname> method is responsible to
+                    "refresh" the <classname>Security</classname>, <classname>Strategy</classname>
+                    and <classname>Account</classname> association of the
+                        <classname>Order</classname>. This is necessary since the Entities that are
+                    attached to the Order might be stale or obsolete by the time they arrive at the
+                        <classname>OrderService</classname>. The <classname>OrderService</classname>
+                    is also responsible to delegate the <classname>Order</classname> to the Broker
+                    specific <classname>OrderService</classname>, which send the
+                        <classname>Order</classname> over the wire. </para>
+                <para>After sending the <classname>Order</classname>, the Hibernate Session is
+                    closed and the detached object is sent into the Base Esper Engine, where it is
+                    correlated with <classname>OrderStatus</classname> events and
+                        <classname>Fills</classname> arriving back from the external Broker
+                    Interface. </para>
+                <para>After that the following three steps take place, each happens inside its own
+                    Hibernate Session:</para>
+                <para>
+                    <itemizedlist>
+                        <listitem>
+                            <para><classname>OrderStatus</classname> events are propagated to the
+                                Strategy by the
+                                    <methodname>OrderService.propagateOrderStatus</methodname>
+                                method </para>
+                        </listitem>
+                        <listitem>
+                            <para><classname>Fills</classname> are propagated  to the Strategy by
+                                the <methodname>TransactionService.propagateFill</methodname>
+                                method</para>
+                        </listitem>
+                        <listitem>
+                            <para><classname>Fills</classname> are passed to the
+                                    <classname>TransactionService</classname> which is responsible
+                                to create a corresponding <classname>Transaction</classname> in the
+                                database and propagate it to the Strategy.</para>
+                        </listitem>
+                    </itemizedlist>
+                </para>
             </section>
         </section>
     </chapter>
@@ -7133,9 +7546,9 @@ where and s.name = 'BASE'</programlisting>
     </chapter>
     <chapter id="Metrics">
         <title>Metrics</title>
-        <para>In Simulation Mode the performance objective of the system is high-throughput, whereas
-            in Live Trading Mode the objective is low latency. To pinpoint potential performance
-            bottlenecks, AlgoTrader has a built in metrics functionality.</para>
+        <para>In Simulation Mode the performance objective of the system is high-throughput, whereas in
+            Live Trading Mode the objective is low latency. To pinpoint potential performance
+            bottlenecks, AlgoTrader has a built-in metrics functionality.</para>
         <section>
             <title>Configuration</title>
             <para>To enable this feature:</para>
@@ -7181,8 +7594,8 @@ where and s.name = 'BASE'</programlisting>
                             report at the end of each simulation run</para>
                 </listitem>
             </itemizedlist>
-            <para>A typical display of performance metrics looks like this, where ideally the sum of
-                all items on a sub-level should add up to the metrics value of the parent-level:</para>
+            <para>A typical display of performance metrics looks like this, where ideally the sum of all
+                items on a sub-level should add up to the metrics value of the parent-level:</para>
             <itemizedlist>
                 <listitem>
                     <para>TotalDuration</para>
@@ -7338,8 +7751,8 @@ where and s.name = 'BASE'</programlisting>
                 </listitem>
             </itemizedlist>
             <note>
-                <para>Subscriber time consumption is not included in statement metrics, whereas
-                    static method invocation is included</para>
+                <para>Subscriber time consumption is not included in statement metrics, whereas static method
+                    invocation is included.</para>
             </note>
         </section>
     </chapter>
@@ -7460,10 +7873,7 @@ where and s.name = 'BASE'</programlisting>
                     extending the Strategy use extreme caution before trading it Live.</para>
             </warning>
             <para>The Strategy trades the EUR.USD FX Market and is based on the Stairstep Breakouts
-                Indicator that is presented on <ulink
-                    url="http://www.forexfactory.com/showthread.php?t=302007"
-                    >www.forexfactory.com</ulink> by <ulink
-                    url="http://www.forexfactory.com/forexhard">forexhard</ulink>.</para>
+                Indicator that is presented on <ulink url="http://www.forexfactory.com/showthread.php?t=302007">www.forexfactory.com</ulink> by <ulink url="http://www.forexfactory.com/forexhard">forexhard</ulink>.</para>
             <para>The Trading Idea behind the Strategy is the following. Markets will often stay
                 within a trading range for a considerable amount of time before they break-out in
                 either direction. The following Chart shows some examples of trading ranges.</para>
@@ -7502,8 +7912,7 @@ where and s.name = 'BASE'</programlisting>
                 after the buffer-line has been crossed. This time the size of the position is
                 doubled in order to cover the losses of the first entry, in case the target is
                 reached this time around. Position size is doubled up to a defined maximum. Because
-                of this doubling the system can be categorized as a Martingale Strategy (see <ulink
-                    url="http://en.wikipedia.org/wiki/Martingale_%28betting_system%29">Martingale
+                of this doubling the system can be categorized as a Martingale Strategy (see <ulink url="http://en.wikipedia.org/wiki/Martingale_%28betting_system%29">Martingale
                     Betting System</ulink>).</para>
             <para>The following State Chart Diagram depicts the different states the Strategy will
                 pass through:</para>
@@ -7558,8 +7967,7 @@ where and s.name = 'BASE'</programlisting>
                         <filename>/src/main/java/com/algoTrader/strategy/forex/BoxChartServiceImpl.java</filename>
                     </term>
                     <listitem>
-                        <para>This class provides input data for the Box Custom Chart (see <xref
-                                linkend="Custom_Chart"/>).</para>
+                        <para>This class provides input data for the Box Custom Chart (see <xref linkend="Custom_Chart"/>).</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -7661,14 +8069,12 @@ where and s.name = 'BASE'</programlisting>
                         <para>Contains the declaration of the <classname>BoxService</classname> and
                                 <classname>BoxChartService</classname> Beans (using autowiring). The
                                 <classname>BoxChartService</classname> also contains the definition
-                            of the Chart including Axis, Dataset and Series (see <xref
-                                linkend="Custom_Chart"/>). The file also contains the declaration of
+                            of the Chart including Axis, Dataset and Series (see <xref linkend="Custom_Chart"/>). The file also contains the declaration of
                             the JMS Queue (i.e. <classname>ActiveMQQueue</classname>).</para>
                     </listitem>
                 </varlistentry>
             </variablelist>
-            <para> To start the Strategy please see the explanations in chapter <xref
-                    linkend="Starting_a_Strategy"/>.</para>
+            <para> To start the Strategy please see the explanations in chapter <xref linkend="Starting_a_Strategy"/>.</para>
         </section>
     </appendix>
 </book>
