@@ -18,9 +18,11 @@
 package com.algoTrader.entity.security;
 
 import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
 
+import com.algoTrader.enumeration.Direction;
 import com.algoTrader.util.collection.LongMap;
 
 /**
@@ -42,6 +44,60 @@ public class CombinationImpl extends Combination {
 
         return qtyMap;
     }
+
+    @Override
+    public Component getComponentBySecurity(final Security security) {
+
+        // find the component to the specified security
+        return CollectionUtils.find(getComponents(), new Predicate<Component>() {
+            @Override
+            public boolean evaluate(Component component) {
+                return security.equals(component.getSecurity());
+            }
+        });
+    }
+
+    @Override
+    public long getComponentQuantity(final Security security) {
+
+        Component component = getComponentBySecurity(security);
+
+        if (component == null) {
+            throw new IllegalArgumentException("no component exists for the defined master security");
+        } else {
+            return component.getQuantity();
+        }
+    }
+
+    @Override
+    public Direction getComponentDirection(final Security security) {
+
+        long qty = getComponentQuantity(security);
+
+        if (qty < 0) {
+            return Direction.SHORT;
+        } else if (qty > 0) {
+            return Direction.LONG;
+        } else {
+            return Direction.FLAT;
+        }
+    }
+
+    @Override
+    public long getComponentTotalQuantity() {
+
+        long quantity = 0;
+        for (Component component : getComponentsInitialized()) {
+            quantity += component.getQuantity();
+        }
+        return quantity;
+    }
+
+    @Override
+    public int getComponentCount() {
+        return getComponents().size();
+    }
+
 
     @Override
     public String toString() {

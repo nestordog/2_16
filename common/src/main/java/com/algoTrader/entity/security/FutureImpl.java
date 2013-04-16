@@ -20,6 +20,7 @@ package com.algoTrader.entity.security;
 import java.util.Date;
 
 import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.enumeration.Duration;
 import com.algoTrader.future.FutureUtil;
 import com.algoTrader.util.DateUtil;
 
@@ -55,7 +56,7 @@ public class FutureImpl extends Future {
 
         FutureFamily family = (FutureFamily) this.getSecurityFamilyInitialized();
         Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), DateUtil.getCurrentEPTime());
-        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / 2592000000d));
+        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (family.getExpirationMonths() * Duration.MONTH_1.value())));
     }
 
     /**

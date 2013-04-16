@@ -20,8 +20,6 @@ package com.algoTrader.entity.security;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Predicate;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +28,6 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.enumeration.Currency;
-import com.algoTrader.enumeration.Direction;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
@@ -137,58 +134,6 @@ public abstract class SecurityImpl extends Security {
         return getSymbol();
     }
 
-    @Override
-    public Component getComponentBySecurity(final Security security) {
-
-        // find the component to the specified security
-        return CollectionUtils.find(getComponents(), new Predicate<Component>() {
-            @Override
-            public boolean evaluate(Component component) {
-                return security.equals(component.getSecurity());
-            }
-        });
-    }
-
-    @Override
-    public long getComponentQuantity(final Security security) {
-
-        Component component = getComponentBySecurity(security);
-
-        if (component == null) {
-            throw new IllegalArgumentException("no component exists for the defined master security");
-        } else {
-            return component.getQuantity();
-        }
-    }
-
-    @Override
-    public Direction getComponentDirection(final Security security) {
-
-        long qty = getComponentQuantity(security);
-
-        if (qty < 0) {
-            return Direction.SHORT;
-        } else if (qty > 0) {
-            return Direction.LONG;
-        } else {
-            return Direction.FLAT;
-        }
-    }
-
-    @Override
-    public long getComponentTotalQuantity() {
-
-        long quantity = 0;
-        for (Component component : getComponentsInitialized()) {
-            quantity += component.getQuantity();
-        }
-        return quantity;
-    }
-
-    @Override
-    public int getComponentCount() {
-        return getComponents().size();
-    }
 
     @Override
     public boolean validateTick(Tick tick) {
@@ -217,8 +162,7 @@ public abstract class SecurityImpl extends Security {
     @Override
     public void initialize() {
 
-        // initialize subscriptions
-        // before positions because the lazy load (= Proxy) the associated Strategy
+        // initialize subscriptions before positions because the lazy loaded (= Proxy) Strategy
         // so subscriptions would also get the Proxy insead of the implementation
         long beforeSubscriptions = System.nanoTime();
         getSubscriptionsInitialized();

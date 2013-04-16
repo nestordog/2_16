@@ -5,7 +5,7 @@ as
     (componentId int,
     quantity long,
     securityId int,
-    parentSecurityId int,
+    combinationId int,
     componentCount int,
     dateTime java.util.Date,
     volBid int,
@@ -20,7 +20,7 @@ select
     componentId,
     quantity,
     securityId,
-    parentSecurityId,
+    combinationId,
     componentCount,
     null as dateTime,
     0 as volBid,
@@ -64,7 +64,7 @@ select
     MathUtil.nullSafeAbs(cast(min((case when win.quantity > 0 then win.volAsk else win.volBid end) / Math.abs(win.quantity)) * sum(win.quantity), int)) as volAsk,
     RoundUtil.getBigDecimalNullSafe(sum((case when win.quantity > 0 then win.bid.doubleValue() else win.ask.doubleValue() end) * win.quantity) / sum(win.quantity)) as bid,
     RoundUtil.getBigDecimalNullSafe(sum((case when win.quantity > 0 then win.ask.doubleValue() else win.bid.doubleValue() end) * win.quantity) / sum(win.quantity)) as ask,
-    last(win.parentSecurityId) as parentSecurityId,
+    last(win.combinationId) as combinationId,
     last(componentCount) - count(win.componentId) as countDiff,
     max(win.dateTime.time) - min(win.dateTime.time) as timeDiff
 from
@@ -74,9 +74,9 @@ where
 and
     not win.dateTime is null // ignore new or updated components having null dateTime
 group by
-    win.parentSecurityId
+    win.combinationId
 order by
-    win.parentSecurityId;
+    win.combinationId;
 
 // filter CombinationTicks (must be done in separate statement due to Esper Bug)
 @Name('INSERT_INTO_TICK_FROM_COMPONENT_WINDOW')
@@ -90,11 +90,11 @@ select
     ask,
     security
 from
-    CombinationTick(not parentSecurityId is null),
-    method:LookupUtil.getSecurityInclComponentsInitialized(parentSecurityId) as security
+    CombinationTick(not combinationId is null),
+    method:LookupUtil.getCombinationInclComponentsInitialized(combinationId) as security
 where
     countDiff = 0 // total count of non-ignored components must equal component count of the parent
 and
     ((not simulation) or (timeDiff = 0)) // during simulation generate only one tick per time_stamp
 and
-    (simulation or (timeDiff < DateUtil.getDuration('HOUR_1'))) // during live-trading ignore components older hand an hour;
+    (simulation or (timeDiff < DateUtil.getDuration('HOUR_1'))); // during live-trading ignore components older hand an hour

@@ -52,6 +52,17 @@ INSERT INTO `allocation` (`ID`, `VALUE`, `ORDER_PREFERENCE_FK`, `ACCOUNT_FK`) VA
 UNLOCK TABLES;
 
 --
+-- Dumping data for table `cash_balance`
+--
+-- WHERE:  id<1000
+
+LOCK TABLES `cash_balance` WRITE;
+/*!40000 ALTER TABLE `cash_balance` DISABLE KEYS */;
+INSERT INTO `cash_balance` (`ID`, `CURRENCY`, `AMOUNT`, `STRATEGY_FK`, `VERSION`) VALUES (1,'EUR',1000000.00,1,1);
+/*!40000 ALTER TABLE `cash_balance` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Dumping data for table `default_order_preference`
 --
 -- WHERE:  id<1000
@@ -203,7 +214,7 @@ LOCK TABLES `order_preference` WRITE;
 /*!40000 ALTER TABLE `order_preference` DISABLE KEYS */;
 INSERT INTO `order_preference` (`ID`, `NAME`, `ORDER_TYPE`, `DEFAULT_ACCOUNT_FK`, `VERSION`) VALUES (201,'FVIX','SLICING',100,0);
 INSERT INTO `order_preference` (`ID`, `NAME`, `ORDER_TYPE`, `DEFAULT_ACCOUNT_FK`, `VERSION`) VALUES (202,'OVIX','SLICING',100,0);
-INSERT INTO `order_preference` (`ID`, `NAME`, `ORDER_TYPE`, `DEFAULT_ACCOUNT_FK`, `VERSION`) VALUES (203,'FX','DISTRIBUTIONAL',NULL,0);
+INSERT INTO `order_preference` (`ID`, `NAME`, `ORDER_TYPE`, `DEFAULT_ACCOUNT_FK`, `VERSION`) VALUES (203,'FX','MARKET',100,0);
 /*!40000 ALTER TABLE `order_preference` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -671,4 +682,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-04-03 20:51:28
+-- Dump completed on 2013-04-16 15:13:38

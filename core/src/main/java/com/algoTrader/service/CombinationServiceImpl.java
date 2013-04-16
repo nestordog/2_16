@@ -263,12 +263,12 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     protected void handleDeleteCombinationsWithZeroQty(String strategyName, Class type) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        Collection<Security> combinations = getSecurityDao().findSubscribedByStrategyAndComponentClassWithZeroQty(strategyName, discriminator);
+        Collection<Combination> combinations = getCombinationDao().findSubscribedByStrategyAndComponentTypeWithZeroQty(strategyName, discriminator);
 
         if (combinations.size() > 0) {
 
-            for (Security security : combinations) {
-                deleteCombination(security.getId());
+            for (Combination combination : combinations) {
+                deleteCombination(combination.getId());
             }
 
             logger.debug("deleted zero quantity combinations: " + combinations);
@@ -380,7 +380,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             insertComponentEvent.setComponentId(component.getId());
             insertComponentEvent.setQuantity(component.getQuantity());
             insertComponentEvent.setSecurityId(component.getSecurity().getId());
-            insertComponentEvent.setParentSecurityId(combination.getId());
+            insertComponentEvent.setCombinationId(combination.getId());
             insertComponentEvent.setComponentCount(combination.getComponentCount());
             EsperManager.sendEvent(StrategyImpl.BASE, insertComponentEvent);
         }

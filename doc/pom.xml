@@ -65,6 +65,11 @@
                                 <finalName>AlgoTraderDocumentation.pdf</finalName>
                             </format>
                             <format>
+                                <formatName>html</formatName>
+                                <stylesheetResource>file:${project.basedir}/src/main/resources/xhtml.xsl</stylesheetResource>
+                                <finalName>index.html</finalName>
+                            </format>
+                            <format>
                                 <formatName>html_single</formatName>
                                 <stylesheetResource>file:${project.basedir}/src/main/resources/xhtml-single.xsl</stylesheetResource>
                                 <finalName>index.html</finalName>

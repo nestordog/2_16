@@ -119,20 +119,20 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Security handleGetSecurityInclComponentsInitialized(int id) throws java.lang.Exception {
+    protected Combination handleGetCombinationInclComponentsInitialized(int id) throws java.lang.Exception {
 
-        Security security = getSecurityDao().get(id);
+        Combination combination = getCombinationDao().get(id);
 
-        if (security != null) {
+        if (combination != null) {
 
             // initialize the security
-            security.initialize();
+            combination.initialize();
 
             // initialize components
-            security.getComponentsInitialized();
+            combination.getComponentsInitialized();
         }
 
-        return security;
+        return combination;
     }
 
     @Override
@@ -142,25 +142,25 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Collection<Security> handleGetSubscribedSecuritiesByStrategyAndComponent(String strategyName, int securityId) throws Exception {
+    protected Collection<Combination> handleGetSubscribedCombinationsByStrategyAndComponent(String strategyName, int securityId) throws Exception {
 
-        return getSecurityDao().findSubscribedByStrategyAndComponent(strategyName, securityId);
+        return getCombinationDao().findSubscribedByStrategyAndComponent(strategyName, securityId);
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    protected Collection<Security> handleGetSubscribedSecuritiesByStrategyAndComponentClass(String strategyName, final Class type) throws Exception {
+    protected Collection<Combination> handleGetSubscribedCombinationsByStrategyAndComponentClass(String strategyName, final Class type) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        return getSecurityDao().findSubscribedByStrategyAndComponentClass(strategyName, discriminator);
+        return getCombinationDao().findSubscribedByStrategyAndComponentType(strategyName, discriminator);
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    protected Collection<Security> handleGetSubscribedSecuritiesByStrategyAndComponentClassWithZeroQty(String strategyName, final Class type) throws Exception {
+    protected Collection<Combination> handleGetSubscribedCombinationsByStrategyAndComponentClassWithZeroQty(String strategyName, final Class type) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        return getSecurityDao().findSubscribedByStrategyAndComponentClassWithZeroQty(strategyName, discriminator);
+        return getCombinationDao().findSubscribedByStrategyAndComponentTypeWithZeroQty(strategyName, discriminator);
     }
 
     @Override
@@ -325,7 +325,10 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         // initialize components
         for (Subscription subscription : subscriptions) {
-            subscription.getSecurity().getComponentsInitialized();
+
+            if (subscription.getSecurityInitialized() instanceof Combination) {
+                ((Combination)subscription.getSecurity()).getComponentsInitialized();
+            }
         }
 
         return subscriptions;
@@ -338,7 +341,10 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         // initialize components
         for (Subscription subscription : subscriptions) {
-            subscription.getSecurity().getComponentsInitialized();
+
+            if (subscription.getSecurityInitialized() instanceof Combination) {
+                ((Combination)subscription.getSecurity()).getComponentsInitialized();
+            }
         }
 
         return subscriptions;

@@ -114,7 +114,7 @@ public class ResetServiceImpl extends ResetServiceBase {
         Collection<Component> nonPersistentComponents = getComponentDao().findNonPersistent();
         getComponentDao().remove(nonPersistentComponents);
         for (Component component : nonPersistentComponents) {
-            component.getParentSecurity().getComponents().remove(component);
+            component.getCombination().getComponents().remove(component);
         }
 
         // delete all non-persistent properties

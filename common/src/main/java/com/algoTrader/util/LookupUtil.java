@@ -71,9 +71,9 @@ public class LookupUtil {
         return ServiceLocator.instance().getLookupService().getSecurityInitialized(securityId);
     }
 
-    public static Security getSecurityInclComponentsInitialized(int securityId) throws java.lang.Exception {
+    public static Combination getCombinationInclComponentsInitialized(int securityId) throws java.lang.Exception {
 
-        return ServiceLocator.instance().getLookupService().getSecurityInclComponentsInitialized(securityId);
+        return ServiceLocator.instance().getLookupService().getCombinationInclComponentsInitialized(securityId);
     }
 
     public static Security getSecurityByIsin(String isin) {
