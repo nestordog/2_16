@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 
 import com.algoTrader.entity.marketData.MarketDataEvent;
 import com.algoTrader.entity.marketData.Tick;
+import com.algoTrader.enumeration.Duration;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
@@ -88,7 +89,7 @@ public class StockOptionImpl extends StockOption {
 
         StockOptionFamily family = (StockOptionFamily) this.getSecurityFamily();
         Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), DateUtil.getCurrentEPTime());
-        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / 2592000000d));
+        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double)Duration.MONTH_1.value()));
     }
 
     /**
