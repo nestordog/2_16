@@ -800,13 +800,15 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Object handleGetMeasurementByMaxDate(String strategyName, String name, Date maxDate) throws Exception {
 
-        return CollectionUtil.getSingleElementOrNull(getMeasurementDao().findMeasurementsByMaxDate(1, 1, strategyName, name, maxDate)).getValue();
+        Measurement measurement = CollectionUtil.getSingleElementOrNull(getMeasurementDao().findMeasurementsByMaxDate(1, 1, strategyName, name, maxDate));
+        return measurement != null ? measurement.getValue() : null;
     }
 
     @Override
     protected Object handleGetMeasurementByMinDate(String strategyName, String name, Date minDate) throws Exception {
 
-        return CollectionUtil.getSingleElementOrNull(getMeasurementDao().findMeasurementsByMinDate(1, 1, strategyName, name, minDate)).getValue();
+        Measurement measurement = CollectionUtil.getSingleElementOrNull(getMeasurementDao().findMeasurementsByMinDate(1, 1, strategyName, name, minDate));
+        return measurement != null ? measurement.getValue() : null;
     }
 
     @Override

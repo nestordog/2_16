@@ -26,6 +26,7 @@ import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.FutureFamily;
 import com.algoTrader.entity.security.FutureImpl;
 import com.algoTrader.entity.security.Security;
+import com.algoTrader.enumeration.Duration;
 import com.algoTrader.future.FutureSymbol;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
@@ -50,7 +51,7 @@ public class FutureServiceImpl extends FutureServiceBase {
         // create the missing part of the futures chain
         for (int i = futures.size() + 1; i <= family.getLength(); i++) {
 
-            int duration = i * family.getExpirationMonths();
+            int duration = i * (int) (family.getExpirationDistance().getValue() / Duration.MONTH_1.getValue());
 
             Date expirationDate = DateUtil.getExpirationDateNMonths(family.getExpirationType(), DateUtil.getCurrentEPTime(), duration);
 
