@@ -13,13 +13,13 @@
                 <batched-service interval-msec="1000"/>
             </qos>
             <jms>
-                <destination topic="esper.data.endpoint-1"/>
+                <destination topic="esper.data.default"/>
             </jms>
         </channel>
     </channels>
 
     <providers>
-        <provider name="providerOne">
+        <provider name="defaultProvider">
             <context object-name="ConnectionFactory">
                 <env name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                 <env name="java.naming.provider.url" value="tcp://localhost:61616?wireFormat.maxInactivityDuration=0"/>
@@ -30,7 +30,7 @@
     </providers>
 
     <settings>
-        <controlbus provider-name="providerOne" queue-name="esper.controlbus.endpoint-1.request" max-textmsg-size-bytes="1000"/>
+        <controlbus provider-name="defaultProvider" queue-name="esper.controlbus.request" max-textmsg-size-bytes="1000"/>
         <session-mgmt enabled="true" interval-msec="10000" expiry-msec="60000"/>
     </settings>
 

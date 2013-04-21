@@ -79,13 +79,7 @@
         <init-arg name="use-platform-mbean-server" value="true" />
     </plugin-loader>
 
-    <!-- Esper EE -->
-<!--     <plugin-loader name="BrokerMgmt" class-name="com.espertech.esperdds.client.JMSProviderMgmtPlugin"> -->
-<!--         <init-arg name="type" value="ApacheActiveMQ" /> -->
-<!--         <init-arg name="connectorURL" value="tcp://localhost:61616?wireFormat.maxInactivityDuration=0" /> -->
-<!--         <init-arg name="dataDirectory" value="data" /> -->
-<!--     </plugin-loader> -->
-
+    <!-- Esper HQ -->
 <!--     <plugin-loader name="EndpointMgmt" class-name="com.espertech.esperdds.client.EndpointMgmtPlugin"> -->
 <!--         <init-arg name="esperdds.configuration.file" value="esperdds.cfg.xml" /> -->
 <!--     </plugin-loader> -->
