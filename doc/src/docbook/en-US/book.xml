@@ -229,30 +229,30 @@ public class ExClient {
                         OTC Options trading</para>
             </listitem>
             <listitem>
-                <para>AlgoTrader is built on Event Driven Architecture. Time-based Market Data
-                        Analysis and Signal Generation are coded in SQL-like statements, whereas
-                        procedural actions like placing an order are coded in plain Java Code. The
-                        combination of the two provides a best-of-both-worlds approach</para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader is extensible and fully customizable for situations where strategy specific
-                    functionalities are required. Full access to the Source Code of the System is
-                    provided. By its open architecture the system accommodates integration of
-                    additional 3rd party libraries.</para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader is best suited for quantitative strategies, that follow formal
-                        trading rules but have had to be traded manually due to a lack of a suitable
-                        trading platform</para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader accommodates strategies that are predominantly time-based and therefore cannot
-                    be programed with traditional procedural programming languages</para>
+                <para>AlgoTrader is built on Event Driven Architecture and therefore accommodates strategies
+                    that are predominantly time-based and cannot be programed with traditional
+                    procedural programming languages. Time-based Market Data Analysis and Signal
+                    Generation are coded in SQL-like statements, whereas procedural actions like
+                    placing an order are coded in plain Java Code. The combination of the two
+                    provides a best-of-both-worlds approach. </para>
             </listitem>
             <listitem>
                 <para>AlgoTrader is especially useful for strategies that need sophisticated time
                     window functions and can be expressed with words like during, between,
                     afterwards, parallel with, along with, finishes and begins with</para>
+            </listitem>
+            <listitem>
+                <para>AlgoTrader is extensible and fully customizable for situations where strategy specific
+                    functionalities are required. Full access to the Source Code of the System is
+                    provided. By its pluggable architecture the system accommodates integration of
+                    additional 3rd party libraries.</para>
+            </listitem>
+            <listitem>
+                <para>Through its flexible and extensible architecture AlgoTrader is best suited for
+                    quantitative strategies, that follow formal trading rules but have had to be
+                    traded manually due to a lack of a suitable trading platform.  As long as a
+                    trading strategy can be defined via a set of rules, AlgoTrader will be able to
+                    accommodate it. </para>
             </listitem>
             <listitem>
                 <para>AlgoTrader  enables rapid development of quantitative strategies that process
@@ -268,23 +268,22 @@ public class ExClient {
                     NinjaTrader). It does not have a fancy GUI with drag-and-drop functionality and
                     hundreds of indicators. It is our belief, that successful strategies are based
                     on economic facts and not on extensive back-testing or chart pattern analysis
-                    based on many different technical indicators. AlgoTrader does have a charting
-                    functionality, but it's purpose is to give an overview of a strategy's current
-                    trading activities and state in Live Trading. If a strategy is simple enough
-                    that it can be developed with one of the above mentioned Platforms, it is
-                    recommended to use them. However if specific requirements of a Strategy cannot
-                    be met by these Platforms, AlgoTrader with its open architecture and available
-                    Source Code would be the right choice.</para>
+                    based on many different technical indicators. AlgoTrader does have a GUI Front
+                    end, but it's purpose is to give an overview of a strategy's current trading
+                    activities and state in Live Trading. If a strategy is simple enough that it can
+                    be developed with one of the above mentioned Platforms, it is recommended to use
+                    them. However if specific requirements of a Strategy cannot be met by these
+                    Platforms, AlgoTrader with its open architecture and available Source Code would
+                    be the right choice.</para>
             </listitem>
             <listitem>
-                <para>AlgoTrader is not a High-Frequency-Trading Application. If Latency in low
-                        Millisecond or Nanosecond range is of concern, other platforms will be a
-                        better fit. AlgoTrader is best suited if complex trading logic is more
-                        important than being the first at the market. However, AlgoTrader is very
-                        much optimized for high-throughput and low latency, meaning that network
-                        design and distance to the executing market will still have a much greater
-                        influence on latency, than the actual internal processing inside AlgoTrader.
-                    </para>
+                <para>AlgoTrader is not a High-Frequency-Trading Application. If Latency in Microsecond or
+                    Nanosecond range is of concern, other platforms will be a better fit. AlgoTrader
+                    is best suited if complex trading logic is more important than being the first
+                    at the market. However, AlgoTrader is very much optimized for high-throughput
+                    and low latency, meaning that network design and distance to the executing
+                    market will still have a much greater influence on latency, than the actual
+                    internal processing inside AlgoTrader. </para>
             </listitem>
         </itemizedlist>
         <para>
@@ -295,7 +294,8 @@ public class ExClient {
                 <para>Automate Trading Strategies based on Complex Trading Rules</para>
             </listitem>
             <listitem>
-                <para>Develop, simulate and run several strategies in parallel</para>
+                <para>Enables Development, Simulation and Live Trading of several strategies in
+                    parallel</para>
             </listitem>
             <listitem>
                 <para>Multiple Broker Interfaces: </para>
@@ -350,6 +350,10 @@ public class ExClient {
                 <para>Inter Module Communication based on Generic Events</para>
             </listitem>
             <listitem>
+                <para>Custom Alerts and Trade Suggestions (via Email or Text Message) which allow manual
+                    confirmation of automatically generated Signals</para>
+            </listitem>
+            <listitem>
                 <para>Multi-Account Functionality (including Sub Account, Account Group and
                         Allocation Profile functionality)</para>
             </listitem>
@@ -373,9 +377,19 @@ public class ExClient {
                                 Database Cache, etc.</para>
                     </listitem>
                     <listitem>
-                        <para>Highly customizable Charting Functionality including
-                                Bars/Ticks, Indicators, horizontal/vertical Markers,
-                                Annotations, etc.</para>
+                        <para>Highly customizable Charting Functionality including Bars/Ticks,
+                            Indicators, horizontal/vertical Markers, Annotations, etc.</para>
+                    </listitem>
+                    <listitem>
+                        <para>Esper HQ based A multi-window user interface for management of Esper
+                            CEP engines, design and deployment of Esper Statements as well as
+                            creation and launching of configurable and interactive dashboards to
+                            present a one-screen overview of the system</para>
+                    </listitem>
+                    <listitem>
+                        <para>Grails based CRUD Client (Create, Read, Update &amp; Delete) for
+                            management of Reference Data (e.g. Strategies, Securities, Security
+                            Families, Accounts, etc.)</para>
                     </listitem>
                 </itemizedlist>
             </listitem>
@@ -394,14 +408,14 @@ public class ExClient {
                         key ratios, custom statistics (per strategy), etc.</para>
             </listitem>
             <listitem>
-                <para>Integrated Risk Management</para>
+                <para>Integrated Risk Management and Money Management</para>
             </listitem>
             <listitem>
                 <para>Different Numerical and Statistical Libraries</para>
             </listitem>
             <listitem>
-                <para>Backtesting of strategies using Historical Tick- or Bar-Data and Exchange
-                        Simulator</para>
+                <para>Backtesting of strategies using Historical Tick- or Bar-Data and Exchange Simulator. After
+                    Backtesting the same Code can be used for Live Trading</para>
             </listitem>
             <listitem>
                 <para>Historical Data Download functionality</para>
@@ -421,12 +435,16 @@ public class ExClient {
                             Servers</para>
                     </listitem>
                     <listitem>
-                        <para>High Throughput - Processing of large volumes of market data events
-                            (1000 to 100'000 events per second) </para>
+                        <para>High Throughput - Processing of large volumes of up to  500'000 market data events per
+                            second on a dual CPU 2GHz Intel based hardware, see <ulink
+                                url="http://esper.codehaus.org/esper/performance/performance.html"
+                                >Esper Performance</ulink></para>
                     </listitem>
                     <listitem>
-                        <para>Low Latency - React in real-time to changing market conditions (from a
-                            few milliseconds) </para>
+                        <para>Low Latency - React in real-time to changing market conditions in timeframes below one
+                            millisecond, see <ulink
+                                url="http://esper.codehaus.org/esper/performance/performance.html"
+                                >Esper Performance</ulink></para>
                     </listitem>
                 </itemizedlist>
             </listitem>
@@ -445,11 +463,6 @@ public class ExClient {
                 <para>Dynamic Datamodel which allows to define custom properties (e.g. integer
                         or string property) on Entities like Strategy, Position &amp; Subscription
                     </para>
-            </listitem>
-            <listitem>
-                <para>Grails based CRUD Application (Create, Read, Update &amp; Delete) for
-                        management of Master Data (e.g. Strategies, Securities, Security Families,
-                        Accounts, etc.)</para>
             </listitem>
             <listitem>
                 <para>Spring Profiles based system packaging to enable customization of deployed
@@ -2641,19 +2654,82 @@ public class ExClient {
         <section>
             <title>Aggregation Functions</title>
             <para>The system provides the following three custom aggregation functions:</para>
-            <itemizedlist>
-                <listitem>
-                    <para>ExponentialMovingAverageFunction</para>
-                </listitem>
-            </itemizedlist>
-            <itemizedlist>
-                <listitem>
-                    <para>GenericTALibFunction (portation of <ulink url="http://ta-lib.org/">http://ta-lib.org/</ulink> to AlgoTrader)</para>
-                </listitem>
-                <listitem>
-                    <para>VariableLengthLinestFunction</para>
-                </listitem>
-            </itemizedlist>
+            <section>
+                <title>GenericTALibFunction</title>
+                <para>The <classname>GenericTALibFunction</classname> is a portation of <ulink
+                        url="http://ta-lib.org/">http://ta-lib.org/</ulink> to AlgoTrader. It
+                    supports all TA-Lib operations.</para>
+                <para>To use the <classname>AggregateFunction</classname> the following configuration is added
+                    to the esper configuration <filename>esper-common.cfg.xml</filename>:</para>
+                <programlisting lang="XML">&lt;plugin-aggregation-function name="talib" factory-class="com.algoTrader.esper.aggregation.GenericTALibFunctionFactory"/></programlisting>
+                <para> The <classname>AggregationFunction</classname> can be used in an esper statement like
+                    this: </para>
+                <programlisting lang="Java">insert into StochF
+select talib("stochF", high, low, close, 3, 2, "Sma") as values
+from OHLCBar;
+
+select values.fastk, values.fastd
+from StochF(values != null);</programlisting>
+                <para>The following parameters from the <classname>com.tictactec.ta.lib.Core</classname> methods
+                    will be needed: </para>
+                <para>
+                    <itemizedlist>
+                        <listitem>
+                            <para><parameter>in...</parameter> (i.e. <parameter>inHigh</parameter>,
+                                    <parameter>inLow</parameter>, <parameter>inClose</parameter>) </para>
+                        </listitem>
+                        <listitem>
+                            <para><parameter>optIn..</parameter> (i.e. <parameter>optInFastK_Period</parameter>,
+                                    <parameter>optInFastD_Period</parameter>,
+                                    <parameter>optInFastD_MAType</parameter>) </para>
+                        </listitem>
+                        <listitem>
+                            <para><parameter>startIdx</parameter>, <parameter>endIdx</parameter>,
+                                    <parameter>outBegIdx</parameter> &amp;
+                                    <parameter>outNBElement</parameter> can be ignored </para>
+                        </listitem>
+                    </itemizedlist>
+                </para>
+                <para>If the TA-Lib Function returns just one value, the value is directly exposed by the
+                        <classname>AggregationFunction</classname>. </para>
+                <para>If the TA-Lib Function returns multiple-values, a dynamic class will be
+                    generated on the fly, which gives access to properly typed return-values. All
+                    return value names are lower-case! </para>
+                <para>Example: the TA-Lib function <methodname>stochF</methodname> has return
+                    values: <parameter>outFastK</parameter> and <parameter>outFastD</parameter>. The
+                    returned dynamic class will have double typed properties by the name of:
+                        <parameter>fastk</parameter> and <parameter>fastd</parameter> (all
+                    lowercase).</para>
+            </section>
+            <section>
+                <title>ExponentialMovingAverageFunction</title>
+                <para>The <classname>ExponentialMovingAverageFunction</classname> provides an exponential moving
+                    average over a defined period of time.</para>
+                <para>To use the <classname>AggregateFunction</classname> the following
+                    configuration has to be added to the esper configuration :</para>
+                <programlisting lang="XML">&lt;plugin-aggregation-function name="ema" factory-class="com.algoTrader.esper.aggregation.ExponentialMovingAverageFunction"/></programlisting>
+                <para>The <classname>AggregationFunction</classname> can then be used in an esper
+                    statement like this:</para>
+                    <programlisting lang="Java">select ema(value, 10)
+from Event;</programlisting>
+                <note>
+                    <para><classname>ExponentialMovingAverage</classname> is also available through
+                        the <classname>GenericTALibFunction</classname></para>
+                </note>
+            </section>
+            <section>
+                <title>VariableLengthLinestFunction</title>
+                <para>The <classname>VariableLengthLinestFunction</classname> calculates the slope of a linear
+                    interpolation of a time-series (based on x and y values) over a defined period
+                    of time.</para>
+                <para>To use the <classname>AggregateFunction</classname> the following
+                    configuration has to be added to the esper configuration :</para>
+                <programlisting lang="XML">&lt;plugin-aggregation-function name="varLinest" factory-class="com.algoTrader.esper.aggregation.VariableLengthLinestFunction"/></programlisting>
+                <para>The <classname>AggregationFunction</classname> can then be used in an esper
+                    statement like this:</para>
+                <programlisting lang="Java">select varLinest(x, y, 10)
+from Event;</programlisting>
+            </section>
         </section>
         <section>
             <title>Callbacks</title>
@@ -2815,427 +2891,461 @@ getOrderService().sendOrders(orders);</programlisting>
     </chapter>
     <chapter id="Client">
         <title>Client</title>
-        <para>The system uses <ulink url="http://docs.oracle.com/javase/tutorial/jmx/index.html"> Java
-                Management Extension</ulink> (JMX) and the generic Java Client<ulink url="http://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html">
-                JConsole</ulink> as it's frontend. </para>
-        <para>When starting up the AlgoTraderClient there will be one window per JVM. The JConsole
-            provides management functionality for many technical aspects of the JVM (see the <ulink url="http://docs.oracle.com/javase/6/docs/technotes/guides/management/jconsole.html">Java Documentation</ulink> for details). The business related features of
-            AlgoTrader are available on the Tab <literal>MBeans</literal> through the
-                <classname>BaseManagementService</classname> and the
-                <classname>ManagementService</classname> under
-                <package>com.algoTrader.service</package>:</para>
-        <figure>
-            <title>AlgoTrader Client</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata scalefit="1" fileref="images/Client.gif"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <section>
-            <title>AlgoTrader Managed Beans</title>
-            <para>Services tagged with <parameter>@algoTrader.service.manageable</parameter> are
-                automatically exposed through JMX by means of the
-                    <classname>org.springframework.jmx.export.annotation.AnnotationMBeanExporter</classname>.</para>
-            <para>The following AlgoTader Services are exposed as Managed Beans</para>
+        <para>AlgoTrader provides three different types of clients all of which are targeting a
+            different audience and use case:</para>
+        <itemizedlist>
+            <listitem>
+                <para>JMX Client: Trading related Management Client as well as general JVM
+                    Management</para>
+            </listitem>
+            <listitem>
+                <para>EsperHQ Client: Management of Esper CEP Engines</para>
+            </listitem>
+            <listitem>
+                <para>Grails Client: Reference Data Management</para>
+            </listitem>
+        </itemizedlist>
+        <section id="JMX_Client">
+            <title>JMX Client</title>
+            <para>The JMX Client uses <ulink
+                    url="http://docs.oracle.com/javase/tutorial/jmx/index.html"> Java Management
+                    Extension</ulink> (JMX) and the generic Java Client<ulink
+                    url="http://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html">
+                    JConsole</ulink>. </para>
+            <para>When starting up the AlgoTraderClient there will be one window per JVM. The
+                JConsole provides management functionality for many technical aspects of the JVM
+                (i.e. Threads, Classes &amp; Memory) see the <ulink
+                    url="http://docs.oracle.com/javase/6/docs/technotes/guides/management/jconsole.html"
+                    >Java Documentation</ulink> for details. </para>
+            <para>The business related features of AlgoTrader are available on the Tab
+                    <literal>MBeans</literal> through the
+                    <classname>BaseManagementService</classname> and the
+                    <classname>ManagementService</classname> under
+                    <package>com.algoTrader.service</package>. To open any of the detail sections
+                (i.e. Orders, Positions or Transactions) click on the bold section of the
+                display.</para>
+            <figure>
+                <title>AlgoTrader Client</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata scalefit="1" fileref="images/Client.gif"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <section>
-                <title>Management Service</title>
-                <figure>
-                    <title>Management Service Attributes</title>
-                    <mediaobject>
-                        <imageobject>
-                            <imagedata scalefit="1" fileref="images/ManagementServiceAttributes.gif"/>
-                        </imageobject>
-                    </mediaobject>
-                </figure>
-                <para>The Management Service is available for every strategy and for the Base
-                    itself. It provides the Attributes and Operations that are not strategy
-                    specific:</para>
-                <table frame="all" pgwide="1">
-                    <title>Management Service Attributes</title>
-                    <tgroup cols="2">
-                        <colspec colwidth="1*"/>
-                        <colspec colwidth="2*"/>
-                        <thead>
-                            <row>
-                                <entry>Attribute</entry>
-                                <entry>Description</entry>
-                            </row>
-                        </thead>
-                        <tbody>
-                            <row>
-                                <entry>CurrentTime</entry>
-                                <entry>Current Local Time</entry>
-                            </row>
-                            <row>
-                                <entry>Balances</entry>
-                                <entry>Balances of each currency, i.e. Cash, Securities and
-                                    NetLiqValue as well as exchangeRate (only available in Base)
-                                </entry>
-                            </row>
-                            <row>
-                                <entry>Orders</entry>
-                                <entry>currently open orders (might contain AlgoOrders and their
-                                    associated SimpleOrders)</entry>
-                            </row>
-                            <row>
-                                <entry>Positions</entry>
-                                <entry>All Positions of the system / of the strategy</entry>
-                            </row>
-                            <row>
-                                <entry>MarketDataEvents</entry>
-                                <entry>Latest ticks off all subscribed securities of the system / of
-                                    the strategy</entry>
-                            </row>
-                            <row>
-                                <entry>Transactions</entry>
-                                <entry>Last 20 Transactions of the system / of the strategy </entry>
-                            </row>
-                            <row>
-                                <entry>Properties</entry>
-                                <entry>All Configuration Values of the system / of the strategy
-                                </entry>
-                            </row>
-                            <row>
-                                <entry>Allocation</entry>
-                                <entry>Allocation assigned to Base / the strategy</entry>
-                            </row>
-                            <row>
-                                <entry>Available Funds</entry>
-                                <entry>NetLiqValue - InitialMargin</entry>
-                            </row>
-                            <row>
-                                <entry>Cash Balance</entry>
-                                <entry>Amount of Cash available to the system / to the strategy
-                                </entry>
-                            </row>
-                            <row>
-                                <entry>Leverage</entry>
-                                <entry>Current Notional Exposure delta-adjusted of the system / of
-                                    the strategy</entry>
-                            </row>
-                            <row>
-                                <entry>Maintenance Margin</entry>
-                                <entry>Maintenance Margin of the system / of the strategy</entry>
-                            </row>
-                            <row>
-                                <entry>Name</entry>
-                                <entry>Name of the strategy or Base</entry>
-                            </row>
-                            <row>
-                                <entry>NetLiqValue</entry>
-                                <entry>Net Liquidation Value of the system / of the strategy</entry>
-                            </row>
-                            <row>
-                                <entry>Performance</entry>
-                                <entry>strategy performance of the current month</entry>
-                            </row>
-                            <row>
-                                <entry>SecuritiesCurrentValue</entry>
-                                <entry>Current value of all open positions of the system / of the
-                                    strategy</entry>
-                            </row>
-                        </tbody>
-                    </tgroup>
-                </table>
-                <figure>
-                    <title>Management Service Operations</title>
-                    <mediaobject>
-                        <imageobject>
-                            <imagedata scalefit="1" fileref="images/ManagementServiceOperations.gif"/>
-                        </imageobject>
-                    </mediaobject>
-                </figure>
-                <para>In addition the Management Service provides the following Operations</para>
-                <table frame="all" pgwide="1">
-                    <title>Management Service Operations</title>
-                    <tgroup cols="2">
-                        <colspec colwidth="1*"/>
-                        <colspec colwidth="2*"/>
-                        <thead>
-                            <row>
-                                <entry>Operation</entry>
-                                <entry>Description</entry>
-                            </row>
-                        </thead>
-                        <tbody>
-                            <row>
-                                <entry>addProperty</entry>
-                                <entry>add a property to a PropertyHolder</entry>
-                            </row>
-                            <row>
-                                <entry>cancelOrder</entry>
-                                <entry>cancel an order (AlgoOrder or SimpleOrder)</entry>
-                            </row>
-                            <row>
-                                <entry>checkIsAlive</entry>
-                                <entry>reachability check (used internally)</entry>
-                            </row>
-                            <row>
-                                <entry>closePosition</entry>
-                                <entry>closes a specified position (based on
-                                    DefaultOrderPreference)</entry>
-                            </row>
-                            <row>
-                                <entry>deployModule</entry>
-                                <entry>deploys an entire esper module</entry>
-                            </row>
-                            <row>
-                                <entry>deployStatement</entry>
-                                <entry>deploys an individual statement of an esper module</entry>
-                            </row>
-                            <row>
-                                <entry>modifyOrder</entry>
-                                <entry>modifies an existing order (e.g. quantity, limit, etc.)
-                                </entry>
-                            </row>
-                            <row>
-                                <entry>reduceCombination</entry>
-                                <entry>reduced the specified combination by the defined
-                                    ratio</entry>
-                            </row>
-                            <row>
-                                <entry>reducePositon</entry>
-                                <entry>reduces a position by a specified amount (based on
-                                    DefaultOrderPreference)</entry>
-                            </row>
-                            <row>
-                                <entry>removeComponent</entry>
-                                <entry>removes a component from a combination</entry>
-                            </row>
-                            <row>
-                                <entry>removeExitValue</entry>
-                                <entry>removes an existing exit value</entry>
-                            </row>
-                            <row>
-                                <entry>removeProperty</entry>
-                                <entry>removes a property from a PropertyHolder</entry>
-                            </row>
-                            <row>
-                                <entry>requestCurrentTicks</entry>
-                                <entry>requests latest Ticks for all subscribed securities</entry>
-                            </row>
-                            <row>
-                                <entry>sendOrder</entry>
-                                <entry>manually send order of the specified type, either SimpleOrder
-                                    or AlgoOrder (defined by the corresponding
-                                    OrderPreference)</entry>
-                            </row>
-                            <row>
-                                <entry>setComponentQuantity</entry>
-                                <entry>sets the quantity of an individual component on a
-                                    combination</entry>
-                            </row>
-                            <row>
-                                <entry>setExitValue</entry>
-                                <entry>adjust an exitValue of a position</entry>
-                            </row>
-                            <row>
-                                <entry>setVariableValue</entry>
-                                <entry>set the value of an esper variable</entry>
-                            </row>
-                            <row>
-                                <entry>shutdown</entry>
-                                <entry>gracefully shutdown the corresponding JVM Process</entry>
-                            </row>
-                            <row>
-                                <entry>subscribe</entry>
-                                <entry>subscribe to the specified security</entry>
-                            </row>
-                            <row>
-                                <entry>unsubscribe</entry>
-                                <entry>unsubscribe to the specified security</entry>
-                            </row>
-                        </tbody>
-                    </tgroup>
-                </table>
-            </section>
-            <section>
-                <title>Base Management Service</title>
-                <figure>
-                    <title>Base Management Service Operations</title>
-                    <mediaobject>
-                        <imageobject>
-                            <imagedata scalefit="1" fileref="images/BaseManagementServiceOperations.gif"/>
-                        </imageobject>
-                    </mediaobject>
-                </figure>
-                <para>The Base Management Service is only available when connected to the
-                    Base.</para>
-                <para>The service currently only has the Attributes
-                        <emphasis>MarketChannels</emphasis> and
-                        <emphasis>DefaultMarketChannel</emphasis>
-                </para>
-                <para>The Base Management Service has the following operations:</para>
-                <table frame="all" pgwide="1">
-                    <title>Base Management Service operations</title>
-                    <tgroup cols="2">
-                        <colspec colwidth="1*"/>
-                        <colspec colwidth="2*"/>
-                        <thead>
-                            <row>
-                                <entry>Operation</entry>
-                                <entry>Description</entry>
-                            </row>
-                        </thead>
-                        <tbody>
-                            <row>
-                                <entry>cancelAllOrders</entry>
-                                <entry>cancel all orders that are currently in the market</entry>
-                            </row>
-                            <row>
-                                <entry>emptyOpenOrderWindow</entry>
-                                <entry>should only be called if an order was not accepted by the
-                                    broker but is still visible in the openOrderWindow</entry>
-                            </row>
-                            <row>
-                                <entry>equalizeForex</entry>
-                                <entry>adjusts the current FX Hedge for all non-base currencies
-                                </entry>
-                            </row>
-                            <row>
-                                <entry>rebalancePortfolio</entry>
-                                <entry>redistribute cash between strategies and Base so that the
-                                    target allocation is met</entry>
-                            </row>
-                            <row>
-                                <entry>recordTransaction</entry>
-                                <entry>manually record a transaction to the database</entry>
-                            </row>
-                            <row>
-                                <entry>resetComponentWindow</entry>
-                                <entry>has to be called if a direct modification of components has
-                                    been made in the database</entry>
-                            </row>
-                            <row>
-                                <entry>resetPositionsAndCashBalances</entry>
-                                <entry>recalculates all Positions and Cash Balances by iterating
-                                    over all Transactions</entry>
-                            </row>
-                            <row>
-                                <entry>setDefaultMarketChannel</entry>
-                                <entry>changes the default market channel</entry>
-                            </row>
-                            <row>
-                                <entry>setMargins</entry>
-                                <entry>calculates current maintenance margin for all open positions
-                                </entry>
-                            </row>
-                            <row>
-                                <entry>transferPosition</entry>
-                                <entry>transfers a position from one strategy to another by taking its current market
-                                    value</entry>
-                            </row>
-                        </tbody>
-                    </tgroup>
-                </table>
-            </section>
-            <section>
-                <title id="StrategyServices">StrategyServices</title>
-                <para>Each Strategy can define as many manageable Services as needed. To be
-                    manageable the class has to have the following tagged value:</para>
-                <programlisting language="Java">@ManagedResource(objectName = "com.algoTrader.strategy.xyz:name=XYZManagementService")</programlisting>
-                <para>ManagedOperations have to be tagged like this:</para>
-                <programlisting language="Java">@ManagedOperation(description = "send an order")@ManagedOperationParameters({
+                <title>AlgoTrader Managed Beans</title>
+                <para>Services tagged with <parameter>@algoTrader.service.manageable</parameter> are
+                    automatically exposed through JMX by means of the
+                        <classname>org.springframework.jmx.export.annotation.AnnotationMBeanExporter</classname>.</para>
+                <para>The following AlgoTader Services are exposed as Managed Beans</para>
+                <section>
+                    <title>Management Service</title>
+                    <figure>
+                        <title>Management Service Attributes</title>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scalefit="1"
+                                    fileref="images/ManagementServiceAttributes.gif"/>
+                            </imageobject>
+                        </mediaobject>
+                    </figure>
+                    <para>The Management Service is available for every strategy and for the Base
+                        itself. It provides the Attributes and Operations that are not strategy
+                        specific.</para>
+                    <table frame="all" pgwide="1">
+                        <title>Management Service Attributes</title>
+                        <tgroup cols="2">
+                            <colspec colwidth="1*"/>
+                            <colspec colwidth="2*"/>
+                            <thead>
+                                <row>
+                                    <entry>Attribute</entry>
+                                    <entry>Description</entry>
+                                </row>
+                            </thead>
+                            <tbody>
+                                <row>
+                                    <entry>CurrentTime</entry>
+                                    <entry>Current Local Time</entry>
+                                </row>
+                                <row>
+                                    <entry>Balances</entry>
+                                    <entry>Balances of each currency, i.e. Cash, Securities and
+                                        NetLiqValue as well as exchangeRate (only available in Base)
+                                    </entry>
+                                </row>
+                                <row>
+                                    <entry>Orders</entry>
+                                    <entry>currently open orders (might contain AlgoOrders and their
+                                        associated SimpleOrders)</entry>
+                                </row>
+                                <row>
+                                    <entry>Positions</entry>
+                                    <entry>All Positions of the system / of the strategy</entry>
+                                </row>
+                                <row>
+                                    <entry>MarketDataEvents</entry>
+                                    <entry>Latest ticks off all subscribed securities of the system
+                                        / of the strategy</entry>
+                                </row>
+                                <row>
+                                    <entry>Transactions</entry>
+                                    <entry>Last 20 Transactions of the system / of the strategy
+                                    </entry>
+                                </row>
+                                <row>
+                                    <entry>Properties</entry>
+                                    <entry>All Configuration Values of the system / of the strategy
+                                    </entry>
+                                </row>
+                                <row>
+                                    <entry>Allocation</entry>
+                                    <entry>Allocation assigned to Base / the strategy</entry>
+                                </row>
+                                <row>
+                                    <entry>Available Funds</entry>
+                                    <entry>NetLiqValue - InitialMargin</entry>
+                                </row>
+                                <row>
+                                    <entry>Cash Balance</entry>
+                                    <entry>Amount of Cash available to the system / to the strategy
+                                    </entry>
+                                </row>
+                                <row>
+                                    <entry>Leverage</entry>
+                                    <entry>Current Notional Exposure delta-adjusted of the system /
+                                        of the strategy</entry>
+                                </row>
+                                <row>
+                                    <entry>Maintenance Margin</entry>
+                                    <entry>Maintenance Margin of the system / of the
+                                        strategy</entry>
+                                </row>
+                                <row>
+                                    <entry>Name</entry>
+                                    <entry>Name of the strategy or Base</entry>
+                                </row>
+                                <row>
+                                    <entry>NetLiqValue</entry>
+                                    <entry>Net Liquidation Value of the system / of the
+                                        strategy</entry>
+                                </row>
+                                <row>
+                                    <entry>Performance</entry>
+                                    <entry>strategy performance of the current month</entry>
+                                </row>
+                                <row>
+                                    <entry>SecuritiesCurrentValue</entry>
+                                    <entry>Current value of all open positions of the system / of
+                                        the strategy</entry>
+                                </row>
+                            </tbody>
+                        </tgroup>
+                    </table>
+                    <figure>
+                        <title>Management Service Operations</title>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scalefit="1"
+                                    fileref="images/ManagementServiceOperations.gif"/>
+                            </imageobject>
+                        </mediaobject>
+                    </figure>
+                    <para>In addition the Management Service provides the following
+                        Operations</para>
+                    <table frame="all" pgwide="1">
+                        <title>Management Service Operations</title>
+                        <tgroup cols="2">
+                            <colspec colwidth="1*"/>
+                            <colspec colwidth="2*"/>
+                            <thead>
+                                <row>
+                                    <entry>Operation</entry>
+                                    <entry>Description</entry>
+                                </row>
+                            </thead>
+                            <tbody>
+                                <row>
+                                    <entry>addProperty</entry>
+                                    <entry>add a property to a PropertyHolder</entry>
+                                </row>
+                                <row>
+                                    <entry>cancelOrder</entry>
+                                    <entry>cancel an order (AlgoOrder or SimpleOrder)</entry>
+                                </row>
+                                <row>
+                                    <entry>checkIsAlive</entry>
+                                    <entry>reachability check (used internally)</entry>
+                                </row>
+                                <row>
+                                    <entry>closePosition</entry>
+                                    <entry>closes a specified position (based on
+                                        DefaultOrderPreference)</entry>
+                                </row>
+                                <row>
+                                    <entry>deployModule</entry>
+                                    <entry>deploys an entire esper module</entry>
+                                </row>
+                                <row>
+                                    <entry>deployStatement</entry>
+                                    <entry>deploys an individual statement of an esper
+                                        module</entry>
+                                </row>
+                                <row>
+                                    <entry>modifyOrder</entry>
+                                    <entry>modifies an existing order (e.g. quantity, limit, etc.)
+                                    </entry>
+                                </row>
+                                <row>
+                                    <entry>reduceCombination</entry>
+                                    <entry>reduced the specified combination by the defined
+                                        ratio</entry>
+                                </row>
+                                <row>
+                                    <entry>reducePositon</entry>
+                                    <entry>reduces a position by a specified amount (based on
+                                        DefaultOrderPreference)</entry>
+                                </row>
+                                <row>
+                                    <entry>removeComponent</entry>
+                                    <entry>removes a component from a combination</entry>
+                                </row>
+                                <row>
+                                    <entry>removeExitValue</entry>
+                                    <entry>removes an existing exit value</entry>
+                                </row>
+                                <row>
+                                    <entry>removeProperty</entry>
+                                    <entry>removes a property from a PropertyHolder</entry>
+                                </row>
+                                <row>
+                                    <entry>requestCurrentTicks</entry>
+                                    <entry>requests latest Ticks for all subscribed
+                                        securities</entry>
+                                </row>
+                                <row>
+                                    <entry>sendOrder</entry>
+                                    <entry>manually send order of the specified type, either
+                                        SimpleOrder or AlgoOrder (defined by the corresponding
+                                        OrderPreference)</entry>
+                                </row>
+                                <row>
+                                    <entry>setComponentQuantity</entry>
+                                    <entry>sets the quantity of an individual component on a
+                                        combination</entry>
+                                </row>
+                                <row>
+                                    <entry>setExitValue</entry>
+                                    <entry>adjust an exitValue of a position</entry>
+                                </row>
+                                <row>
+                                    <entry>setVariableValue</entry>
+                                    <entry>set the value of an esper variable</entry>
+                                </row>
+                                <row>
+                                    <entry>shutdown</entry>
+                                    <entry>gracefully shutdown the corresponding JVM Process</entry>
+                                </row>
+                                <row>
+                                    <entry>subscribe</entry>
+                                    <entry>subscribe to the specified security</entry>
+                                </row>
+                                <row>
+                                    <entry>unsubscribe</entry>
+                                    <entry>unsubscribe to the specified security</entry>
+                                </row>
+                            </tbody>
+                        </tgroup>
+                    </table>
+                </section>
+                <section>
+                    <title>Base Management Service</title>
+                    <figure>
+                        <title>Base Management Service Operations</title>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scalefit="1"
+                                    fileref="images/BaseManagementServiceOperations.gif"/>
+                            </imageobject>
+                        </mediaobject>
+                    </figure>
+                    <para>The Base Management Service is only available when connected to the
+                        Base.</para>
+                    <para>The service currently only has the Attributes
+                            <emphasis>MarketChannels</emphasis> and
+                            <emphasis>DefaultMarketChannel</emphasis>
+                    </para>
+                    <para>The Base Management Service has the following operations:</para>
+                    <table frame="all" pgwide="1">
+                        <title>Base Management Service operations</title>
+                        <tgroup cols="2">
+                            <colspec colwidth="1*"/>
+                            <colspec colwidth="2*"/>
+                            <thead>
+                                <row>
+                                    <entry>Operation</entry>
+                                    <entry>Description</entry>
+                                </row>
+                            </thead>
+                            <tbody>
+                                <row>
+                                    <entry>cancelAllOrders</entry>
+                                    <entry>cancel all orders that are currently in the
+                                        market</entry>
+                                </row>
+                                <row>
+                                    <entry>emptyOpenOrderWindow</entry>
+                                    <entry>should only be called if an order was not accepted by the
+                                        broker but is still visible in the openOrderWindow</entry>
+                                </row>
+                                <row>
+                                    <entry>equalizeForex</entry>
+                                    <entry>adjusts the current FX Hedge for all non-base currencies
+                                    </entry>
+                                </row>
+                                <row>
+                                    <entry>rebalancePortfolio</entry>
+                                    <entry>redistribute cash between strategies and Base so that the
+                                        target allocation is met</entry>
+                                </row>
+                                <row>
+                                    <entry>recordTransaction</entry>
+                                    <entry>manually record a transaction to the database</entry>
+                                </row>
+                                <row>
+                                    <entry>resetComponentWindow</entry>
+                                    <entry>has to be called if a direct modification of components
+                                        has been made in the database</entry>
+                                </row>
+                                <row>
+                                    <entry>resetPositionsAndCashBalances</entry>
+                                    <entry>recalculates all Positions and Cash Balances by iterating
+                                        over all Transactions</entry>
+                                </row>
+                                <row>
+                                    <entry>setDefaultMarketChannel</entry>
+                                    <entry>changes the default market channel</entry>
+                                </row>
+                                <row>
+                                    <entry>setMargins</entry>
+                                    <entry>calculates current maintenance margin for all open
+                                        positions </entry>
+                                </row>
+                                <row>
+                                    <entry>transferPosition</entry>
+                                    <entry>transfers a position from one strategy to another by
+                                        taking its current market value</entry>
+                                </row>
+                            </tbody>
+                        </tgroup>
+                    </table>
+                </section>
+                <section>
+                    <title id="StrategyServices">StrategyServices</title>
+                    <para>Each Strategy can define as many manageable Services as needed. To be
+                        manageable the class has to have the following tagged value:</para>
+                    <programlisting language="Java">@ManagedResource(objectName = "com.algoTrader.strategy.xyz:name=XYZManagementService")</programlisting>
+                    <para>ManagedOperations have to be tagged like this:</para>
+                    <programlisting language="Java">@ManagedOperation(description = "send an order")@ManagedOperationParameters({
   @ManagedOperationParameter(name = "securityId", description = "securityId"),
   @ManagedOperationParameter(name = "quantity", description = "quantity"),
   @ManagedOperationParameter(name = "side", description = "BUY or SELL"),
 })</programlisting>
+                </section>
             </section>
-        </section>
-        <section>
-            <title id="Charts">Charts</title>
-            <para>Every strategy will display a custom JConsole Tab with a Portfolio Chart. In
-                addition Strategies can configure additional Tabs with Custom Charts.</para>
-            <para>All Charts are based on <ulink url="http://www.jfree.org/jfreechart/">
-                    JFreeChart</ulink> and <ulink url="http://www.jfree.org/orson/">
-                Orson</ulink>.</para>
-            <para>Each chart provides several Operations which are available through the context
-                menu (i.e. right mouse click):</para>
-            <itemizedlist>
-                <listitem>
-                    <para>Copy / Save as / Print</para>
-                </listitem>
-                <listitem>
-                    <para>Zoom In / Zoom Out / Autorange</para>
-                </listitem>
-                <listitem>
-                    <para>Reset Chart: will reload the entire Chart Data and reset all settings
-                        </para>
-                </listitem>
-                <listitem>
-                    <para>Update Chart Data: will contact the corresponding ChartService for any
-                            new ChartData that is not already displayed</para>
-                </listitem>
-            </itemizedlist>
-            <section id="Portfolio_Chart">
-                <title>Portfolio Chart</title>
-                <para>The following image shows an example of a Portfolio Chart:</para>
-                <figure>
-                    <title>Portfolio Chart</title>
-                    <mediaobject>
-                        <imageobject>
-                            <imagedata scalefit="1" fileref="images/PortfolioChart.gif"/>
-                        </imageobject>
-                    </mediaobject>
-                </figure>
-                <para>The Portfolio Chart displays the following values for each strategy (including
-                    Base):</para>
+            <section>
+                <title id="Charts">Charts</title>
+                <para>Every strategy will display a custom JConsole Tab with a Portfolio Chart. In
+                    addition Strategies can configure additional Tabs with Custom Charts.</para>
+                <para>All Charts are based on <ulink url="http://www.jfree.org/jfreechart/">
+                        JFreeChart</ulink> and <ulink url="http://www.jfree.org/orson/">
+                        Orson</ulink>.</para>
+                <para>Each chart provides several Operations which are available through the context
+                    menu (i.e. right mouse click):</para>
                 <itemizedlist>
                     <listitem>
-                        <para>performance (displayed by default)</para>
+                        <para>Copy / Save as / Print</para>
                     </listitem>
                     <listitem>
-                        <para>netLiqValue</para>
+                        <para>Zoom In / Zoom Out / Autorange</para>
                     </listitem>
                     <listitem>
-                        <para>securitiesCurrentValue</para>
+                        <para>Reset Chart: will reload the entire Chart Data and reset all settings
+                        </para>
                     </listitem>
                     <listitem>
-                        <para>cashBalance</para>
-                    </listitem>
-                    <listitem>
-                        <para>maintenanceMargin</para>
-                    </listitem>
-                    <listitem>
-                        <para>leverage</para>
-                    </listitem>
-                    <listitem>
-                        <para>allocation</para>
+                        <para>Update Chart Data: will contact the corresponding ChartService for any
+                            new ChartData that is not already displayed</para>
                     </listitem>
                 </itemizedlist>
-            </section>
-            <section id="Custom_Chart">
-                <title>Custom Chart</title>
-                <para>The following images show some examples of Custom Charts:</para>
-                <figure>
-                    <title>Indicator Chart</title>
-                    <mediaobject>
-                        <imageobject>
-                            <imagedata scalefit="1" fileref="images/IndicatorChart.gif"/>
-                        </imageobject>
-                    </mediaobject>
-                </figure>
-                <figure>
-                    <title>Bar Chart</title>
-                    <mediaobject>
-                        <imageobject>
-                            <imagedata scalefit="1" fileref="images/BarChart.gif"/>
-                        </imageobject>
-                    </mediaobject>
-                </figure>
-                <figure>
-                    <title>Annotation Chart</title>
-                    <mediaobject>
-                        <imageobject>
-                            <imagedata scalefit="1" fileref="images/AnnotationChart.gif"/>
-                        </imageobject>
-                    </mediaobject>
-                </figure>
-                <para>Custom Charts need to be configured inside the file
-                        <filename>applicationContext-client-&lt;strategyName&gt;.xml</filename>. A
-                    typical configuration looks like this:</para>
-                <programlisting language="XML">&lt;bean id="xyzChartService"
+                <section id="Portfolio_Chart">
+                    <title>Portfolio Chart</title>
+                    <para>The following image shows an example of a Portfolio Chart:</para>
+                    <figure>
+                        <title>Portfolio Chart</title>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scalefit="1" fileref="images/PortfolioChart.gif"/>
+                            </imageobject>
+                        </mediaobject>
+                    </figure>
+                    <para>The Portfolio Chart displays the following values for each strategy
+                        (including Base):</para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>performance (displayed by default)</para>
+                        </listitem>
+                        <listitem>
+                            <para>netLiqValue</para>
+                        </listitem>
+                        <listitem>
+                            <para>securitiesCurrentValue</para>
+                        </listitem>
+                        <listitem>
+                            <para>cashBalance</para>
+                        </listitem>
+                        <listitem>
+                            <para>maintenanceMargin</para>
+                        </listitem>
+                        <listitem>
+                            <para>leverage</para>
+                        </listitem>
+                        <listitem>
+                            <para>allocation</para>
+                        </listitem>
+                    </itemizedlist>
+                </section>
+                <section id="Custom_Chart">
+                    <title>Custom Chart</title>
+                    <para>The following images show some examples of Custom Charts:</para>
+                    <figure>
+                        <title>Indicator Chart</title>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scalefit="1" fileref="images/IndicatorChart.gif"/>
+                            </imageobject>
+                        </mediaobject>
+                    </figure>
+                    <figure>
+                        <title>Bar Chart</title>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scalefit="1" fileref="images/BarChart.gif"/>
+                            </imageobject>
+                        </mediaobject>
+                    </figure>
+                    <figure>
+                        <title>Annotation Chart</title>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scalefit="1" fileref="images/AnnotationChart.gif"/>
+                            </imageobject>
+                        </mediaobject>
+                    </figure>
+                    <para>Custom Charts need to be configured inside the file
+                            <filename>applicationContext-client-&lt;strategyName&gt;.xml</filename>.
+                        A typical configuration looks like this:</para>
+                    <programlisting language="XML">&lt;bean id="xyzChartService"
   class="com.algoTrader.strategy.xyz.XYZChartService" autowire="byName">
   &lt;property name="chartDefinition">
     &lt;bean class="com.algoTrader.vo.ChartDefinitionVO" p:timePeriod="SEC" >
@@ -3271,155 +3381,162 @@ getOrderService().sendOrders(orders);</programlisting>
     &lt;/bean>
   &lt;/property>
 &lt;/bean></programlisting>
-                <para>The following class diagram and table show all possible definition options for
-                    Custom Chart configuration:</para>
-                <figure>
-                    <title>Chart Definition</title>
-                    <mediaobject>
-                        <imageobject>
-                            <imagedata fileref="images/ChartDefinition.png" scalefit="1"/>
-                        </imageobject>
-                    </mediaobject>
-                </figure>
-                <table frame="all" pgwide="1">
-                    <title>Chart Definition Value Objects</title>
-                    <tgroup cols="2">
-                        <colspec colwidth="1*"/>
-                        <colspec colwidth="2*"/>
-                        <thead>
-                            <row>
-                                <entry>Value Object</entry>
-                                <entry>Description</entry>
-                            </row>
-                        </thead>
-                        <tbody>
-                            <row>
-                                <entry>ChartDefintionVO</entry>
-                                <entry>The top-level entity of each chart. It defines TimePeriod
-                                    (e.g. MINUTE) as well as the startTime and endTime (e.g. 14:30 -
-                                    22:15) for Intraday Charts.</entry>
-                            </row>
-                            <row>
-                                <entry>AxisDefinitionVO</entry>
-                                <entry>Each Chart can have multiple Axis, which are defined through
-                                    this Value Object. Each Axis has a label (e.g. Performance). In
-                                    addition the range being displayed can be customized through
-                                    autoRange, autoRangeIncludesZero, upperBound and lowerBound.
-                                    Optionally the NumberFormat of the Axis can be defined according
-                                    to the class <classname>java.text.NumberFormat</classname> (e.g.
-                                    ##0.00000)</entry>
-                            </row>
-                            <row>
-                                <entry>DatasetDefinitionVO</entry>
-                                <entry>Each Axis can have multiple Datasets. Datasets are of type
-                                    OHLC (for Bar Charts) or TIME (for general Indicator based
-                                    Charts)</entry>
-                            </row>
-                            <row>
-                                <entry>SeriesDefinitionVO</entry>
-                                <entry>This value object defines the actual data series. It contains
-                                    a label and a color. In addition the parameter selected defines
-                                    if the series is visible by default when the Client is started.
-                                    The SeriesDefinitionVO is abstract and has 3 concrete subclasses
-                                </entry>
-                            </row>
-                            <row>
-                                <entry>BarDefinitionVO</entry>
-                                <entry>Defines a OHLC Bar Series for the specified security </entry>
-                            </row>
-                            <row>
-                                <entry>IndicatorDefinitionVO</entry>
-                                <entry>Defines an arbitrary indicator series with a specified name
-                                </entry>
-                            </row>
-                            <row>
-                                <entry>MarketDefinitionVO</entry>
-                                <entry>Defines a horizontal marker line (= ValueMarker) or marker
-                                    band (= IntervalMarker) with a specified name.</entry>
-                            </row>
-                        </tbody>
-                    </tgroup>
-                </table>
-                <para>A Custom Chart is wired to a corresponding <classname>ChartService</classname>
-                    (a subclass of <classname>ChartProvidingServiceImpl</classname>) which will
-                    provide the Chart with the actual ChartData to display. The following class
-                    diagram show a summary of all ChartData Value Objects.</para>
-                <figure>
-                    <title>Chart Data</title>
-                    <mediaobject>
-                        <imageobject>
-                            <imagedata scalefit="1" fileref="images/ChartData.png"/>
-                        </imageobject>
-                    </mediaobject>
-                </figure>
-                <para>A ChartProvidingService can optionally overwrite any of the following methods
-                    to provide ChartData. Most of these methods contain a dateTime parameter. The
-                    Chart will pass the latest Date, that is currently displayed on the Chart.
-                    Through this, a ChartService can choose to return only ChartData that is not yet
-                    displayed on a Chart. Clicking ResetChart will sent a dateTime of zero and
-                    therefore request a full update of all ChartData.</para>
-                <table frame="all" pgwide="1">
-                    <title>ChartService</title>
-                    <tgroup cols="2">
-                        <colspec colwidth="1*"/>
-                        <colspec colwidth="2*"/>
-                        <thead>
-                            <row>
-                                <entry>Method</entry>
-                                <entry>Description</entry>
-                            </row>
-                        </thead>
-                        <tbody>
-                            <row>
-                                <entry>getChartDefinition()</entry>
-                                <entry>The parent class of the ChartService, the class
-                                        <classname>ChartProvidingServiceImpl</classname>, will by
-                                    default return the Chart Definition according to the file
-                                        <filename>applicationContext-client-&lt;strategyName&gt;.xml</filename>.
-                                    Strategies may however chose to modify or augment this
-                                    definition (e.g. a Futures based Strategy that sets the
-                                    securityId of a Bar Series according to the Front Month
-                                    Future)</entry>
-                            </row>
-                            <row>
-                                <entry>getBars()</entry>
-                                <entry>Returns BarVO's (a subclass of MarketDataEventVO). Only
-                                    dateTime, open, high, low, close need to be defined.</entry>
-                            </row>
-                            <row>
-                                <entry>getIndicators()</entry>
-                                <entry>Returns IndicatorVO's, which have a name, a dateTime and a
-                                    value property.</entry>
-                            </row>
-                            <row>
-                                <entry>getMarkers()</entry>
-                                <entry>Return either ValueMarker containing just a value or an
-                                    IntervalMarker containing a startValue and an endValue</entry>
-                            </row>
-                            <row>
-                                <entry>getAnnotations()</entry>
-                                <entry>A Custom Chart can optionally display any number of
-                                    annotations. These are either PointerAnnotations (represented
-                                    through an arrow) or BoxAnnotations (represented by a box). See
-                                    Annotation Chart example diagram above.</entry>
-                            </row>
-                            <row>
-                                <entry>getDescription()</entry>
-                                <entry>Returns an arbitrary text description for the chart (e.g.
-                                    current state of the strategy). See Annotation Chart example
-                                    diagram above.</entry>
-                            </row>
-                        </tbody>
-                    </tgroup>
-                </table>
-                <para>A ChartService has to be exposed via JMX so that the client can retrieve
-                    current chart data. This is done by annotating the ChartService like
-                    this:</para>
-                <programlisting language="Java">@ManagedResource(objectName = "com.algoTrader.strategy.xyz:name=XYZChart,type=chart")</programlisting>
-                <para>Because of the <parameter>type=chart</parameter> this Service will not be
-                    visible as a ManagedBean in the client.</para>
-                <para>A typical ChartService might look like this:</para>
-                <programlisting language="Java">package com.algoTrader.strategy.xyz;
+                    <para>The following class diagram and table show all possible definition options
+                        for Custom Chart configuration:</para>
+                    <figure>
+                        <title>Chart Definition</title>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata fileref="images/ChartDefinition.png" scalefit="1"/>
+                            </imageobject>
+                        </mediaobject>
+                    </figure>
+                    <table frame="all" pgwide="1">
+                        <title>Chart Definition Value Objects</title>
+                        <tgroup cols="2">
+                            <colspec colwidth="1*"/>
+                            <colspec colwidth="2*"/>
+                            <thead>
+                                <row>
+                                    <entry>Value Object</entry>
+                                    <entry>Description</entry>
+                                </row>
+                            </thead>
+                            <tbody>
+                                <row>
+                                    <entry>ChartDefintionVO</entry>
+                                    <entry>The top-level entity of each chart. It defines TimePeriod
+                                        (e.g. MINUTE) as well as the startTime and endTime (e.g.
+                                        14:30 - 22:15) for Intraday Charts.</entry>
+                                </row>
+                                <row>
+                                    <entry>AxisDefinitionVO</entry>
+                                    <entry>Each Chart can have multiple Axis, which are defined
+                                        through this Value Object. Each Axis has a label (e.g.
+                                        Performance). In addition the range being displayed can be
+                                        customized through autoRange, autoRangeIncludesZero,
+                                        upperBound and lowerBound. Optionally the NumberFormat of
+                                        the Axis can be defined according to the class
+                                            <classname>java.text.NumberFormat</classname> (e.g.
+                                        ##0.00000)</entry>
+                                </row>
+                                <row>
+                                    <entry>DatasetDefinitionVO</entry>
+                                    <entry>Each Axis can have multiple Datasets. Datasets are of
+                                        type OHLC (for Bar Charts) or TIME (for general Indicator
+                                        based Charts)</entry>
+                                </row>
+                                <row>
+                                    <entry>SeriesDefinitionVO</entry>
+                                    <entry>This value object defines the actual data series. It
+                                        contains a label and a color. In addition the parameter
+                                        selected defines if the series is visible by default when
+                                        the Client is started. The SeriesDefinitionVO is abstract
+                                        and has 3 concrete subclasses </entry>
+                                </row>
+                                <row>
+                                    <entry>BarDefinitionVO</entry>
+                                    <entry>Defines a OHLC Bar Series for the specified security
+                                    </entry>
+                                </row>
+                                <row>
+                                    <entry>IndicatorDefinitionVO</entry>
+                                    <entry>Defines an arbitrary indicator series with a specified
+                                        name </entry>
+                                </row>
+                                <row>
+                                    <entry>MarketDefinitionVO</entry>
+                                    <entry>Defines a horizontal marker line (= ValueMarker) or
+                                        marker band (= IntervalMarker) with a specified
+                                        name.</entry>
+                                </row>
+                            </tbody>
+                        </tgroup>
+                    </table>
+                    <para>A Custom Chart is wired to a corresponding
+                            <classname>ChartService</classname> (a subclass of
+                            <classname>ChartProvidingServiceImpl</classname>) which will provide the
+                        Chart with the actual ChartData to display. The following class diagram show
+                        a summary of all ChartData Value Objects.</para>
+                    <figure>
+                        <title>Chart Data</title>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scalefit="1" fileref="images/ChartData.png"/>
+                            </imageobject>
+                        </mediaobject>
+                    </figure>
+                    <para>A ChartProvidingService can optionally overwrite any of the following
+                        methods to provide ChartData. Most of these methods contain a dateTime
+                        parameter. The Chart will pass the latest Date, that is currently displayed
+                        on the Chart. Through this, a ChartService can choose to return only
+                        ChartData that is not yet displayed on a Chart. Clicking ResetChart will
+                        sent a dateTime of zero and therefore request a full update of all
+                        ChartData.</para>
+                    <table frame="all" pgwide="1">
+                        <title>ChartService</title>
+                        <tgroup cols="2">
+                            <colspec colwidth="1*"/>
+                            <colspec colwidth="2*"/>
+                            <thead>
+                                <row>
+                                    <entry>Method</entry>
+                                    <entry>Description</entry>
+                                </row>
+                            </thead>
+                            <tbody>
+                                <row>
+                                    <entry>getChartDefinition()</entry>
+                                    <entry>The parent class of the ChartService, the class
+                                            <classname>ChartProvidingServiceImpl</classname>, will
+                                        by default return the Chart Definition according to the file
+                                            <filename>applicationContext-client-&lt;strategyName&gt;.xml</filename>.
+                                        Strategies may however chose to modify or augment this
+                                        definition (e.g. a Futures based Strategy that sets the
+                                        securityId of a Bar Series according to the Front Month
+                                        Future)</entry>
+                                </row>
+                                <row>
+                                    <entry>getBars()</entry>
+                                    <entry>Returns BarVO's (a subclass of MarketDataEventVO). Only
+                                        dateTime, open, high, low, close need to be defined.</entry>
+                                </row>
+                                <row>
+                                    <entry>getIndicators()</entry>
+                                    <entry>Returns IndicatorVO's, which have a name, a dateTime and
+                                        a value property.</entry>
+                                </row>
+                                <row>
+                                    <entry>getMarkers()</entry>
+                                    <entry>Return either ValueMarker containing just a value or an
+                                        IntervalMarker containing a startValue and an
+                                        endValue</entry>
+                                </row>
+                                <row>
+                                    <entry>getAnnotations()</entry>
+                                    <entry>A Custom Chart can optionally display any number of
+                                        annotations. These are either PointerAnnotations
+                                        (represented through an arrow) or BoxAnnotations
+                                        (represented by a box). See Annotation Chart example diagram
+                                        above.</entry>
+                                </row>
+                                <row>
+                                    <entry>getDescription()</entry>
+                                    <entry>Returns an arbitrary text description for the chart (e.g.
+                                        current state of the strategy). See Annotation Chart example
+                                        diagram above.</entry>
+                                </row>
+                            </tbody>
+                        </tgroup>
+                    </table>
+                    <para>A ChartService has to be exposed via JMX so that the client can retrieve
+                        current chart data. This is done by annotating the ChartService like
+                        this:</para>
+                    <programlisting language="Java">@ManagedResource(objectName = "com.algoTrader.strategy.xyz:name=XYZChart,type=chart")</programlisting>
+                    <para>Because of the <parameter>type=chart</parameter> this Service will not be
+                        visible as a ManagedBean in the client.</para>
+                    <para>A typical ChartService might look like this:</para>
+                    <programlisting language="Java">package com.algoTrader.strategy.xyz;
 
 @ManagedResource(objectName = "com.algoTrader.strategy.xyz:name=XYZChart,type=chart")
 public class MovChartService extends ChartProvidingServiceImpl {
@@ -3455,28 +3572,28 @@ public class MovChartService extends ChartProvidingServiceImpl {
     return String.valueOf(stop);
   }
 }</programlisting>
+                </section>
             </section>
-        </section>
-        <section>
-            <title>JMX Access</title>
-            <section id="Local-JMX-Access">
-                <title>Local JMX Access</title>
-                <para>On the local machine JMX access can be enabled with the following (non-secure)
-                    VM arguments:</para>
-                <screen>-Dcom.sun.management.jmxremote.port=1099
+            <section>
+                <title>JMX Access</title>
+                <section id="Local-JMX-Access">
+                    <title>Local JMX Access</title>
+                    <para>On the local machine JMX access can be enabled with the following
+                        (non-secure) VM arguments:</para>
+                    <screen>-Dcom.sun.management.jmxremote.port=1099
 -Dcom.sun.management.jmxremote.authenticate=false
 -Dcom.sun.management.jmxremote.ssl=false</screen>
-                <para>When starting JConsole connect to: <literal>localhost:1099</literal>
-                </para>
-            </section>
-            <section id="Remote-JMX-Access">
-                <title>Remote JMX Access</title>
-                <para>To enable JMX for remote access the following VM arguments have to be used.
-                    This involves usage of a custom JMX agent that will make sure the specified
-                        <parameter>serverPort</parameter> is used. By default Java uses a random
-                        <parameter>serverPort</parameter>, which will not work when trying to access
-                    the system through a firewall.</para>
-                <screen>-Dcom.algoTrarder.rmi.registryPort=1099
+                    <para>When starting JConsole connect to: <literal>localhost:1099</literal>
+                    </para>
+                </section>
+                <section id="Remote-JMX-Access">
+                    <title>Remote JMX Access</title>
+                    <para>To enable JMX for remote access the following VM arguments have to be
+                        used. This involves usage of a custom JMX agent that will make sure the
+                        specified <parameter>serverPort</parameter> is used. By default Java uses a
+                        random <parameter>serverPort</parameter>, which will not work when trying to
+                        access the system through a firewall.</para>
+                    <screen>-Dcom.algoTrarder.rmi.registryPort=1099
 -Dcom.algoTrarder.rmi.serverPort=1098
 -Djava.rmi.server.hostname=127.0.0.1
 -Dcom.sun.management.jmxremote.authenticate=false
@@ -3488,248 +3605,331 @@ public class MovChartService extends ChartProvidingServiceImpl {
 -Djavax.net.ssl.trustStore=...
 -Djavax.net.ssl.trustStorePassword=...
 -javaagent:lib/agent.jar</screen>
-                <para>See chapter <xref linkend="VM-Arguments"/> for a description of above VM-Arguments.</para>
-                <para>When accessing the system through a firewall, the  two ports 1099 and 1098
-                    have to be opened.</para>
-                <para>When starting JConsole connect to <literal>&lt;serverURL>:1099</literal> with
-                    the following VM-Arguments pointing to the same keystore and truststore (as well
-                    as passwords) used on the server:</para>
-                <screen>-Djavax.net.ssl.keyStore=...
+                    <para>See chapter <xref linkend="VM-Arguments"/> for a description of above
+                        VM-Arguments.</para>
+                    <para>When accessing the system through a firewall, the two ports 1099 and 1098
+                        have to be opened.</para>
+                    <para>When starting JConsole connect to <literal>&lt;serverURL>:1099</literal>
+                        with the following VM-Arguments pointing to the same keystore and truststore
+                        (as well as passwords) used on the server:</para>
+                    <screen>-Djavax.net.ssl.keyStore=...
 -Djavax.net.ssl.keyStorePassword=...
 -Djavax.net.ssl.trustStore=...
 -Djavax.net.ssl.trustStorePassword=...</screen>
-            </section>
-        </section>
-        <section>
-            <title>Monitoring Functionality</title>
-            <para>The AlgoTrader Client will invoke the checkIsAlive method of the ManagementService
-                according to the defined interval (i.e. AlgoTrader program argument "-interval=10").
-                If the method does not return within the specified interval, a timeout message is
-                displayed and an alarm sound is played. This way the person in charge of monitoring
-                the System is being notified if the system is down or not reachable anymore (e.g.
-                stale JVM).</para>
-        </section>
-        <section>
-            <title>Additional MBeans</title>
-            <para>In addition the following system functions can be monitored through JMX as
-                well:</para>
-            <table frame="all" pgwide="1">
-                <title>JMX Subsystems</title>
-                <tgroup cols="2">
-                    <colspec colwidth="1*"/>
-                    <colspec colwidth="2*"/>
-                    <thead>
-                        <row>
-                            <entry>JMX Subsystem</entry>
-                            <entry>Description</entry>
-                        </row>
-                    </thead>
-                    <tbody>
-                        <row>
-                            <entry>Esper</entry>
-                            <entry>Esper Instance Management (i.e. Esper Runtime, Named Windows and
-                                Statements)</entry>
-                        </row>
-                        <row>
-                            <entry>C3P0</entry>
-                            <entry>DataSource Connection Pool Management</entry>
-                        </row>
-                        <row>
-                            <entry>Log4J</entry>
-                            <entry>Management of the Log4J Logging System</entry>
-                        </row>
-                        <row>
-                            <entry>EhCache</entry>
-                            <entry>Management of the Second Level Cache EhCache. This service has to
-                                be used to clear the cache whenever values are changed directly in
-                                the DB</entry>
-                        </row>
-                        <row>
-                            <entry>Hibernate</entry>
-                            <entry>Hibernate Management (i.e. Collection, Entity, Query,
-                                SecondLevelCache and Session statistics)</entry>
-                        </row>
-                        <row>
-                            <entry>QuickFix/J</entry>
-                            <entry>QuickFix/J Management (i.e. QuickFix/J Sessions)</entry>
-                        </row>
-                    </tbody>
-                </tgroup>
-            </table>
-        </section>
-        <section>
-            <title>JConsole Modification</title>
-            <para>A separate Eclipse Project AlgoTraderClient contains the following modifications
-                to JConsole:</para>
-            <section>
-                <title>Tabular Data</title>
-                <para>TabularData Enhancement to display TabularData using JTable instead of the
-                    built-in HTML format. The JTable is editable (F2). This can be used to copy
-                    &amp; paste values (Note: modifications are however not stored in the AlgoTrader
-                    database)</para>
+                </section>
             </section>
             <section>
-                <title>Attributes / Operations Split Pane</title>
-                <para>For every MBean Attributes and Operations are visible at the same time in a
-                    Split Pane</para>
+                <title>Monitoring Functionality</title>
+                <para>The AlgoTrader Client will invoke the checkIsAlive method of the
+                    ManagementService according to the defined interval (i.e. AlgoTrader program
+                    argument "-interval=10"). If the method does not return within the specified
+                    interval, a timeout message is displayed and an alarm sound is played. This way
+                    the person in charge of monitoring the System is being notified if the system is
+                    down or not reachable anymore (e.g. stale JVM).</para>
             </section>
             <section>
-                <title>Generated documentation</title>
-                <para>Supplied documentation to fields, operations and parameters will be available
-                    in JConsole.</para>
-                <para>Example: "set the value of an esper variable" is added as documentation in UML
-                    to the operation setVariableValue</para>
-                <figure>
-                    <title>Operation Documentation in UML</title>
-                    <mediaobject>
-                        <imageobject>
-                            <imagedata scalefit="1" fileref="images/UMLOperationDocumentation.gif"/>
-                        </imageobject>
-                    </mediaobject>
-                </figure>
-                <para>This will result in a mouse-over documentation of the corresponding operation
-                    in JConsole</para>
-                <figure>
-                    <title>Operation Documentation in JConsole</title>
-                    <mediaobject>
-                        <imageobject>
-                            <imagedata scalefit="1" fileref="images/JConsoleOperationDocumentation.gif"/>
-                        </imageobject>
-                    </mediaobject>
-                </figure>
+                <title>Additional MBeans</title>
+                <para>In addition the following system functions can be monitored through JMX as
+                    well:</para>
+                <table frame="all" pgwide="1">
+                    <title>JMX Subsystems</title>
+                    <tgroup cols="2">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="2*"/>
+                        <thead>
+                            <row>
+                                <entry>JMX Subsystem</entry>
+                                <entry>Description</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry>Esper</entry>
+                                <entry>Esper Instance Management (i.e. Esper Runtime, Named Windows
+                                    and Statements)</entry>
+                            </row>
+                            <row>
+                                <entry>C3P0</entry>
+                                <entry>DataSource Connection Pool Management</entry>
+                            </row>
+                            <row>
+                                <entry>Log4J</entry>
+                                <entry>Management of the Log4J Logging System</entry>
+                            </row>
+                            <row>
+                                <entry>EhCache</entry>
+                                <entry>Management of the Second Level Cache EhCache. This service
+                                    has to be used to clear the cache whenever values are changed
+                                    directly in the DB</entry>
+                            </row>
+                            <row>
+                                <entry>Hibernate</entry>
+                                <entry>Hibernate Management (i.e. Collection, Entity, Query,
+                                    SecondLevelCache and Session statistics)</entry>
+                            </row>
+                            <row>
+                                <entry>QuickFix/J</entry>
+                                <entry>QuickFix/J Management (i.e. QuickFix/J Sessions)</entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
             </section>
             <section>
-                <title>Read Only JConsole</title>
-                <para>By specifying the following VM Argument JConsole can be started in Read-Only
-                    Mode where all Operations are disabled:</para>
-                <screen>-DreadOnly=true</screen>
+                <title>JConsole Modification</title>
+                <para>A separate Eclipse Project AlgoTraderClient contains the following
+                    modifications to JConsole:</para>
+                <section>
+                    <title>Tabular Data</title>
+                    <para>TabularData Enhancement to display TabularData using JTable instead of the
+                        built-in HTML format. The JTable is editable (F2). This can be used to copy
+                        &amp; paste values (Note: modifications are however not stored in the
+                        AlgoTrader database)</para>
+                </section>
+                <section>
+                    <title>Attributes / Operations Split Pane</title>
+                    <para>For every MBean Attributes and Operations are visible at the same time in
+                        a Split Pane</para>
+                </section>
+                <section>
+                    <title>Generated documentation</title>
+                    <para>Supplied documentation to fields, operations and parameters will be
+                        available in JConsole.</para>
+                    <para>Example: "set the value of an esper variable" is added as documentation in
+                        UML to the operation setVariableValue</para>
+                    <figure>
+                        <title>Operation Documentation in UML</title>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scalefit="1"
+                                    fileref="images/UMLOperationDocumentation.gif"/>
+                            </imageobject>
+                        </mediaobject>
+                    </figure>
+                    <para>This will result in a mouse-over documentation of the corresponding
+                        operation in JConsole</para>
+                    <figure>
+                        <title>Operation Documentation in JConsole</title>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scalefit="1"
+                                    fileref="images/JConsoleOperationDocumentation.gif"/>
+                            </imageobject>
+                        </mediaobject>
+                    </figure>
+                </section>
+                <section>
+                    <title>Read Only JConsole</title>
+                    <para>By specifying the following VM Argument JConsole can be started in
+                        Read-Only Mode where all Operations are disabled:</para>
+                    <screen>-DreadOnly=true</screen>
+                </section>
             </section>
         </section>
-    </chapter>
-    <chapter id="CRUD_Application">
-        <title>CRUD Application</title>
-        <para>The Project <filename>AlgoTrader/crud</filename> provides CRUD Operations for
-            AlgoTrader entities (CRUD stands for Create, Read, Update &amp; Delete)</para>
-        <para>The running application will look like this</para>
-        <figure>
-            <title>CRUD Application</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="images/CrudApplication.gif" scalefit="1"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <para>Currently CRUD Operations are available for the following entities:</para>
-        <itemizedlist>
-            <listitem>
-                <para>Strategy</para>
-            </listitem>
-            <listitem>
-                <para>Security</para>
-            </listitem>
-            <listitem>
-                <para>Forex</para>
-            </listitem>
-            <listitem>
-                <para>Future</para>
-            </listitem>
-            <listitem>
-                <para>StockOption</para>
-            </listitem>
-            <listitem>
-                <para>IntrestRate</para>
-            </listitem>
-            <listitem>
-                <para>SecurityFamily</para>
-            </listitem>
-            <listitem>
-                <para>Subscription</para>
-            </listitem>
-        </itemizedlist>
-        <para>AlgoTrader CRUD is based on the <ulink url="http://grails.org"> grails</ulink>
-            project, which has a feature called scaffolding, that is able to automatically create a
-            CRUD application based on hibernate mapping files and Java Domain classes (= AndroMDA
-            Entities).</para>
-        <para>Please make sure that the <filename>algotrader/code</filename> project is available in
-            the local maven repository by issuing the following maven command inside
-            algotrader-code:</para>
-        <screen>mvn install</screen>
-        <section>
-            <title>Run using Maven</title>
-            <para>To run the application using maven the following two files have to be patched in
-                the local maven repository:</para>
+        <section id="EsperHQ_Client">
+            <title>EsperHQ Client</title>
+            <para>The EsperHQ Client is comprised of a rich multi-window GUI, the Esper data
+                distribution service and real-time data displays (Eventlets).</para>
+            <para> The EsperHQ multi-window user interface allows to manage Esper CEP engines,
+                design and deploy Esper Statements as well as create and launch eventlets. In
+                addition it has built-in displays include chart, grid, gauge and timeline. </para>
+            <para>EsperHQ connects to Esper CEP engine instances via an integrated web application
+                server (Jetty) and Esper Data Distribution Service endpoints. </para>
+            <para>Esper Eventlets are configurable, interactive and easy to compose into a dashboard
+                and present historical and event stream data from multiple distributable sources. </para>
+            <para>EsperHQ is built on Adobe (R) Flex technology. The applications comprise of Flex
+                modules and libraries that are cached or dynamically obtained by client web browsers
+                from the web application server as needed. </para>
+            <figure>
+                <title>EsperHQ Client</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="images/EsperHQMainScreen.png" scalefit="1"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>To enable the EsperHQ Client the following two directories need to be added to the
+                    <filename>algotrader/core</filename> project:</para>
             <itemizedlist>
                 <listitem>
-                    <para>
-                        <ulink url="http://algo-trader.googlecode.com/files/grails-gorm-1.3.7.jar">
-                                grails-gorm-1.3.7.jar</ulink> to
-                                <filename>user_home\.m2\repository\org\grails\grails-gorm\1.3.7</filename>
-                    </para>
+                    <para><filename>data</filename></para>
                 </listitem>
                 <listitem>
-                    <para>
-                        <ulink url="http://algo-trader.googlecode.com/files/grails-web-1.3.7.jar">
-                                grails-web-1.3.7.jar</ulink> to
-                                <filename>user_home\.m2\repository\org\grails\grails-web\1.3.7</filename>
-                    </para>
+                    <para><filename>webapps</filename></para>
                 </listitem>
             </itemizedlist>
-            <para>To start the AlgoTraderCrud application execute the following maven
-                command:</para>
-            <screen>mvn -Ddisable.auto.recompile=true grails:run-app</screen>
-            <para>After Tomcat has started up, the AlgoTrader CRUD application can be accessed at
-                the following URL: <ulink url="http://localhost:8080/algotrader-crud/">http://localhost:8080/algotrader-crud/</ulink>
+            <para>In addition the following section of the file<filename>
+                    /algotrader/common/src/main/resources/META-INF/esper-common.cfg.xml</filename>
+                have to be enabled:</para>
+            <programlisting language="XML">&lt;!-- Esper HQ -->
+&lt;plugin-loader name="EndpointMgmt"
+    class-name="com.espertech.esperdds.client.EndpointMgmtPlugin">
+    &lt;init-arg name="esperdds.configuration.file" value="esperdds.cfg.xml" />
+&lt;/plugin-loader>
+
+&lt;plugin-loader name="EsperHQ_Webapp_Service"
+    class-name="com.espertech.esper.server.webapp.WebAppPlugin">
+    &lt;init-arg name="port" value="8400" />
+    &lt;init-arg name="webapps" value="esperhq@webapps/esperhq" />
+&lt;/plugin-loader>    </programlisting>
+            <para>After starting the system, the EsperHQ client is now available via the following
+                URL:</para>
+            <para>
+                <ulink url="http://localhost:8400/esperhq/esperhq/esperhq.html"
+                    >http://localhost:8400/esperhq/esperhq/esperhq.html</ulink>
             </para>
-        </section>
-        <section>
-            <title>Run Using Grails</title>
-            <para>Alternatively the application can be started using Grails directly:</para>
-            <para>Please install version 1.3.7 from <ulink url="http://grails.org/Download">http://grails.org/download</ulink>
-            </para>
-            <para>Set the environment variable <parameter>GRAILS_HOME</parameter> to the directory
-                where you installed grails and also add the <filename>GRAILS_HOME/bin</filename>
-                directory to the PATH environment variable.</para>
-            <para>In addition the following two files have to be patched in the local ivy2
-                repository:</para>
+            <para> Inside the EsperHQ client the following menu options are most relevant: </para>
             <itemizedlist>
                 <listitem>
-                    <para>
-                        <ulink url="http://algo-trader.googlecode.com/files/grails-gorm-1.3.7.jar">
-                                grails-gorm-1.3.7.jar</ulink> to
-                                <filename>user_home\.ivy2\cache\org.grails\grails-gorm\1.3.7</filename>
-                    </para>
+                    <para>Map Statements: Displays the relation between statements as a map (click
+                        "Get All" to see all statements)</para>
                 </listitem>
                 <listitem>
-                    <para>
-                        <ulink url="http://algo-trader.googlecode.com/files/grails-web-1.3.7.jar">
-                                grails-web-1.3.7.jar</ulink> to
-                                <filename>user_home\.ivy2\cache\org.grails\grails-web\1.3.7</filename>
-                    </para>
+                    <para>Event Types: Displays declared Event Types</para>
+                </listitem>
+                <listitem>
+                    <para>Named Windows: Displays declared Named Windows</para>
+                </listitem>
+                <listitem>
+                    <para>Statements: Displays declared Statements  (click "Get All" to see all
+                        statements)</para>
+                </listitem>
+                <listitem>
+                    <para>Variable: Displays declared Variables with their current values</para>
                 </listitem>
             </itemizedlist>
-            <para>To start the AlgoTraderCrud application execute the following grails
-                command:</para>
-            <screen>grails -Ddisable.auto.recompile=true run-app</screen>
-            <para>After Tomcat has started up, the AlgoTraderCrud application can be accessed at the
-                following URL: <ulink url="http://localhost:8080/algotrader-crud/">http://localhost:8080/algotrader-crud/</ulink>
-            </para>
-            <note>
+        </section>
+        <section id="Grails_Client">
+            <title>Grails Client</title>
+            <para>The Grails Client is located in the Project <filename>AlgoTrader/crud</filename>
+                and provides CRUD (Create, Read, Update &amp; Delete) Operations for Management of
+                AlgoTrader Reference Data.</para>
+            <para>The running application will look like this</para>
+            <figure>
+                <title>Grails Client</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="images/GrailsClient.gif" scalefit="1"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>Currently CRUD Operations are available for the following entities:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>Strategy</para>
+                </listitem>
+                <listitem>
+                    <para>Security</para>
+                </listitem>
+                <listitem>
+                    <para>Forex</para>
+                </listitem>
+                <listitem>
+                    <para>Future</para>
+                </listitem>
+                <listitem>
+                    <para>StockOption</para>
+                </listitem>
+                <listitem>
+                    <para>IntrestRate</para>
+                </listitem>
+                <listitem>
+                    <para>SecurityFamily</para>
+                </listitem>
+                <listitem>
+                    <para>Subscription</para>
+                </listitem>
+            </itemizedlist>
+            <para>AlgoTrader CRUD is based on the <ulink url="http://grails.org"> grails</ulink>
+                project, which has a feature called scaffolding, that is able to automatically
+                create a CRUD application based on hibernate mapping files and Java Domain classes
+                (= AndroMDA Entities).</para>
+            <para>Please make sure that the <filename>algotrader/code</filename> project is
+                available in the local maven repository by issuing the following maven command
+                inside algotrader-code:</para>
+            <screen>mvn install</screen>
+            <section>
+                <title>Run using Maven</title>
+                <para>To run the application using maven the following two files have to be patched
+                    in the local maven repository:</para>
                 <itemizedlist>
                     <listitem>
-                        <para>Currently AlgoTrader CRUD is in an experimental state</para>
+                        <para>
+                            <ulink
+                                url="http://algo-trader.googlecode.com/files/grails-gorm-1.3.7.jar">
+                                grails-gorm-1.3.7.jar</ulink> to
+                                <filename>user_home\.m2\repository\org\grails\grails-gorm\1.3.7</filename>
+                        </para>
                     </listitem>
                     <listitem>
-                        <para>If unexpected results show up, it usually helps to delete everything
-                            in the <filename>target</filename> directory inside the AlgoTraderCrud
-                            application before starting up</para>
-                    </listitem>
-                    <listitem>
-                        <para>Also it might help to do a "mvn install" on all AlgoTrader maven
-                            projects to ensure that the latest version exists in the local
-                            repository</para>
+                        <para>
+                            <ulink
+                                url="http://algo-trader.googlecode.com/files/grails-web-1.3.7.jar">
+                                grails-web-1.3.7.jar</ulink> to
+                                <filename>user_home\.m2\repository\org\grails\grails-web\1.3.7</filename>
+                        </para>
                     </listitem>
                 </itemizedlist>
-            </note>
+                <para>To start the AlgoTraderCrud application execute the following maven
+                    command:</para>
+                <screen>mvn -Ddisable.auto.recompile=true grails:run-app</screen>
+                <para>After Tomcat has started up, the AlgoTrader CRUD application can be accessed
+                    at the following URL: <ulink url="http://localhost:8080/algotrader-crud/"
+                        >http://localhost:8080/algotrader-crud/</ulink>
+                </para>
+            </section>
+            <section>
+                <title>Run Using Grails</title>
+                <para>Alternatively the application can be started using Grails directly:</para>
+                <para>Please install version 1.3.7 from <ulink url="http://grails.org/Download"
+                        >http://grails.org/download</ulink>
+                </para>
+                <para>Set the environment variable <parameter>GRAILS_HOME</parameter> to the
+                    directory where you installed grails and also add the
+                        <filename>GRAILS_HOME/bin</filename> directory to the PATH environment
+                    variable.</para>
+                <para>In addition the following two files have to be patched in the local ivy2
+                    repository:</para>
+                <itemizedlist>
+                    <listitem>
+                        <para>
+                            <ulink
+                                url="http://algo-trader.googlecode.com/files/grails-gorm-1.3.7.jar">
+                                grails-gorm-1.3.7.jar</ulink> to
+                                <filename>user_home\.ivy2\cache\org.grails\grails-gorm\1.3.7</filename>
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <ulink
+                                url="http://algo-trader.googlecode.com/files/grails-web-1.3.7.jar">
+                                grails-web-1.3.7.jar</ulink> to
+                                <filename>user_home\.ivy2\cache\org.grails\grails-web\1.3.7</filename>
+                        </para>
+                    </listitem>
+                </itemizedlist>
+                <para>To start the AlgoTraderCrud application execute the following grails
+                    command:</para>
+                <screen>grails -Ddisable.auto.recompile=true run-app</screen>
+                <para>After Tomcat has started up, the AlgoTraderCrud application can be accessed at
+                    the following URL: <ulink url="http://localhost:8080/algotrader-crud/"
+                        >http://localhost:8080/algotrader-crud/</ulink>
+                </para>
+                <note>
+                    <itemizedlist>
+                        <listitem>
+                            <para>If unexpected results show up, it usually helps to delete
+                                everything in the <filename>target</filename> directory inside the
+                                AlgoTraderCrud application before starting up</para>
+                        </listitem>
+                        <listitem>
+                            <para>Also it might help to do a "mvn install" on all AlgoTrader maven
+                                projects to ensure that the latest version exists in the local
+                                repository</para>
+                        </listitem>
+                    </itemizedlist>
+                </note>
+            </section>
         </section>
     </chapter>
     <chapter id="Installation">
@@ -5828,12 +6028,13 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                     order can be modified. Note: the validate method will be called (again) inside
                     the sendOrder method, in case the validation fails, this time an Exception will
                     be thrown.</para>
-                <para>The method <methodname>sendOrder</methodname> of the
-                        <classname>OrderService</classname> is responsible for placing Orders. This
-                    method takes an <classname>Order</classname> object as parameter. If the second
-                    parameter named <parameter>suggest</parameter> is set to true, there will not be
-                    an actual Order going to the Broker but instead an Email with a Order Suggestion
-                    is sent to the registered Email addresses.</para>
+                <para>The method <methodname>sendOrder</methodname> of the <classname>OrderService</classname>
+                    is responsible for placing Orders. This method takes an
+                        <classname>Order</classname> object as parameter. If the second parameter
+                    named <parameter>suggest</parameter> is set to true, there will not be an actual
+                    Order going to the Broker but instead an Email with a Order Suggestion is sent
+                    to the registered Email addresses. This allows for manual confirmation of
+                    automatically generated Signals.</para>
                 <para>The <methodname>sendOrder</methodname> method is responsible for invoking the
                     broker specific method <methodname>sendOrder</methodname> of the
                         <classname>ExternalOrderService</classname>. The method
