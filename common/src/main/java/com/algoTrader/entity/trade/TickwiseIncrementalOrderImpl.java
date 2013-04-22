@@ -44,7 +44,7 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
     private LimitOrder limitOrder = LimitOrder.Factory.newInstance();
 
     @Override
-    public String getDescription() {
+    public String getExtDescription() {
 
         //@formatter:off
         return "startOffsetTicks: " + getStartOffsetTicks() +

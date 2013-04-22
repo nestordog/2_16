@@ -31,7 +31,7 @@ public class OrderStatusImpl extends OrderStatus {
 
         //@formatter:off
         return getStatus()
-            + (getOrd() != null ? " " + getOrd() : "")
+            + (getOrd() != null ? " " + getOrd().getDescription() : "")
             + " filledQuantity: " + getFilledQuantity()
             + " remainingQuantity: " + getRemainingQuantity();
         //@formatter:on

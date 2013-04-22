@@ -44,7 +44,8 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
     private double increment;
 
     @Override
-    public String getDescription() {
+    public String getExtDescription() {
+
         //@formatter:off
             return "startOffsetPct: " + getStartOffsetPct() +
             " endOffsetPct: " + getEndOffsetPct() +

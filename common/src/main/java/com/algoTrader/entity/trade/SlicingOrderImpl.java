@@ -48,7 +48,7 @@ public class SlicingOrderImpl extends SlicingOrder {
     private List<Pair<LimitOrder, Tick>> pairs = new ArrayList<Pair<LimitOrder, Tick>>();
 
     @Override
-    public String getDescription() {
+    public String getExtDescription() {
 
         //@formatter:off
             return "vol: " + getMinVolPct() + " - " + getMaxVolPct() + " max " + getMaxQuantity() +
@@ -90,13 +90,13 @@ public class SlicingOrderImpl extends SlicingOrder {
     @Override
     public void increaseOffsetTicks() {
         this.currentOffsetTicks = this.currentOffsetTicks + 1;
-        logger.debug("increaseOffsetTicks of " + toString() + " to " + this.currentOffsetTicks);
+        logger.debug("increaseOffsetTicks of " + getDescription() + " to " + this.currentOffsetTicks);
     }
 
     @Override
     public void decreaseOffsetTicks() {
         this.currentOffsetTicks = Math.max(this.currentOffsetTicks - 1, 0);
-        logger.debug("decreaseOffsetTicks of " + toString() + " to " + this.currentOffsetTicks);
+        logger.debug("decreaseOffsetTicks of " + getDescription() + " to " + this.currentOffsetTicks);
     }
 
     @Override
@@ -171,7 +171,8 @@ public class SlicingOrderImpl extends SlicingOrder {
 
         //@formatter:off
         logger.info(
-                "next slice for " + toString() +
+                "next slice for " + getDescription() +
+                " currentOffsetTicks: " + this.currentOffsetTicks +
                 " qty: " + order.getQuantity() +
                 " vol: "+ (Side.BUY.equals(order.getSide()) ? tick.getVolAsk() : tick.getVolBid()) +
                 " limit: " + limit +
@@ -243,8 +244,8 @@ public class SlicingOrderImpl extends SlicingOrder {
         }
 
         //@formatter:off
-        logger.info(
-            "totalTime: " + totalTime + " msec" +
+        logger.info(getDescription() +
+            " totalTime: " + totalTime + " msec" +
             " avgTimeToFill: " + (int)(totalTimeToFill / fillCount) + " msec" +
 
             " orderCount: " + orderCount +

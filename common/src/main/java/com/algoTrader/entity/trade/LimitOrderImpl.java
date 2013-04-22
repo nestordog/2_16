@@ -28,7 +28,7 @@ public class LimitOrderImpl extends LimitOrder {
     private static final long serialVersionUID = -3560878461518491161L;
 
     @Override
-    public String getDescription() {
+    public String getExtDescription() {
         return "limit: " + getLimit();
     }
 

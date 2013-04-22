@@ -37,6 +37,11 @@ public class DistributingOrderImpl extends DistributingOrder {
     private static final long serialVersionUID = -3256407214793599390L;
 
     @Override
+    public String getExtDescription() {
+        return "";
+    }
+
+    @Override
     public void validate() throws OrderValidationException {
 
         // do nothing
@@ -72,11 +77,11 @@ public class DistributingOrderImpl extends DistributingOrder {
 
         // adjust quantity in case of rounding issue
         if (totalQuantity != getQuantity()) {
-            logger.info("adjusting totalQuantity of " + toString() + " from " + getQuantity() + " to " + totalQuantity);
+            logger.info("adjusting totalQuantity of " + this + " from " + getQuantity() + " to " + totalQuantity);
             setQuantity(totalQuantity);
         }
 
-        logger.info("created child orders for " + toString() + " " + buffer.toString());
+        logger.info("created child orders for " + this + " " + buffer.toString());
 
         return orders;
     }

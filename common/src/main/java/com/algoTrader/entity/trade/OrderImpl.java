@@ -31,21 +31,21 @@ public abstract class OrderImpl extends Order {
     @Override
     public String toString() {
 
-        //@formatter:off
-        return getSide()
-            + " " + getQuantity()
-            + " " + ClassUtils.getShortClassName(this.getClass())
-            + " " + getSecurity()
-            + " " + getStrategy()
-            + (getIntId() != null ? " intId: " + getIntId() : "")
-            + (getAccount() != null ? " account: " + getAccount() : "")
-            + (!"".equals(getDescription()) ? " " + getDescription() : "");
-        //@formatter:on
+        return getDescription() + (!"".equals(getExtDescription()) ? " " + getExtDescription() : "");
     }
 
     @Override
     public String getDescription() {
-        return "";
+
+        //@formatter:off
+        return getSide()
+        + " " + getQuantity()
+        + " " + ClassUtils.getShortClassName(this.getClass())
+        + " " + getSecurity()
+        + " " + getStrategy()
+        + (getIntId() != null ? " intId: " + getIntId() : "")
+        + (getAccount() != null ? " account: " + getAccount() : "");
+        //@formatter:on
     }
 
     @Override
