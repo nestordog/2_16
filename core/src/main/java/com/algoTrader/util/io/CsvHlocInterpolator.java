@@ -30,7 +30,7 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
 import com.algoTrader.util.RoundUtil;
-import com.algoTrader.vo.HLOCVO;
+import com.algoTrader.vo.BarVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -57,13 +57,13 @@ public class CsvHlocInterpolator {
         CsvHlocReader csvReader = new CsvHlocReader(args[0]);
         CsvTickWriter csvWriter = new CsvTickWriter(args[1]);
 
-        HLOCVO hloc;
-        while ((hloc = csvReader.readHloc()) != null) {
+        BarVO bar;
+        while ((bar = csvReader.readHloc()) != null) {
 
-            double open = hloc.getOpen().doubleValue();
-            double close = hloc.getClose().doubleValue();
-            double high = hloc.getHigh().doubleValue();
-            double low = hloc.getLow().doubleValue();
+            double open = bar.getOpen().doubleValue();
+            double close = bar.getClose().doubleValue();
+            double high = bar.getHigh().doubleValue();
+            double low = bar.getLow().doubleValue();
 
             NavigableMap<Integer, Double> map = new TreeMap<Integer, Double>();
 
@@ -133,7 +133,7 @@ public class CsvHlocInterpolator {
                 }
 
                 Tick tick = new TickImpl();
-                tick.setDateTime(new Date(hloc.getDateTime().getTime() + (int) ((currentHour / recordsPerHour + offsetHour) * 60 * 60 * 1000)));
+                tick.setDateTime(new Date(bar.getDateTime().getTime() + (int) ((currentHour / recordsPerHour + offsetHour) * 60 * 60 * 1000)));
                 tick.setLast(RoundUtil.getBigDecimal(value));
                 tick.setLastDateTime(null);
 

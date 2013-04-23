@@ -442,7 +442,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         buffer.append("avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100.0) + "%");
         buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "%");
-        buffer.append(" sharpe=" + twoDigitFormat.format(performanceKeys.getSharpRatio()));
+        buffer.append(" sharpe=" + twoDigitFormat.format(performanceKeys.getSharpeRatio()));
         buffer.append(" maxDDM=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
         buffer.append(" bestMP=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
         buffer.append(" maxDD=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100.0) + "%");
@@ -535,7 +535,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             buffer.append(" stdM=" + twoDigitFormat.format(performanceKeys.getStdM() * 100) + "%");
             buffer.append(" avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100) + "%");
             buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "% ");
-            buffer.append(" sharpRatio=" + twoDigitFormat.format(performanceKeys.getSharpRatio()) + "\r\n");
+            buffer.append(" sharpeRatio=" + twoDigitFormat.format(performanceKeys.getSharpeRatio()) + "\r\n");
 
             buffer.append("maxMonthlyDrawDown=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
             buffer.append(" bestMonthlyPerformance=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
@@ -601,7 +601,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             ServiceLocator.instance().getConfiguration().setProperty(this.param, String.valueOf(input));
 
             SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runSimulation();
-            double result = resultVO.getPerformanceKeys().getSharpRatio();
+            double result = resultVO.getPerformanceKeys().getSharpeRatio();
 
             resultLogger.info("optimize on " + this.param + "=" + SimulationServiceImpl.format.format(input) + " "
                     + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
@@ -634,7 +634,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             }
 
             SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runSimulation();
-            double result = resultVO.getPerformanceKeys().getSharpRatio();
+            double result = resultVO.getPerformanceKeys().getSharpeRatio();
 
             resultLogger.info(buffer.toString() + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
 

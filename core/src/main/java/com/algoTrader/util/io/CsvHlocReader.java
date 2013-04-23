@@ -33,7 +33,7 @@ import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.vo.HLOCVO;
+import com.algoTrader.vo.BarVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -52,6 +52,7 @@ public class CsvHlocReader {
         new ParseBigDecimal(),
         new ParseBigDecimal()};
     //@formatter:on
+
     private String[] header;
     private CsvBeanReader reader;
 
@@ -82,17 +83,17 @@ public class CsvHlocReader {
 
         CsvHlocReader csvReader = new CsvHlocReader("CH0008616382");
 
-        HLOCVO hloc;
-        while ((hloc = csvReader.readHloc()) != null) {
-            System.out.println(hloc);
+        BarVO bar;
+        while ((bar = csvReader.readHloc()) != null) {
+            System.out.println(bar);
         }
     }
 
-    public HLOCVO readHloc() throws SuperCSVReflectionException, IOException {
+    public BarVO readHloc() throws SuperCSVReflectionException, IOException {
 
-        HLOCVO hloc;
-        if ((hloc = this.reader.read(HLOCVO.class, this.header, processor)) != null) {
-            return hloc;
+        BarVO bar;
+        if ((bar = this.reader.read(BarVO.class, this.header, processor)) != null) {
+            return bar;
         } else {
             this.reader.close();
             return null;

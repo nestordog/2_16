@@ -22,7 +22,7 @@ select
     perf.stddev as stdM,
     Math.pow(factor.geomaverage,12) - 1  as avgY,
     perf.stddev * Math.sqrt(12) as stdY,
-    (Math.pow(factor.geomaverage,12) - 1 - misc_marketIntrest) / (perf.stddev * Math.sqrt(12)) as sharpRatio
+    (Math.pow(factor.geomaverage,12) - 1 - misc_marketIntrest) / (perf.stddev * Math.sqrt(12)) as sharpeRatio
 from
     MonthlyPerformance.win:keepall().stat:uni(value) as perf,
     MonthlyPerformance.win:keepall().stat:uni(1 + value) as factor
