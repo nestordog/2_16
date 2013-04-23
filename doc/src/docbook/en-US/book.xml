@@ -3748,7 +3748,9 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>To enable the EsperHQ Client the following two directories need to be added to the
+<section>
+    <title>Installation</title>
+    <para>To enable the EsperHQ Client the following two directories need to be added to the
                     <filename>algotrader/core</filename> project:</para>
             <itemizedlist>
                 <listitem>
@@ -3777,27 +3779,169 @@ public class MovChartService extends ChartProvidingServiceImpl {
             <para>
                 <ulink url="http://localhost:8400/esperhq/esperhq/esperhq.html"
                     >http://localhost:8400/esperhq/esperhq/esperhq.html</ulink>
-            </para>
-            <para> Inside the EsperHQ client the following menu options are most relevant: </para>
-            <itemizedlist>
-                <listitem>
-                    <para>Map Statements: Displays the relation between statements as a map (click
-                        "Get All" to see all statements)</para>
-                </listitem>
-                <listitem>
-                    <para>Event Types: Displays declared Event Types</para>
-                </listitem>
-                <listitem>
-                    <para>Named Windows: Displays declared Named Windows</para>
-                </listitem>
-                <listitem>
-                    <para>Statements: Displays declared Statements  (click "Get All" to see all
-                        statements)</para>
-                </listitem>
-                <listitem>
-                    <para>Variable: Displays declared Variables with their current values</para>
-                </listitem>
-            </itemizedlist>
+            </para></section>
+            <section>
+                <title>Dialogs</title>
+                <para>The following Dialogs are presented by the EsperHQ Client</para>
+                <variablelist>
+                    <varlistentry>
+                        <term>Create Statement Dialog</term>
+                        <listitem>
+                            <para>This quick-entry screen for creating a new, started statement
+                                allows entering a statement name, an optional description and an EPL
+                                expression. </para>
+                            <para>The checkbox for pattern can be used to create an EPL pattern
+                                statement (a statement utilizing only the EPL pattern language).
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Design Statement Dialog</term>
+                        <listitem>
+                            <para>This dialog allows creating new statements and editing existing
+                                statements. </para>
+                            <para>On the left side of the screen the dialog presents the forms to
+                                add, modify or remove parts of the statement. The right side of the
+                                screen shows the EPL statement text up-to-date with the changes made
+                                in forms. The synchronization between forms and EPL statement occurs
+                                when pressing enter on a form item. </para>
+                            <para>The <literal>Templates</literal> button brings up a dialog to
+                                choose a statement template. </para>
+                            <para>The <literal>Existing</literal> button can be used to select an
+                                existing statement for editing. </para>
+                            <para>Use <literal>Compile</literal> to validate the statement
+                                considering syntax but not considering whether required event types,
+                                variables or named windows exist. </para>
+                            <para>Use <literal>Create</literal> to create a started EPL statement.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Map Statements Dialog</term>
+                        <listitem>
+                            <para>The screen presents a graphical overview of the statements
+                                including event types and their dependency as depicted by arrows. </para>
+                            <para>Select the statements to be included by means of the <literal>Get
+                                    All</literal> button to include all statements or the
+                                    <literal>Criteria</literal> button to select a subset of
+                                statements. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Event Types Dialog</term>
+                        <listitem>
+                            <para>The event type dialog shows all registered event types and, for
+                                each type, the associated type detail. </para>
+                            <para>The filter textbox and button is for quick finding of an event
+                                type. </para>
+                            <para>For each event type the grid also shows where the event type
+                                originates from (named window, application-configured or
+                                inserted-into stream), the properties available, the statements
+                                referring to that type and the event type's super-types, if any. </para>
+                            <para>By selecting an event type in the grid, the client populates the
+                                type properties list, the type detail and the referring statements
+                                table. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Named Windows Dialog</term>
+                        <listitem>
+                            <para>The named window dialog lists all named windows including the
+                                statement name and EPL for creation of the named window. </para>
+                            <para>The filter textbox and button is for quick finding of a named
+                                window. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>On-Demand Query Dialog</term>
+                        <listitem>
+                            <para>You may enter a fire-and-forget, one-time executed query against a
+                                named window into the query dialog box and execute the query. The
+                                client displays query results in a table. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Statements Dialog</term>
+                        <listitem>
+                            <para>Use <literal>Get All</literal> to retrieve a list of all
+                                statement. Use <literal>Search</literal> to search for statements
+                                according to current statement criteria filter expression. Use the
+                                    <literal>Criteria</literal> dialog to compose an expression that
+                                selects only those statements matching the selected criteria. </para>
+                            <para>The <literal>Quick Filter</literal> serves to reduce the list of
+                                returned statement to those matching the entered text in statement
+                                name or EPL. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Statement Dialog</term>
+                        <listitem>
+                            <para>The statement dialog shows statement detail including statement
+                                name, description, EPL expression and properties of the statement
+                                output. </para>
+                            <para>Via <literal>Start</literal> (displayed if a statement is not
+                                already started), <literal>Stop</literal> (displayed if a statement
+                                is not already stopped) and <literal>Destroy</literal> a statement
+                                can be started, stopped or destroyed. </para>
+                            <para>Use <literal>Iterate</literal> to return current iteration results
+                                for a statement. </para>
+                            <para>Use <literal>Instant Live Capture</literal> to display an appended
+                                grid with real-time results for the statement. </para>
+                            <para>Use <literal>Save Live Capture</literal> to save an eventlet
+                                configured to show an appended grid with real-time results for the
+                                statement. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Statement Iteration Result Dialog</term>
+                        <listitem>
+                            <para>After you selected a statement for iteration, the
+                                    <literal>Refresh</literal> button refreshes iteration results,
+                                which are displayed as a table. </para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Variables Dialog</term>
+                        <listitem>
+                            <para>The variable list displays all variables and their current values.
+                                Select a variable, enter a new value and use
+                                    <literal>Apply</literal> to set a new variable value. </para>
+                            <para>The filter textbox and button is for quick finding of a variable.
+                            </para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+                <para>There are a few other dialogs presented by the EsperHQ clients. However these
+                    are not used by AlgoTrader:</para>
+                <itemizedlist>
+                    <listitem>
+                        <para>Deployed Modules Dialog </para>
+                    </listitem>
+                    <listitem>
+                        <para>Deployed Module Detail Dialog </para>
+                    </listitem>
+                    <listitem>
+                        <para>Design Module Dialog </para>
+                    </listitem>
+                    <listitem>
+                        <para>Simulation List Dialog </para>
+                    </listitem>
+                    <listitem>
+                        <para>Simulation Status Dialog </para>
+                    </listitem>
+                    <listitem>
+                        <para>Simulation Entry Dialog </para>
+                    </listitem>
+                    <listitem>
+                        <para>Endpoints Dialog </para>
+                    </listitem>
+                    <listitem>
+                        <para>Subscribers Dialog</para>
+                    </listitem>
+                </itemizedlist>
+                <para>Additional Documentation on the EsperHQ client is available open
+                    request.</para>
+            </section>
         </section>
         <section id="Grails_Client">
             <title>Grails Client</title>
