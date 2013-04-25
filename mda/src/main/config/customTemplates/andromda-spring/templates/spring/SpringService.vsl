@@ -68,7 +68,9 @@ $operation.getDocumentation("     * ")
 #foreach($parameter in $operation.arguments)
      * @param $parameter.name $parameter.getDocumentation("")
 #end
+#if($operation.getterSetterReturnTypeName != "void")
      * @return $operation.returnParameter.name $operation.getterSetterReturnTypeName
+#end
 #foreach($exception in $operation.exceptions)
      * @throws $exception.fullyQualifiedName
 #end

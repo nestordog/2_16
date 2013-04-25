@@ -693,9 +693,10 @@ $target.getDocumentation("     * ")
         return this.${target.name};
     }
 
+#if ($target.many)	
+	@SuppressWarnings("unchecked")
     public $target.getterSetterTypeName ${target.getterName}Initialized()
     {
-#if ($target.many)	
 		if (this.${target.name} instanceof org.hibernate.collection.AbstractPersistentCollection) {
 
 			org.hibernate.collection.AbstractPersistentCollection col = (org.hibernate.collection.AbstractPersistentCollection) this.${target.name};
@@ -708,6 +709,8 @@ $target.getDocumentation("     * ")
 			}
 		}	
 #else
+    public $target.getterSetterTypeName ${target.getterName}Initialized()
+    {
 		if (this.${target.name} instanceof org.hibernate.proxy.HibernateProxy) {
 
 			org.hibernate.proxy.HibernateProxy proxy = (org.hibernate.proxy.HibernateProxy) this.${target.name};

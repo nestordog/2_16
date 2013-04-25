@@ -69,7 +69,7 @@ public class EmailTransformer {
      * Parses a mail message.
      *
      * If the mail message is an instance of {@link Multipart} then we delegate
-     * to {@link #handleMultipart(Multipart, javax.mail.Message, List)}.
+     * to {@link #handleMultipart(Multipart, List)}.
      */
     public void handleMessage(final javax.mail.Message mailMessage, final List<EmailFragment> emailFragments) {
 

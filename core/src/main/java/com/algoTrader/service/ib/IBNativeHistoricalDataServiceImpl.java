@@ -176,7 +176,7 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
     }
 
     @Override
-    protected synchronized List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int duration, TimePeriod durationPeriod, int barSize,
+    protected synchronized List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, int barSize,
             TimePeriod barSizePeriod, BarType barType) throws Exception {
 
         this.barList = new ArrayList<Bar>();
@@ -192,8 +192,8 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
             int requestId = IBIdGenerator.getInstance().getNextRequestId();
             String dateString = dateTimeFormat.format(endDate);
 
-            String durationString = duration + " ";
-            switch (durationPeriod) {
+            String durationString = timePeriodLength + " ";
+            switch (timePeriod) {
                 case MSEC:
                     throw new IllegalArgumentException("MILLISECOND durationPeriod is not allowed");
                 case SEC:

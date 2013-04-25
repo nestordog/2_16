@@ -235,8 +235,6 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
     @Override
     protected long handleGetQuantityByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception {
 
-        // if financial advisor is enabled, we have to get the number of Contracts per account
-        // in order to avoid fractions
         long quantityByMargin = 0;
         StringBuffer buffer = new StringBuffer("quantityByMargin:");
         for (String account : getAccounts()) {
@@ -254,8 +252,6 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
     @Override
     protected long handleGetQuantityByAllocation(String strategyName, long requestedQuantity) throws Exception {
 
-        // if financial advisor is enabled, we have to get the number of Contracts per account
-        // in order to avoid fractions
         long quantityByAllocation = 0;
         StringBuffer buffer = new StringBuffer("quantityByAllocation:");
         for (Map.Entry<String, Double> entry : getAllocations(strategyName).entrySet()) {

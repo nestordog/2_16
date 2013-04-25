@@ -292,7 +292,9 @@ $attribute.getDocumentation("     * ")
 #foreach ($parameter in $operation.arguments)
      * @param $parameter.name $parameter.type.fullyQualifiedName $parameter.getDocumentation("")
 #end
+#if($operation.implementationReturnTypeName != "void")
      * @return $operation.implementationReturnTypeName
+#end
      * @throws Exception
      */
     protected abstract $operation.implementationReturnTypeName $operation.implementationSignature
