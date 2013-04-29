@@ -49,6 +49,7 @@ import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
+import com.algoTrader.vo.CurrencyAmountVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -357,7 +358,9 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
                 // process the difference in commission
                 BigDecimal commissionDiff = RoundUtil.getBigDecimal(existingCommission.doubleValue() - commission.doubleValue(), this.portfolioDigits);
 
-                getCashBalanceService().processAmount(transaction.getStrategy().getName(), transaction.getCurrency(), commissionDiff);
+                CurrencyAmountVO currencyAmount = new CurrencyAmountVO(transaction.getCurrency(), commissionDiff);
+
+                getCashBalanceService().processAmount(transaction.getStrategy().getName(), currencyAmount);
 
                 logger.info("transaction: " + extId + " adjusted commission from: " + existingCommission + " to: " + commission);
                 success = false;

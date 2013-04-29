@@ -100,7 +100,68 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     }
 
     @Override
-    protected void handleInputCSV() {
+    protected SimulationResultVO handleRunSimulation() {
+
+        long startTime = System.currentTimeMillis();
+
+        // reset the db
+        getResetService().resetDB();
+
+        // init all activatable strategies
+        Collection<Strategy> strategies = getLookupService().getAutoActivateStrategies();
+        for (Strategy strategy : strategies) {
+            EsperManager.initServiceProvider(strategy.getName());
+            EsperManager.deployAllModules(strategy.getName());
+        }
+
+        // rebalance portfolio (to distribute initial CREDIT to strategies)
+        getPortfolioPersistenceService().rebalancePortfolio();
+
+        // init all StrategyServices in the classpath
+        for (StrategyService strategyService : ServiceLocator.instance().getServices(StrategyService.class)) {
+            strategyService.initSimulation();
+        }
+
+        // feed the ticks
+        inputCSV();
+
+        // log metrics in case they have been enabled
+        MetricsUtil.logMetrics();
+        EsperManager.logStatementMetrics();
+
+        // close all open positions that might still exist
+        for (Position position : getLookupService().getOpenTradeablePositions()) {
+            getPositionService().closePosition(position.getId(), false);
+        }
+
+        // send the EndOfSimulation event
+        EsperManager.sendEvent(StrategyImpl.BASE, new EndOfSimulationVO());
+
+        // get the results
+        SimulationResultVO resultVO = getSimulationResultVO(startTime);
+
+        // destroy all service providers
+        for (Strategy strategy : strategies) {
+            EsperManager.destroyServiceProvider(strategy.getName());
+        }
+
+        // clear the second-level cache
+        CacheManager.getInstance().clearAll();
+
+        // run a garbage collection
+        System.gc();
+
+        return resultVO;
+    }
+
+    /**
+     * Starts the Market Data Feed. MarketData for all Securities that are subscribed by Strategies
+     * marked as {@code autoActivate} are fed into the System. Depending on the VM-Argument {@code dataSetType},
+     * either {@code TICKs} or {@code BARs} are fed. If Generic Events are enabled via the VM-Argument
+     * {@code feedGenericEvents} they are processed a long Market Data Events. All Events are fed to
+     * the system in the correct order defined by their dateTime value.
+     */
+    private void inputCSV() {
 
         EsperManager.initCoordination(StrategyImpl.BASE);
 
@@ -178,61 +239,6 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
 
         EsperManager.startCoordination(StrategyImpl.BASE);
-    }
-
-    @Override
-    protected SimulationResultVO handleRunSimulation() {
-
-        long startTime = System.currentTimeMillis();
-
-        // reset the db
-        getResetService().resetDB();
-
-        // init all activatable strategies
-        Collection<Strategy> strategies = getLookupService().getAutoActivateStrategies();
-        for (Strategy strategy : strategies) {
-            EsperManager.initServiceProvider(strategy.getName());
-            EsperManager.deployAllModules(strategy.getName());
-        }
-
-        // rebalance portfolio (to distribute initial CREDIT to strategies)
-        getPortfolioPersistenceService().rebalancePortfolio();
-
-        // init all StrategyServices in the classpath
-        for (StrategyService strategyService : ServiceLocator.instance().getServices(StrategyService.class)) {
-            strategyService.initSimulation();
-        }
-
-        // feed the ticks
-        inputCSV();
-
-        // log metrics in case they have been enabled
-        MetricsUtil.logMetrics();
-        EsperManager.logStatementMetrics();
-
-        // close all open positions that might still exist
-        for (Position position : getLookupService().getOpenTradeablePositions()) {
-            getPositionService().closePosition(position.getId(), false);
-        }
-
-        // send the EndOfSimulation event
-        EsperManager.sendEvent(StrategyImpl.BASE, new EndOfSimulationVO());
-
-        // get the results
-        SimulationResultVO resultVO = getSimulationResultVO(startTime);
-
-        // destroy all service providers
-        for (Strategy strategy : strategies) {
-            EsperManager.destroyServiceProvider(strategy.getName());
-        }
-
-        // clear the second-level cache
-        CacheManager.getInstance().clearAll();
-
-        // run a garbage collection
-        System.gc();
-
-        return resultVO;
     }
 
     @Override
@@ -357,9 +363,8 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         resultLogger.info("functionValue: " + format.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
     }
 
-    @Override
     @SuppressWarnings("unchecked")
-    protected SimulationResultVO handleGetSimulationResultVO(long startTime) {
+    private SimulationResultVO getSimulationResultVO(final long startTime) {
 
         PerformanceKeysVO performanceKeys = (PerformanceKeysVO) EsperManager.getLastEvent(StrategyImpl.BASE, "INSERT_INTO_PERFORMANCE_KEYS");
         List<PeriodPerformanceVO> monthlyPerformances = EsperManager.getAllEvents(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");

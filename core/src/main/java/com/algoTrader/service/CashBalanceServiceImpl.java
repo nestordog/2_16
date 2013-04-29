@@ -50,22 +50,23 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
         // process all currenyAmounts
         for (CurrencyAmountVO currencyAmount : transaction.getAttributions()) {
-            processAmount(transaction.getStrategy().getName(), currencyAmount.getCurrency(), currencyAmount.getAmount());
+            processAmount(transaction.getStrategy().getName(), currencyAmount);
         }
     }
 
     @Override
-    protected void handleProcessAmount(String strategyName, Currency currency, BigDecimal amount) throws Exception {
+    protected void handleProcessAmount(String strategyName, CurrencyAmountVO currencyAmount) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
-        CashBalance cashBalance = getCashBalanceDao().findByStrategyAndCurrencyLocked(strategy, currency);
+        CashBalance cashBalance = getCashBalanceDao().findByStrategyAndCurrencyLocked(strategy, currencyAmount.getCurrency());
+
         // create the cashBalance, if it does not exist yet
         if (cashBalance == null) {
 
             cashBalance = CashBalance.Factory.newInstance();
 
-            cashBalance.setCurrency(currency);
-            cashBalance.setAmount(amount);
+            cashBalance.setCurrency(currencyAmount.getCurrency());
+            cashBalance.setAmount(currencyAmount.getAmount());
 
             // associate with strategy
             strategy.addCashBalances(cashBalance);
@@ -74,7 +75,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
         } else {
 
-            cashBalance.setAmount(cashBalance.getAmount().add(amount));
+            cashBalance.setAmount(cashBalance.getAmount().add(currencyAmount.getAmount()));
         }
     }
 
