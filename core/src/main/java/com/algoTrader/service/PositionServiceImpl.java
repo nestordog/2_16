@@ -301,7 +301,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             return position;
         }
 
-        // in generall, exit value should not be set higher (lower) than existing exitValue for long (short) positions
+        // The new ExitValues should not be set lower (higher) than the existing ExitValue for long (short) positions. This check can be overwritten by setting force to true
         if (!force) {
             if (Direction.SHORT.equals(position.getDirection()) && position.getExitValue() != null && exitValue.compareTo(position.getExitValue()) > 0) {
                 logger.warn("exit value " + exitValue + " is higher than existing exit value " + position.getExitValue() + " of short position " + positionId);
@@ -312,7 +312,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             }
         }
 
-        // exitValue cannot be lower than currentValue
+        // The new ExitValues cannot be higher (lower) than the currentValue for long (short) positions
         MarketDataEvent marketDataEvent = position.getSecurity().getCurrentMarketDataEvent();
         if (marketDataEvent != null) {
             BigDecimal currentValue = marketDataEvent.getCurrentValue();
@@ -452,17 +452,6 @@ public class PositionServiceImpl extends PositionServiceBase {
         }
     }
 
-    @Override
-    protected void handleExpirePosition(int positionId) throws Exception {
-
-        Position position = getPositionDao().get(positionId);
-        if (position == null) {
-            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
-        }
-
-        expirePosition(position);
-    }
-
     private void expirePosition(Position position) throws Exception {
 
         Security security = position.getSecurityInitialized();
@@ -492,7 +481,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             transaction.setPrice(price);
 
         } else {
-            throw new IllegalArgumentException("EXPIRATION only allowed for " + security.getClass().getName());
+            throw new IllegalArgumentException("Expiration not allowed for " + security.getClass().getName());
         }
 
         // perisite the transaction

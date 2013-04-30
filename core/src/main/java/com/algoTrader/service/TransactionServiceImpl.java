@@ -177,8 +177,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         processTransaction(transaction);
     }
 
-    @Override
-    protected void handleProcessTransaction(Transaction transaction) {
+    private void processTransaction(final Transaction transaction) {
 
         // need to access transactionService through serviceLocator to get a new transaction
         TransactionService transactionService = ServiceLocator.instance().getService("transactionService", TransactionService.class);
