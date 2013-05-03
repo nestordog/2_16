@@ -33,6 +33,10 @@
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
+    <bean id="genericDao" class="com.algoTrader.cache.GenericDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
     <!-- =========================================== JMX ================================================ -->
 
     <!--  MBean Server -->
