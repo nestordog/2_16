@@ -69,17 +69,18 @@ UNLOCK TABLES;
 
 LOCK TABLES `default_order_preference` WRITE;
 /*!40000 ALTER TABLE `default_order_preference` DISABLE KEYS */;
-INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (1,202,6,26);
-INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (2,201,7,22);
-INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (3,201,8,22);
-INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (4,201,9,22);
-INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (5,201,10,22);
-INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (6,201,11,22);
-INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (7,201,1,22);
-INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (8,203,1,9);
-INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (9,203,13,9);
-INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (10,203,14,9);
-INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (11,201,12,22);
+INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (1,201,1,22);
+INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (2,203,1,9);
+INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (3,202,6,26);
+INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (4,201,7,22);
+INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (5,201,8,22);
+INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (6,201,9,22);
+INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (7,201,10,22);
+INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (8,201,11,22);
+INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (9,201,12,22);
+INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (10,201,13,22);
+INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (20,203,20,9);
+INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (21,203,21,9);
 /*!40000 ALTER TABLE `default_order_preference` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -605,7 +606,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `strategy` WRITE;
 /*!40000 ALTER TABLE `strategy` DISABLE KEYS */;
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (1,'BASE','',1,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,algo-slicing,ib-market-data',NULL,3);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (1,'BASE','',0,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,algo-slicing,ib-market-data',NULL,0);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (2,'SMI','\0',0,'theta-init,theta-main',NULL,0);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (3,'ESTX50','\0',0,'theta-init,theta-main',NULL,0);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (4,'MULTIIND','\0',0,'multiind-movavcross,multiind-main',NULL,0);
@@ -617,8 +618,9 @@ INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODUL
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (10,'ROLLYIELD','\0',0,'market-data-fut-and-opt,market-data-vix,exposure,subscription,bars,charting,swing,rollyield,exit-value',NULL,0);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (11,'COUNTERTREND','\0',0,'market-data-fut-and-opt,exposure,subscription,bars,charting,swing,countertrend',NULL,0);
 INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (12,'ENDOFDAY','\0',0,'market-data-fut-and-opt,exposure,subscription,bars,charting,swing,endofday',NULL,0);
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (13,'SWINGSET','\0',0,'swingset-init','swingset-run',0);
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (14,'BOX','\0',0,'box-init','box-run',0);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (13,'TWIST','\0',0,'market-dat-fut-and-opt,market-data-vix,exposure,twist',NULL,0);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (20,'SWINGSET','\0',0,'swingset-init','swingset-run',0);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (21,'BOX','\0',0,'box-init','box-run',0);
 /*!40000 ALTER TABLE `strategy` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -629,14 +631,13 @@ UNLOCK TABLES;
 
 LOCK TABLES `subscription` WRITE;
 /*!40000 ALTER TABLE `subscription` DISABLE KEYS */;
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (100,'',10,1,0);
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (101,'',29,5,0);
+INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (101,'',10,1,0);
 INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (102,'',10,6,0);
 INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (103,'',29,6,0);
 INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (104,'',10,7,0);
 INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (105,'',29,7,0);
 INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (106,'',10,8,0);
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (107,'',29,8,0);
+INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (107,'',29,8,10);
 INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (108,'',10,9,0);
 INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (109,'',29,9,0);
 INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (110,'',10,10,0);
@@ -646,7 +647,9 @@ INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `V
 INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (114,'',10,12,0);
 INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (115,'',29,12,0);
 INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (116,'',10,13,0);
-INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (117,'',10,14,0);
+INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (117,'',29,13,0);
+INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (130,'',10,20,0);
+INSERT INTO `subscription` (`id`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (131,'',10,21,0);
 /*!40000 ALTER TABLE `subscription` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -683,4 +686,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-04-17 15:25:07
+-- Dump completed on 2013-05-06 15:30:02
