@@ -276,7 +276,7 @@ public class FixClient implements InitializingBean {
     /**
      * get the last orderId from the fix message log
      */
-    private void initOrderId(String sessionQualifier) {
+    private synchronized void initOrderId(String sessionQualifier) {
 
         SessionID sessionId = getSessionID(sessionQualifier);
         File file = new File("log" + File.separator + FileUtil.sessionIdFileName(sessionId) + ".messages.log");
