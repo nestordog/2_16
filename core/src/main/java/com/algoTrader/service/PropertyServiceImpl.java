@@ -70,7 +70,7 @@ public class PropertyServiceImpl extends PropertyServiceBase {
 
         if (property != null) {
 
-            getPropertyDao().remove(property);
+            getPropertyDao().remove(property.getId());
 
             propertyHolder.removeProperties(name);
         }
