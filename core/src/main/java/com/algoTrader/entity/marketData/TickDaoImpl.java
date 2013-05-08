@@ -17,9 +17,9 @@
  ***********************************************************************************/
 package com.algoTrader.entity.marketData;
 
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +42,7 @@ import com.espertech.esper.collection.Pair;
  */
 public class TickDaoImpl extends TickDaoBase {
 
-    Map<String, Integer> securityIds = new HashMap<String, Integer>();
+    private Map<String, Integer> securityIds = new HashMap<String, Integer>();
 
     @Override
     public void toTickVO(Tick tick, TickVO tickVO) {
