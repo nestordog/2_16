@@ -22,24 +22,24 @@ import com.algoTrader.entity.IdentifiableI;
  *
  * @version $Revision$ $Date$
  */
-public class CacheKey {
+public class EntityCacheKey {
 
     private final Serializable key;
     private final Class<?> clazz;
     private final Class<?> rootClass;
     private final int hashCode;
 
-    public CacheKey(IdentifiableI identifiable) {
+    public EntityCacheKey(IdentifiableI identifiable) {
 
         this(identifiable.getClass(), identifiable.getId());
     }
 
-    public CacheKey(String entityName, Serializable key) throws ClassNotFoundException {
+    public EntityCacheKey(String entityName, Serializable key) throws ClassNotFoundException {
 
         this(Class.forName(entityName), key);
     }
 
-    public CacheKey(Class<?> clazz, Serializable key) {
+    public EntityCacheKey(Class<?> clazz, Serializable key) {
 
         this.clazz = clazz;
         this.key = key;
@@ -62,11 +62,11 @@ public class CacheKey {
     @Override
     public boolean equals(Object other) {
 
-        if (!(other instanceof CacheKey)) {
+        if (!(other instanceof EntityCacheKey)) {
             return false;
         }
 
-        CacheKey that = (CacheKey) other;
+        EntityCacheKey that = (EntityCacheKey) other;
         return this.rootClass.equals(that.rootClass) && this.key.equals(that.key);
     }
 

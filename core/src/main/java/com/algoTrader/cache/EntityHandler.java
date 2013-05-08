@@ -21,7 +21,6 @@ import java.lang.reflect.Field;
 
 import org.hibernate.proxy.HibernateProxy;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.IdentifiableI;
 import com.algoTrader.util.TypeUtil;
 
@@ -32,12 +31,10 @@ import com.algoTrader.util.TypeUtil;
  */
 public class EntityHandler extends AbstractHandler {
 
-    private CacheManager cacheManager;
-    private HashMapCache cache;
+    private CacheManagerImpl cacheManager;
 
-    public EntityHandler(CacheManager cacheManager, HashMapCache cache) {
+    public EntityHandler(CacheManagerImpl cacheManager) {
         this.cacheManager = cacheManager;
-        this.cache = cache;
     }
 
     @Override
@@ -50,16 +47,16 @@ public class EntityHandler extends AbstractHandler {
 
         // check if the IdentifiableI already exists in the cache
         IdentifiableI identifiable = (IdentifiableI) obj;
-        CacheKey rootCacheKey = new CacheKey(identifiable);
+        EntityCacheKey rootCacheKey = new EntityCacheKey(identifiable);
         Object existingObj = null;
-        if (this.cache.exists(rootCacheKey, CacheManager.ROOT)) {
+        if (this.cacheManager.getEntityCache().exists(rootCacheKey, CacheManagerImpl.ROOT)) {
 
-            existingObj = this.cache.find(rootCacheKey, CacheManager.ROOT);
+            existingObj = this.cacheManager.getEntityCache().find(rootCacheKey, CacheManagerImpl.ROOT);
 
         } else {
 
             // attach the object itself
-            this.cache.attach(rootCacheKey, CacheManager.ROOT, obj);
+            this.cacheManager.getEntityCache().attach(rootCacheKey, CacheManagerImpl.ROOT, obj);
 
             // process all fields
             for (Field field : TypeUtil.getAllFields(obj.getClass())) {
@@ -86,8 +83,8 @@ public class EntityHandler extends AbstractHandler {
                     }
                 }
 
-                CacheKey cacheKey = new CacheKey(field.getDeclaringClass(), identifiable.getId());
-                this.cache.attach(cacheKey, field.getName(), value);
+                EntityCacheKey cacheKey = new EntityCacheKey(field.getDeclaringClass(), identifiable.getId());
+                this.cacheManager.getEntityCache().attach(cacheKey, field.getName(), value);
             }
         }
 
@@ -97,16 +94,14 @@ public class EntityHandler extends AbstractHandler {
     @Override
     protected boolean update(Object obj) {
 
-        GenericDao genericDao = ServiceLocator.instance().getService("genericDao", GenericDao.class);
-
         // get the updatedObj
         IdentifiableI origObj = (IdentifiableI) obj;
-        IdentifiableI updatedObj = (IdentifiableI) genericDao.get(obj.getClass(), origObj.getId());
+        IdentifiableI updatedObj = (IdentifiableI) this.cacheManager.getGenericDao().get(obj.getClass(), origObj.getId());
 
         if (updatedObj == null) {
 
-            CacheKey cacheKey = new CacheKey(origObj);
-            this.cache.detach(cacheKey);
+            EntityCacheKey cacheKey = new EntityCacheKey(origObj);
+            this.cacheManager.getEntityCache().detach(cacheKey);
 
             // update was not successfull
             return false;

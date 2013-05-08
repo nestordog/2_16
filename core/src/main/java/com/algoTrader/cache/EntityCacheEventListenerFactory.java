@@ -24,18 +24,19 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
-import net.sf.ehcache.event.CacheEventListenerFactory;
 
 import org.hibernate.cache.ReadWriteCache;
 import org.hibernate.cache.entry.CacheEntry;
 import org.hibernate.cache.entry.CollectionCacheEntry;
+
+import com.algoTrader.ServiceLocator;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class EhCacheEventListenerFactory extends CacheEventListenerFactory {
+public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheEventListenerFactory {
 
     @Override
     public CacheEventListener createCacheEventListener(Properties properties) {
@@ -74,33 +75,6 @@ public class EhCacheEventListenerFactory extends CacheEventListenerFactory {
                 }
             }
 
-            private void updateEntity(org.hibernate.cache.CacheKey hibernateCacheKey) {
-
-                String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
-
-                try {
-                    CacheKey cacheKey = new CacheKey(entityOrRoleName, hibernateCacheKey.getKey());
-                    CacheManager.getInstance().update(cacheKey, CacheManager.ROOT);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            private void updateCollection(org.hibernate.cache.CacheKey hibernateCacheKey) {
-
-                String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
-                int lastDot = entityOrRoleName.lastIndexOf(".");
-                String entityName = entityOrRoleName.substring(0, lastDot);
-                String key = entityOrRoleName.substring(lastDot + 1);
-
-                try {
-                    CacheKey cacheKey = new CacheKey(entityName, hibernateCacheKey.getKey());
-                    CacheManager.getInstance().update(cacheKey, key);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-
             @Override
             public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
 
@@ -117,6 +91,35 @@ public class EhCacheEventListenerFactory extends CacheEventListenerFactory {
             public void notifyElementEvicted(Ehcache cache, Element element) {
 
                 System.out.println("evicted " + element);
+            }
+
+            private void updateEntity(org.hibernate.cache.CacheKey hibernateCacheKey) {
+
+                String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
+
+                try {
+                    EntityCacheKey cacheKey = new EntityCacheKey(entityOrRoleName, hibernateCacheKey.getKey());
+                    CacheManagerImpl cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManagerImpl.class);
+                    cacheManager.update(cacheKey, CacheManagerImpl.ROOT);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            private void updateCollection(org.hibernate.cache.CacheKey hibernateCacheKey) {
+
+                String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
+                int lastDot = entityOrRoleName.lastIndexOf(".");
+                String entityName = entityOrRoleName.substring(0, lastDot);
+                String key = entityOrRoleName.substring(lastDot + 1);
+
+                try {
+                    EntityCacheKey cacheKey = new EntityCacheKey(entityName, hibernateCacheKey.getKey());
+                    CacheManagerImpl cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManagerImpl.class);
+                    cacheManager.update(cacheKey, key);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         };
     }

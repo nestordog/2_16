@@ -29,13 +29,13 @@ import com.algoTrader.util.MyLogger;
  *
  * @version $Revision$ $Date$
  */
-public class HashMapCache extends HashMap<CacheKey, Map<String, Object>> {
+class EntityCache extends HashMap<EntityCacheKey, Map<String, Object>> {
 
     private static final long serialVersionUID = -3242571286067822619L;
 
-    private static Logger logger = MyLogger.getLogger(HashMapCache.class.getName());
+    private static Logger logger = MyLogger.getLogger(EntityCache.class.getName());
 
-    void attach(CacheKey cacheKey, String key, Object value) {
+    void attach(EntityCacheKey cacheKey, String key, Object value) {
 
         Map<String, Object> entry = get(cacheKey);
 
@@ -49,7 +49,7 @@ public class HashMapCache extends HashMap<CacheKey, Map<String, Object>> {
         logger.trace("attached " + cacheKey + ": " + key);
     }
 
-    boolean exists(CacheKey cacheKey, String key) {
+    boolean exists(EntityCacheKey cacheKey, String key) {
 
         Map<String, Object> entry = get(cacheKey);
         if (entry == null) {
@@ -59,7 +59,7 @@ public class HashMapCache extends HashMap<CacheKey, Map<String, Object>> {
         }
     }
 
-    Object find(CacheKey cacheKey, String key) {
+    Object find(EntityCacheKey cacheKey, String key) {
 
         Map<String, Object> entry = get(cacheKey);
         if (entry == null) {
@@ -69,7 +69,7 @@ public class HashMapCache extends HashMap<CacheKey, Map<String, Object>> {
         }
     }
 
-    void detach(CacheKey cacheKey) {
+    void detach(EntityCacheKey cacheKey) {
 
         remove(cacheKey);
 

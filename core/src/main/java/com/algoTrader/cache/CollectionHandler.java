@@ -28,7 +28,6 @@ import java.util.Set;
 import org.hibernate.collection.AbstractPersistentCollection;
 import org.hibernate.collection.PersistentCollection;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.IdentifiableI;
 import com.algoTrader.util.TypeUtil;
 
@@ -39,12 +38,10 @@ import com.algoTrader.util.TypeUtil;
  */
 class CollectionHandler extends AbstractHandler {
 
-    private CacheManager cacheManager;
-    private HashMapCache cache;
+    private CacheManagerImpl cacheManager;
 
-    public CollectionHandler(CacheManager cacheManager, HashMapCache cache) {
+    public CollectionHandler(CacheManagerImpl cacheManager) {
         this.cacheManager = cacheManager;
-        this.cache = cache;
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -114,16 +111,14 @@ class CollectionHandler extends AbstractHandler {
 
         PersistentCollection origCollection = (PersistentCollection) obj;
 
-        GenericDao genericDao = ServiceLocator.instance().getService("genericDao", GenericDao.class);
-
-        Object updatedObj = genericDao.getInitializedCollection(origCollection.getRole(), origCollection.getKey());
+        Object updatedObj = this.cacheManager.getGenericDao().getInitializedCollection(origCollection.getRole(), origCollection.getKey());
 
         // owner does not exist anymore so remove it
         if (updatedObj == null) {
 
             Object owner = origCollection.getOwner();
-            CacheKey cacheKey = new CacheKey((IdentifiableI) owner);
-            this.cache.detach(cacheKey);
+            EntityCacheKey cacheKey = new EntityCacheKey((IdentifiableI) owner);
+            this.cacheManager.getEntityCache().detach(cacheKey);
 
             // update was not successfull
             return false;

@@ -37,6 +37,12 @@
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
+    <!-- =========================================== Cache ================================================ -->
+
+    <bean id="cacheManager" class="com.algoTrader.cache.CacheManagerImpl">
+        <property name="genericDao" ref="genericDao"/>
+    </bean>
+
     <!-- =========================================== JMX ================================================ -->
 
     <!--  MBean Server -->
@@ -51,7 +57,7 @@
     </bean>
 
       <!--  EhCache JMX Beans -->
-    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <bean id="cacheManagerMBean" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
         <property name="configLocation" value="classpath:ehcache.xml" />
         <property name="shared" value="true" />
     </bean>
@@ -60,7 +66,7 @@
         <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans" />
         <property name="arguments">
             <list>
-                <ref bean="cacheManager" />
+                <ref bean="cacheManagerMBean" />
                 <ref bean="mbeanServer" />
                 <value>true</value>
                 <value>true</value>
