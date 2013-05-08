@@ -273,6 +273,9 @@ public class PositionServiceImpl extends PositionServiceBase {
         // propagate the ClosePosition event
         EsperManager.sendEvent(position.getStrategy().getName(), closePositionVO);
 
+        // remove the association
+        position.getSecurity().removePositions(position);
+
         getPositionDao().remove(position);
 
         logger.info("deleted non-tradeable position " + position.getId() + " on " + security + " for strategy " + position.getStrategy().getName());
