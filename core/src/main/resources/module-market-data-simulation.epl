@@ -28,7 +28,7 @@ select
 from
     NaturalIndexTick as indexTick,
     method:LookupUtil.getSubscribedStockOptions() as stockOption,
-    method:LookupUtil.getTickByDateAndSecurity(indexTick.dateTime, stockOption.id) as tick
+    method:LookupUtil.getTickBySecurityAndMaxDate(indexTick.dateTime, stockOption.id) as tick
 where
     stockOption.underlying.id = indexTick.security.id
 order by

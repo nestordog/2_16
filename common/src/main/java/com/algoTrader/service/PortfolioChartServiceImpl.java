@@ -44,7 +44,7 @@ public class PortfolioChartServiceImpl extends PortfolioChartServiceBase {
         if (startDateTime == 0) {
 
             String strategyName = StrategyUtil.getStartedStrategyName();
-            for (PortfolioValueVO portfolioValue : getPortfolioService().getPortfolioValuesSinceDate(strategyName, new Date(startDateTime))) {
+            for (PortfolioValueVO portfolioValue : getPortfolioService().getPortfolioValuesInclPerformanceSinceDate(strategyName, new Date(startDateTime))) {
 
                 set.add(new IndicatorVO("netLiqValue", portfolioValue.getDateTime(), portfolioValue.getNetLiqValue().doubleValue()));
                 set.add(new IndicatorVO("securitiesCurrentValue", portfolioValue.getDateTime(), portfolioValue.getSecuritiesCurrentValue().doubleValue()));

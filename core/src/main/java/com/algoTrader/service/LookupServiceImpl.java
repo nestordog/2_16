@@ -60,7 +60,6 @@ import com.algoTrader.enumeration.OrderServiceType;
 import com.algoTrader.util.CollectionUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
-import com.algoTrader.util.PositionUtil;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.OrderStatusVO;
 import com.algoTrader.vo.PositionVO;
@@ -82,12 +81,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     private @Value("${statement.simulateFuturesByGenericFutures}") boolean simulateFuturesByGenericFutures;
     private @Value("${misc.transactionDisplayCount}") int transactionDisplayCount;
     private @Value("${misc.intervalDays}") int intervalDays;
-
-    @Override
-    protected Collection<Security> handleGetAllSecurities() throws Exception {
-
-        return getSecurityDao().loadAll();
-    }
 
     @Override
     protected Security handleGetSecurity(int id) throws java.lang.Exception {
@@ -175,7 +168,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         StockOption stockOption = CollectionUtil.getSingleElementOrNull(getStockOptionDao().findByMinExpirationAndMinStrikeDistance(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
 
-        // if no future was found, create it if simulating options
+        // if no stock option was found, create it if simulating options
         if (this.simulation && this.simulateStockOptions) {
 
             StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
@@ -453,9 +446,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Position> handleGetOpenPositionsBySecurityId(int securityId) throws Exception {
+    protected List<Position> handleGetOpenPositionsBySecurity(int securityId) throws Exception {
 
-        return getPositionDao().findOpenPositionsBySecurityId(securityId);
+        return getPositionDao().findOpenPositionsBySecurity(securityId);
     }
 
     @SuppressWarnings("rawtypes")
@@ -500,43 +493,6 @@ public class LookupServiceImpl extends LookupServiceBase {
                 return (List<PositionVO>) getPositionDao().findOpenPositionsByStrategy(PositionDao.TRANSFORM_POSITIONVO, strategyName);
             }
         }
-    }
-
-    @Override
-    protected double handleGetPositionMarketPriceByDate(Security security, Date date) throws Exception {
-
-        List<Tick> ticks = getTickDao().findTicksBySecurityAndMinDate(1, 1, security.getId(), date, this.intervalDays);
-        if (ticks.isEmpty()) {
-            throw new IllegalStateException("not tick available for " + security);
-        } else {
-            Tick tick = ticks.get(0);
-            return tick.getSettlement().doubleValue();
-        }
-    }
-
-    @Override
-    protected double handleGetPositionAveragePriceByDate(Security security, Date date) throws Exception {
-
-        Collection<Transaction> transactions = getTransactionDao().findBySecurityAndDate(security.getId(), date);
-        return PositionUtil.getAveragePrice(security, transactions, false);
-    }
-
-    @Override
-    protected Collection<Transaction> handleGetAllTransactions() throws Exception {
-
-        return getTransactionDao().loadAll();
-    }
-
-    @Override
-    protected List<Transaction> handleGetAllTrades() throws Exception {
-
-        return getTransactionDao().findAllTradesInclSecurity();
-    }
-
-    @Override
-    protected List<Transaction> handleGetAllCashFlows() throws Exception {
-
-        return getTransactionDao().findAllCashflows();
     }
 
     @Override
@@ -700,7 +656,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Tick handleGetTickByDateAndSecurity(Date date, int securityId) {
+    protected Tick handleGetTickBySecurityAndMaxDate(int securityId, Date date) {
 
         return getTickDao().findBySecurityAndMaxDate(securityId, date);
     }
@@ -730,12 +686,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Collection<Combination> handleGetAllCombinations() throws Exception {
-
-        return getCombinationDao().loadAll();
-    }
-
-    @Override
     protected Collection<Combination> handleGetSubscribedCombinationsByStrategy(String strategyName) throws Exception {
 
         return getCombinationDao().findSubscribedByStrategy(strategyName);
@@ -748,19 +698,19 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Collection<Component> handleGetSubscribedComponentsByStrategy(String strategyName) throws Exception {
+    protected Collection<Component> handleGetSubscribedComponentsByStrategyInclSecurity(String strategyName) throws Exception {
 
         return getComponentDao().findSubscribedByStrategyInclSecurity(strategyName);
     }
 
     @Override
-    protected Collection<Component> handleGetSubscribedComponentsBySecurity(int securityId) throws Exception {
+    protected Collection<Component> handleGetSubscribedComponentsBySecurityInclSecurity(int securityId) throws Exception {
 
         return getComponentDao().findSubscribedBySecurityInclSecurity(securityId);
     }
 
     @Override
-    protected Collection<Component> handleGetSubscribedComponentsByStrategyAndSecurity(String strategyName, int securityId) throws Exception {
+    protected Collection<Component> handleGetSubscribedComponentsByStrategyAndSecurityInclSecurity(String strategyName, int securityId) throws Exception {
 
         return getComponentDao().findSubscribedByStrategyAndSecurityInclSecurity(strategyName, securityId);
     }

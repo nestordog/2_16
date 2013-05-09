@@ -96,9 +96,9 @@ public class LookupUtil {
         return ServiceLocator.instance().getLookupService().getOpenPositionsByStrategy(strategyName).toArray(new Position[] {});
     }
 
-    public static Position[] getOpenPositionsBySecurityId(int securityId) {
+    public static Position[] getOpenPositionsBySecurity(int securityId) {
 
-        return ServiceLocator.instance().getLookupService().getOpenPositionsBySecurityId(securityId).toArray(new Position[] {});
+        return ServiceLocator.instance().getLookupService().getOpenPositionsBySecurity(securityId).toArray(new Position[] {});
     }
 
     public static Position[] getOpenPositionsByStrategyAndSecurityFamily(String strategyName, int securityFamily) {
@@ -126,9 +126,9 @@ public class LookupUtil {
         return (EsperManager.getLastEvent(StrategyUtil.getStartedStrategyName(), "CURRENT_MARKET_DATA_EVENT") != null);
     }
 
-    public static Tick getTickByDateAndSecurity(Date date, int securityId) {
+    public static Tick getTickByDateAndSecurity(int securityId, Date date) {
 
-        return ServiceLocator.instance().getLookupService().getTickByDateAndSecurity(date, securityId);
+        return ServiceLocator.instance().getLookupService().getTickBySecurityAndMaxDate(securityId, date);
     }
 
     public static Subscription getSubscription(String strategyName, int securityId) {
@@ -143,12 +143,12 @@ public class LookupUtil {
 
     public static Component[] getComponentsByStrategy(String strategyName) {
 
-        return ServiceLocator.instance().getLookupService().getSubscribedComponentsByStrategy(strategyName).toArray(new Component[] {});
+        return ServiceLocator.instance().getLookupService().getSubscribedComponentsByStrategyInclSecurity(strategyName).toArray(new Component[] {});
     }
 
     public static Component[] getComponentsBySecurity(int securityId) {
 
-        return ServiceLocator.instance().getLookupService().getSubscribedComponentsBySecurity(securityId).toArray(new Component[] {});
+        return ServiceLocator.instance().getLookupService().getSubscribedComponentsBySecurityInclSecurity(securityId).toArray(new Component[] {});
     }
 
     public static Tick completeTick(Pair<Tick, Object> pair, Date date) {

@@ -414,7 +414,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
     protected double handleGetPerformance(String strategyName) {
 
         Date date = DateUtils.truncate(new Date(), Calendar.MONTH);
-        List<PortfolioValueVO> portfolioValues = (List<PortfolioValueVO>) getPortfolioValuesSinceDate(strategyName, date);
+        List<PortfolioValueVO> portfolioValues = (List<PortfolioValueVO>) getPortfolioValuesInclPerformanceSinceDate(strategyName, date);
 
         // the performance of the last portfolioValue represents the performance of the entire timeperiod
         if (portfolioValues.size() > 0) {
@@ -496,7 +496,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected Collection<PortfolioValueVO> handleGetPortfolioValuesSinceDate(String strategyName, Date minDate) {
+    protected Collection<PortfolioValueVO> handleGetPortfolioValuesInclPerformanceSinceDate(String strategyName, Date minDate) {
 
         Collection<PortfolioValueVO> portfolioValues = (Collection<PortfolioValueVO>) getPortfolioValueDao().findByStrategyAndMinDate(PortfolioValueDao.TRANSFORM_PORTFOLIOVALUEVO, strategyName, minDate);
 
