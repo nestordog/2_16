@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.service.fix;
+package com.algoTrader.adapter.fix;
 
 import quickfix.Application;
 import quickfix.ConfigError;

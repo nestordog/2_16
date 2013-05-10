@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.service.ib;
+package com.algoTrader.adapter.ib;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.service.fix;
+package com.algoTrader.adapter.fix;
 
 import java.io.File;
 import java.io.IOException;

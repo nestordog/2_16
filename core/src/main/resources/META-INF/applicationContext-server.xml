@@ -148,11 +148,11 @@
     <!-- =================================== Broker Interfaces  ========================================= -->
 
     <beans profile="trading,securityRetrieval">
-        <bean id="iBClientFactory" class="com.algoTrader.service.ib.IBClientFactory"/>
+        <bean id="iBClientFactory" class="com.algoTrader.adapter.ib.IBClientFactory"/>
     </beans>
 
     <beans profile="jPMFix,iBFix,dCFix">
-        <bean id="fixClient" class="com.algoTrader.service.fix.FixClient"/>
+        <bean id="fixClient" class="com.algoTrader.adapter.fix.FixClient"/>
     </beans>
 
     <!-- =========================================== MAIL ================================================ -->

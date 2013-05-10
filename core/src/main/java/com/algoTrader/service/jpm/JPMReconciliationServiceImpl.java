@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
+import com.algoTrader.adapter.jpm.CsvJPMTradeReader;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.SecurityFamily;

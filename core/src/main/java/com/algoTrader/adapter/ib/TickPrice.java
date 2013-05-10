@@ -1,10 +1,10 @@
 // license-header java merge-point
 //
 /**
- * @author Generated on 08/03/2012 15:51:48+0200 Do not modify by hand!
+ * @author Generated on 08/03/2012 15:51:50+0200 Do not modify by hand!
  *
  * TEMPLATE:     ValueObject.vsl in andromda-java-cartridge.
- * MODEL CLASS:  Data::AlgoTrader::com.algoTrader::vo::ib::TickSize
+ * MODEL CLASS:  Data::AlgoTrader::com.algoTrader::vo::ib::TickPrice
  * STEREOTYPE:   AlgoTraderValueObject
  * STEREOTYPE:   ValueObject
  */
@@ -25,7 +25,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.service.ib;
+package com.algoTrader.adapter.ib;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -35,18 +35,18 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * TODO: Model Documentation for class TickSize
+ * TODO: Model Documentation for class TickPrice
  */
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class TickSize
-    implements Serializable, Comparable<TickSize>
+public class TickPrice
+    implements Serializable, Comparable<TickPrice>
 {
     /** The serial version UID of this class. Needed for serialization. */
-    private static final long serialVersionUID = 7514087845300720397L;
+    private static final long serialVersionUID = -4096826680075105503L;
 
     // Class attributes
     /** TODO: Model Documentation for attribute tickerId */
@@ -61,15 +61,21 @@ public class TickSize
      * boolean setter for primitive attribute, so we can tell if it's initialized
      */
     protected boolean setField = false;
-    /** TODO: Model Documentation for attribute size */
-    protected int size;
+    /** TODO: Model Documentation for attribute price */
+    protected double price;
     /**
      * boolean setter for primitive attribute, so we can tell if it's initialized
      */
-    protected boolean setSize = false;
+    protected boolean setPrice = false;
+    /** TODO: Model Documentation for attribute canAutoExecute */
+    protected int canAutoExecute;
+    /**
+     * boolean setter for primitive attribute, so we can tell if it's initialized
+     */
+    protected boolean setCanAutoExecute = false;
 
     /** Default Constructor with no properties */
-    public TickSize()
+    public TickPrice()
     {
         // Documented empty block - avoid compiler warning - no super constructor
     }
@@ -78,39 +84,44 @@ public class TickSize
      * Constructor with all properties
      * @param tickerIdIn int
      * @param fieldIn int
-     * @param sizeIn int
+     * @param priceIn double
+     * @param canAutoExecuteIn int
      */
-    public TickSize(final int tickerIdIn, final int fieldIn, final int sizeIn)
+    public TickPrice(final int tickerIdIn, final int fieldIn, final double priceIn, final int canAutoExecuteIn)
     {
         this.tickerId = tickerIdIn;
         this.setTickerId = true;
         this.field = fieldIn;
         this.setField = true;
-        this.size = sizeIn;
-        this.setSize = true;
+        this.price = priceIn;
+        this.setPrice = true;
+        this.canAutoExecute = canAutoExecuteIn;
+        this.setCanAutoExecute = true;
     }
 
     /**
-     * Copies constructor from other TickSize
+     * Copies constructor from other TickPrice
      *
      * @param otherBean Cannot be <code>null</code>
      * @throws NullPointerException if the argument is <code>null</code>
      */
-    public TickSize(final TickSize otherBean)
+    public TickPrice(final TickPrice otherBean)
     {
         this.tickerId = otherBean.getTickerId();
         this.setTickerId = true;
         this.field = otherBean.getField();
         this.setField = true;
-        this.size = otherBean.getSize();
-        this.setSize = true;
+        this.price = otherBean.getPrice();
+        this.setPrice = true;
+        this.canAutoExecute = otherBean.getCanAutoExecute();
+        this.setCanAutoExecute = true;
     }
 
     /**
      * Copies all properties from the argument value object into this value object.
      * @param otherBean Cannot be <code>null</code>
      */
-    public void copy(final TickSize otherBean)
+    public void copy(final TickPrice otherBean)
     {
         if (null != otherBean)
         {
@@ -118,8 +129,10 @@ public class TickSize
             this.setTickerId = true;
             this.setField(otherBean.getField());
             this.setField = true;
-            this.setSize(otherBean.getSize());
-            this.setSize = true;
+            this.setPrice(otherBean.getPrice());
+            this.setPrice = true;
+            this.setCanAutoExecute(otherBean.getCanAutoExecute());
+            this.setCanAutoExecute = true;
         }
     }
 
@@ -182,32 +195,61 @@ public class TickSize
     }
 
     /**
-     * TODO: Model Documentation for attribute size
-     * Get the size Attribute
-     * @return size int
+     * TODO: Model Documentation for attribute price
+     * Get the price Attribute
+     * @return price double
      */
-    public int getSize()
+    public double getPrice()
     {
-        return this.size;
+        return this.price;
+    }
+
+    /**
+     *
+     * @param value double
+     */
+    public void setPrice(final double value)
+    {
+        this.price = value;
+        this.setPrice = true;
+    }
+
+    /**
+     * Return true if the primitive attribute price is set, through the setter or constructor
+     * @return true if the attribute value has been set
+     */
+    public boolean isSetPrice()
+    {
+        return this.setPrice;
+    }
+
+    /**
+     * TODO: Model Documentation for attribute canAutoExecute
+     * Get the canAutoExecute Attribute
+     * @return canAutoExecute int
+     */
+    public int getCanAutoExecute()
+    {
+        return this.canAutoExecute;
     }
 
     /**
      *
      * @param value int
      */
-    public void setSize(final int value)
+    public void setCanAutoExecute(final int value)
     {
-        this.size = value;
-        this.setSize = true;
+        this.canAutoExecute = value;
+        this.setCanAutoExecute = true;
     }
 
     /**
-     * Return true if the primitive attribute size is set, through the setter or constructor
+     * Return true if the primitive attribute canAutoExecute is set, through the setter or constructor
      * @return true if the attribute value has been set
      */
-    public boolean isSetSize()
+    public boolean isSetCanAutoExecute()
     {
-        return this.setSize;
+        return this.setCanAutoExecute;
     }
 
     /**
@@ -227,11 +269,12 @@ public class TickSize
         {
             return true;
         }
-        TickSize rhs = (TickSize) object;
+        TickPrice rhs = (TickPrice) object;
         return new EqualsBuilder()
             .append(this.getTickerId(), rhs.getTickerId())
             .append(this.getField(), rhs.getField())
-            .append(this.getSize(), rhs.getSize())
+            .append(this.getPrice(), rhs.getPrice())
+            .append(this.getCanAutoExecute(), rhs.getCanAutoExecute())
             .isEquals();
     }
 
@@ -240,7 +283,7 @@ public class TickSize
      * @return int if equal
      * @see Comparable#compareTo(Object)
      */
-    public int compareTo(final TickSize object)
+    public int compareTo(final TickPrice object)
     {
         if (object==null)
         {
@@ -254,7 +297,8 @@ public class TickSize
         return new CompareToBuilder()
             .append(this.getTickerId(), object.getTickerId())
             .append(this.getField(), object.getField())
-            .append(this.getSize(), object.getSize())
+            .append(this.getPrice(), object.getPrice())
+            .append(this.getCanAutoExecute(), object.getCanAutoExecute())
             .toComparison();
     }
 
@@ -268,7 +312,8 @@ public class TickSize
         return new HashCodeBuilder(1249046965, -82296885)
             .append(this.getTickerId())
             .append(this.getField())
-            .append(this.getSize())
+            .append(this.getPrice())
+            .append(this.getCanAutoExecute())
             .toHashCode();
     }
 
@@ -282,7 +327,8 @@ public class TickSize
         return new ToStringBuilder(this)
             .append("tickerId", this.getTickerId())
             .append("field", this.getField())
-            .append("size", this.getSize())
+            .append("price", this.getPrice())
+            .append("canAutoExecute", this.getCanAutoExecute())
             .toString();
     }
 
@@ -308,12 +354,13 @@ public class TickSize
             return false;
         }
 
-        final TickSize that = (TickSize)thatObject;
+        final TickPrice that = (TickPrice)thatObject;
 
         return
             equal(this.getTickerId(), that.getTickerId())
             && equal(this.getField(), that.getField())
-            && equal(this.getSize(), that.getSize())
+            && equal(this.getPrice(), that.getPrice())
+            && equal(this.getCanAutoExecute(), that.getCanAutoExecute())
         ;
     }
 
@@ -349,5 +396,5 @@ public class TickSize
         return equal;
     }
 
-    // TickSize value-object java merge-point
+    // TickPrice value-object java merge-point
 }

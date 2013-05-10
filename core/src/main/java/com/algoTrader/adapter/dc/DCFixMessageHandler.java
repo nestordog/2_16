@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.service.dc;
+package com.algoTrader.adapter.dc;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -37,6 +37,7 @@ import quickfix.fix44.OrderCancelReject;
 import quickfix.fix44.Reject;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.adapter.fix.FixUtil;
 import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.entity.trade.Fill;
 import com.algoTrader.entity.trade.Order;
@@ -44,7 +45,6 @@ import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.EsperManager;
-import com.algoTrader.service.fix.FixUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;

@@ -37,6 +37,7 @@ import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
 
+import com.algoTrader.adapter.fix.FixUtil;
 import com.algoTrader.entity.security.Forex;
 import com.algoTrader.entity.security.Future;
 import com.algoTrader.entity.security.Security;

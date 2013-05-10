@@ -20,7 +20,6 @@ package com.algoTrader.starter;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.esper.EsperManager;
-import com.algoTrader.service.InitializingServiceManager;
 import com.algoTrader.service.MarketDataService;
 
 /**

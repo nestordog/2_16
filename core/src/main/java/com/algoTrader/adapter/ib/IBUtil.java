@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.service.ib;
+package com.algoTrader.adapter.ib;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

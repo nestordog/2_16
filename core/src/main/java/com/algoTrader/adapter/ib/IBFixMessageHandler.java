@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.service.ib;
+package com.algoTrader.adapter.ib;
 
 import org.apache.log4j.Logger;
 
@@ -31,7 +31,8 @@ import quickfix.fix42.ExecutionReport;
 import quickfix.fix42.IBFAModification;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.service.fix.Fix42MessageHandler;
+import com.algoTrader.adapter.fix.Fix42MessageHandler;
+import com.algoTrader.service.ib.IBFixAccountService;
 import com.algoTrader.util.MyLogger;
 
 /**

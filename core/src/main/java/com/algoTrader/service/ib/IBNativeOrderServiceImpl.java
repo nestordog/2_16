@@ -20,6 +20,9 @@ package com.algoTrader.service.ib;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.algoTrader.adapter.ib.IBClient;
+import com.algoTrader.adapter.ib.IBIdGenerator;
+import com.algoTrader.adapter.ib.IBUtil;
 import com.algoTrader.entity.trade.LimitOrderI;
 import com.algoTrader.entity.trade.Order;
 import com.algoTrader.entity.trade.SimpleOrder;

@@ -15,9 +15,10 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.service;
+package com.algoTrader.starter;
 
 import com.algoTrader.ServiceLocator;
+import com.algoTrader.service.InitializingServiceI;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.service.rbs;
+package com.algoTrader.adapter.rbs;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -40,27 +40,32 @@ import org.supercsv.prefs.CsvPreference;
  *
  * @version $Revision$ $Date$
  */
-public class CsvRBSPositionReader {
+public class CsvRBSTradeReader {
 
     //@formatter:off
     private static CellProcessor[] processor = new CellProcessor[] {
+        new ParseDate("dd/MM/yyyy"),
+        new ParseInt(),
+        new StrNotNullOrEmpty(),
+        new ParseDate("dd/MM/yyyy"),
+        new StrNotNullOrEmpty(),
+        new ParseInt(),
         new ParseInt(),
         new ParseLong(),
+        new ParseBigDecimal(),
         new StrNotNullOrEmpty(),
         new ParseDate("dd/MM/yyyy"),
         new ParseBigDecimal(),
-        new StrNotNullOrEmpty(),
-        new StrNotNullOrEmpty(),
         new ParseBigDecimal(),
         new StrNotNullOrEmpty(),
-        new ParseBigDecimal(),
-        new ParseBigDecimal(),
+        new StrNotNullOrEmpty(),
+        new StrNotNullOrEmpty(),
         new ParseDate("dd/MM/yyyy"),
-        new ParseInt(),
-        new ParseInt(),
+        new StrNotNullOrEmpty(),
         new StrNotNullOrEmpty()
     };
     //@formatter:on
+
 
     public static List<Map<String, ? super Object>> readPositions(byte[] data) throws SuperCSVReflectionException, IOException {
 

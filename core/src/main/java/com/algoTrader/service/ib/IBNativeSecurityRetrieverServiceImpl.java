@@ -32,6 +32,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
+import com.algoTrader.adapter.ib.IBClient;
+import com.algoTrader.adapter.ib.IBDefaultMessageHandler;
+import com.algoTrader.adapter.ib.IBIdGenerator;
+import com.algoTrader.adapter.ib.IBMarketConverter;
 import com.algoTrader.entity.security.ForexFuture;
 import com.algoTrader.entity.security.ForexFutureFamily;
 import com.algoTrader.entity.security.ForexFutureImpl;

@@ -15,28 +15,42 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.service;
+package com.algoTrader.adapter.ib;
+
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public final class AlgoIdGenerator {
+public final class IBIdGenerator {
 
-    private static AlgoIdGenerator instance;
+    private static IBIdGenerator instance;
+    private int requestId = 1;
+    private int orderId = 1;
 
-    private int orderId = 0;
-
-    public static synchronized AlgoIdGenerator getInstance() {
+    public static synchronized IBIdGenerator getInstance() {
 
         if (instance == null) {
-            instance = new AlgoIdGenerator();
+            instance = new IBIdGenerator();
         }
         return instance;
     }
 
     public String getNextOrderId() {
-        return "a" + String.valueOf(this.orderId++);
+        return String.valueOf(this.orderId++);
+    }
+
+    public int getNextRequestId() {
+        return this.requestId++;
+    }
+
+    public void initializeOrderId(int orderId) {
+        this.orderId = orderId;
+    }
+
+    public boolean isOrderIdInitialized() {
+
+        return this.orderId != -1;
     }
 }

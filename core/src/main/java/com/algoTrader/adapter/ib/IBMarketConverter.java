@@ -15,18 +15,19 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.entity;
+package com.algoTrader.adapter.ib;
+
+import com.algoTrader.enumeration.Market;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class TickValidationException extends RuntimeException {
+public class IBMarketConverter {
 
-    private static final long serialVersionUID = 1728320729148701692L;
+    public static String marketToString(Market market) {
 
-    public TickValidationException(String string) {
-        super(string);
+        return market.toString();
     }
 }

@@ -35,6 +35,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.supercsv.exception.SuperCSVReflectionException;
 
+import com.algoTrader.adapter.rbs.CsvRBSPositionReader;
+import com.algoTrader.adapter.rbs.CsvRBSTradeReader;
 import com.algoTrader.entity.Position;
 import com.algoTrader.entity.Transaction;
 import com.algoTrader.entity.security.Security;

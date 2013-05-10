@@ -39,6 +39,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
 
+import com.algoTrader.adapter.ib.IBClient;
+import com.algoTrader.adapter.ib.IBDefaultMessageHandler;
 import com.algoTrader.util.MyLogger;
 
 /**
