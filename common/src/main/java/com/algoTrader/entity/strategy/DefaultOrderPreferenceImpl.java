@@ -29,6 +29,6 @@ public class DefaultOrderPreferenceImpl extends DefaultOrderPreference {
     @Override
     public String toString() {
 
-        return getStrategy() + " " + getSecurityFamily() + " " + getOrderPreference();
+        return getStrategy() + "," + getSecurityFamily() + "," + getOrderPreference();
     }
 }

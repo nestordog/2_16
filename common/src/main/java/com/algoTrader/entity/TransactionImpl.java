@@ -160,25 +160,45 @@ public class TransactionImpl extends Transaction {
     @Override
     public String toString() {
 
+        StringBuffer buffer = new StringBuffer();
+
         if (isTrade()) {
 
-            //@formatter:off
-            return getType()
-                + " " + getQuantity()
-                + " " + getSecurity()
-                + " price: " + getPrice() + " " + getCurrency()
-                + " commission: " + getTotalCommission()
-                + " strategy: " + getStrategy();
-            //@formatter:on
+            buffer.append(getType());
+            buffer.append(",");
+            buffer.append(getQuantity());
+            buffer.append(",");
+            buffer.append(getSecurity());
+            buffer.append(",price=");
+            buffer.append(getPrice());
+            buffer.append(",");
+            buffer.append(getCurrency());
+            buffer.append(",commission=");
+            buffer.append(getTotalCommission());
+            buffer.append(",strategy=");
+            buffer.append(getStrategy());
 
         } else {
 
-            //@formatter:off
-            return getType()
-                + " amount: " + (getQuantity() < 0 ? "-" : "") + getPrice()+ " " + getCurrency()
-                + " strategy: " + getStrategy()
-                + (getDescription() != null ? " " + getDescription() : "");
-            //@formatter:on
+            buffer.append(getType());
+            buffer.append(",amount=");
+
+            if (getQuantity() < 0) {
+                buffer.append("-");
+            }
+
+            buffer.append(getPrice());
+            buffer.append(",");
+            buffer.append(getCurrency());
+            buffer.append(",strategy=");
+            buffer.append(getStrategy());
+
+            if (getDescription() != null) {
+                buffer.append(",");
+                buffer.append(getDescription());
+            }
         }
+
+        return buffer.toString();
     }
 }

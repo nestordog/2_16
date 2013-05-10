@@ -29,11 +29,20 @@ public class OrderStatusImpl extends OrderStatus {
     @Override
     public String toString() {
 
-        //@formatter:off
-        return getStatus()
-            + (getOrd() != null ? " " + getOrd().getDescription() : "")
-            + " filledQuantity: " + getFilledQuantity()
-            + " remainingQuantity: " + getRemainingQuantity();
-        //@formatter:on
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append(getStatus());
+
+        if (getOrd() != null) {
+            buffer.append(",");
+            buffer.append(getOrd().getDescription());
+        }
+
+        buffer.append(",filledQuantity=");
+        buffer.append(getFilledQuantity());
+        buffer.append(",remainingQuantity=");
+        buffer.append(getRemainingQuantity());
+
+        return buffer.toString();
     }
 }

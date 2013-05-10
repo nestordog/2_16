@@ -22,7 +22,6 @@ import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.strategy.CashBalance;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.util.RoundUtil;
 
@@ -60,6 +59,6 @@ public class CashBalanceImpl extends CashBalance {
     @Override
     public String toString() {
 
-        return getStrategy() + " " + getCurrency() + " " + getAmount();
+        return getStrategy() + "," + getCurrency() + "," + getAmount();
     }
 }

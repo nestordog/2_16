@@ -29,26 +29,6 @@ public abstract class OrderImpl extends Order {
     private static final long serialVersionUID = -6501807818853981164L;
 
     @Override
-    public String toString() {
-
-        return getDescription() + (!"".equals(getExtDescription()) ? " " + getExtDescription() : "");
-    }
-
-    @Override
-    public String getDescription() {
-
-        //@formatter:off
-        return getSide()
-        + " " + getQuantity()
-        + " " + ClassUtils.getShortClassName(this.getClass())
-        + " " + getSecurity()
-        + " " + getStrategy()
-        + (getIntId() != null ? " intId: " + getIntId() : "")
-        + (getAccount() != null ? " account: " + getAccount() : "");
-        //@formatter:on
-    }
-
-    @Override
     public void setQuantity(long quantityIn) {
 
         // always set a positive quantity
@@ -64,5 +44,48 @@ public abstract class OrderImpl extends Order {
         } else {
             return getIntId();
         }
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append(getDescription());
+
+        if (!"".equals(getExtDescription())) {
+            buffer.append(",");
+            buffer.append(getExtDescription());
+        }
+
+        return buffer.toString();
+    }
+
+    @Override
+    public String getDescription() {
+
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append(getSide());
+        buffer.append(",");
+        buffer.append(getQuantity());
+        buffer.append(",");
+        buffer.append(ClassUtils.getShortClassName(this.getClass()));
+        buffer.append(",");
+        buffer.append(getSecurity());
+        buffer.append(",");
+        buffer.append(getStrategy());
+
+        if (getIntId() != null) {
+            buffer.append("intId=");
+            buffer.append(getIntId());
+        }
+
+        if (getAccount() != null) {
+            buffer.append(",account=");
+            buffer.append(getAccount());
+        }
+
+        return buffer.toString();
     }
 }

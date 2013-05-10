@@ -32,15 +32,35 @@ public class FillImpl extends Fill {
     @Override
     public String toString() {
 
-        //@formatter:off
-        return format.format(getExtDateTime())
-            + " " + getSide()
-            + " " + getQuantity()
-            + (getOrd() != null ? " " + getOrd().getSecurity() : "")
-            + (getOrd() != null ? " " + getOrd().getStrategy() : "")
-            + " price: " + getPrice()
-            + (getOrd() != null ? " " + getOrd().getSecurity().getSecurityFamily().getCurrency() : "")
-            + " extId: " + getExtId();
-        //@formatter:on
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append(format.format(getExtDateTime()));
+        buffer.append(",");
+        buffer.append(getSide());
+        buffer.append(",");
+        buffer.append(getQuantity());
+
+        if (getOrd() != null) {
+            buffer.append(",");
+            buffer.append(getOrd().getSecurity());
+        }
+
+        if (getOrd() != null) {
+            buffer.append(",");
+            buffer.append(getOrd().getStrategy());
+        }
+
+        buffer.append(",price=");
+        buffer.append(getPrice());
+
+        if (getOrd() != null) {
+            buffer.append(",");
+            buffer.append(getOrd().getSecurity().getSecurityFamily().getCurrency());
+        }
+
+        buffer.append(",extId=");
+        buffer.append(getExtId());
+
+        return buffer.toString();
     }
 }

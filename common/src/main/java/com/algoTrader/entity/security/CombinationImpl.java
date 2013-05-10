@@ -102,11 +102,11 @@ public class CombinationImpl extends Combination {
     @Override
     public String toString() {
 
-        return (getSymbol() != null ? getSymbol() + " " : "") + StringUtils.join(CollectionUtils.collect(getComponentsInitialized(), new Transformer<Component, String>() {
+        return StringUtils.join(CollectionUtils.collect(getComponentsInitialized(), new Transformer<Component, String>() {
             @Override
             public String transform(Component component) {
-                return component.getQuantity() + " " + component.getSecurity();
+                return component.getQuantity() + "," + component.getSecurity();
             }
-        }), " / ");
+        }), "/");
     }
 }

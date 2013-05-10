@@ -32,21 +32,6 @@ public class PortfolioValueImpl extends PortfolioValue {
     private static SimpleDateFormat format = new SimpleDateFormat("dd.MM.yy hh:mm:ss");
 
     @Override
-    public String toString() {
-
-        //@formatter:off
-        return format.format(getDateTime()) + " " + getStrategy() +
-                " netLiqValue: " + getNetLiqValue() +
-                " securitiesCurrentValue: " + getSecuritiesCurrentValue() +
-                " cashBalance: " + getCashBalance() +
-                " maintenanceMargin: " +getMaintenanceMargin() +
-                " leverage: " + RoundUtil.getBigDecimal(getLeverage()) +
-                " allocation: " + RoundUtil.getBigDecimal(getAllocation()) +
-                ((getCashFlow() != null) ? " cashFlow: " + getCashFlow() : "");
-        //@formatter:on
-    }
-
-    @Override
     public double getNetLiqValueDouble() {
 
         return getNetLiqValue().doubleValue();
@@ -68,5 +53,34 @@ public class PortfolioValueImpl extends PortfolioValue {
     public double getMaintenanceMarginDouble() {
 
         return getMaintenanceMargin().doubleValue();
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append(format.format(getDateTime()));
+        buffer.append(",");
+        buffer.append(getStrategy());
+        buffer.append(",netLiqValue=");
+        buffer.append(getNetLiqValue());
+        buffer.append(buffer.append(",securitiesCurrentValue="));
+        buffer.append(getSecuritiesCurrentValue());
+        buffer.append(",cashBalance=");
+        buffer.append(getCashBalance());
+        buffer.append(",maintenanceMargin=");
+        buffer.append(getMaintenanceMargin());
+        buffer.append(",leverage=");
+        buffer.append(RoundUtil.getBigDecimal(getLeverage()));
+        buffer.append(",allocation=");
+        buffer.append(RoundUtil.getBigDecimal(getAllocation()));
+
+        if (getCashFlow() != null) {
+            buffer.append(",cashFlow=");
+            buffer.append(getCashFlow());
+        }
+
+        return buffer.toString();
     }
 }

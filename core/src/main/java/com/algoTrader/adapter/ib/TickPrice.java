@@ -29,10 +29,10 @@ package com.algoTrader.adapter.ib;
 
 import java.io.Serializable;
 import java.util.Arrays;
+
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * TODO: Model Documentation for class TickPrice
@@ -283,6 +283,7 @@ public class TickPrice
      * @return int if equal
      * @see Comparable#compareTo(Object)
      */
+    @Override
     public int compareTo(final TickPrice object)
     {
         if (object==null)
@@ -324,12 +325,18 @@ public class TickPrice
     @Override
     public String toString()
     {
-        return new ToStringBuilder(this)
-            .append("tickerId", this.getTickerId())
-            .append("field", this.getField())
-            .append("price", this.getPrice())
-            .append("canAutoExecute", this.getCanAutoExecute())
-            .toString();
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append("tickerId=");
+        buffer.append(getTickerId());
+        buffer.append(",field=");
+        buffer.append(getField());
+        buffer.append(",price=");
+        buffer.append(getPrice());
+        buffer.append(",canAutoExecute=");
+        buffer.append(getCanAutoExecute());
+
+        return buffer.toString();
     }
 
     /**

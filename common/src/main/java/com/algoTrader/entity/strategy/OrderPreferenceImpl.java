@@ -76,6 +76,6 @@ public class OrderPreferenceImpl extends OrderPreference {
     @Override
     public String toString() {
 
-        return getName() + " " + getOrderType() + " " + getPropertyNameValueMap();
+        return getName() + "," + getOrderType() + "," + getPropertyNameValueMap();
     }
 }

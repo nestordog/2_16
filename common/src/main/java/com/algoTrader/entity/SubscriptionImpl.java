@@ -29,6 +29,6 @@ public class SubscriptionImpl extends Subscription {
     @Override
     public String toString() {
 
-        return getStrategy() + " " + getSecurity();
+        return getStrategy() + "," + getSecurity();
     }
 }

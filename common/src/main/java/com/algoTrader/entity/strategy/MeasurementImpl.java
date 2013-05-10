@@ -29,12 +29,6 @@ public class MeasurementImpl extends Measurement {
     private static final long serialVersionUID = 6810736380413592621L;
 
     @Override
-    public String toString() {
-
-        return getName() + " " + getDate() + " " + getValue();
-    }
-
-    @Override
     public Object getValue() {
 
         if (getIntValue() != null) {
@@ -76,5 +70,11 @@ public class MeasurementImpl extends Measurement {
         } else {
             throw new IllegalArgumentException("unsupport value type " + value.getClass());
         }
+    }
+
+    @Override
+    public String toString() {
+
+        return getName() + "," + getDate() + "," + getValue();
     }
 }
