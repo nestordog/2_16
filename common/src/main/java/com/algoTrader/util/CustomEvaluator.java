@@ -22,6 +22,8 @@ import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.spi.TriggeringEventEvaluator;
 
 /**
+ * A {@link org.apache.log4j.spi.TriggeringEventEvaluator} that selects Log Messages with Level INFO and higher.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

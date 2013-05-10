@@ -18,6 +18,7 @@
 package com.algoTrader.entity.marketData;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 
 import org.springframework.beans.factory.annotation.Value;
 
@@ -34,8 +35,11 @@ public class BarImpl extends Bar {
 
     private static final long serialVersionUID = 6293029012643523737L;
 
+    private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss SSS");
+
     private static @Value("${simulation}") boolean simulation;
     private static @Value("${simulation.simulateBidAsk}") boolean simulateBidAsk;
+
 
     @Override
     public BigDecimal getCurrentValue() {
@@ -66,5 +70,33 @@ public class BarImpl extends Bar {
         }
 
         return getClose();
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append(getSecurity());
+        buffer.append(",");
+        buffer.append(format.format(getDateTime()));
+        buffer.append(",open=");
+        buffer.append(getOpen());
+        buffer.append(",high=");
+        buffer.append(getHigh());
+        buffer.append(",low=");
+        buffer.append(getLow());
+        buffer.append(",close=");
+        buffer.append(getClose());
+        buffer.append(",vol=");
+        buffer.append(getVol());
+        buffer.append(",openIntrest=");
+        buffer.append(getOpenIntrest());
+        buffer.append(",settlement=");
+        buffer.append(getSettlement());
+        buffer.append(",barSize=");
+        buffer.append(getBarSize());
+
+        return buffer.toString();
     }
 }

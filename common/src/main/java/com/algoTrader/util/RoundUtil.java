@@ -22,9 +22,10 @@ import java.math.BigDecimal;
 import org.apache.commons.math.util.MathUtils;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.enumeration.OptionType;
 
 /**
+ * Provides general rounding methods.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -79,17 +80,6 @@ public class RoundUtil {
             return null;
         } else {
             return getBigDecimal(value.doubleValue());
-        }
-    }
-
-    public static BigDecimal roundStockOptionStrikeToNextN(BigDecimal spot, double n, OptionType type) {
-
-        if (OptionType.CALL.equals(type)) {
-            // increase by strikeOffset and round to upper n
-            return roundToNextN(spot, n, BigDecimal.ROUND_CEILING);
-        } else {
-            // reduce by strikeOffset and round to lower n
-            return roundToNextN(spot, n, BigDecimal.ROUND_FLOOR);
         }
     }
 

@@ -97,7 +97,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         Date expirationDate = DateUtil.getExpirationDate(family.getExpirationType(), targetExpirationDate);
 
         // get nearest strike according to strikeDistance
-        BigDecimal strike = RoundUtil.roundStockOptionStrikeToNextN(targetStrike, family.getStrikeDistance(), type);
+        BigDecimal strike = roundStockOptionStrikeToNextN(targetStrike, family.getStrikeDistance(), type);
 
         // symbol / isin
         String symbol = StockOptionSymbol.getSymbol(family, expirationDate, type, strike, false);
@@ -207,7 +207,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         BigDecimal underlyingSpot = underlyingTick.getLast();
 
         double forward = StockOptionUtil.getForward(underlyingSpot.doubleValue(), years, family.getIntrest(), family.getDividend());
-        double atmStrike = RoundUtil.roundStockOptionStrikeToNextN(underlyingSpot, family.getStrikeDistance(), optionType).doubleValue();
+        double atmStrike = roundStockOptionStrikeToNextN(underlyingSpot, family.getStrikeDistance(), optionType).doubleValue();
 
         List<Tick> ticks = getTickDao().findStockOptionTicksBySecurityDateTypeAndExpirationInclSecurity(underlyingId, date, optionType, expirationDate);
         List<Double> strikes = new ArrayList<Double>();
@@ -397,5 +397,16 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
                 putTick.getCurrentValueDouble(), years, family.getIntrest(), family.getDividend(), OptionType.PUT);
 
         return new ATMVolVO(years, callVola, putVola);
+    }
+
+    private BigDecimal roundStockOptionStrikeToNextN(BigDecimal spot, double n, OptionType type) {
+
+        if (OptionType.CALL.equals(type)) {
+            // increase by strikeOffset and round to upper n
+            return RoundUtil.roundToNextN(spot, n, BigDecimal.ROUND_CEILING);
+        } else {
+            // reduce by strikeOffset and round to lower n
+            return RoundUtil.roundToNextN(spot, n, BigDecimal.ROUND_FLOOR);
+        }
     }
 }

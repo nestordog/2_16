@@ -24,6 +24,8 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 
 /**
+ * Contains utility methods for populating JavaBeans properties via reflection.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -42,6 +44,9 @@ public class BeanUtil {
         }
     });
 
+    /**
+     *  Populates an arbitrary object with values from the specified map. Only matching fields are populated.
+     */
     public static void populate(Object bean, Map<?, ?> properties) throws IllegalAccessException, InvocationTargetException {
         beanUtilsBean.populate(bean, properties);
     }

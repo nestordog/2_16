@@ -32,6 +32,20 @@ import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.rmi.ssl.SslRMIServerSocketFactory;
 
 /**
+ * Custom JMX Agent that allows the definition of a fixed RMI Server Port.
+ * <p>
+ * By default only the RMI Registry Port can be defined through vm arguments (com.sun.management.jmxremote.port).
+ * The RMI Server Port is chosen randomly which is not feasible through firewalls.
+ * <p>
+ * The JMX Agent takes the following two vm arguments to define both ports:
+ * <pre>
+ * -Dcom.algoTrarder.rmi.registryPort
+ * -Dcom.algoTrarder.rmi.serverPort</pre>
+ * In order to use this Custom JMXAgent the following has to be specified on the commandline:
+ * <pre>-javaagent:lib/agent.jar</pre>
+ * In addition the following vm argument has to be specified, which defines the public external host name:
+ * <pre>-Djava.rmi.server.hostname=algotrader.com</pre>
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -52,7 +66,6 @@ public class JMXAgent {
         final String publicHostName = System.getProperty("java.rmi.server.hostname", hostname);
 
         // Ensure cryptographically strong random number generator used
-        // to choose the object number - see java.rmi.server.ObjID
         System.setProperty("java.rmi.server.randomIDs", "true");
 
         LocateRegistry.createRegistry(rmiRegistryPort);
@@ -60,12 +73,8 @@ public class JMXAgent {
         MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 
         Map<String, Object> env = new HashMap<String, Object>();
+
         // Provide SSL-based RMI socket factories.
-        //
-        // The protocol and cipher suites to be enabled will be the ones
-        // defined by the default JSSE implementation and only server
-        // authentication will be required.
-        //
         SslRMIClientSocketFactory csf = new SslRMIClientSocketFactory();
         SslRMIServerSocketFactory ssf = new SslRMIServerSocketFactory();
         env.put(RMIConnectorServer.RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE, csf);

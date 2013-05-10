@@ -25,6 +25,8 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.esper.EsperManager;
 
 /**
+ * Custom Log4J Logger that replaces the System Time with the current Esper Time.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

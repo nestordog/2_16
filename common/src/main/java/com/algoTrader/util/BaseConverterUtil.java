@@ -18,6 +18,8 @@
 package com.algoTrader.util;
 
 /**
+ * Provides conversion methods for Base-10 numbers to and from other Bases.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

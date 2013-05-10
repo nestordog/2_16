@@ -34,6 +34,8 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.enumeration.TransactionType;
 
 /**
+ * Provides different Position related utility methods.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -41,13 +43,14 @@ import com.algoTrader.enumeration.TransactionType;
 public class PositionUtil {
 
     /**
-     * positive for SELL
+     * Returns the realized Profit-and-Loss of a Position based on the specified {@code transactions}
+     * @return positive for SELL
      */
     public static double getRealizedPL(Collection<Transaction> transactions, boolean net) {
 
         double pL = 0.0;
 
-        Collection<Transaction> closedPositionTransactions = getClosedPositionTransactions(transactions);
+        Collection<Transaction> closedPositionTransactions = getClosedPositionTransactionsSingleSecurity(transactions);
         for (Transaction transaction : closedPositionTransactions) {
 
             pL += net ? transaction.getNetValueDouble() : transaction.getGrossValueDouble();
@@ -57,13 +60,14 @@ public class PositionUtil {
     }
 
     /**
-     * positive for BUY
+     * Returns the total Cost of a Position based on the specified {@code transactions}
+     * @return positive for BUY
      */
     public static double getCost(Collection<Transaction> transactions, boolean net) {
 
         double cost = 0.0;
 
-        List<Transaction> openPositionTransactions = getOpenPositionTransactions(transactions);
+        List<Transaction> openPositionTransactions = getOpenPositionTransactionsSingleSecurity(transactions);
         for (Transaction transaction : openPositionTransactions) {
 
             cost -= net ? transaction.getNetValueDouble() : transaction.getGrossValueDouble();
@@ -72,12 +76,18 @@ public class PositionUtil {
         return cost;
     }
 
+    /**
+     * Returns the Average Price of a Position based on the specified {@code transactions}
+     *
+     * @param net if set to true the net price will be returned
+     * @return positive for BUY
+     */
     public static double getAveragePrice(Security security, Collection<Transaction> transactions, boolean net) {
 
         long totalQuantity = 0;
         double totalPrice = 0.0;
 
-        List<Transaction> openPositionTransactions = getOpenPositionTransactions(transactions);
+        List<Transaction> openPositionTransactions = getOpenPositionTransactionsSingleSecurity(transactions);
         for (Transaction transaction : openPositionTransactions) {
 
             totalQuantity += transaction.getQuantity();
@@ -88,12 +98,15 @@ public class PositionUtil {
 
     }
 
+    /**
+     * Returns the Average Age of a Position based on the specified {@code transactions}
+     */
     public static double getAverageAge(Collection<Transaction> transactions) {
 
         long totalQuantity = 0;
         long totalAge = 0;
 
-        List<Transaction> openPositionTransactions = getOpenPositionTransactions(transactions);
+        List<Transaction> openPositionTransactions = getOpenPositionTransactionsSingleSecurity(transactions);
         for (Transaction transaction : openPositionTransactions) {
 
             long age = DateUtil.getCurrentEPTime().getTime() - transaction.getDateTime().getTime();
@@ -110,9 +123,58 @@ public class PositionUtil {
     }
 
     /**
-     * transactions need to be of one security
+     * Selects all Transactions that represent the currently open part of a Position.
+     * Transaction quantities might be reduced if a position has been partly closed
      */
     public static List<Transaction> getOpenPositionTransactions(Collection<Transaction> transactions) {
+
+        // group BUY and SELL transactions by security
+        Map<Security, Collection<Transaction>> transactionsPerSecurity = new HashMap<Security, Collection<Transaction>>();
+        for (Transaction transaction : transactions) {
+            if (transaction.getType().equals(TransactionType.BUY) || transaction.getType().equals(TransactionType.SELL)) {
+                if (!transactionsPerSecurity.containsKey(transaction.getSecurity())) {
+                    transactionsPerSecurity.put(transaction.getSecurity(), new HashSet<Transaction>());
+                }
+                transactionsPerSecurity.get(transaction.getSecurity()).add(transaction);
+            }
+        }
+
+        // for every security the the corresponding open positions
+        List<Transaction> openPositionTransactions = new ArrayList<Transaction>();
+        for (Map.Entry<Security, Collection<Transaction>> entry : transactionsPerSecurity.entrySet()) {
+
+            openPositionTransactions.addAll(getOpenPositionTransactionsSingleSecurity(entry.getValue()));
+        }
+        return openPositionTransactions;
+    }
+
+    /**
+     * Selects all Transactions that represent the already closed part of a Position.
+     * Transaction quantities might be reduced if a position has been partly closed
+     */
+    public static List<Transaction> getClosedPositionTransactions(Collection<Transaction> transactions) {
+
+        // group BUY and SELL transactions by security
+        Map<Security, Collection<Transaction>> transactionsPerSecurity = new HashMap<Security, Collection<Transaction>>();
+        for (Transaction transaction : transactions) {
+            if (transaction.getType().equals(TransactionType.BUY) || transaction.getType().equals(TransactionType.SELL)) {
+                if (!transactionsPerSecurity.containsKey(transaction.getSecurity())) {
+                    transactionsPerSecurity.put(transaction.getSecurity(), new HashSet<Transaction>());
+                }
+                transactionsPerSecurity.get(transaction.getSecurity()).add(transaction);
+            }
+        }
+
+        // for every security the the corresponding open positions
+        List<Transaction> closedPositionTransactions = new ArrayList<Transaction>();
+        for (Map.Entry<Security, Collection<Transaction>> entry : transactionsPerSecurity.entrySet()) {
+
+            closedPositionTransactions.addAll(getClosedPositionTransactionsSingleSecurity(entry.getValue()));
+        }
+        return closedPositionTransactions;
+    }
+
+    private static List<Transaction> getOpenPositionTransactionsSingleSecurity(Collection<Transaction> transactions) {
 
         ArrayList<Transaction> sortedTransactions = new ArrayList<Transaction>(transactions);
 
@@ -166,32 +228,7 @@ public class PositionUtil {
         return openPositionTransactions;
     }
 
-    public static List<Transaction> getOpenPositionTransactionsMultiSecurity(Collection<Transaction> transactions) {
-
-        // group BUY and SELL transactions by security
-        Map<Security, Collection<Transaction>> transactionsPerSecurity = new HashMap<Security, Collection<Transaction>>();
-        for (Transaction transaction : transactions) {
-            if (transaction.getType().equals(TransactionType.BUY) || transaction.getType().equals(TransactionType.SELL)) {
-                if (!transactionsPerSecurity.containsKey(transaction.getSecurity())) {
-                    transactionsPerSecurity.put(transaction.getSecurity(), new HashSet<Transaction>());
-                }
-                transactionsPerSecurity.get(transaction.getSecurity()).add(transaction);
-            }
-        }
-
-        // for every security the the corresponding open positions
-        List<Transaction> openPositionTransactions = new ArrayList<Transaction>();
-        for (Map.Entry<Security, Collection<Transaction>> entry : transactionsPerSecurity.entrySet()) {
-
-            openPositionTransactions.addAll(getOpenPositionTransactions(entry.getValue()));
-        }
-        return openPositionTransactions;
-    }
-
-    /**
-     * transactions need to be of one security
-     */
-    public static Collection<Transaction> getClosedPositionTransactions(Collection<Transaction> transactions) {
+    private static Collection<Transaction> getClosedPositionTransactionsSingleSecurity(Collection<Transaction> transactions) {
 
         // add the transactions to a map by their id
         Map<Integer, Transaction> transactionMap = new HashMap<Integer, Transaction>();
@@ -201,7 +238,7 @@ public class PositionUtil {
         }
 
         // go through the list of openPositionTransactions
-        List<Transaction> openPositionTransactions = getOpenPositionTransactions(transactions);
+        List<Transaction> openPositionTransactions = getOpenPositionTransactionsSingleSecurity(transactions);
         for (Transaction openPositionTransaction : openPositionTransactions) {
 
             // reduce the quantity of the transaction by the corresponding amount
@@ -215,28 +252,6 @@ public class PositionUtil {
         }
 
         return transactionMap.values();
-    }
-
-    public static List<Transaction> getClosedPositionTransactionsMultiSecurity(Collection<Transaction> transactions) {
-
-        // group BUY and SELL transactions by security
-        Map<Security, Collection<Transaction>> transactionsPerSecurity = new HashMap<Security, Collection<Transaction>>();
-        for (Transaction transaction : transactions) {
-            if (transaction.getType().equals(TransactionType.BUY) || transaction.getType().equals(TransactionType.SELL)) {
-                if (!transactionsPerSecurity.containsKey(transaction.getSecurity())) {
-                    transactionsPerSecurity.put(transaction.getSecurity(), new HashSet<Transaction>());
-                }
-                transactionsPerSecurity.get(transaction.getSecurity()).add(transaction);
-            }
-        }
-
-        // for every security the the corresponding open positions
-        List<Transaction> closedPositionTransactions = new ArrayList<Transaction>();
-        for (Map.Entry<Security, Collection<Transaction>> entry : transactionsPerSecurity.entrySet()) {
-
-            closedPositionTransactions.addAll(getClosedPositionTransactions(entry.getValue()));
-        }
-        return closedPositionTransactions;
     }
 
     private static Transaction cloneTransaction(Transaction transaction, long quantity) {

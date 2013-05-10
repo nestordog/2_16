@@ -21,6 +21,8 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.strategy.StrategyImpl;
 
 /**
+ * Provides utility methods related to the localy started Strategy.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

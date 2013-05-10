@@ -18,6 +18,7 @@
 package com.algoTrader.entity.marketData;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 
 import org.springframework.beans.factory.annotation.Value;
 
@@ -33,6 +34,8 @@ import com.algoTrader.util.RoundUtil;
 public class TickImpl extends Tick {
 
     private static final long serialVersionUID = 7518020445322413106L;
+
+    private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss SSS");
 
     private static @Value("${simulation}") boolean simulation;
     private static @Value("${simulation.simulateBidAsk}") boolean simulateBidAsk;
@@ -161,5 +164,35 @@ public class TickImpl extends Tick {
                 return false;
             }
         }
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append(getSecurity());
+        buffer.append(",");
+        buffer.append(format.format(getDateTime()));
+        buffer.append(",last=");
+        buffer.append(getLast());
+        buffer.append(",lastDateTime=");
+        buffer.append(getLastDateTime());
+        buffer.append(",bid=");
+        buffer.append(getBid());
+        buffer.append(",ask=");
+        buffer.append(getAsk());
+        buffer.append(",volBid=");
+        buffer.append(getVolBid());
+        buffer.append(",volAsk=");
+        buffer.append(getVolAsk());
+        buffer.append(",vol=");
+        buffer.append(getVol());
+        buffer.append(",openIntrest=");
+        buffer.append(getOpenIntrest());
+        buffer.append(",settlement=");
+        buffer.append(getSettlement());
+
+        return buffer.toString();
     }
 }

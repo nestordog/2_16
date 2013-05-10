@@ -22,9 +22,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * helper class to retrieve properties from conf.properties and system properties before SpringContext is initialized
- */
-/**
+ * Helper class to retrieve properties from conf.properties and system properties before SpringContext is initialized
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

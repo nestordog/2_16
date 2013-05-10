@@ -18,6 +18,8 @@
 package com.algoTrader.util;
 
 /**
+ * Provices null-safe variants of {@code java.lang.Math.abs}
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

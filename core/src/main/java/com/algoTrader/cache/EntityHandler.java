@@ -22,7 +22,7 @@ import java.lang.reflect.Field;
 import org.hibernate.proxy.HibernateProxy;
 
 import com.algoTrader.entity.IdentifiableI;
-import com.algoTrader.util.TypeUtil;
+import com.algoTrader.util.FieldUtil;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -59,7 +59,7 @@ public class EntityHandler extends AbstractHandler {
             this.cacheManager.getEntityCache().attach(rootCacheKey, CacheManagerImpl.ROOT, obj);
 
             // process all fields
-            for (Field field : TypeUtil.getAllFields(obj.getClass())) {
+            for (Field field : FieldUtil.getAllFields(obj.getClass())) {
 
                 Object value = null;
                 try {
@@ -68,7 +68,7 @@ public class EntityHandler extends AbstractHandler {
                     e.printStackTrace();
                 }
 
-                if (TypeUtil.isSimpleAttribute(field) || value == null) {
+                if (FieldUtil.isSimpleAttribute(field) || value == null) {
                     continue;
                 }
 
@@ -109,9 +109,9 @@ public class EntityHandler extends AbstractHandler {
         } else {
 
             // replace all simple Attributes
-            for (Field field : TypeUtil.getAllFields(obj.getClass())) {
+            for (Field field : FieldUtil.getAllFields(obj.getClass())) {
 
-                if (TypeUtil.isSimpleAttribute(field)) {
+                if (FieldUtil.isSimpleAttribute(field)) {
 
                     try {
                         Object updatedValue = field.get(updatedObj);

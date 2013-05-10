@@ -33,11 +33,15 @@ import java.util.Set;
 import org.apache.commons.lang.reflect.FieldUtils;
 
 /**
+ * Provides general Class related untility Methods.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
+ *
+ * @see BeanUtil
  */
-public class TypeUtil {
+public class FieldUtil {
 
    private static final Set<Object> immediates =
            new HashSet<Object>(Arrays.asList(new Object[]{
@@ -65,10 +69,16 @@ public class TypeUtil {
                    Date.class,
                    Class.class}));
 
+    /**
+     * returns true if the {@code field} is a primitive, a primitive wrapper, String, BigDecimal, Date or Class.
+     */
     public static boolean isSimpleAttribute(Field field) {
         return immediates.contains(field.getType()) || Enum.class.isAssignableFrom(field.getType());
     }
 
+    /**
+     * Returns all Fields including Fields defined by superclasses of the defined {@code type}
+     */
     public static List<Field> getAllFields(Class<?> type) {
 
         List<Field> fields = new ArrayList<Field>();
@@ -91,9 +101,12 @@ public class TypeUtil {
         return fields;
     }
 
+    /**
+     * copies all field values by direct field access.
+     */
     public static void copyAllFields(Object source, Object target) {
 
-        for (Field field : TypeUtil.getAllFields(source.getClass())) {
+        for (Field field : FieldUtil.getAllFields(source.getClass())) {
 
             try {
                 Object targetValue = FieldUtils.readField(field, target, true);

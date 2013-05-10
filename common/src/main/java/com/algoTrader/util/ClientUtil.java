@@ -26,12 +26,17 @@ import com.algoTrader.vo.DatasetDefinitionVO;
 import com.algoTrader.vo.SeriesDefinitionVO;
 
 /**
+ * Provides Lookup Methods for Chart Definitions.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public class ClientUtil {
 
+    /**
+     * Returns all {@link SeriesDefinitionVO SeriesDefinitionVOs} of the specified {@code type} for the {@code chartDefinition}
+     */
     @SuppressWarnings("unchecked")
     public static <E extends SeriesDefinitionVO> Collection<E> getSeriesDefinitions(Class<E> type, ChartDefinitionVO chartDefinition) {
 

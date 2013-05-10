@@ -34,6 +34,8 @@ import com.algoTrader.vo.SABRSurfaceVO;
 import com.espertech.esper.collection.Pair;
 
 /**
+ * Provides static Lookup methods based mainly on the {@link com.algoTrader.service.LookupService}
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

@@ -19,11 +19,9 @@ package com.algoTrader.entity.marketData;
 
 import java.math.BigDecimal;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.algoTrader.enumeration.Direction;
-import com.algoTrader.util.CustomToStringStyle;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -56,11 +54,5 @@ public abstract class MarketDataEventImpl extends MarketDataEvent {
     public double getMarketValueDouble(Direction direction) {
 
         return getMarketValue(direction).doubleValue();
-    }
-
-    @Override
-    public String toString() {
-
-        return ToStringBuilder.reflectionToString(this, CustomToStringStyle.getInstance());
     }
 }

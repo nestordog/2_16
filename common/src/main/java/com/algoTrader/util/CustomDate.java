@@ -20,6 +20,8 @@ package com.algoTrader.util;
 import java.util.Date;
 
 /**
+ * Subclass of {@link java.util.Date} that has a Constructor that accepts a String representation of milliseconds.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -39,5 +41,4 @@ public class CustomDate extends Date {
     public CustomDate(long date) {
         super(date);
     }
-
 }

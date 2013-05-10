@@ -29,7 +29,7 @@ import org.hibernate.collection.AbstractPersistentCollection;
 import org.hibernate.collection.PersistentCollection;
 
 import com.algoTrader.entity.IdentifiableI;
-import com.algoTrader.util.TypeUtil;
+import com.algoTrader.util.FieldUtil;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -143,7 +143,7 @@ class CollectionHandler extends AbstractHandler {
             }
 
             PersistentCollection updatedCol = (PersistentCollection) updatedObj;
-            TypeUtil.copyAllFields(origCollection, updatedCol);
+            FieldUtil.copyAllFields(origCollection, updatedCol);
 
             // make sure everything is in the cache
             this.cacheManager.put(origCollection);
