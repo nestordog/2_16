@@ -13,6 +13,9 @@
  ***********************************************************************************/
 package com.algoTrader.cache;
 
+import java.util.Map;
+
+import com.algoTrader.util.EqualsUtil;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -22,13 +25,30 @@ package com.algoTrader.cache;
 public class QueryCacheKey {
 
     private final String queryString;
+    private final Map<String, Object> namedParameters;
+
     private final int hashCode;
 
     public QueryCacheKey(String queryString) {
 
-        this.queryString = queryString;
+        this(queryString, null);
+    }
 
-        this.hashCode = 17 * 37 + this.queryString.hashCode();
+    public QueryCacheKey(String queryString, Map<String, Object> namedParameters) {
+
+        this.queryString = queryString;
+        this.namedParameters = namedParameters;
+
+        this.hashCode = generateHashCode();
+    }
+
+    public int generateHashCode() {
+
+        int hashCode = 17;
+        hashCode = 37 * hashCode + (this.namedParameters == null ? 0 : this.namedParameters.hashCode());
+        hashCode = 37 * hashCode + this.queryString.hashCode();
+
+        return hashCode;
     }
 
     public String getQueryString() {
@@ -38,7 +58,13 @@ public class QueryCacheKey {
     @Override
     public String toString() {
 
-        return this.queryString;
+        StringBuffer buffer = new StringBuffer(this.queryString);
+
+        if (this.namedParameters != null) {
+            buffer.append(",namedParameters=").append(this.namedParameters);
+        }
+
+        return buffer.toString();
     }
 
     @Override
@@ -49,7 +75,7 @@ public class QueryCacheKey {
         }
 
         QueryCacheKey that = (QueryCacheKey) other;
-        return this.queryString.equals(that.queryString);
+        return this.queryString.equals(that.queryString) && EqualsUtil.equals(this.namedParameters, that.namedParameters);
     }
 
     @Override

@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.EntityMode;
@@ -118,6 +119,21 @@ public class GenericDao extends HibernateDaoSupport {
     public List<?> find(String queryString) {
 
         return getHibernateTemplate().find(queryString);
+    }
+
+    public List<?> find(String queryString, Map<String, Object> namedParameters) {
+
+        String[] paramNames = new String[namedParameters.size()];
+        Object[] values = new Object[namedParameters.size()];
+
+        int index = 0;
+        for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
+            paramNames[index] = entry.getKey();
+            values[index] = entry.getValue();
+            index++;
+        }
+
+        return getHibernateTemplate().findByNamedParam(queryString, paramNames, values);
     }
 
     /**

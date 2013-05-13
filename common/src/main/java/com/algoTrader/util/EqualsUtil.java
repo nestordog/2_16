@@ -15,25 +15,21 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.cache;
-
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+package com.algoTrader.util;
 
 /**
+ * Provides helper methods for equals methods.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public interface CacheManager {
+public final class EqualsUtil {
 
-    public <T> T get(Class<T> clazz, Serializable key);
-
-    public boolean contains(Class<?> clazz, Serializable key);
-
-    public List<?> query(String queryString);
-
-    public List<?> query(String queryString, Map<String, Object> namedParameters);
-
+    /**
+     * Null-safe equals method
+     */
+    public static boolean equals(Object x, Object y) {
+        return x == y || (x != null && y != null && x.equals(y));
+    }
 }

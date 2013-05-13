@@ -19,6 +19,7 @@ package com.algoTrader.cache;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -92,14 +93,24 @@ public class CacheManagerImpl implements CacheManager {
     @Override
     public List<?> query(String queryString) {
 
-        QueryCacheKey cacheKey = new QueryCacheKey(queryString);
+        return query(queryString, null);
+    }
+
+    @Override
+    public List<?> query(String queryString, Map<String, Object> namedParameters) {
+
+        QueryCacheKey cacheKey = new QueryCacheKey(queryString, namedParameters);
 
         List<?> result = this.queryCache.find(cacheKey);
 
         if (result == null) {
 
             // do the query
-            result = this.genericDao.find(queryString);
+            if (namedParameters != null) {
+                result = this.genericDao.find(queryString, namedParameters);
+            } else {
+                result = this.genericDao.find(queryString);
+            }
 
             // get the spaceNames
             Set<String> spaceNames = this.genericDao.getQuerySpaces(cacheKey.getQueryString());
