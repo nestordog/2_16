@@ -306,7 +306,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Subscription handleGetSubscription(String strategyName, int securityId) throws Exception {
+    protected Subscription handleGetSubscriptionByStrategyAndSecurity(String strategyName, int securityId) throws Exception {
 
         return getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId);
     }

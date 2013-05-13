@@ -135,7 +135,7 @@ public class LookupUtil {
 
     public static Subscription getSubscription(String strategyName, int securityId) {
 
-        return ServiceLocator.instance().getLookupService().getSubscription(strategyName, securityId);
+        return ServiceLocator.instance().getLookupService().getSubscriptionByStrategyAndSecurity(strategyName, securityId);
     }
 
     public static Combination getCombination(int combinationId) {
