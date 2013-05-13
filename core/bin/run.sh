@@ -3,7 +3,7 @@
 cd $ALGOTRADER_HOME
 
 nohup java \
--cp `cat bin/cp.txt` \
+-cp classes:`cat bin/cp.txt` \
 -DstrategyName=BASE \
 -Dcom.algoTrarder.rmi.registryPort=1099 \
 -Dcom.algoTrarder.rmi.serverPort=1098 \
@@ -13,9 +13,9 @@ nohup java \
 -Dcom.sun.management.jmxremote.ssl.need.client.auth=true \
 -Dcom.sun.management.jmxremote.registry.ssl=true \
 -Djavax.net.ssl.keyStore=$ALGOTRADER_HOME/bin/keystore \
--Djavax.net.ssl.keyStorePassword=Zermatt11 \
+-Djavax.net.ssl.keyStorePassword=... \
 -Djavax.net.ssl.trustStore=$ALGOTRADER_HOME/bin/truststore \
--Djavax.net.ssl.trustStorePassword=Zermatt11 \
+-Djavax.net.ssl.trustStorePassword=... \
 -Dlog4j.configuration=log4j-prod.xml \
 -Denvironment=$ENVIRONMENT \
 -javaagent:bin/agent.jar \

@@ -8,7 +8,7 @@
     <artifactId>algotrader-core</artifactId>
     <name>AlgoTrader Core</name>
     <scm>
-        <developerConnection>scm:svn:svn+ssh://repo.linardcapital.com/var/svn/repository/trunk/AlgoTrader</developerConnection>
+        <developerConnection>scm:svn:svn+ssh://repo.algotrader.ch/var/svn/repository/trunk/AlgoTrader</developerConnection>
     </scm>
     <build>
         <plugins>
@@ -24,7 +24,7 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.2.1</version>
                 <configuration>
-                    <tagBase> svn+ssh://repo.linardcapital.com/var/svn/repository/tags
+                    <tagBase> svn+ssh://repo.algotrader.ch/var/svn/repository/tags
                     </tagBase>
                 </configuration>
             </plugin>

@@ -10,6 +10,7 @@
                 <value>classpath:/META-INF/applicationContext-common.xml</value>
                 <value>classpath:/META-INF/applicationContext-server.xml</value>
                 <value>classpath:/META-INF/applicationContext.xml</value>
+                <value>classpath:/META-INF/applicationContext-environment.xml</value>
            </list>
         </constructor-arg>
     </bean>
