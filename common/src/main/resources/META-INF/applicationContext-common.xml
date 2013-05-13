@@ -31,12 +31,6 @@
 
     <bean class="com.algoTrader.util.spring.EntityAnnotationSetter" init-method="init"/>
 
-    <!-- =========================================== Cache ================================================ -->
-
-    <bean id="cacheAccessor" class="com.algoTrader.cache.CacheAccessor">
-        <property name="cacheManager" ref="cacheManager" />
-    </bean>
-
     <!-- =========================================== JMX ================================================ -->
 
     <bean id="exporter" class="org.springframework.jmx.export.annotation.AnnotationMBeanExporter"/>
