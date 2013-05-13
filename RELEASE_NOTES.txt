@@ -1,88 +1,4 @@
-0.6 (R2993)
-implemented Simulation Results
-
-0.7 (R3188)
-implemented InteractiveBrokers adapter
-
-0.8 (R3285)
-implemented Portfolio Values
-
-0.9 (R3422)
-Spring RichClient using RMI
-
-1.0 (R3483)
-separated JVMs for Framework and Strategies
-
-1.1 (R3640)
-implemented Forex
-
-1.2 (R3710)
-separated AlgoTrader and AlgoTraderTheta projects
-
-1.3 (R3745)
-implemented Futures
-
-1.4 (R4241)
-GenericFutures
-Cash Balances & FX-Equalization
-Management Service Diagrams
-MarketDataEvents (Bars, Bid, Ask & Trade)
-AndroMDA 3.4 SNAPSHOT
-Maven 2
-Esper 4.2
-
-1.5 (R4352)
-async Order & MarketDataService
-Esper 4.3
-
-1.6 (R4573)
-TickCallback and OrderCallback
-Combinations & Allocations
-Asynchronous Event Propagation using ActiveMQ
-convert Model to UML2.0
-Esper 4.4
-
-1.7 (R4620)
-update ServiceLocation & Configuration
-separation of code into core and common
-update Account Functionality
-Reconciliation
-OrderValidation
-TWS 921.5 / IB Gateway 921.5 / IB Client 9.65 / IBController 2.9.0
-Esper 4.5
-
-1.8 (R4728)
-IncrementalLimitOrder
-HistoricalDataService HistoricalBars
-MBean Annotations
-SecurityFamily TickSizePattern
-Measurement & MeasurementService
-
-1.9 (R4913)
-SyntheticSecurities (Combinations / SyntheticIndices)
-AlgoTraderSSHClient
-PropertyService / PropertyHolder / Property
-improve Hibernate Sessions Handling / Caching
-Metrics Logging
-PortfolioService
-General performance optimizations
-
-1.10 (R5139)
-GenericEvents
-update Charting Functionality (add Indicators & Bars)
-JMX over SSL
-
-1.11 (R5364)
-Reconciliation (IB / RBS / UI)
-SimpleOrders vs AlgoOrders (e.g. SlicingOrder)
-Fix Interface
-OrderPreference
-PorfolioValue logging and charting
-MailMessageReceiver
-AndroMDA 3.4
-ForexFuture / FX Hedging by ForexFuture
-
-1.12 (R5597)
+Version 1.12 (R5597)
 Esper 4.8
 use Spring Integration for Mail Reconciliation
 Esper Threading
@@ -103,3 +19,87 @@ Strategy Properties
 Market Data Gap Checking
 Position Realized P/L
 Handle crossed spreads
+
+Version 1.11 (R5364)
+Reconciliation (IB / RBS / UI)
+SimpleOrders vs AlgoOrders (e.g. SlicingOrder)
+Fix Interface
+OrderPreference
+PorfolioValue logging and charting
+MailMessageReceiver
+AndroMDA 3.4
+ForexFuture / FX Hedging by ForexFuture
+
+Version 1.10 (R5139)
+GenericEvents
+update Charting Functionality (add Indicators & Bars)
+JMX over SSL
+
+Version 1.9 (R4913)
+SyntheticSecurities (Combinations / SyntheticIndices)
+AlgoTraderSSHClient
+PropertyService / PropertyHolder / Property
+improve Hibernate Sessions Handling / Caching
+Metrics Logging
+PortfolioService
+General performance optimizations
+
+Version 1.8 (R4728)
+IncrementalLimitOrder
+HistoricalDataService HistoricalBars
+MBean Annotations
+SecurityFamily TickSizePattern
+Measurement & MeasurementService
+
+Version 1.7 (R4620)
+update ServiceLocation & Configuration
+separation of code into core and common
+update Account Functionality
+Reconciliation
+OrderValidation
+TWS 921.5 / IB Gateway 921.5 / IB Client 9.65 / IBController 2.9.0
+Esper 4.5
+
+Version 1.6 (R4573)
+TickCallback and OrderCallback
+Combinations & Allocations
+Asynchronous Event Propagation using ActiveMQ
+convert Model to UML2.0
+Esper 4.4
+
+Version 1.5 (R4352)
+async Order & MarketDataService
+Esper 4.3
+
+Version 1.4 (R4241)
+GenericFutures
+Cash Balances & FX-Equalization
+Management Service Diagrams
+MarketDataEvents (Bars, Bid, Ask & Trade)
+AndroMDA 3.4 SNAPSHOT
+Maven 2
+Esper 4.2
+
+Version 1.3 (R3745)
+implemented Futures
+
+Version 1.2 (R3710)
+separated AlgoTrader and AlgoTraderTheta projects
+
+Version 1.1 (R3640)
+implemented Forex
+
+Version 1.0 (R3483)
+separated JVMs for Framework and Strategies
+
+Version 0.9 (R3422)
+Spring RichClient using RMI
+
+Version 0.8 (R3285)
+implemented Portfolio Values
+
+Version 0.7 (R3188)
+implemented InteractiveBrokers adapter
+
+Version 0.6 (R2993)
+implemented Simulation Results
