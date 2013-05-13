@@ -5,7 +5,7 @@
 <hibernate-configuration>
 <session-factory>
     <property name="hibernate.connection.driver_class">org.gjt.mm.mysql.Driver</property>
-    <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/algoTrader</property>
+    <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/algoTradertest</property>
     <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
     <property name="hibernate.connection.username">root</property>
     <property name="hibernate.connection.password">password</property>
@@ -22,9 +22,9 @@
 <!--     <property name="hibernate.show_sql">true</property> -->
 
     <mapping resource="META-INF/Hibernate.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/PropertyHolder.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/property/PropertyHolder.hbm.xml" />
     <mapping resource="com/algoTrader/entity/Transaction.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/Property.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/property/Property.hbm.xml" />
     <mapping resource="com/algoTrader/entity/marketData/MarketDataEvent.hbm.xml" />
     <mapping resource="com/algoTrader/entity/security/Security.hbm.xml" />
     <mapping resource="com/algoTrader/entity/security/SecurityFamily.hbm.xml" />
@@ -33,7 +33,7 @@
     <mapping resource="com/algoTrader/entity/strategy/Measurement.hbm.xml" />
     <mapping resource="com/algoTrader/entity/strategy/DefaultOrderPreference.hbm.xml" />
     <mapping resource="com/algoTrader/entity/strategy/PortfolioValue.hbm.xml" />
-    <mapping resource="com/algoTrader/entity/strategy/Account.hbm.xml" />
+    <mapping resource="com/algoTrader/entity/Account.hbm.xml" />
     <mapping resource="com/algoTrader/entity/strategy/Allocation.hbm.xml" />
 
 </session-factory>
