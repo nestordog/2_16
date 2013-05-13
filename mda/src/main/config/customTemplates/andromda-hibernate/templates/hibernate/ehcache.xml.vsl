@@ -54,7 +54,9 @@
         name="org.hibernate.cache.UpdateTimestampsCache"
         maxElementsInMemory="100000"
         eternal="true"
-    />
+	>
+        <cacheEventListenerFactory class="com.algoTrader.cache.QueryCacheEventListenerFactory" />
+	</cache>
 
 #if($hibernateEnableCache == "true")
 #if($hibernateEnableDistributedCache == "true")
@@ -82,7 +84,9 @@
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
     </cache>
 #else
-    />
+    >
+		<cacheEventListenerFactory class="com.algoTrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
 #end
 
 #if($hibernateEnableAssociationsCache == "true")
@@ -103,7 +107,9 @@
         <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"/>
     </cache>
 #else
-    />
+    >
+		<cacheEventListenerFactory class="com.algoTrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
 #end
 
 #end
