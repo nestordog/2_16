@@ -338,9 +338,11 @@ public class ExClient {
                     </para>
             </listitem>
             <listitem>
-                <para>Different Order Types including Market, Limit, Stop, Stop Limit as well as
-                        several build-in Execution Algorithms: e.g. Slicing, Incremental and
-                        Distributional Algos (additional ExecutionAlgos on request)</para>
+                <para>Different Order Types including Market, Limit, Stop, Stop Limit</para>
+            </listitem>
+            <listitem>
+                <para>Several build-in Execution Algorithms: e.g. Slicing, Incremental and
+                    Distributional Algos (additional ExecutionAlgos on request)</para>
             </listitem>
             <listitem>
                 <para>Support for Multi Module Strategies (strategies that consist of several
@@ -381,10 +383,10 @@ public class ExClient {
                             Indicators, horizontal/vertical Markers, Annotations, etc.</para>
                     </listitem>
                     <listitem>
-                        <para>Esper HQ based A multi-window user interface for management of Esper
-                            CEP engines, design and deployment of Esper Statements as well as
-                            creation and launching of configurable and interactive dashboards to
-                            present a one-screen overview of the system</para>
+                        <para>Esper HQ based A multi-window user interface for management of Esper CEP engines, design
+                            and deployment of Esper Statements as well as creation and launching of
+                            configurable and interactive dashboards to present a one-screen overview
+                            of the system (Cockpit)</para>
                     </listitem>
                     <listitem>
                         <para>Grails based CRUD Client (Create, Read, Update &amp; Delete) for
@@ -460,9 +462,14 @@ public class ExClient {
                     events etc</para>
             </listitem>
             <listitem>
-                <para>Dynamic Datamodel which allows to define custom properties (e.g. integer
-                        or string property) on Entities like Strategy, Position &amp; Subscription
-                    </para>
+                <para>Hibernate / RDBMS based Persistence Framework. All Orders, Transactions,
+                    Positions, Subscriptions, etc. are available in the Database where they can be
+                    accessed for Reporting Purposes. All Write-Operations are carried out
+                    asynchronous to minimize system latency.</para>
+            </listitem>
+            <listitem>
+                <para>Dynamic Datamodel which allows to define custom properties (e.g. integer or
+                    string property) on Entities like Strategy, Position &amp; Subscription </para>
             </listitem>
             <listitem>
                 <para>Spring Profiles based system packaging to enable customization of deployed
