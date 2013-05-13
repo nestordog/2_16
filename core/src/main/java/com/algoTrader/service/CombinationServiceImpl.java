@@ -366,7 +366,9 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             removeComponentEvent.setComponentId(0);
         }
 
-        EsperManager.sendEvent(StrategyImpl.BASE, removeComponentEvent);
+        if (EsperManager.isInitialized(StrategyImpl.BASE)) {
+            EsperManager.sendEvent(StrategyImpl.BASE, removeComponentEvent);
+        }
     }
 
     /**
@@ -382,7 +384,10 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             insertComponentEvent.setSecurityId(component.getSecurity().getId());
             insertComponentEvent.setCombinationId(combination.getId());
             insertComponentEvent.setComponentCount(combination.getComponentCount());
-            EsperManager.sendEvent(StrategyImpl.BASE, insertComponentEvent);
+
+            if (EsperManager.isInitialized(StrategyImpl.BASE)) {
+                EsperManager.sendEvent(StrategyImpl.BASE, insertComponentEvent);
+            }
         }
     }
 }
