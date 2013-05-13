@@ -34,12 +34,18 @@ import org.apache.commons.io.IOUtils;
 import com.algoTrader.util.collection.Pair;
 
 /**
+ * Provides methods for unziping of Zip-Files.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public class ZipUtil {
 
+    /**
+     * unzipes a Zip-File specified by {@code fileName} to the same directory.
+     * If {@code delete} is true, the original Zip-file will be deleted.
+     */
     public static List<String> unzip(String fileName, boolean delete) {
 
         List<String> fileNames = new ArrayList<String>();
@@ -78,6 +84,9 @@ public class ZipUtil {
         return fileNames;
     }
 
+    /**
+     * Unzipes a Zip-File specified as a byte[] and returns a List of Pairs containing the filename and the File content.
+     */
     public static List<Pair<String, byte[]>> unzip(byte[] data) {
 
         List<Pair<String, byte[]>> entries = new ArrayList<Pair<String, byte[]>>();

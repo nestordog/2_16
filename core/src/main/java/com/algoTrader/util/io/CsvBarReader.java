@@ -33,17 +33,20 @@ import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.entity.marketData.BarImpl;
 
 /**
+ * SuperCSV Reader that reads {@link Bar Bars} from the specified CSV-File.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public class CsvBarReader {
 
-    private static String dataSet = "";//ServiceLocator.instance().getConfiguration().getDataSet();
+    private static String dataSet = ServiceLocator.instance().getConfiguration().getDataSet();
 
     //@formatter:off
     private static CellProcessor[] processor = new CellProcessor[] {

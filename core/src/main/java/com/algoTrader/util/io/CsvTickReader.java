@@ -40,6 +40,8 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
 
 /**
+ * SuperCSV Reader that reads {@link Tick Ticks} from the specified CSV-File.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

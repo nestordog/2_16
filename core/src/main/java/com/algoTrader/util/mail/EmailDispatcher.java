@@ -31,6 +31,8 @@ import org.springframework.integration.support.MessageBuilder;
 import com.algoTrader.util.MyLogger;
 
 /**
+ * Dispatches a {link Message} based on the defined {@link Disposition Dispositions}.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -45,6 +47,10 @@ public class EmailDispatcher {
         this.dispositions = dispositions;
     }
 
+    /**
+     * Checks a {@link Message} against defined {@link Disposition Dispositions}. If a matching {@link Disposition} is found,
+     * the {@code reconciliationService} and {@code directory} headers are set on the message.
+     */
     @Transformer
     public Message<javax.mail.Message> transformit(Message<javax.mail.Message> message) throws MessagingException {
 

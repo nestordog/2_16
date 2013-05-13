@@ -18,6 +18,8 @@
 package com.algoTrader.util.mail;
 
 /**
+ * POJO representing an Email Fragment with its binary data and {@code fileName}.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

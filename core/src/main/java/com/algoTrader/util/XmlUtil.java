@@ -33,6 +33,8 @@ import org.w3c.dom.Document;
 import com.algoTrader.ServiceLocator;
 
 /**
+ * Provides XML-persistence methods.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -43,7 +45,10 @@ public class XmlUtil {
 
     private static Logger logger = MyLogger.getLogger(XmlUtil.class.getName());
 
-    public static void saveDocumentToFile(Document node, String fileName, String directory) {
+    /**
+     * Writes a {@link Document} to a textFile specified by {@code fileName} and {@code directory}
+     */
+    public static void saveDocumentToFile(Document document, String fileName, String directory) {
 
         if (!saveToFile) {
             return;
@@ -55,7 +60,7 @@ public class XmlUtil {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.METHOD, "xml");
             transformer.setOutputProperty(OutputKeys.MEDIA_TYPE, "text/xml");
-            DOMSource source = new DOMSource(node);
+            DOMSource source = new DOMSource(document);
             OutputStream out = new FileOutputStream("files" + File.separator + directory + File.separator + fileName);
             StreamResult result = new StreamResult(out);
             transformer.transform(source, result);

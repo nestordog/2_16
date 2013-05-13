@@ -18,6 +18,9 @@
 package com.algoTrader.util;
 
 /**
+ * Provides utility methods to calculate performance Draw Down Period.
+ * Used by module-performance.epl.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

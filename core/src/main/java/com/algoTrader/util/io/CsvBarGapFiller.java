@@ -30,6 +30,8 @@ import com.algoTrader.entity.marketData.Bar;
 import com.algoTrader.util.DateUtil;
 
 /**
+ * SuperCSV based utility class that fills missing Bars in a Bar CSV-File.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -43,8 +45,18 @@ public class CsvBarGapFiller {
 
     public static void main(String[] args) throws SuperCSVException, IOException, ParseException {
 
-        File readerFile = new File("files" + File.separator + "bardata" + File.separator + args[0]);
-        File writerFile = new File("files" + File.separator + "bardata" + File.separator + args[1]);
+        fill(args[0], args[1]);
+    }
+
+    /**
+     * Reads {@link Bar Bars} from the File "files/bardata/[in]". If there are missing Bars before the market close
+     * additional {@link Bar Bars} written with the open, high, low and close set to the last available price.
+     * The resulting File is written to "files/tickdata/[out]".
+     */
+    public static void fill(String a, String b) throws IOException, ParseException {
+
+        File readerFile = new File("files" + File.separator + "bardata" + File.separator + a);
+        File writerFile = new File("files" + File.separator + "bardata" + File.separator + b);
 
         CsvBarReader reader = new CsvBarReader(readerFile);
         CsvBarWriter writer = new CsvBarWriter(writerFile);

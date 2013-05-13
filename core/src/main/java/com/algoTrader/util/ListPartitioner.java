@@ -21,6 +21,8 @@ import java.util.AbstractList;
 import java.util.List;
 
 /**
+ * Provides static methods for List Partitioning.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -39,11 +41,8 @@ public class ListPartitioner {
       * produced on demand using {@link List#subList(int, int)}, and are subject
       * to all the usual caveats about modification as explained in that API.
       *
-      * * Adapted from http://code.google.com/p/google-collections/
-      *
       * @param list the list to return consecutive sublists of
-      * @param size the desired size of each sublist (the last may be
-      *     smaller)
+      * @param size the desired size of each sublist (the last may be smaller)
       * @return a list of consecutive sublists
       * @throws IllegalArgumentException if {@code partitionSize} is nonpositive
       *

@@ -35,6 +35,8 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.Tick;
 
 /**
+ * SuperCSV Writer that writes {@link Tick Ticks} to the specified CSV-File.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

@@ -32,6 +32,8 @@ import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.Type;
 
 /**
+ * Provides static Hibernate utility methods.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -41,7 +43,7 @@ public class HibernateUtil {
     private static Logger logger = MyLogger.getLogger(HibernateUtil.class.getName());
 
     /**
-     * will try to lock the transient object (modifications will be lost).
+     * Tries to lock the transient object (modifications will be lost).
      * If the object is already associated with the session, a merge is executed to
      * to merge the transient object onto the one already in the session
      * If the object is associated with another session, it will be evicted from the other session
@@ -91,7 +93,19 @@ public class HibernateUtil {
     }
 
     /**
-     * make sure no proxies and persistentCollecitions are still attached to another session
+     * Gets the descriminator value based on the given class.
+     */
+    public static int getDisriminatorValue(SessionFactory sessionFactory, Class<?> type) {
+
+        String className = StringUtils.removeEnd(type.getName(), "Impl") + "Impl";
+        SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) sessionFactory;
+        AbstractEntityPersister persisiter = (AbstractEntityPersister) sessionFactoryImpl.getEntityPersister(className);
+        String discriminatorStringValue = persisiter.getDiscriminatorSQLValue();
+        return Integer.valueOf(discriminatorStringValue);
+    }
+
+    /**
+     * Detaches proxies and persistentCollecitions from other another session
      */
     private static void evict(SessionFactory sessionFactory, Object target) {
 
@@ -133,25 +147,6 @@ public class HibernateUtil {
 
         if (evicted) {
             logger.debug("evicted " + target.getClass() + " " + target);
-        }
-    }
-
-    public static int getDisriminatorValue(SessionFactory sessionFactory, Class<?> type) {
-
-        String className = StringUtils.removeEnd(type.getName(), "Impl") + "Impl";
-        SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) sessionFactory;
-        AbstractEntityPersister persisiter = (AbstractEntityPersister) sessionFactoryImpl.getEntityPersister(className);
-        String discriminatorStringValue = persisiter.getDiscriminatorSQLValue();
-        return Integer.valueOf(discriminatorStringValue);
-    }
-
-    public static Object getProxyImplementation(Object object) {
-
-        if (object instanceof HibernateProxy) {
-            HibernateProxy proxy = (HibernateProxy) object;
-            return proxy.getHibernateLazyInitializer().getImplementation();
-        } else {
-            return object;
         }
     }
 }

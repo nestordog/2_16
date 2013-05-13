@@ -29,6 +29,8 @@ import org.supercsv.exception.SuperCSVException;
 import com.algoTrader.entity.marketData.Tick;
 
 /**
+ * SuperCSV based utility class that checks Gaps in Tick Files.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -45,7 +47,20 @@ public class CsvGapChecker {
 
     public static void main(String[] args) throws SuperCSVException, IOException, ParseException {
 
-        File dir = new File("files" + File.separator + "tickdata" + File.separator + args[0] + File.separator);
+        check(args[0]);
+    }
+
+    /**
+     * Checks the file "files/tickdata/[fileName]" for Gaps.
+     * <ul>
+     * <li>If there is a gap of mor than {@code maxGapDays} between Ticks of different Days a message is printed</li>
+     * <li>if there is a gap of mor than {@code maxGapMins} between Ticks of the same Day a message is printed</li>
+     * </ul>
+     * Checking starts at {@code marketOpen}
+     */
+    public static void check(String fileName) throws IOException, ParseException {
+
+        File dir = new File("files" + File.separator + "tickdata" + File.separator + fileName + File.separator);
 
         for (File file : dir.listFiles()) {
 

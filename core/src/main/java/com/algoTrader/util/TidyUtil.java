@@ -30,14 +30,23 @@ import org.w3c.dom.Document;
 import org.w3c.tidy.Tidy;
 
 /**
+ * Provides methods for HTML Cleaning.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public class TidyUtil {
 
-    private static String[] regexs = new String[] { "<script(.*?)</script>", "<noscript(.*?)</noscript>", "<style(.*?)</style>", "<!--(.*?)-->", "<!(.*?)>",
-            "<\\?(.*?)\\?>" };
+    //@formatter:off
+    private static String[] regexs = new String[] {
+        "<script(.*?)</script>",
+        "<noscript(.*?)</noscript>",
+        "<style(.*?)</style>",
+        "<!--(.*?)-->", "<!(.*?)>",
+        "<\\?(.*?)\\?>"
+    };
+    //@formatter:on
 
     private static class NullOutputStream extends OutputStream {
 
@@ -75,11 +84,18 @@ public class TidyUtil {
         return _tidy;
     }
 
+    /**
+     * Parses an arbitrary {@link InputStream} and returns a cleaned {@link Document}.
+     */
     public static Document parse(InputStream in) {
 
         return getInstance().parseDOM(in, null);
     }
 
+    /**
+     * Parses an arbitrary {@link InputStream} and returns a cleaned and filtered {@link Document}.
+     * During the Filtering Process all HTML-Tags between any of the {@code regexs} will be removed.
+     */
     public static Document parseAndFilter(InputStream in) throws UnsupportedEncodingException, IOException {
 
         // get the content

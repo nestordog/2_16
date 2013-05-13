@@ -39,10 +39,8 @@ import com.algoTrader.util.MyLogger;
 
 /**
  * Parses the E-mail Message and converts each containing message and/or attachment into
- * a {@link List} of {@link EmailFragment}s.
+ * a {@link List} of {@link EmailFragment EmailFragments}.
  *
- */
-/**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package com.algoTrader.util.io;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -26,6 +27,8 @@ import org.supercsv.exception.SuperCSVException;
 import com.algoTrader.entity.marketData.Tick;
 
 /**
+ * SuperCSV based utility class that adjustes the {@code dateTime} field based on curent Daylight-Savings-Time Offset.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -34,8 +37,17 @@ public class CsvTickDSTAdjuster {
 
     public static void main(String[] args) throws SuperCSVException, IOException {
 
-        CsvTickReader csvReader = new CsvTickReader(args[0]);
-        CsvTickWriter csvWriter = new CsvTickWriter(args[1]);
+        adjust(args[0], args[1]);
+    }
+
+    /**
+     * Reads {@link Tick Ticks} from the File "files/tickdata/[in]". If there is currently a Daylight-Savings-Time Offset,
+     * it will be added to the {@code dateTime} field. The resulting File is written to "files/tickdata/[out]".
+     */
+    public static void adjust(String in, String out) throws IOException {
+
+        CsvTickReader csvReader = new CsvTickReader("files" + File.separator + "tickdata" + File.separator + in);
+        CsvTickWriter csvWriter = new CsvTickWriter("files" + File.separator + "tickdata" + File.separator + out);
         GregorianCalendar cal = new GregorianCalendar();
 
         Tick tick;

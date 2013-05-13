@@ -34,19 +34,28 @@ import org.supercsv.exception.SuperCSVException;
 import com.algoTrader.entity.marketData.Tick;
 
 /**
+ * SuperCSV based utility class, that merges Tick CSV files.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public class CsvMerger {
 
-    private static double maxGapDays = 4.0;
-
     public static void main(String[] args) throws SuperCSVException, IOException {
 
-        File aDir = new File("files" + File.separator + "tickdata" + File.separator + args[0] + File.separator);
-        File bDir = new File("files" + File.separator + "tickdata" + File.separator + args[1] + File.separator);
-        File cDir = new File("files" + File.separator + "tickdata" + File.separator + args[2] + File.separator);
+        merge(args[0], args[1], args[2]);
+    }
+
+    /**
+     * merges all files from directories "files/tickdata/[a]" and "files/tickdata/[b]" into "files/tickdata/[c]".
+     * If a file is contained in both source directories it will be merged by timestamp.
+     */
+    public static void merge(String a, String b, String c) throws IOException {
+
+        File aDir = new File("files" + File.separator + "tickdata" + File.separator + a + File.separator);
+        File bDir = new File("files" + File.separator + "tickdata" + File.separator + b + File.separator);
+        File cDir = new File("files" + File.separator + "tickdata" + File.separator + c + File.separator);
 
         if (!cDir.exists()) {
             cDir.mkdir();
@@ -65,6 +74,7 @@ public class CsvMerger {
             }});
 
         for (String fileName : new HashSet<String>(CollectionUtils.union(aNames, bNames))) {
+
             if (aNames.contains(fileName) && bNames.contains(fileName)) {
 
                 CsvTickReader aReader = new CsvTickReader(new File(aDir.getPath() + File.separator + fileName));
@@ -102,16 +112,6 @@ public class CsvMerger {
                     // do not write twice for the same minute
                     if (lastTick == null || !lastTick.getDateTime().equals(newTick.getDateTime())) {
                         csvWriter.write(newTick);
-                    } else {
-                        System.currentTimeMillis();
-                    }
-
-                    // warn if gap is greater than x days
-                    if (lastTick != null) {
-                        double daysDiff = (double) (newTick.getDateTime().getTime() - lastTick.getDateTime().getTime()) / 86400000;
-                        if (daysDiff > maxGapDays) {
-                            System.out.println(fileName + " at " + newTick.getDateTime() + " gap of " + daysDiff);
-                        }
                     }
 
                     lastTick = newTick;

@@ -32,17 +32,19 @@ import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
-import com.algoTrader.ServiceLocator;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.vo.BarVO;
 
 /**
+ * SuperCSV Reader that reads {@link BarVO BarVOs} from the specified CSV-File.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class CsvHlocReader {
+public class CsvBarVOReader {
 
-    private static String dataSet = ServiceLocator.instance().getConfiguration().getDataSet();
+    private static String dataSet = ConfigurationUtil.getString("dataSet");
 
     //@formatter:off
     private static CellProcessor[] processor = new CellProcessor[] {
@@ -56,7 +58,7 @@ public class CsvHlocReader {
     private String[] header;
     private CsvBeanReader reader;
 
-    public CsvHlocReader(String symbol) throws SuperCSVException, IOException {
+    public CsvBarVOReader(String symbol) throws SuperCSVException, IOException {
 
         File file = new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + symbol + ".csv");
         Reader inFile = new FileReader(file);
@@ -79,17 +81,7 @@ public class CsvHlocReader {
         }
     }
 
-    public static void main(String[] args) throws SuperCSVException, IOException {
-
-        CsvHlocReader csvReader = new CsvHlocReader("CH0008616382");
-
-        BarVO bar;
-        while ((bar = csvReader.readHloc()) != null) {
-            System.out.println(bar);
-        }
-    }
-
-    public BarVO readHloc() throws SuperCSVReflectionException, IOException {
+    public BarVO readBarVO() throws SuperCSVReflectionException, IOException {
 
         BarVO bar;
         if ((bar = this.reader.read(BarVO.class, this.header, processor)) != null) {

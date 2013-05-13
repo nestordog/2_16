@@ -22,6 +22,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Map;
 
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
@@ -32,20 +33,25 @@ import org.apache.activemq.util.ByteArrayOutputStream;
 import org.springframework.jms.support.converter.SimpleMessageConverter;
 
 /**
+ * A ActiveMQ {@link SimpleMessageConverter} that does not serialize {@link Collection Collections} or {@link Map Maps}.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public class CollectionIgnoringMessageConverter extends SimpleMessageConverter {
 
+    /**
+     * Creates a {@link ObjectMessage} based on the given {@code serializable} by ignoring all  {@link Collection Collections} and {@link Map Maps}.
+     */
     @Override
-    protected ObjectMessage createMessageForSerializable(Serializable object, Session session) throws JMSException {
+    protected ObjectMessage createMessageForSerializable(Serializable serializable, Session session) throws JMSException {
 
         ByteArrayOutputStream bos;
         try {
             bos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new CollectionIgnoringObjectOutputStream(bos); // custom ObjectOutputStream
-            oos.writeObject(object);
+            oos.writeObject(serializable);
             oos.close();
         } catch (IOException e) {
             throw new JMSException(e.toString());
@@ -69,13 +75,13 @@ public class CollectionIgnoringMessageConverter extends SimpleMessageConverter {
         @Override
         protected Object replaceObject(Object obj) throws IOException {
 
-            if (obj instanceof Collection) {
-                // do not serialize any Collections
+            if (obj instanceof Collection || obj instanceof Map) {
+
+                // do not serialize Collections or Maps
                 return null;
             } else {
                 return super.replaceObject(obj);
             }
         }
     }
-
 }

@@ -31,9 +31,12 @@ import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.Bar;
 
 /**
+ * SuperCSV Writer that writes {@link Bar Bars} to the specified CSV-File.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -64,7 +67,7 @@ public class CsvBarWriter {
     };
     //@formatter:on
 
-    private static String dataSet = "";//ServiceLocator.instance().getConfiguration().getDataSet();
+    private static String dataSet = ServiceLocator.instance().getConfiguration().getDataSet();
 
     private CsvBeanWriter writer;
 

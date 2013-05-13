@@ -26,20 +26,22 @@ import java.util.TreeMap;
 
 import org.supercsv.exception.SuperCSVException;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
 import com.algoTrader.vo.BarVO;
 
 /**
+ * SuperCSV based utility class, that reads a Bar-File and interpolates Tick based on it.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class CsvHlocInterpolator {
+public class CsvBarToTickInterpolator {
 
-    private static String dataSet = ServiceLocator.instance().getConfiguration().getDataSet();
+    private static String dataSet = ConfigurationUtil.getString("dataSet");
 
     private static double recordsPerInput = 17.0;
     private static double recordsPerHour = 2.0;
@@ -52,13 +54,22 @@ public class CsvHlocInterpolator {
 
     public static void main(String[] args) throws SuperCSVException, IOException {
 
-        (new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + args[1] + ".csv")).delete();
+        interpolate(args[0], args[1]);
+    }
 
-        CsvHlocReader csvReader = new CsvHlocReader(args[0]);
-        CsvTickWriter csvWriter = new CsvTickWriter(args[1]);
+    /**
+     * Reads a Tick-file from "files/bardata/[dataSet]/[in]" and generates {@code recordsPerInput} Ticks per Bar.
+     * The resulting File is written to "files/tickdata/[dataSet]/[out]".
+     */
+    public static void interpolate(String in, String out) throws IOException {
+
+        (new File("files" + File.separator + "bardata" + File.separator + dataSet + File.separator + in)).delete();
+
+        CsvBarVOReader csvReader = new CsvBarVOReader(in);
+        CsvTickWriter csvWriter = new CsvTickWriter(out);
 
         BarVO bar;
-        while ((bar = csvReader.readHloc()) != null) {
+        while ((bar = csvReader.readBarVO()) != null) {
 
             double open = bar.getOpen().doubleValue();
             double close = bar.getClose().doubleValue();

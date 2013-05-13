@@ -35,6 +35,8 @@ import org.supercsv.prefs.CsvPreference;
 import com.algoTrader.vo.IVolVO;
 
 /**
+ * SuperCSV Reader that reads {@link IVolVO IVolVOs} from the specified CSV-File.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -82,16 +84,6 @@ public class CsvIVolReader {
         Reader inFile = new FileReader(file);
         this.reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
         this.reader.getCSVHeader(true);
-    }
-
-    public static void main(String[] args) throws SuperCSVException, IOException {
-
-        CsvIVolReader csvReader = new CsvIVolReader("data_download_01.csv");
-
-        IVolVO iVol;
-        while ((iVol = csvReader.readHloc()) != null) {
-            System.out.println(iVol);
-        }
     }
 
     public IVolVO readHloc() throws SuperCSVReflectionException, IOException {

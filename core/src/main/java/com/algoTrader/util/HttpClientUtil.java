@@ -27,22 +27,33 @@ import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 
-import com.algoTrader.ServiceLocator;
-
 /**
+ * Provides HttpClient utility methods.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public class HttpClientUtil {
 
-    private static int workers = ServiceLocator.instance().getConfiguration().getInt("http.workers");
-    private static boolean retry = ServiceLocator.instance().getConfiguration().getBoolean("http.retry");
-    private static String userAgent = ServiceLocator.instance().getConfiguration().getString("http.userAgent");
-    private static boolean useProxy = ServiceLocator.instance().getConfiguration().getBoolean("http.useProxy");
+    private static int workers = ConfigurationUtil.getInt("http.workers");
+    private static boolean retry = ConfigurationUtil.getBoolean("http.retry");
+    private static String userAgent = ConfigurationUtil.getString("http.userAgent");
+    private static boolean useProxy = ConfigurationUtil.getBoolean("http.useProxy");
 
     private static HttpClient standardClient;
 
+    /**
+     * Returns a HttpClient configured with the following features:
+     * <ul>
+     * <li>MultiThreading</li>
+     * <li>configured number of workders</li>
+     * <li>proxy</li>
+     * <li>retryHandler</li>
+     * <li>cookyPolicy</li>
+     * <li>userAgent</li>
+     * </ul>
+     */
     public static HttpClient getStandardClient() {
 
         if (standardClient != null) {
@@ -51,6 +62,7 @@ public class HttpClientUtil {
 
         // allow the same number of connections as we have workers
         MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
+
         HttpConnectionManagerParams params = new HttpConnectionManagerParams();
         params.setMaxConnectionsPerHost(HostConfiguration.ANY_HOST_CONFIGURATION, workers);
         connectionManager.setParams(params);

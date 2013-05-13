@@ -20,6 +20,8 @@ package com.algoTrader.util.mail;
 import com.algoTrader.service.ReconciliationService;
 
 /**
+ * Pojo that defines Mail-Dispatching Rules.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

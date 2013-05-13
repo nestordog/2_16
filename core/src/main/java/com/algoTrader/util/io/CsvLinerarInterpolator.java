@@ -25,19 +25,21 @@ import java.util.Date;
 
 import org.supercsv.exception.SuperCSVException;
 
-import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.marketData.TickImpl;
+import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.RoundUtil;
 
 /**
+ * SuperCSV based utility class, that reads a Tick-File and interpolates additional Ticks based on it.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public class CsvLinerarInterpolator {
 
-    private static String dataSet = ServiceLocator.instance().getConfiguration().getDataSet();
+    private static String dataSet = ConfigurationUtil.getString("dataSet");
 
     private static double recordsPerInput = 17.0;
     private static double recordsPerHour = 2.0;
@@ -45,10 +47,20 @@ public class CsvLinerarInterpolator {
 
     public static void main(String[] args) throws SuperCSVException, IOException, ParseException {
 
-        (new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + args[1] + ".csv")).delete();
+        interpolate(args[0], args[1]);
+    }
 
-        CsvTickReader csvReader = new CsvTickReader(args[0]);
-        CsvTickWriter csvWriter = new CsvTickWriter(args[1]);
+    /**
+     * Reads a Tick-file from "files/tickdata/[dataSet]/[in]" and generates {@code recordsPerInput} Ticks per original Tick.
+     * The values of the interpolated Ticks are a linear interpolation between the previous and the following Tick.
+     * The resulting File is written to "files/tickdata/[dataSet]/[out]".
+     */
+    public static void interpolate(String in, String out) throws IOException {
+
+        (new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + in + ".csv")).delete();
+
+        CsvTickReader csvReader = new CsvTickReader(in);
+        CsvTickWriter csvWriter = new CsvTickWriter(out);
 
         Tick oldTick = csvReader.readTick();
 
