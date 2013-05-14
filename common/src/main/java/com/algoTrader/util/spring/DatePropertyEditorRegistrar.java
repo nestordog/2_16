@@ -25,6 +25,9 @@ import org.springframework.beans.PropertyEditorRegistry;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 
 /**
+ * custom {@code org.springframework.beans.PropertyEditorRegistrar} for {@code java.util.Date}.
+ * Allows to initialize Dates from the pattern {@code kk:mm}.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

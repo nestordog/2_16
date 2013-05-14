@@ -24,11 +24,12 @@ import java.util.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.algoTrader.enumeration.Currency;
 import com.algoTrader.enumeration.Duration;
 import com.algoTrader.enumeration.MarketDataType;
 
 /**
+ * Spring Bean containing all properties defined in {@code conf.propertiese} files and via VM-argument.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -68,50 +69,9 @@ public class Configuration {
         return this.simulation;
     }
 
-    private @Value("${simulation.start}") long simulationStart;
-    public long getSimulationStart() {
-        return this.simulationStart;
-    }
 
-    private @Value("${simulation.end}") long simulationEnd;
-    public long getSimulationEnd() {
-        return this.simulationEnd;
-    }
 
-    private @Value("${simulation.initialBalance}") long initialBalance;
-    public long getInitialBalance() {
-        return this.initialBalance;
-    }
 
-    private @Value("${simulation.logTransactions}") boolean logTransactions;
-    public boolean getLogTransactions() {
-        return this.logTransactions;
-    }
-
-    private @Value("${simulation.roundDigits}") int roundDigits;
-    public int getRoundDigits() {
-        return this.roundDigits;
-    }
-
-    private @Value("${misc.portfolioBaseCurrency}") String portfolioBaseCurrency;
-    public Currency getPortfolioBaseCurrency() {
-        return Currency.fromString(this.portfolioBaseCurrency);
-    }
-
-    private @Value("${misc.portfolioDigits}") int portfolioDigits;
-    public int getPortfolioDigits() {
-        return this.portfolioDigits;
-    }
-
-    private @Value("${misc.marketIntrest}") double marketIntrest;
-    public double getMarketIntrest() {
-        return this.marketIntrest;
-    }
-
-    private @Value("${order.initialMarginMarkup}") double initialMarginMarkup;
-    public double getInitialMarginMarkup() {
-        return this.initialMarginMarkup;
-    }
 
     // generic methods
 

@@ -23,14 +23,23 @@ import java.util.Set;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanExpressionContext;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.ClassMetadata;
 import org.springframework.core.type.filter.AbstractClassTestingTypeFilter;
 
 /**
+ * Utility class that sets annotation configured values of static entity fields.
+ *
+ * Example: <pre>private static @Value("${misc.portfolioDigits}") int portfolioDigits;</pre>
+ *
+ * This Bean needs to be configured with the {@code init} method to make sure that all static field values are assigned
+ * before the first Entity instances are created.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -39,6 +48,11 @@ public class EntityAnnotationSetter implements BeanFactoryAware {
 
     private ConfigurableBeanFactory beanFactory;
 
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = (ConfigurableBeanFactory) beanFactory;
+    }
+
     public void init() throws ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
 
         // get all Entities
@@ -46,10 +60,13 @@ public class EntityAnnotationSetter implements BeanFactoryAware {
         scanner.addIncludeFilter(new AbstractClassTestingTypeFilter() {
             @Override
             protected boolean match(ClassMetadata metadata) {
+
+                // match only "Impl" but not "DaoImpl"
                 return metadata.getClassName().endsWith("Impl") && !metadata.getClassName().endsWith("DaoImpl");
             }
         });
 
+        // check package "com.algoTrader.entity"
         Set<BeanDefinition> components = scanner.findCandidateComponents("com.algoTrader.entity");
 
         for (BeanDefinition component : components) {
@@ -80,8 +97,16 @@ public class EntityAnnotationSetter implements BeanFactoryAware {
         }
     }
 
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = (ConfigurableBeanFactory) beanFactory;
+    private class ClassPathScanner extends ClassPathScanningCandidateComponentProvider {
+
+        public ClassPathScanner(boolean useDefaultFilters) {
+            super(useDefaultFilters);
+        }
+
+        @Override
+        protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
+
+            return beanDefinition.getMetadata().isIndependent();
+        }
     }
 }

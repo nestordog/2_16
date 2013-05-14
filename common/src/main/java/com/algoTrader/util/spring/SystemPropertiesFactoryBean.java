@@ -3,17 +3,13 @@
  *
  * Copyright (C) 2013 Flury Trading - All rights reserved
  *
- * All information contained herein is, and remains the property of Flury Trading.
- * The intellectual and technical concepts contained herein are proprietary to
- * Flury Trading. Modification, translation, reverse engineering, decompilation,
- * disassembly or reproduction of this material is strictly forbidden unless prior
+ * All information contained herein is, and remains the property of Flury Trading. The intellectual and technical concepts contained herein are proprietary to
+ * Flury Trading. Modification, translation, reverse engineering, decompilation, disassembly or reproduction of this material is strictly forbidden unless prior
  * written permission is obtained from Flury Trading
  *
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
- * Flury Trading
- * Badenerstrasse 16
- * 8004 Zurich
+ * Flury Trading Badenerstrasse 16 8004 Zurich
  ***********************************************************************************/
 package com.algoTrader.util.spring;
 
@@ -32,17 +28,14 @@ import org.springframework.core.Constants;
  * from VM system properties. As with the Spring {@link PropertyPlaceholderConfigurer} the following modes are
  * supported:
  * <ul>
- * <li><b>SYSTEM_PROPERTIES_MODE_NEVER: </b>Don't use system properties at all.</li>
- * <li><b>SYSTEM_PROPERTIES_MODE_FALLBACK: </b>Fallback to a system property only for undefined properties.</li>
- * <li><b>SYSTEM_PROPERTIES_MODE_OVERRIDE: (DEFAULT)</b>Use a system property if it is available.</li>
+ * <li>SYSTEM_PROPERTIES_MODE_NEVER: Don't use system properties at all.</li>
+ * <li>SYSTEM_PROPERTIES_MODE_FALLBACK: Fallback to a system property only for undefined properties.</li>
+ * <li>SYSTEM_PROPERTIES_MODE_OVERRIDE: (DEFAULT) Use a system property if it is available.</li>
  * </ul>
  * Note that system properties will only be included in the property set if defaults for the property have already been
  * defined using {@link #setProperties(Properties)} or {@link #setLocations(org.springframework.core.io.Resource[])} or
  * their names have been included explicitly in the set passed to {@link #setSystemProperties(Set)}.
  *
- * @author Derek Hulley
- */
-/**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
