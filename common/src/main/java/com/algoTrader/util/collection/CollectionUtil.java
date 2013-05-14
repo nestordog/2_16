@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.util;
+package com.algoTrader.util.collection;
 
 import java.util.Collection;
 

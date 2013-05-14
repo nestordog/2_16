@@ -24,8 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Map having an (Atomic)Long as value and an arbitraty type as key.
  *
  * @param <K> Type of the Key
- */
-/**
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

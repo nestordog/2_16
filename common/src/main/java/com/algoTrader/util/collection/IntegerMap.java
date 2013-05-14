@@ -24,8 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Map having an (Atomic)Integer as value and an arbitraty type as key.
  *
  * @param <K> Type of the Key
- */
-/**
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

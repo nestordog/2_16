@@ -20,6 +20,8 @@ package com.algoTrader.util.metric;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * POJO used for metrics logging
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -37,6 +39,9 @@ public class Metric {
         this.time = new AtomicLong();
     }
 
+    /**
+     * adds the specified time to the this Metric and increases {@code executions} by 1.
+     */
     public void addTime(long time) {
         this.time.addAndGet(time);
         this.executions.addAndGet(1);
@@ -53,5 +58,4 @@ public class Metric {
     public AtomicLong getTime() {
         return this.time;
     }
-
 }

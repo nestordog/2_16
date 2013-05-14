@@ -23,8 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Map having an Double as value and an arbitraty type as key.
  *
  * @param <K> Type of the Key
- */
-/**
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

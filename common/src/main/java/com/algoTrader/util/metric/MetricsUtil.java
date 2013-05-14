@@ -26,6 +26,8 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.util.MyLogger;
 
 /**
+ * Utility class for recording and logging of performance metrics
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -40,23 +42,9 @@ public class MetricsUtil {
     private static Map<String, Metric> metrics = new HashMap<String, Metric>();
     private static long startMillis = System.nanoTime();
 
-    public static void execute(String metricName, Probe probe) {
-
-        if (metricsEnabled) {
-
-            long startTime = System.nanoTime();
-
-            probe.run();
-
-            long endTime = System.nanoTime();
-
-            account(metricName, startTime, endTime);
-
-        } else {
-            probe.run();
-        }
-    }
-
+    /**
+     * account the given metric by its {@code startMillis} and {@code endMillis}
+     */
     public static void account(String metricName, long startMillis, long endMillis) {
 
         if (metricsEnabled) {
@@ -64,6 +52,9 @@ public class MetricsUtil {
         }
     }
 
+    /**
+     * account the given metric by its {@code startMillis}. The endTime is taken from the system clock
+     */
     public static void accountEnd(String metricName, long startMillis) {
 
         if (metricsEnabled) {
@@ -71,6 +62,9 @@ public class MetricsUtil {
         }
     }
 
+    /**
+     * account the given metric by its duration in {@code millis}
+     */
     public static void account(String metricName, long millis) {
 
         if (metricsEnabled) {
@@ -78,30 +72,30 @@ public class MetricsUtil {
         }
     }
 
+    /**
+     * print-out all metric values
+     */
     public static void logMetrics() {
 
         if (metricsEnabled) {
 
             if (simulation) {
-                logger.info("TotalDuration: " + getDuration() + " millis");
+                logger.info("TotalDuration: " + (System.nanoTime() - startMillis) + " millis");
             }
 
-            for (Map.Entry<String, Metric> entry : metrics.entrySet()) {
-                Metric metric = entry.getValue();
+            for (Metric metric : metrics.values()) {
                 logger.info(metric.getName() + ": " + metric.getTime() + " millis " + metric.getExecutions() + " executions");
             }
         }
     }
 
+    /**
+     * Resets all metrics and also reset the {@code startMillis}
+     */
     public static void resetMetrics() {
 
-        metrics = new HashMap<String, Metric>();
+        metrics.clear();
         startMillis = System.nanoTime();
-    }
-
-    public static long getDuration() {
-
-        return System.nanoTime() - startMillis;
     }
 
     private static Metric getMetric(String metricName) {
