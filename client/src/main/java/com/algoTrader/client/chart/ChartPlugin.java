@@ -71,7 +71,7 @@ public class ChartPlugin extends JConsolePlugin {
 
         Set<ObjectInstance> beans = null;
         try {
-            ObjectName objectName = new ObjectName("com.algoTrader.*:name=*,type=chart");
+            ObjectName objectName = new ObjectName("*:name=*,type=chart");
             beans = getContext().getMBeanServerConnection().queryMBeans(objectName, null);
         } catch (Exception e) {
             throw new RuntimeException(e);

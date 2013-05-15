@@ -82,8 +82,10 @@ public class ChartWorker extends SwingWorker<Map<ObjectName, ChartDataVO>, Objec
 
             // call the checkIsAlive test
             objectName = new ObjectName("com.algoTrader.service:name=ManagementService");
-            ManagementService managementService = JMX.newMBeanProxy(this.chartPlugin.getMBeanServerConnection(), objectName, ManagementService.class);
-            managementService.checkIsAlive();
+            if (this.chartPlugin.getMBeanServerConnection().isRegistered(objectName)) {
+                ManagementService managementService = JMX.newMBeanProxy(this.chartPlugin.getMBeanServerConnection(), objectName, ManagementService.class);
+                managementService.checkIsAlive();
+            }
 
             Map<ObjectName, ChartDataVO> chartDataMap = new HashMap<ObjectName, ChartDataVO>();
             for (Map.Entry<ObjectName, ChartTab> entry : this.chartPlugin.getChartTabs().entrySet()) {
