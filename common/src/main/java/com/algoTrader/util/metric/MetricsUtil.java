@@ -20,6 +20,7 @@ package com.algoTrader.util.metric;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.log4j.Logger;
 
 import com.algoTrader.ServiceLocator;
@@ -59,6 +60,17 @@ public class MetricsUtil {
 
         if (metricsEnabled) {
             account(metricName, System.nanoTime() - startMillis);
+        }
+    }
+
+    /**
+     * account the given metric by its {@code startMillis}. The endTime is taken from the system clock.
+     * The name of the metric will be a combination of {@code metricName} and {@code clazz}.
+     */
+    public static void accountEnd(String metricName, Class<?> clazz, long startMillis) {
+
+        if (metricsEnabled) {
+            account(metricName + "." + ClassUtils.getShortClassName(clazz), System.nanoTime() - startMillis);
         }
     }
 

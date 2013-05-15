@@ -41,9 +41,9 @@ import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.BeanUtil;
-import com.algoTrader.util.CollectionUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
+import com.algoTrader.util.collection.CollectionUtil;
 import com.algoTrader.vo.OrderStatusVO;
 
 /**

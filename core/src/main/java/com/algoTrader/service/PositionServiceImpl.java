@@ -48,7 +48,7 @@ import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.enumeration.TransactionType;
 import com.algoTrader.esper.EsperManager;
-import com.algoTrader.esper.TradeCallback;
+import com.algoTrader.esper.callback.TradeCallback;
 import com.algoTrader.stockOption.StockOptionUtil;
 import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;

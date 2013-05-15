@@ -43,9 +43,9 @@ import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.util.CollectionUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
+import com.algoTrader.util.collection.CollectionUtil;
 import com.algoTrader.util.collection.LongMap;
 
 /**

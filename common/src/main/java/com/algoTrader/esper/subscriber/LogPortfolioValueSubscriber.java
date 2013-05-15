@@ -33,7 +33,7 @@ public class LogPortfolioValueSubscriber {
 
     private static Logger logger = MyLogger.getLogger(LogPortfolioValueSubscriber.class.getName());
 
-    private static long initialBalance = ServiceLocator.instance().getConfiguration().getInitialBalance();
+    private static long initialBalance = ServiceLocator.instance().getConfiguration().getLong("initialBalance");
 
     private static boolean initialized = false;
 

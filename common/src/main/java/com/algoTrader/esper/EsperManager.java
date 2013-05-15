@@ -42,7 +42,6 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.Resource;
@@ -62,16 +61,20 @@ import com.algoTrader.esper.annotation.Listeners;
 import com.algoTrader.esper.annotation.RunTimeOnly;
 import com.algoTrader.esper.annotation.SimulationOnly;
 import com.algoTrader.esper.annotation.Subscriber;
+import com.algoTrader.esper.callback.ClosePositionCallback;
+import com.algoTrader.esper.callback.OpenPositionCallback;
+import com.algoTrader.esper.callback.TickCallback;
+import com.algoTrader.esper.callback.TradeCallback;
 import com.algoTrader.esper.io.BatchDBTickInputAdapter;
+import com.algoTrader.esper.io.CollectionInputAdapter;
 import com.algoTrader.esper.io.CsvBarInputAdapter;
 import com.algoTrader.esper.io.CsvBarInputAdapterSpec;
 import com.algoTrader.esper.io.CsvTickInputAdapter;
 import com.algoTrader.esper.io.CsvTickInputAdapterSpec;
-import com.algoTrader.esper.io.DBInputAdapter;
 import com.algoTrader.esper.subscriber.SubscriberCreator;
-import com.algoTrader.util.CollectionUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.StrategyUtil;
+import com.algoTrader.util.collection.CollectionUtil;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.GenericEventVO;
 import com.algoTrader.vo.StatementMetricVO;
@@ -114,6 +117,8 @@ import com.espertech.esperio.csv.CSVInputAdapter;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 /**
+ * Main class for management of Esper Engine Instances.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -139,6 +144,17 @@ public class EsperManager {
 
     private static Map<String, JmsTemplate> templates = new HashMap<String, JmsTemplate>();
 
+    /**
+     * Initializes a new Esper Engine by the given {@code strategyName}.
+     * The following steps are exectued:
+     * <ul>
+     * <li>{@code corresponding esper-xxx.cfg.xml} files are loaded from the classpath</li>
+     * <li>Esper variables are initilized</li>
+     * <li>Esper threading is configured</li>
+     * <li>The {@link Strategy} itself is configured as an Esper variable {@code engineStrategy}</li>
+     * <li>Esper Time is set to zero</li>
+     * </ul>
+     */
     public static void initServiceProvider(String strategyName) {
 
         String providerURI = getProviderURI(strategyName);
@@ -193,11 +209,17 @@ public class EsperManager {
         logger.debug("initialized service provider: " + strategyName);
     }
 
+    /**
+     * Returns true if the specified Esper Engine is initialized.
+     */
     public static boolean isInitialized(String strategyName) {
 
         return serviceProviders.containsKey(getProviderURI(strategyName));
     }
 
+    /**
+     * Destroys the specified Esper Engine.
+     */
     public static void destroyServiceProvider(String strategyName) {
 
         getServiceProvider(strategyName).destroy();
@@ -207,16 +229,27 @@ public class EsperManager {
         logger.debug("destroyed service provider: " + strategyName);
     }
 
+    /**
+     * Deploys the statement from the given {@code moduleName} with the given {@code statementName} into the specified Esper Engine.
+     */
     public static void deployStatement(String strategyName, String moduleName, String statementName) {
 
         deployStatement(strategyName, moduleName, statementName, null, new Object[] {}, null);
     }
 
+    /**
+     * Deploys the statement from the given {@code moduleName} with the given {@code statementName} into the specified Esper Engine.
+     * In addition the given {@code alias} and Prepared Statement {@code params} are set on the statement
+     */
     public static void deployStatement(String strategyName, String moduleName, String statementName, String alias, Object[] params) {
 
         deployStatement(strategyName, moduleName, statementName, alias, params, null);
     }
 
+    /**
+     * Deploys the statement from the given {@code moduleName} with the given {@code statementName} into the specified Esper Engine.
+     * In addition the given {@code alias}, Prepared Statement {@code params} and {@code callback} are set on the statement.
+     */
     public static void deployStatement(String strategyName, String moduleName, String statementName, String alias, Object[] params, Object callback) {
 
         EPServiceProvider serviceProvider = getServiceProvider(strategyName);
@@ -253,12 +286,18 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Deploys all modules defined for given Strategy
+     */
     public static void deployAllModules(String strategyName) {
 
         deployInitModules(strategyName);
         deployRunModules(strategyName);
     }
 
+    /**
+     * Deploys all init-modules defined for given Strategy
+     */
     public static void deployInitModules(String strategyName) {
 
         Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(strategyName);
@@ -271,6 +310,9 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Deploys all run-modules defined for given Strategy
+     */
     public static void deployRunModules(String strategyName) {
 
         Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(strategyName);
@@ -283,6 +325,9 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Deploys the specified module into the specified Esper Engine.
+     */
     public static void deployModule(String strategyName, String moduleName) {
 
         EPServiceProvider serviceProvider = getServiceProvider(strategyName);
@@ -304,24 +349,8 @@ public class EsperManager {
     }
 
     /**
-     * @param statementNameRegex statement name regular expression
-     */
-    public static String[] findStatementNames(String strategyName, final String statementNameRegex) {
-
-        EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
-
-        // find the first statement that matches the given statementName regex
-        return CollectionUtils.select(Arrays.asList(administrator.getStatementNames()), new Predicate<String>() {
-
-            @Override
-            public boolean evaluate(String statement) {
-                return statement.matches(statementNameRegex);
-            }
-        }).toArray(new String[] {});
-    }
-
-
-    /**
+     * Returns true if the statement by the given {@code statementNameRegex} is deployed.
+     *
      * @param statementNameRegex statement name regular expression
      */
     public static boolean isDeployed(String strategyName, final String statementNameRegex) {
@@ -346,6 +375,9 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Undeploys the specified statement from the specified Esper Engine.
+     */
     public static void undeployStatement(String strategyName, String statementName) {
 
         // destroy the statement
@@ -357,6 +389,9 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Restarts the given Statement
+     */
     public static void restartStatement(String strategyName, String statementName) {
 
         // destroy the statement
@@ -369,6 +404,9 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Undeploys the specified module from the specified Esper Engine.
+     */
     public static void undeployModule(String strategyName, String moduleName) {
 
         EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
@@ -386,6 +424,11 @@ public class EsperManager {
         logger.debug("undeployed module " + moduleName);
     }
 
+    /**
+     * Adds the given Event Type to the specified Esper Engine.
+     * this method can be used if an Event Type is not known at compile time and can therefore not be configured
+     * inside an {@code esper-xxx.cfg.xml} file
+     */
     public static void addEventType(String strategyName, String eventTypeName, String eventClassName) {
 
         ConfigurationOperations configuration = getServiceProvider(strategyName).getEPAdministrator().getConfiguration();
@@ -394,6 +437,9 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Sends an Event into the corresponding Esper Engine.
+     */
     public static void sendEvent(String strategyName, Object obj) {
 
         if (simulation) {
@@ -403,7 +449,7 @@ public class EsperManager {
 
                 internalSendEvent(strategyName, obj);
 
-                MetricsUtil.accountEnd("EsperManager." + strategyName + "." + ClassUtils.getShortClassName(obj.getClass()), startTime);
+                MetricsUtil.accountEnd("EsperManager." + strategyName, obj.getClass(), startTime);
             }
         } else {
 
@@ -416,26 +462,10 @@ public class EsperManager {
         }
     }
 
-    private static void internalSendEvent(String strategyName, Object obj) {
-
-        // if the engine is currently processing and event route the new event
-        if (processing.get().contains(strategyName)) {
-            getServiceProvider(strategyName).getEPRuntime().route(obj);
-        } else {
-            processing.get().add(strategyName);
-            getServiceProvider(strategyName).getEPRuntime().sendEvent(obj);
-            processing.get().remove(strategyName);
-        }
-    }
-
-    private static void externalSendEvent(String strategyName, Object obj) {
-
-        // sent to the strateyg queue
-        getTemplate("strategyTemplate").convertAndSend(strategyName + ".QUEUE", obj);
-
-        logger.trace("propagated event to " + strategyName + " " + obj);
-    }
-
+    /**
+     * Sends a MarketDataEvent into the corresponding Esper Engine.
+     * In Live-Trading the {@code marketDataTemplate} will be used.
+     */
     public static void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
 
         if (simulation) {
@@ -461,6 +491,10 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Sends a MarketDataEvent into the corresponding Esper Engine.
+     * In Live-Trading the {@code genericTemplate} will be used.
+     */
     public static void sendGenericEvent(final GenericEventVO event) {
 
         if (simulation) {
@@ -486,6 +520,9 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Executes an arbitrary EPL query on the Esper Engine.
+     */
     @SuppressWarnings("rawtypes")
     public static List executeQuery(String strategyName, String query) {
 
@@ -498,6 +535,9 @@ public class EsperManager {
         return objects;
     }
 
+    /**
+     * Executes an arbitrary EPL query that is supposed to return one single object on the Esper Engine.
+     */
     @SuppressWarnings("unchecked")
     public static Object executeSingelObjectQuery(String strategyName, String query) {
 
@@ -511,6 +551,9 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Retrieves the last event currently held by the given statement.
+     */
     public static Object getLastEvent(String strategyName, String statementName) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
@@ -527,13 +570,16 @@ public class EsperManager {
         return null;
     }
 
-    public static Object getLastEventProperty(String strategyName, String statementName, String property) {
+    /**
+     * Retrieves the last event currently held by the given statement and returns the property by the {@code propertyName}
+     */
+    public static Object getLastEventProperty(String strategyName, String statementName, String propertyName) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
         if (statement != null && statement.isStarted()) {
             SafeIterator<EventBean> it = statement.safeIterator();
             try {
-                return it.next().get(property);
+                return it.next().get(propertyName);
             } finally {
                 it.close();
             }
@@ -541,6 +587,9 @@ public class EsperManager {
         return null;
     }
 
+    /**
+     * Retrieves all events currently held by the given statement.
+     */
     @SuppressWarnings("rawtypes")
     public static List getAllEvents(String strategyName, String statementName) {
 
@@ -561,6 +610,9 @@ public class EsperManager {
         return list;
     }
 
+    /**
+     * Retrieves all events currently held by the given statement and returns the property by the {@code propertyName} for all events.
+     */
     @SuppressWarnings("rawtypes")
     public static List getAllEventsProperty(String strategyName, String statementName, String property) {
 
@@ -581,6 +633,9 @@ public class EsperManager {
         return list;
     }
 
+    /**
+     * Sets the internal clock of the specified Esper Engine
+     */
     public static void setInternalClock(String strategyName, boolean internal) {
 
         internalClock.put(strategyName, internal);
@@ -600,11 +655,17 @@ public class EsperManager {
         logger.debug("set internal clock to: " + internal + " for strategy: " + strategyName);
     }
 
+    /**
+     * Returns true if the specified Esper Engine uses internal clock
+     */
     public static boolean isInternalClock(String strategyName) {
 
         return internalClock.get(strategyName);
     }
 
+    /**
+     * Sends a {@link com.espertech.esper.client.time.CurrentTimeEvent} to all local Esper Engines
+     */
     public static void setCurrentTime(CurrentTimeEvent currentTimeEvent) {
 
         // sent currentTime to all local engines
@@ -613,16 +674,25 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Retruns the current time of the given Esper Engine
+     */
     public static long getCurrentTime(String strategyName) {
 
         return getServiceProvider(strategyName).getEPRuntime().getCurrentTime();
     }
 
+    /**
+     * Prepares the given Esper Engine for coordinated input of CSV-Files
+     */
     public static void initCoordination(String strategyName) {
 
         coordinators.put(strategyName, new AdapterCoordinatorImpl(getServiceProvider(strategyName), true, true));
     }
 
+    /**
+     * Queues the specified {@code csvInputAdapterSpec} for coordination with the given Esper Engine.
+     */
     public static void coordinate(String strategyName, CSVInputAdapterSpec csvInputAdapterSpec) {
 
         InputAdapter inputAdapter;
@@ -636,25 +706,50 @@ public class EsperManager {
         coordinators.get(strategyName).coordinate(inputAdapter);
     }
 
+    /**
+     * Queues the specified {@code collection} for coordination with the given Esper Engine.
+     * The property by the name of {@code timeStampProperty} is used to identify the current time.
+     */
+    @SuppressWarnings({ "rawtypes" })
+    public static void coordinate(String strategyName, Collection collection, String timeStampProperty) {
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static void coordinate(String strategyName, Collection baseObjects, String timeStampColumn) {
-
-        InputAdapter inputAdapter = new DBInputAdapter(getServiceProvider(strategyName), baseObjects, timeStampColumn);
+        InputAdapter inputAdapter = new CollectionInputAdapter(getServiceProvider(strategyName), collection, timeStampProperty);
         coordinators.get(strategyName).coordinate(inputAdapter);
     }
 
+    /**
+     * Queues subscribed Ticks for coordination with the given Esper Engine.
+     */
     public static void coordinateTicks(String strategyName, Date startDate) {
 
         InputAdapter inputAdapter = new BatchDBTickInputAdapter(getServiceProvider(strategyName), startDate);
         coordinators.get(strategyName).coordinate(inputAdapter);
     }
 
+    /**
+     * Starts coordination for the given Esper Engine.
+     */
     public static void startCoordination(String strategyName) {
 
         coordinators.get(strategyName).start();
     }
 
+    /**
+     * sets the value of the specified Esper Variable
+     */
+    public static void setVariableValue(String strategyName, String variableName, Object value) {
+
+        variableName = variableName.replace(".", "_");
+        EPRuntime runtime = getServiceProvider(strategyName).getEPRuntime();
+        if (runtime.getVariableValueAll().containsKey(variableName)) {
+            runtime.setVariableValue(variableName, value);
+            logger.debug("set variable " + variableName + " to value " + value);
+        }
+    }
+
+    /**
+     * sets the value of the specified Esper Variable by parsing the given String value.
+     */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static void setVariableValueFromString(String strategyName, String variableName, String value) {
 
@@ -674,23 +769,20 @@ public class EsperManager {
         }
     }
 
-    public static void setVariableValue(String strategyName, String variableName, Object value) {
+    /**
+     * Returns the value of the specified Esper Variable
+     */
+    public static Object getVariableValue(String strategyName, String variableName) {
 
         variableName = variableName.replace(".", "_");
         EPRuntime runtime = getServiceProvider(strategyName).getEPRuntime();
-        if (runtime.getVariableValueAll().containsKey(variableName)) {
-            runtime.setVariableValue(variableName, value);
-            logger.debug("set variable " + variableName + " to value " + value);
-        }
+        return runtime.getVariableValue(variableName);
     }
 
-    public static Object getVariableValue(String strategyName, String key) {
-
-        key = key.replace(".", "_");
-        EPRuntime runtime = getServiceProvider(strategyName).getEPRuntime();
-        return runtime.getVariableValue(key);
-    }
-
+    /**
+     * Adds a {@link TradeCallback} to the given Esper Engine that will be invoked as soon as all {@code orders} have been
+     * fully exectured or cancelled.
+     */
     public static void addTradeCallback(String strategyName, Collection<Order> orders, TradeCallback callback) {
 
         // get the securityIds sorted asscending and check that all orders are from the same strategy
@@ -723,6 +815,10 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Adds a {@link TickCallback} to the given Esper Engine that will be invoked as soon as at least one Tick has arrived
+     * for each of the specified {@code securities}
+     */
     public static void addFirstTickCallback(String strategyName, Collection<Security> securities, TickCallback callback) {
 
         // create a list of unique security ids
@@ -746,6 +842,10 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Adds a {@link OpenPositionCallback} to the given Esper Engine that will be invoked as soon as a new Position
+     * on the given Security has been opened.
+     */
     public static void addOpenPositionCallback(String strategyName, int securityId, OpenPositionCallback callback) {
 
         String alias = "ON_OPEN_POSITION_" + securityId;
@@ -759,6 +859,10 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Adds a {@link OpenPositionCallback} to the given Esper Engine that will be invoked as soon as a Position
+     * on the given Security has been closed.
+     */
     public static void addClosePositionCallback(String strategyName, int securityId, ClosePositionCallback callback) {
 
         String alias = "ON_CLOSE_POSITION_" + securityId;
@@ -772,6 +876,9 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Prints all statement metrics.
+     */
     @SuppressWarnings("unchecked")
     public static void logStatementMetrics() {
 
@@ -816,6 +923,9 @@ public class EsperManager {
         }
     }
 
+    /**
+     * Resets all statement metrics.
+     */
     public static void resetStatementMetrics() {
 
         for (String strategyName : serviceProviders.keySet()) {
@@ -840,9 +950,6 @@ public class EsperManager {
         return serviceProvider;
     }
 
-    /**
-     * initialize all the variables from the Configuration
-     */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private static void initVariables(Configuration configuration) {
 
@@ -869,9 +976,6 @@ public class EsperManager {
         }
     }
 
-    /**
-     * load the module and process load clauses
-     */
     private static Module getModule(String moduleName) {
 
         String fileName = "module-" + moduleName + ".epl";
@@ -1031,6 +1135,52 @@ public class EsperManager {
         return statement;
     }
 
+    private static String[] findStatementNames(String strategyName, final String statementNameRegex) {
+
+        EPAdministrator administrator = getServiceProvider(strategyName).getEPAdministrator();
+
+        // find the first statement that matches the given statementName regex
+        return CollectionUtils.select(Arrays.asList(administrator.getStatementNames()), new Predicate<String>() {
+
+            @Override
+            public boolean evaluate(String statement) {
+                return statement.matches(statementNameRegex);
+            }
+        }).toArray(new String[] {});
+    }
+
+    private static void internalSendEvent(String strategyName, Object obj) {
+
+        // if the engine is currently processing and event route the new event
+        if (processing.get().contains(strategyName)) {
+            getServiceProvider(strategyName).getEPRuntime().route(obj);
+        } else {
+            processing.get().add(strategyName);
+            getServiceProvider(strategyName).getEPRuntime().sendEvent(obj);
+            processing.get().remove(strategyName);
+        }
+    }
+
+    private static void externalSendEvent(String strategyName, Object obj) {
+
+        // sent to the strateyg queue
+        getTemplate("strategyTemplate").convertAndSend(strategyName + ".QUEUE", obj);
+
+        logger.trace("propagated event to " + strategyName + " " + obj);
+    }
+
+    /**
+     * manual lookup of templates since they are only available if applicationContext-jms.xml is active
+     */
+    private static JmsTemplate getTemplate(String name) {
+
+        if (!templates.containsKey(name)) {
+            templates.put(name, ServiceLocator.instance().getService(name, JmsTemplate.class));
+        }
+
+        return templates.get(name);
+    }
+
     private static Object getSubscriber(String fqdn) throws ClassNotFoundException {
 
         // try to see if the fqdn represents a class
@@ -1043,15 +1193,5 @@ public class EsperManager {
 
         // otherwise the fqdn represents a method, in this case treate a subscriber
         return SubscriberCreator.createSubscriber(fqdn);
-    }
-
-    // manual lookup of templates since they are only available if applicationContext-jms.xml is active
-    private static JmsTemplate getTemplate(String name) {
-
-        if (!templates.containsKey(name)) {
-            templates.put(name, ServiceLocator.instance().getService(name, JmsTemplate.class));
-        }
-
-        return templates.get(name);
     }
 }
