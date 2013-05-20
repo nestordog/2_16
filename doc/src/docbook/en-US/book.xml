@@ -438,15 +438,11 @@ public class ExClient {
                     </listitem>
                     <listitem>
                         <para>High Throughput - Processing of large volumes of up to  500'000 market data events per
-                            second on a dual CPU 2GHz Intel based hardware, see <ulink
-                                url="http://esper.codehaus.org/esper/performance/performance.html"
-                                >Esper Performance</ulink></para>
+                            second on a dual CPU 2GHz Intel based hardware, see <ulink url="http://esper.codehaus.org/esper/performance/performance.html">Esper Performance</ulink></para>
                     </listitem>
                     <listitem>
                         <para>Low Latency - React in real-time to changing market conditions in timeframes below one
-                            millisecond, see <ulink
-                                url="http://esper.codehaus.org/esper/performance/performance.html"
-                                >Esper Performance</ulink></para>
+                            millisecond, see <ulink url="http://esper.codehaus.org/esper/performance/performance.html">Esper Performance</ulink></para>
                     </listitem>
                 </itemizedlist>
             </listitem>
@@ -2059,10 +2055,8 @@ public class ExClient {
             <para>AlgoTrader uses <ulink url="http://maven.apache.org/"> Maven</ulink> as its build
                 management framework. Every project/module therefore has it's own pom.xml (Project
                 Object Model) defining its structure and dependencies.</para>
-            <para>The entire Release Process of AlgoTrader is based on the <ulink
-                    url="http://maven.apache.org/maven-release/maven-release-plugin/"> Maven Release
-                    Plugin</ulink>. Releases are deployed to the following repository: <ulink
-                    url="https://repo.algotrader.com/repo">https://repo.algotrader.com/repo</ulink>
+            <para>The entire Release Process of AlgoTrader is based on the <ulink url="http://maven.apache.org/maven-release/maven-release-plugin/"> Maven Release
+                    Plugin</ulink>. Releases are deployed to the following repository: <ulink url="https://repo.algotrader.ch/maven">https://repo.algotrader.ch/maven</ulink>
             </para>
             <para>The following parent-child relationships and dependencies exist between the
                 individual projects:</para>
@@ -2621,23 +2615,42 @@ public class ExClient {
         <section>
             <title>Subscribers</title>
             <para>The system provides the following Subscribers out-of-the-box:</para>
-            <itemizedlist>
-                <listitem>
-                    <para>IndicatorSubscriber (print all values to indicator.csv)</para>
-                </listitem>
-                <listitem>
-                    <para>PrintPortfolioValueSubscriber (print porftolio values like CashBalance,
-                        SecuritiesCurrentValue, MaintenanceMargin and Leverage to portfolio.csv)
-                    </para>
-                </listitem>
-                <listitem>
-                    <para>TestSubscriber (print all values to the console)</para>
-                </listitem>
-                <listitem>
-                    <para>VoidSubscriber (do nothing subscriber, usefull when select clauses call
-                        static methods)</para>
-                </listitem>
-            </itemizedlist>
+            <variablelist>
+                <varlistentry>
+                    <term>IndicatorSubscriber</term>
+                    <listitem>
+                        <para>Prints all values as a comma-separated-list (CSV) to Log. (Headers are
+                            not available)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>LogPortfolioValueSubscriber</term>
+                    <listitem>
+                        <para>Prints porftolio values like CashBalance, SecuritiesCurrentValue,
+                            MaintenanceMargin and Leverage to the Log.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>TestSubscriber</term>
+                    <listitem>
+                        <para>Prints all values to the Log by using the
+                                <methodname>toString</methodname> method of the event object.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>VoidSubscriber</term>
+                    <listitem>
+                        <para>Do-nothing subscriber, useful when select clauses call static
+                            methods</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>ExceptionSubscriber</term>
+                    <listitem>
+                        <para>Prints a value as an Error to the Log.</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
             <para>The class <classname>com.algoTrader.esper.subscriber.SubscriberCreator</classname>
                 can generate Subscriber classes on the fly using <ulink url="http://www.csg.ci.i.u-tokyo.ac.jp/~chiba/javassist/">javassist</ulink>. Use
                 the following syntax to call a spring service method directly:</para>
@@ -2646,25 +2659,36 @@ public class ExClient {
         <section>
             <title>Listeners</title>
             <para>The system provides the following Listeners out-of-the-box:</para>
-            <itemizedlist>
-                <listitem>
-                    <para>IndicatorListener (print all values to indicator.csv)</para>
-                </listitem>
-                <listitem>
-                    <para>RendererListener (print all values to the console in xml format)</para>
-                </listitem>
-                <listitem>
-                    <para>TestListener (print all values to the console)</para>
-                </listitem>
-            </itemizedlist>
+            <variablelist>
+                <varlistentry>
+                    <term>IndicatorListener</term>
+                    <listitem><para>Prints all values as a comma-separated-list (CSV) to Log. Headers will be extracted from the
+                            supplied Statement.</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>RendererListener:</term>
+                    <listitem><para> Prints all values to the Log in XML format.</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>TestListener</term>
+                    <listitem><para> Prints all values to the Log by using the <methodname>toString</methodname> method of the
+                            event object.</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>StatementAwareTestListener</term>
+                    <listitem>
+                        <para>Prints all values including the statement name to the Log by using the
+                                <methodname>toString</methodname> method of the event object.</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
         </section>
         <section>
             <title>Aggregation Functions</title>
             <para>The system provides the following three custom aggregation functions:</para>
             <section>
                 <title>GenericTALibFunction</title>
-                <para>The <classname>GenericTALibFunction</classname> is a portation of <ulink
-                        url="http://ta-lib.org/">http://ta-lib.org/</ulink> to AlgoTrader. It
+                <para>The <classname>GenericTALibFunction</classname> is a portation of <ulink url="http://ta-lib.org/">http://ta-lib.org/</ulink> to AlgoTrader. It
                     supports all TA-Lib operations.</para>
                 <para>To use the <classname>AggregateFunction</classname> the following configuration is added
                     to the esper configuration <filename>esper-common.cfg.xml</filename>:</para>
@@ -2736,6 +2760,42 @@ from Event;</programlisting>
                     statement like this:</para>
                 <programlisting lang="Java">select varLinest(x, y, 10)
 from Event;</programlisting>
+            </section>
+        </section>
+        <section>
+            <title>Custom Views</title>
+            <section id="OHLCView">
+                <title>OHLCView</title>
+                <para>The OHLC View is a custom Esper data view that aggregates events in a stream
+                    to OHLC Bars and releases them at the end of every specified time interval. The
+                    view works similar to a time_batch_window. The view releases the OHLC Bar after
+                    the interval as new data to child views. The prior OHLC Bar if not empty is
+                    released as old data to child view. The view doesn't release intervals with no
+                    old or new data. It also does not collect old data published by a parent view. </para>
+                <para>The view accepts 2 parameter combinations: </para>
+                <itemizedlist>
+                    <listitem>
+                        <para>A time interval is supplied with a reference point - based on this
+                            point the intervals are set</para>
+                    </listitem>
+                    <listitem>
+                        <para>A time interval is supplied but no reference point - the reference
+                            point is set when the first event arrives</para>
+                    </listitem>
+                </itemizedlist>
+                <para>If there are no events in the current and prior batch, the view will not
+                    invoke the update method of child views. In that case also, no next callback is
+                    scheduled with the scheduling service until the next event arrives. </para>
+                <para>To use the Custom View add the following to the esper configuration: </para>
+                <programlisting>&lt;plugin-view namespace="custom" name="ohlcbar" factory-class="com.algoTrader.esper.ohlc.OHLCViewFactory"/></programlisting>
+                <para>In addition the <classname>OHLCBar</classname> event type needs to be added to
+                    the esper configuration:</para>
+                <programlisting>&lt;event-type name="OHLCTick" class="com.algoTrader.esper.ohlc.OHLCBar"/></programlisting>
+                <para>The Custom View can be used in an esper statement like this:</para>
+                <programlisting>select
+    open, high, low, close
+from
+    Tick.custom:ohlcbar(currentValueDouble, 1 days, 0L);</programlisting>
             </section>
         </section>
         <section>
@@ -2914,16 +2974,12 @@ getOrderService().sendOrders(orders);</programlisting>
         </itemizedlist>
         <section id="JMX_Client">
             <title>JMX Client</title>
-            <para>The JMX Client uses <ulink
-                    url="http://docs.oracle.com/javase/tutorial/jmx/index.html"> Java Management
-                    Extension</ulink> (JMX) and the generic Java Client<ulink
-                    url="http://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html">
+            <para>The JMX Client uses <ulink url="http://docs.oracle.com/javase/tutorial/jmx/index.html"> Java Management
+                    Extension</ulink> (JMX) and the generic Java Client<ulink url="http://docs.oracle.com/javase/7/docs/technotes/tools/share/jconsole.html">
                     JConsole</ulink>. </para>
             <para>When starting up the AlgoTraderClient there will be one window per JVM. The
                 JConsole provides management functionality for many technical aspects of the JVM
-                (i.e. Threads, Classes &amp; Memory) see the <ulink
-                    url="http://docs.oracle.com/javase/6/docs/technotes/guides/management/jconsole.html"
-                    >Java Documentation</ulink> for details. </para>
+                (i.e. Threads, Classes &amp; Memory) see the <ulink url="http://docs.oracle.com/javase/6/docs/technotes/guides/management/jconsole.html">Java Documentation</ulink> for details. </para>
             <para>The business related features of AlgoTrader are available on the Tab
                     <literal>MBeans</literal> through the
                     <classname>BaseManagementService</classname> and the
@@ -2951,8 +3007,7 @@ getOrderService().sendOrders(orders);</programlisting>
                         <title>Management Service Attributes</title>
                         <mediaobject>
                             <imageobject>
-                                <imagedata scalefit="1"
-                                    fileref="images/ManagementServiceAttributes.gif"/>
+                                <imagedata scalefit="1" fileref="images/ManagementServiceAttributes.gif"/>
                             </imageobject>
                         </mediaobject>
                     </figure>
@@ -3053,8 +3108,7 @@ getOrderService().sendOrders(orders);</programlisting>
                         <title>Management Service Operations</title>
                         <mediaobject>
                             <imageobject>
-                                <imagedata scalefit="1"
-                                    fileref="images/ManagementServiceOperations.gif"/>
+                                <imagedata scalefit="1" fileref="images/ManagementServiceOperations.gif"/>
                             </imageobject>
                         </mediaobject>
                     </figure>
@@ -3171,8 +3225,7 @@ getOrderService().sendOrders(orders);</programlisting>
                         <title>Base Management Service Operations</title>
                         <mediaobject>
                             <imageobject>
-                                <imagedata scalefit="1"
-                                    fileref="images/BaseManagementServiceOperations.gif"/>
+                                <imagedata scalefit="1" fileref="images/BaseManagementServiceOperations.gif"/>
                             </imageobject>
                         </mediaobject>
                     </figure>
@@ -3708,8 +3761,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         <title>Operation Documentation in UML</title>
                         <mediaobject>
                             <imageobject>
-                                <imagedata scalefit="1"
-                                    fileref="images/UMLOperationDocumentation.gif"/>
+                                <imagedata scalefit="1" fileref="images/UMLOperationDocumentation.gif"/>
                             </imageobject>
                         </mediaobject>
                     </figure>
@@ -3719,8 +3771,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         <title>Operation Documentation in JConsole</title>
                         <mediaobject>
                             <imageobject>
-                                <imagedata scalefit="1"
-                                    fileref="images/JConsoleOperationDocumentation.gif"/>
+                                <imagedata scalefit="1" fileref="images/JConsoleOperationDocumentation.gif"/>
                             </imageobject>
                         </mediaobject>
                     </figure>
@@ -3784,8 +3835,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
             <para>After starting the system, the EsperHQ client is now available via the following
                 URL:</para>
             <para>
-                <ulink url="http://localhost:8400/esperhq/esperhq/esperhq.html"
-                    >http://localhost:8400/esperhq/esperhq/esperhq.html</ulink>
+                <ulink url="http://localhost:8400/esperhq/esperhq/esperhq.html">http://localhost:8400/esperhq/esperhq/esperhq.html</ulink>
             </para></section>
             <section>
                 <title>Dialogs</title>
@@ -4006,16 +4056,14 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <itemizedlist>
                     <listitem>
                         <para>
-                            <ulink
-                                url="http://algo-trader.googlecode.com/files/grails-gorm-1.3.7.jar">
+                            <ulink url="http://algo-trader.googlecode.com/files/grails-gorm-1.3.7.jar">
                                 grails-gorm-1.3.7.jar</ulink> to
                                 <filename>user_home\.m2\repository\org\grails\grails-gorm\1.3.7</filename>
                         </para>
                     </listitem>
                     <listitem>
                         <para>
-                            <ulink
-                                url="http://algo-trader.googlecode.com/files/grails-web-1.3.7.jar">
+                            <ulink url="http://algo-trader.googlecode.com/files/grails-web-1.3.7.jar">
                                 grails-web-1.3.7.jar</ulink> to
                                 <filename>user_home\.m2\repository\org\grails\grails-web\1.3.7</filename>
                         </para>
@@ -4025,15 +4073,13 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     command:</para>
                 <screen>mvn -Ddisable.auto.recompile=true grails:run-app</screen>
                 <para>After Tomcat has started up, the AlgoTrader CRUD application can be accessed
-                    at the following URL: <ulink url="http://localhost:8080/algotrader-crud/"
-                        >http://localhost:8080/algotrader-crud/</ulink>
+                    at the following URL: <ulink url="http://localhost:8080/algotrader-crud/">http://localhost:8080/algotrader-crud/</ulink>
                 </para>
             </section>
             <section>
                 <title>Run Using Grails</title>
                 <para>Alternatively the application can be started using Grails directly:</para>
-                <para>Please install version 1.3.7 from <ulink url="http://grails.org/Download"
-                        >http://grails.org/download</ulink>
+                <para>Please install version 1.3.7 from <ulink url="http://grails.org/Download">http://grails.org/download</ulink>
                 </para>
                 <para>Set the environment variable <parameter>GRAILS_HOME</parameter> to the
                     directory where you installed grails and also add the
@@ -4044,16 +4090,14 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <itemizedlist>
                     <listitem>
                         <para>
-                            <ulink
-                                url="http://algo-trader.googlecode.com/files/grails-gorm-1.3.7.jar">
+                            <ulink url="http://algo-trader.googlecode.com/files/grails-gorm-1.3.7.jar">
                                 grails-gorm-1.3.7.jar</ulink> to
                                 <filename>user_home\.ivy2\cache\org.grails\grails-gorm\1.3.7</filename>
                         </para>
                     </listitem>
                     <listitem>
                         <para>
-                            <ulink
-                                url="http://algo-trader.googlecode.com/files/grails-web-1.3.7.jar">
+                            <ulink url="http://algo-trader.googlecode.com/files/grails-web-1.3.7.jar">
                                 grails-web-1.3.7.jar</ulink> to
                                 <filename>user_home\.ivy2\cache\org.grails\grails-web\1.3.7</filename>
                         </para>
@@ -4063,8 +4107,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     command:</para>
                 <screen>grails -Ddisable.auto.recompile=true run-app</screen>
                 <para>After Tomcat has started up, the AlgoTraderCrud application can be accessed at
-                    the following URL: <ulink url="http://localhost:8080/algotrader-crud/"
-                        >http://localhost:8080/algotrader-crud/</ulink>
+                    the following URL: <ulink url="http://localhost:8080/algotrader-crud/">http://localhost:8080/algotrader-crud/</ulink>
                 </para>
                 <note>
                     <itemizedlist>
@@ -4091,16 +4134,13 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <varlistentry>
                     <term>Java JDK</term>
                     <listitem>
-                        <para>Install the latest Java JDK from <ulink
-                                url="http://www.oracle.com/technetwork/java/index.html"
-                                >Oracle</ulink></para>
+                        <para>Install the latest Java JDK from <ulink url="http://www.oracle.com/technetwork/java/index.html">Oracle</ulink></para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>Subversion</term>
                     <listitem>
-                        <para>Install the latest 1.6 version of <ulink
-                                url="http://subversion.apache.org/">Subversion</ulink>. Subversion
+                        <para>Install the latest 1.6 version of <ulink url="http://subversion.apache.org/">Subversion</ulink>. Subversion
                             1.7 and later have a different repository structure and will therefore
                             not work with the current AlgoTrader repository.</para>
                     </listitem>
@@ -4131,15 +4171,13 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <varlistentry>
                     <term>Maven</term>
                     <listitem>
-                        <para>Install the latest version of <ulink url="http://maven.apache.org"
-                                >Maven</ulink>.</para>
+                        <para>Install the latest version of <ulink url="http://maven.apache.org">Maven</ulink>.</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>ActiveMQ</term>
                     <listitem>
-                        <para>Install the latest version of Apache <ulink
-                                url="http://activemq.apache.org/">ActiveMQ</ulink></para>
+                        <para>Install the latest version of Apache <ulink url="http://activemq.apache.org/">ActiveMQ</ulink></para>
                     </listitem>
                 </varlistentry>
             </variablelist>
@@ -4176,8 +4214,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         </row>
                         <row>
                             <entry>Subversive SVN Team Provider</entry>
-                            <entry><ulink url="http://download.eclipse.org/releases/..."
-                                        >http://download.eclipse.org/releases/...</ulink></entry>
+                            <entry><ulink url="http://download.eclipse.org/releases/...">http://download.eclipse.org/releases/...</ulink></entry>
                             <entry>newest</entry>
                         </row>
                         <row>
@@ -4192,8 +4229,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         </row>
                         <row>
                             <entry>m2e</entry>
-                            <entry><ulink url="http://download.eclipse.org/releases/..."
-                                        >http://download.eclipse.org/releases/...</ulink></entry>
+                            <entry><ulink url="http://download.eclipse.org/releases/...">http://download.eclipse.org/releases/...</ulink></entry>
                             <entry>newest</entry>
                         </row>
                         <row>
@@ -4203,51 +4239,43 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         </row>
                         <row>
                             <entry>Eclipse XML Tools</entry>
-                            <entry><ulink url="http://download.eclipse.org/releases/..."
-                                        >http://download.eclipse.org/releases/...</ulink></entry>
+                            <entry><ulink url="http://download.eclipse.org/releases/...">http://download.eclipse.org/releases/...</ulink></entry>
                             <entry>newest</entry>
                         </row>
                         <row>
                             <entry>Hibernate Tools</entry>
-                            <entry><ulink url="http://download.jboss.org/jbosstools/updates/development/xxx"
-                                        >http://download.jboss.org/jbosstools/updates/development/...</ulink>
+                            <entry><ulink url="http://download.jboss.org/jbosstools/updates/development/xxx">http://download.jboss.org/jbosstools/updates/development/...</ulink>
                                 </entry>
                             <entry>newest</entry>
                         </row>
                         <row>
                             <entry>Spring IDE Core</entry>
-                            <entry><ulink url="http://springide.org/updatesite"
-                                    >http://springide.org/updatesite</ulink></entry>
+                            <entry><ulink url="http://springide.org/updatesite">http://springide.org/updatesite</ulink></entry>
                             <entry>newest</entry>
                         </row>
                         <row>
                             <entry>Spring IDE Autowire Extension</entry>
-                            <entry><ulink url="http://springide.org/updatesite"
-                                    >http://springide.org/updatesite</ulink></entry>
+                            <entry><ulink url="http://springide.org/updatesite">http://springide.org/updatesite</ulink></entry>
                             <entry>newest</entry>
                         </row>
                         <row>
                             <entry>Veloeclipse</entry>
-                            <entry><ulink url="http://veloeclipse.googlecode.com"
-                                        >http://veloeclipse.googlecode.com</ulink></entry>
+                            <entry><ulink url="http://veloeclipse.googlecode.com">http://veloeclipse.googlecode.com</ulink></entry>
                             <entry>newest</entry>
                         </row>
                         <row>
                             <entry>JDT Decompiler Feature</entry>
-                            <entry><ulink url="http://jadclipse.sf.net/update"
-                                    >http://jadclipse.sf.net/update</ulink></entry>
+                            <entry><ulink url="http://jadclipse.sf.net/update">http://jadclipse.sf.net/update</ulink></entry>
                             <entry>newest</entry>
                         </row>
                             <row>
                                 <entry>JD-Eclipse Plug-in</entry>
-                                <entry><ulink url="http://java.decompiler.free.fr/jd-eclipse/update"
-                                        >http://java.decompiler.free.fr/jd-eclipse/update</ulink></entry>
+                                <entry><ulink url="http://java.decompiler.free.fr/jd-eclipse/update">http://java.decompiler.free.fr/jd-eclipse/update</ulink></entry>
                                 <entry>newest</entry>
                             </row>
                             <row>
                                 <entry>Eclipse Colorer</entry>
-                                <entry><ulink url="http://colorer.sf.net/eclipsecolorer/"
-                                        >http://colorer.sf.net/eclipsecolorer/</ulink></entry>
+                                <entry><ulink url="http://colorer.sf.net/eclipsecolorer/">http://colorer.sf.net/eclipsecolorer/</ulink></entry>
                                 <entry>newest</entry>
                             </row>
                         <row>
@@ -4262,8 +4290,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         </row>
                         <row>
                             <entry>TOAD for MySql</entry>
-                            <entry><ulink url="http://www.quest.com/toad-for-mysql"
-                                        >http://www.quest.com/toad-for-mysql</ulink></entry>
+                            <entry><ulink url="http://www.quest.com/toad-for-mysql">http://www.quest.com/toad-for-mysql</ulink></entry>
                             <entry>newest</entry>
                         </row>
                     </tbody>
@@ -4271,10 +4298,8 @@ public class MovChartService extends ChartProvidingServiceImpl {
             </table>
                 <section>
                     <title>Esper Colorer</title>
-                    <para>AlgoTrader provides a custom  Esper EPL Syntax Highlighter based on the <ulink
-                            url="http://colorer.sourceforge.net/">Colorer</ulink> Library.</para>
-                    <para>Together with the <ulink url="http://colorer.sourceforge.net/eclipsecolorer/index.html"
-                            >Eclipse Colorer Plugin</ulink> it provides the following
+                    <para>AlgoTrader provides a custom  Esper EPL Syntax Highlighter based on the <ulink url="http://colorer.sourceforge.net/">Colorer</ulink> Library.</para>
+                    <para>Together with the <ulink url="http://colorer.sourceforge.net/eclipsecolorer/index.html">Eclipse Colorer Plugin</ulink> it provides the following
                         features:</para>
                         <itemizedlist>
                             <listitem>
@@ -4320,9 +4345,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     <orderedlist>
 
                                 <listitem>
-                                    <para>Install the <ulink
-                                            url="http://colorer.sourceforge.net/eclipsecolorer/index.html"
-                                            >Eclipse Colorer Plugin</ulink></para>
+                                    <para>Install the <ulink url="http://colorer.sourceforge.net/eclipsecolorer/index.html">Eclipse Colorer Plugin</ulink></para>
                                 </listitem>
                                 <listitem>
                                     <para>Copy the file <filename>/algotrader-core/src/main/resources/esper.hrc</filename> to
@@ -4353,7 +4376,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     exclamation marks) in the project path.</para>
             </important>
             <para>Select the following SVN Location:</para>
-            <screen>svn+ssh://repo.algotrader.com/var/svn/repository/trunk/AlgoTrader</screen>
+            <screen>https://repo.algotrader.ch/svn/trunk/AlgoTrader</screen>
             <para>This will create the following projects in Eclipse:</para>
             <itemizedlist>
                 <listitem>
@@ -4566,7 +4589,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     <listitem>
                         <para> checkout the following directory via SVN, which contains the
                                 <filename>pom.xml</filename> and different shell scripts:
-                                <literal>svn+ssh://aws@repo.algotrader.com/var/svn/repository/trunk/AlgoTrader/core/bin</literal>
+                                <literal>https://repo.algotrader.ch/svn/trunk/AlgoTrader/core/bin</literal>
                         </para>
                     </listitem>
                     <listitem>
@@ -4585,8 +4608,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     <listitem>
                         <para> copy files <filename>keystore</filename> and
                                 <filename>truststore</filename> to
-                                <filename>AlgoTrader/bin</filename> (see <xref linkend="JMX"
-                            />)</para>
+                                <filename>AlgoTrader/bin</filename> (see <xref linkend="JMX"/>)</para>
                     </listitem>
                 </orderedlist>
             </para>
@@ -4603,8 +4625,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
             <title>VM-Arguments</title>
             <para>Many of the characteristics of the System can be customized with VM-Arguments, the
                 following list provides an overview of commonly used settings. In addition any of
-                the Configuration parameters can also be modified via VM argument <xref
-                    linkend="Configuration"/>.</para>
+                the Configuration parameters can also be modified via VM argument <xref linkend="Configuration"/>.</para>
             <variablelist>
                 <varlistentry>
                     <term>-DlogLevel</term>
@@ -4616,36 +4637,31 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <varlistentry>
                     <term>-Dspring.profiles.active</term>
                     <listitem>
-                        <para>list of Spring Profiles to activate (see <xref
-                                linkend="Spring-Profiles"/>)</para>
+                        <para>list of Spring Profiles to activate (see <xref linkend="Spring-Profiles"/>)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>-Dcom.algoTrarder.rmi.registryPort</term>
                     <listitem>
-                        <para>the RMI registry Port, e.g. 1099 (for <xref
-                                linkend="Remote-JMX-Access"/>)</para>
+                        <para>the RMI registry Port, e.g. 1099 (for <xref linkend="Remote-JMX-Access"/>)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>-Dcom.algoTrarder.rmi.serverPort</term>
                     <listitem>
-                        <para>the RMI server Port, e.g. 1098 (for <xref linkend="Remote-JMX-Access"
-                            />)</para>
+                        <para>the RMI server Port, e.g. 1098 (for <xref linkend="Remote-JMX-Access"/>)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>-Djava.rmi.server.hostname</term>
                     <listitem>
-                        <para>the hostname of the system, e.g. localhost (for <xref
-                                linkend="Remote-JMX-Access"/>)</para>
+                        <para>the hostname of the system, e.g. localhost (for <xref linkend="Remote-JMX-Access"/>)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>-Dcom.sun.management.jmxremote.port</term>
                     <listitem>
-                        <para>the RMI registry Port, e.g. 1099 (for <xref linkend="Local-JMX-Access"
-                            />)</para>
+                        <para>the RMI registry Port, e.g. 1099 (for <xref linkend="Local-JMX-Access"/>)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -4665,17 +4681,13 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <varlistentry>
                     <term>-Dcom.sun.management.jmxremote.ssl.need.client.auth</term>
                     <listitem>
-                        <para>use SSL client authentication (true for <xref
-                                linkend="Remote-JMX-Access"/>; false for <xref
-                                linkend="Local-JMX-Access"/>)</para>
+                        <para>use SSL client authentication (true for <xref linkend="Remote-JMX-Access"/>; false for <xref linkend="Local-JMX-Access"/>)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>-Dcom.sun.management.jmxremote.registry.ssl</term>
                     <listitem>
-                        <para>use SSL encryption for the RMI registry (true for <xref
-                                linkend="Remote-JMX-Access"/>; false for <xref
-                                linkend="Local-JMX-Access"/>)</para>
+                        <para>use SSL encryption for the RMI registry (true for <xref linkend="Remote-JMX-Access"/>; false for <xref linkend="Local-JMX-Access"/>)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -4699,8 +4711,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <varlistentry>
                     <term>-Djavax.net.ssl.trustStorePassword</term>
                     <listitem>
-                        <para>the truststore password (for <xref linkend="Remote-JMX-Access"
-                            />)</para>
+                        <para>the truststore password (for <xref linkend="Remote-JMX-Access"/>)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -6476,8 +6487,8 @@ from
   Tick.win:expr_batch(sum(volume) > 1000)
 group by
   security.id;</programlisting>
-            <para>In addition there is a custom view that can be used to create Bars from Ticks with
-                an explicit definition of a cutoff time:</para>
+            <para>In addition there is a custom view (see <xref linkend="OHLCView"/>) that can be used to
+                create Bars from Ticks with an explicit definition of a cutoff time:</para>
             <programlisting>select
   open,
   high,
@@ -7598,7 +7609,7 @@ private @Value("#{T(com.algoTrader.enumeration.Currency)
             <screen>-javaagent:lib/agent.jar</screen>
             <para>In addition the following vm argument has to be specified, which defines the
                 public external host name:</para>
-            <screen>-Djava.rmi.server.hostname=algotrader.com</screen>
+            <screen>-Djava.rmi.server.hostname=xxx</screen>
             <note>
                 <itemizedlist>
                     <listitem>
@@ -7783,8 +7794,7 @@ where and s.name = 'BASE'</programlisting>
                     <title>Market Data Event Hibernate Sessions</title>
                     <mediaobject>
                         <imageobject>
-                            <imagedata scalefit="1"
-                                fileref="images/MarketDataEventHibernateSessions.png"/>
+                            <imagedata scalefit="1" fileref="images/MarketDataEventHibernateSessions.png"/>
                         </imageobject>
                     </mediaobject>
                 </figure>
