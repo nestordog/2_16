@@ -17,6 +17,13 @@
  ***********************************************************************************/
 package com.algoTrader.esper.annotation;
 
+/**
+ * Attaches one or multiple listeners to an Esper Statement.
+ *
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public @interface Listeners {
 
     String[] classNames();

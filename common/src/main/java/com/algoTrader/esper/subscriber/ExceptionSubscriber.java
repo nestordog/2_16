@@ -22,6 +22,8 @@ import org.apache.log4j.Logger;
 import com.algoTrader.util.MyLogger;
 
 /**
+ * Prints a value as an Error to the Log.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

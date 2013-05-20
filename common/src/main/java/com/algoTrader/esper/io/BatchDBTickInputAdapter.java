@@ -33,6 +33,9 @@ import com.espertech.esperio.AbstractCoordinatedAdapter;
 import com.espertech.esperio.SendableEvent;
 
 /**
+ * A {@link com.espertech.esperio.CoordinatedAdapter} used to input {@link com.algoTrader.entity.marketData.Tick Ticks}
+ * for all subscribed secruitiesin 1-day batches.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

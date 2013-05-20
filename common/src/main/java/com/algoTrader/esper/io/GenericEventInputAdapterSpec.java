@@ -23,6 +23,9 @@ import com.espertech.esperio.AdapterInputSource;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 /**
+ * A {@link CSVInputAdapterSpec} used to input arbitrary events from  a file.
+ * Will use {@code time} as {@code timestampColumn}.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

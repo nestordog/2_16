@@ -17,6 +17,13 @@
  ***********************************************************************************/
 package com.algoTrader.esper.annotation;
 
+/**
+ * Esper Statement is only deployed in Live-Trading mode.
+ *
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public @interface RunTimeOnly {
 
 }

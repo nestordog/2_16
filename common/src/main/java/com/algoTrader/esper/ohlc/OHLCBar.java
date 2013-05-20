@@ -20,6 +20,8 @@ package com.algoTrader.esper.ohlc;
 import java.util.Date;
 
 /**
+ * Pojo used for {@link OHLCView}.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

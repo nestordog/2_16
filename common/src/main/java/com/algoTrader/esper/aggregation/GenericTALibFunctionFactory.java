@@ -51,6 +51,8 @@ import com.tictactec.ta.lib.meta.annotation.OutputParameterInfo;
 import com.tictactec.ta.lib.meta.annotation.OutputParameterType;
 
 /**
+ * Factory class needed for {@link GenericTALibFunction}
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

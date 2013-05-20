@@ -31,6 +31,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 
 /**
+ * Prints all values as a comma-separated-list (CSV) to Log.
+ * Headers will be extracted from the supplied {@code statement}.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

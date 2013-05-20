@@ -25,6 +25,8 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.metric.MetricsUtil;
 
 /**
+ * Prints porftolio values like CashBalance, SecuritiesCurrentValue, MaintenanceMargin and Leverage to the Log.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -33,7 +35,7 @@ public class LogPortfolioValueSubscriber {
 
     private static Logger logger = MyLogger.getLogger(LogPortfolioValueSubscriber.class.getName());
 
-    private static long initialBalance = ServiceLocator.instance().getConfiguration().getLong("initialBalance");
+    private static long initialBalance = ServiceLocator.instance().getConfiguration().getLong("simulation.initialBalance");
 
     private static boolean initialized = false;
 

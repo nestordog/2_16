@@ -21,6 +21,18 @@ import com.espertech.esper.epl.agg.service.AggregationSupport;
 import com.espertech.esper.epl.agg.service.AggregationValidationContext;
 
 /**
+ * The ExponentialMovingAverageFunction provides an exponential moving average over a defined period of time.
+ * To use the AggregateFunction the following configuration has to be added to the esper configuration :
+ * <pre>
+ * &lt;plugin-aggregation-function name="ema" factory-class="com.algoTrader.esper.aggregation.ExponentialMovingAverageFunction"/&gt;
+ * </pre>
+ * The AggregationFunction can then be used in an esper statement like this:
+ * <pre>
+ * select ema(value, 10)
+ * from Event;
+ * </pre>
+ * <i>Note: ExponentialMovingAverage is also available through the GenericTALibFunction.</i>
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

@@ -44,18 +44,37 @@ import com.espertech.esper.view.ViewSupport;
 
 /**
  * A data view that aggregates events in a stream to OHLC Bars and releases them at the end of every specified time interval.
- * The view works similar to a time_batch_window
+ * The view works similar to a time_batch_window.
  * The view releases the OHLC Bar after the interval as new data to child views. The prior OHLC Bar if
  * not empty is released as old data to child view. The view doesn't release intervals with no old or new data.
  * It also does not collect old data published by a parent view.
  *
- * For example, we want to calculate the average of IBM stock every hour, for the last hour.
- * The view accepts 2 parameter combinations.
- * (1) A time interval is supplied with a reference point - based on this point the intervals are set.
- * (1) A time interval is supplied but no reference point - the reference point is set when the first event arrives.
+ * The view accepts 2 parameter combinations:
+ * <ul>
+ * <li>A time interval is supplied with a reference point - based on this point the intervals are set.</li>
+ * <li>A time interval is supplied but no reference point - the reference point is set when the first event arrives.</li>
+ * </ul>
  *
  * If there are no events in the current and prior batch, the view will not invoke the update method of child views.
  * In that case also, no next callback is scheduled with the scheduling service until the next event arrives.
+ *
+ * To use the CustomView add the following to the esper configuration:
+ * <pre>
+ * &lt;plugin-view namespace="custom" name="ohlcbar" factory-class="com.algoTrader.esper.ohlc.OHLCViewFactory"/&gt;
+ * </pre>
+ *
+ * In addition the {@link OHLCBar} event type needs to be added to the esper configuration:
+ * <pre>
+ * &lt;event-type name="OHLCTick" class="com.algoTrader.esper.ohlc.OHLCBar"/&gt;
+ * </pre>
+ *
+ * The CustomView can be used in an esper statement like this:
+ * <pre>
+ * select
+ *   open, high, low, close
+ * from
+ *   Tick.custom:ohlcbar(currentValueDouble, 1 days, 0L);
+ * </pre>
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *

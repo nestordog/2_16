@@ -22,6 +22,8 @@ import com.espertech.esperio.AbstractSendableEvent;
 import com.espertech.esperio.AbstractSender;
 
 /**
+ * Used by {@link BatchDBTickInputAdapter} and {@link CollectionInputAdapter}.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

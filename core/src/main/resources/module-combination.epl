@@ -91,7 +91,7 @@ select
     security
 from
     CombinationTick(not combinationId is null),
-    method:LookupUtil.getCombinationInclComponentsInitialized(combinationId) as security
+    method:LookupUtil.getSecurityInitialized(combinationId) as security
 where
     countDiff = 0 // total count of non-ignored components must equal component count of the parent
 and

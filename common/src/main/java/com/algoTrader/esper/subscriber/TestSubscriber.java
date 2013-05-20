@@ -24,6 +24,8 @@ import org.apache.log4j.Logger;
 import com.algoTrader.util.MyLogger;
 
 /**
+ * Prints all values to the Log by using the {@code toString} method of the event object.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

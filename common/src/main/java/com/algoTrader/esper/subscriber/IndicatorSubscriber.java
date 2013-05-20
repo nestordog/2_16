@@ -26,6 +26,8 @@ import org.apache.log4j.Logger;
 import com.algoTrader.util.MyLogger;
 
 /**
+ * Prints all values as a comma-separated-list (CSV) to Log. (Headers are not available).
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

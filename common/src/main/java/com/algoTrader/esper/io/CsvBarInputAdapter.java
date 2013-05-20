@@ -24,8 +24,12 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esperio.SendableBeanEvent;
 import com.espertech.esperio.SendableEvent;
 import com.espertech.esperio.csv.CSVInputAdapter;
+import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 /**
+ *  A {@link CSVInputAdapter} used to input {@link com.algoTrader.entity.marketData.Bar Bars}.
+ *  Will retrieve the {@code isin} for the {@code fileName} and the {@code barSize} from the {@link CSVInputAdapterSpec}.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

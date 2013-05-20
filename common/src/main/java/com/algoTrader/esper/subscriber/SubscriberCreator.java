@@ -29,6 +29,12 @@ import org.apache.commons.lang.StringUtils;
 import com.algoTrader.ServiceLocator;
 
 /**
+ * Generate Subscriber classes on the fly using <a href="http://www.javassist.org/">Javaassist</a>.
+ * Use the following syntax to call a spring service method directly:
+ * <pre>
+ * @Subscriber(className='com.algoTrader.service.PositionService.setMargins')
+ * </pre>
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

@@ -18,6 +18,8 @@
 package com.algoTrader.esper.subscriber;
 
 /**
+ * Base class for all Subscribers being created througn {@link SubscriberCreator}.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

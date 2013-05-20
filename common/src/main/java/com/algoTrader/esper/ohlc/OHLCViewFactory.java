@@ -46,8 +46,7 @@ import com.espertech.esper.view.window.TimeBatchViewFactoryParams;
 
 /**
  * Factory for {@link OHLCView}.
- */
-/**
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

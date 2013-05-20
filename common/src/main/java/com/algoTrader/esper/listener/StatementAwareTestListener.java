@@ -26,6 +26,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 
 /**
+ * Prints all values including the statement name to the Log by using the {@code toString} method of the event object.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

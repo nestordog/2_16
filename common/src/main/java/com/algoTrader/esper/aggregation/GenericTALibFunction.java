@@ -32,7 +32,6 @@ import com.tictactec.ta.lib.MInteger;
 import com.tictactec.ta.lib.RetCode;
 
 /**
- *
  * Generic AggregateFunction to support all TA-Lib operations
  * <p/>
  * To use the AggregateFunction add the following to the esper configuration
