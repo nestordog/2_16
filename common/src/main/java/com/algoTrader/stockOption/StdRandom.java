@@ -3,60 +3,41 @@
  *
  * Copyright (C) 2013 Flury Trading - All rights reserved
  *
- * All information contained herein is, and remains the property of Flury Trading.
- * The intellectual and technical concepts contained herein are proprietary to
- * Flury Trading. Modification, translation, reverse engineering, decompilation,
- * disassembly or reproduction of this material is strictly forbidden unless prior
+ * All information contained herein is, and remains the property of Flury Trading. The intellectual and technical concepts contained herein are proprietary to
+ * Flury Trading. Modification, translation, reverse engineering, decompilation, disassembly or reproduction of this material is strictly forbidden unless prior
  * written permission is obtained from Flury Trading
  *
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
- * Flury Trading
- * Badenerstrasse 16
- * 8004 Zurich
+ * Flury Trading Badenerstrasse 16 8004 Zurich
  ***********************************************************************************/
 package com.algoTrader.stockOption;
 
-/*************************************************************************
- *  @formatter:off
- *
- *  Compilation:  javac StdRandom.java
- *  Execution:    java StdRandom
- *
- *  A library of static methods to generate random numbers from
- *  different distributions (bernoulli, uniform, gaussian,
- *  discrete, and exponential). Also includes a method for
- *  shuffling an array.
- *
- *  % java StdRandom 5
- *  90 26.36076 false 8.79269 0
- *  13 18.02210 false 9.03992 1
- *  58 56.41176 true  8.80501 0
- *  29 16.68454 false 8.90827 0
- *  85 86.24712 true  8.95228 0
- *
- *
- *  Remark
- *  ------
- *    - Uses Math.random() which generates a pseudorandom real number
- *      in [0, 1)
- *
- *    - This library does not allow you to set the pseudorandom number
- *      seed. See java.util.Random.
- *
- *    - See http://www.honeylocust.com/RngPack/ for an industrial
- *      strength random number generator in Java.
- *
- *************************************************************************/
-
 /**
- *  <i>Standard random</i>. This class provides methods for generating
- *  random number from various distributions.
- *  <p>
+ *
+ * A library of static methods to generate random numbers from
+ * different distributions (bernoulli, uniform, gaussian,
+ * discrete, and exponential). Also includes a method for
+ * shuffling an array.
+ *
+ * <pre>
+ * % java StdRandom 5
+ * 90 26.36076 false 8.79269 0
+ * 13 18.02210 false 9.03992 1
+ * 58 56.41176 true  8.80501 0
+ * 29 16.68454 false 8.90827 0
+ * 85 86.24712 true  8.95228 0
+ * </pre>
+ *
+ * Remark:
+ * <ul>
+ * <li>Uses Math.random() which generates a pseudorandom real number in [0, 1) </li>
+ * <li>This library does not allow you to set the pseudorandom number seed. See java.util.Random.</li>
+ * <li>See http://www.honeylocust.com/RngPack/ for an industrial strength random number generator in Java</li>
+ * </ul>
  *  For additional documentation, see <a href="http://www.cs.princeton.edu/introcs/22library">Section 2.2</a> of
  *  <i>Introduction to Programming in Java: An Interdisciplinary Approach</i> by Robert Sedgewick and Kevin Wayne.
- */
-/**
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -64,42 +45,42 @@ package com.algoTrader.stockOption;
 public class StdRandom {
 
     /**
-     * Return real number uniformly in [0, 1).
+     * Returns real number uniformly in [0, 1).
      */
     public static double uniform() {
         return Math.random();
     }
 
     /**
-     * Return real number uniformly in [a, b).
+     * Returns real number uniformly in [a, b).
      */
     public static double uniform(double a, double b) {
         return a + Math.random() * (b - a);
     }
 
     /**
-     * Return an integer uniformly between 0 and N-1.
+     * Returns an integer uniformly between 0 and N-1.
      */
     public static int uniform(int N) {
         return (int) (Math.random() * N);
     }
 
     /**
-     * Return a boolean, which is true with probability p, and false otherwise.
+     * Returns a boolean, which is true with probability p, and false otherwise.
      */
     public static boolean bernoulli(double p) {
         return Math.random() < p;
     }
 
     /**
-     * Return a boolean, which is true with probability .5, and false otherwise.
+     * Returns a boolean, which is true with probability .5, and false otherwise.
      */
     public static boolean bernoulli() {
         return bernoulli(0.5);
     }
 
     /**
-     * Return a real number with a standard Gaussian distribution.
+     * Returns a real number with a standard Gaussian distribution.
      */
     public static double gaussian() {
         // use the polar form of the Box-Muller transform
@@ -116,14 +97,14 @@ public class StdRandom {
     }
 
     /**
-     * Return a real number from a gaussian distribution with given mean and stddev
+     * Returns a real number from a gaussian distribution with given mean and stddev
      */
     public static double gaussian(double mean, double stddev) {
         return mean + stddev * gaussian();
     }
 
     /**
-     * Return an integer with a geometric distribution with mean 1/p.
+     * Returns an integer with a geometric distribution with mean 1/p.
      */
     public static int geometric(double p) {
         // using algorithm given by Knuth
@@ -131,7 +112,7 @@ public class StdRandom {
     }
 
     /**
-     * Return an integer with a Poisson distribution with mean lambda.
+     * Returns an integer with a Poisson distribution with mean lambda.
      */
     public static int poisson(double lambda) {
         // using algorithm given by Knuth
@@ -147,21 +128,21 @@ public class StdRandom {
     }
 
     /**
-     * Return a real number with a Pareto distribution with parameter alpha.
+     * Returns a real number with a Pareto distribution with parameter alpha.
      */
     public static double pareto(double alpha) {
         return Math.pow(1 - uniform(), -1.0 / alpha) - 1.0;
     }
 
     /**
-     * Return a real number with a Cauchy distribution.
+     * Returns a real number with a Cauchy distribution.
      */
     public static double cauchy() {
         return Math.tan(Math.PI * (uniform() - 0.5));
     }
 
     /**
-     * Return a number from a discrete distribution: i with probability a[i].
+     * Returns a number from a discrete distribution: i with probability a[i].
      */
     public static int discrete(double[] a) {
         // precondition: sum of array entries equals 1
@@ -178,14 +159,14 @@ public class StdRandom {
     }
 
     /**
-     * Return a real number from an exponential distribution with rate lambda.
+     * Returns a real number from an exponential distribution with rate lambda.
      */
     public static double exp(double lambda) {
         return -Math.log(1 - Math.random()) / lambda;
     }
 
     /**
-     * Rearrange the elements of an array in random order.
+     * Rearranges the elements of an array in random order.
      */
     public static void shuffle(Object[] a) {
         int N = a.length;
@@ -198,7 +179,7 @@ public class StdRandom {
     }
 
     /**
-     * Rearrange the elements of a double array in random order.
+     * Rearranges the elements of a double array in random order.
      */
     public static void shuffle(double[] a) {
         int N = a.length;
@@ -211,7 +192,7 @@ public class StdRandom {
     }
 
     /**
-     * Rearrange the elements of an int array in random order.
+     * Rearranges the elements of an int array in random order.
      */
     public static void shuffle(int[] a) {
         int N = a.length;
@@ -224,7 +205,7 @@ public class StdRandom {
     }
 
     /**
-     * Unit test.
+     * Public main method for testing
      */
     public static void main(String[] args) {
         int N = Integer.parseInt(args[0]);
@@ -240,5 +221,4 @@ public class StdRandom {
             System.out.println();
         }
     }
-
 }

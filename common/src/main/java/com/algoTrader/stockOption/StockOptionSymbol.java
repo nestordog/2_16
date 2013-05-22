@@ -31,6 +31,8 @@ import com.algoTrader.enumeration.OptionType;
 import com.algoTrader.util.BaseConverterUtil;
 
 /**
+ * Utility class to generate symbol, isin and ric for {@link com.algoTrader.entity.security.StockOption StockOptions}.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -44,6 +46,9 @@ public class StockOptionSymbol {
     private static SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMM/yy");
     private static SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
 
+    /**
+     * Generates the symbole for the specified {@link com.algoTrader.entity.security.StockOptionFamily}.
+     */
     public static String getSymbol(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike, boolean includeDay) {
 
         GregorianCalendar cal = new GregorianCalendar();
@@ -61,6 +66,9 @@ public class StockOptionSymbol {
         return buffer.toString();
     }
 
+    /**
+     * Generates the ISIN for the specified {@link com.algoTrader.entity.security.StockOptionFamily}.
+     */
     public static String getIsin(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike) {
 
         int week = 1;
@@ -91,6 +99,9 @@ public class StockOptionSymbol {
         return buffer.toString();
     }
 
+    /**
+     * Generates the RIC for the specified {@link com.algoTrader.entity.security.StockOptionFamily}.
+     */
     public static String getRic(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike) {
 
         GregorianCalendar cal = new GregorianCalendar();
@@ -111,16 +122,25 @@ public class StockOptionSymbol {
         return buffer.toString();
     }
 
+    /**
+     * Gets the week number based on the specified {@code symbol}
+     */
     public static int getWeek(String symbol) {
 
         return Integer.parseInt(symbol.substring(0, 1));
     }
 
+    /**
+     * Gets the underlying symbole based on the specified {@code symbol}
+     */
     public static String getUnderlying(String symbol) {
 
         return symbol.substring(2, 5);
     }
 
+    /**
+     * Gets the {@link OptionType} based on the specified {@code symbol}
+     */
     public static OptionType getOptionType(String symbol) {
 
         String month = symbol.substring(5, 6);
@@ -129,6 +149,9 @@ public class StockOptionSymbol {
         return callIndex > 0 ? OptionType.CALL : OptionType.PUT;
     }
 
+    /**
+     * Gets the month number based on the specified {@code symbol}
+     */
     public static int getMonth(String symbol) {
 
         String month = symbol.substring(5, 6);
@@ -138,12 +161,18 @@ public class StockOptionSymbol {
         return Math.max(callIndex, putIndex) + 1;
     }
 
+    /**
+     * Gets the year number based on the specified {@code symbol}
+     */
     public static int getYear(String symbol) {
 
         String year = symbol.substring(6, 7);
         return Arrays.binarySearch(yearEnc, year) + 2010;
     }
 
+    /**
+     * Gets the strike based on the specified {@code symbol}
+     */
     public static int getStrike(String symbol) {
 
         String strike = symbol.substring(7, 12);

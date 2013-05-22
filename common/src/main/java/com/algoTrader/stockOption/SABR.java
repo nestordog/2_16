@@ -25,6 +25,8 @@ import org.apache.commons.math.optimization.direct.NelderMead;
 import com.algoTrader.vo.SABRSmileVO;
 
 /**
+ * Static methods around the SABR Volatility model.
+ *
  * @author <a href="mailto:eburgene@gmail.com">Emanuel Burgener</a>
  *
  * @version $Revision$ $Date$
@@ -33,6 +35,11 @@ public class SABR {
 
     private static double beta = 0.999;
 
+    /**
+     * Perfors a SABR calibartion based on specified volatilities.
+     *
+     * @return SABRSmileVO The SABR smile
+     */
     public static SABRSmileVO calibrate(final Double[] strikes, final Double[] volatilities, final double atmVol, final double forward, final double years) throws Exception {
 
         MultivariateRealFunction estimateRhoAndVol = new MultivariateRealFunction() {
@@ -74,6 +81,9 @@ public class SABR {
         return params;
     }
 
+    /**
+     * Calculates the volatility at the specified strike based on the {@code atmvola}, {@code beta}, {@code rho} and {@code volVol}.
+     */
     public static double volByAtmVol(double forward, double strike, double atmVola, double years, double b, double r, double v) {
 
         double alpha = findAlpha(forward, strike, atmVola, years, b, r, v);

@@ -23,12 +23,18 @@ import com.algoTrader.enumeration.Duration;
 import com.algoTrader.util.DateUtil;
 
 /**
+ * Utility class containing static methods around {@link Future Futures}.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public class FutureUtil {
 
+    /**
+     * Gets the fair-price of a {@link Future} based on the price of the {@code underlyingSpot}.
+     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link FutureFamily}.
+     */
     public static double getFuturePrice(Future future, double underlyingSpot) {
 
         FutureFamily family = (FutureFamily) future.getSecurityFamily();
@@ -38,11 +44,17 @@ public class FutureUtil {
         return getFuturePrice(underlyingSpot, years, family.getIntrest(), family.getDividend());
     }
 
+    /**
+     * Gets the fair-price of a {@link Future}.
+     */
     public static double getFuturePrice(double underlyingSpot, double years, double intrest, double dividend) {
 
         return underlyingSpot + (underlyingSpot * intrest - dividend) * years;
     }
 
+    /**
+     * Gets the current maintenace margin of a {@link Future} as defined by the {@link FutureFamily}.
+     */
     public static double getMaintenanceMargin(Future future) {
 
         FutureFamily family = (FutureFamily) future.getSecurityFamily();
