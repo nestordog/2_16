@@ -40,6 +40,8 @@ import com.ib.client.Contract;
 import com.ib.client.Execution;
 
 /**
+ * Utility class providing conversion methods for IB specific types.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

@@ -65,6 +65,9 @@ import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.collection.IntegerMap;
 
 /**
+ * Main entry point to Fix sessions.
+ * This class an its public methods are available through JMX.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -77,7 +80,7 @@ public class FixClient implements InitializingBean {
     private IntegerMap<String> orderIds = new IntegerMap<String>();
 
     /**
-     * set up of the initiator
+     * sets up of the initiator
      */
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -108,7 +111,7 @@ public class FixClient implements InitializingBean {
     }
 
     /**
-     * create an individual session
+     * creates an individual session
      */
     public void createSession(OrderServiceType orderServiceType) throws Exception {
 
@@ -131,7 +134,7 @@ public class FixClient implements InitializingBean {
     }
 
     /**
-     * return the state of all active sessions
+     * returns the state of all active sessions
      */
     @ManagedAttribute
     public Map<String, ConnectionState> getConnectionStates() {
@@ -149,7 +152,7 @@ public class FixClient implements InitializingBean {
     }
 
     /**
-     * send a message to the designated session
+     * sends a message to the designated session
      */
     public void sendMessage(Message message, Account account) throws SessionNotFound {
 
@@ -161,6 +164,9 @@ public class FixClient implements InitializingBean {
         }
     }
 
+    /**
+     * Gets the next {@code orderId} for the specified {@code account}
+     */
     public String getNextOrderId(Account account) {
 
         String sessionQualifier = account.getSessionQualifier();
@@ -172,6 +178,9 @@ public class FixClient implements InitializingBean {
         return account.getSessionQualifier().toLowerCase() + rootOrderId + ".0";
     }
 
+    /**
+     * Gets the next {@code orderIdVersion} based on the specified {@code order}
+     */
     public String getNextOrderIdVersion(Order order) {
 
         String[] segments = order.getIntId().split("\\.");
@@ -180,7 +189,7 @@ public class FixClient implements InitializingBean {
     }
 
     /**
-     *  display the currend orderIds for all active sessions
+     *  gets the currend orderIds for all active sessions
      */
     @ManagedAttribute
     public IntegerMap<String> getOrderIds() {
@@ -189,7 +198,7 @@ public class FixClient implements InitializingBean {
     }
 
     /**
-     * set the orderId for the defined session (will be incremented by 1 for the next order)
+     * sets the orderId for the defined session (will be incremented by 1 for the next order)
      */
     @ManagedOperation
     @ManagedOperationParameters({
@@ -202,7 +211,7 @@ public class FixClient implements InitializingBean {
     }
 
     /**
-     * lookup an active session by the sessionQualifier
+     * gets an active session by the sessionQualifier
      */
     private SessionID getSessionID(String sessionQualifier) {
 
@@ -215,7 +224,7 @@ public class FixClient implements InitializingBean {
     }
 
     /**
-     * create an Logon/Logoff statements for fix sessions with weekly logon/logoff defined
+     * creates an Logon/Logoff statements for fix sessions with weekly logon/logoff defined
      */
     private void createLogonLogoutStatement(final SessionID sessionId) throws ConfigError, FieldConvertError {
 
@@ -274,7 +283,7 @@ public class FixClient implements InitializingBean {
     }
 
     /**
-     * get the last orderId from the fix message log
+     * gets the last orderId from the fix message log
      */
     private synchronized void initOrderId(String sessionQualifier) {
 

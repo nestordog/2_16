@@ -30,6 +30,9 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.algoTrader.enumeration.ConnectionState;
 
 /**
+ * Factory class for IBClients (IB Connections).
+ * This class an its public methods are available through JMX.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -43,6 +46,9 @@ public class IBClientFactory {
     private IBClient defaultClient;
     private Map<Integer, IBClient> clients = new HashMap<Integer, IBClient>();
 
+    /**
+     * Gets the DefaultClient, usually clientId = 0.
+     */
     public IBClient getDefaultClient() {
 
         if (this.simulation) {
@@ -61,6 +67,9 @@ public class IBClientFactory {
         return this.defaultClient;
     }
 
+    /**
+     * Gets a new IBClient based on a {@code clientId} and a {@code IBDefaultMessageHandler MessageHandler}
+     */
     public IBClient getClient(int clientId, IBDefaultMessageHandler messageHandler) {
 
         IBClient client = new IBClient(clientId, messageHandler);
@@ -69,6 +78,9 @@ public class IBClientFactory {
         return client;
     }
 
+    /**
+     * (re)connects all IBClients
+     */
     @ManagedOperation
     @ManagedOperationParameters({})
     public void connect() {
@@ -78,6 +90,9 @@ public class IBClientFactory {
         }
     }
 
+    /**
+     * disconnects all IBClients
+     */
     @ManagedOperation
     @ManagedOperationParameters({})
     public void disconnect() {
@@ -87,6 +102,9 @@ public class IBClientFactory {
         }
     }
 
+    /**
+     * Sets the Log Level on all IBClients
+     */
     @ManagedOperation
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "logLevel", description = "<html> <head> </head> <body> <p> logLevel: </p> <ul>     <li> 1 (SYSTEM) </li> <li> 2 (ERROR) </li> <li> 3 (WARNING) </li> <li> 4 (INFORMATION) </li> <li> 5 (DETAIL) </li> </ul> </body> </html>") })
     public void setLogLevel(int logLevel) {
@@ -96,6 +114,9 @@ public class IBClientFactory {
         }
     }
 
+    /**
+     * Returns a Map with {@code clientId} and {@code connectionState} of all IB Clients
+     */
     @ManagedAttribute
     public Map<Integer, ConnectionState> getConnectionStates() {
 

@@ -50,6 +50,9 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 
 /**
+ * DC specific FixMessageHandler.
+ * Since the DC Fix interface does not comply with the Fix Standard, this class does not extend a generic FixMessageHandler.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

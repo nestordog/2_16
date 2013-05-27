@@ -17,8 +17,9 @@
  ***********************************************************************************/
 package com.algoTrader.adapter.ib;
 
-
 /**
+ * IB Request and Order Id Generator.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

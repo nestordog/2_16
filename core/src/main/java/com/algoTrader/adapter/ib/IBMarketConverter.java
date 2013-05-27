@@ -20,6 +20,8 @@ package com.algoTrader.adapter.ib;
 import com.algoTrader.enumeration.Market;
 
 /**
+ * Utility class converting {@link Market Markets} to IB specific market representation.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

@@ -21,6 +21,8 @@ import quickfix.codegen.MessageCodeGenerator;
 import quickfix.codegen.MessageCodeGenerator.Task;
 
 /**
+ * Generates a Java representation based on the specified FIX definition XML.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

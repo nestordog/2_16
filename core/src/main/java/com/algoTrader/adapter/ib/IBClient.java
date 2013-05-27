@@ -29,6 +29,8 @@ import com.algoTrader.util.MyLogger;
 import com.ib.client.EClientSocket;
 
 /**
+ * Represents on IB (socket) connection.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -44,17 +46,26 @@ public final class IBClient extends EClientSocket {
 
     private int clientId;
 
+    /**
+     * Constructor based on a {@code clientId} and a {@code IBDefaultMessageHandler MessageHandler}
+     */
     public IBClient(int clientId, IBDefaultMessageHandler messageHandler) {
 
         super(messageHandler);
         this.clientId = clientId;
     }
 
+    /**
+     * Returns the associated {@code IBDefaultMessageHandler MessageHandler}
+     */
     public IBDefaultMessageHandler getMessageHandler() {
 
         return (IBDefaultMessageHandler) super.wrapper();
     }
 
+    /**
+     * (re)connects to TWS / IB Gateway
+     */
     public void connect() {
 
         if (simulation) {
@@ -87,6 +98,9 @@ public final class IBClient extends EClientSocket {
         }
     }
 
+    /**
+     * disconnects from TWS / IB Gateway
+     */
     public void disconnect() {
 
         if (isConnected()) {

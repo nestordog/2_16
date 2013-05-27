@@ -38,6 +38,9 @@ import com.ib.client.EWrapperMsgGenerator;
 import com.ib.client.Execution;
 
 /**
+ * Esper specific MessageHandler.
+ * Relevant events are sent into the BASE Esper Engine.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

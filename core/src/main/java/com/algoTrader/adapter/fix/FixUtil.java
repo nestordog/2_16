@@ -36,6 +36,8 @@ import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 
 /**
+ * Utility class providing conversion methods for Fix specific types.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

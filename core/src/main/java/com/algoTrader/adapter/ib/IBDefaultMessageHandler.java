@@ -36,6 +36,9 @@ import com.ib.client.OrderState;
 import com.ib.client.UnderComp;
 
 /**
+ * Default MessageHandler that implements the {@link EWrapper} interface.
+ * Most methods have a do-nothing implementation.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

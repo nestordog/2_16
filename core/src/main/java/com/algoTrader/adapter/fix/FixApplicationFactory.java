@@ -23,6 +23,9 @@ import quickfix.SessionID;
 import quickfix.SessionSettings;
 
 /**
+ * Creates a {@link FixApplication} for the specified {@code sessionId}.
+ * The associated {@code messageHandler} is created based on the session specific class specified in the fix.cfg
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

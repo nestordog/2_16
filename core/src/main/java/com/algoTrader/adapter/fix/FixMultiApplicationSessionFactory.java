@@ -29,10 +29,8 @@ import quickfix.SessionID;
 import quickfix.SessionSettings;
 
 /**
- * Creates a new {@link quickfix.Application} for each session using the
- * specified ApplicationFactory.
- */
-/**
+ * Creates a new {@link quickfix.Application} for each session using the specified ApplicationFactory.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

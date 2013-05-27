@@ -43,6 +43,8 @@ import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 
 /**
+ * Generic Fix42MessageHandler. Needs to be overwritten by specific broker interfaces.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

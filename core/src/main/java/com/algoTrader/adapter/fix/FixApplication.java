@@ -35,8 +35,9 @@ import quickfix.field.PossDupFlag;
 
 import com.algoTrader.util.MyLogger;
 
-
 /**
+ * Implementation of {@link quickfix.Application} also extending {@link MessageCracker}
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -78,6 +79,9 @@ public class FixApplication extends MessageCracker implements quickfix.Applicati
         logger.info("logout: " + sessionId);
     }
 
+    /**
+     * crack toAdmin messages except heartbeats
+     */
     @Override
     public void toAdmin(Message message, SessionID sessionID) {
 
@@ -90,10 +94,13 @@ public class FixApplication extends MessageCracker implements quickfix.Applicati
         }
     }
 
+    /**
+     * prevents a NewOrder to be sent, if PossDupFlag is set
+     */
     @Override
     public void toApp(Message message, SessionID sessionId) throws DoNotSend {
 
-        // do not resend NewOrders if PossDupFlag is set
+
         try {
             Header header = message.getHeader();
             StringField msgType = header.getField(new MsgType());

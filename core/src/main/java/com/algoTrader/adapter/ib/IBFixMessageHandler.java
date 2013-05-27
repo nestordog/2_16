@@ -36,6 +36,8 @@ import com.algoTrader.service.ib.IBFixAccountService;
 import com.algoTrader.util.MyLogger;
 
 /**
+ * IB specific Fix42MessageHandler.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -70,6 +72,9 @@ public class IBFixMessageHandler extends Fix42MessageHandler {
         }
     }
 
+    /**
+     * updates IB Group definitions
+     */
     public void onMessage(IBFAModification faModification, SessionID sessionID) {
 
         try {
