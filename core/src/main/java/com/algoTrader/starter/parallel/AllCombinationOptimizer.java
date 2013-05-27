@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.starter;
+package com.algoTrader.starter.parallel;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -29,11 +29,17 @@ import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.ListPartitioner;
 
 /**
+ * Starter Class for running several simulations in parallel
+ * <p>
+ * Usage: {@code strategy workers datasource1:datasource2 param1:start:end:increment param2:start:end:increment param3:start:end:increment}
+ * <p>
+ * Exmaple: {@code SMI 4 99:99to10 macdFast:5:100:5 macdSlow:5:100:5 macdSignal:5:100:5}
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class LinearOptimizer {
+public class AllCombinationOptimizer {
 
     private static final String commandName = "simulateByMultiParam";
     private static final String[] vmArgs = { "simulation=true", "roundDigits=" + ConfigurationUtil.getInt("simulation.roundDigits") };
@@ -46,12 +52,6 @@ public class LinearOptimizer {
         format.setMinimumFractionDigits(roundDigits);
     }
 
-    /**
-     * example call: SMI 4 99:99to10 flatRange:0.001:0.004:0.0001 putVolaPeriod:0.4:0.45:0.01
-     * strategy workers datasource1:datasource2 param1:start:end:increment param2:start:end:increment
-     *
-     * Note: algotrader-code % strategy needs to be deployed with the correct log-level to the local repo
-     */
     public static void main(String[] params) {
 
         String strategyName = params[0];
@@ -60,18 +60,50 @@ public class LinearOptimizer {
         String[] dataSources = params[2].split("\\:");
 
         List<String> jobs = new ArrayList<String>();
-        for (int i = 3; i < params.length; i++) {
 
-            String[] args = params[i].split("\\:");
-            String parameter = args[0];
-            double min = Double.parseDouble(args[1]);
-            double max = Double.parseDouble(args[2]);
-            double increment = Double.parseDouble(args[3]);
+        String[] args1 = params[3].split("\\:");
+        String parameter1 = args1[0];
+        double min1 = Double.parseDouble(args1[1]);
+        double max1 = Double.parseDouble(args1[2]);
+        double increment1 = Double.parseDouble(args1[3]);
+        for (double value1 = min1; value1 <= max1; value1 += increment1) {
 
-            for (double value = min; value <= max; value += increment) {
+            String job1 = parameter1 + ":" + format.format(MathUtils.round(value1, roundDigits));
 
+            if (params.length > 4) {
+                String[] args2 = params[4].split("\\:");
+                String parameter2 = args2[0];
+                double min2 = Double.parseDouble(args2[1]);
+                double max2 = Double.parseDouble(args2[2]);
+                double increment2 = Double.parseDouble(args2[3]);
+                for (double value2 = min2; value2 <= max2; value2 += increment2) {
+
+                    String job2 = "," + parameter2 + ":" + format.format(MathUtils.round(value2, roundDigits));
+
+                    if (params.length > 5) {
+                        String[] args3 = params[5].split("\\:");
+                        String parameter3 = args3[0];
+                        double min3 = Double.parseDouble(args3[1]);
+                        double max3 = Double.parseDouble(args3[2]);
+                        double increment3 = Double.parseDouble(args3[3]);
+                        for (double value3 = min3; value3 <= max3; value3 += increment3) {
+
+                            String job3 = "," + parameter3 + ":" + format.format(MathUtils.round(value3, roundDigits));
+                            for (String dataSource : dataSources) {
+                                String job = "dataSource.dataSet:" + dataSource + "," + job1 + job2 + job3;
+                                jobs.add(job);
+                            }
+                        }
+                    } else {
+                        for (String dataSource : dataSources) {
+                            String job = "dataSource.dataSet:" + dataSource + "," + job1 + job2;
+                            jobs.add(job);
+                        }
+                    }
+                }
+            } else {
                 for (String dataSource : dataSources) {
-                    String job = "dataSource.dataSet:" + dataSource + "," + parameter + ":" + format.format(MathUtils.round(value, roundDigits));
+                    String job = "dataSource.dataSet:" + dataSource + "," + job1;
                     jobs.add(job);
                 }
             }

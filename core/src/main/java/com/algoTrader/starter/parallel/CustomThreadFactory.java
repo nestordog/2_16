@@ -15,22 +15,38 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.starter;
+package com.algoTrader.starter.parallel;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.service.InitializingServiceI;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * Thread Factory used in conjunction with {@link MavenLauncher} to start a simulation process in a separate JVM.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class InitializingServiceManager {
+public class CustomThreadFactory implements ThreadFactory {
 
-    public static void init() {
+    static final AtomicInteger poolNumber = new AtomicInteger(0);
 
-        for (InitializingServiceI service : ServiceLocator.instance().getServices(InitializingServiceI.class)) {
-            service.init();
+    public static class CustomThread extends Thread {
+
+        private int number;
+
+        public CustomThread(Runnable r, int number) {
+            super(r);
+            this.number = number;
         }
+
+        public int getNumber() {
+            return this.number;
+        }
+    }
+
+    @Override
+    public Thread newThread(Runnable r) {
+        return new CustomThread(r, poolNumber.getAndIncrement());
     }
 }

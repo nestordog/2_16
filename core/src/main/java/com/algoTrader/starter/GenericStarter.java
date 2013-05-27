@@ -26,11 +26,17 @@ import java.util.StringTokenizer;
 import com.algoTrader.ServiceLocator;
 
 /**
+ * Generic Starter Class that can be used to invoke any service that has String, Integer, Double or Date based parameters
+ * <p>
+ * Usage: {@code serviceName1:methodName1:param(s) serviceName2:methodName2:param(s)}
+ * <p>
+ * Example: {@code accountService:restorePortfolioValues:07.01.12:03.12.12}
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class ServiceInvoker {
+public class GenericStarter {
 
     private static SimpleDateFormat dayFormat = new SimpleDateFormat("dd.MM.yy");
     private static SimpleDateFormat hourFormat = new SimpleDateFormat("dd.MM.yy hh:mm:ss");

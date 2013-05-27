@@ -23,6 +23,10 @@ import com.algoTrader.ServiceLocator;
 import com.algoTrader.service.ib.IBNativeSecurityRetrieverService;
 
 /**
+ * Starter Class for downloading {@link com.algoTrader.entity.security.Future Future} and {@link com.algoTrader.entity.security.StockOption StockOption} chains.
+ * <p>
+ * Usage: {@code SecurityRetrievalStarter securityId1 securityId2}
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

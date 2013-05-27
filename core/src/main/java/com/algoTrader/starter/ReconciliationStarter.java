@@ -24,26 +24,33 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.io.IOUtils;
+import org.xml.sax.SAXException;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.service.ui.UIReconciliationService;
+import com.algoTrader.service.ReconciliationService;
 
 /**
+ * Starter Class to infoke the reconciliation process based on a file(s)
+ * <p>
+ * Usage: {@code ReconciliationStarter serviceName fileName(s)}
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class UIReconciliationStarter {
+public class ReconciliationStarter {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        UIReconciliationService service = ServiceLocator.instance().getService("uIReconciliationService", UIReconciliationService.class);
+        ReconciliationService service = ServiceLocator.instance().getService(args[0], ReconciliationService.class);
 
-        for (String fileName : args) {
+        for (int i = 1; i < args.length; i++) {
 
-            File file = new File(fileName);
+            File file = new File(args[i]);
             InputStream bis = new BufferedInputStream(new FileInputStream(file));
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             IOUtils.copy(bis, bos);

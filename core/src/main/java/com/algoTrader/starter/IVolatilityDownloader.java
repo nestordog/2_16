@@ -44,18 +44,22 @@ import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import com.algoTrader.util.ConfigurationUtil;
 import com.algoTrader.util.TidyUtil;
 import com.algoTrader.util.XmlUtil;
 
 /**
+ * Utility class to download multiple market data files from www.ivolatility.com
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public class IVolatilityDownloader {
 
-    private static final String userAgent = ConfigurationUtil.getString("swissquote.loggedInUserAgent");
+    private static final String end = "07/27/2011";
+    private static final String start = "01/01/2005";
+    private static final String password = "password";
+    private static final String username = "username";
 
     private static DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
     private static DateFormat fileFormat = new SimpleDateFormat("dd-MM-yyyy");
@@ -67,8 +71,8 @@ public class IVolatilityDownloader {
         // login
         login(httpclient);
 
-        Date startDate = dateFormat.parse("01/01/2005");
-        Date endDate = dateFormat.parse("07/27/2011");
+        Date startDate = dateFormat.parse(start);
+        Date endDate = dateFormat.parse(end);
 
         Date date = startDate;
         while (date.compareTo(endDate) < 0) {
@@ -89,12 +93,11 @@ public class IVolatilityDownloader {
         httpclient.getParams().setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
 
         // user agent
-        httpclient.getParams().setParameter(HttpMethodParams.USER_AGENT, userAgent);
         PostMethod post = new PostMethod("https://www.ivolatility.com/login.j");
         post.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
         NameValuePair[] date = {
-                new NameValuePair("username", "andyflury"),
-                new NameValuePair("password", "password"),
+                new NameValuePair(username, username),
+                new NameValuePair(password, password),
                 new NameValuePair("step", "1"),
                 new NameValuePair("login__is__sent", "1"),
                 new NameValuePair("login_go", "")
@@ -144,7 +147,7 @@ public class IVolatilityDownloader {
                 new NameValuePair("favorites",""),
                 new NameValuePair("data_sets","5"),
                 new NameValuePair("min_date","11/03/2000"),
-                new NameValuePair("max_date","07/27/2011"),
+                new NameValuePair("max_date",end),
                 new NameValuePair("start_date_saved", dateFormat.format(startCal.getTime())),
                 new NameValuePair("end_date_saved", dateFormat.format(endCal.getTime())),
                 new NameValuePair("freq_type_saved","0"),

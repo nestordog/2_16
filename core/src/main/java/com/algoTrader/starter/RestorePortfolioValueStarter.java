@@ -10,6 +10,13 @@ import com.algoTrader.entity.strategy.Strategy;
 import com.algoTrader.service.LookupService;
 import com.algoTrader.service.PortfolioPersistenceService;
 
+/**
+ * Starter Class to restores all PortfolioValues of a specified Strategy
+ * <p>
+ * Usage: {@code RestorePortfolioValueStarter strategyName fromDate toDate}
+ * <p>
+ * Example: {@code RestorePortfolioValueStarter MOV 01.01.2012_00:00:00 31.12.2012_00:00:00}
+ */
 public class RestorePortfolioValueStarter {
 
     private static DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy_HH:mm:ss");

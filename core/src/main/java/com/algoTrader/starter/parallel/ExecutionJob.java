@@ -15,15 +15,18 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.starter;
+package com.algoTrader.starter.parallel;
 
 import java.util.Arrays;
 
 import org.codehaus.plexus.util.cli.CommandLineException;
 
-import com.algoTrader.starter.CustomThreadFactory.CustomThread;
+import com.algoTrader.starter.SimulationStarter;
+import com.algoTrader.starter.parallel.CustomThreadFactory.CustomThread;
 
 /**
+ * Worker Class used in conjunction with {@link MavenLauncher} to start a simulation process in a separate JVM.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

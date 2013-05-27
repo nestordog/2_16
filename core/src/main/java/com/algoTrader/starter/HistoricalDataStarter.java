@@ -28,6 +28,12 @@ import com.algoTrader.enumeration.BarType;
 import com.algoTrader.service.ib.IBNativeHistoricalDataService;
 
 /**
+ * Starter Class to download historical tick data
+ * <p>
+ * Usage: {@code HistoricalDataStarter fromDate toDate barType(s) securityId(s)}
+ * <p>
+ * Examle: {@code 20120115 20120216 BID:ASK 29:103850:104586:104587:104588}
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -62,5 +68,4 @@ public class HistoricalDataStarter {
 
         ServiceLocator.instance().shutdown();
     }
-
 }

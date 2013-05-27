@@ -20,9 +20,12 @@ package com.algoTrader.starter;
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.esper.EsperManager;
+import com.algoTrader.service.InitializingServiceI;
 import com.algoTrader.service.MarketDataService;
 
 /**
+ * Main Starter Class for Live Trading
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -44,7 +47,9 @@ public class MarketDataStarter {
         EsperManager.deployAllModules(StrategyImpl.BASE);
 
         // initialize services
-        InitializingServiceManager.init();
+        for (InitializingServiceI service : ServiceLocator.instance().getServices(InitializingServiceI.class)) {
+            service.init();
+        }
 
         // init market data subscriptions (needs to be invoked after all Spring Services have been properly initialized)
         MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();

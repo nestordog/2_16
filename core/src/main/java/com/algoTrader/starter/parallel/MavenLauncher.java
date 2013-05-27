@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.starter;
+package com.algoTrader.starter.parallel;
 
 import java.io.File;
 import java.util.Collections;
@@ -33,6 +33,8 @@ import org.apache.maven.shared.invoker.SystemOutLogger;
 import org.codehaus.plexus.util.cli.CommandLineException;
 
 /**
+ * Utility class used to launch a simulation process in a separate JVM
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
