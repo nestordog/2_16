@@ -58,7 +58,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
     private static Logger logger = MyLogger.getLogger(PortfolioServiceImpl.class.getName());
 
-    private @Value("${order.initialMarginMarkup}") double initialMarginMarkup;
+    private @Value("${misc.initialMarginMarkup}") double initialMarginMarkup;
     private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
     private @Value("${misc.intervalDays}") int intervalDays;
 

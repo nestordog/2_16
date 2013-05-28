@@ -66,7 +66,7 @@ public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
 
     private @Value("${ib.faEnabled}") boolean faEnabled;
     private @Value("${ib.reconciliationAccount}") String reconciliationAccount;
-    private @Value("${ib.masterAccount}") String masterAccount;
+    private @Value("${ib.reconciliationMasterAccount}") String masterAccount;
     private @Value("${ib.timeDifferenceHours}") int timeDifferenceHours;
     private @Value("${ib.recreateTransactions}") boolean recreateTransactions;
 

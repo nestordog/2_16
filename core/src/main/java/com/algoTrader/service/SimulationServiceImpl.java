@@ -87,7 +87,6 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     private static final NumberFormat format = NumberFormat.getInstance();
 
     private @Value("${simulation.roundDigits}") int roundDigits;
-    private @Value("${simulation.start}") long start;
     private @Value("${dataSource.dataSetLocation}") String dataSetLocation;
     private @Value("${dataSource.feedGenericEvents}") boolean feedGenericEvents;
 

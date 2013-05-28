@@ -54,10 +54,10 @@ public class ForexServiceImpl extends ForexServiceBase {
     private static Logger notificationLogger = MyLogger.getLogger("com.algoTrader.service.NOTIFICATION");
 
     private @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
-    private @Value("${misc.fxFutureEqualizationEnabled}") boolean fxFutureEqualizationEnabled;
-    private @Value("${misc.fxFutureEqualizationMinTimeToExpiration}") int fxFutureEqualizationMinTimeToExpiration;
-    private @Value("${misc.fxEqualizationMinAmount}") int fxEqualizationMinAmount;
-    private @Value("${misc.fxEqualizationBatchSize}") int fxEqualizationBatchSize;
+    private @Value("${fx.futureEqualizationEnabled}") boolean fxFutureEqualizationEnabled;
+    private @Value("${fx.futureEqualizationMinTimeToExpiration}") int fxFutureEqualizationMinTimeToExpiration;
+    private @Value("${fx.equalizationMinAmount}") int fxEqualizationMinAmount;
+    private @Value("${fy.equalizationBatchSize}") int fxEqualizationBatchSize;
 
     @Override
     protected void handleEqualizeForex() throws Exception {

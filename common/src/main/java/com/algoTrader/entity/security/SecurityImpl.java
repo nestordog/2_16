@@ -47,7 +47,7 @@ public abstract class SecurityImpl extends Security {
     private static Logger logger = MyLogger.getLogger(SecurityImpl.class.getName());
 
     private static @Value("#{T(com.algoTrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
-    private static @Value("${order.initialMarginMarkup}") double initialMarginMarkup;
+    private static @Value("${misc.initialMarginMarkup}") double initialMarginMarkup;
 
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
