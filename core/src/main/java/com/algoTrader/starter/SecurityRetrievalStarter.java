@@ -25,7 +25,7 @@ import com.algoTrader.service.ib.IBNativeSecurityRetrieverService;
 /**
  * Starter Class for downloading {@link com.algoTrader.entity.security.Future Future} and {@link com.algoTrader.entity.security.StockOption StockOption} chains.
  * <p>
- * Usage: {@code SecurityRetrievalStarter securityId1 securityId2}
+ * Usage: {@code SecurityRetrievalStarter securityFamilyId1 securityFamilyId2}
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *

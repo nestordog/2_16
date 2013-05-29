@@ -549,23 +549,29 @@ public class ExClient {
     </chapter>
     <chapter id="Architecture">
         <title>Architecture</title>
-        <para>The System is composed of the following two layers:</para>
-        <para>The Trading Framework called Base provides the infrastructure for all strategies
-            running on top of it. It is responsible for persistence to the database. It holds the
-            connection to the Broker Interfaces to retrieve live market data as well as to place
-            orders and receive executions. The Base is also responsible for Risk Management,
-            Portfolio Management, Performance Measurement, Reconciliation, FX Hedging and Option
-            Pricing. For many of its tasks the Base uses a contained Esper Engine Instance.</para>
+        <para> The Architecture of AlgoTrader is composed of the following components. </para>
+        <para>The Trading Framework called Base provides the infrastructure for all strategies running on
+            top of it. The Base holds the main Esper Complex Event Processing (CEP) Engine. It is
+            responsible for all Domain Model Objects and their persistence to the database.
+            Different Market Data Adapters and  are available to process live as well as historical
+            market data. On the other end Adapters for different Execution Brokers / Venues are
+            available which are responsible for placing orders and receiving executions. </para>
+        <para>In addition the Base provides Business Components for Portfolio Management,
+            Performance Measurement, Risk Management, Money Management, Option Pricing,
+            Reconciliation, FX Hedging and Parameter Optimization. </para>
         <para>On top of the Base any number of Strategies can be deployed. Each Strategy contains its own
-            Esper Engine Instance. A Strategy can deploy any number of custom trading rules to
-            analyse market data and generate signals. In addition procedural actions can be deployed
-            as Java Services available to the Strategy. Orders are delegated to the Base for
-            execution.</para>
+            Esper CEP Engine. A Strategy can deploy any number of Esper EPL statements for temporal
+            analysis of market data &amp; signals generation. Procedural actions are deployed as
+            Java Code available to the Esper EPL statements. </para>
+        <para>For management and monitoring of the system three different GUI Clients exist. The
+            AlgoTrader JMX Client provides Trading related Functionality as well as general JVM
+            Management Functionality. The EsperHQ Client is responsible for Management of all Esper
+            CEP Engine. The Grails Client is a generic Client for Reference Data Management.</para>
         <figure>
-            <title>Architecture Layers</title>
+            <title>Architecture</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata scalefit="1" fileref="images/ArchitectureLayers.gif"/>
+                    <imagedata scalefit="1" fileref="images/ArchitectureLayers.png"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -5919,67 +5925,289 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
             </section>
         </section>
     </chapter>
-    <chapter id="Option_Pricing_Engine">
-        <title>Option Pricing Engine</title>
-        <para>The system provides a sophisticated option pricing engine which is developed around
-            the SABR volatility Model.</para>
-        <para>Based on historical Volatility at different Moneyness levels (e.g. ATM, ATM +10%, ATM
-            +20%, ATM -10% &amp; ATM-20%) or Delta levels (e.g. 50%, 35%, 75%) volatility parameters
-            are calculated (=calibration) and used for option pricing.</para>
+    <chapter id="Options_Futures">
+        <title>Options &amp; Futures</title>
         <section>
-            <title>SABR Calibration</title>
-            <para>The <classname>StockOptionService</classname> is responsible for SABR calibration.
-                The calibration process happens for one specific expiration and takes an array of
-                strikes with their corresponding array of volatilities. the calibration process
-                returns a <classname>SABRSmile</classname>
-                <classname>ValueObject</classname>, which basically contains the three parameters
-                    <parameter>rho</parameter>, <parameter>volVol</parameter> and
-                    <parameter>alpha</parameter> (in addition to the time-to-expiration and
-                at-the-money volatility). The actual calibration happens through the class
-                    <classname>SABR</classname>.</para>
-            <para>SABR Calibration can be done either by actual Option Prices or directly by the Implied
-                Volatility. Also there are methods to do a SABR Calibration just for one expiration
-                (returning one SABRSmile ValueObject) or for an entire Volatility Surface (returning
-                a <classname>SABRSurface</classname>
-                <classname>ValueObject</classname> which consist of multiple
-                    <classname>SABRSmile</classname>
-                <classname>ValueObjects</classname>)</para>
-            <para>The SABR Calibration depends on different ImpliedVolatilties (a subclass of
-                Security) being defined in the database. A ImpliedVolatility needs to define either
-                a moneyness or a delta (in addition to Duration and OptionType).</para>
+            <title>Expiration</title>
+            <para>Both Options and Futures implement the interface <classname>ExpirableI</classname> which
+                has a property <parameter>expiration</parameter> that represents the expiration
+                date. </para>
+            <para>If a strategy wishes to hold Options or Futures up to the expiration date, the statement
+                    <literal>EXPIRE_POSITION</literal> has to be enabled by the following vm
+                argument:</para>
+            <screen>-Dstatement.expirePosition=true</screen>
+            <para>Once the current date advances past the expiration date of a Option or Future, a
+                corresponding <literal>EXPIRATION</literal> Transaction will be created in the
+                database which will take into account the current intrinsic value of the
+                position.</para>
         </section>
         <section>
-            <title>Option Pricing</title>
-            <para>Based on the SABR Calibration the actual option pricing takes place. This is
-                handled through the class <classname>StockOptionUtil</classname> with the method
-                    <methodname>getImpliedVolatilitySABR</methodname>. This method takes SABRSurface
-                parameter. The actual option pricing happens in two steps:</para>
-            <orderedlist numeration="arabic">
-                <listitem>
-                    <para>For all available expirations a volatility is calculated for the requested strike </para>
-                </listitem>
-                <listitem>
-                    <para>Using spline interpolation the volatility for the requested expiration is
-                        calculated</para>
-                </listitem>
-            </orderedlist>
+            <title>Margining </title>
+            <para>Both Options and Futures are fully margined securities. The actual margin required by a
+                broker will vary, however they normally mirror the margin requirements defined by
+                the corresponding market. </para>
+            <para>For strategies that run a high leverage, it might be necessary to simulate margins. The
+                system therefore provides the method <methodname>getMargin</methodname> for both
+                Futures and Options. For Option margins the calculation is based on the Eurex Risk
+                based Margining. To have the system set the margin internally, the statement
+                    <literal>SET_MARGINS</literal> has to be enabled by the following vm
+                argument:</para>
+            <screen>-Dstatement.setMargins=true</screen>
         </section>
         <section>
-            <title>References</title>
+            <title>Leverage &amp; Exposure</title>
+            <para>AlgoTrader uses the following definitions for Leverage &amp; Exposure:</para>
+            <figure>
+                <title>Leverage &amp; Exposure</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="images/Leverage.gif" scale="" scalefit="1"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <variablelist>
+                <varlistentry>
+                    <term>CS</term>
+                    <listitem>
+                        <para>Contract Size</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>CV</term>
+                    <listitem>
+                        <para>Current Value</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>S</term>
+                    <listitem>
+                        <para>Underlying Spot price</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>D</term>
+                    <listitem>
+                        <para>Delta</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Q</term>
+                    <listitem>
+                        <para>Quantity</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <note>
+                <para> AlgoTrader uses the Delta-adjusted Option Leverage as Option Leverage.
+                </para>
+            </note>
+        </section>
+        <section>
+            <title>Symbol, ISIN &amp; RIC</title>
+            <para>The two classes <classname>FutureSymbol</classname> and
+                    <classname>StockOptionSymbole</classname> provide static methods for generating
+                the Symbol, ISIN and RIC for Futures and Options. Both Symbol and ISIN use the
+                property <parameter>baseSymbol</parameter> of the
+                    <classname>SecurityFamly</classname>. The RIC on the other side uses the
+                property <parameter>ricRoot</parameter>.</para>
+        </section>
+        <section>
+            <title>Option &amp; Future Chain Download</title>
+            <para>Any strategy that uses Options and/or Futures in Live-Trading mode, needs to have the
+                currently traded Options and/or Futures available in the database. </para>
+            <para>For this purpose the <classname>SecurityRetrieverService</classname> provides a
+                the method <methodname>retrieve</methodname> which takes a
+                    <parameter>securityFamilyId</parameter> parameter. To download missing Options
+                and/or Futures use the following command:</para>
+            <screen>SecurityRetrievalStarter securityFamilyId1 securityFamilyId2 ...</screen>
+            <para>It is recommended to run this Service in the interval of Option / Future
+                Expirations to make sure that the entire chain is available to strategies.</para>
+        </section>
+        <section>
+            <title>Options &amp; Futures Price Simulation</title>
+            <para>In Live-Trading Mode current Option and/or Future chains can be downloaded using the
+                    <classname>SecurityRetrieverService</classname>. In simulation Mode this is
+                unfortunately not possible. </para>
+            <para>For this purpose the <classname>StockOptionService</classname> contains the method
+                    <methodname>createDummyStockOption</methodname> which will create an Option
+                nearest to the specified <parameter>targetExpirationDate</parameter> (based on
+                    <parameter>StockOptionFamily.expirationType</parameter>) and
+                    <parameter>targetStrike</parameter> (based on
+                    <parameter>StockOptionFamily.strikeDistance</parameter>). </para>
+            <para>In addition the <classname>FutureService</classname> contains a method
+                    <methodname>createDummyFutures</methodname> which will create the missing
+                portion of a Future chain in simulation.</para>
+            <para>Both methods <methodname>createDummyStockOption</methodname> and
+                    <methodname>createDummyFutures</methodname> will be invoked by the
+                    <classname>LookupService</classname> in simulations if a matching Option or
+                Future cannot be found in the database (if
+                    <parameter>simulateStockOptions</parameter> is enabled). </para>
+            <para>With above steps required Options and/or Futures will now be available in the
+                database during simulation. To produce simulated market data for the Option and/or
+                Future several methods exist, all of which are provided by the Esper Module
+                    <filename>module-market-data-simulation.epl</filename> which can be enabled via
+                the following VM-arguments:</para>
+            <variablelist>
+                <varlistentry>
+                    <term>-Dstatement.simulateStockOptions=true</term>
+                    <listitem>
+                        <para>Enables simulation of stockOption prices through market data of the
+                            underlying and the corresponding volatility</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Dstatement.loadStockOptionsFromDB=true</term>
+                    <listitem>
+                        <para>Enables retrieval of stockOption prices from the database</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Dstatement.simulateFuturesByUnderlying=true</term>
+                    <listitem>
+                        <para>Enables simulation of future prices by the underlying and the
+                            corresponding time-to-expiration</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Dstatement.simulateFuturesByGenericFutures=true</term>
+                    <listitem>
+                        <para>Enables retrieval of future prices from market data of their
+                            corresponding generic futures</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section>
+            <title>Option Greeks</title>
+            <para>The following Option Greeks are available through the Class
+                    <classname>StockOptionUtil</classname>:</para>
             <itemizedlist>
                 <listitem>
-                    <para>
-                        <ulink url="http://www.lesniewski.us/papers/published/HedgingUnderSABRModel.pdf"> Hedging under SABR Model, Refined risk management under the SABR
-                            model.</ulink>
-                    </para>
+                    <para>option price (through Black-and-Schooles)</para>
                 </listitem>
                 <listitem>
-                    <para>
-                        <ulink url="http://www.riskworx.com/insights/sabr/sabr.html"> A summary of
-                            the approaches to the SABR model for equity derivative smiles</ulink>
-                    </para>
+                    <para>implied volatility (through Black-and-Schooles, Newton Rapson Method and
+                        SABR Surface) </para>
+                </listitem>
+                <listitem>
+                    <para>intrinsic value</para>
+                </listitem>
+                <listitem>
+                    <para>delta</para>
+                </listitem>
+                <listitem>
+                    <para>vega</para>
+                </listitem>
+                <listitem>
+                    <para>theta</para>
+                </listitem>
+                <listitem>
+                    <para>forward price</para>
+                </listitem>
+                <listitem>
+                    <para>moneyness</para>
+                </listitem>
+                <listitem>
+                    <para>strike by delta</para>
                 </listitem>
             </itemizedlist>
+        </section>
+        <section id="Option_Pricing_Engine">
+            <title>Option Pricing Engine</title>
+            <para>The system provides a sophisticated option pricing engine which is developed
+                around the SABR volatility Model.</para>
+            <para>Based on historical Volatility at different Moneyness levels (e.g. ATM, ATM +10%,
+                ATM +20%, ATM -10% &amp; ATM-20%) or Delta levels (e.g. 50%, 35%, 75%) volatility
+                parameters are calculated (=calibration) and used for option pricing.</para>
+            <section>
+                <title>SABR Calibration</title>
+                <para>The <classname>StockOptionService</classname> is responsible for SABR
+                    calibration. The calibration process happens for one specific expiration and
+                    takes an array of strikes with their corresponding array of volatilities. the
+                    calibration process returns a <classname>SABRSmile</classname>
+                    <classname>ValueObject</classname>, which basically contains the three
+                    parameters <parameter>rho</parameter>, <parameter>volVol</parameter> and
+                        <parameter>alpha</parameter> (in addition to the time-to-expiration and
+                    at-the-money volatility). The actual calibration happens through the class
+                        <classname>SABR</classname>.</para>
+                <para>SABR Calibration can be done either by actual Option Prices or directly by the
+                    Implied Volatility. Also there are methods to do a SABR Calibration just for one
+                    expiration (returning one SABRSmile ValueObject) or for an entire Volatility
+                    Surface (returning a <classname>SABRSurface</classname>
+                    <classname>ValueObject</classname> which consist of multiple
+                        <classname>SABRSmile</classname>
+                    <classname>ValueObjects</classname>)</para>
+                <para>The SABR Calibration depends on different ImpliedVolatilties (a subclass of
+                    Security) being defined in the database. A ImpliedVolatility needs to define
+                    either a moneyness or a delta (in addition to Duration and OptionType).</para>
+            </section>
+            <section>
+                <title>Option Pricing</title>
+                <para>Based on the SABR Calibration the actual option pricing takes place. This is
+                    handled through the class <classname>StockOptionUtil</classname> with the method
+                        <methodname>getImpliedVolatilitySABR</methodname>. This method takes
+                    SABRSurface parameter. The actual option pricing happens in two steps:</para>
+                <orderedlist numeration="arabic">
+                    <listitem>
+                        <para>For all available expirations a volatility is calculated for the
+                            requested strike </para>
+                    </listitem>
+                    <listitem>
+                        <para>Using spline interpolation the volatility for the requested expiration
+                            is calculated</para>
+                    </listitem>
+                </orderedlist>
+            </section>
+            <section>
+                <title>References</title>
+                <itemizedlist>
+                    <listitem>
+                        <para>
+                            <ulink
+                                url="http://www.lesniewski.us/papers/published/HedgingUnderSABRModel.pdf"
+                                > Hedging under SABR Model, Refined risk management under the SABR
+                                model.</ulink>
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <ulink url="http://www.riskworx.com/insights/sabr/sabr.html"> A summary
+                                of the approaches to the SABR model for equity derivative
+                                smiles</ulink>
+                        </para>
+                    </listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section>
+            <title>OTC Options</title>
+            <para>Since OTC Options do not have a predefined chain definition, the
+                    <classname>StockOptionService</classname> contains a  method
+                    <methodname>createOTCStockOption</methodname> to create an OTC option based on
+                the specified <parameter>expirationDate</parameter>, <parameter>strike</parameter>
+                and <parameter>type</parameter>.</para>
+        </section>
+        <section>
+            <title>iVolatility.com Download &amp; Import</title>
+            <para>The online service <ulink url="http://www.iVolatility.com">iVolatility.com</ulink> provides
+                historical option data for download. There are two classes involved in downloading
+                option market data from iVolatility.com:</para>
+            <variablelist>
+                <varlistentry>
+                    <term>IVolatilityDownloader</term>
+                    <listitem>
+                        <para>Since iVolatility.com has a file size limit of 5MB, this utility class
+                            allows downloading of market data files in batches.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>ImportService</term>
+                    <listitem>
+                        <para>Provides the method <methodname>importIVolTicks</methodname> to import
+                            iVolatility files into the database.</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
         </section>
     </chapter>
     <chapter id="Reconciliation">
