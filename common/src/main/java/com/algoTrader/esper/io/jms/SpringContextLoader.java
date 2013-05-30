@@ -65,6 +65,11 @@ public class SpringContextLoader implements PluginLoader {
             return;
 
         String beanName = context.getProperties().getProperty(INPUT_ADAPTER_BEAN_NAME);
+
+        if (!ServiceLocator.instance().containsService(beanName)) {
+            return;
+        }
+
         this.adapter = ServiceLocator.instance().getService(beanName, Adapter.class);
         if (this.adapter instanceof AdapterSPI) {
             AdapterSPI spi = (AdapterSPI) this.adapter;

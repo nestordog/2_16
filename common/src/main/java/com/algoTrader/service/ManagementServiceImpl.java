@@ -91,7 +91,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getCashBalance();
         } else {
-            return getPortfolioService().getCashBalance(getConfiguration().getStartedStrategyName());
+            return getPortfolioService().getCashBalance(strategyName);
         }
     }
 
@@ -230,7 +230,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getBalances();
         } else {
-            return new ArrayList<BalanceVO>();
+            return getPortfolioService().getBalances(strategyName);
         }
     }
 

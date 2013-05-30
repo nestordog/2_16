@@ -537,6 +537,24 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
     protected Collection<BalanceVO> handleGetBalances() {
 
         Collection<Currency> currencies = getCashBalanceDao().findHeldCurrencies();
+        Collection<CashBalance> cashBalances = getCashBalanceDao().loadAll();
+        Collection<Position> positions = getPositionDao().findOpenTradeablePositionsAggregated();
+
+        return getBalances(currencies, cashBalances, positions);
+    }
+
+    @Override
+    protected Collection<BalanceVO> handleGetBalances(String strategyName) {
+
+        Collection<Currency> currencies = getCashBalanceDao().findHeldCurrenciesByStrategy(strategyName);
+        Collection<CashBalance> cashBalances = getCashBalanceDao().findCashBalancesByStrategy(strategyName);
+        Collection<Position> positions = getPositionDao().findOpenTradeablePositionsByStrategy(strategyName);
+
+        return getBalances(currencies, cashBalances, positions);
+    }
+
+    private List<BalanceVO> getBalances(Collection<Currency> currencies, Collection<CashBalance> cashBalances, Collection<Position> positions) {
+
         DoubleMap<Currency> cashMap = new DoubleMap<Currency>();
         DoubleMap<Currency> securitiesMap = new DoubleMap<Currency>();
 
@@ -546,14 +564,12 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
         }
 
         // sum of all cashBalances
-        Collection<CashBalance> cashBalances = getCashBalanceDao().loadAll();
         for (CashBalance cashBalance : cashBalances) {
             Currency currency = cashBalance.getCurrency();
             cashMap.increment(currency, cashBalance.getAmountDouble());
         }
 
         // sum of all positions
-        Collection<Position> positions = getPositionDao().findOpenTradeablePositionsAggregated();
         for (Position position : positions) {
 
             position.getSecurityInitialized();
@@ -588,7 +604,6 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
             balances.add(balance);
         }
-
         return balances;
     }
 }
