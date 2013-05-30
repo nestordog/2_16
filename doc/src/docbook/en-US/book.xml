@@ -4509,69 +4509,120 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         <para>Trusted IP Addresses: 127.0.0.1</para>
                     </listitem>
                 </itemizedlist>
-                <para>In Live Trading Mode the Base and the strategy run in separate JVM's and have
-                    to be started separately.</para>
-                <section>
-                    <title>Starting the Base</title>
-                    <para>If using Eclipse specify the following in the Launch Configuration to
-                        start the Base:</para>
-                    <variablelist>
-                        <varlistentry>
-                            <term>Main-Tab</term>
-                            <listitem>
-                                <itemizedlist>
+                    <section>
+                        <title>Multiple JVM's</title>
+                            <para>In Live Trading Mode the Base and the Strategy / Strategies run in separate JVM's and
+                            have to be started separately.</para>
+                            <para>If using Eclipse specify the following in the Launch Configuration to
+                                start the Base:</para>
+                            <variablelist>
+                                <varlistentry>
+                                    <term>Main-Tab</term>
                                     <listitem>
-                                        <para>Project: algotrader-core</para>
+                                        <itemizedlist>
+                                            <listitem>
+                                                <para>Project: algotrader-core</para>
+                                            </listitem>
+                                            <listitem>
+                                                <para>Main Class:
+                                                    <classname>com.algoTrader.starter.MarketDataStarter</classname>
+                                                </para>
+                                            </listitem>
+                                        </itemizedlist>
                                     </listitem>
+                                </varlistentry>
+                                <varlistentry>
+                                    <term>Arguments-Tab / VM-Arguments</term>
                                     <listitem>
-                                        <para>Main Class:
-                                                <classname>com.algoTrader.starter.MarketDataStarter</classname>
-                                        </para>
-                                    </listitem>
-                                </itemizedlist>
-                            </listitem>
-                        </varlistentry>
-                        <varlistentry>
-                            <term>Arguments-Tab / VM-Arguments</term>
-                            <listitem>
-                                <screen>-Dsimulation=false
+                                        <screen>-Dsimulation=false
 -Dspring.profiles.active=server,trading,&lt;brokerProfile> </screen>
-                                <para>
-                                    <parameter>brokerProfile</parameter>: the SpringProfile
-                                    corresponding to the broker interface in use (e.g. iBNative or
-                                    iBFix)</para>
-                            </listitem>
-                        </varlistentry>
-                    </variablelist>
-                </section>
-                <section>
-                    <title>Starting the Strategy</title>
-                    <para>If using Eclipse specify the following in the Launch Configuration to
-                        start the Strategy:</para>
-                    <variablelist>
-                        <varlistentry>
-                            <term>Main-Tab</term>
-                            <listitem>
-                                <itemizedlist>
-                                    <listitem>
-                                        <para>Project: strategy project</para>
+                                        <para>
+                                            <parameter>brokerProfile</parameter>: the SpringProfile
+                                            corresponding to the broker interface in use (e.g. iBNative or
+                                            iBFix)</para>
                                     </listitem>
+                                </varlistentry>
+                            </variablelist>
+
+                            <para>If using Eclipse specify the following in the Launch Configuration to
+                                start the Strategy:</para>
+                            <variablelist>
+                                <varlistentry>
+                                    <term>Main-Tab</term>
                                     <listitem>
-                                        <para>Main Class:
+                                        <itemizedlist>
+                                            <listitem>
+                                                <para>Project: strategy project</para>
+                                            </listitem>
+                                            <listitem>
+                                                <para>Main Class:
+                                                    <classname>com.algoTrader.starter.XXXStarter</classname>
+                                                    (the starter class of the Strategy)</para>
+                                            </listitem>
+                                        </itemizedlist>
+                                    </listitem>
+                                </varlistentry>
+                                <varlistentry>
+                                    <term>Arguments-Tab / VM-Arguments</term>
+                                    <listitem>
+                                        <screen>-Dsimulation=false</screen>
+                                    </listitem>
+                                </varlistentry>
+                            </variablelist>
+                    </section>
+                    <section>
+                        <title>Single JVM</title>
+                        <para>When running one single Strategy in Live Trading Mode there is the option of starting
+                            both the Base and the Strategy within the same JVM.</para>
+                        <para>If using Eclipse specify the following in the Launch Configuration to
+                            start the Strategy:</para>
+                        <variablelist>
+                            <varlistentry>
+                                <term>Main-Tab</term>
+                                <listitem>
+                                    <itemizedlist>
+                                        <listitem>
+                                            <para>Project: algotrader-core</para>
+                                        </listitem>
+                                        <listitem>
+                                            <para>Main Class:
                                                 <classname>com.algoTrader.starter.XXXStarter</classname>
-                                            (the starter class of the Strategy)</para>
-                                    </listitem>
-                                </itemizedlist>
-                            </listitem>
-                        </varlistentry>
-                        <varlistentry>
-                            <term>Arguments-Tab / VM-Arguments</term>
-                            <listitem>
-                                <screen>-Dsimulation=false</screen>
-                            </listitem>
-                        </varlistentry>
-                    </variablelist>
-                </section>
+                                                (the starter class of the Strategy)</para>
+                                        </listitem>
+                                    </itemizedlist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term>Arguments-Tab / VM-Arguments</term>
+                                <listitem>
+                                    <screen>-Dsimulation=false
+-Dmisc.singleVM=true
+-Dspring.profiles.active=server,trading,&lt;brokerProfile> </screen>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term>Classpath-Tab</term>
+                                <listitem>
+                                    <itemizedlist>
+                                        <listitem>
+                                            <para>Add Strategy Project</para>
+                                        </listitem>
+                                    </itemizedlist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term>Source-Tab</term>
+                                <listitem>
+                                    <itemizedlist>
+                                        <listitem>
+                                            <para>Add Strategy Project</para>
+                                        </listitem>
+                                    </itemizedlist>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                    </section>
+
             </section>
         </section>
     </section>
@@ -4782,6 +4833,15 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 </varlistentry>
                 <varlistentry>
                     <term>
+                        <filename>/src/main/java/com/algoTrader/strategy/MovSingleVMStarter.java</filename>
+                    </term>
+                    <listitem>
+                        <para>The class containing the main method to start the strategy in a single
+                            JVM together with the Base</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
                         <filename>/src/main/resources/module-mov-init.epl</filename>
                     </term>
                     <listitem>
@@ -4896,11 +4956,12 @@ public class MovChartService extends ChartProvidingServiceImpl {
             </section>
             <section id="MovStarter">
                 <title>MovStarter</title>
-                <programlisting language="Java">public class BoxStarter {
+                <programlisting language="Java">public class MovStarter {
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
 
     ServiceLocator.instance().init(ServiceLocator.CLIENT_BEAN_REFERENCE_LOCATION); <co id="movStarter-initServiceLocator"/>
+
     MovService movService = ServiceLocator.instance().
       getService("movService", MovService.class); <co id="movStarter-getMovService"/>
 
@@ -4953,6 +5014,40 @@ public class MovChartService extends ChartProvidingServiceImpl {
                             data events for the securities that it is subscribed to</para>
                     </callout>
                 </calloutlist>
+            </section>
+            <section>
+                <title>MovSingleVMStarter</title>
+                <programlisting>public class MovStarter {
+
+  public static void main(String[] args) extends BaseStarter {
+
+    ServiceLocator.instance().init(ServiceLocator.SINGLE_BEAN_REFERENCE_LOCATION); <co id="movSingleVMStarter-initServiceLocator"/>
+
+    startBase(); <co id="movSingleVMStarter-startBase"/>
+
+    MovService movService = ServiceLocator.instance().
+      getService("movService", MovService.class); <co id="movSingleVMStarter-getMovService"/>
+
+    ...
+  }
+}</programlisting>
+                <para>The Starter Class needs to extend the <classname>BaseStarter</classname> class. The main
+                    method contains the following steps:</para>
+                <calloutlist>
+                    <callout arearefs="movSingleVMStarter-initServiceLocator">
+                        <para>initialize the ServiceLocator to let the Spring Environment know that it is in Single-VM
+                            Live Trading Mode.</para>
+                    </callout>
+                    <callout arearefs="movSingleVMStarter-startBase">
+                        <para>call the method <methodname>startBase</methodname> from
+                                <classname>BaseStarter</classname></para>
+                    </callout>
+                    <callout arearefs="movSingleVMStarter-getMovService">
+                        <para>get a reference to the MovService</para>
+                    </callout>
+                </calloutlist>
+                <para>The rest of the <methodname>main</methodname> method looks the same as the one
+                    from <classname>MovStarter</classname>.</para>
             </section>
             <section>
                 <title>module-mov-init.epl</title>
@@ -6083,7 +6178,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                     <classname>StockOptionUtil</classname>:</para>
             <itemizedlist>
                 <listitem>
-                    <para>option price (through Black-and-Schooles)</para>
+                    <para>option price (through Black-and-Scholes)</para>
                 </listitem>
                 <listitem>
                     <para>implied volatility (through Black-and-Schooles, Newton Rapson Method and
