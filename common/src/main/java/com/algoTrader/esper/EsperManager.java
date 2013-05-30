@@ -73,7 +73,6 @@ import com.algoTrader.esper.io.CsvTickInputAdapter;
 import com.algoTrader.esper.io.CsvTickInputAdapterSpec;
 import com.algoTrader.esper.subscriber.SubscriberCreator;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.util.collection.CollectionUtil;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.algoTrader.vo.GenericEventVO;
@@ -129,6 +128,7 @@ public class EsperManager {
     private static String newline = System.getProperty("line.separator");
 
     private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
+    private static boolean singleVM = ServiceLocator.instance().getConfiguration().getBoolean("misc.singleVM");
     private static List<String> moduleDeployExcludeStatements = Arrays.asList((ServiceLocator.instance().getConfiguration().getString("misc.moduleDeployExcludeStatements")).split(","));
     private static int outboundThreads = ServiceLocator.instance().getConfiguration().getInt("misc.outboundThreads");
 
@@ -442,7 +442,7 @@ public class EsperManager {
      */
     public static void sendEvent(String strategyName, Object obj) {
 
-        if (simulation) {
+        if (simulation || singleVM) {
             if (isInitialized(strategyName)) {
 
                 long startTime = System.nanoTime();
@@ -454,7 +454,7 @@ public class EsperManager {
         } else {
 
             // check if it is the localStrategy
-            if (StrategyUtil.getStartedStrategyName().equals(strategyName)) {
+            if (ServiceLocator.instance().getConfiguration().getStartedStrategyName().equals(strategyName)) {
                 internalSendEvent(strategyName, obj);
             } else {
                 externalSendEvent(strategyName, obj);
@@ -468,7 +468,7 @@ public class EsperManager {
      */
     public static void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
 
-        if (simulation) {
+        if (simulation || singleVM) {
             for (Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
                 if (!subscription.getStrategyInitialized().getName().equals(StrategyImpl.BASE)) {
                     sendEvent(subscription.getStrategy().getName(), marketDataEvent);
@@ -497,7 +497,7 @@ public class EsperManager {
      */
     public static void sendGenericEvent(final GenericEventVO event) {
 
-        if (simulation) {
+        if (simulation || singleVM) {
             for (String strategyName : serviceProviders.keySet()) {
                 if (!strategyName.equals(StrategyImpl.BASE) && !strategyName.equals(event.getStrategyName())) {
                     sendEvent(strategyName, event);

@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.IndicatorVO;
 import com.algoTrader.vo.PortfolioValueVO;
 
@@ -43,7 +42,7 @@ public class PortfolioChartServiceImpl extends PortfolioChartServiceBase {
         // only push values if chart is being reset
         if (startDateTime == 0) {
 
-            String strategyName = StrategyUtil.getStartedStrategyName();
+            String strategyName = getConfiguration().getStartedStrategyName();
             for (PortfolioValueVO portfolioValue : getPortfolioService().getPortfolioValuesInclPerformanceSinceDate(strategyName, new Date(startDateTime))) {
 
                 set.add(new IndicatorVO("netLiqValue", portfolioValue.getDateTime(), portfolioValue.getNetLiqValue().doubleValue()));

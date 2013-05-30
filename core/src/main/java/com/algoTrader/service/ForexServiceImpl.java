@@ -57,7 +57,7 @@ public class ForexServiceImpl extends ForexServiceBase {
     private @Value("${fx.futureEqualizationEnabled}") boolean fxFutureEqualizationEnabled;
     private @Value("${fx.futureEqualizationMinTimeToExpiration}") int fxFutureEqualizationMinTimeToExpiration;
     private @Value("${fx.equalizationMinAmount}") int fxEqualizationMinAmount;
-    private @Value("${fy.equalizationBatchSize}") int fxEqualizationBatchSize;
+    private @Value("${fx.equalizationBatchSize}") int fxEqualizationBatchSize;
 
     @Override
     protected void handleEqualizeForex() throws Exception {

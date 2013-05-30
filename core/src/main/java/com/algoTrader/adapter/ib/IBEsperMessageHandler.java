@@ -30,7 +30,6 @@ import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.EsperManager;
-import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 import com.ib.client.Contract;
@@ -83,7 +82,6 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
         }
 
         // get the fields
-        Date dateTime = DateUtil.getCurrentEPTime();
         Date extDateTime = IBUtil.getExecutionDateTime(execution);
         Side side = IBUtil.getSide(execution);
         long quantity = execution.m_shares;
@@ -92,7 +90,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
 
         // assemble the fill
         Fill fill = Fill.Factory.newInstance();
-        fill.setDateTime(dateTime);
+        fill.setDateTime(new Date());
         fill.setExtDateTime(extDateTime);
         fill.setSide(side);
         fill.setQuantity(quantity);

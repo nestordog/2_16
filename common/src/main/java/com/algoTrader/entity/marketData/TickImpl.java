@@ -173,7 +173,7 @@ public class TickImpl extends Tick {
 
         buffer.append(getSecurity());
         buffer.append(",");
-        buffer.append(format.format(getDateTime()));
+        buffer.append(getDateTime() != null ? format.format(getDateTime()) : null);
         buffer.append(",last=");
         buffer.append(getLast());
         buffer.append(",lastDateTime=");

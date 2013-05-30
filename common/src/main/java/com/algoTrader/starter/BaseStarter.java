@@ -15,42 +15,37 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.util;
+package com.algoTrader.starter;
 
 import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.strategy.StrategyImpl;
+import com.algoTrader.esper.EsperManager;
+import com.algoTrader.service.InitializingServiceI;
+import com.algoTrader.service.MarketDataService;
 
 /**
- * Provides utility methods related to the localy started Strategy.
+ * Abstract Base Class for starting the Base in Live Trading Mode
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class StrategyUtil {
+public abstract class BaseStarter {
 
-    private static boolean simulation;
-    private static String strategyName;
+    public static void startBase() throws Exception {
 
-    public static String getStartedStrategyName() {
+        // start all BASE rules
+        EsperManager.initServiceProvider(StrategyImpl.BASE);
+        EsperManager.setInternalClock(StrategyImpl.BASE, true);
+        EsperManager.deployAllModules(StrategyImpl.BASE);
 
-        if (strategyName == null) {
-
-            simulation = ServiceLocator.instance().getConfiguration().getSimulation();
-            if (simulation) {
-                strategyName = StrategyImpl.BASE;
-            } else {
-                strategyName = ServiceLocator.instance().getConfiguration().getStrategyName();
-                if (strategyName == null) {
-                    throw new IllegalStateException("no strategy defined on commandline");
-                }
-            }
+        // initialize services
+        for (InitializingServiceI service : ServiceLocator.instance().getServices(InitializingServiceI.class)) {
+            service.init();
         }
-        return strategyName;
-    }
 
-    public static boolean isStartedStrategyBASE() {
-
-        return StrategyImpl.BASE.equals(getStartedStrategyName());
+        // init market data subscriptions (needs to be invoked after all Spring Services have been properly initialized)
+        MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
+        marketDataService.initSubscriptions();
     }
 }

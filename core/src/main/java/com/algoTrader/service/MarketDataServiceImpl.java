@@ -39,7 +39,6 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.entity.security.Security;
 import com.algoTrader.entity.strategy.Strategy;
 import com.algoTrader.esper.EsperManager;
-import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.HibernateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.io.CsvTickWriter;
@@ -64,7 +63,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
     protected void handlePersistTick(Tick tick) throws IOException {
 
         // get the current Date rounded to MINUTES
-        Date date = DateUtils.round(DateUtil.getCurrentEPTime(), Calendar.MINUTE);
+        Date date = DateUtils.round(new Date(), Calendar.MINUTE);
         tick.setDateTime(date);
 
         // write the tick to file

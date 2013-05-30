@@ -23,6 +23,7 @@ import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.time.DateUtils;
 
+import com.algoTrader.ServiceLocator;
 import com.algoTrader.entity.security.ExpirableFamilyI;
 import com.algoTrader.entity.security.SecurityFamily;
 import com.algoTrader.enumeration.Duration;
@@ -44,7 +45,7 @@ public class DateUtil {
      */
     public static Date getCurrentEPTime() {
 
-        String strategyName = StrategyUtil.getStartedStrategyName();
+        String strategyName = ServiceLocator.instance().getConfiguration().getStartedStrategyName();
         if (EsperManager.isInitialized(strategyName) && !EsperManager.isInternalClock(strategyName)) {
             return new Date(EsperManager.getCurrentTime(strategyName));
         } else {

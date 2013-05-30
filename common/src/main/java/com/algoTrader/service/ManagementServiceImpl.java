@@ -53,7 +53,6 @@ import com.algoTrader.enumeration.MarketDataType;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.BeanUtil;
-import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.vo.BalanceVO;
 import com.algoTrader.vo.BarVO;
 import com.algoTrader.vo.MarketDataEventVO;
@@ -76,30 +75,30 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected String handleGetCurrentTime() throws Exception {
 
-        return format.format(new Date(EsperManager.getCurrentTime(StrategyUtil.getStartedStrategyName())));
+        return format.format(new Date(EsperManager.getCurrentTime(getConfiguration().getStartedStrategyName())));
     }
 
     @Override
     protected String handleGetStrategyName() throws Exception {
 
-        return StrategyUtil.getStartedStrategyName();
+        return getConfiguration().getStartedStrategyName();
     }
 
     @Override
     protected BigDecimal handleGetStrategyCashBalance() throws Exception {
 
-        String strategyName = StrategyUtil.getStartedStrategyName();
+        String strategyName = getConfiguration().getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getCashBalance();
         } else {
-            return getPortfolioService().getCashBalance(StrategyUtil.getStartedStrategyName());
+            return getPortfolioService().getCashBalance(getConfiguration().getStartedStrategyName());
         }
     }
 
     @Override
     protected BigDecimal handleGetStrategySecuritiesCurrentValue() throws Exception {
 
-        String strategyName = StrategyUtil.getStartedStrategyName();
+        String strategyName = getConfiguration().getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getSecuritiesCurrentValue();
         } else {
@@ -110,7 +109,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected BigDecimal handleGetStrategyMaintenanceMargin() throws Exception {
 
-        String strategyName = StrategyUtil.getStartedStrategyName();
+        String strategyName = getConfiguration().getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getMaintenanceMargin();
         } else {
@@ -121,7 +120,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected BigDecimal handleGetStrategyNetLiqValue() throws Exception {
 
-        String strategyName = StrategyUtil.getStartedStrategyName();
+        String strategyName = getConfiguration().getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getNetLiqValue();
         } else {
@@ -132,7 +131,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected BigDecimal handleGetStrategyAvailableFunds() throws Exception {
 
-        String strategyName = StrategyUtil.getStartedStrategyName();
+        String strategyName = getConfiguration().getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getAvailableFunds();
         } else {
@@ -143,14 +142,14 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected double handleGetStrategyAllocation() throws Exception {
 
-        String strategyName = StrategyUtil.getStartedStrategyName();
+        String strategyName = getConfiguration().getStartedStrategyName();
         return getLookupService().getStrategyByName(strategyName).getAllocation();
     }
 
     @Override
     protected double handleGetStrategyLeverage() throws Exception {
 
-        String strategyName = StrategyUtil.getStartedStrategyName();
+        String strategyName = getConfiguration().getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getLeverage();
         } else {
@@ -161,7 +160,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected double handleGetStrategyPerformance() throws Exception {
 
-        String strategyName = StrategyUtil.getStartedStrategyName();
+        String strategyName = getConfiguration().getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getPerformance();
         } else {
@@ -173,14 +172,14 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected List<MarketDataEventVO> handleGetMarketDataEvents() {
 
-        String strategyName = StrategyUtil.getStartedStrategyName();
+        String strategyName = getConfiguration().getStartedStrategyName();
         List<MarketDataEvent> marketDataEvents = EsperManager.getAllEventsProperty(strategyName, "CURRENT_MARKET_DATA_EVENT", "marketDataEvent");
 
         List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents);
 
         // get all subscribed securities
 
-        if (StrategyUtil.isStartedStrategyBASE()) {
+        if (getConfiguration().isStartedStrategyBASE()) {
 
             // for base iterate over all subscribed securities
             Map<Integer, MarketDataEventVO> processedMarketDataEventVOs = new TreeMap<Integer, MarketDataEventVO>();
@@ -221,13 +220,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected List<PositionVO> handleGetDataPositions() throws Exception {
 
-        return getLookupService().getPositionsVO(StrategyUtil.getStartedStrategyName(), this.displayClosedPositions);
+        return getLookupService().getPositionsVO(getConfiguration().getStartedStrategyName(), this.displayClosedPositions);
     }
 
     @Override
     protected Collection<BalanceVO> handleGetDataBalances() throws Exception {
 
-        String strategyName = StrategyUtil.getStartedStrategyName();
+        String strategyName = getConfiguration().getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getBalances();
         } else {
@@ -238,13 +237,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected List<TransactionVO> handleGetDataTransactions() throws Exception {
 
-        return getLookupService().getTransactionsVO(StrategyUtil.getStartedStrategyName());
+        return getLookupService().getTransactionsVO(getConfiguration().getStartedStrategyName());
     }
 
     @Override
     protected Collection<OrderStatusVO> handleGetDataOrders() throws Exception {
 
-        return getLookupService().getOpenOrdersVO(StrategyUtil.getStartedStrategyName());
+        return getLookupService().getOpenOrdersVO(getConfiguration().getStartedStrategyName());
     }
 
     @Override
@@ -256,20 +255,20 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected void handleDeployStatement(String moduleName, String statementName) throws Exception {
 
-        EsperManager.deployStatement(StrategyUtil.getStartedStrategyName(), moduleName, statementName);
+        EsperManager.deployStatement(getConfiguration().getStartedStrategyName(), moduleName, statementName);
     }
 
     @Override
     protected void handleDeployModule(String moduleName) throws Exception {
 
-        EsperManager.deployModule(StrategyUtil.getStartedStrategyName(), moduleName);
+        EsperManager.deployModule(getConfiguration().getStartedStrategyName(), moduleName);
     }
 
     @Override
     protected void handleSendOrder(int securityId, long quantity, String sideString, String type, String accountName, String propertiesString) throws Exception {
 
         Side side = Side.fromValue(sideString);
-        String strategyName = StrategyUtil.getStartedStrategyName();
+        String strategyName = getConfiguration().getStartedStrategyName();
 
         Strategy strategy = getLookupService().getStrategyByName(strategyName);
         Security security = getLookupService().getSecurity(securityId);
@@ -358,7 +357,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected void handleReduceCombination(int combinationId, double ratio) throws Exception {
 
-        getCombinationService().reduceCombination(combinationId, StrategyUtil.getStartedStrategyName(), ratio);
+        getCombinationService().reduceCombination(combinationId, getConfiguration().getStartedStrategyName(), ratio);
     }
 
     @Override
@@ -376,25 +375,25 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected void handleSetVariableValue(String variableName, String value) {
 
-        EsperManager.setVariableValueFromString(StrategyUtil.getStartedStrategyName(), variableName, value);
+        EsperManager.setVariableValueFromString(getConfiguration().getStartedStrategyName(), variableName, value);
     }
 
     @Override
     protected void handleSubscribe(int securityid) throws Exception {
 
-        getSubscriptionService().subscribeMarketDataEvent(StrategyUtil.getStartedStrategyName(), securityid);
+        getSubscriptionService().subscribeMarketDataEvent(getConfiguration().getStartedStrategyName(), securityid);
     }
 
     @Override
     protected void handleUnsubscribe(int securityid) throws Exception {
 
-        getSubscriptionService().unsubscribeMarketDataEvent(StrategyUtil.getStartedStrategyName(), securityid);
+        getSubscriptionService().unsubscribeMarketDataEvent(getConfiguration().getStartedStrategyName(), securityid);
     }
 
     @Override
     protected void handleRequestCurrentTicks() throws Exception {
 
-        getMarketDataService().requestCurrentTicks(StrategyUtil.getStartedStrategyName());
+        getMarketDataService().requestCurrentTicks(getConfiguration().getStartedStrategyName());
     }
 
     @Override
@@ -448,7 +447,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected void handleShutdown() throws Exception {
 
         // cancel all orders if we called from base
-        if (StrategyUtil.isStartedStrategyBASE()) {
+        if (getConfiguration().isStartedStrategyBASE()) {
             ServiceLocator.instance().getOrderService().cancelAllOrders();
         }
 

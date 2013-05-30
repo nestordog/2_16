@@ -45,7 +45,6 @@ import com.algoTrader.entity.trade.OrderStatus;
 import com.algoTrader.enumeration.Side;
 import com.algoTrader.enumeration.Status;
 import com.algoTrader.esper.EsperManager;
-import com.algoTrader.util.DateUtil;
 import com.algoTrader.util.MyLogger;
 import com.algoTrader.util.RoundUtil;
 
@@ -114,7 +113,6 @@ public class DCFixMessageHandler {
             if (executionReport.getOrdStatus().getValue() == OrdStatus.FILLED) {
 
                 // get the fields
-                Date dateTime = DateUtil.getCurrentEPTime();
                 Date extDateTime = executionReport.getTransactTime().getValue();
                 Side side = FixUtil.getSide(executionReport.getSide());
                 long quantity = (long) executionReport.getCumQty().getValue();
@@ -125,7 +123,7 @@ public class DCFixMessageHandler {
 
                 // assemble the fill
                 Fill fill = Fill.Factory.newInstance();
-                fill.setDateTime(dateTime);
+                fill.setDateTime(new Date());
                 fill.setExtDateTime(extDateTime);
                 fill.setSide(side);
                 fill.setQuantity(quantity);

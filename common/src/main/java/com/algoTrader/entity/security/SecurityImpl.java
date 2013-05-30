@@ -30,7 +30,6 @@ import com.algoTrader.entity.marketData.Tick;
 import com.algoTrader.enumeration.Currency;
 import com.algoTrader.esper.EsperManager;
 import com.algoTrader.util.MyLogger;
-import com.algoTrader.util.StrategyUtil;
 import com.algoTrader.util.metric.MetricsUtil;
 import com.espertech.esper.event.WrapperEventBean;
 import com.espertech.esper.event.bean.BeanEventBean;
@@ -53,8 +52,9 @@ public abstract class SecurityImpl extends Security {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public MarketDataEvent getCurrentMarketDataEvent() {
 
-        if (EsperManager.isInitialized(StrategyUtil.getStartedStrategyName())) {
-            List<Map> events = EsperManager.getAllEvents(StrategyUtil.getStartedStrategyName(), "CURRENT_MARKET_DATA_EVENT");
+        String startedStrategyName = ServiceLocator.instance().getConfiguration().getStartedStrategyName();
+        if (EsperManager.isInitialized(startedStrategyName)) {
+            List<Map> events = EsperManager.getAllEvents(startedStrategyName, "CURRENT_MARKET_DATA_EVENT");
 
             // try to see if the rule CURRENT_MARKET_DATA_EVENT has any events
             for (Map event : events) {

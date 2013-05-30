@@ -18,10 +18,6 @@
 package com.algoTrader.starter;
 
 import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.strategy.StrategyImpl;
-import com.algoTrader.esper.EsperManager;
-import com.algoTrader.service.InitializingServiceI;
-import com.algoTrader.service.MarketDataService;
 
 /**
  * Main Starter Class for Live Trading
@@ -30,34 +26,12 @@ import com.algoTrader.service.MarketDataService;
  *
  * @version $Revision$ $Date$
  */
-public class MarketDataStarter {
+public class MarketDataStarter extends BaseStarter {
 
     public static void main(String[] args) throws Exception {
 
-        start();
-    }
-
-    public static void start() throws Exception {
-
-        // start all BASE rules
         ServiceLocator.instance().init(ServiceLocator.SERVER_BEAN_REFERENCE_LOCATION);
 
-        EsperManager.initServiceProvider(StrategyImpl.BASE);
-        EsperManager.setInternalClock(StrategyImpl.BASE, true);
-        EsperManager.deployAllModules(StrategyImpl.BASE);
-
-        // initialize services
-        for (InitializingServiceI service : ServiceLocator.instance().getServices(InitializingServiceI.class)) {
-            service.init();
-        }
-
-        // init market data subscriptions (needs to be invoked after all Spring Services have been properly initialized)
-        MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
-        marketDataService.initSubscriptions();
-    }
-
-    public static void stop() {
-
-        ServiceLocator.instance().shutdown();
+        startBase();
     }
 }

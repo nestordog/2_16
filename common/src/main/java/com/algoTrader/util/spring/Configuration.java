@@ -24,6 +24,7 @@ import java.util.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.algoTrader.entity.strategy.StrategyImpl;
 import com.algoTrader.enumeration.Duration;
 import com.algoTrader.enumeration.MarketDataType;
 
@@ -69,9 +70,19 @@ public class Configuration {
         return this.simulation;
     }
 
+    public String getStartedStrategyName() {
 
+        if (this.simulation) {
+            return StrategyImpl.BASE;
+        } else {
+            return this.strategyName;
+        }
+    }
 
+    public boolean isStartedStrategyBASE() {
 
+        return StrategyImpl.BASE.equals(getStartedStrategyName());
+    }
 
     // generic methods
 

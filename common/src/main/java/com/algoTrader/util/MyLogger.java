@@ -63,16 +63,18 @@ public class MyLogger extends Logger {
     @Override
     protected void forcedLog(String fqcn, Priority level, Object message, Throwable t) {
 
+        // in simulation get date from the Esper Engine belonging to the startedStrateggy
         if (ServiceLocator.instance().isInitialized()) {
+            if (ServiceLocator.instance().getConfiguration().getSimulation()) {
+                String strategyName = ServiceLocator.instance().getConfiguration().getStartedStrategyName();
+                if (EsperManager.isInitialized(strategyName)) {
 
-            String strategyName = StrategyUtil.getStartedStrategyName();
-            if (EsperManager.isInitialized(strategyName) && !EsperManager.isInternalClock(strategyName)) {
+                    long engineTime = EsperManager.getCurrentTime(strategyName);
+                    if (engineTime != 0) {
 
-                long engineTime = EsperManager.getCurrentTime(strategyName);
-                if (engineTime != 0) {
-
-                    callAppenders(new LoggingEvent(fqcn, this, engineTime, level, message, t));
-                    return;
+                        callAppenders(new LoggingEvent(fqcn, this, engineTime, level, message, t));
+                        return;
+                    }
                 }
             }
         }

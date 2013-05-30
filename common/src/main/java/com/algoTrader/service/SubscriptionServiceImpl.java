@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import com.algoTrader.entity.Subscription;
-import com.algoTrader.util.StrategyUtil;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -71,12 +70,12 @@ public class SubscriptionServiceImpl extends SubscriptionServiceBase {
     @Override
     protected void handleInitMarketDataEventSubscriptions() throws Exception {
 
-        if (this.simulation || StrategyUtil.isStartedStrategyBASE())
+        if (this.simulation || getConfiguration().isStartedStrategyBASE())
             return;
 
         // assemble the message selector
         List<String> selections = new ArrayList<String>();
-        for (Subscription subscription : getLookupService().getSubscriptionsByStrategyInclComponents(StrategyUtil.getStartedStrategyName())) {
+        for (Subscription subscription : getLookupService().getSubscriptionsByStrategyInclComponents(getConfiguration().getStartedStrategyName())) {
             selections.add("securityId=" + subscription.getSecurity().getId());
         }
 
@@ -104,7 +103,7 @@ public class SubscriptionServiceImpl extends SubscriptionServiceBase {
     @SuppressWarnings("rawtypes")
     protected void handleSubscribeGenericEvents(Class[] classes) throws Exception {
 
-        if (this.simulation || StrategyUtil.isStartedStrategyBASE())
+        if (this.simulation || getConfiguration().isStartedStrategyBASE())
             return;
 
         // assemble the message selector
