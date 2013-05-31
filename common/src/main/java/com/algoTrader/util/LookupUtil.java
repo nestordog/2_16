@@ -125,7 +125,7 @@ public class LookupUtil {
 
     public static boolean hasCurrentMarketDataEvents() {
 
-        return (EsperManager.getLastEvent(StrategyUtil.getStartedStrategyName(), "CURRENT_MARKET_DATA_EVENT") != null);
+        return (EsperManager.getLastEvent(ServiceLocator.instance().getConfiguration().getStartedStrategyName(), "CURRENT_MARKET_DATA_EVENT") != null);
     }
 
     public static Tick getTickByDateAndSecurity(int securityId, Date date) {
