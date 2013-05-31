@@ -23,7 +23,7 @@ import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import com.algoTrader.vo.ClosePositionVO;
+import ch.algotrader.vo.ClosePositionVO;
 
 /**
  * Base Esper Callback Class that will be invoked as soon as a Position on the given Security passed to {@link EsperManager#addClosePositionCallback} has been closed.

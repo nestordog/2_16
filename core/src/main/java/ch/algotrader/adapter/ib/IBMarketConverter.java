@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.ib;
 
-import com.algoTrader.enumeration.Market;
+import ch.algotrader.enumeration.Market;
 
 /**
  * Utility class converting {@link Market Markets} to IB specific market representation.

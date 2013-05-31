@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-import com.algoTrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatus;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

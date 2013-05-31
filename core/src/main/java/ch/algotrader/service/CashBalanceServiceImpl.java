@@ -28,12 +28,12 @@ import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.BigDecimalMap;
 import ch.algotrader.util.collection.Pair;
 
-import com.algoTrader.entity.Transaction;
-import com.algoTrader.entity.strategy.CashBalance;
-import com.algoTrader.entity.strategy.Strategy;
-import com.algoTrader.enumeration.Currency;
-import com.algoTrader.service.CashBalanceServiceBase;
-import com.algoTrader.vo.CurrencyAmountVO;
+import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.strategy.CashBalance;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.enumeration.Currency;
+import ch.algotrader.service.CashBalanceServiceBase;
+import ch.algotrader.vo.CurrencyAmountVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

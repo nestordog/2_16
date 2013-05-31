@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
-import com.algoTrader.entity.Subscription;
+import ch.algotrader.entity.Subscription;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

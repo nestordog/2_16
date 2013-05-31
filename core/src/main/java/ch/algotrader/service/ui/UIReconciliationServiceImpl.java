@@ -45,14 +45,14 @@ import ch.algotrader.util.ZipUtil;
 import ch.algotrader.util.collection.LongMap;
 import ch.algotrader.util.collection.Pair;
 
-import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Transaction;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.strategy.PortfolioValue;
-import com.algoTrader.entity.strategy.Strategy;
-import com.algoTrader.enumeration.Currency;
-import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.service.ui.UIReconciliationServiceBase;
+import ch.algotrader.entity.Position;
+import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.PortfolioValue;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.TransactionType;
+import ch.algotrader.service.ui.UIReconciliationServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

@@ -17,9 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import com.algoTrader.entity.trade.SimpleOrder;
-import com.algoTrader.enumeration.OrderServiceType;
-import com.algoTrader.service.ExternalOrderServiceBase;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.service.ExternalOrderServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

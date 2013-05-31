@@ -40,9 +40,9 @@ import quickfix.field.SubMsgType;
 import quickfix.field.XMLContent;
 import quickfix.fix42.IBFAModification;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Account;
-import com.algoTrader.service.ib.IBFixAccountServiceBase;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.Account;
+import ch.algotrader.service.ib.IBFixAccountServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.util.mail;
 
-import com.algoTrader.service.ReconciliationService;
+import ch.algotrader.service.ReconciliationService;
 
 /**
  * Pojo that defines Mail-Dispatching Rules.

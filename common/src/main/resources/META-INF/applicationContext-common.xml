@@ -9,7 +9,7 @@
 
     <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
 
-    <bean id="properties" class="com.algoTrader.util.spring.SystemPropertiesFactoryBean">
+    <bean id="properties" class="ch.algotrader.util.spring.SystemPropertiesFactoryBean">
         <property name="locations">
             <list>
                 <!--  defining conf.properties will allow overwrites by strategies -->
@@ -27,9 +27,9 @@
         <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_NEVER</value></property>
     </bean>
 
-    <bean id="configuration" class="com.algoTrader.util.spring.Configuration"/>
+    <bean id="configuration" class="ch.algotrader.util.spring.Configuration"/>
 
-    <bean class="com.algoTrader.util.spring.EntityAnnotationSetter" init-method="init"/>
+    <bean class="ch.algotrader.util.spring.EntityAnnotationSetter" init-method="init"/>
 
     <!-- =========================================== JMX ================================================ -->
 
@@ -39,41 +39,41 @@
     <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
         <property name="propertyEditorRegistrars">
             <list>
-               <bean class="com.algoTrader.util.spring.DatePropertyEditorRegistrar"/>
+               <bean class="ch.algotrader.util.spring.DatePropertyEditorRegistrar"/>
             </list>
         </property>
     </bean>
 
     <!-- ================================= Portfolio Chart Definition======================================= -->
 
-    <bean id="portfolioChartDefinition" class="com.algoTrader.vo.ChartDefinitionVO" p:timePeriod="MIN" p:startTime="${misc.portfolioStartHour}:00" p:endTime="${misc.portfolioEndHour}:00" >
+    <bean id="portfolioChartDefinition" class="ch.algotrader.vo.ChartDefinitionVO" p:timePeriod="MIN" p:startTime="${misc.portfolioStartHour}:00" p:endTime="${misc.portfolioEndHour}:00" >
         <property name="axisDefinitions">
             <set>
-                <bean class="com.algoTrader.vo.AxisDefinitionVO" p:label="Balances" p:autoRange="true" p:autoRangeIncludesZero="false">
+                <bean class="ch.algotrader.vo.AxisDefinitionVO" p:label="Balances" p:autoRange="true" p:autoRangeIncludesZero="false">
                     <property name="datasetDefinitions">
                         <set>
-                            <bean class="com.algoTrader.vo.DatasetDefinitionVO" p:type="TIME">
+                            <bean class="ch.algotrader.vo.DatasetDefinitionVO" p:type="TIME">
                                 <property name="seriesDefinitions">
                                     <set>
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="netLiqValue" p:label="NetLiqValue" p:color="RED" p:selected="false" />
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="securitiesCurrentValue" p:label="SecuritiesCurrentValue" p:color="BLUE" p:selected="false" />
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="cashBalance" p:label="CashBalance" p:color="GREEN" p:selected="false" />
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="maintenanceMargin" p:label="MaintenanceMargin" p:color="YELLOW" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.IndicatorDefinitionVO" p:name="netLiqValue" p:label="NetLiqValue" p:color="RED" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.IndicatorDefinitionVO" p:name="securitiesCurrentValue" p:label="SecuritiesCurrentValue" p:color="BLUE" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.IndicatorDefinitionVO" p:name="cashBalance" p:label="CashBalance" p:color="GREEN" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.IndicatorDefinitionVO" p:name="maintenanceMargin" p:label="MaintenanceMargin" p:color="YELLOW" p:selected="false" />
                                     </set>
                                 </property>
                             </bean>
                         </set>
                     </property>
                 </bean>
-                <bean class="com.algoTrader.vo.AxisDefinitionVO" p:label="Performance / Leverage / Allocation" p:autoRange="true" p:autoRangeIncludesZero="false" p:numberFormat="##0.00%">
+                <bean class="ch.algotrader.vo.AxisDefinitionVO" p:label="Performance / Leverage / Allocation" p:autoRange="true" p:autoRangeIncludesZero="false" p:numberFormat="##0.00%">
                     <property name="datasetDefinitions">
                         <set>
-                            <bean class="com.algoTrader.vo.DatasetDefinitionVO" p:type="TIME">
+                            <bean class="ch.algotrader.vo.DatasetDefinitionVO" p:type="TIME">
                                 <property name="seriesDefinitions">
                                     <set>
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="performance" p:label="Performance" p:color="BLACK" p:selected="true" />
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="leverage" p:label="Leverage" p:color="DARK_GRAY" p:selected="false" />
-                                        <bean class="com.algoTrader.vo.IndicatorDefinitionVO" p:name="allocation" p:label="Allocation" p:color="LIGHT_GRAY" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.IndicatorDefinitionVO" p:name="performance" p:label="Performance" p:color="BLACK" p:selected="true" />
+                                        <bean class="ch.algotrader.vo.IndicatorDefinitionVO" p:name="leverage" p:label="Leverage" p:color="DARK_GRAY" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.IndicatorDefinitionVO" p:name="allocation" p:label="Allocation" p:color="LIGHT_GRAY" p:selected="false" />
                                     </set>
                                 </property>
                             </bean>

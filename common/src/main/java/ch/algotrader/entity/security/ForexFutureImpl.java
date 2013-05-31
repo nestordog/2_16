@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import com.algoTrader.entity.security.ForexFuture;
-import com.algoTrader.enumeration.Currency;
+import ch.algotrader.entity.security.ForexFuture;
+import ch.algotrader.enumeration.Currency;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

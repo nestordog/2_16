@@ -43,15 +43,15 @@ import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
-import com.algoTrader.entity.Account;
-import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Transaction;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.strategy.Strategy;
-import com.algoTrader.enumeration.Currency;
-import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.service.ib.IBReconciliationServiceBase;
-import com.algoTrader.vo.CurrencyAmountVO;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.Position;
+import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.TransactionType;
+import ch.algotrader.service.ib.IBReconciliationServiceBase;
+import ch.algotrader.vo.CurrencyAmountVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

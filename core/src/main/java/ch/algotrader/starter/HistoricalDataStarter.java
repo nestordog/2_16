@@ -23,9 +23,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.enumeration.BarType;
-import com.algoTrader.service.ib.IBNativeHistoricalDataService;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.enumeration.BarType;
+import ch.algotrader.service.ib.IBNativeHistoricalDataService;
 
 /**
  * Starter Class to download historical tick data

@@ -33,13 +33,13 @@
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
-    <bean id="genericDao" class="com.algoTrader.cache.GenericDao">
+    <bean id="genericDao" class="ch.algotrader.cache.GenericDao">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
     <!-- =========================================== Cache ================================================ -->
 
-    <bean id="cacheManager" class="com.algoTrader.cache.CacheManagerImpl">
+    <bean id="cacheManager" class="ch.algotrader.cache.CacheManagerImpl">
         <property name="genericDao" ref="genericDao"/>
     </bean>
 
@@ -141,18 +141,18 @@
             <property name="messageConverter" ref="messageConverter" />
         </bean>
 
-        <bean id="messageConverter" class="com.algoTrader.util.io.CollectionIgnoringMessageConverter"/>
+        <bean id="messageConverter" class="ch.algotrader.util.io.CollectionIgnoringMessageConverter"/>
 
     </beans>
 
     <!-- =================================== Broker Interfaces  ========================================= -->
 
     <beans profile="trading,securityRetrieval">
-        <bean id="iBClientFactory" class="com.algoTrader.adapter.ib.IBClientFactory"/>
+        <bean id="iBClientFactory" class="ch.algotrader.adapter.ib.IBClientFactory"/>
     </beans>
 
     <beans profile="jPMFix,iBFix,dCFix">
-        <bean id="fixClient" class="com.algoTrader.adapter.fix.FixClient"/>
+        <bean id="fixClient" class="ch.algotrader.adapter.fix.FixClient"/>
     </beans>
 
     <!-- =========================================== RECONCILIATION ================================================ -->
@@ -165,14 +165,14 @@
 
         <int:chain input-channel="inputChannel" output-channel="outputChannel">
             <int:transformer>
-                <bean class="com.algoTrader.util.mail.EmailDispatcher" p:dispositions-ref="dispositions"/>
+                <bean class="ch.algotrader.util.mail.EmailDispatcher" p:dispositions-ref="dispositions"/>
             </int:transformer>
             <int:filter expression="headers.containsKey('directory')"/>
             <int:transformer>
-                <bean class="com.algoTrader.util.mail.EmailTransformer"/>
+                <bean class="ch.algotrader.util.mail.EmailTransformer"/>
             </int:transformer>
             <int:splitter>
-                <bean class="com.algoTrader.util.mail.EmailSplitter"/>
+                <bean class="ch.algotrader.util.mail.EmailSplitter"/>
             </int:splitter>
         </int:chain>
 

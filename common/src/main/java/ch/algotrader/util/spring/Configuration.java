@@ -26,8 +26,8 @@ import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.entity.strategy.StrategyImpl;
 
-import com.algoTrader.enumeration.Duration;
-import com.algoTrader.enumeration.MarketDataType;
+import ch.algotrader.enumeration.Duration;
+import ch.algotrader.enumeration.MarketDataType;
 
 /**
  * Spring Bean containing all properties defined in {@code conf.propertiese} files and via VM-argument.

@@ -19,8 +19,8 @@ package ch.algotrader.starter;
 
 import java.text.ParseException;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.service.ib.IBNativeSecurityRetrieverService;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.service.ib.IBNativeSecurityRetrieverService;
 
 /**
  * Starter Class for downloading {@link ch.algorader.entity.security.Future Future} and {@link ch.algorader.entity.security.StockOption StockOption} chains.

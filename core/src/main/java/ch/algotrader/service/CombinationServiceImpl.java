@@ -29,16 +29,16 @@ import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.MyLogger;
 
-import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Subscription;
-import com.algoTrader.entity.security.Combination;
-import com.algoTrader.entity.security.Component;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.security.SecurityFamily;
-import com.algoTrader.enumeration.CombinationType;
-import com.algoTrader.service.CombinationServiceBase;
-import com.algoTrader.vo.InsertComponentEventVO;
-import com.algoTrader.vo.RemoveComponentEventVO;
+import ch.algotrader.entity.Position;
+import ch.algotrader.entity.Subscription;
+import ch.algotrader.entity.security.Combination;
+import ch.algotrader.entity.security.Component;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.enumeration.CombinationType;
+import ch.algotrader.service.CombinationServiceBase;
+import ch.algotrader.vo.InsertComponentEventVO;
+import ch.algotrader.vo.RemoveComponentEventVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

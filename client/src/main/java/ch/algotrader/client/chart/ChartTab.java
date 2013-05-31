@@ -77,25 +77,25 @@ import org.jfree.ui.Layer;
 import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.TextAnchor;
 
-import com.algoTrader.enumeration.Color;
-import com.algoTrader.enumeration.DatasetType;
-import com.algoTrader.enumeration.TimePeriod;
-import com.algoTrader.vo.AnnotationVO;
-import com.algoTrader.vo.AxisDefinitionVO;
-import com.algoTrader.vo.BarDefinitionVO;
-import com.algoTrader.vo.BarVO;
-import com.algoTrader.vo.BoxAnnotationVO;
-import com.algoTrader.vo.ChartDataVO;
-import com.algoTrader.vo.ChartDefinitionVO;
-import com.algoTrader.vo.DatasetDefinitionVO;
-import com.algoTrader.vo.IndicatorDefinitionVO;
-import com.algoTrader.vo.IndicatorVO;
-import com.algoTrader.vo.IntervalMarkerVO;
-import com.algoTrader.vo.MarkerDefinitionVO;
-import com.algoTrader.vo.MarkerVO;
-import com.algoTrader.vo.PointerAnnotationVO;
-import com.algoTrader.vo.SeriesDefinitionVO;
-import com.algoTrader.vo.ValueMarkerVO;
+import ch.algotrader.enumeration.Color;
+import ch.algotrader.enumeration.DatasetType;
+import ch.algotrader.enumeration.TimePeriod;
+import ch.algotrader.vo.AnnotationVO;
+import ch.algotrader.vo.AxisDefinitionVO;
+import ch.algotrader.vo.BarDefinitionVO;
+import ch.algotrader.vo.BarVO;
+import ch.algotrader.vo.BoxAnnotationVO;
+import ch.algotrader.vo.ChartDataVO;
+import ch.algotrader.vo.ChartDefinitionVO;
+import ch.algotrader.vo.DatasetDefinitionVO;
+import ch.algotrader.vo.IndicatorDefinitionVO;
+import ch.algotrader.vo.IndicatorVO;
+import ch.algotrader.vo.IntervalMarkerVO;
+import ch.algotrader.vo.MarkerDefinitionVO;
+import ch.algotrader.vo.MarkerVO;
+import ch.algotrader.vo.PointerAnnotationVO;
+import ch.algotrader.vo.SeriesDefinitionVO;
+import ch.algotrader.vo.ValueMarkerVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

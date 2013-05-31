@@ -21,8 +21,8 @@ import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import com.algoTrader.entity.marketData.MarketDataEvent;
-import com.algoTrader.enumeration.Direction;
+import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.enumeration.Direction;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

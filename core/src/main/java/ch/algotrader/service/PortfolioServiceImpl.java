@@ -35,21 +35,21 @@ import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.DoubleMap;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Transaction;
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.Forex;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.strategy.CashBalance;
-import com.algoTrader.entity.strategy.PortfolioValue;
-import com.algoTrader.entity.strategy.PortfolioValueDao;
-import com.algoTrader.entity.strategy.Strategy;
-import com.algoTrader.enumeration.Currency;
-import com.algoTrader.service.PortfolioServiceBase;
-import com.algoTrader.vo.BalanceVO;
-import com.algoTrader.vo.CurrencyAmountVO;
-import com.algoTrader.vo.PortfolioValueVO;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.Position;
+import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.CashBalance;
+import ch.algotrader.entity.strategy.PortfolioValue;
+import ch.algotrader.entity.strategy.PortfolioValueDao;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.enumeration.Currency;
+import ch.algotrader.service.PortfolioServiceBase;
+import ch.algotrader.vo.BalanceVO;
+import ch.algotrader.vo.CurrencyAmountVO;
+import ch.algotrader.vo.PortfolioValueVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

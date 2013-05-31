@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import com.algoTrader.entity.security.SecurityFamilyDaoBase;
+import ch.algotrader.entity.security.SecurityFamilyDaoBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

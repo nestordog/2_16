@@ -21,8 +21,8 @@ import java.util.Date;
 
 import ch.algotrader.util.DateUtil;
 
-import com.algoTrader.entity.security.GenericFuture;
-import com.algoTrader.entity.security.GenericFutureFamily;
+import ch.algotrader.entity.security.GenericFuture;
+import ch.algotrader.entity.security.GenericFutureFamily;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

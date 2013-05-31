@@ -21,7 +21,7 @@ import java.util.List;
 
 import ch.algotrader.esper.EsperManager;
 
-import com.algoTrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatus;
 
 /**
  * Esper Callback Class that will throw an exception unluss all {@code orders} passed to {@link EsperManager#addTradeCallback} have been fully exectured.

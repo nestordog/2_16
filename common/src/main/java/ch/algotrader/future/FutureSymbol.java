@@ -23,7 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import com.algoTrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.SecurityFamily;
 
 /**
  * Utility class to generate symbol, isin and ric for {@link ch.algorader.entity.security.Future Futures}.

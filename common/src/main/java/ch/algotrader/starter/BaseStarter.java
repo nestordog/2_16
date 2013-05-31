@@ -20,9 +20,9 @@ package ch.algotrader.starter;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.esper.EsperManager;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.service.InitializingServiceI;
-import com.algoTrader.service.MarketDataService;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.service.InitializingServiceI;
+import ch.algotrader.service.MarketDataService;
 
 /**
  * Abstract Base Class for starting the Base in Live Trading Mode

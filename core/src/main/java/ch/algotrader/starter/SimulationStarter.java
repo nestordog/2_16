@@ -24,8 +24,8 @@ import org.apache.log4j.Logger;
 import ch.algotrader.service.SimulationServiceImpl;
 import ch.algotrader.util.MyLogger;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.service.SimulationService;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.service.SimulationService;
 
 /**
  * Main Starter Class for running simulations.

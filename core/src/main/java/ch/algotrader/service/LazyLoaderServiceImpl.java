@@ -24,7 +24,7 @@ import org.hibernate.Session;
 import org.hibernate.collection.AbstractPersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
 
-import com.algoTrader.service.LazyLoaderServiceBase;
+import ch.algotrader.service.LazyLoaderServiceBase;
 
 import ch.algotrader.util.MyLogger;
 

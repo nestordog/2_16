@@ -29,13 +29,13 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Subscription;
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.marketData.TickDaoBase;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.vo.RawTickVO;
-import com.algoTrader.vo.TickVO;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.Subscription;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickDaoBase;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.vo.RawTickVO;
+import ch.algotrader.vo.TickVO;
 import com.espertech.esper.collection.Pair;
 
 @SuppressWarnings("unchecked")

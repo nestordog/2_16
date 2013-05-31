@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import com.algoTrader.entity.strategy.StrategyDaoBase;
+import ch.algotrader.entity.strategy.StrategyDaoBase;
 
 
 /**

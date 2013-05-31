@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import com.algoTrader.service.ReconciliationServiceBase;
+import ch.algotrader.service.ReconciliationServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

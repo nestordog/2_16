@@ -38,14 +38,14 @@ import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvTickWriter;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Subscription;
-import com.algoTrader.entity.marketData.MarketDataEvent;
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.strategy.Strategy;
-import com.algoTrader.service.MarketDataServiceBase;
-import com.algoTrader.vo.GenericEventVO;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.Subscription;
+import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.service.MarketDataServiceBase;
+import ch.algotrader.vo.GenericEventVO;
 import com.espertech.esper.collection.Pair;
 
 /**

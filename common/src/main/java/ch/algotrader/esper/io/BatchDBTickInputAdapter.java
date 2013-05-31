@@ -24,8 +24,8 @@ import java.util.List;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.marketData.Tick;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.marketData.Tick;
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPServiceProvider;

@@ -35,8 +35,8 @@ import org.supercsv.util.CSVContext;
 
 import ch.algotrader.entity.marketData.BarImpl;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.marketData.Bar;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.marketData.Bar;
 
 /**
  * SuperCSV Reader that reads {@link Bar Bars} from the specified CSV-File.

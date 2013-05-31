@@ -23,7 +23,7 @@ import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import com.algoTrader.vo.OpenPositionVO;
+import ch.algotrader.vo.OpenPositionVO;
 
 /**
  * Base Esper Callback Class that will be invoked as soon as a new Position on the given Security passed to {@link EsperManager#addOpenPositionCallback} has been opened.

@@ -25,8 +25,8 @@ import quickfix.field.MsgType;
 
 import ch.algotrader.util.MyLogger;
 
-import com.algoTrader.entity.trade.Order;
-import com.algoTrader.service.fix.FixOrderServiceBase;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.service.fix.FixOrderServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

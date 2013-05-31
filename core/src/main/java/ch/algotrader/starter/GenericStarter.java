@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.StringTokenizer;
 
-import com.algoTrader.ServiceLocator;
+import ch.algotrader.ServiceLocator;
 
 /**
  * Generic Starter Class that can be used to invoke any service that has String, Integer, Double or Date based parameters

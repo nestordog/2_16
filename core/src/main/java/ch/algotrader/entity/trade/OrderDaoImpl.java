@@ -26,8 +26,8 @@ import org.apache.commons.collections15.Transformer;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.esper.EsperManager;
 
-import com.algoTrader.entity.trade.Order;
-import com.algoTrader.entity.trade.OrderDaoBase;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderDaoBase;
 import com.espertech.esper.collection.Pair;
 
 /**

@@ -20,7 +20,7 @@ package ch.algotrader.service;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.algoTrader.service.StrategyServiceBase;
+import ch.algotrader.service.StrategyServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

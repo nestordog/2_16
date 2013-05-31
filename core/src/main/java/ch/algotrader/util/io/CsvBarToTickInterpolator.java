@@ -30,8 +30,8 @@ import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.util.ConfigurationUtil;
 import ch.algotrader.util.RoundUtil;
 
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.vo.BarVO;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.vo.BarVO;
 
 /**
  * SuperCSV based utility class, that reads a Bar-File and interpolates Tick based on it.

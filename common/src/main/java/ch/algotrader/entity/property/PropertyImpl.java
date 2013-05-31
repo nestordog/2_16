@@ -20,7 +20,7 @@ package ch.algotrader.entity.property;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.algoTrader.entity.property.Property;
+import ch.algotrader.entity.property.Property;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

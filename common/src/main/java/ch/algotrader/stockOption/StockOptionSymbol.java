@@ -28,8 +28,8 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.algotrader.util.BaseConverterUtil;
 
-import com.algoTrader.entity.security.SecurityFamily;
-import com.algoTrader.enumeration.OptionType;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.enumeration.OptionType;
 
 /**
  * Utility class to generate symbol, isin and ric for {@link ch.algorader.entity.security.StockOption StockOptions}.

@@ -27,7 +27,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.algoTrader.enumeration.ConnectionState;
+import ch.algotrader.enumeration.ConnectionState;
 
 /**
  * Factory class for IBClients (IB Connections).

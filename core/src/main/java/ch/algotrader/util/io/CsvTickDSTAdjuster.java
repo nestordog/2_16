@@ -24,7 +24,7 @@ import java.util.GregorianCalendar;
 
 import org.supercsv.exception.SuperCSVException;
 
-import com.algoTrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.Tick;
 
 /**
  * SuperCSV based utility class that adjustes the {@code dateTime} field based on curent Daylight-Savings-Time Offset.

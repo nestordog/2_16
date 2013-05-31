@@ -25,12 +25,12 @@ import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.util.MyLogger;
 
-import com.algoTrader.entity.trade.LimitOrderI;
-import com.algoTrader.entity.trade.Order;
-import com.algoTrader.entity.trade.SimpleOrder;
-import com.algoTrader.entity.trade.StopOrderI;
-import com.algoTrader.enumeration.ConnectionState;
-import com.algoTrader.service.ib.IBNativeOrderServiceBase;
+import ch.algotrader.entity.trade.LimitOrderI;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.StopOrderI;
+import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.service.ib.IBNativeOrderServiceBase;
 import com.ib.client.Contract;
 
 /**

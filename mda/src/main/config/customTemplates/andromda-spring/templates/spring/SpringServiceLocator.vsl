@@ -154,9 +154,9 @@ public class $serviceLocatorName
      * Gets the Configuration
      * @return getContext().getBean("configuration")
      */
-    public final com.algoTrader.util.spring.Configuration getConfiguration() 
+    public final ch.algotrader.util.spring.Configuration getConfiguration() 
     {
-        return getContext().getBean("configuration", com.algoTrader.util.spring.Configuration.class);
+        return getContext().getBean("configuration", ch.algotrader.util.spring.Configuration.class);
     }
 	
     /**
@@ -200,7 +200,7 @@ public class $serviceLocatorName
 		for (String serviceName : serviceMap.keySet()) {
 
 			// wo only want the proxys from applicationContext.xml
-			if (!serviceName.startsWith("com.algoTrader.service")) {
+			if (!serviceName.startsWith("ch.algotrader.service")) {
 				services.add(serviceMap.get(serviceName));
 			}
 		}

@@ -21,11 +21,11 @@ import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import com.algoTrader.entity.Account;
-import com.algoTrader.entity.Transaction;
-import com.algoTrader.entity.TransactionDaoBase;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.vo.TransactionVO;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.TransactionDaoBase;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.vo.TransactionVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

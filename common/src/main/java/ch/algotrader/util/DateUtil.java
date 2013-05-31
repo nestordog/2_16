@@ -25,11 +25,11 @@ import org.apache.commons.lang.time.DateUtils;
 
 import ch.algotrader.esper.EsperManager;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.security.ExpirableFamilyI;
-import com.algoTrader.entity.security.SecurityFamily;
-import com.algoTrader.enumeration.Duration;
-import com.algoTrader.enumeration.ExpirationType;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.security.ExpirableFamilyI;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.enumeration.Duration;
+import ch.algotrader.enumeration.ExpirationType;
 
 /**
  * Provides Date related Utility Methods.

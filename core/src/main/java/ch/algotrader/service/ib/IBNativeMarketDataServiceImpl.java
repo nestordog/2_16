@@ -28,13 +28,13 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.MyLogger;
 
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.enumeration.ConnectionState;
-import com.algoTrader.service.ib.IBNativeMarketDataServiceBase;
-import com.algoTrader.service.ib.IBNativeMarketDataServiceException;
-import com.algoTrader.vo.SubscribeTickVO;
-import com.algoTrader.vo.UnsubscribeTickVO;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.service.ib.IBNativeMarketDataServiceBase;
+import ch.algotrader.service.ib.IBNativeMarketDataServiceException;
+import ch.algotrader.vo.SubscribeTickVO;
+import ch.algotrader.vo.UnsubscribeTickVO;
 import com.ib.client.Contract;
 
 /**

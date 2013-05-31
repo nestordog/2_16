@@ -32,10 +32,10 @@ import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
 
-import com.algoTrader.entity.security.StockOption;
-import com.algoTrader.entity.trade.SimpleOrder;
-import com.algoTrader.service.InitializingServiceI;
-import com.algoTrader.service.ib.IBFixOrderServiceBase;
+import ch.algotrader.entity.security.StockOption;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.service.InitializingServiceI;
+import ch.algotrader.service.ib.IBFixOrderServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

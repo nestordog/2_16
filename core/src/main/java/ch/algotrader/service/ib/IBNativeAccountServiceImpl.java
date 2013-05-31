@@ -43,8 +43,8 @@ import ch.algotrader.adapter.ib.IBClient;
 import ch.algotrader.adapter.ib.IBDefaultMessageHandler;
 import ch.algotrader.util.MyLogger;
 
-import com.algoTrader.service.ib.IBNativeAccountServiceBase;
-import com.algoTrader.service.ib.IBNativeAccountServiceException;
+import ch.algotrader.service.ib.IBNativeAccountServiceBase;
+import ch.algotrader.service.ib.IBNativeAccountServiceException;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

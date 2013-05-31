@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import com.algoTrader.entity.security.IntrestRate;
+import ch.algotrader.entity.security.IntrestRate;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

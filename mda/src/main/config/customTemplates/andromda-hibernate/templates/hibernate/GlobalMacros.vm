@@ -704,7 +704,7 @@ $target.getDocumentation("     * ")
 				if (col.getSession() != null) {
 					col.forceInitialization();
 				} else {			
-					this.${target.name} = ($target.getterSetterTypeName) com.algoTrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadCollection(this, "${entity.entityName}.${target.getterName}", col);
+					this.${target.name} = ($target.getterSetterTypeName) ch.algotrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadCollection(this, "${entity.entityName}.${target.getterName}", col);
 				}
 			}
 		}	
@@ -719,7 +719,7 @@ $target.getDocumentation("     * ")
 			if (initializer.getSession() != null) {
 				this.${target.name} = ($target.getterSetterTypeName) initializer.getImplementation();
 			} else {
-				this.${target.name} = ($target.getterSetterTypeName) com.algoTrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadProxy(this, "${entity.entityName}.${target.getterName}", proxy);
+				this.${target.name} = ($target.getterSetterTypeName) ch.algotrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadProxy(this, "${entity.entityName}.${target.getterName}", proxy);
 			}
 		}
 #end		

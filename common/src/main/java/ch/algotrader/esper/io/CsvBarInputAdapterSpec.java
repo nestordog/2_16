@@ -24,7 +24,7 @@ import java.util.Map;
 
 import ch.algotrader.util.CustomDate;
 
-import com.algoTrader.enumeration.Duration;
+import ch.algotrader.enumeration.Duration;
 import com.espertech.esperio.AdapterInputSource;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 

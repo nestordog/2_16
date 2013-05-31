@@ -23,9 +23,9 @@ import java.util.Set;
 
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.algoTrader.service.PortfolioChartServiceBase;
-import com.algoTrader.vo.IndicatorVO;
-import com.algoTrader.vo.PortfolioValueVO;
+import ch.algotrader.service.PortfolioChartServiceBase;
+import ch.algotrader.vo.IndicatorVO;
+import ch.algotrader.vo.PortfolioValueVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

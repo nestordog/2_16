@@ -22,13 +22,13 @@ import java.util.Map;
 
 import ch.algotrader.util.RoundUtil;
 
-import com.algoTrader.entity.Position;
-import com.algoTrader.entity.PositionDaoBase;
-import com.algoTrader.entity.property.Property;
-import com.algoTrader.vo.ClosePositionVO;
-import com.algoTrader.vo.ExpirePositionVO;
-import com.algoTrader.vo.OpenPositionVO;
-import com.algoTrader.vo.PositionVO;
+import ch.algotrader.entity.Position;
+import ch.algotrader.entity.PositionDaoBase;
+import ch.algotrader.entity.property.Property;
+import ch.algotrader.vo.ClosePositionVO;
+import ch.algotrader.vo.ExpirePositionVO;
+import ch.algotrader.vo.OpenPositionVO;
+import ch.algotrader.vo.PositionVO;
 
 @SuppressWarnings("unchecked")
 /**

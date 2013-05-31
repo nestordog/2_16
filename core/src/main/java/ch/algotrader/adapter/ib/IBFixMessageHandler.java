@@ -33,8 +33,8 @@ import quickfix.fix42.IBFAModification;
 import ch.algotrader.adapter.fix.Fix42MessageHandler;
 import ch.algotrader.util.MyLogger;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.service.ib.IBFixAccountService;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.service.ib.IBFixAccountService;
 
 /**
  * IB specific Fix42MessageHandler.

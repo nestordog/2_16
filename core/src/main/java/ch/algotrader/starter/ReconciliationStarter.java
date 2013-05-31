@@ -29,8 +29,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.io.IOUtils;
 import org.xml.sax.SAXException;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.service.ReconciliationService;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.service.ReconciliationService;
 
 /**
  * Starter Class to infoke the reconciliation process based on a file(s)

@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.starter;
 
-import com.algoTrader.ServiceLocator;
+import ch.algotrader.ServiceLocator;
 
 /**
  * Starter Class that initializes only the Spring Environment.

@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import com.algoTrader.entity.security.CombinationDaoBase;
+import ch.algotrader.entity.security.CombinationDaoBase;
 
 
 /**

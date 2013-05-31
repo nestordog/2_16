@@ -28,13 +28,13 @@ import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
 
-import com.algoTrader.entity.security.Forex;
-import com.algoTrader.entity.trade.LimitOrder;
-import com.algoTrader.entity.trade.SimpleOrder;
-import com.algoTrader.entity.trade.StopLimitOrder;
-import com.algoTrader.entity.trade.StopOrder;
-import com.algoTrader.entity.trade.StopOrderI;
-import com.algoTrader.service.dc.DCFixOrderServiceBase;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.StopLimitOrder;
+import ch.algotrader.entity.trade.StopOrder;
+import ch.algotrader.entity.trade.StopOrderI;
+import ch.algotrader.service.dc.DCFixOrderServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

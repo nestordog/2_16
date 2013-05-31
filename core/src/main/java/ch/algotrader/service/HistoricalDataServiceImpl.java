@@ -35,12 +35,12 @@ import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvTickWriter;
 
-import com.algoTrader.entity.marketData.Bar;
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.enumeration.BarType;
-import com.algoTrader.enumeration.TimePeriod;
-import com.algoTrader.service.HistoricalDataServiceBase;
+import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.enumeration.BarType;
+import ch.algotrader.enumeration.TimePeriod;
+import ch.algotrader.service.HistoricalDataServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

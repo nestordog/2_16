@@ -23,11 +23,11 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.marketData.Bar;
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.vo.RawBarVO;
-import com.algoTrader.vo.RawTickVO;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.vo.RawBarVO;
+import ch.algotrader.vo.RawTickVO;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esperio.AbstractSendableEvent;
 import com.espertech.esperio.AbstractSender;

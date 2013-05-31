@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import com.algoTrader.entity.security.ComponentDaoBase;
+import ch.algotrader.entity.security.ComponentDaoBase;
 
 
 /**

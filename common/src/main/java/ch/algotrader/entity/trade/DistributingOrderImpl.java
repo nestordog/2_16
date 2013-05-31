@@ -24,11 +24,11 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.util.MyLogger;
 
-import com.algoTrader.entity.strategy.Allocation;
-import com.algoTrader.entity.trade.DistributingOrder;
-import com.algoTrader.entity.trade.MarketOrder;
-import com.algoTrader.entity.trade.Order;
-import com.algoTrader.entity.trade.OrderValidationException;
+import ch.algotrader.entity.strategy.Allocation;
+import ch.algotrader.entity.trade.DistributingOrder;
+import ch.algotrader.entity.trade.MarketOrder;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderValidationException;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

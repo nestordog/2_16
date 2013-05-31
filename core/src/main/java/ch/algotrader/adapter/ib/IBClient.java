@@ -25,8 +25,8 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.util.MyLogger;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.enumeration.ConnectionState;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.enumeration.ConnectionState;
 import com.ib.client.EClientSocket;
 
 /**

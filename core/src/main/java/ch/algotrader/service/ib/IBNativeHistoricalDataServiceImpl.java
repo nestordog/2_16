@@ -37,12 +37,12 @@ import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
-import com.algoTrader.entity.marketData.Bar;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.enumeration.BarType;
-import com.algoTrader.enumeration.TimePeriod;
-import com.algoTrader.service.HistoricalDataServiceException;
-import com.algoTrader.service.ib.IBNativeHistoricalDataServiceBase;
+import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.enumeration.BarType;
+import ch.algotrader.enumeration.TimePeriod;
+import ch.algotrader.service.HistoricalDataServiceException;
+import ch.algotrader.service.ib.IBNativeHistoricalDataServiceBase;
 import com.ib.client.Contract;
 
 /**

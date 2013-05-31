@@ -28,15 +28,15 @@ import org.apache.log4j.Logger;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.Pair;
 
-import com.algoTrader.entity.marketData.MarketDataEvent;
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.SecurityFamily;
-import com.algoTrader.entity.trade.Fill;
-import com.algoTrader.entity.trade.LimitOrder;
-import com.algoTrader.entity.trade.Order;
-import com.algoTrader.entity.trade.OrderValidationException;
-import com.algoTrader.entity.trade.SlicingOrder;
-import com.algoTrader.enumeration.Side;
+import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderValidationException;
+import ch.algotrader.entity.trade.SlicingOrder;
+import ch.algotrader.enumeration.Side;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

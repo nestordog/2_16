@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import com.algoTrader.entity.strategy.MeasurementDaoBase;
+import ch.algotrader.entity.strategy.MeasurementDaoBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

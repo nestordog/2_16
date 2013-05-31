@@ -24,8 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
-import com.algoTrader.entity.Subscription;
-import com.algoTrader.service.SubscriptionServiceBase;
+import ch.algotrader.entity.Subscription;
+import ch.algotrader.service.SubscriptionServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

@@ -19,10 +19,10 @@ package ch.algotrader.entity.strategy;
 
 import ch.algotrader.util.BeanUtil;
 
-import com.algoTrader.entity.strategy.Allocation;
-import com.algoTrader.entity.strategy.OrderPreference;
-import com.algoTrader.entity.trade.AlgoOrder;
-import com.algoTrader.entity.trade.Order;
+import ch.algotrader.entity.strategy.Allocation;
+import ch.algotrader.entity.strategy.OrderPreference;
+import ch.algotrader.entity.trade.AlgoOrder;
+import ch.algotrader.entity.trade.Order;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

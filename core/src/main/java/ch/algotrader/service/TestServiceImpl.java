@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import com.algoTrader.service.TestServiceBase;
+import ch.algotrader.service.TestServiceBase;
 
 
 /**

@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-import com.algoTrader.entity.trade.MarketOrder;
-import com.algoTrader.entity.trade.OrderValidationException;
+import ch.algotrader.entity.trade.MarketOrder;
+import ch.algotrader.entity.trade.OrderValidationException;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

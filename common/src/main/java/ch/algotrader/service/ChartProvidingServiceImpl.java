@@ -21,12 +21,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.algoTrader.service.ChartProvidingServiceBase;
-import com.algoTrader.vo.AnnotationVO;
-import com.algoTrader.vo.BarVO;
-import com.algoTrader.vo.ChartDefinitionVO;
-import com.algoTrader.vo.IndicatorVO;
-import com.algoTrader.vo.MarkerVO;
+import ch.algotrader.service.ChartProvidingServiceBase;
+import ch.algotrader.vo.AnnotationVO;
+import ch.algotrader.vo.BarVO;
+import ch.algotrader.vo.ChartDefinitionVO;
+import ch.algotrader.vo.IndicatorVO;
+import ch.algotrader.vo.MarkerVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

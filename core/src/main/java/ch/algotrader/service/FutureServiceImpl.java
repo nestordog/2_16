@@ -27,11 +27,11 @@ import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 
-import com.algoTrader.entity.security.Future;
-import com.algoTrader.entity.security.FutureFamily;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.enumeration.Duration;
-import com.algoTrader.service.FutureServiceBase;
+import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.FutureFamily;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.enumeration.Duration;
+import ch.algotrader.service.FutureServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

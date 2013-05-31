@@ -17,9 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import com.algoTrader.entity.strategy.PortfolioValue;
-import com.algoTrader.entity.strategy.PortfolioValueDaoBase;
-import com.algoTrader.vo.PortfolioValueVO;
+import ch.algotrader.entity.strategy.PortfolioValue;
+import ch.algotrader.entity.strategy.PortfolioValueDaoBase;
+import ch.algotrader.vo.PortfolioValueVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

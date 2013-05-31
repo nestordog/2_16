@@ -37,8 +37,8 @@ import org.supercsv.util.CSVContext;
 
 import ch.algotrader.entity.marketData.TickImpl;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.marketData.Tick;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.marketData.Tick;
 
 /**
  * SuperCSV Reader that reads {@link Tick Ticks} from the specified CSV-File.

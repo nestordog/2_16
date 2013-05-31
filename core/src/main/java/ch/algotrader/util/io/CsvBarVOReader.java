@@ -34,7 +34,7 @@ import org.supercsv.util.CSVContext;
 
 import ch.algotrader.util.ConfigurationUtil;
 
-import com.algoTrader.vo.BarVO;
+import ch.algotrader.vo.BarVO;
 
 /**
  * SuperCSV Reader that reads {@link BarVO BarVOs} from the specified CSV-File.

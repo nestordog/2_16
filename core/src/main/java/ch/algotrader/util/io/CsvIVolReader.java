@@ -32,7 +32,7 @@ import org.supercsv.exception.SuperCSVReflectionException;
 import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
 
-import com.algoTrader.vo.IVolVO;
+import ch.algotrader.vo.IVolVO;
 
 /**
  * SuperCSV Reader that reads {@link IVolVO IVolVOs} from the specified CSV-File.

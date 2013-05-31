@@ -35,12 +35,12 @@ import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.trade.Fill;
-import com.algoTrader.entity.trade.Order;
-import com.algoTrader.entity.trade.OrderStatus;
-import com.algoTrader.enumeration.Side;
-import com.algoTrader.enumeration.Status;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Side;
+import ch.algotrader.enumeration.Status;
 
 /**
  * Generic Fix42MessageHandler. Needs to be overwritten by specific broker interfaces.

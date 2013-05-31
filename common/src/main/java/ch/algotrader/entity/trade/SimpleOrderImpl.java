@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-import com.algoTrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.SimpleOrder;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

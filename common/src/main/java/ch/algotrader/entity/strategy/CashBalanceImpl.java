@@ -23,9 +23,9 @@ import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.util.RoundUtil;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.strategy.CashBalance;
-import com.algoTrader.enumeration.Currency;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.strategy.CashBalance;
+import ch.algotrader.enumeration.Currency;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

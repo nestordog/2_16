@@ -26,10 +26,10 @@ import ch.algotrader.stockOption.StockOptionUtil;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 
-import com.algoTrader.entity.marketData.MarketDataEvent;
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.StockOption;
-import com.algoTrader.entity.security.StockOptionFamily;
+import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.StockOption;
+import ch.algotrader.entity.security.StockOptionFamily;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

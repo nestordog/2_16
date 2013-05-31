@@ -26,11 +26,11 @@ import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import com.algoTrader.entity.trade.OrderStatus;
-import com.algoTrader.enumeration.Currency;
-import com.algoTrader.enumeration.Status;
-import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.service.BaseManagementServiceBase;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.enumeration.TransactionType;
+import ch.algotrader.service.BaseManagementServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

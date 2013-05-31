@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import com.algoTrader.service.AccountServiceBase;
+import ch.algotrader.service.AccountServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

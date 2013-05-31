@@ -19,7 +19,7 @@ package ch.algotrader.entity.strategy;
 
 import java.math.BigDecimal;
 
-import com.algoTrader.entity.strategy.Measurement;
+import ch.algotrader.entity.strategy.Measurement;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

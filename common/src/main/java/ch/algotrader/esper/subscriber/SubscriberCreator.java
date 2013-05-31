@@ -26,7 +26,7 @@ import javassist.Modifier;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.algoTrader.ServiceLocator;
+import ch.algotrader.ServiceLocator;
 
 /**
  * Generate Subscriber classes on the fly using <a href="http://www.javassist.org/">Javaassist</a>.

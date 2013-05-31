@@ -42,13 +42,13 @@ import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.collection.LongMap;
 
-import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Transaction;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.security.SecurityFamily;
-import com.algoTrader.enumeration.OptionType;
-import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.service.rbs.RBSReconciliationServiceBase;
+import ch.algotrader.entity.Position;
+import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.enumeration.TransactionType;
+import ch.algotrader.service.rbs.RBSReconciliationServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

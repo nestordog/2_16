@@ -28,10 +28,10 @@ import org.apache.commons.lang.StringUtils;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.esper.EsperManager;
 
-import com.algoTrader.entity.trade.Order;
-import com.algoTrader.entity.trade.OrderStatusDaoBase;
-import com.algoTrader.enumeration.Status;
-import com.algoTrader.vo.OrderStatusVO;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatusDaoBase;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.vo.OrderStatusVO;
 import com.espertech.esper.collection.Pair;
 
 /**

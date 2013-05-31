@@ -58,22 +58,22 @@ import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.util.spring.Configuration;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Position;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.strategy.Strategy;
-import com.algoTrader.enumeration.MarketDataType;
-import com.algoTrader.service.SimulationService;
-import com.algoTrader.service.SimulationServiceBase;
-import com.algoTrader.service.SimulationServiceException;
-import com.algoTrader.service.StrategyService;
-import com.algoTrader.vo.EndOfSimulationVO;
-import com.algoTrader.vo.MaxDrawDownVO;
-import com.algoTrader.vo.OptimizationResultVO;
-import com.algoTrader.vo.PerformanceKeysVO;
-import com.algoTrader.vo.PeriodPerformanceVO;
-import com.algoTrader.vo.SimulationResultVO;
-import com.algoTrader.vo.TradesVO;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.Position;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.enumeration.MarketDataType;
+import ch.algotrader.service.SimulationService;
+import ch.algotrader.service.SimulationServiceBase;
+import ch.algotrader.service.SimulationServiceException;
+import ch.algotrader.service.StrategyService;
+import ch.algotrader.vo.EndOfSimulationVO;
+import ch.algotrader.vo.MaxDrawDownVO;
+import ch.algotrader.vo.OptimizationResultVO;
+import ch.algotrader.vo.PerformanceKeysVO;
+import ch.algotrader.vo.PeriodPerformanceVO;
+import ch.algotrader.vo.SimulationResultVO;
+import ch.algotrader.vo.TradesVO;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 /**

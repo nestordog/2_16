@@ -27,7 +27,7 @@ import javax.management.ObjectName;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
-import com.algoTrader.vo.ChartDataVO;
+import ch.algotrader.vo.ChartDataVO;
 import com.sun.tools.jconsole.JConsolePlugin;
 
 /**

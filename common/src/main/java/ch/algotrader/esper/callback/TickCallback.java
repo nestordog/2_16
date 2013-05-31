@@ -31,7 +31,7 @@ import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import com.algoTrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.Tick;
 
 /**
  * Base Esper Callback Class that will be invoked as soon as at least one Tick has arrived for each of the {@code securities}

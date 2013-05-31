@@ -28,9 +28,9 @@ import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
 
-import com.algoTrader.entity.trade.SimpleOrder;
-import com.algoTrader.enumeration.Market;
-import com.algoTrader.service.jpm.JPMFixOrderServiceBase;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.Market;
+import ch.algotrader.service.jpm.JPMFixOrderServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.service.sim;
 
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.service.sim.SimMarketDataServiceBase;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.service.sim.SimMarketDataServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

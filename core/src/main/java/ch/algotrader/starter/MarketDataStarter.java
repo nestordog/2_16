@@ -19,7 +19,7 @@ package ch.algotrader.starter;
 
 import ch.algotrader.starter.BaseStarter;
 
-import com.algoTrader.ServiceLocator;
+import ch.algotrader.ServiceLocator;
 
 /**
  * Main Starter Class for Live Trading

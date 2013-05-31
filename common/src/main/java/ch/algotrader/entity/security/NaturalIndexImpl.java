@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.NaturalIndex;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.NaturalIndex;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

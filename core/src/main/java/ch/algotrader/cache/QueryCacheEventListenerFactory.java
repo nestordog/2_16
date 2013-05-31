@@ -25,7 +25,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
 
-import com.algoTrader.ServiceLocator;
+import ch.algotrader.ServiceLocator;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

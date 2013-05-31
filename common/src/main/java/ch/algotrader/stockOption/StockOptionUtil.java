@@ -27,12 +27,12 @@ import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
 import ch.algotrader.util.DateUtil;
 
-import com.algoTrader.entity.security.StockOption;
-import com.algoTrader.entity.security.StockOptionFamily;
-import com.algoTrader.enumeration.Duration;
-import com.algoTrader.enumeration.OptionType;
-import com.algoTrader.vo.SABRSmileVO;
-import com.algoTrader.vo.SABRSurfaceVO;
+import ch.algotrader.entity.security.StockOption;
+import ch.algotrader.entity.security.StockOptionFamily;
+import ch.algotrader.enumeration.Duration;
+import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.vo.SABRSmileVO;
+import ch.algotrader.vo.SABRSurfaceVO;
 
 /**
  * Utility class containing static methods around {@link StockOption StockOptions}.

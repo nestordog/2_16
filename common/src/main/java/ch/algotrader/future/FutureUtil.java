@@ -19,9 +19,9 @@ package ch.algotrader.future;
 
 import ch.algotrader.util.DateUtil;
 
-import com.algoTrader.entity.security.Future;
-import com.algoTrader.entity.security.FutureFamily;
-import com.algoTrader.enumeration.Duration;
+import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.FutureFamily;
+import ch.algotrader.enumeration.Duration;
 
 /**
  * Utility class containing static methods around {@link Future Futures}.

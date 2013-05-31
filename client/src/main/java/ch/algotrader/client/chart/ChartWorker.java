@@ -27,9 +27,9 @@ import javax.swing.SwingWorker;
 
 import ch.algotrader.client.WarningProducer;
 
-import com.algoTrader.service.ChartProvidingService;
-import com.algoTrader.service.ManagementService;
-import com.algoTrader.vo.ChartDataVO;
+import ch.algotrader.service.ChartProvidingService;
+import ch.algotrader.service.ManagementService;
+import ch.algotrader.vo.ChartDataVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

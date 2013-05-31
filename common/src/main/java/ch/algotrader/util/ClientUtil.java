@@ -20,10 +20,10 @@ package ch.algotrader.util;
 import java.util.Collection;
 import java.util.HashSet;
 
-import com.algoTrader.vo.AxisDefinitionVO;
-import com.algoTrader.vo.ChartDefinitionVO;
-import com.algoTrader.vo.DatasetDefinitionVO;
-import com.algoTrader.vo.SeriesDefinitionVO;
+import ch.algotrader.vo.AxisDefinitionVO;
+import ch.algotrader.vo.ChartDefinitionVO;
+import ch.algotrader.vo.DatasetDefinitionVO;
+import ch.algotrader.vo.SeriesDefinitionVO;
 
 /**
  * Provides Lookup Methods for Chart Definitions.

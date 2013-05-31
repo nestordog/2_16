@@ -32,22 +32,22 @@ import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.CollectionUtil;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.trade.AlgoOrder;
-import com.algoTrader.entity.trade.Fill;
-import com.algoTrader.entity.trade.LimitOrderI;
-import com.algoTrader.entity.trade.Order;
-import com.algoTrader.entity.trade.OrderStatus;
-import com.algoTrader.entity.trade.OrderValidationException;
-import com.algoTrader.entity.trade.SimpleOrder;
-import com.algoTrader.enumeration.Direction;
-import com.algoTrader.enumeration.OrderServiceType;
-import com.algoTrader.enumeration.Side;
-import com.algoTrader.enumeration.Status;
-import com.algoTrader.service.ExternalOrderService;
-import com.algoTrader.service.OrderServiceBase;
-import com.algoTrader.vo.OrderStatusVO;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.trade.AlgoOrder;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.LimitOrderI;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderValidationException;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.Direction;
+import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.enumeration.Side;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.OrderServiceBase;
+import ch.algotrader.vo.OrderStatusVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

@@ -19,9 +19,9 @@ package ch.algotrader.service;
 
 import java.util.Date;
 
-import com.algoTrader.entity.strategy.Measurement;
-import com.algoTrader.entity.strategy.Strategy;
-import com.algoTrader.service.MeasurementServiceBase;
+import ch.algotrader.entity.strategy.Measurement;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.service.MeasurementServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

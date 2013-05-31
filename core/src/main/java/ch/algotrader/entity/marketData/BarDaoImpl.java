@@ -23,11 +23,11 @@ import java.util.Map;
 import ch.algotrader.entity.marketData.BarImpl;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import com.algoTrader.entity.marketData.Bar;
-import com.algoTrader.entity.marketData.BarDaoBase;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.vo.BarVO;
-import com.algoTrader.vo.RawBarVO;
+import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.entity.marketData.BarDaoBase;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.vo.BarVO;
+import ch.algotrader.vo.RawBarVO;
 
 @SuppressWarnings("unchecked")
 /**

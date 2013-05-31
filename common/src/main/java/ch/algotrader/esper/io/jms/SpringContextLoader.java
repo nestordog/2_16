@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.esper.io.jms;
 
-import com.algoTrader.ServiceLocator;
+import ch.algotrader.ServiceLocator;
 import com.espertech.esper.adapter.Adapter;
 import com.espertech.esper.adapter.AdapterSPI;
 import com.espertech.esper.adapter.AdapterState;

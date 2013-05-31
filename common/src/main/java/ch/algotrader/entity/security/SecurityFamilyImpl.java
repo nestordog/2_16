@@ -22,7 +22,7 @@ import java.text.ChoiceFormat;
 
 import ch.algotrader.util.RoundUtil;
 
-import com.algoTrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.SecurityFamily;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

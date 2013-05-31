@@ -5,10 +5,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.strategy.Strategy;
-import com.algoTrader.service.LookupService;
-import com.algoTrader.service.PortfolioPersistenceService;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.service.LookupService;
+import ch.algotrader.service.PortfolioPersistenceService;
 
 /**
  * Starter Class to restores all PortfolioValues of a specified Strategy

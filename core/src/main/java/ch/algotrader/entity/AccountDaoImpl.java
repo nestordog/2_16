@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
-import com.algoTrader.entity.AccountDaoBase;
+import ch.algotrader.entity.AccountDaoBase;
 
 
 /**

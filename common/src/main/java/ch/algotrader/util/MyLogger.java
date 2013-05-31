@@ -23,7 +23,7 @@ import org.apache.log4j.spi.LoggingEvent;
 
 import ch.algotrader.esper.EsperManager;
 
-import com.algoTrader.ServiceLocator;
+import ch.algotrader.ServiceLocator;
 
 /**
  * Custom Log4J Logger that replaces the System Time with the current Esper Time.

@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-import com.algoTrader.entity.trade.LimitOrder;
-import com.algoTrader.entity.trade.OrderValidationException;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.OrderValidationException;
 
 
 /**

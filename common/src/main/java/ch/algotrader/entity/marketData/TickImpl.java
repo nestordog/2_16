@@ -24,9 +24,9 @@ import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.util.RoundUtil;
 
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.SecurityFamily;
-import com.algoTrader.enumeration.Direction;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.enumeration.Direction;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 
 import org.apache.commons.math.util.MathUtils;
 
-import com.algoTrader.ServiceLocator;
+import ch.algotrader.ServiceLocator;
 
 /**
  * Provides general rounding methods.

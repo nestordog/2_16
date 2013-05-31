@@ -29,7 +29,7 @@ import org.hibernate.cache.ReadWriteCache;
 import org.hibernate.cache.entry.CacheEntry;
 import org.hibernate.cache.entry.CollectionCacheEntry;
 
-import com.algoTrader.ServiceLocator;
+import ch.algotrader.ServiceLocator;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

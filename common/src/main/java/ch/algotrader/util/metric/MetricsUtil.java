@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.util.MyLogger;
 
-import com.algoTrader.ServiceLocator;
+import ch.algotrader.ServiceLocator;
 
 /**
  * Utility class for recording and logging of performance metrics

@@ -25,11 +25,11 @@ import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.util.RoundUtil;
 
-import com.algoTrader.entity.Transaction;
-import com.algoTrader.entity.security.Forex;
-import com.algoTrader.enumeration.Currency;
-import com.algoTrader.enumeration.TransactionType;
-import com.algoTrader.vo.CurrencyAmountVO;
+import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.TransactionType;
+import ch.algotrader.vo.CurrencyAmountVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

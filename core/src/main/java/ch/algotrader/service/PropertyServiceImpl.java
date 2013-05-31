@@ -21,9 +21,9 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.util.MyLogger;
 
-import com.algoTrader.entity.property.Property;
-import com.algoTrader.entity.property.PropertyHolder;
-import com.algoTrader.service.PropertyServiceBase;
+import ch.algotrader.entity.property.Property;
+import ch.algotrader.entity.property.PropertyHolder;
+import ch.algotrader.service.PropertyServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

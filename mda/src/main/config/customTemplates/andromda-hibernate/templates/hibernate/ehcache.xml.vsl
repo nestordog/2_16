@@ -55,7 +55,7 @@
         maxElementsInMemory="100000"
         eternal="true"
 	>
-        <cacheEventListenerFactory class="com.algoTrader.cache.QueryCacheEventListenerFactory" />
+        <cacheEventListenerFactory class="ch.algotrader.cache.QueryCacheEventListenerFactory" />
 	</cache>
 
 #if($hibernateEnableCache == "true")
@@ -85,7 +85,7 @@
     </cache>
 #else
     >
-		<cacheEventListenerFactory class="com.algoTrader.cache.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 #end
 
@@ -108,7 +108,7 @@
     </cache>
 #else
     >
-		<cacheEventListenerFactory class="com.algoTrader.cache.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 #end
 

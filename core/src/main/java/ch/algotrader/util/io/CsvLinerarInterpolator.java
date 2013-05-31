@@ -29,7 +29,7 @@ import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.util.ConfigurationUtil;
 import ch.algotrader.util.RoundUtil;
 
-import com.algoTrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.Tick;
 
 /**
  * SuperCSV based utility class, that reads a Tick-File and interpolates additional Ticks based on it.

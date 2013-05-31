@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat;
 
 import ch.algotrader.util.RoundUtil;
 
-import com.algoTrader.entity.strategy.PortfolioValue;
+import ch.algotrader.entity.strategy.PortfolioValue;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

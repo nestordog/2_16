@@ -39,16 +39,16 @@ import quickfix.fix42.OrderCancelRequest;
 
 import ch.algotrader.adapter.fix.FixUtil;
 
-import com.algoTrader.entity.security.Forex;
-import com.algoTrader.entity.security.Future;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.security.Stock;
-import com.algoTrader.entity.security.StockOption;
-import com.algoTrader.entity.trade.LimitOrderI;
-import com.algoTrader.entity.trade.SimpleOrder;
-import com.algoTrader.entity.trade.StopOrderI;
-import com.algoTrader.enumeration.OptionType;
-import com.algoTrader.service.fix.Fix42OrderServiceBase;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.Stock;
+import ch.algotrader.entity.security.StockOption;
+import ch.algotrader.entity.trade.LimitOrderI;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.StopOrderI;
+import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.service.fix.Fix42OrderServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

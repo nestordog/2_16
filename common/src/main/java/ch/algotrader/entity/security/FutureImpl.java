@@ -22,9 +22,9 @@ import java.util.Date;
 import ch.algotrader.future.FutureUtil;
 import ch.algotrader.util.DateUtil;
 
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.Future;
-import com.algoTrader.entity.security.FutureFamily;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.FutureFamily;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

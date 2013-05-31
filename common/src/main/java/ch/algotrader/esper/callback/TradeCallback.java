@@ -30,7 +30,7 @@ import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import com.algoTrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatus;
 
 /**
  * Base Esper Callback Class that will be invoked as soon as all {@code orders} passed to {@link EsperManager#addTradeCallback} have been

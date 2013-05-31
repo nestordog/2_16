@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.property;
 
-import com.algoTrader.entity.property.PropertyDaoBase;
+import ch.algotrader.entity.property.PropertyDaoBase;
 
 
 /**

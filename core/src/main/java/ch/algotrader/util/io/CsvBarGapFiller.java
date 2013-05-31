@@ -28,7 +28,7 @@ import org.supercsv.exception.SuperCSVException;
 
 import ch.algotrader.util.DateUtil;
 
-import com.algoTrader.entity.marketData.Bar;
+import ch.algotrader.entity.marketData.Bar;
 
 /**
  * SuperCSV based utility class that fills missing Bars in a Bar CSV-File.

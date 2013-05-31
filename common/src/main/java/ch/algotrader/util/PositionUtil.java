@@ -29,9 +29,9 @@ import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import com.algoTrader.entity.Transaction;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.enumeration.TransactionType;
+import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.enumeration.TransactionType;
 
 /**
  * Provides different Position related utility methods.

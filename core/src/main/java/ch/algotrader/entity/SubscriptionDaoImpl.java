@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
-import com.algoTrader.entity.SubscriptionDaoBase;
+import ch.algotrader.entity.SubscriptionDaoBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

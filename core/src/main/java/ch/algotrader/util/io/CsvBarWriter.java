@@ -31,8 +31,8 @@ import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.marketData.Bar;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.marketData.Bar;
 
 /**
  * SuperCSV Writer that writes {@link Bar Bars} to the specified CSV-File.

@@ -32,7 +32,7 @@ import org.w3c.dom.Document;
 
 import ch.algotrader.util.MyLogger;
 
-import com.algoTrader.ServiceLocator;
+import ch.algotrader.ServiceLocator;
 
 /**
  * Provides XML-persistence methods.

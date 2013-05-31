@@ -22,18 +22,18 @@ import quickfix.field.ExecType;
 import quickfix.field.OrdType;
 import quickfix.field.Symbol;
 
-import com.algoTrader.entity.security.Forex;
-import com.algoTrader.entity.security.Future;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.security.Stock;
-import com.algoTrader.entity.security.StockOption;
-import com.algoTrader.entity.trade.LimitOrder;
-import com.algoTrader.entity.trade.MarketOrder;
-import com.algoTrader.entity.trade.Order;
-import com.algoTrader.entity.trade.StopLimitOrder;
-import com.algoTrader.entity.trade.StopOrder;
-import com.algoTrader.enumeration.Side;
-import com.algoTrader.enumeration.Status;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.Stock;
+import ch.algotrader.entity.security.StockOption;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.MarketOrder;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.StopLimitOrder;
+import ch.algotrader.entity.trade.StopOrder;
+import ch.algotrader.enumeration.Side;
+import ch.algotrader.enumeration.Status;
 
 /**
  * Utility class providing conversion methods for Fix specific types.

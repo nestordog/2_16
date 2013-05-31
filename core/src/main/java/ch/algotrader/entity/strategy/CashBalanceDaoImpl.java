@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import com.algoTrader.entity.strategy.CashBalanceDaoBase;
+import ch.algotrader.entity.strategy.CashBalanceDaoBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

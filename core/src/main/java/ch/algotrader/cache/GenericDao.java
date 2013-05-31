@@ -34,8 +34,8 @@ import org.hibernate.persister.collection.CollectionPersister;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import com.algoTrader.entity.security.Combination;
-import com.algoTrader.entity.security.Security;
+import ch.algotrader.entity.security.Combination;
+import ch.algotrader.entity.security.Security;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

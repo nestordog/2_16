@@ -25,14 +25,14 @@ import org.apache.commons.beanutils.BeanUtils;
 
 import ch.algotrader.util.RoundUtil;
 
-import com.algoTrader.entity.marketData.MarketDataEvent;
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.SecurityFamily;
-import com.algoTrader.entity.trade.LimitOrder;
-import com.algoTrader.entity.trade.Order;
-import com.algoTrader.entity.trade.OrderValidationException;
-import com.algoTrader.entity.trade.VariableIncrementalOrder;
-import com.algoTrader.enumeration.Side;
+import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderValidationException;
+import ch.algotrader.entity.trade.VariableIncrementalOrder;
+import ch.algotrader.enumeration.Side;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

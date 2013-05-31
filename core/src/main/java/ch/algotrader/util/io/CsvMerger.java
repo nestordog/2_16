@@ -31,7 +31,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.supercsv.exception.SuperCSVException;
 
-import com.algoTrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.Tick;
 
 /**
  * SuperCSV based utility class, that merges Tick CSV files.

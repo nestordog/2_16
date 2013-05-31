@@ -19,7 +19,7 @@ package ch.algotrader.entity.trade;
 
 import org.apache.commons.lang.ClassUtils;
 
-import com.algoTrader.entity.trade.Order;
+import ch.algotrader.entity.trade.Order;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import com.algoTrader.entity.strategy.DefaultOrderPreference;
+import ch.algotrader.entity.strategy.DefaultOrderPreference;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

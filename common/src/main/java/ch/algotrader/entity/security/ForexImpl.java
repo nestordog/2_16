@@ -17,9 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.Forex;
-import com.algoTrader.enumeration.Currency;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.enumeration.Currency;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

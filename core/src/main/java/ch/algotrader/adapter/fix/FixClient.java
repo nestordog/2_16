@@ -59,11 +59,11 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.collection.IntegerMap;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.Account;
-import com.algoTrader.entity.trade.Order;
-import com.algoTrader.enumeration.ConnectionState;
-import com.algoTrader.enumeration.OrderServiceType;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.enumeration.OrderServiceType;
 
 /**
  * Main entry point to Fix sessions.

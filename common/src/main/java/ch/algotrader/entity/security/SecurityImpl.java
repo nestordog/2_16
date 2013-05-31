@@ -28,11 +28,11 @@ import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.marketData.MarketDataEvent;
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.enumeration.Currency;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.enumeration.Currency;
 import com.espertech.esper.event.WrapperEventBean;
 import com.espertech.esper.event.bean.BeanEventBean;
 

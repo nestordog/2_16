@@ -19,7 +19,7 @@ package ch.algotrader.entity.trade;
 
 import java.text.SimpleDateFormat;
 
-import com.algoTrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.Fill;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

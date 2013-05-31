@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import com.algoTrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.Strategy;
 
 
 /**

@@ -24,10 +24,10 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.algotrader.util.collection.LongMap;
 
-import com.algoTrader.entity.security.Combination;
-import com.algoTrader.entity.security.Component;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.enumeration.Direction;
+import ch.algotrader.entity.security.Combination;
+import ch.algotrader.entity.security.Component;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.enumeration.Direction;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

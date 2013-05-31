@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import com.algoTrader.entity.security.Component;
+import ch.algotrader.entity.security.Component;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

@@ -31,8 +31,8 @@ import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.marketData.Tick;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.marketData.Tick;
 
 /**
  * SuperCSV Writer that writes {@link Tick Ticks} to the specified CSV-File.

@@ -42,14 +42,14 @@ import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvIVolReader;
 import ch.algotrader.util.io.CsvTickReader;
 
-import com.algoTrader.entity.marketData.Tick;
-import com.algoTrader.entity.security.Security;
-import com.algoTrader.entity.security.StockOption;
-import com.algoTrader.entity.security.StockOptionFamily;
-import com.algoTrader.enumeration.OptionType;
-import com.algoTrader.service.ImportServiceBase;
-import com.algoTrader.service.ImportServiceException;
-import com.algoTrader.vo.IVolVO;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.StockOption;
+import ch.algotrader.entity.security.StockOptionFamily;
+import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.service.ImportServiceBase;
+import ch.algotrader.service.ImportServiceException;
+import ch.algotrader.vo.IVolVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

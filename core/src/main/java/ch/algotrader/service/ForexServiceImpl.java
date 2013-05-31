@@ -32,18 +32,18 @@ import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
-import com.algoTrader.entity.Position;
-import com.algoTrader.entity.Subscription;
-import com.algoTrader.entity.security.Forex;
-import com.algoTrader.entity.security.ForexFuture;
-import com.algoTrader.entity.security.Future;
-import com.algoTrader.entity.security.FutureFamily;
-import com.algoTrader.entity.strategy.Strategy;
-import com.algoTrader.entity.trade.Order;
-import com.algoTrader.enumeration.Currency;
-import com.algoTrader.enumeration.Side;
-import com.algoTrader.service.ForexServiceBase;
-import com.algoTrader.vo.BalanceVO;
+import ch.algotrader.entity.Position;
+import ch.algotrader.entity.Subscription;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.ForexFuture;
+import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.FutureFamily;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.Side;
+import ch.algotrader.service.ForexServiceBase;
+import ch.algotrader.vo.BalanceVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

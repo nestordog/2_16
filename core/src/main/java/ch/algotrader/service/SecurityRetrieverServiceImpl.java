@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import com.algoTrader.service.SecurityRetrieverServiceBase;
+import ch.algotrader.service.SecurityRetrieverServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

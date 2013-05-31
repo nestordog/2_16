@@ -22,8 +22,8 @@ import org.apache.log4j.Logger;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import com.algoTrader.ServiceLocator;
-import com.algoTrader.entity.strategy.PortfolioValue;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.strategy.PortfolioValue;
 
 /**
  * Prints porftolio values like CashBalance, SecuritiesCurrentValue, MaintenanceMargin and Leverage to the Log.
