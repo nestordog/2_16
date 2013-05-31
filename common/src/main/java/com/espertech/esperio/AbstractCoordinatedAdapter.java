@@ -10,7 +10,7 @@
  **************************************************************************************/
 package com.espertech.esperio;
 
-import ch.algorader.esper.io.CustomSender;
+import ch.algotrader.esper.io.CustomSender;
 
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.adapter.AdapterStateManager;

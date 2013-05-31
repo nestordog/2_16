@@ -1,0 +1,90 @@
+/***********************************************************************************
+ * AlgoTrader Enterprise Trading Framework
+ *
+ * Copyright (C) 2013 Flury Trading - All rights reserved
+ *
+ * All information contained herein is, and remains the property of Flury Trading.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * Flury Trading. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from Flury Trading
+ *
+ * Fur detailed terms and conditions consult the file LICENSE.txt or contact
+ *
+ * Flury Trading
+ * Badenerstrasse 16
+ * 8004 Zurich
+ ***********************************************************************************/
+package ch.algotrader.cache;
+
+import java.util.Map;
+
+import ch.algotrader.util.EqualsUtil;
+
+/**
+ * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
+public class QueryCacheKey {
+
+    private final String queryString;
+    private final Map<String, Object> namedParameters;
+
+    private final int hashCode;
+
+    public QueryCacheKey(String queryString) {
+
+        this(queryString, null);
+    }
+
+    public QueryCacheKey(String queryString, Map<String, Object> namedParameters) {
+
+        this.queryString = queryString;
+        this.namedParameters = namedParameters;
+
+        this.hashCode = generateHashCode();
+    }
+
+    public int generateHashCode() {
+
+        int hashCode = 17;
+        hashCode = 37 * hashCode + (this.namedParameters == null ? 0 : this.namedParameters.hashCode());
+        hashCode = 37 * hashCode + this.queryString.hashCode();
+
+        return hashCode;
+    }
+
+    public String getQueryString() {
+        return this.queryString;
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuffer buffer = new StringBuffer(this.queryString);
+
+        if (this.namedParameters != null) {
+            buffer.append(",namedParameters=").append(this.namedParameters);
+        }
+
+        return buffer.toString();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+
+        if (!(other instanceof QueryCacheKey)) {
+            return false;
+        }
+
+        QueryCacheKey that = (QueryCacheKey) other;
+        return this.queryString.equals(that.queryString) && EqualsUtil.equals(this.namedParameters, that.namedParameters);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return this.hashCode;
+    }
+}
