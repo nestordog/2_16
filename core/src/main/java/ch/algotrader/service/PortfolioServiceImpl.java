@@ -29,12 +29,6 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.RoundUtil;
-import ch.algotrader.util.collection.DoubleMap;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
@@ -45,8 +39,12 @@ import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.PortfolioValueDao;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.service.PortfolioServiceBase;
+import ch.algotrader.util.DateUtil;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.RoundUtil;
+import ch.algotrader.util.collection.DoubleMap;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.CurrencyAmountVO;
 import ch.algotrader.vo.PortfolioValueVO;
@@ -61,7 +59,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
     private static Logger logger = MyLogger.getLogger(PortfolioServiceImpl.class.getName());
 
     private @Value("${misc.initialMarginMarkup}") double initialMarginMarkup;
-    private @Value("#{T(ch.algorader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
     private @Value("${misc.intervalDays}") int intervalDays;
 
     @Override

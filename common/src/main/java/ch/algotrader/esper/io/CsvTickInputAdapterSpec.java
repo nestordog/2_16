@@ -28,7 +28,7 @@ import com.espertech.esperio.AdapterInputSource;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 /**
- * A {@link CSVInputAdapterSpec} used to input {@link ch.algorader.entity.marketData.Tick Ticks}.
+ * A {@link CSVInputAdapterSpec} used to input {@link ch.algotrader.entity.marketData.Tick Ticks}.
  * Will use {@code dateTime} as {@code timestampColumn}.
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

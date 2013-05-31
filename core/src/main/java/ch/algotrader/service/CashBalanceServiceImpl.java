@@ -24,15 +24,13 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.collection.BigDecimalMap;
-import ch.algotrader.util.collection.Pair;
-
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.service.CashBalanceServiceBase;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.collection.BigDecimalMap;
+import ch.algotrader.util.collection.Pair;
 import ch.algotrader.vo.CurrencyAmountVO;
 
 /**
@@ -44,7 +42,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
     private static Logger logger = MyLogger.getLogger(CashBalanceServiceImpl.class.getName());
 
-    private @Value("#{T(ch.algorader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
     private @Value("${misc.portfolioDigits}") int portfolioDigits;
 
     @Override

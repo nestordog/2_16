@@ -24,18 +24,12 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.entity.trade.FillImpl;
-import ch.algotrader.esper.EsperManager;
-import ch.algotrader.util.BeanUtil;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.collection.CollectionUtil;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.FillImpl;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -45,8 +39,11 @@ import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.service.ExternalOrderService;
-import ch.algotrader.service.OrderServiceBase;
+import ch.algotrader.esper.EsperManager;
+import ch.algotrader.util.BeanUtil;
+import ch.algotrader.util.DateUtil;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.vo.OrderStatusVO;
 
 /**
@@ -57,7 +54,7 @@ import ch.algotrader.vo.OrderStatusVO;
 public abstract class OrderServiceImpl extends OrderServiceBase {
 
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
-    private static Logger notificationLogger = MyLogger.getLogger("ch.algorader.service.NOTIFICATION");
+    private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private @Value("${simulation}") boolean simulation;
 

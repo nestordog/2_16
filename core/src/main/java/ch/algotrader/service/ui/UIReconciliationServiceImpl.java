@@ -37,22 +37,20 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
+import ch.algotrader.entity.Position;
+import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.TransactionImpl;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.PortfolioValue;
+import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.ZipUtil;
 import ch.algotrader.util.collection.LongMap;
 import ch.algotrader.util.collection.Pair;
-
-import ch.algotrader.entity.Position;
-import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.strategy.PortfolioValue;
-import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.service.ui.UIReconciliationServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -62,12 +60,12 @@ import ch.algotrader.service.ui.UIReconciliationServiceBase;
 public class UIReconciliationServiceImpl extends UIReconciliationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(UIReconciliationServiceImpl.class.getName());
-    private static Logger notificationLogger = MyLogger.getLogger("ch.algorader.service.NOTIFICATION");
+    private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
     private static NumberFormat numberFormat = NumberFormat.getInstance(Locale.GERMANY);
 
-    private @Value("#{T(ch.algorader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
     private @Value("${ib.adjustmentThreshold}") long adjustmentThreshold;
 
     @Override

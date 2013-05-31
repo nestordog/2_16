@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import ch.algotrader.service.PortfolioChartServiceBase;
 import ch.algotrader.vo.IndicatorVO;
 import ch.algotrader.vo.PortfolioValueVO;
 
@@ -32,7 +31,7 @@ import ch.algotrader.vo.PortfolioValueVO;
  *
  * @version $Revision$ $Date$
  */
-@ManagedResource(objectName = "ch.algorader.service:name=PortfolioChart,type=chart")
+@ManagedResource(objectName = "ch.algotrader.service:name=PortfolioChart,type=chart")
 public class PortfolioChartServiceImpl extends PortfolioChartServiceBase {
 
     @Override

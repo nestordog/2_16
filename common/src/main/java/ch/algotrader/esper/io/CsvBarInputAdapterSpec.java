@@ -22,14 +22,14 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.algotrader.enumeration.Duration;
 import ch.algotrader.util.CustomDate;
 
-import ch.algotrader.enumeration.Duration;
 import com.espertech.esperio.AdapterInputSource;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 /**
- * A {@link CSVInputAdapterSpec} used to input {@link ch.algorader.entity.marketData.Bar Bars}.
+ * A {@link CSVInputAdapterSpec} used to input {@link ch.algotrader.entity.marketData.Bar Bars}.
  * Will use {@code dateTime} as {@code timestampColumn}.
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

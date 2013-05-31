@@ -21,11 +21,9 @@ import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.util.RoundUtil;
-
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.util.RoundUtil;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -36,7 +34,7 @@ public class CashBalanceImpl extends CashBalance {
 
     private static final long serialVersionUID = 735304281192548146L;
 
-    private static @Value("#{T(ch.algorader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private static @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
 
     @Override
     public double getAmountDouble() {

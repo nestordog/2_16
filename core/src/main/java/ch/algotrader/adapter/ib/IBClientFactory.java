@@ -37,7 +37,7 @@ import ch.algotrader.enumeration.ConnectionState;
  *
  * @version $Revision$ $Date$
  */
-@ManagedResource(objectName = "ch.algorader.ib:name=IBClientFactory")
+@ManagedResource(objectName = "ch.algotrader.ib:name=IBClientFactory")
 public class IBClientFactory {
 
     private @Value("${simulation}") boolean simulation;

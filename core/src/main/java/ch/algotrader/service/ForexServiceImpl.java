@@ -27,11 +27,6 @@ import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.RoundUtil;
-
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.security.Forex;
@@ -39,10 +34,13 @@ import ch.algotrader.entity.security.ForexFuture;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.service.ForexServiceBase;
+import ch.algotrader.util.DateUtil;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.BalanceVO;
 
 /**
@@ -53,9 +51,9 @@ import ch.algotrader.vo.BalanceVO;
 public class ForexServiceImpl extends ForexServiceBase {
 
     private static Logger logger = MyLogger.getLogger(ForexServiceImpl.class.getName());
-    private static Logger notificationLogger = MyLogger.getLogger("ch.algorader.service.NOTIFICATION");
+    private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
 
-    private @Value("#{T(ch.algorader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
     private @Value("${fx.futureEqualizationEnabled}") boolean fxFutureEqualizationEnabled;
     private @Value("${fx.futureEqualizationMinTimeToExpiration}") int fxFutureEqualizationMinTimeToExpiration;
     private @Value("${fx.equalizationMinAmount}") int fxEqualizationMinAmount;

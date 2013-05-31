@@ -66,8 +66,8 @@ public class EntityAnnotationSetter implements BeanFactoryAware {
             }
         });
 
-        // check package "ch.algorader.entity"
-        Set<BeanDefinition> components = scanner.findCandidateComponents("ch.algorader.entity");
+        // check package "ch.algotrader.entity"
+        Set<BeanDefinition> components = scanner.findCandidateComponents("ch.algotrader.entity");
 
         for (BeanDefinition component : components) {
 

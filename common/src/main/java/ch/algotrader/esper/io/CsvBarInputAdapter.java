@@ -19,6 +19,7 @@ package ch.algotrader.esper.io;
 
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.vo.RawBarVO;
+
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esperio.SendableBeanEvent;
@@ -27,7 +28,7 @@ import com.espertech.esperio.csv.CSVInputAdapter;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 /**
- *  A {@link CSVInputAdapter} used to input {@link ch.algorader.entity.marketData.Bar Bars}.
+ *  A {@link CSVInputAdapter} used to input {@link ch.algotrader.entity.marketData.Bar Bars}.
  *  Will retrieve the {@code isin} for the {@code fileName} and the {@code barSize} from the {@link CSVInputAdapterSpec}.
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>

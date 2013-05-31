@@ -37,18 +37,16 @@ import org.supercsv.exception.SuperCSVReflectionException;
 
 import ch.algotrader.adapter.rbs.CsvRBSPositionReader;
 import ch.algotrader.adapter.rbs.CsvRBSTradeReader;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.RoundUtil;
-import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.collection.LongMap;
-
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.service.rbs.RBSReconciliationServiceBase;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.RoundUtil;
+import ch.algotrader.util.collection.CollectionUtil;
+import ch.algotrader.util.collection.LongMap;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -58,7 +56,7 @@ import ch.algotrader.service.rbs.RBSReconciliationServiceBase;
 public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(RBSReconciliationServiceImpl.class.getName());
-    private static Logger notificationLogger = MyLogger.getLogger("ch.algorader.service.NOTIFICATION");
+    private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
 
 
     private static SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");

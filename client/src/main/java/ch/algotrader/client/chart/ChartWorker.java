@@ -26,7 +26,6 @@ import javax.management.ObjectName;
 import javax.swing.SwingWorker;
 
 import ch.algotrader.client.WarningProducer;
-
 import ch.algotrader.service.ChartProvidingService;
 import ch.algotrader.service.ManagementService;
 import ch.algotrader.vo.ChartDataVO;
@@ -82,7 +81,7 @@ public class ChartWorker extends SwingWorker<Map<ObjectName, ChartDataVO>, Objec
         try {
 
             // call the checkIsAlive test
-            objectName = new ObjectName("ch.algorader.service:name=ManagementService");
+            objectName = new ObjectName("ch.algotrader.service:name=ManagementService");
             if (this.chartPlugin.getMBeanServerConnection().isRegistered(objectName)) {
                 ManagementService managementService = JMX.newMBeanProxy(this.chartPlugin.getMBeanServerConnection(), objectName, ManagementService.class);
                 managementService.checkIsAlive();

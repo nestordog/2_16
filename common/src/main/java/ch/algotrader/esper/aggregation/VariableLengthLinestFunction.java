@@ -27,7 +27,7 @@ import com.espertech.esper.epl.agg.service.AggregationValidationContext;
  * The VariableLengthLinestFunction calculates the slope of a linear interpolation of a time-series (based on x and y values) over a defined period of time.
  * To use the AggregateFunction the following configuration has to be added to the esper configuration:
  * <pre>
- * &lt;plugin-aggregation-function name="varLinest" factory-class="ch.algorader.esper.aggregation.VariableLengthLinestFunction"/&gt;
+ * &lt;plugin-aggregation-function name="varLinest" factory-class="ch.algotrader.esper.aggregation.VariableLengthLinestFunction"/&gt;
  * </pre>
  * The AggregationFunction can then be used in an esper statement like this:
  * <pre>

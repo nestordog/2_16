@@ -33,17 +33,15 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.support.CronSequenceGenerator;
 
-import ch.algotrader.entity.TransactionImpl;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.RoundUtil;
-
 import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.service.PortfolioPersistenceServiceBase;
+import ch.algotrader.util.DateUtil;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.RoundUtil;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -54,7 +52,7 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
 
     private static Logger logger = MyLogger.getLogger(PortfolioPersistenceServiceImpl.class.getName());
 
-    private @Value("#{T(ch.algorader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
     private @Value("${misc.rebalanceMinAmount}") double rebalanceMinAmount;
     private @Value("${simulation}") boolean simulation;
 

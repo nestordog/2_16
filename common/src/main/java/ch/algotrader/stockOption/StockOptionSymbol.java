@@ -26,13 +26,12 @@ import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.algotrader.util.BaseConverterUtil;
-
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.util.BaseConverterUtil;
 
 /**
- * Utility class to generate symbol, isin and ric for {@link ch.algorader.entity.security.StockOption StockOptions}.
+ * Utility class to generate symbol, isin and ric for {@link ch.algotrader.entity.security.StockOption StockOptions}.
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
@@ -48,7 +47,7 @@ public class StockOptionSymbol {
     private static SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
 
     /**
-     * Generates the symbole for the specified {@link ch.algorader.entity.security.StockOptionFamily}.
+     * Generates the symbole for the specified {@link ch.algotrader.entity.security.StockOptionFamily}.
      */
     public static String getSymbol(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike, boolean includeDay) {
 
@@ -68,7 +67,7 @@ public class StockOptionSymbol {
     }
 
     /**
-     * Generates the ISIN for the specified {@link ch.algorader.entity.security.StockOptionFamily}.
+     * Generates the ISIN for the specified {@link ch.algotrader.entity.security.StockOptionFamily}.
      */
     public static String getIsin(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike) {
 
@@ -101,7 +100,7 @@ public class StockOptionSymbol {
     }
 
     /**
-     * Generates the RIC for the specified {@link ch.algorader.entity.security.StockOptionFamily}.
+     * Generates the RIC for the specified {@link ch.algotrader.entity.security.StockOptionFamily}.
      */
     public static String getRic(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike) {
 

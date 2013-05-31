@@ -32,7 +32,7 @@ import ch.algotrader.ServiceLocator;
  * Generate Subscriber classes on the fly using <a href="http://www.javassist.org/">Javaassist</a>.
  * Use the following syntax to call a spring service method directly:
  * <pre>
- * {@literal @}Subscriber(className='ch.algorader.service.PositionService.setMargins')
+ * {@literal @}Subscriber(className='ch.algotrader.service.PositionService.setMargins')
  * </pre>
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -82,12 +82,12 @@ public class SubscriberCreator {
                 //@formatter:off
                 String updateMethodBody =
                         "{" +
-                        "   org.apache.log4j.Logger logger = ch.algorader.util.MyLogger.getLogger(\"" + serviceClassName + "\"); " +
+                        "   org.apache.log4j.Logger logger = ch.algotrader.util.MyLogger.getLogger(\"" + serviceClassName + "\"); " +
                         "    logger.debug(\"" + serviceMethodName + " start\"); " +
                         "    long startTime = System.nanoTime(); " +
                         "    (("+ serviceClassName + ") getService())." + serviceMethodName + "($$); " +
                         "    logger.debug(\"" + serviceMethodName + " end\");" +
-                        "    ch.algorader.util.metric.MetricsUtil.accountEnd(\"" + StringUtils.substringAfterLast(subscriberClassName, ".") + "\", startTime);" +
+                        "    ch.algotrader.util.metric.MetricsUtil.accountEnd(\"" + StringUtils.substringAfterLast(subscriberClassName, ".") + "\", startTime);" +
                         "}";
                 //@formatter:on
 

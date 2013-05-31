@@ -37,7 +37,7 @@ import com.tictactec.ta.lib.RetCode;
  * To use the AggregateFunction add the following to the esper configuration
  *
  * <pre>
- * &lt;plugin-aggregation-function name="talib" factory-class="ch.algorader.util.GenericTALibFunctionFactory"/&gt;
+ * &lt;plugin-aggregation-function name="talib" factory-class="ch.algotrader.util.GenericTALibFunctionFactory"/&gt;
  * </pre>
  *
  * The AggregationFunction can be used in an esper statement like this:

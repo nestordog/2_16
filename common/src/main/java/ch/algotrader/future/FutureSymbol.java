@@ -26,7 +26,7 @@ import java.util.GregorianCalendar;
 import ch.algotrader.entity.security.SecurityFamily;
 
 /**
- * Utility class to generate symbol, isin and ric for {@link ch.algorader.entity.security.Future Futures}.
+ * Utility class to generate symbol, isin and ric for {@link ch.algotrader.entity.security.Future Futures}.
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
@@ -38,7 +38,7 @@ public class FutureSymbol {
     private static final String[] yearEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
 
     /**
-     * Generates the symbole for the specified {@link ch.algorader.entity.security.FutureFamily}.
+     * Generates the symbole for the specified {@link ch.algotrader.entity.security.FutureFamily}.
      */
     public static String getSymbol(SecurityFamily family, Date expiration) {
 
@@ -56,7 +56,7 @@ public class FutureSymbol {
     }
 
     /**
-     * Generates the ISIN for the specified {@link ch.algorader.entity.security.FutureFamily}.
+     * Generates the ISIN for the specified {@link ch.algotrader.entity.security.FutureFamily}.
      */
     public static String getIsin(SecurityFamily family, Date expiration) {
 
@@ -82,7 +82,7 @@ public class FutureSymbol {
     }
 
     /**
-     * Generates the RIC for the specified {@link ch.algorader.entity.security.FutureFamily}.
+     * Generates the RIC for the specified {@link ch.algotrader.entity.security.FutureFamily}.
      */
     public static String getRic(SecurityFamily family, Date expiration) {
 

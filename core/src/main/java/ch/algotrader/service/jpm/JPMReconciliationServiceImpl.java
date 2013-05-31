@@ -29,15 +29,13 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.jpm.CsvJPMTradeReader;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
-
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.service.jpm.JPMReconciliationServiceBase;
+import ch.algotrader.util.DateUtil;
+import ch.algotrader.util.MyLogger;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -47,7 +45,7 @@ import ch.algotrader.service.jpm.JPMReconciliationServiceBase;
 public class JPMReconciliationServiceImpl extends JPMReconciliationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(JPMReconciliationServiceImpl.class.getName());
-    private static Logger notificationLogger = MyLogger.getLogger("ch.algorader.service.NOTIFICATION");
+    private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
     private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMddkk:mm:ss");
     private static SimpleDateFormat monthFormat = new SimpleDateFormat("MMM-yy", Locale.ENGLISH);
 

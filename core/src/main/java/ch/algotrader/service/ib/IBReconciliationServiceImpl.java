@@ -39,18 +39,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 
-import ch.algotrader.entity.TransactionImpl;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.RoundUtil;
-
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.service.ib.IBReconciliationServiceBase;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.CurrencyAmountVO;
 
 /**
@@ -61,7 +59,7 @@ import ch.algotrader.vo.CurrencyAmountVO;
 public class IBReconciliationServiceImpl extends IBReconciliationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(IBReconciliationServiceImpl.class.getName());
-    private static Logger notificationLogger = MyLogger.getLogger("ch.algorader.service.NOTIFICATION");
+    private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private @Value("${simulation}") boolean simulation;
     private @Value("${misc.portfolioDigits}") int portfolioDigits;

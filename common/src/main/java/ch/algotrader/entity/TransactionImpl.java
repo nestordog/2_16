@@ -23,12 +23,10 @@ import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.util.RoundUtil;
-
-import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.TransactionType;
+import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.CurrencyAmountVO;
 
 /**
@@ -41,7 +39,7 @@ public class TransactionImpl extends Transaction {
     private static final long serialVersionUID = -1528408715199422753L;
 
     private static @Value("${misc.portfolioDigits}") int portfolioDigits;
-    private static @Value("#{T(ch.algorader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private static @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
 
     private Double value = null; // cache getValueDouble because getValue get's called very often
 

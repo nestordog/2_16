@@ -23,7 +23,7 @@ import ch.algotrader.ServiceLocator;
 import ch.algotrader.service.ib.IBNativeSecurityRetrieverService;
 
 /**
- * Starter Class for downloading {@link ch.algorader.entity.security.Future Future} and {@link ch.algorader.entity.security.StockOption StockOption} chains.
+ * Starter Class for downloading {@link ch.algotrader.entity.security.Future Future} and {@link ch.algotrader.entity.security.StockOption StockOption} chains.
  * <p>
  * Usage: {@code SecurityRetrievalStarter securityFamilyId1 securityFamilyId2}
  *

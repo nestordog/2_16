@@ -24,15 +24,14 @@ import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Value;
 
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.Currency;
 import com.espertech.esper.event.WrapperEventBean;
 import com.espertech.esper.event.bean.BeanEventBean;
 
@@ -47,7 +46,7 @@ public abstract class SecurityImpl extends Security {
 
     private static Logger logger = MyLogger.getLogger(SecurityImpl.class.getName());
 
-    private static @Value("#{T(ch.algorader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
+    private static @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
     private static @Value("${misc.initialMarginMarkup}") double initialMarginMarkup;
 
     @Override

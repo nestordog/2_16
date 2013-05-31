@@ -60,12 +60,12 @@ import com.espertech.esper.view.ViewSupport;
  *
  * To use the CustomView add the following to the esper configuration:
  * <pre>
- * &lt;plugin-view namespace="custom" name="ohlcbar" factory-class="ch.algorader.esper.ohlc.OHLCViewFactory"/&gt;
+ * &lt;plugin-view namespace="custom" name="ohlcbar" factory-class="ch.algotrader.esper.ohlc.OHLCViewFactory"/&gt;
  * </pre>
  *
  * In addition the {@link OHLCBar} event type needs to be added to the esper configuration:
  * <pre>
- * &lt;event-type name="OHLCTick" class="ch.algorader.esper.ohlc.OHLCBar"/&gt;
+ * &lt;event-type name="OHLCTick" class="ch.algotrader.esper.ohlc.OHLCBar"/&gt;
  * </pre>
  *
  * The CustomView can be used in an esper statement like this:

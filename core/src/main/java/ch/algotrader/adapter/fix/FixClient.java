@@ -54,16 +54,14 @@ import quickfix.SessionID;
 import quickfix.SessionNotFound;
 import quickfix.SessionSettings;
 import quickfix.SocketInitiator;
-
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
-import ch.algotrader.util.collection.IntegerMap;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Account;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.esper.EsperManager;
+import ch.algotrader.util.collection.IntegerMap;
 
 /**
  * Main entry point to Fix sessions.
@@ -73,7 +71,7 @@ import ch.algotrader.enumeration.OrderServiceType;
  *
  * @version $Revision$ $Date$
  */
-@ManagedResource(objectName = "ch.algorader.fix:name=FixClient")
+@ManagedResource(objectName = "ch.algotrader.fix:name=FixClient")
 public class FixClient implements InitializingBean {
 
     private SocketInitiator initiator = null;

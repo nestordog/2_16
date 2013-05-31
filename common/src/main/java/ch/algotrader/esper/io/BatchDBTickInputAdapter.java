@@ -26,6 +26,7 @@ import org.apache.commons.lang.time.DateUtils;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Tick;
+
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPServiceProvider;
@@ -33,7 +34,7 @@ import com.espertech.esperio.AbstractCoordinatedAdapter;
 import com.espertech.esperio.SendableEvent;
 
 /**
- * A {@link com.espertech.esperio.CoordinatedAdapter} used to input {@link ch.algorader.entity.marketData.Tick Ticks}
+ * A {@link com.espertech.esperio.CoordinatedAdapter} used to input {@link ch.algotrader.entity.marketData.Tick Ticks}
  * for all subscribed secruitiesin 1-day batches.
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
