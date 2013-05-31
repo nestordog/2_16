@@ -7479,6 +7479,12 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                             <entry/>
                             <entry>Defined Services, Diagrams, JMS Queues</entry>
                         </row>
+                        <row>
+                            <entry>applicationContext-environment.xml</entry>
+                            <entry>contains environment specific Beans</entry>
+                            <entry/>
+                            <entry>Mail Settings, Reconciliation Dispositions</entry>
+                        </row>
                     </tbody>
                 </tgroup>
             </table>
@@ -7486,16 +7492,18 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                 BeanRefFactory:</para>
             <table frame="all" pgwide="1">
                 <title>Application Context References</title>
-                <tgroup cols="5">
+                <tgroup cols="6">
                     <colspec colwidth="3*"/>
-                    <colspec colwidth="0.5*"/>
-                    <colspec colwidth="0.5*"/>
-                    <colspec colwidth="0.5*"/>
-                    <colspec colwidth="0.5*"/>
+                    <colspec colwidth="0.4*"/>
+                    <colspec colwidth="0.4*"/>
+                    <colspec colwidth="0.4*"/>
+                    <colspec colwidth="0.4*"/>
+                    <colspec colwidth="0.4*"/>
                     <thead>
                         <row>
                             <entry>ApplicationContext</entry>
                             <entry>Local</entry>
+                            <entry>Single</entry>
                             <entry>Server</entry>
                             <entry>Client</entry>
                             <entry>Simulation</entry>
@@ -7506,11 +7514,13 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                             <entry>applicationContext</entry>
                             <entry>x</entry>
                             <entry>x</entry>
+                            <entry>x</entry>
                             <entry/>
                             <entry>x</entry>
                         </row>
                         <row>
                             <entry>applicationContext-export-remoteServices</entry>
+                            <entry/>
                             <entry/>
                             <entry>x</entry>
                             <entry/>
@@ -7518,6 +7528,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                         </row>
                         <row>
                             <entry>applicationContext-import-remoteServices</entry>
+                            <entry/>
                             <entry/>
                             <entry/>
                             <entry>x</entry>
@@ -7529,9 +7540,11 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                             <entry>x</entry>
                             <entry>x</entry>
                             <entry>x</entry>
+                            <entry>x</entry>
                         </row>
                         <row>
                             <entry>applicationContext-server</entry>
+                            <entry>x</entry>
                             <entry>x</entry>
                             <entry>x</entry>
                             <entry/>
@@ -7541,15 +7554,25 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                             <entry>applicationContext-remote</entry>
                             <entry/>
                             <entry/>
+                            <entry/>
                             <entry>x</entry>
                             <entry/>
                         </row>
                         <row>
                             <entry>applicationContext-client</entry>
                             <entry/>
+                            <entry>x</entry>
                             <entry/>
                             <entry>x</entry>
                             <entry>x</entry>
+                        </row>
+                        <row>
+                            <entry>applicationContext-environment</entry>
+                            <entry>x</entry>
+                            <entry>x</entry>
+                            <entry>x</entry>
+                            <entry/>
+                            <entry/>
                         </row>
                     </tbody>
                 </tgroup>
