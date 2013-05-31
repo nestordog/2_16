@@ -12,7 +12,7 @@ import java.net.Socket;
 
 import org.apache.log4j.Logger;
 
-import com.algoTrader.util.MyLogger;
+import ch.algorader.util.MyLogger;
 
 public class EClientSocket {
 

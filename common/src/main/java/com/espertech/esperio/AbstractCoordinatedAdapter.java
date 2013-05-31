@@ -10,7 +10,8 @@
  **************************************************************************************/
 package com.espertech.esperio;
 
-import com.algoTrader.esper.io.CustomSender;
+import ch.algorader.esper.io.CustomSender;
+
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.adapter.AdapterStateManager;
 import com.espertech.esper.client.EPException;

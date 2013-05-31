@@ -42,7 +42,8 @@ import java.util.concurrent.TimeoutException;
 import javax.swing.*;
 import javax.swing.plaf.*;
 
-import com.algoTrader.client.WarningProducer;
+import ch.algorader.client.WarningProducer;
+
 import com.sun.tools.jconsole.JConsolePlugin;
 import com.sun.tools.jconsole.JConsoleContext;
 import static com.sun.tools.jconsole.JConsoleContext.ConnectionState.*;

@@ -10,7 +10,7 @@ package sun.tools.jconsole.inspector;
 
 import java.awt.Component;
 
-import com.algoTrader.client.DataViewer;
+import ch.algorader.client.DataViewer;
 
 class XArrayDataViewer {
 
