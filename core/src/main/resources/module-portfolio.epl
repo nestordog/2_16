@@ -1,6 +1,6 @@
 @Name('SAVE_PORTFOLIO_VALUE')
 @RunTimeOnly()
-@Subscriber(className='com.algoTrader.service.PortfolioPersistenceService.savePortfolioValues')
+@Subscriber(className='ch.algotrader.service.PortfolioPersistenceService.savePortfolioValues')
 select
     null
 from
@@ -10,7 +10,7 @@ where
 
 @Name('INSERT_INTO_PORTFOLIO_VALUE')
 @SimulationOnly
-@Subscriber(className='com.algoTrader.esper.subscriber.LogPortfolioValueSubscriber')
+@Subscriber(className='ch.algotrader.esper.subscriber.LogPortfolioValueSubscriber')
 insert into
     PortfolioValue
 select
@@ -22,7 +22,7 @@ where
 
 @Name('SET_MARGINS')
 @Condition(key='statement.setMargins')
-@Subscriber(className='com.algoTrader.service.PositionService.setMargins')
+@Subscriber(className='ch.algotrader.service.PositionService.setMargins')
 select
     null
 from
@@ -30,7 +30,7 @@ from
 
 @Name('EXPIRE_POSITION')
 @Condition(key='statement.expirePosition')
-@Subscriber(className='com.algoTrader.service.PositionService.expirePositions')
+@Subscriber(className='ch.algotrader.service.PositionService.expirePositions')
 select
     null
 from
@@ -38,7 +38,7 @@ from
 
 @Name('CLOSE_POSITION')
 @Condition(key='statement.closePosition')
-@Subscriber(className='com.algoTrader.service.PositionService.closePosition')
+@Subscriber(className='ch.algotrader.service.PositionService.closePosition')
 @Priority(2)
 select
     position.id as positionId,
@@ -67,7 +67,7 @@ and
             strategy.id = position.strategy.id)
 and
     // there should not be any open trades at all from this strategy for combination positions
-    (not instanceof(position.security, com.algoTrader.entity.security.Combination) or not exists
+    (not instanceof(position.security, ch.algotrader.entity.security.Combination) or not exists
         (select
             *
         from
@@ -81,7 +81,7 @@ output
 
 @Name('EQUALIZE_FOREX_PORTFOLIO')
 @Condition(key='statement.equalizeForex')
-@Subscriber(className='com.algoTrader.service.ForexService.equalizeForex')
+@Subscriber(className='ch.algotrader.service.ForexService.equalizeForex')
 select
     null
 from
@@ -89,7 +89,7 @@ from
 
 @Name('REBALANCE_PORTFOLIO')
 @Condition(key='statement.rebalancePortfolio')
-@Subscriber(className='com.algoTrader.service.PortfolioPersistenceService.rebalancePortfolio')
+@Subscriber(className='ch.algotrader.service.PortfolioPersistenceService.rebalancePortfolio')
 select
     null
 from

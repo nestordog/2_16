@@ -15,4 +15,4 @@ java \
 -Dib.stockOptionRetrieverServiceEnabled=false \
 -Dib.tickServiceEnabled=false \
 -Dib.transactionServiceEnabled=false \
-com.algoTrader.starter.HistoricalDataStarter $*
+ch.algotrader.starter.HistoricalDataStarter $*

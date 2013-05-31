@@ -9,4 +9,4 @@ nohup java \
 -cp `cat bin/cp.txt` \
 -Dsimulation=true \
 -DdataSource.dataSet=$1 \
-com.algoTrader.starter.SimulationStarter $2
+ch.algotrader.starter.SimulationStarter $2

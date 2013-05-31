@@ -52,7 +52,7 @@ or
     orderStatus.intId = openOrderWindow.intId;
 
 @Name('NOTIFY_MISSING_ORDER_REPLY')
-@Subscriber(className='com.algoTrader.esper.subscriber.ExceptionSubscriber')
+@Subscriber(className='ch.algotrader.esper.subscriber.ExceptionSubscriber')
 @RunTimeOnly()
 select
     "missing reply on order: " || currentOrder.toString() as reason
@@ -63,11 +63,11 @@ from
 
 @Name('SEND_INITIAL_ALGO_ORDERS')
 @RunTimeOnly
-@Subscriber(className='com.algoTrader.service.OrderService.sendOrders')
+@Subscriber(className='ch.algotrader.service.OrderService.sendOrders')
 select
     currentOrder.getInitialOrders()
 from
-    com.algoTrader.entity.trade.AlgoOrder as currentOrder;
+    ch.algotrader.entity.trade.AlgoOrder as currentOrder;
 
 @Name('INSERT_INTO_ALGO_ORDER_STATUS_SUBMITTED')
 @RunTimeOnly()
@@ -101,9 +101,9 @@ where
 
 @Name('ALGO_ORDER_DONE')
 @RunTimeOnly
-@Subscriber(className='com.algoTrader.esper.subscriber.VoidSubscriber')
+@Subscriber(className='ch.algotrader.esper.subscriber.VoidSubscriber')
 select
-    cast(ord, com.algoTrader.entity.trade.AlgoOrder).done()
+    cast(ord, ch.algotrader.entity.trade.AlgoOrder).done()
 from
     OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.algoOrder);
 
@@ -111,7 +111,7 @@ from
 
 @Name('LOG_TRANSACTION_SUMMARY')
 @RunTimeOnly()
-@Subscriber(className='com.algoTrader.service.TransactionServiceImpl$LogTransactionSummarySubscriber')
+@Subscriber(className='ch.algotrader.service.TransactionServiceImpl$LogTransactionSummarySubscriber')
 select
     fill,
     orderStatus
@@ -123,7 +123,7 @@ from
 
 @Name('PROPAGATE_ORDER_STATUS')
 @RunTimeOnly()
-@Subscriber(className='com.algoTrader.service.OrderService.propagateOrderStatus')
+@Subscriber(className='ch.algotrader.service.OrderService.propagateOrderStatus')
 select
     *
 from
@@ -132,7 +132,7 @@ from
 @Name('PROPAGATE_FILL')
 @Priority(1)
 @RunTimeOnly()
-@Subscriber(className='com.algoTrader.service.TransactionService.propagateFill')
+@Subscriber(className='ch.algotrader.service.TransactionService.propagateFill')
 select
     *
 from
@@ -140,7 +140,7 @@ from
 
 @Name('CREATE_TRANSACTION')
 @RunTimeOnly()
-@Subscriber(className='com.algoTrader.service.TransactionServiceImpl$CreateTransactionSubscriber')
+@Subscriber(className='ch.algotrader.service.TransactionServiceImpl$CreateTransactionSubscriber')
 select
     *
 from

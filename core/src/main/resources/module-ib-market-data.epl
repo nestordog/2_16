@@ -1,7 +1,7 @@
 @Name('UPDATE_TICK_WINDOW_BID')
 @RunTimeOnly()
 on
-    com.algoTrader.adapter.ib.TickPrice as tickPrice
+    ch.algotrader.adapter.ib.TickPrice as tickPrice
 update
     TickWindow as tickWindow
 set
@@ -15,7 +15,7 @@ and
 @Name('UPDATE_TICK_WINDOW_ASK')
 @RunTimeOnly()
 on
-    com.algoTrader.adapter.ib.TickPrice as tickPrice
+    ch.algotrader.adapter.ib.TickPrice as tickPrice
 update
     TickWindow as tickWindow
 set
@@ -29,7 +29,7 @@ and
 @Name('UPDATE_TICK_WINDOW_LAST')
 @RunTimeOnly()
 on
-    com.algoTrader.adapter.ib.TickPrice as tickPrice
+    ch.algotrader.adapter.ib.TickPrice as tickPrice
 update
     TickWindow as tickWindow
 set
@@ -43,7 +43,7 @@ and
 @Name('UPDATE_TICK_WINDOW_CLOSE')
 @RunTimeOnly()
 on
-    com.algoTrader.adapter.ib.TickPrice as tickPrice
+    ch.algotrader.adapter.ib.TickPrice as tickPrice
 update
     TickWindow as tickWindow
 set
@@ -57,7 +57,7 @@ and
 @Name('UPDATE_TICK_WINDOW_VOL_ASK')
 @RunTimeOnly()
 on
-    com.algoTrader.adapter.ib.TickSize as tickSize
+    ch.algotrader.adapter.ib.TickSize as tickSize
 update
     TickWindow as tickWindow
 set
@@ -71,7 +71,7 @@ and
 @Name('UPDATE_TICK_WINDOW_VOL_BID')
 @RunTimeOnly()
 on
-    com.algoTrader.adapter.ib.TickSize as tickSize
+    ch.algotrader.adapter.ib.TickSize as tickSize
 update
     TickWindow as tickWindow
 set
@@ -85,7 +85,7 @@ and
 @Name('UPDATE_TICK_WINDOW_VOL')
 @RunTimeOnly()
 on
-    com.algoTrader.adapter.ib.TickSize as tickSize
+    ch.algotrader.adapter.ib.TickSize as tickSize
 update
     TickWindow as tickWindow
 set
@@ -99,7 +99,7 @@ and
 @Name('UPDATE_TICK_WINDOW_CALL_OPEN_INTEREST')
 @RunTimeOnly()
 on
-    com.algoTrader.adapter.ib.TickSize as tickSize
+    ch.algotrader.adapter.ib.TickSize as tickSize
 update
     TickWindow as tickWindow
 set
@@ -108,14 +108,14 @@ set
 where
     tickSize.field = com.ib.client.TickType.OPTION_CALL_OPEN_INTEREST
 and
-    cast(tickWindow.security.type?, com.algoTrader.enumeration.OptionType) = OptionType.CALL
+    cast(tickWindow.security.type?, ch.algotrader.enumeration.OptionType) = OptionType.CALL
 and
     tickWindow.tickerId = tickSize.tickerId;
 
 @Name('UPDATE_TICK_WINDOW_PUT_OPEN_INTEREST')
 @RunTimeOnly()
 on
-    com.algoTrader.adapter.ib.TickSize as tickSize
+    ch.algotrader.adapter.ib.TickSize as tickSize
 update
     TickWindow as tickWindow
 set
@@ -124,18 +124,18 @@ set
 where
     tickSize.field = com.ib.client.TickType.OPTION_PUT_OPEN_INTEREST
 and
-    cast(tickWindow.security.type?, com.algoTrader.enumeration.OptionType) = OptionType.PUT
+    cast(tickWindow.security.type?, ch.algotrader.enumeration.OptionType) = OptionType.PUT
 and
     tickWindow.tickerId = tickSize.tickerId;
 
 @Name('UPDATE_TICK_WINDOW_LAST_TIMESTAMP')
 @RunTimeOnly()
 on
-    com.algoTrader.adapter.ib.TickString as tickString
+    ch.algotrader.adapter.ib.TickString as tickString
 update
     TickWindow as tickWindow
 set
-    tickWindow.lastDateTime = com.algoTrader.adapter.ib.IBUtil.getLastDateTime(tickString.value),
+    tickWindow.lastDateTime = ch.algotrader.adapter.ib.IBUtil.getLastDateTime(tickString.value),
     tickWindow.refresh = true
 where
     tickString.field = com.ib.client.TickType.LAST_TIMESTAMP

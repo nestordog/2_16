@@ -5,7 +5,7 @@ insert into
 select
     *
 from
-    Tick(instanceof(security, com.algoTrader.entity.security.NaturalIndex));
+    Tick(instanceof(security, ch.algotrader.entity.security.NaturalIndex));
 
 @Name('INSERT_INTO_TICK_OPTIONS_FROM_DB')
 @SimulationOnly
@@ -47,7 +47,7 @@ select
     0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
     LookupUtil.getSecurityInitialized(option.id) as security
 from
-    Tick(instanceof(security, com.algoTrader.entity.security.Forex)) as fxTick,
+    Tick(instanceof(security, ch.algotrader.entity.security.Forex)) as fxTick,
     method:LookupUtil.getSABRSurface(fxTick.security.id, current_timestamp.toDate()) as surface,
     method:LookupUtil.getSubscribedStockOptions() as option
 order by
@@ -66,7 +66,7 @@ select
     0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
     LookupUtil.getSecurityInitialized(future.id) as security
 from
-    Tick(instanceof(security, com.algoTrader.entity.security.NaturalIndex)) as indexTick,
+    Tick(instanceof(security, ch.algotrader.entity.security.NaturalIndex)) as indexTick,
     method:LookupUtil.getSubscribedFutures() as future
 where
     future.underlying.id = indexTick.security.id;
@@ -84,7 +84,7 @@ select
     0 as vol, 0 as volBid, 0 as volAsk,    cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask,    0 as openIntrest, cast(0.0, BigDecimal) as settlement,
     LookupUtil.getSecurityInitialized(future.id) as security
 from
-    Tick(instanceof(security, com.algoTrader.entity.security.GenericFuture)) as genericFutureTick,
+    Tick(instanceof(security, ch.algotrader.entity.security.GenericFuture)) as genericFutureTick,
     method:LookupUtil.getSubscribedFutures() as future
 where
     future.underlying.id = genericFutureTick.security.underlying.id

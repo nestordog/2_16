@@ -52,12 +52,12 @@ where
 and
     tickWindow.refresh
 and
-    tickWindow.security.validateTick(cast(tickWindow.getFirst(),com.algoTrader.entity.marketData.Tick))
+    tickWindow.security.validateTick(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
 and
     DateUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate());
 
 @Name('CHECK_TICK_GAPS')
-@Subscriber(className='com.algoTrader.service.MarketDataService.logTickGap')
+@Subscriber(className='ch.algotrader.service.MarketDataService.logTickGap')
 @RunTimeOnly()
 select
     tick.security.id
@@ -68,7 +68,7 @@ where
     DateUtil.isMarketOpen(tick.security.securityFamily, current_timestamp.toDate());
 
 @Name('PROPAGATE_MARKET_DATA_EVENTS')
-@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PropagateMarketDataEventSubscriber')
+@Subscriber(className='ch.algotrader.service.MarketDataServiceImpl$PropagateMarketDataEventSubscriber')
 @Priority(1)
 select
     *
@@ -78,16 +78,16 @@ where
     security is not null;
 
 @Name('PROPAGATE_GENERIC_EVENTS')
-@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PropagateGenericEventSubscriber')
+@Subscriber(className='ch.algotrader.service.MarketDataServiceImpl$PropagateGenericEventSubscriber')
 @Priority(1)
 select
     *
 from
-    com.algoTrader.vo.GenericEventVO;
+    ch.algotrader.vo.GenericEventVO;
 
 @Name('PERSIST_HOUR_TICKS')
 @RunTimeOnly()
-@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
+@Subscriber(className='ch.algotrader.service.MarketDataServiceImpl$PersistTickSubscriber')
 on pattern
     [every timer:at(0, *, *, *, *)]
 select
@@ -95,7 +95,7 @@ select
 from
     TickWindow as tickWindow
 where
-    tickWindow.security.validateTick(cast(tickWindow.getFirst(),com.algoTrader.entity.marketData.Tick))
+    tickWindow.security.validateTick(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
 and
     DateUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate())
 and
@@ -103,7 +103,7 @@ and
 
 @Name('PERSIST_MINUTE_TICKS')
 @RunTimeOnly()
-@Subscriber(className='com.algoTrader.service.MarketDataServiceImpl$PersistTickSubscriber')
+@Subscriber(className='ch.algotrader.service.MarketDataServiceImpl$PersistTickSubscriber')
 on pattern
     [every timer:at(*, *, *, *, *)]
 select
@@ -111,7 +111,7 @@ select
 from
     TickWindow as tickWindow
 where
-    tickWindow.security.validateTick(cast(tickWindow.getFirst(),com.algoTrader.entity.marketData.Tick))
+    tickWindow.security.validateTick(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
 and
     DateUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate())
 and

@@ -119,26 +119,26 @@
         <level value="warn" />
     </logger>
 
-    <logger name="com.algoTrader.util.spring">
+    <logger name="ch.algotrader.util.spring">
         <level value="warn" />
     </logger>
 
-    <logger name="com.algoTrader.esper.subscriber.LogPortfolioValueSubscriber" additivity="false">
+    <logger name="ch.algotrader.esper.subscriber.LogPortfolioValueSubscriber" additivity="false">
         <level value="info" />
         <appender-ref ref="PORTFOLIO" />
     </logger>
 
-    <logger name="com.algoTrader.service.SimulationServiceImpl.RESULT" >
+    <logger name="ch.algotrader.service.SimulationServiceImpl.RESULT" >
         <level value="info" />
 <!--         <appender-ref ref="SOCKET" /> -->
     </logger>
 
-    <logger name="com.algoTrader.esper.listener.IndicatorListener" additivity="false">
+    <logger name="ch.algotrader.esper.listener.IndicatorListener" additivity="false">
         <level value="info" />
         <appender-ref ref="INDICATOR" />
     </logger>
 
-<!--     <logger name="com.algoTrader.esper.subscriber.Subscriber"> -->
+<!--     <logger name="ch.algotrader.esper.subscriber.Subscriber"> -->
 <!--         <level value="debug" /> -->
 <!--         <appender-ref ref="SUBSCRIBER" /> -->
 <!--     </logger> -->
@@ -149,6 +149,6 @@
         <appender-ref ref="STDERR" />
     </root>
 
-    <categoryFactory class="com.algoTrader.util.MyLoggerFactory" />
+    <categoryFactory class="ch.algotrader.util.MyLoggerFactory" />
 
 </log4j:configuration>

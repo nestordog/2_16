@@ -9,4 +9,4 @@ java \
 -cp `cat bin/cp.txt` \
 -DstrategyName=BASE \
 -Dspring.profiles.active=securityRetrieval \
-com.algoTrader.starter.SecurityRetrievalStarter $*
+ch.algotrader.starter.SecurityRetrievalStarter $*

@@ -2,22 +2,22 @@
 
 @Name('INCREMENTAL_MODIFY_ORDER')
 @RunTimeOnly
-@Subscriber(className='com.algoTrader.service.OrderService.modifyOrder')
+@Subscriber(className='ch.algotrader.service.OrderService.modifyOrder')
 select
-    cast(currentOrder.parentOrder, com.algoTrader.entity.trade.IncrementalOrder).modifyOrder()
+    cast(currentOrder.parentOrder, ch.algotrader.entity.trade.IncrementalOrder).modifyOrder()
 from
-    pattern [every currentOrder=GenericOrder(instanceof(parentOrder,com.algoTrader.entity.trade.IncrementalOrder))
+    pattern [every currentOrder=GenericOrder(instanceof(parentOrder,ch.algotrader.entity.trade.IncrementalOrder))
         -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.intId = currentOrder.intId))]
 where
-    cast(currentOrder.parentOrder, com.algoTrader.entity.trade.IncrementalOrder).checkLimit();
+    cast(currentOrder.parentOrder, ch.algotrader.entity.trade.IncrementalOrder).checkLimit();
 
 @Name('INCREMENTAL_CANCEL_ORDER')
 @RunTimeOnly
-@Subscriber(className='com.algoTrader.service.OrderService.cancelOrder')
+@Subscriber(className='ch.algotrader.service.OrderService.cancelOrder')
 select
     currentOrder.parentOrder
 from
-    pattern [every currentOrder=GenericOrder(instanceof(parentOrder,com.algoTrader.entity.trade.IncrementalOrder))
+    pattern [every currentOrder=GenericOrder(instanceof(parentOrder,ch.algotrader.entity.trade.IncrementalOrder))
         -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.intId = currentOrder.intId))]
 where
-    not cast(currentOrder.parentOrder, com.algoTrader.entity.trade.IncrementalOrder).checkLimit();
+    not cast(currentOrder.parentOrder, ch.algotrader.entity.trade.IncrementalOrder).checkLimit();

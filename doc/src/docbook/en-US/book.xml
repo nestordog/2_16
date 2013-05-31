@@ -1986,69 +1986,69 @@ public class ExClient {
                     <tbody>
                         <row>
                             <entry>
-                                <classname>com.algoTrader</classname>
+                                <classname>ch.algotrader</classname>
                             </entry>
                             <entry>ServiceLocators</entry>
                         </row>
                         <row>
                             <entry>
-                                <classname>com.algoTrader.client.*</classname>
+                                <classname>ch.algotrader.client.*</classname>
                             </entry>
                             <entry>Jconsole client</entry>
                         </row>
                         <row>
                             <entry>
-                                <classname>com.algoTrader.entity.*</classname>
+                                <classname>ch.algotrader.entity.*</classname>
                             </entry>
                             <entry>Entities and corresponding Hibernate DataAccessObjects</entry>
                         </row>
                         <row>
                             <entry>
-                                <classname>com.algoTrader.enumeration</classname>
+                                <classname>ch.algotrader.enumeration</classname>
                             </entry>
                             <entry>Enumerations</entry>
                         </row>
                         <row>
                             <entry>
-                                <classname>com.algoTrader.esper.*</classname>
+                                <classname>ch.algotrader.esper.*</classname>
                             </entry>
                             <entry>Files used for Esper (i.e. aggregation functions, listeners and
                                 subscribers)</entry>
                         </row>
                         <row>
                             <entry>
-                                <classname>com.algoTrader.future</classname>
+                                <classname>ch.algotrader.future</classname>
                             </entry>
                             <entry>Contains classes specific to Futures</entry>
                         </row>
                         <row>
                             <entry>
-                                <classname>com.algoTrader.service.*</classname>
+                                <classname>ch.algotrader.service.*</classname>
                             </entry>
                             <entry>Contains all Spring Services</entry>
                         </row>
                         <row>
                             <entry>
-                                <classname>com.algoTrader.stockOption</classname>
+                                <classname>ch.algotrader.stockOption</classname>
                             </entry>
                             <entry>Contains classes specific to Options, Volatility &amp; SABR
                                 Volatility Model</entry>
                         </row>
                         <row>
                             <entry>
-                                <classname>com.algoTrader.starter</classname>
+                                <classname>ch.algotrader.starter</classname>
                             </entry>
                             <entry>Startup-Classes as well as a generic ServiceInvoker</entry>
                         </row>
                         <row>
                             <entry>
-                                <classname>com.algoTrader.util.*</classname>
+                                <classname>ch.algotrader.util.*</classname>
                             </entry>
                             <entry>General Utility methods</entry>
                         </row>
                         <row>
                             <entry>
-                                <classname>com.algoTrader.vo</classname>
+                                <classname>ch.algotrader.vo</classname>
                             </entry>
                             <entry>ValueObjects</entry>
                         </row>
@@ -2657,10 +2657,10 @@ public class ExClient {
                     </listitem>
                 </varlistentry>
             </variablelist>
-            <para>The class <classname>com.algoTrader.esper.subscriber.SubscriberCreator</classname>
+            <para>The class <classname>ch.algotrader.esper.subscriber.SubscriberCreator</classname>
                 can generate Subscriber classes on the fly using <ulink url="http://www.csg.ci.i.u-tokyo.ac.jp/~chiba/javassist/">javassist</ulink>. Use
                 the following syntax to call a spring service method directly:</para>
-            <programlisting>@Subscriber(className='com.algoTrader.service.PositionService.setMargins')</programlisting>
+            <programlisting>@Subscriber(className='ch.algotrader.service.PositionService.setMargins')</programlisting>
         </section>
         <section>
             <title>Listeners</title>
@@ -2698,7 +2698,7 @@ public class ExClient {
                     supports all TA-Lib operations.</para>
                 <para>To use the <classname>AggregateFunction</classname> the following configuration is added
                     to the esper configuration <filename>esper-common.cfg.xml</filename>:</para>
-                <programlisting lang="XML">&lt;plugin-aggregation-function name="talib" factory-class="com.algoTrader.esper.aggregation.GenericTALibFunctionFactory"/></programlisting>
+                <programlisting lang="XML">&lt;plugin-aggregation-function name="talib" factory-class="ch.algotrader.esper.aggregation.GenericTALibFunctionFactory"/></programlisting>
                 <para> The <classname>AggregationFunction</classname> can be used in an esper statement like
                     this: </para>
                 <programlisting lang="Java">insert into StochF
@@ -2744,7 +2744,7 @@ from StochF(values != null);</programlisting>
                     average over a defined period of time.</para>
                 <para>To use the <classname>AggregateFunction</classname> the following
                     configuration has to be added to the esper configuration :</para>
-                <programlisting lang="XML">&lt;plugin-aggregation-function name="ema" factory-class="com.algoTrader.esper.aggregation.ExponentialMovingAverageFunction"/></programlisting>
+                <programlisting lang="XML">&lt;plugin-aggregation-function name="ema" factory-class="ch.algotrader.esper.aggregation.ExponentialMovingAverageFunction"/></programlisting>
                 <para>The <classname>AggregationFunction</classname> can then be used in an esper
                     statement like this:</para>
                     <programlisting lang="Java">select ema(value, 10)
@@ -2761,7 +2761,7 @@ from Event;</programlisting>
                     of time.</para>
                 <para>To use the <classname>AggregateFunction</classname> the following
                     configuration has to be added to the esper configuration :</para>
-                <programlisting lang="XML">&lt;plugin-aggregation-function name="varLinest" factory-class="com.algoTrader.esper.aggregation.VariableLengthLinestFunction"/></programlisting>
+                <programlisting lang="XML">&lt;plugin-aggregation-function name="varLinest" factory-class="ch.algotrader.esper.aggregation.VariableLengthLinestFunction"/></programlisting>
                 <para>The <classname>AggregationFunction</classname> can then be used in an esper
                     statement like this:</para>
                 <programlisting lang="Java">select varLinest(x, y, 10)
@@ -2793,10 +2793,10 @@ from Event;</programlisting>
                     invoke the update method of child views. In that case also, no next callback is
                     scheduled with the scheduling service until the next event arrives. </para>
                 <para>To use the Custom View add the following to the esper configuration: </para>
-                <programlisting>&lt;plugin-view namespace="custom" name="ohlcbar" factory-class="com.algoTrader.esper.ohlc.OHLCViewFactory"/></programlisting>
+                <programlisting>&lt;plugin-view namespace="custom" name="ohlcbar" factory-class="ch.algotrader.esper.ohlc.OHLCViewFactory"/></programlisting>
                 <para>In addition the <classname>OHLCBar</classname> event type needs to be added to
                     the esper configuration:</para>
-                <programlisting>&lt;event-type name="OHLCTick" class="com.algoTrader.esper.ohlc.OHLCBar"/></programlisting>
+                <programlisting>&lt;event-type name="OHLCTick" class="ch.algotrader.esper.ohlc.OHLCBar"/></programlisting>
                 <para>The Custom View can be used in an esper statement like this:</para>
                 <programlisting>select
     open, high, low, close
@@ -2990,7 +2990,7 @@ getOrderService().sendOrders(orders);</programlisting>
                     <literal>MBeans</literal> through the
                     <classname>BaseManagementService</classname> and the
                     <classname>ManagementService</classname> under
-                    <package>com.algoTrader.service</package>. To open any of the detail sections
+                    <package>ch.algotrader.service</package>. To open any of the detail sections
                 (i.e. Orders, Positions or Transactions) click on the bold section of the
                 display.</para>
             <figure>
@@ -3310,7 +3310,7 @@ getOrderService().sendOrders(orders);</programlisting>
                     <title id="StrategyServices">StrategyServices</title>
                     <para>Each Strategy can define as many manageable Services as needed. To be
                         manageable the class has to have the following tagged value:</para>
-                    <programlisting language="Java">@ManagedResource(objectName = "com.algoTrader.strategy.xyz:name=XYZManagementService")</programlisting>
+                    <programlisting language="Java">@ManagedResource(objectName = "ch.algotrader.strategy.xyz:name=XYZManagementService")</programlisting>
                     <para>ManagedOperations have to be tagged like this:</para>
                     <programlisting language="Java">@ManagedOperation(description = "send an order")@ManagedOperationParameters({
   @ManagedOperationParameter(name = "securityId", description = "securityId"),
@@ -3412,29 +3412,29 @@ getOrderService().sendOrders(orders);</programlisting>
                             <filename>applicationContext-client-&lt;strategyName&gt;.xml</filename>.
                         A typical configuration looks like this:</para>
                     <programlisting language="XML">&lt;bean id="xyzChartService"
-  class="com.algoTrader.strategy.xyz.XYZChartService" autowire="byName">
+  class="ch.algotrader.strategy.xyz.XYZChartService" autowire="byName">
   &lt;property name="chartDefinition">
-    &lt;bean class="com.algoTrader.vo.ChartDefinitionVO" p:timePeriod="SEC" >
+    &lt;bean class="ch.algotrader.vo.ChartDefinitionVO" p:timePeriod="SEC" >
       &lt;property name="axisDefinitions">
         &lt;set>
-          &lt;bean class="com.algoTrader.vo.AxisDefinitionVO" p:autoRange="true"
+          &lt;bean class="ch.algotrader.vo.AxisDefinitionVO" p:autoRange="true"
             p:autoRangeIncludesZero="false" p:numberFormat="##0.00000">
             &lt;property name="datasetDefinitions">
               &lt;set>
-                &lt;bean class="com.algoTrader.vo.DatasetDefinitionVO" p:type="TIME">
+                &lt;bean class="ch.algotrader.vo.DatasetDefinitionVO" p:type="TIME">
                   &lt;property name="seriesDefinitions">
                     &lt;set>
-                      &lt;bean class="com.algoTrader.vo.IndicatorDefinitionVO"
+                      &lt;bean class="ch.algotrader.vo.IndicatorDefinitionVO"
                         p:name="currentValue" p:label="Current Value" p:selected="true" />
-                      &lt;bean class="com.algoTrader.vo.MarkerDefinitionVO"
+                      &lt;bean class="ch.algotrader.vo.MarkerDefinitionVO"
                         p:name="upperTarget" p:label="Upper Target" p:selected="true"/>
-                      &lt;bean class="com.algoTrader.vo.MarkerDefinitionVO"
+                      &lt;bean class="ch.algotrader.vo.MarkerDefinitionVO"
                         p:name="upperBuffer" p:label="Upper Buffer" p:selected="true"/>
-                      &lt;bean class="com.algoTrader.vo.MarkerDefinitionVO"
+                      &lt;bean class="ch.algotrader.vo.MarkerDefinitionVO"
                         p:name="box" p:label="Box" p:selected="true"p:interval="true"/>
-                      &lt;bean class="com.algoTrader.vo.MarkerDefinitionVO"
+                      &lt;bean class="ch.algotrader.vo.MarkerDefinitionVO"
                         p:name="lowerBuffer" p:label="Lower Buffer" p:selected="true"/>
-                      &lt;bean class="com.algoTrader.vo.MarkerDefinitionVO"
+                      &lt;bean class="ch.algotrader.vo.MarkerDefinitionVO"
                         p:name="lowerTarget" p:label="Lower Target" p:selected="true"/>
                     &lt;/set>
                   &lt;/property>
@@ -3598,13 +3598,13 @@ getOrderService().sendOrders(orders);</programlisting>
                     <para>A ChartService has to be exposed via JMX so that the client can retrieve
                         current chart data. This is done by annotating the ChartService like
                         this:</para>
-                    <programlisting language="Java">@ManagedResource(objectName = "com.algoTrader.strategy.xyz:name=XYZChart,type=chart")</programlisting>
+                    <programlisting language="Java">@ManagedResource(objectName = "ch.algotrader.strategy.xyz:name=XYZChart,type=chart")</programlisting>
                     <para>Because of the <parameter>type=chart</parameter> this Service will not be
                         visible as a ManagedBean in the client.</para>
                     <para>A typical ChartService might look like this:</para>
-                    <programlisting language="Java">package com.algoTrader.strategy.xyz;
+                    <programlisting language="Java">package ch.algotrader.strategy.xyz;
 
-@ManagedResource(objectName = "com.algoTrader.strategy.xyz:name=XYZChart,type=chart")
+@ManagedResource(objectName = "ch.algotrader.strategy.xyz:name=XYZChart,type=chart")
 public class MovChartService extends ChartProvidingServiceImpl {
 
   @Override
@@ -4445,7 +4445,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
             <section id="Simulation_Mode">
                 <title>Simulation Mode</title>
                 <para>To run a strategy in Simulation Mode the class
-                        <classname>com.algoTrader.starter.SimulationStarter</classname> inside the
+                        <classname>ch.algotrader.starter.SimulationStarter</classname> inside the
                     core project <filename>algotrader/core</filename> has to be invoked.</para>
                 <para>If using Eclipse specify the following in the Launch Configuration:</para>
                 <variablelist>
@@ -4458,7 +4458,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                                 </listitem>
                                 <listitem>
                                     <para>Main Class:
-                                            <classname>com.algoTrader.starter.SimulationStarter</classname>
+                                            <classname>ch.algotrader.starter.SimulationStarter</classname>
                                     </para>
                                 </listitem>
                             </itemizedlist>
@@ -4525,7 +4525,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                                             </listitem>
                                             <listitem>
                                                 <para>Main Class:
-                                                    <classname>com.algoTrader.starter.MarketDataStarter</classname>
+                                                    <classname>ch.algotrader.starter.MarketDataStarter</classname>
                                                 </para>
                                             </listitem>
                                         </itemizedlist>
@@ -4556,7 +4556,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                                             </listitem>
                                             <listitem>
                                                 <para>Main Class:
-                                                    <classname>com.algoTrader.starter.XXXStarter</classname>
+                                                    <classname>ch.algotrader.starter.XXXStarter</classname>
                                                     (the starter class of the Strategy)</para>
                                             </listitem>
                                         </itemizedlist>
@@ -4586,7 +4586,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                                         </listitem>
                                         <listitem>
                                             <para>Main Class:
-                                                <classname>com.algoTrader.starter.XXXStarter</classname>
+                                                <classname>ch.algotrader.starter.XXXStarter</classname>
                                                 (the starter class of the Strategy)</para>
                                         </listitem>
                                     </itemizedlist>
@@ -5071,7 +5071,7 @@ from
                         <parameter>@Subscriber</parameter> is used to instruct the EsperManager to
                     attach the Subscriber to this statement.</para>
                 <programlisting>@Name('OPEN_POSITION')
-@Subscriber(className='com.algoTrader.strategy.MovService.openPosition')
+@Subscriber(className='ch.algotrader.strategy.MovService.openPosition')
 select
   engineStrategy.name as strategyName,
   indexTick.security.id as underlyingid,
@@ -5109,7 +5109,7 @@ movLengthSlow = 2000</screen>
   &lt;variable name="movLengthSlow" type="int"/>
 
   &lt;plugin-loader name="EsperJMS"
-    class-name="com.algoTrader.esper.io.jms.SpringContextLoader">
+    class-name="ch.algotrader.esper.io.jms.SpringContextLoader">
     &lt;init-arg name="inputAdapterBeanName" value="jmsInputAdapter"
   &lt;/plugin-loader>
 
@@ -5127,7 +5127,7 @@ movLengthSlow = 2000</screen>
   xsi:schemaLocation="http://www.springframework.org/schema/beans
   http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-  &lt;bean id="movService" class="com.algoTrader.strategy.MovService" autowire="byName" />
+  &lt;bean id="movService" class="ch.algotrader.strategy.MovService" autowire="byName" />
 
   &lt;bean id="strategyQueue" class="org.apache.activemq.command.ActiveMQQueue">
     &lt;constructor-arg value="MOV.QUEUE" />
@@ -5198,7 +5198,7 @@ movLengthSlow = 2000</screen>
                 <para>By means of the TestSubscriber, selected values of a Statement can be printed
                     to the Console.</para>
                 <programlisting>@Name('TEST')
-@Subscriber(className='com.algoTrader.esper.subscriber.TestSubscriber')
+@Subscriber(className='ch.algotrader.esper.subscriber.TestSubscriber')
 @SimulationOnly
   valueA,
   valueB
@@ -5212,7 +5212,7 @@ from
                     often desirable to log the values of such an indicator to a log file. This can
                     be done with the following statement:</para>
                 <programlisting>@Name('INSERT_INTO_INDICATOR')
-@Listeners(classNames={'com.algoTrader.esper.listener.IndicatorListener'})
+@Listeners(classNames={'ch.algotrader.esper.listener.IndicatorListener'})
 select
   dateTime.toDate() as dateTime,
   valueA,
@@ -5237,7 +5237,7 @@ Double target = (Double) EsperManager.getVariableValue(strategyName, "target"); 
                 <para>If a computation is too complex, it is not advisable to do it inside an Esper Statement.
                     For this purpose, it is often easier to create a small Utility class and use its
                     methods inside the statement. Example:</para>
-                <programlisting language="Java">package com.algoTrader.strategy;
+                <programlisting language="Java">package ch.algotrader.strategy;
 
 public class MovUtil {
 
@@ -5252,11 +5252,11 @@ public class MovUtil {
 }</programlisting>
                 <para>This Utility class also needs to be declared in the file
                         <filename>esper-mov.xml</filename>:</para>
-                <programlisting language="XML">&lt;auto-import import-name="com.algoTrader.strategy.MovUtil"/&gt;</programlisting>
+                <programlisting language="XML">&lt;auto-import import-name="ch.algotrader.strategy.MovUtil"/&gt;</programlisting>
                 <para>Now, the Utility class can be used in an Esper Statement like this to adjust a
                     trailing stop loss:</para>
                 <programlisting>@Name('ADJUST_EXIT_VALUE_FUTURES')
-@Subscriber(className='com.algoTrader.service.PositionService.setExitValue')
+@Subscriber(className='ch.algotrader.service.PositionService.setExitValue')
 select
   position.id as positionId,
   exitValue as value,
@@ -5431,7 +5431,7 @@ select * from A;</programlisting>
             </section>
             <section>
                 <title>Execute an action once a day at a certain time</title>
-                <programlisting>@Subscriber(className='com.algoTrader.service.PositionService.closePosition')
+                <programlisting>@Subscriber(className='ch.algotrader.service.PositionService.closePosition')
 select
   position.id as positionId,
   false as unsubscribe
@@ -5518,17 +5518,17 @@ from
                 <para>Often a strategy has several states that it runs through during execution
                     (e.g. WAITING_FOR_SIGNAL, LONG_POSITION, SHORT_POSITION, etc.). For these
                     situations it is advisable to use a Java Enum, eg:</para>
-                <programlisting language="Java">package com.algoTrader.strategy;
+                <programlisting language="Java">package ch.algotrader.strategy;
 
 public enum State {
   WAITING_FOR_SIGNAL, LONG_POSITION, SHORT_POSITION;
 }</programlisting>
                 <para>In addition a corresponding Esper Variable has to be configured:</para>
-                <programlisting language="XML">&lt;variable name="state" type="com.algoTrader.strategy.State"/&gt;</programlisting>
+                <programlisting language="XML">&lt;variable name="state" type="ch.algotrader.strategy.State"/&gt;</programlisting>
                 <para>If the variable needs to have an initial value, the variable has to be
                     declared with a statement.</para>
                 <programlisting>@Name('CREATE_VAR_STATE')
-create variable com.algoTrader.enumeration.State state =
+create variable ch.algotrader.enumeration.State state =
   State.WAITING_FOR_SIGNAL;        </programlisting>
                 <para>It is then possible to query current state inside Esper statements like
                     this:</para>
@@ -5999,7 +5999,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
         <section>
             <title>Forex-Hedging</title>
             <para>In addition, automatic Forex-Hedging is provided by the Service
-                    <classname>com.algoTrader.service.ForexService</classname>. This service will
+                    <classname>ch.algotrader.service.ForexService</classname>. This service will
                 maintain multiple virtual FX Positions to hedge all non base currency balances. For
                 actual Forex-Hedging the following two options exist</para>
             <section>
@@ -7055,7 +7055,7 @@ subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
                 <listitem>
                     <para>
                         <parameter>className</parameter> is the fully qualified classname (e.g.
-                            <classname>com.algoTrader.event.Signal</classname>)</para>
+                            <classname>ch.algotrader.event.Signal</classname>)</para>
                 </listitem>
                 <listitem>
                     <para>
@@ -7361,7 +7361,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                 <ulink url="http://www.springsource.org/documentation"> documentation</ulink> such
             as <ulink url="http://static.springsource.org/spring/docs/3.0.x/reference/html/beans.html">
                 'The IoC container'</ulink> as an introduction.</para>
-        <para>AlgoTrader provides the class <classname>com.algoTrader.ServiceLocator</classname>
+        <para>AlgoTrader provides the class <classname>ch.algotrader.ServiceLocator</classname>
             which will instantiate the adequate BeanFactories &amp; ApplicationContexts for a given
             operational mode depending on the specified
                 <parameter>BEAN_REFERENCE_LOCATION</parameter>.</para>
@@ -7800,7 +7800,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <classname>com.algoTrader.util.spring.SystemPropertiesFactoryBean</classname>
+                        <classname>ch.algotrader.util.spring.SystemPropertiesFactoryBean</classname>
                     </term>
                     <listitem>
                         <para>loads configuration values from the conf.properties files</para>
@@ -7817,7 +7817,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <classname>com.algoTrader.util.spring.Configuration</classname>
+                        <classname>ch.algotrader.util.spring.Configuration</classname>
                     </term>
                     <listitem>
                         <para>Service containing commonly used configuration values as well as
@@ -7826,7 +7826,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <classname>com.algoTrader.util.spring.EntityAnnotationSetter</classname>
+                        <classname>ch.algotrader.util.spring.EntityAnnotationSetter</classname>
                     </term>
                     <listitem>
                         <para>uses Java Annotations to assign configuration values to static Entity
@@ -7839,7 +7839,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                 assigned to Spring Services and Entities using the <ulink url="http://static.springsource.org/spring/docs/3.1.x/spring-framework-reference/html/expressions.html"> Spring Expression Language (SpEL)</ulink>. Examples:</para>
             <programlisting language="Java">private @Value("${simulation}") boolean simulation;
 private @Value("${order.initialMarginMarkup}") double initialMarginMarkup;
-private @Value("#{T(com.algoTrader.enumeration.Currency)
+private @Value("#{T(ch.algotrader.enumeration.Currency)
   .fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;</programlisting>
         </section>
     </chapter>
@@ -8279,14 +8279,14 @@ where and s.name = 'BASE'</programlisting>
                         sections:</para>
                 </listitem>
             </itemizedlist>
-            <programlisting language="XML">&lt;event-type name="StatementMetric" class="com.algoTrader.vo.StatementMetricVO"/>
+            <programlisting language="XML">&lt;event-type name="StatementMetric" class="ch.algotrader.vo.StatementMetricVO"/>
 
 // in simulation
 &lt;metrics-reporting enabled="true" engine-interval="-1" statement-interval="86400000" />
 
 // in live trading
 &lt;metrics-reporting enabled="true" engine-interval="-1" statement-interval="10000" /> </programlisting>
-            <para>The class <classname>com.algoTrader.util.metric.MetricsUtil</classname> provides
+            <para>The class <classname>ch.algotrader.util.metric.MetricsUtil</classname> provides
                 several methods for recording execution time of critical code (i.e. account and
                 accountEnd).</para>
         </section>

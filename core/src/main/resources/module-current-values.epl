@@ -12,17 +12,17 @@ and
 and
     (
         (
-            (not simulation or dataSource_dataSetType = com.algoTrader.enumeration.MarketDataType.TICK)
+            (not simulation or dataSource_dataSetType = ch.algotrader.enumeration.MarketDataType.TICK)
         and
-            instanceof(marketDataEvent, com.algoTrader.entity.marketData.Tick)
+            instanceof(marketDataEvent, ch.algotrader.entity.marketData.Tick)
         )
     or
         (
-            (simulation and dataSource_dataSetType = com.algoTrader.enumeration.MarketDataType.BAR)
+            (simulation and dataSource_dataSetType = ch.algotrader.enumeration.MarketDataType.BAR)
         and
-            instanceof(marketDataEvent, com.algoTrader.entity.marketData.Bar)
+            instanceof(marketDataEvent, ch.algotrader.entity.marketData.Bar)
         and
-            cast(marketDataEvent.barSize?, com.algoTrader.enumeration.Duration) = dataSource_barSize
+            cast(marketDataEvent.barSize?, ch.algotrader.enumeration.Duration) = dataSource_barSize
         )
     )
 order by
