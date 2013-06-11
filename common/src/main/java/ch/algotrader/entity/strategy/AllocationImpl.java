@@ -15,11 +15,20 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity;
+package ch.algotrader.entity.strategy;
 
-public interface IdentifiableI {
+/**
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
+public class AllocationImpl extends Allocation {
 
-    public int getId();
+    private static final long serialVersionUID = 1184764642126535447L;
 
-    public void setId(int idIn);
+    @Override
+    public String toString() {
+
+        return getAccount() + ":" + getValue();
+    }
 }

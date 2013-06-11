@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.collection.AbstractPersistentCollection;
 import org.hibernate.collection.PersistentCollection;
 
-import ch.algotrader.entity.IdentifiableI;
+import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.util.FieldUtil;
 import ch.algotrader.util.MyLogger;
 
@@ -129,7 +129,7 @@ class CollectionHandler extends AbstractHandler {
         if (updatedObj == null) {
 
             Object owner = origCollection.getOwner();
-            EntityCacheKey cacheKey = new EntityCacheKey((IdentifiableI) owner);
+            EntityCacheKey cacheKey = new EntityCacheKey((BaseEntityI) owner);
             this.cacheManager.getEntityCache().detach(cacheKey);
 
             // update was not successfull

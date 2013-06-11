@@ -97,7 +97,7 @@ public abstract class $entity.entityName
     implements $entity.implementedInterfaceList
 #end	
 #else
-    implements Serializable, Comparable<${entity.entityName}>, ch.algotrader.entity.IdentifiableI
+    implements Serializable, Comparable<${entity.entityName}>
 #if (!$entity.interfaceAbstractions.empty)
         , $entity.implementedInterfaceList
 #end

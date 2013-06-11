@@ -22,7 +22,7 @@ import java.lang.reflect.Field;
 import org.apache.log4j.Logger;
 import org.hibernate.proxy.HibernateProxy;
 
-import ch.algotrader.entity.IdentifiableI;
+import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.util.FieldUtil;
 import ch.algotrader.util.MyLogger;
 
@@ -52,8 +52,8 @@ public class EntityHandler extends AbstractHandler {
         }
 
         // check if the IdentifiableI already exists in the cache
-        IdentifiableI identifiable = (IdentifiableI) obj;
-        EntityCacheKey rootCacheKey = new EntityCacheKey(identifiable);
+        BaseEntityI entity = (BaseEntityI) obj;
+        EntityCacheKey rootCacheKey = new EntityCacheKey(entity);
         Object existingObj = null;
         if (this.cacheManager.getEntityCache().exists(rootCacheKey, CacheManagerImpl.ROOT)) {
 
@@ -91,7 +91,7 @@ public class EntityHandler extends AbstractHandler {
                     }
                 }
 
-                EntityCacheKey cacheKey = new EntityCacheKey(field.getDeclaringClass(), identifiable.getId());
+                EntityCacheKey cacheKey = new EntityCacheKey(field.getDeclaringClass(), entity.getId());
                 this.cacheManager.getEntityCache().attach(cacheKey, field.getName(), value);
             }
         }
@@ -103,13 +103,13 @@ public class EntityHandler extends AbstractHandler {
     protected boolean update(Object obj) {
 
         // get the updatedObj
-        IdentifiableI origObj = (IdentifiableI) obj;
-        IdentifiableI updatedObj = (IdentifiableI) this.cacheManager.getGenericDao().get(obj.getClass(), origObj.getId());
+        BaseEntityI origEntity = (BaseEntityI) obj;
+        BaseEntityI updatedEntity = (BaseEntityI) this.cacheManager.getGenericDao().get(obj.getClass(), origEntity.getId());
 
         // updatedObj does not exist anymore so remove it from the cache
-        if (updatedObj == null) {
+        if (updatedEntity == null) {
 
-            EntityCacheKey cacheKey = new EntityCacheKey(origObj);
+            EntityCacheKey cacheKey = new EntityCacheKey(origEntity);
             this.cacheManager.getEntityCache().detach(cacheKey);
 
             // update was not successfull
@@ -123,16 +123,16 @@ public class EntityHandler extends AbstractHandler {
                 if (FieldUtil.isSimpleAttribute(field)) {
 
                     try {
-                        Object updatedValue = field.get(updatedObj);
-                        Object origValue = field.get(origObj);
+                        Object updatedValue = field.get(updatedEntity);
+                        Object origValue = field.get(origEntity);
 
                         if (updatedValue == null) {
                             if (origValue != null) {
-                                field.set(origObj, null);
+                                field.set(origEntity, null);
                             }
                         } else {
                             if (!updatedValue.equals(origValue)) {
-                                field.set(origObj, updatedValue);
+                                field.set(origEntity, updatedValue);
                             }
                         }
                     } catch (Exception e) {
@@ -147,6 +147,6 @@ public class EntityHandler extends AbstractHandler {
 
     @Override
     protected boolean handles(Class<?> clazz) {
-        return IdentifiableI.class.isAssignableFrom(clazz);
+        return BaseEntityI.class.isAssignableFrom(clazz);
     }
 }

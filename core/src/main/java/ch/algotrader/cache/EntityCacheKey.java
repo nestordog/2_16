@@ -19,7 +19,7 @@ package ch.algotrader.cache;
 
 import java.io.Serializable;
 
-import ch.algotrader.entity.IdentifiableI;
+import ch.algotrader.entity.BaseEntityI;
 
 /**
  * A CacheKey for Entities composed of a {@code clazz} and a {@code key}.
@@ -35,9 +35,9 @@ public class EntityCacheKey {
     private final Class<?> rootClass;
     private final int hashCode;
 
-    public EntityCacheKey(IdentifiableI identifiable) {
+    public EntityCacheKey(BaseEntityI entity) {
 
-        this(identifiable.getClass(), identifiable.getId());
+        this(entity.getClass(), entity.getId());
     }
 
     public EntityCacheKey(String entityName, Serializable key) throws ClassNotFoundException {

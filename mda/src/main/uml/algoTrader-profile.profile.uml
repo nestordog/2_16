@@ -1,61 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <uml:Profile xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:uml="http://www.eclipse.org/uml2/2.0.0/UML" xmi:id="_16_5_4_8b60294_1322591463345_705691_3243" name="algoTrader-profile" metamodelReference="_0metamodelReferencealgoTrader-profile">
-  <eAnnotations xmi:id="_UPWhNNK-EeKJHthpMcK7TA" source="http://www.eclipse.org/uml2/2.0.0/UML">
-    <contents xmi:type="ecore:EPackage" xmi:id="_UPWhNdK-EeKJHthpMcK7TA" name="algoTraderprofile" nsURI="http:///schemas/algoTraderprofile/_UOj2ANK-EeKJHthpMcK7TA/0" nsPrefix="algoTraderprofile">
-      <eClassifiers xmi:type="ecore:EClass" xmi:id="_UPWhNtK-EeKJHthpMcK7TA" name="AlgoTraderService">
-        <eAnnotations xmi:id="_UPWhN9K-EeKJHthpMcK7TA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_8b60294_1302879777349_747595_237"/>
-        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_UPWhONK-EeKJHthpMcK7TA" name="algoTrader_service_manageable" ordered="false" lowerBound="1" eType="_UPWhP9K-EeKJHthpMcK7TA"/>
-        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_UPWhOdK-EeKJHthpMcK7TA" name="algoTrader_service_client" ordered="false" lowerBound="1" eType="_UPWhP9K-EeKJHthpMcK7TA"/>
-        <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_UPWhOtK-EeKJHthpMcK7TA" name="base_Class" ordered="false" lowerBound="1">
+  <eAnnotations xmi:id="_lThxe9LUEeKzmNaL0VtXrw" source="http://www.eclipse.org/uml2/2.0.0/UML">
+    <contents xmi:type="ecore:EPackage" xmi:id="_lThxfNLUEeKzmNaL0VtXrw" name="algoTraderprofile" nsURI="http:///schemas/algoTraderprofile/_lTJ9cNLUEeKzmNaL0VtXrw/0" nsPrefix="algoTraderprofile">
+      <eClassifiers xmi:type="ecore:EClass" xmi:id="_lThxfdLUEeKzmNaL0VtXrw" name="AlgoTraderService">
+        <eAnnotations xmi:id="_lThxftLUEeKzmNaL0VtXrw" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_8b60294_1302879777349_747595_237"/>
+        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_lThxf9LUEeKzmNaL0VtXrw" name="algoTrader_service_manageable" ordered="false" lowerBound="1" eType="_lThxhtLUEeKzmNaL0VtXrw"/>
+        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_lThxgNLUEeKzmNaL0VtXrw" name="algoTrader_service_client" ordered="false" lowerBound="1" eType="_lThxhtLUEeKzmNaL0VtXrw"/>
+        <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_lThxgdLUEeKzmNaL0VtXrw" name="base_Class" ordered="false" lowerBound="1">
           <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/2.0.0/UML#//Class"/>
         </eStructuralFeatures>
-        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_UPWhO9K-EeKJHthpMcK7TA" name="algoTrader_service_no_transaction_interceptor" ordered="false" lowerBound="1" eType="_UPWhP9K-EeKJHthpMcK7TA"/>
-        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_UPWhPNK-EeKJHthpMcK7TA" name="algoTrader_service_no_hibernate_interceptor" ordered="false" lowerBound="1" eType="_UPWhP9K-EeKJHthpMcK7TA"/>
-        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_UPWhPdK-EeKJHthpMcK7TA" name="algoTrader_service_profile" ordered="false" lowerBound="1">
+        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_lThxgtLUEeKzmNaL0VtXrw" name="algoTrader_service_no_transaction_interceptor" ordered="false" lowerBound="1" eType="_lThxhtLUEeKzmNaL0VtXrw"/>
+        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_lThxg9LUEeKzmNaL0VtXrw" name="algoTrader_service_no_hibernate_interceptor" ordered="false" lowerBound="1" eType="_lThxhtLUEeKzmNaL0VtXrw"/>
+        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_lThxhNLUEeKzmNaL0VtXrw" name="algoTrader_service_profile" ordered="false" lowerBound="1">
           <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
         </eStructuralFeatures>
-        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_UPWhPtK-EeKJHthpMcK7TA" name="algoTrader_service_alias" ordered="false" lowerBound="1">
+        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_lThxhdLUEeKzmNaL0VtXrw" name="algoTrader_service_alias" ordered="false" lowerBound="1">
           <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
         </eStructuralFeatures>
       </eClassifiers>
-      <eClassifiers xmi:type="ecore:EEnum" xmi:id="_UPWhP9K-EeKJHthpMcK7TA" name="TernaryBoolean">
-        <eAnnotations xmi:id="_UPWhQNK-EeKJHthpMcK7TA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_16_5_4_8b60294_1322748459641_742110_7514"/>
-        <eLiterals xmi:id="_UPWhQdK-EeKJHthpMcK7TA" name="default"/>
-        <eLiterals xmi:id="_UPWhQtK-EeKJHthpMcK7TA" name="true" value="1"/>
-        <eLiterals xmi:id="_UPWhQ9K-EeKJHthpMcK7TA" name="false" value="2"/>
+      <eClassifiers xmi:type="ecore:EEnum" xmi:id="_lThxhtLUEeKzmNaL0VtXrw" name="TernaryBoolean">
+        <eAnnotations xmi:id="_lThxh9LUEeKzmNaL0VtXrw" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_16_5_4_8b60294_1322748459641_742110_7514"/>
+        <eLiterals xmi:id="_lThxiNLUEeKzmNaL0VtXrw" name="default"/>
+        <eLiterals xmi:id="_lThxidLUEeKzmNaL0VtXrw" name="true" value="1"/>
+        <eLiterals xmi:id="_lThxitLUEeKzmNaL0VtXrw" name="false" value="2"/>
       </eClassifiers>
-      <eClassifiers xmi:type="ecore:EClass" xmi:id="_UPWhRNK-EeKJHthpMcK7TA" name="AlgoTraderEntity">
-        <eAnnotations xmi:id="_UPWhRdK-EeKJHthpMcK7TA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_8b60294_1302880766234_710411_306"/>
-        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_UPWhRtK-EeKJHthpMcK7TA" name="algoTrader_entity_transient" ordered="false" lowerBound="1" eType="_UPWhP9K-EeKJHthpMcK7TA"/>
-        <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_UPWhR9K-EeKJHthpMcK7TA" name="base_Class" ordered="false" lowerBound="1">
+      <eClassifiers xmi:type="ecore:EClass" xmi:id="_lThxi9LUEeKzmNaL0VtXrw" name="AlgoTraderEntity">
+        <eAnnotations xmi:id="_lThxjNLUEeKzmNaL0VtXrw" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_8b60294_1302880766234_710411_306"/>
+        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_lThxjdLUEeKzmNaL0VtXrw" name="algoTrader_entity_transient" ordered="false" lowerBound="1" eType="_lThxhtLUEeKzmNaL0VtXrw"/>
+        <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_lThxjtLUEeKzmNaL0VtXrw" name="base_Class" ordered="false" lowerBound="1">
           <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/2.0.0/UML#//Class"/>
         </eStructuralFeatures>
       </eClassifiers>
-      <eClassifiers xmi:type="ecore:EClass" xmi:id="_UPWhSNK-EeKJHthpMcK7TA" name="AlgoTraderFinderMethod">
-        <eAnnotations xmi:id="_UPXHQNK-EeKJHthpMcK7TA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_16_5_4_8b60294_1322756334537_828085_7606"/>
-        <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_UPXHQdK-EeKJHthpMcK7TA" name="base_Operation" ordered="false" lowerBound="1">
+      <eClassifiers xmi:type="ecore:EClass" xmi:id="_lThxj9LUEeKzmNaL0VtXrw" name="AlgoTraderFinderMethod">
+        <eAnnotations xmi:id="_lThxkNLUEeKzmNaL0VtXrw" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_16_5_4_8b60294_1322756334537_828085_7606"/>
+        <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_lThxkdLUEeKzmNaL0VtXrw" name="base_Operation" ordered="false" lowerBound="1">
           <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/2.0.0/UML#//Operation"/>
         </eStructuralFeatures>
-        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_UPXHQtK-EeKJHthpMcK7TA" name="algoTrader_finder_method_native_query" ordered="false" lowerBound="1" eType="_UPWhP9K-EeKJHthpMcK7TA"/>
-        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_UPXHQ9K-EeKJHthpMcK7TA" name="algoTrader_finder_method_native_query_entity" ordered="false" lowerBound="1">
+        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_lThxktLUEeKzmNaL0VtXrw" name="algoTrader_finder_method_native_query" ordered="false" lowerBound="1" eType="_lThxhtLUEeKzmNaL0VtXrw"/>
+        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_lThxk9LUEeKzmNaL0VtXrw" name="algoTrader_finder_method_native_query_entity" ordered="false" lowerBound="1">
           <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
         </eStructuralFeatures>
-        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_UPXHRNK-EeKJHthpMcK7TA" name="algoTrader_finder_method_locked" ordered="false" lowerBound="1" eType="_UPWhP9K-EeKJHthpMcK7TA"/>
+        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_lThxlNLUEeKzmNaL0VtXrw" name="algoTrader_finder_method_locked" ordered="false" lowerBound="1" eType="_lThxhtLUEeKzmNaL0VtXrw"/>
       </eClassifiers>
-      <eClassifiers xmi:type="ecore:EClass" xmi:id="_UPXHRdK-EeKJHthpMcK7TA" name="AlgoTraderValueObject">
-        <eAnnotations xmi:id="_UPXHRtK-EeKJHthpMcK7TA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_16_5_4_8b60294_1325603546867_486688_4455"/>
-        <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_UPXHR9K-EeKJHthpMcK7TA" name="base_Class" ordered="false" lowerBound="1">
+      <eClassifiers xmi:type="ecore:EClass" xmi:id="_lThxldLUEeKzmNaL0VtXrw" name="AlgoTraderValueObject">
+        <eAnnotations xmi:id="_lThxltLUEeKzmNaL0VtXrw" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_16_5_4_8b60294_1325603546867_486688_4455"/>
+        <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_lThxl9LUEeKzmNaL0VtXrw" name="base_Class" ordered="false" lowerBound="1">
           <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/2.0.0/UML#//Class"/>
         </eStructuralFeatures>
-        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_UPXHSNK-EeKJHthpMcK7TA" name="algoTrader_value_object_private" ordered="false" lowerBound="1" eType="_UPWhP9K-EeKJHthpMcK7TA"/>
+        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_lThxmNLUEeKzmNaL0VtXrw" name="algoTrader_value_object_private" ordered="false" lowerBound="1" eType="_lThxhtLUEeKzmNaL0VtXrw"/>
       </eClassifiers>
-      <eClassifiers xmi:type="ecore:EClass" xmi:id="_UPXHSdK-EeKJHthpMcK7TA" name="AlgoTraderServiceMethod">
-        <eAnnotations xmi:id="_UPXHStK-EeKJHthpMcK7TA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_16_5_4_8b60294_1327770109433_191506_4436"/>
-        <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_UPXHS9K-EeKJHthpMcK7TA" name="base_Operation" ordered="false" lowerBound="1">
+      <eClassifiers xmi:type="ecore:EClass" xmi:id="_lThxmdLUEeKzmNaL0VtXrw" name="AlgoTraderServiceMethod">
+        <eAnnotations xmi:id="_lThxmtLUEeKzmNaL0VtXrw" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_16_5_4_8b60294_1327770109433_191506_4436"/>
+        <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_lThxm9LUEeKzmNaL0VtXrw" name="base_Operation" ordered="false" lowerBound="1">
           <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/2.0.0/UML#//Operation"/>
         </eStructuralFeatures>
-        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_UPXHTNK-EeKJHthpMcK7TA" name="algoTrader_service_method_manageable_attribute" ordered="false" lowerBound="1" eType="_UPWhP9K-EeKJHthpMcK7TA"/>
-        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_UPXHTdK-EeKJHthpMcK7TA" name="algoTrader_service_method_manageable" ordered="false" lowerBound="1" eType="_UPWhP9K-EeKJHthpMcK7TA"/>
+        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_lThxnNLUEeKzmNaL0VtXrw" name="algoTrader_service_method_manageable_attribute" ordered="false" lowerBound="1" eType="_lThxhtLUEeKzmNaL0VtXrw"/>
+        <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_lThxndLUEeKzmNaL0VtXrw" name="algoTrader_service_method_manageable" ordered="false" lowerBound="1" eType="_lThxhtLUEeKzmNaL0VtXrw"/>
       </eClassifiers>
     </contents>
   </eAnnotations>
@@ -143,7 +143,7 @@
       <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_16_5_4_8b60294_1353690236958_454167_3311" name="" value="1"/>
     </ownedAttribute>
   </packagedElement>
-  <packagedElement xmi:type="uml:Extension" xmi:id="_16_5_4_8b60294_1322756403441_136989_7612" name="" memberEnd="_16_5_4_8b60294_1322756403441_703049_7613 _16_5_4_8b60294_1322756403441_632824_7614">
+  <packagedElement xmi:type="uml:Extension" xmi:id="_16_5_4_8b60294_1322756403441_136989_7612" name="" memberEnd="_16_5_4_8b60294_1322756403441_632824_7614 _16_5_4_8b60294_1322756403441_703049_7613">
     <ownedEnd xmi:type="uml:ExtensionEnd" xmi:id="_16_5_4_8b60294_1322756403441_632824_7614" name="extension_AlgoTraderFinderMethod" visibility="private" type="_16_5_4_8b60294_1322756334537_828085_7606" aggregation="composite" association="_16_5_4_8b60294_1322756403441_136989_7612">
       <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_16_5_4_8b60294_1322756403441_936099_7616" name="" value="1"/>
       <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_16_5_4_8b60294_1322756403441_545760_7615" name=""/>
@@ -177,7 +177,7 @@
       <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_16_5_4_8b60294_1339576566882_404480_2414" name="" value="1"/>
     </ownedAttribute>
   </packagedElement>
-  <packagedElement xmi:type="uml:Extension" xmi:id="_16_5_4_8b60294_1327770168846_775873_4442" name="" memberEnd="_16_5_4_8b60294_1327770168847_119731_4444 _16_5_4_8b60294_1327770168846_624395_4443">
+  <packagedElement xmi:type="uml:Extension" xmi:id="_16_5_4_8b60294_1327770168846_775873_4442" name="" memberEnd="_16_5_4_8b60294_1327770168846_624395_4443 _16_5_4_8b60294_1327770168847_119731_4444">
     <ownedEnd xmi:type="uml:ExtensionEnd" xmi:id="_16_5_4_8b60294_1327770168847_119731_4444" name="extension_AlgoTraderServiceMethod" visibility="private" type="_16_5_4_8b60294_1327770109433_191506_4436" aggregation="composite" association="_16_5_4_8b60294_1327770168846_775873_4442">
       <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_16_5_4_8b60294_1327770168847_961960_4446" name="" value="1"/>
       <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_16_5_4_8b60294_1327770168847_902946_4445" name=""/>
