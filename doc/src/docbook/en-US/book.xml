@@ -1514,7 +1514,9 @@ public class ExClient {
             </listitem>
             <listitem>
                 <para>
-                    <ulink url="http://www.andromda.org/docs/andromda-cartridges/andromda-spring-cartridge/howto.html">Spring Cartridge HowTo</ulink>
+                    <ulink
+                        url="http://www.andromda.org/andromda-cartridges/andromda-spring-cartridge/howto.html"
+                        >Spring Cartridge HowTo</ulink>
                 </para>
             </listitem>
             <listitem>
@@ -4159,7 +4161,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         </para>
                         <itemizedlist>
                             <listitem>
-                                <para>use password: password for the root user</para>
+                                <para>Create a database named <literal>algotrader</literal></para>
                             </listitem>
                             <listitem>
                                 <para>run the script:
@@ -4172,6 +4174,12 @@ public class MovChartService extends ChartProvidingServiceImpl {
                                 </para>
                             </listitem>
                         </itemizedlist>
+                        <para>Per default the database password <literal>password</literal> is used.
+                            If a different password is chosen, the property
+                                <parameter>dataSource.password</parameter> needs to be updated
+                            inside
+                                <command>algotrader-core/src/main/resources/META-INF/conf-core.properties</command>
+                        </para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -4211,7 +4219,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         <row>
                             <entry>Java JDK</entry>
                             <entry><ulink url="http://java.sun.com">http://java.sun.com</ulink></entry>
-                            <entry>1.7.0</entry>
+                            <entry>1.6 &amp; 1.7</entry>
                         </row>
                         <row>
                             <entry>Eclipse IDE</entry>
@@ -4375,15 +4383,14 @@ public class MovChartService extends ChartProvidingServiceImpl {
         </section>
         <section>
             <title>Subversion Checkout</title>
-            <para>It is recommended to use the Plugin m2e for the initial checkout (Import / Maven /
-                Check out Maven Projects from SCM).</para>
             <important>
                 <para>Note: AndroMDA does not allow any special characters (i.e. spaces or
                     exclamation marks) in the project path.</para>
             </important>
-            <para>Select the following SVN Location:</para>
-            <screen>https://repo.algotrader.ch/svn/trunk/AlgoTrader</screen>
-            <para>This will create the following projects in Eclipse:</para>
+            <para>Do an svn checkout from the command line:</para>
+            <screen>svn checkout https://repo.algotrader.ch/svn/trunk/AlgoTrader</screen>
+            <para>Import the following projects into eclipse via File / Import / Maven / Existing Maven
+                    Projects:</para>
             <itemizedlist>
                 <listitem>
                     <para>
