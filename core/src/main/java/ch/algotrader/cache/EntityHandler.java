@@ -19,17 +19,23 @@ package ch.algotrader.cache;
 
 import java.lang.reflect.Field;
 
+import org.apache.log4j.Logger;
 import org.hibernate.proxy.HibernateProxy;
 
 import ch.algotrader.entity.IdentifiableI;
 import ch.algotrader.util.FieldUtil;
+import ch.algotrader.util.MyLogger;
 
 /**
+ * Cache Handler for Entities.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public class EntityHandler extends AbstractHandler {
+
+    private static Logger logger = MyLogger.getLogger(EntityHandler.class.getName());
 
     private CacheManagerImpl cacheManager;
 
@@ -53,6 +59,7 @@ public class EntityHandler extends AbstractHandler {
 
             existingObj = this.cacheManager.getEntityCache().find(rootCacheKey, CacheManagerImpl.ROOT);
 
+        // IndentifiableI is not in the cache already
         } else {
 
             // attach the object itself
@@ -65,9 +72,10 @@ public class EntityHandler extends AbstractHandler {
                 try {
                     value = field.get(obj);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("problem getting field", e);
                 }
 
+                // nothing to do on simplate attributes
                 if (FieldUtil.isSimpleAttribute(field) || value == null) {
                     continue;
                 }
@@ -79,7 +87,7 @@ public class EntityHandler extends AbstractHandler {
                     try {
                         field.set(obj, existingValue);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        logger.error("problem setting field", e);
                     }
                 }
 
@@ -98,6 +106,7 @@ public class EntityHandler extends AbstractHandler {
         IdentifiableI origObj = (IdentifiableI) obj;
         IdentifiableI updatedObj = (IdentifiableI) this.cacheManager.getGenericDao().get(obj.getClass(), origObj.getId());
 
+        // updatedObj does not exist anymore so remove it from the cache
         if (updatedObj == null) {
 
             EntityCacheKey cacheKey = new EntityCacheKey(origObj);
@@ -127,7 +136,7 @@ public class EntityHandler extends AbstractHandler {
                             }
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        logger.error("problem accessing field", e);
                     }
                 }
             }

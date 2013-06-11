@@ -33,7 +33,7 @@
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
-    <bean id="genericDao" class="ch.algotrader.cache.GenericDao">
+    <bean id="genericDao" class="ch.algotrader.hibernate.GenericDao">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 

@@ -25,18 +25,24 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.hibernate.collection.AbstractPersistentCollection;
 import org.hibernate.collection.PersistentCollection;
 
 import ch.algotrader.entity.IdentifiableI;
 import ch.algotrader.util.FieldUtil;
+import ch.algotrader.util.MyLogger;
 
 /**
+ * Cache Handler for Collections.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 class CollectionHandler extends AbstractHandler {
+
+    private static Logger logger = MyLogger.getLogger(CollectionHandler.class.getName());
 
     private CacheManagerImpl cacheManager;
 
@@ -53,6 +59,7 @@ class CollectionHandler extends AbstractHandler {
             return null;
         }
 
+        // process Maps
         if (obj instanceof Map) {
 
             Map map = (Map) obj;
@@ -67,6 +74,7 @@ class CollectionHandler extends AbstractHandler {
                 }
             }
 
+            // process Lists
         } else if (obj instanceof List) {
 
             List list = (List) obj;
@@ -81,6 +89,7 @@ class CollectionHandler extends AbstractHandler {
                 }
             }
 
+            // process Sets
         } else if (obj instanceof Set) {
 
             Set set = (Set) obj;
@@ -97,6 +106,9 @@ class CollectionHandler extends AbstractHandler {
             // need to replace the values outside the loop to prevent java.util.ConcurrentModificationException
             set.removeAll(replacements);
             set.addAll(replacements);
+
+        } else {
+            throw new IllegalArgumentException("unsupported collection type " + obj.getClass());
         }
 
         return null;
@@ -125,30 +137,34 @@ class CollectionHandler extends AbstractHandler {
 
         } else {
 
-            if (!(updatedObj instanceof PersistentCollection)) {
+            // getInitializedCollection should normally return a PersistentCollection
+            if (updatedObj instanceof PersistentCollection) {
+
+                PersistentCollection updatedCol = (PersistentCollection) updatedObj;
+                FieldUtil.copyAllFields(origCollection, updatedCol);
+
+                // make sure everything is in the cache
+                this.cacheManager.put(origCollection);
+
+                return true;
+
+                // log if PersistentCollection returns a Collection or Map to furhter investigate
+            } else {
 
                 if (updatedObj instanceof Collection) {
                     Collection<?> col = (Collection<?>) updatedObj;
                     if (col.size() != 0) {
-                        System.out.println("not empty collection returned instead of PersistentCollection");
+                        logger.error("non empty collection returned instead of PersistentCollection");
                     }
                 } else if (updatedObj instanceof Map) {
                     Map<?, ?> map = (Map<?, ?>) updatedObj;
                     if (map.size() != 0) {
-                        System.out.println("not empty map returned instead of PersistentCollection");
+                        logger.error("non empty map returned instead of PersistentCollection");
                     }
                 }
 
                 return false;
             }
-
-            PersistentCollection updatedCol = (PersistentCollection) updatedObj;
-            FieldUtil.copyAllFields(origCollection, updatedCol);
-
-            // make sure everything is in the cache
-            this.cacheManager.put(origCollection);
-
-            return true;
         }
     }
 

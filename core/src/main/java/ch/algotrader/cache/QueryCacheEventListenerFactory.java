@@ -25,14 +25,23 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
 
+import org.apache.log4j.Logger;
+
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.util.MyLogger;
 
 /**
+ * EhCache CacheEventListenerFactory that creates a {@link CacheEventListener} which notifies when the UpdateTimestampsCache is being updated in the 2nd level cache.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public class QueryCacheEventListenerFactory extends net.sf.ehcache.event.CacheEventListenerFactory {
+
+    private static Logger logger = MyLogger.getLogger(QueryCacheEventListenerFactory.class.getName());
+
+    private CacheManagerImpl cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManagerImpl.class);
 
     @Override
     public CacheEventListener createCacheEventListener(Properties properties) {
@@ -42,29 +51,26 @@ public class QueryCacheEventListenerFactory extends net.sf.ehcache.event.CacheEv
             @Override
             public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
 
-                CacheManagerImpl cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManagerImpl.class);
-                cacheManager.getQueryCache().detach((String) element.getKey());
+                QueryCacheEventListenerFactory.this.cacheManager.getQueryCache().detach((String) element.getKey());
             }
 
             @Override
             public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
 
-                System.out.println("removed " + element);
+                logger.info("element removed " + element);
             }
 
             @Override
             public void notifyElementExpired(Ehcache cache, Element element) {
 
-                System.out.println("expired " + element);
+                logger.info("element expired " + element);
             }
 
             @Override
             public void notifyElementEvicted(Ehcache cache, Element element) {
 
-                System.out.println("evicted " + element);
+                logger.info("element evicted " + element);
             }
-
-
         };
     }
 }

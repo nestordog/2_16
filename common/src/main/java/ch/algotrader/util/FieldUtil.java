@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.reflect.FieldUtils;
+import org.apache.log4j.Logger;
 
 /**
  * Provides general Class related untility Methods.
@@ -43,31 +44,33 @@ import org.apache.commons.lang.reflect.FieldUtils;
  */
 public class FieldUtil {
 
-   private static final Set<Object> immediates =
-           new HashSet<Object>(Arrays.asList(new Object[]{
+    private static Logger logger = MyLogger.getLogger(FieldUtil.class.getName());
 
-                   Boolean.class,
-                   Double.class,
-                   Float.class,
-                   Integer.class,
-                   Long.class,
-                   Short.class,
-                   Character.class,
-                   Byte.class,
+    private static final Set<Object> immediates =
+        new HashSet<Object>(Arrays.asList(new Object[]{
 
-                   Boolean.TYPE,
-                   Double.TYPE,
-                   Float.TYPE,
-                   Integer.TYPE,
-                   Long.TYPE,
-                   Short.TYPE,
-                   Character.TYPE,
-                   Byte.TYPE,
+                    Boolean.class,
+                    Double.class,
+                    Float.class,
+                    Integer.class,
+                    Long.class,
+                    Short.class,
+                    Character.class,
+                    Byte.class,
 
-                   String.class,
-                   BigDecimal.class,
-                   Date.class,
-                   Class.class}));
+                    Boolean.TYPE,
+                    Double.TYPE,
+                    Float.TYPE,
+                    Integer.TYPE,
+                    Long.TYPE,
+                    Short.TYPE,
+                    Character.TYPE,
+                    Byte.TYPE,
+
+                    String.class,
+                    BigDecimal.class,
+                    Date.class,
+                    Class.class}));
 
     /**
      * returns true if the {@code field} is a primitive, a primitive wrapper, String, BigDecimal, Date or Class.
@@ -112,7 +115,7 @@ public class FieldUtil {
                 Object targetValue = FieldUtils.readField(field, target, true);
                 FieldUtils.writeField(field, source, targetValue, true);
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                logger.error("problem copying field", e);
             }
         }
     }

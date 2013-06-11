@@ -18,6 +18,8 @@
 package ch.algotrader.cache;
 
 /**
+ * Abstract Cache Handler class.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

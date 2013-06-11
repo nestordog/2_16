@@ -25,18 +25,26 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
 
+import org.apache.log4j.Logger;
 import org.hibernate.cache.ReadWriteCache;
 import org.hibernate.cache.entry.CacheEntry;
 import org.hibernate.cache.entry.CollectionCacheEntry;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.util.MyLogger;
 
 /**
+ * EhCache CacheEventListenerFactory that creates a {@link CacheEventListener} which notifies on Entities being updated in the 2nd level cache.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheEventListenerFactory {
+
+    private static Logger logger = MyLogger.getLogger(EntityCacheEventListenerFactory.class.getName());
+
+    private CacheManagerImpl cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManagerImpl.class);
 
     @Override
     public CacheEventListener createCacheEventListener(Properties properties) {
@@ -78,19 +86,19 @@ public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheE
             @Override
             public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
 
-                System.out.println("removed " + element);
+                logger.info("element removed " + element);
             }
 
             @Override
             public void notifyElementExpired(Ehcache cache, Element element) {
 
-                System.out.println("expired " + element);
+                logger.info("element expired " + element);
             }
 
             @Override
             public void notifyElementEvicted(Ehcache cache, Element element) {
 
-                System.out.println("evicted " + element);
+                logger.info("element evicted " + element);
             }
 
             private void updateEntity(org.hibernate.cache.CacheKey hibernateCacheKey) {
@@ -99,10 +107,9 @@ public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheE
 
                 try {
                     EntityCacheKey cacheKey = new EntityCacheKey(entityOrRoleName, hibernateCacheKey.getKey());
-                    CacheManagerImpl cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManagerImpl.class);
-                    cacheManager.update(cacheKey, CacheManagerImpl.ROOT);
+                    EntityCacheEventListenerFactory.this.cacheManager.update(cacheKey, CacheManagerImpl.ROOT);
                 } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+                    logger.error("entityOrRoleName could not be found " + entityOrRoleName);
                 }
             }
 
@@ -115,10 +122,9 @@ public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheE
 
                 try {
                     EntityCacheKey cacheKey = new EntityCacheKey(entityName, hibernateCacheKey.getKey());
-                    CacheManagerImpl cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManagerImpl.class);
-                    cacheManager.update(cacheKey, key);
+                    EntityCacheEventListenerFactory.this.cacheManager.update(cacheKey, key);
                 } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+                    logger.error("entityOrRoleName could not be found " + entityOrRoleName);
                 }
             }
         };

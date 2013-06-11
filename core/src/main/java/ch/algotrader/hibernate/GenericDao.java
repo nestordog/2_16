@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.cache;
+package ch.algotrader.hibernate;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -35,9 +35,12 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import ch.algotrader.entity.security.Combination;
+import ch.algotrader.entity.security.Component;
 import ch.algotrader.entity.security.Security;
 
 /**
+ * A generic Data Access Object providing Hibernate lookup methods.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -45,7 +48,8 @@ import ch.algotrader.entity.security.Security;
 public class GenericDao extends HibernateDaoSupport {
 
     /**
-     * gets any Entity by its class and id
+     * gets any Entity by its {@code class} and {@code id}.
+     * Securities will get initialzed. For {@link Combination Combinations} all {@link Component Components} will get initialized.
      */
     public Object get(final Class<?> clazz, final Serializable id) {
 
@@ -75,7 +79,7 @@ public class GenericDao extends HibernateDaoSupport {
     }
 
     /**
-     * gets the initialized Collection specified by its role and entity id
+     * gets the initialized Collection specified by its {@code role} and entity {@code id}
      */
     public Object getInitializedCollection(final String role, final Serializable id) {
 
@@ -91,7 +95,7 @@ public class GenericDao extends HibernateDaoSupport {
                 ClassMetadata ownerMetadata = persister.getOwnerEntityPersister().getClassMetadata();
                 Object owner = session.get(ownerMetadata.getEntityName(), id);
 
-                // owner does not exist anymore so no point in updating the collection
+                // owner does not exist anymore so no point in loading the collection
                 if (owner == null) {
                     return null;
                 }
@@ -114,13 +118,16 @@ public class GenericDao extends HibernateDaoSupport {
     }
 
     /**
-     * simple hql query
+     * Performs a HQL query based on the given {@code queryString}
      */
     public List<?> find(String queryString) {
 
         return getHibernateTemplate().find(queryString);
     }
 
+    /**
+     * Performs a HQL query based on the given {@code queryString} and {@code namedParameters}
+     */
     public List<?> find(String queryString, Map<String, Object> namedParameters) {
 
         String[] paramNames = new String[namedParameters.size()];
@@ -137,7 +144,7 @@ public class GenericDao extends HibernateDaoSupport {
     }
 
     /**
-     * gets the querySpaces (tables) associated with a query
+     * Gets the querySpaces (tables) associated with a query
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Set<String> getQuerySpaces(String queryString) {

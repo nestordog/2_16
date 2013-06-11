@@ -22,18 +22,32 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Entry point to the Level-0 Cache
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public interface CacheManager {
 
+    /**
+     * gets an object of the given {@code clazz} by the defined {@code key}.
+     */
     public <T> T get(Class<T> clazz, Serializable key);
 
+    /**
+     * checks whether an object of the given {@code clazz} and {@code key} is in the cache
+     */
     public boolean contains(Class<?> clazz, Serializable key);
 
+    /**
+     * performs the given {@code query}
+     */
     public List<?> query(String queryString);
 
+    /**
+     * performs the given {@code query} by passing defined {@code NamedParameterSource}
+     */
     public List<?> query(String queryString, Map<String, Object> namedParameters);
 
 }

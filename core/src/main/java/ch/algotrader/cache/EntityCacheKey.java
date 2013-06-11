@@ -22,6 +22,8 @@ import java.io.Serializable;
 import ch.algotrader.entity.IdentifiableI;
 
 /**
+ * A CacheKey for Entities composed of a {@code clazz} and a {@code key}.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -48,12 +50,14 @@ public class EntityCacheKey {
         this.clazz = clazz;
         this.key = key;
 
+        // get the top most superclass
         while (!(clazz.getSuperclass()).equals(Object.class)) {
             clazz = clazz.getSuperclass();
         }
 
         this.rootClass = clazz;
 
+        // create the hashCode based on the rootClass and the key
         this.hashCode = (17 * 37 + this.rootClass.getName().hashCode()) * 37 + key.hashCode();
     }
 
@@ -70,6 +74,7 @@ public class EntityCacheKey {
             return false;
         }
 
+        // compate based on the rootClass and the key
         EntityCacheKey that = (EntityCacheKey) other;
         return this.rootClass.equals(that.rootClass) && this.key.equals(that.key);
     }

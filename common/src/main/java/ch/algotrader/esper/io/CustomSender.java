@@ -19,20 +19,22 @@ package ch.algotrader.esper.io;
 
 import java.util.Map;
 
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
-import ch.algotrader.util.metric.MetricsUtil;
-
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.esper.EsperManager;
+import ch.algotrader.util.LookupUtil;
+import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.RawBarVO;
 import ch.algotrader.vo.RawTickVO;
+
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esperio.AbstractSendableEvent;
 import com.espertech.esperio.AbstractSender;
 
 /**
+ * Custom Esper Sender that initializes Ticks and Bars.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -47,7 +49,7 @@ public class CustomSender extends AbstractSender {
         if (beanToSend instanceof RawTickVO) {
 
             long beforeCompleteRawT = System.nanoTime();
-            Tick tick = ServiceLocator.instance().getLookupService().getTickFromRawTick((RawTickVO) beanToSend);
+            Tick tick = LookupUtil.rawTickVOToEntity((RawTickVO) beanToSend);
             long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();
@@ -61,7 +63,7 @@ public class CustomSender extends AbstractSender {
         } else if (beanToSend instanceof RawBarVO) {
 
             long beforeCompleteRawT = System.nanoTime();
-            Bar bar = ServiceLocator.instance().getLookupService().getBarFromRawBar((RawBarVO) beanToSend);
+            Bar bar = LookupUtil.rawBarVOToEntity((RawBarVO) beanToSend);
             long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();

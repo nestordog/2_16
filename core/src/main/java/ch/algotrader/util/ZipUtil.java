@@ -30,6 +30,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 
 import ch.algotrader.util.collection.Pair;
 
@@ -41,6 +42,8 @@ import ch.algotrader.util.collection.Pair;
  * @version $Revision$ $Date$
  */
 public class ZipUtil {
+
+    private static Logger logger = MyLogger.getLogger(ZipUtil.class.getName());
 
     /**
      * unzipes a Zip-File specified by {@code fileName} to the same directory.
@@ -78,7 +81,7 @@ public class ZipUtil {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("problem unzipping", e);
         }
 
         return fileNames;
@@ -110,7 +113,7 @@ public class ZipUtil {
             zis.close();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("problem unzipping", e);
         }
 
         return entries;

@@ -24,10 +24,12 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.cache.CacheManager;
+import ch.algotrader.hibernate.GenericDao;
 import ch.algotrader.util.MyLogger;
 
 /**
+ * Main implementation class of the Level-0 Cache
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

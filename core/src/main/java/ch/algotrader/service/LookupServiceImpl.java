@@ -31,12 +31,6 @@ import javax.jms.IllegalStateException;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.HibernateUtil;
-import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.metric.MetricsUtil;
-
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionDao;
@@ -58,16 +52,16 @@ import ch.algotrader.entity.strategy.DefaultOrderPreference;
 import ch.algotrader.entity.strategy.Measurement;
 import ch.algotrader.entity.strategy.OrderPreference;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.LookupServiceBase;
-import ch.algotrader.service.LookupServiceException;
+import ch.algotrader.util.DateUtil;
+import ch.algotrader.util.HibernateUtil;
+import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.vo.OrderStatusVO;
 import ch.algotrader.vo.PositionVO;
-import ch.algotrader.vo.RawBarVO;
-import ch.algotrader.vo.RawTickVO;
 import ch.algotrader.vo.TransactionVO;
 
 @SuppressWarnings("unchecked")
@@ -762,30 +756,6 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         Measurement measurement = CollectionUtil.getSingleElementOrNull(getMeasurementDao().findMeasurementsByMinDate(1, 1, strategyName, name, minDate));
         return measurement != null ? measurement.getValue() : null;
-    }
-
-    @Override
-    protected Tick handleGetTickFromRawTick(RawTickVO rawTick) {
-
-        long beforeCompleteRaw = System.nanoTime();
-        Tick tick = getTickDao().rawTickVOToEntity(rawTick);
-        long afterCompleteRawT = System.nanoTime();
-
-        MetricsUtil.account("LookupService.getMarketDataEventFromRaw", (afterCompleteRawT - beforeCompleteRaw));
-
-        return tick;
-    }
-
-    @Override
-    protected Bar handleGetBarFromRawBar(RawBarVO barVO) {
-
-        long beforeCompleteRaw = System.nanoTime();
-        Bar bar = getBarDao().rawBarVOToEntity(barVO);
-        long afterCompleteRawT = System.nanoTime();
-
-        MetricsUtil.account("LookupService.getMarketDataEventFromRaw", (afterCompleteRawT - beforeCompleteRaw));
-
-        return bar;
     }
 
     @Override

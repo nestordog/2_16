@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.apache.log4j.Logger;
 import org.quickfixj.jmx.JmxExporter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -55,12 +56,14 @@ import quickfix.SessionNotFound;
 import quickfix.SessionSettings;
 import quickfix.SocketInitiator;
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.cache.EntityHandler;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.esper.EsperManager;
+import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.IntegerMap;
 
 /**
@@ -73,6 +76,8 @@ import ch.algotrader.util.collection.IntegerMap;
  */
 @ManagedResource(objectName = "ch.algotrader.fix:name=FixClient")
 public class FixClient implements InitializingBean {
+
+    private static Logger logger = MyLogger.getLogger(EntityHandler.class.getName());
 
     private SocketInitiator initiator = null;
     private SessionSettings settings = null;
@@ -320,13 +325,13 @@ public class FixClient implements InitializingBean {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("problem finding last orderId", e);
         } finally {
             if (fileHandler != null) {
                 try {
                     fileHandler.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error("problem finding last orderId", e);
                 }
             }
         }

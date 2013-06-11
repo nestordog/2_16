@@ -22,6 +22,8 @@ import java.util.Map;
 import ch.algotrader.util.EqualsUtil;
 
 /**
+ * A CacheKey for Queries composed of a {@code queryString} and {@code namedParameters}.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$

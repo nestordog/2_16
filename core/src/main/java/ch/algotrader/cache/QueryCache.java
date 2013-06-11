@@ -28,6 +28,8 @@ import org.apache.log4j.Logger;
 import ch.algotrader.util.MyLogger;
 
 /**
+ * Cache for Queries based on two HashMaps.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -36,15 +38,12 @@ class QueryCache {
 
     private static Logger logger = MyLogger.getLogger(EntityCache.class.getName());
 
-    private Map<String, Set<QueryCacheKey>> spaces;
-    private Map<QueryCacheKey, List<?>> results;
+    private Map<String, Set<QueryCacheKey>> spaces = new HashMap<String, Set<QueryCacheKey>>();
+    private Map<QueryCacheKey, List<?>> results = new HashMap<QueryCacheKey, List<?>>();
 
-    QueryCache() {
-
-        this.spaces = new HashMap<String, Set<QueryCacheKey>>();
-        this.results = new HashMap<QueryCacheKey, List<?>>();
-    }
-
+    /**
+     * attaches a query to the cache and associates specified spaces with the query
+     */
     void attach(QueryCacheKey cacheKey, Set<String> spaceNames, List<?> result) {
 
         // add all spaces
@@ -65,11 +64,17 @@ class QueryCache {
         logger.trace("attached " + cacheKey);
     }
 
+    /**
+     * returns cached query results from the cache or null if the query was not cached
+     */
     List<?> find(QueryCacheKey cacheKey) {
 
         return this.results.get(cacheKey);
     }
 
+    /**
+     * detaches all queries from the given space
+     */
     void detach(String spaceName) {
 
         Set<QueryCacheKey> space = this.spaces.get(spaceName);

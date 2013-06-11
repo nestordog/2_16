@@ -28,9 +28,7 @@ import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.InvokerLogger;
-import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.apache.maven.shared.invoker.SystemOutLogger;
-import org.codehaus.plexus.util.cli.CommandLineException;
 
 /**
  * Utility class used to launch a simulation process in a separate JVM
@@ -51,7 +49,7 @@ public class MavenLauncher {
         this.vmArgs = vmArgs;
     }
 
-    public void lunch() throws CommandLineException {
+    public void lunch() throws Exception {
 
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File("pom.xml"));
@@ -75,17 +73,13 @@ public class MavenLauncher {
         logger.setThreshold(InvokerLogger.ERROR);
         invoker.setLogger(logger);
 
-        try {
-            InvocationResult result = invoker.execute(request);
-            if (result.getExitCode() != 0) {
-                if (result.getExecutionException() != null) {
-                    throw result.getExecutionException();
-                } else {
-                    throw new RuntimeException("unknown error execting maven exec:java");
-                }
+        InvocationResult result = invoker.execute(request);
+        if (result.getExitCode() != 0) {
+            if (result.getExecutionException() != null) {
+                throw result.getExecutionException();
+            } else {
+                throw new RuntimeException("unknown error execting maven exec:java");
             }
-        } catch (MavenInvocationException e) {
-            e.printStackTrace();
         }
     }
 }

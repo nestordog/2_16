@@ -25,6 +25,8 @@ import org.apache.log4j.Logger;
 import ch.algotrader.util.MyLogger;
 
 /**
+ * Cache for Entities based on a HashMap.
+ *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -35,6 +37,9 @@ class EntityCache extends HashMap<EntityCacheKey, Map<String, Object>> {
 
     private static Logger logger = MyLogger.getLogger(EntityCache.class.getName());
 
+    /**
+     * attaches an object to the cache
+     */
     void attach(EntityCacheKey cacheKey, String key, Object value) {
 
         Map<String, Object> entry = get(cacheKey);
@@ -49,6 +54,9 @@ class EntityCache extends HashMap<EntityCacheKey, Map<String, Object>> {
         logger.trace("attached " + cacheKey + ": " + key);
     }
 
+    /**
+     * checks if an object exists in the cache
+     */
     boolean exists(EntityCacheKey cacheKey, String key) {
 
         Map<String, Object> entry = get(cacheKey);
@@ -59,6 +67,9 @@ class EntityCache extends HashMap<EntityCacheKey, Map<String, Object>> {
         }
     }
 
+    /**
+     * returns an object from the cache or null if the object was not cached
+     */
     Object find(EntityCacheKey cacheKey, String key) {
 
         Map<String, Object> entry = get(cacheKey);
@@ -69,6 +80,9 @@ class EntityCache extends HashMap<EntityCacheKey, Map<String, Object>> {
         }
     }
 
+    /**
+     * detaches an object from the cache
+     */
     void detach(EntityCacheKey cacheKey) {
 
         remove(cacheKey);

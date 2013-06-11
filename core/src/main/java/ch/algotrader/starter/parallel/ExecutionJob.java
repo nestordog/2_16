@@ -19,10 +19,11 @@ package ch.algotrader.starter.parallel;
 
 import java.util.Arrays;
 
-import org.codehaus.plexus.util.cli.CommandLineException;
+import org.apache.log4j.Logger;
 
 import ch.algotrader.starter.SimulationStarter;
 import ch.algotrader.starter.parallel.CustomThreadFactory.CustomThread;
+import ch.algotrader.util.MyLogger;
 
 /**
  * Worker Class used in conjunction with {@link MavenLauncher} to start a simulation process in a separate JVM.
@@ -32,6 +33,8 @@ import ch.algotrader.starter.parallel.CustomThreadFactory.CustomThread;
  * @version $Revision$ $Date$
  */
 public class ExecutionJob implements Runnable {
+
+    private static Logger logger = MyLogger.getLogger(ExecutionJob.class.getName());
 
     private static final Class<?> starterClass = SimulationStarter.class;
 
@@ -56,8 +59,8 @@ public class ExecutionJob implements Runnable {
         try {
             MavenLauncher launcher = new MavenLauncher(starterClass, this.progArgs, this.vmArgs);
             launcher.lunch();
-        } catch (CommandLineException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error("error lunching MavenLauncher", e);
         }
     }
 }
