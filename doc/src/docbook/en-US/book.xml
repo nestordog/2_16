@@ -8136,7 +8136,7 @@ where and s.name = 'BASE'</programlisting>
     <chapter id="Hibernate_Sessions_and_Caching">
         <title>Hibernate Sessions and Caching</title>
         <para>AlgoTrader uses Hibernate for accessing and persisting objects to the database.</para>
-        <section>
+        <section id="Hibernate_Caching">
             <title>Hibernate Caching</title>
             <para>In order to prevent having to access the database on every single request,
                 Hibernate provides two types of caches:</para>
@@ -8172,12 +8172,13 @@ where and s.name = 'BASE'</programlisting>
                 for any request-response based system. </para>
             <para>However this approach is not feasible for a trading application. A trading
                 application typically receives several thousand market data events per second.
-                Ideally these market data events have to matched to the latest data stored in the
-                database (Security related information, current Positions, executed Trades, etc.).
-                However opening a new Session for every market data event to synchronize related
-                objects (like corresponding Security) is much to expensive!</para>
+                Ideally these market data events have to be matched to the latest data stored in the
+                database (e.g. Security related information, current Positions, executed Trades,
+                etc.). However opening a new Hibernate Session for every market data event, to
+                synchronize related objects (like corresponding Security), is much too
+                expensive!</para>
             <para>For this purpose AlgoTrader introduces a Level-Zero Cache</para>
-            <section>
+            <section id="Level-Zero-Cache">
                 <title>Level-Zero Cache</title>
                 <para>AlgoTrader Level-Zero Cache is an additional Caching Level on top of Hibernate
                     First and Second Level Cache which has the following features:</para>
@@ -8206,9 +8207,8 @@ where and s.name = 'BASE'</programlisting>
                     <listitem>
                         <para>Level-Zero Cache preserves object identity, so graphs and cyclical
                             references are allowed. Therefore objects retrieved from the Level-Zero
-                            Cache can not be compared using the <methodname>equals()</methodname>
-                            method but also using the comparison operator <literal>==</literal>.
-                        </para>
+                            Cache can be compared using the <methodname>equals()</methodname> method
+                            but also using the comparison operator <literal>==</literal>. </para>
                     </listitem>
                     <listitem>
                         <para>Level-Zero Cache does not provide any Passivation or Eviction. All
@@ -8304,7 +8304,7 @@ where and s.name = 'BASE'</programlisting>
                 exists. There are basically two scenarios in which Hibernate Session are
                 created.</para>
             <section>
-                <title>Market Data Event Hibernate Sessions</title>
+                <title>Hibernate Sessions related to Market Data Events</title>
                 <figure>
                     <title>Market Data Event Hibernate Sessions</title>
                     <mediaobject>
@@ -8358,7 +8358,7 @@ where and s.name = 'BASE'</programlisting>
                     Strategies.</para>
             </section>
             <section>
-                <title>Trade Hibernate Sessions</title>
+                <title>Hibernate Sessions related to Trades</title>
                 <figure>
                     <title>Market Data Event Hibernate Sessions</title>
                     <mediaobject>
