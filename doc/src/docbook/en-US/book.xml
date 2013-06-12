@@ -4516,71 +4516,71 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         <para>Trusted IP Addresses: 127.0.0.1</para>
                     </listitem>
                 </itemizedlist>
-                    <section>
+                    <section id="Multiple_JVMs">
                         <title>Multiple JVM's</title>
-                            <para>In Live Trading Mode the Base and the Strategy / Strategies run in separate JVM's and
-                            have to be started separately.</para>
-                            <para>If using Eclipse specify the following in the Launch Configuration to
-                                start the Base:</para>
-                            <variablelist>
-                                <varlistentry>
-                                    <term>Main-Tab</term>
-                                    <listitem>
-                                        <itemizedlist>
-                                            <listitem>
-                                                <para>Project: algotrader-core</para>
-                                            </listitem>
-                                            <listitem>
-                                                <para>Main Class:
-                                                    <classname>ch.algotrader.starter.MarketDataStarter</classname>
-                                                </para>
-                                            </listitem>
-                                        </itemizedlist>
-                                    </listitem>
-                                </varlistentry>
-                                <varlistentry>
-                                    <term>Arguments-Tab / VM-Arguments</term>
-                                    <listitem>
-                                        <screen>-Dsimulation=false
+                        <para>In Live Trading Mode the Base and the Strategy / Strategies run in
+                            separate JVM's and have to be started separately.</para>
+                        <para>If using Eclipse specify the following in the Launch Configuration to
+                            start the Base:</para>
+                        <variablelist>
+                            <varlistentry>
+                                <term>Main-Tab</term>
+                                <listitem>
+                                    <itemizedlist>
+                                        <listitem>
+                                            <para>Project: algotrader-core</para>
+                                        </listitem>
+                                        <listitem>
+                                            <para>Main Class:
+                                                <classname>ch.algotrader.starter.MarketDataStarter</classname>
+                                            </para>
+                                        </listitem>
+                                    </itemizedlist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term>Arguments-Tab / VM-Arguments</term>
+                                <listitem>
+                                    <screen>-Dsimulation=false
 -Dspring.profiles.active=server,trading,&lt;brokerProfile> </screen>
-                                        <para>
-                                            <parameter>brokerProfile</parameter>: the SpringProfile
-                                            corresponding to the broker interface in use (e.g. iBNative or
-                                            iBFix)</para>
-                                    </listitem>
-                                </varlistentry>
-                            </variablelist>
-
-                            <para>If using Eclipse specify the following in the Launch Configuration to
-                                start the Strategy:</para>
-                            <variablelist>
-                                <varlistentry>
-                                    <term>Main-Tab</term>
-                                    <listitem>
-                                        <itemizedlist>
-                                            <listitem>
-                                                <para>Project: strategy project</para>
-                                            </listitem>
-                                            <listitem>
-                                                <para>Main Class:
-                                                    <classname>ch.algotrader.starter.XXXStarter</classname>
-                                                    (the starter class of the Strategy)</para>
-                                            </listitem>
-                                        </itemizedlist>
-                                    </listitem>
-                                </varlistentry>
-                                <varlistentry>
-                                    <term>Arguments-Tab / VM-Arguments</term>
-                                    <listitem>
-                                        <screen>-Dsimulation=false</screen>
-                                    </listitem>
-                                </varlistentry>
-                            </variablelist>
+                                    <para>
+                                        <parameter>brokerProfile</parameter>: the SpringProfile
+                                        corresponding to the broker interface in use (e.g. iBNative
+                                        or iBFix)</para>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
+                        <para>If using Eclipse specify the following in the Launch Configuration to
+                            start the Strategy:</para>
+                        <variablelist>
+                            <varlistentry>
+                                <term>Main-Tab</term>
+                                <listitem>
+                                    <itemizedlist>
+                                        <listitem>
+                                            <para>Project: strategy project</para>
+                                        </listitem>
+                                        <listitem>
+                                            <para>Main Class:
+                                                <classname>ch.algotrader.starter.XXXStarter</classname>
+                                                (the starter class of the Strategy)</para>
+                                        </listitem>
+                                    </itemizedlist>
+                                </listitem>
+                            </varlistentry>
+                            <varlistentry>
+                                <term>Arguments-Tab / VM-Arguments</term>
+                                <listitem>
+                                    <screen>-Dsimulation=false</screen>
+                                </listitem>
+                            </varlistentry>
+                        </variablelist>
                     </section>
-                    <section>
+                    <section id="Single_JVM">
                         <title>Single JVM</title>
-                        <para>When running one single Strategy in Live Trading Mode there is the option of starting
-                            both the Base and the Strategy within the same JVM.</para>
+                        <para>When running one single Strategy in Live Trading Mode there is the
+                            option of starting both the Base and the Strategy within the same
+                            JVM.</para>
                         <para>If using Eclipse specify the following in the Launch Configuration to
                             start the Strategy:</para>
                         <variablelist>
@@ -5401,7 +5401,7 @@ select * from A;</programlisting>
                     requested association (e.g. <classname>Security</classname> or
                         <classname>Positions</classname>). Subsequent calls to the same association
                     will then get access to the already initialized Entity or Collection. For
-                    further details see <xref linkend="HibernateSession_Handling"/>.</para>
+                    further details see <xref linkend="Hibernate_Sessions"/>.</para>
             </section>
             <section>
                 <title>Prevent an action from happening multiple times</title>
@@ -8132,51 +8132,212 @@ where and s.name = 'BASE'</programlisting>
                 </section>
             </section>
         </section>
-        <section id="HibernateSession_Handling">
-            <title>Hibernate Session Handling</title>
-            <para>Any access to the database needs to be accompanied by a Hibernate Session. The
-                Hibernate Session has its own First Level Cache and is also responsible to access
-                the Second Level Cache if necessary. In case an Object that is already loaded into
-                the current Hibernate Session, is modified outside the Session, the current Session
-                will not get notified of the change. For this reason it is important to know at what
-                poing a new Session is created and for how long it exists. There are basically two
-                scenarios in which Hibernate Session are created.</para>
+    </chapter>
+    <chapter id="Hibernate_Sessions_and_Caching">
+        <title>Hibernate Sessions and Caching</title>
+        <para>AlgoTrader uses Hibernate for accessing and persisting objects to the database.</para>
+        <section>
+            <title>Hibernate Caching</title>
+            <para>In order to prevent having to access the database on every single request,
+                Hibernate provides two types of caches:</para>
+            <variablelist>
+                <varlistentry>
+                    <term>First Level Cache</term>
+                    <listitem>
+                        <para>The First Level Cache is always associated with the current Session.
+                            Hibernate uses this cache by default. Its main purpose is to reduce the
+                            number of SQL queries needed to execute within a given transaction.
+                            Instead of updating after every modification done to an object
+                            separately, it updates the database only once at the end of the
+                            transaction. At the end of a Session, the attached First Level Cache
+                            will be destroyed. In case an Object, that is already loaded into the
+                            current First Level Cache, is modified outside the Session, the First
+                            Level Cache will not get notified of the change. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Second Level Cache</term>
+                    <listitem>
+                        <para>The Second Level Cache is always associated with the Session Factory.
+                            While processing transactions, Hibernate stores objects at the Session
+                            Factory level, so that those objects will available to the entire
+                            system. Whenever a new query is executed, Hibernate will first checks
+                            with the Second Level Cache to see whether the objects are available in
+                            the Cache.</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>Both First and Second Level Cache require a Hibernate Session. Creation of a
+                Session is usually very quick (a few milliseconds). This mechanism is therefore fine
+                for any request-response based system. </para>
+            <para>However this approach is not feasible for a trading application. A trading
+                application typically receives several thousand market data events per second.
+                Ideally these market data events have to matched to the latest data stored in the
+                database (Security related information, current Positions, executed Trades, etc.).
+                However opening a new Session for every market data event to synchronize related
+                objects (like corresponding Security) is much to expensive!</para>
+            <para>For this purpose AlgoTrader introduces a Level-Zero Cache</para>
+            <section>
+                <title>Level-Zero Cache</title>
+                <para>AlgoTrader Level-Zero Cache is an additional Caching Level on top of Hibernate
+                    First and Second Level Cache which has the following features:</para>
+                <itemizedlist>
+                    <listitem>
+                        <para>Level-Zero Cache is a pure Java based Cache.</para>
+                    </listitem>
+                    <listitem>
+                        <para>Level-Zero Cache does not require an active Hibernate Session</para>
+                    </listitem>
+                    <listitem>
+                        <para>Objects available inside the Level-Zero Cache will be delivered
+                            instantaneously and do not introduce any additional latency</para>
+                    </listitem>
+                    <listitem>
+                        <para>Level-Zero Cache does refresh objects at the same time a database
+                            update occurs</para>
+                    </listitem>
+                    <listitem>
+                        <para>Level-Zero Cache is a read-only Cache, it does not provide any sort
+                            update functionality. Changes to Entities retrieved from the Level-Zero
+                            Cache will never be persisted to the database. In order to modify
+                            objects in the database the usual Spring services and Hibernate DAO's
+                            have to be used</para>
+                    </listitem>
+                    <listitem>
+                        <para>Level-Zero Cache preserves object identity, so graphs and cyclical
+                            references are allowed. Therefore objects retrieved from the Level-Zero
+                            Cache can not be compared using the <methodname>equals()</methodname>
+                            method but also using the comparison operator <literal>==</literal>.
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para>Level-Zero Cache does not provide any Passivation or Eviction. All
+                            Objects stay in memory. It is therefore not recommended to use the
+                            Level-Zero Cache for Objects that are only needed one time, especially
+                            if there is a large number of those objects.</para>
+                    </listitem>
+                    <listitem>
+                        <para>Level-Zero Cache is only available to the JVM containing the Base. It
+                            can therefor only be used by Strategies in Simulation-Mode or if a
+                            Strategy is running inside the same JVM as the Base in Live-Trading (see
+                                <xref linkend="Single_JVM"/>).</para>
+                    </listitem>
+                    <listitem>
+                        <para>No Proxies, no Byte Code Instrumentation and no Annotations are needed
+                            for Level-Zero Cache to work</para>
+                    </listitem>
+                </itemizedlist>
+                <para>By using the Level-Zero Cache it is therefore possible to work on fully
+                    up-to-date versions of Entities without introducing any latency penalties. Under
+                    the assumption that only a very small percentage of incoming market data events
+                    will lead to an actual modification of objects in the database, AlgoTrader will
+                    be able to achieve Esper Performance Figures as published on the <ulink
+                        url="http://esper.codehaus.org/esper/performance/performance.html">Esper
+                        Performance Page</ulink></para>
+                <para>Access to the Level-Zero Cache is provided by the class
+                        <classname>ch.algotrader.cache.CacheManager</classname> which is exposed as
+                    a Spring Bean named <literal>cacheManager</literal>. The
+                        <classname>CacheManager</classname> provides 4 methods to access the
+                    Level-Zero Cache:</para>
+                <variablelist>
+                    <varlistentry>
+                        <term><methodname>public &lt;T> T get(Class&lt;T> clazz, Serializable
+                                key)</methodname></term>
+                        <listitem>
+                            <para>gets an Entity of the given <parameter>clazz</parameter> by the
+                                defined <parameter>key</parameter></para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><methodname>public boolean contains(Class&lt;?> clazz, Serializable
+                                key)</methodname></term>
+                        <listitem>
+                            <para>checks whether an Entity of the given <parameter>clazz</parameter>
+                                and <parameter>key</parameter> is in the Cache</para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><methodname>public List&lt;?> query(String
+                            queryString)</methodname></term>
+                        <listitem>
+                            <para>performs the given HQL <parameter>query</parameter></para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><methodname>public List&lt;?> query(String queryString, Map&lt;String,
+                                Object> namedParameters)</methodname></term>
+                        <listitem>
+                            <para>performs the given HQL <parameter>query</parameter> by passing
+                                defined <parameter>namedParameters</parameter></para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+                <para>Like Hibernate First and Second Level Cache the AlgoTrader Level-Zero Cache
+                    will first check if the requested object is  available inside the Cache. If not,
+                    the object will be retrieved via the
+                        <classname>ch.algotrader.hibernate.GenericDao</classname> and stored in the
+                    Cache.</para>
+                <para>The class <classname>EntityCache</classname> is responsible for caching of
+                    Entities (handled by the <classname>EntityHandler</classname>) and
+                    Entity-Collections (handled by <classname>CollectionHandler</classname>). When
+                    adding a new Entity to the cache, the  <classname>EntityHandler</classname> and
+                        <classname>CollectionHandler</classname> traverse the entire object graph of
+                    initialized Entities and Collections and store all of them in separate nodes of
+                    the internal HashMap Cache. For this object graph traversal (on new objects ore
+                    object updates) Java reflection is used.  </para>
+                <para>The class <classname>QueryCache</classname> on the other hand is responsible
+                    for caching of Hibernate Query Results. Query Results are cached in reference to
+                    all involved tables. So whenever one of those referenced tables is modified, the
+                    corresponding Query Cache Entry is removed (detached).</para>
+                <para>Both <classname>EntityCache</classname> and <classname>QueryCache</classname>
+                    use the class
+                        <classname>net.sf.ehcache.event.CacheEventListenerFactory</classname> to get
+                    notified every time an Entity / Collection is updated or the
+                        <literal>UpdateTimestampsCache</literal> (related to the Hibernate
+                        <literal>StandardQueryCache</literal>) has been updated.</para>
+            </section>
+        </section>
+        <section id="Hibernate_Sessions">
+            <title>Hibernate Sessions</title>
+            <para>Any access to the database needs to be accompanied by a Hibernate Session. For this reason
+                it is important to know at what point a new Session is created and for how long it
+                exists. There are basically two scenarios in which Hibernate Session are
+                created.</para>
             <section>
                 <title>Market Data Event Hibernate Sessions</title>
                 <figure>
                     <title>Market Data Event Hibernate Sessions</title>
                     <mediaobject>
                         <imageobject>
-                            <imagedata scalefit="1" fileref="images/MarketDataEventHibernateSessions.png"/>
+                            <imagedata scalefit="1"
+                                fileref="images/MarketDataEventHibernateSessions.png"/>
                         </imageobject>
                     </mediaobject>
                 </figure>
                 <para>In Simulation Mode the <classname>CustomSender</classname> is responsible to
                     send <classname>MarketDataEvents</classname> into the Base Esper Engine. </para>
-                <para>In Live Trading it is the <classname>MessageHandler</classname> of the
-                    corresponding BrokerInterface (e.g.
-                    <classname>IBEsperMessageHandler</classname>) who is responsible to send
-                        <classname>MarketDataEvents</classname> into the Base Esper Engine. </para>
-                <para>Before the <classname>MarketDataEvents</classname> are sent into the Esper
-                    Engine, both the <classname>CustomSender</classname> and the
-                        <classname>MessageHandler</classname> contact the
-                        <classname>LookupService</classname> to get an up-to-date version of the
-                    corresponding Security. This step involves opening a new Hibernate Session and
-                    initializing the corresponding <classname>SecurityFamily</classname>, Underlying
-                        <classname>Security</classname>, <classname>Subscriptions</classname> and
-                        <classname>Positions</classname>.</para>
-                <para>By the time the <classname>MarketDataEvent</classname> is sent into the Esper
-                    Engine of the Base, the session is already closed an the
-                        <classname>MarketDataEvent</classname> (along with its attached
-                        <classname>Security</classname>) are now in detached state, which means that
-                    traversal along the Object Tree (beyond <classname>Security</classname>,
+                <para>In Live Trading the <classname>MessageHandler</classname> of the corresponding
+                    BrokerInterface (e.g. <classname>IBEsperMessageHandler</classname>) is
+                    responsible to send <classname>MarketDataEvents</classname> into the Base Esper
+                    Engine. </para>
+                <para>Before the <classname>MarketDataEvents</classname> are sent into the Esper Engine, both
+                    the <classname>CustomSender</classname> and the
+                        <classname>MessageHandler</classname> contact to the
+                        <classname>CacheManager</classname> to get an up-to-date version of the
+                    corresponding Security. This step ensures that the corresponding
                         <classname>SecurityFamily</classname>, Underlying
                         <classname>Security</classname>, <classname>Subscriptions</classname> and
-                        <classname>Positions</classname>) will throw a
+                        <classname>Positions</classname> are fully initialized.</para>
+                <para>A <classname>MarketDataEvent</classname> (along with its attached
+                        <classname>Security</classname>) is in detached state, since they are not
+                    associated with a Hibernate Session. Traversal along the Object Tree (beyond
+                        <classname>Security</classname>, <classname>SecurityFamily</classname>,
+                    Underlying <classname>Security</classname>, <classname>Subscriptions</classname>
+                    and <classname>Positions</classname>) will therefore throw a
                         <classname>LazyInitializationException</classname>.</para>
-                <para>If any statement of the Base Esper Engine invokes a Service via Esper
-                    Subscriber a new Hibernate Session is stared (and immediately closed
-                    afterwards).</para>
+                <para>If any statement of the Base Esper Engine invokes a Service via Esper Subscriber a new
+                    Hibernate Session is opened (and immediately closed after the Service method
+                    returns).</para>
                 <para>Market Data Events get transferred to the Strategies by the
                         <classname>MarketeDataPropagator</classname>. Since Strategies run in
                     different JVM's their entire operation (Esper Statements and Java Code) run
@@ -8185,7 +8346,7 @@ where and s.name = 'BASE'</programlisting>
                     Underlying <classname>Security</classname>, <classname>Subscriptions</classname>
                     and <classname>Positions</classname>) would again throw a
                         <classname>LazyInitializationException</classname>. </para>
-                <para>However custom getter methods generated into the Entities  (e.g.
+                <para>However custom getter methods generated into the Entities (e.g.
                         <methodname>Transaction.getSecurityInitialized()</methodname> or
                         <methodname>Security.getPositionsInitialized()</methodname>) check if the
                     requested association is already initialized. If not the
@@ -8238,8 +8399,8 @@ where and s.name = 'BASE'</programlisting>
                                 method </para>
                         </listitem>
                         <listitem>
-                            <para><classname>Fills</classname> are propagated  to the Strategy by
-                                the <methodname>TransactionService.propagateFill</methodname>
+                            <para><classname>Fills</classname> are propagated to the Strategy by the
+                                    <methodname>TransactionService.propagateFill</methodname>
                                 method</para>
                         </listitem>
                         <listitem>

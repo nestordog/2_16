@@ -41,12 +41,12 @@ public interface CacheManager {
     public boolean contains(Class<?> clazz, Serializable key);
 
     /**
-     * performs the given {@code query}
+     * performs the given HQL {@code query}
      */
     public List<?> query(String queryString);
 
     /**
-     * performs the given {@code query} by passing defined {@code NamedParameterSource}
+     * performs the given HQL {@code query} by passing defined {@code namedParameters}
      */
     public List<?> query(String queryString, Map<String, Object> namedParameters);
 
