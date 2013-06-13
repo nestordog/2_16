@@ -4419,11 +4419,27 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 </listitem>
                 <listitem>
                     <para>
-                        <filename> algotrader/mda</filename>
-                    </para>
+                            <filename>algotrader/mda</filename>
+                        </para>
                 </listitem>
             </itemizedlist>
         </section>
+            <section>
+                <title>Associate JConsole and Tools Variable</title>
+                <para>The eclipse project algotrader-client depends on the two classpath variables
+                    JConsole and Tools which have to point to the correct library inside the
+                    JDK.</para>
+                <para>To add those variables click project properties / Java Build Path / Libraries /
+                    Variable / New by following below screen shots.</para>
+                <figure>
+                    <title>JConsole and Tools Variable</title>
+                    <mediaobject>
+                        <imageobject>
+                            <imagedata scalefit="1" fileref="images/JConsole-Tools-Variables.gif"/>
+                        </imageobject>
+                    </mediaobject>
+                </figure>
+            </section>
         <section>
             <title>Generate the code</title>
             <para>Right click on the project <filename>algotrader-mda</filename> / Run As / Maven
@@ -4518,8 +4534,16 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 </itemizedlist>
                     <section id="Multiple_JVMs">
                         <title>Multiple JVM's</title>
-                        <para>In Live Trading Mode the Base and the Strategy / Strategies run in
-                            separate JVM's and have to be started separately.</para>
+                        <para>In Live Trading Mode the Base and the Strategy / Strategies run in separate JVM's and
+                            have to be started separately. </para>
+                        <para>Propagation of Events from the Base to the Strategy / Strategies is
+                            done via JMS by using ActiveMQ. For this purpose ActiveMQ needs to
+                            installed as a service or started manually via:</para>
+                        <screen># Windows
+bin/activemq.bat
+
+# Linux / Unix / Mac
+bin/activemq</screen>
                         <para>If using Eclipse specify the following in the Launch Configuration to
                             start the Base:</para>
                         <variablelist>
@@ -4676,6 +4700,9 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     </listitem>
                 </orderedlist>
             </para>
+        </section>
+        <section>
+            <title>Starting the Base</title>
             <para>The Base can now be started via by calling the following shell script:</para>
             <screen><filename>AlgoTrader/bin/run-base.sh</filename></screen>
             <para>Depending on the actual requirements for the Server Environment (Operation System,
@@ -7402,6 +7429,11 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                             <entry>LOCAL</entry>
                             <entry>used when no remoting or strategy related functionality is needed
                                 (i.e. HistoricalDataStarter)</entry>
+                        </row>
+                        <row>
+                            <entry>beanRefFactorySingle.xml</entry>
+                            <entry>SINGLE</entry>
+                            <entry>used in Live Trading Mode when running in a single JVM</entry>
                         </row>
                         <row>
                             <entry>beanRefFactoryServer.xml</entry>

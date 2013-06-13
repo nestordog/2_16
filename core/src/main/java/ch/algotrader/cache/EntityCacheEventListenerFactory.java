@@ -44,8 +44,6 @@ public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheE
 
     private static Logger logger = MyLogger.getLogger(EntityCacheEventListenerFactory.class.getName());
 
-    private CacheManagerImpl cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManagerImpl.class);
-
     @Override
     public CacheEventListener createCacheEventListener(Properties properties) {
 
@@ -107,7 +105,8 @@ public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheE
 
                 try {
                     EntityCacheKey cacheKey = new EntityCacheKey(entityOrRoleName, hibernateCacheKey.getKey());
-                    EntityCacheEventListenerFactory.this.cacheManager.update(cacheKey, CacheManagerImpl.ROOT);
+                    CacheManagerImpl cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManagerImpl.class);
+                    cacheManager.update(cacheKey, CacheManagerImpl.ROOT);
                 } catch (ClassNotFoundException e) {
                     logger.error("entityOrRoleName could not be found " + entityOrRoleName);
                 }
@@ -122,7 +121,8 @@ public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheE
 
                 try {
                     EntityCacheKey cacheKey = new EntityCacheKey(entityName, hibernateCacheKey.getKey());
-                    EntityCacheEventListenerFactory.this.cacheManager.update(cacheKey, key);
+                    CacheManagerImpl cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManagerImpl.class);
+                    cacheManager.update(cacheKey, key);
                 } catch (ClassNotFoundException e) {
                     logger.error("entityOrRoleName could not be found " + entityOrRoleName);
                 }

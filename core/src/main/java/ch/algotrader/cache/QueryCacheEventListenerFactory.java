@@ -41,8 +41,6 @@ public class QueryCacheEventListenerFactory extends net.sf.ehcache.event.CacheEv
 
     private static Logger logger = MyLogger.getLogger(QueryCacheEventListenerFactory.class.getName());
 
-    private CacheManagerImpl cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManagerImpl.class);
-
     @Override
     public CacheEventListener createCacheEventListener(Properties properties) {
 
@@ -51,7 +49,8 @@ public class QueryCacheEventListenerFactory extends net.sf.ehcache.event.CacheEv
             @Override
             public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
 
-                QueryCacheEventListenerFactory.this.cacheManager.getQueryCache().detach((String) element.getKey());
+                CacheManagerImpl cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManagerImpl.class);
+                cacheManager.getQueryCache().detach((String) element.getKey());
             }
 
             @Override
