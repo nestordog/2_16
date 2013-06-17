@@ -8780,16 +8780,19 @@ where and s.name = 'BASE'</programlisting>
         <section>
             <title>Trading Idea</title>
             <warning>
-                <para>The purpose of this Strategy is to demonstrates many of the capabilities of
-                    AlgoTrader. Do not use it with a Live Trading Account an real Money! Due to
-                    frequent Draw Downs, it might lead to large losses. Even when modifying ore
-                    extending the Strategy use extreme caution before trading it Live.</para>
+                <para>The purpose of this Strategy is to demonstrates many of the capabilities of AlgoTrader. Do
+                    not use it with a Live Trading Account and real Money! Due to frequent Draw
+                    Downs, it might lead to large losses. Even when modifying or extending the
+                    Strategy use extreme caution before trading it Live.</para>
             </warning>
-            <para>The Strategy trades the EUR.USD FX Market and is based on the Stairstep Breakouts
-                Indicator that is presented on <ulink url="http://www.forexfactory.com/showthread.php?t=302007">www.forexfactory.com</ulink> by <ulink url="http://www.forexfactory.com/forexhard">forexhard</ulink>.</para>
-            <para>The Trading Idea behind the Strategy is the following. Markets will often stay
-                within a trading range for a considerable amount of time before they break-out in
-                either direction. The following Chart shows some examples of trading ranges.</para>
+            <para>The Strategy trades the EUR.USD FX Market and is based on the Stairstep Breakouts (SSBO)
+                Indicator that is presented on <ulink
+                    url="http://www.forexfactory.com/showthread.php?t=302007"
+                    >www.forexfactory.com</ulink> by <ulink
+                    url="http://www.forexfactory.com/forexhard">forexhard</ulink>.</para>
+            <para>The Trading Idea behind the Strategy is the following: Markets will often stay within a
+                trading range for a considerable amount of time before they break-out in either
+                direction. The following Chart shows some examples of trading ranges.</para>
             <figure>
                 <title>Box Trading Ranges</title>
                 <mediaobject>
@@ -8827,6 +8830,11 @@ where and s.name = 'BASE'</programlisting>
                 reached this time around. Position size is doubled up to a defined maximum. Because
                 of this doubling the system can be categorized as a Martingale Strategy (see <ulink url="http://en.wikipedia.org/wiki/Martingale_%28betting_system%29">Martingale
                     Betting System</ulink>).</para>
+            <note>
+                <para>The SSBO indicator does not dictate doubling of positions. Using the SSBO
+                    indicator as a Martingale system is only one of many possible ways to handle a
+                    loss. </para>
+            </note>
             <para>The following State Chart Diagram depicts the different states the Strategy will
                 pass through:</para>
             <figure>
@@ -8984,6 +8992,13 @@ where and s.name = 'BASE'</programlisting>
                                 <classname>BoxChartService</classname> also contains the definition
                             of the Chart including Axis, Dataset and Series (see <xref linkend="Custom_Chart"/>). The file also contains the declaration of
                             the JMS Queue (i.e. <classname>ActiveMQQueue</classname>).</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><filename>/sql/db-data.sql</filename></term>
+                    <listitem>
+                        <para>Contains the database records needed to start the strategy. Needs to
+                            be imported into the database before running the strategy.</para>
                     </listitem>
                 </varlistentry>
             </variablelist>
