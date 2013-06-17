@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 
 import org.apache.log4j.Logger;
 import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.proxy.LazyInitializer;
 
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.util.FieldUtil;
@@ -94,6 +95,9 @@ public class EntityHandler extends AbstractHandler {
                 EntityCacheKey cacheKey = new EntityCacheKey(field.getDeclaringClass(), entity.getId());
                 this.cacheManager.getEntityCache().attach(cacheKey, field.getName(), value);
             }
+
+            // set the CacheManager reference
+            entity.setCacheManager(this.cacheManager);
         }
 
         return existingObj;
@@ -143,6 +147,26 @@ public class EntityHandler extends AbstractHandler {
 
             return true;
         }
+    }
+
+    @Override
+    protected Object initialize(Object obj) {
+
+        if (obj instanceof HibernateProxy) {
+
+            HibernateProxy proxy = (HibernateProxy) obj;
+            LazyInitializer initializer = proxy.getHibernateLazyInitializer();
+
+            Object initializedObj = this.cacheManager.getGenericDao().get(initializer.getPersistentClass(), initializer.getIdentifier());
+
+            Object existingObj = put(initializedObj);
+
+            // return the exstingObj if it was already in the cache otherwise the newly initialized obj
+            return existingObj != null ? existingObj : initializedObj;
+        }
+
+        // return null if this is not a Proxy
+        return null;
     }
 
     @Override

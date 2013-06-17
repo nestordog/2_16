@@ -169,6 +169,27 @@ class CollectionHandler extends AbstractHandler {
     }
 
     @Override
+    protected Object initialize(Object obj) {
+
+        if (obj instanceof AbstractPersistentCollection) {
+
+            AbstractPersistentCollection col = (AbstractPersistentCollection) obj;
+            if (!col.wasInitialized()) {
+
+                Object initializedObj = this.cacheManager.getGenericDao().getInitializedCollection(col.getRole(), col.getKey());
+
+                Object existingObj = put(initializedObj);
+
+                // return the exstingObj if it was already in the cache otherwise the newly initialized obj
+                return existingObj != null ? existingObj : initializedObj;
+            }
+        }
+
+        // return null if this is not a uninitialized PersistentCollection
+        return null;
+    }
+
+    @Override
     protected boolean handles(Class<?> clazz) {
         return Collection.class.isAssignableFrom(clazz) || Map.class.isAssignableFrom(clazz);
     }

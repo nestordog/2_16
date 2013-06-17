@@ -53,4 +53,14 @@
             <property name="private-value-objects" required="false"/>]]></to>
         </mapping>
 
+        <!-- BaseEntityI methods -->
+        <mapping>
+            <from><![CDATA[// ch.algotrader.entity.BaseEntityI interface java merge-point]]></from>
+            <to><![CDATA[// custom methods
+
+    public int getId();
+
+    public void setCacheManager(ch.algotrader.cache.CacheManager cacheManager);]]></to>
+        </mapping>
+
 </mappings>

@@ -40,4 +40,9 @@ abstract class AbstractHandler {
      * Invokes an update of the specified Object. Returns true if successflull
      */
     protected abstract boolean update(Object obj);
+
+    /**
+     * Lazy-initializes the specified Object. Return null if the obj is not a Proxy or uninitialized PersistentCollection
+     */
+    protected abstract Object initialize(Object obj);
 }

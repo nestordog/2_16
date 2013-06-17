@@ -108,6 +108,13 @@ public abstract class $entity.entityName
      */
     private static final long serialVersionUID = ${entity.serialVersionUID}L;
 
+    private transient ch.algotrader.cache.CacheManager cacheManager;
+
+    public void setCacheManager(ch.algotrader.cache.CacheManager cacheManager) 
+    {
+        this.cacheManager = cacheManager;
+    }
+
 #if ($stringUtils.isNotBlank($entity.hibernateVersionProperty))
 #if (!$entity.generalization || ($entity.generalization && !$entity.hibernateInheritanceSubclass))
 #set ($versionProperty = $entity.hibernateVersionProperty)

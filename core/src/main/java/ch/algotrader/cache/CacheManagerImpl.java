@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.hibernate.GenericDao;
 import ch.algotrader.util.MyLogger;
 
@@ -94,6 +95,36 @@ public class CacheManagerImpl implements CacheManager {
     }
 
     @Override
+    public boolean contains(Class<?> clazz, Serializable key) {
+
+        EntityCacheKey cacheKey = new EntityCacheKey(clazz, key);
+
+        return this.entityCache.exists(cacheKey, ROOT);
+    }
+
+    @Override
+    public Object initialze(BaseEntityI entity, String key) {
+
+        EntityCacheKey cacheKey = new EntityCacheKey(entity);
+
+        Object obj = this.entityCache.find(cacheKey, key);
+
+        AbstractHandler handler = getHandler(obj.getClass());
+
+        Object initializedObj = handler.initialize(obj);
+
+        // if the key was already initialized do nothing
+        if (initializedObj != null) {
+
+            this.entityCache.attach(cacheKey, key, initializedObj);
+
+            logger.trace("initialized " + cacheKey + ": " + key);
+        }
+
+        return initializedObj;
+    }
+
+    @Override
     public List<?> query(String queryString) {
 
         return query(queryString, null);
@@ -126,14 +157,6 @@ public class CacheManagerImpl implements CacheManager {
         }
 
         return result;
-    }
-
-    @Override
-    public boolean contains(Class<?> clazz, Serializable key) {
-
-        EntityCacheKey cacheKey = new EntityCacheKey(clazz, key);
-
-        return this.entityCache.exists(cacheKey, ROOT);
     }
 
     /**

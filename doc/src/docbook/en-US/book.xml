@@ -5424,8 +5424,9 @@ select * from A;</programlisting>
                         <methodname>Transaction.getSecurityInitialized()</methodname> or
                         <methodname>Security.getPositionsInitialized()</methodname>) that check if
                     the requested association is already initialized. If not the
-                        <classname>LazyLoaderService</classname> is called, which loads the
-                    requested association (e.g. <classname>Security</classname> or
+                        <classname>CacheManager</classname> resp. the
+                        <classname>LazyLoaderService</classname> is called, to load the requested
+                    association (e.g. <classname>Security</classname> or
                         <classname>Positions</classname>). Subsequent calls to the same association
                     will then get access to the already initialized Entity or Collection. For
                     further details see <xref linkend="Hibernate_Sessions"/>.</para>
@@ -8216,7 +8217,7 @@ where and s.name = 'BASE'</programlisting>
                     First and Second Level Cache which has the following features:</para>
                 <itemizedlist>
                     <listitem>
-                        <para>Level-Zero Cache is a pure Java based Cache.</para>
+                        <para>Level-Zero Cache is a pure Java based Cache</para>
                     </listitem>
                     <listitem>
                         <para>Level-Zero Cache does not require an active Hibernate Session</para>
@@ -8241,6 +8242,11 @@ where and s.name = 'BASE'</programlisting>
                             references are allowed. Therefore objects retrieved from the Level-Zero
                             Cache can be compared using the <methodname>equals()</methodname> method
                             but also using the comparison operator <literal>==</literal>. </para>
+                    </listitem>
+                    <listitem>
+                        <para>Level-Zero Cache provides ad-hoc initialization of Hibernate Proxies
+                            and Persistent Collections. Newly initialized Proxies and Persistent
+                            Collections will be subsequently added to the Cache.</para>
                     </listitem>
                     <listitem>
                         <para>Level-Zero Cache does not provide any Passivation or Eviction. All
@@ -8286,6 +8292,14 @@ where and s.name = 'BASE'</programlisting>
                         <listitem>
                             <para>checks whether an Entity of the given <parameter>clazz</parameter>
                                 and <parameter>key</parameter> is in the Cache</para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term><methodname>public Object initialze(BaseEntityI entity, String
+                                key)</methodname></term>
+                        <listitem>
+                            <para>lazy-initilazes the give <parameter>key</parameter> of the
+                                specified <parameter>entity</parameter></para>
                         </listitem>
                     </varlistentry>
                     <varlistentry>
@@ -8382,12 +8396,12 @@ where and s.name = 'BASE'</programlisting>
                         <methodname>Transaction.getSecurityInitialized()</methodname> or
                         <methodname>Security.getPositionsInitialized()</methodname>) check if the
                     requested association is already initialized. If not the
-                        <classname>LazyLoaderService</classname> is called, which loads the
-                    requested association. Subsequent calls to the same association will then get
-                    access to the already initialized Entity or Collection. By this technique the
-                    Lazy-Loading Mechanism that is normally only be available inside a Hibernate
-                    Session (and therefore only inside the Base) is also available to
-                    Strategies.</para>
+                        <classname>CacheManager</classname> resp. the
+                        <classname>LazyLoaderService</classname> is called, to load the requested
+                    association. Subsequent calls to the same association will then get access to
+                    the already initialized Entity or Collection. By this technique the Lazy-Loading
+                    Mechanism that is normally only be available inside a Hibernate Session (and
+                    therefore only inside the Base) is also available to Strategies.</para>
             </section>
             <section>
                 <title>Hibernate Sessions related to Trades</title>

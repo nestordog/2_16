@@ -21,6 +21,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import ch.algotrader.entity.BaseEntityI;
+
 /**
  * Entry point to the Level-0 Cache
  *
@@ -39,6 +41,11 @@ public interface CacheManager {
      * checks whether an object of the given {@code clazz} and {@code key} is in the cache
      */
     public boolean contains(Class<?> clazz, Serializable key);
+
+    /**
+     * lazy-initilazes the give {@code key} of the specified {@code entity}
+     */
+    public Object initialze(BaseEntityI entity, String key);
 
     /**
      * performs the given HQL {@code query}

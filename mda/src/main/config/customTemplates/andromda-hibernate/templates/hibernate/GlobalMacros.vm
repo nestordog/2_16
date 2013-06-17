@@ -703,6 +703,8 @@ $target.getDocumentation("     * ")
 			if (!col.wasInitialized()) {
 				if (col.getSession() != null) {
 					col.forceInitialization();
+				} else if (this.cacheManager != null) {
+					this.${target.name} = ($target.getterSetterTypeName) this.cacheManager.initialze(this, "${target.name}");			
 				} else {			
 					this.${target.name} = ($target.getterSetterTypeName) ch.algotrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadCollection(this, "${entity.entityName}.${target.getterName}", col);
 				}
@@ -718,6 +720,8 @@ $target.getDocumentation("     * ")
 
 			if (initializer.getSession() != null) {
 				this.${target.name} = ($target.getterSetterTypeName) initializer.getImplementation();
+			} else if (this.cacheManager != null) {
+				this.${target.name} = ($target.getterSetterTypeName) this.cacheManager.initialze(this, "${target.name}");			
 			} else {
 				this.${target.name} = ($target.getterSetterTypeName) ch.algotrader.ServiceLocator.instance().getLazyLoaderService().lazyLoadProxy(this, "${entity.entityName}.${target.getterName}", proxy);
 			}
