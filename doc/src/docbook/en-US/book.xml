@@ -775,9 +775,10 @@ public class ExClient {
                             <row>
                                 <entry>Allocation</entry>
                                 <entry>
-                                    <para>If an OrderPreference is defined for an OrderType that
-                                        sends orders to multiple accounts (e.g. DistributingOrder),
-                                        allocations to different accounts can be defined.</para>
+                                    <para>If an OrderPreference is defined for an OrderType that sends orders to multiple sub
+                                        accounts (e.g. DistributingOrder), the quantity allocated to
+                                        each sub account will be according to the value of the
+                                        Allocation.</para>
                                     <para>
                                         <emphasis>Note: the total of all allocations needs to be
                                             1.0</emphasis>
@@ -1019,8 +1020,9 @@ public class ExClient {
                             </row>
                             <row>
                                 <entry>DistributionalOrder</entry>
-                                <entry>An order that generates multiple simple orders, each targeted at a different account
-                                    according to defined allocation</entry>
+                                <entry>An order that generates multiple simple orders, each targeted at a different sub
+                                    account according to defined value of the assigned
+                                    Allocation</entry>
                             </row>
                         </tbody>
                     </tgroup>
@@ -3070,7 +3072,7 @@ getOrderService().sendOrders(orders);</programlisting>
                                 </row>
                                 <row>
                                     <entry>Allocation</entry>
-                                    <entry>Allocation assigned to Base / the strategy</entry>
+                                    <entry>Allocation assigned to the Base / Strategy</entry>
                                 </row>
                                 <row>
                                     <entry>Available Funds</entry>
@@ -5216,6 +5218,11 @@ movLengthSlow = 2000</screen>
                             <para>It is possible to allocate more than 100% to one or more
                                 strategies. In this case, the allocation of the Base will need
                                 be negative in order for the total to be 100%</para>
+                        </listitem>
+                        <listitem>
+                            <para>Do not confuse the allocation property of the Strategy with the
+                                Class Allocation which is used to allocate an order to multiple
+                                child accounts by splitting it up into multiple child orders.</para>
                         </listitem>
                     </itemizedlist>
                 </note>
