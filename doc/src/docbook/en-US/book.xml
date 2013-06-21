@@ -4370,12 +4370,18 @@ public class MovChartService extends ChartProvidingServiceImpl {
                                 <listitem>
                                     <para>Add the following lines to
                                     <filename>eclipse\plugins\net.sf.colorer_x.x.x\colorer\hrc\proto.hrc</filename></para>
-                                </listitem>
-                    </orderedlist>
-                    <programlisting language="XML">&lt;prototype name="esper" group="database" description="Esper">
+                                    <programlisting language="XML">&lt;prototype name="esper" group="database" description="Esper">
     &lt;location link="esper.hrc"/>
     &lt;filename>/\.epl$/i&lt;/filename>
 &lt;/prototype></programlisting>
+                                </listitem>
+                        <listitem>
+                            <para>In Windows / Preferences / General / Editor / File Associations
+                                add a new associate for <filename>*.epl</filename> to the
+                                    <literal>Colorer Editor</literal></para>
+                        </listitem>
+                    </orderedlist>
+
                     <note>
                         <para>The Syntax Highlighter does not provide Code Completion or Syntax
                             Checking!</para>
