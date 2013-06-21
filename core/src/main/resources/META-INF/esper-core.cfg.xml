@@ -11,6 +11,11 @@
     <event-type name="SubscribeTickEvent" class="ch.algotrader.vo.SubscribeTickVO"/>
     <event-type name="UnsubscribeTickEvent" class="ch.algotrader.vo.UnsubscribeTickVO"/>
 
+    <!-- Trade / Bid / Ask -->
+    <event-type name="Trade" class="ch.algotrader.vo.TradeVO"/>
+    <event-type name="Bid" class="ch.algotrader.vo.BidVO"/>
+    <event-type name="Ask" class="ch.algotrader.vo.AskVO"/>
+
     <!-- Combinations / Components -->
     <event-type name="InsertComponentEvent" class="ch.algotrader.vo.InsertComponentEventVO"/>
     <event-type name="RemoveComponentEvent" class="ch.algotrader.vo.RemoveComponentEventVO"/>

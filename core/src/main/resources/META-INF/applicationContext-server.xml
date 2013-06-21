@@ -147,8 +147,12 @@
 
     <!-- =================================== Broker Interfaces  ========================================= -->
 
-    <beans profile="trading,securityRetrieval">
+    <beans profile="iBMarketData,iBSecurityRetrieval">
         <bean id="iBClientFactory" class="ch.algotrader.adapter.ib.IBClientFactory"/>
+    </beans>
+
+    <beans profile="bBMarketData">
+        <bean id="bBSessionFactory" class="ch.algotrader.adapter.bb.BBSessionFactory"/>
     </beans>
 
     <beans profile="jPMFix,iBFix,dCFix">

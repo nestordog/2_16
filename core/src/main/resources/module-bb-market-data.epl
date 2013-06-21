@@ -1,0 +1,39 @@
+@Name('UPDATE_TICK_WINDOW_TRADE')
+@RunTimeOnly()
+on
+    Trade as trade
+update
+    TickWindow as tickWindow
+set
+    tickWindow.lastDateTime = trade.lastDateTime,
+    tickWindow.last = RoundUtil.getBigDecimal(trade.last, tickWindow.security.securityFamily.scale),
+    tickWindow.vol = trade.vol,
+    tickWindow.refresh = true
+where
+    tickWindow.tickerId = trade.tickerId;
+
+@Name('UPDATE_TICK_WINDOW_BID')
+@RunTimeOnly()
+on
+    Bid as bid
+update
+    TickWindow as tickWindow
+set
+    tickWindow.bid = RoundUtil.getBigDecimal(bid.bid, tickWindow.security.securityFamily.scale),
+    tickWindow.volBid = bid.volBid,
+    tickWindow.refresh = true
+where
+    tickWindow.tickerId = bid.tickerId;
+
+@Name('UPDATE_TICK_WINDOW_ASK')
+@RunTimeOnly()
+on
+    Ask as ask
+update
+    TickWindow as tickWindow
+set
+    tickWindow.ask = RoundUtil.getBigDecimal(ask.ask, tickWindow.security.securityFamily.scale),
+    tickWindow.volAsk = ask.volAsk,
+    tickWindow.refresh = true
+where
+    tickWindow.tickerId = ask.tickerId;
