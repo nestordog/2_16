@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -52,6 +53,8 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.Side;
+import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.stockOption.SABR;
 import ch.algotrader.stockOption.StockOptionSymbol;
 import ch.algotrader.stockOption.StockOptionUtil;
@@ -75,7 +78,6 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
 
     private @Value("${delta.hedgeMinTimeToExpiration}") int deltaHedgeMinTimeToExpiration;
-    private @Value("${delta.hedgeMinAmount}") int deltaHedgeMinAmount;
 
     @Override
     protected void handleHedgeDelta(int underlyingId) throws Exception {
@@ -88,43 +90,45 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
             deltaAdjustedMarketValue += position.getMarketValueDouble() * position.getSecurity().getLeverage();
         }
 
-        Security underlying = getSecurityDao().get(underlyingId);
+        final Security underlying = getSecurityDao().get(underlyingId);
+        final Strategy base = getStrategyDao().findBase();
 
-        // check if amount is larger than minimum
-        if (Math.abs(deltaAdjustedMarketValue) >= this.deltaHedgeMinAmount) {
-
-            Strategy base = getStrategyDao().findBase();
-
-            Subscription underlyingSubscription = getSubscriptionDao().findByStrategyAndSecurity(StrategyImpl.BASE, underlying.getId());
-            if (!underlyingSubscription.hasProperty("hedgingFamily")) {
-                throw new IllegalStateException("no hedgingFamily defined for security " + underlying);
-            }
-
-            FutureFamily futureFamily = getFutureFamilyDao().load(underlyingSubscription.getIntProperty("hedgingFamily"));
-
-            Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), this.deltaHedgeMinTimeToExpiration);
-            Future future = getLookupService().getFutureByMinExpiration(futureFamily.getId(), targetDate);
-
-            // make sure the future is subscriped
-            getMarketDataService().subscribe(base.getName(), future.getId());
-
-            // round to the number of contracts
-            int qty = (int) MathUtils.round(deltaAdjustedMarketValue / futureFamily.getContractSize(), 0);
-
-            // create the order
-            Order order = getLookupService().getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, futureFamily.getId());
-            order.setStrategy(base);
-            order.setSecurity(future);
-            order.setQuantity(Math.abs(qty));
-            order.setSide(qty > 0 ? Side.SELL : Side.BUY);
-
-            getOrderService().sendOrder(order);
-
-        } else {
-
-            logger.info("no delta hedge is performed on " + underlying + " because delta adjusted MarketValue " +
-                    RoundUtil.getBigDecimal(Math.abs(deltaAdjustedMarketValue)) + " is below " + this.deltaHedgeMinAmount);
+        Subscription underlyingSubscription = getSubscriptionDao().findByStrategyAndSecurity(StrategyImpl.BASE, underlying.getId());
+        if (!underlyingSubscription.hasProperty("hedgingFamily")) {
+            throw new IllegalStateException("no hedgingFamily defined for security " + underlying);
         }
+
+        final FutureFamily futureFamily = getFutureFamilyDao().load(underlyingSubscription.getIntProperty("hedgingFamily"));
+
+        Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), this.deltaHedgeMinTimeToExpiration);
+        final Future future = getLookupService().getFutureByMinExpiration(futureFamily.getId(), targetDate);
+        final double deltaAdjustedMarketValuePerContract = deltaAdjustedMarketValue / futureFamily.getContractSize();
+
+        EsperManager.addFirstTickCallback(StrategyImpl.BASE, Collections.singleton((Security) future), new TickCallback() {
+            @Override
+            public void onFirstTick(String strategyName, List<Tick> ticks) throws Exception {
+
+                // round to the number of contracts
+                int qty = (int) MathUtils.round(deltaAdjustedMarketValuePerContract / ticks.get(0).getCurrentValueDouble(), 0);
+
+                if (qty != 0) {
+                    // create the order
+                    Order order = getLookupService().getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, futureFamily.getId());
+                    order.setStrategy(base);
+                    order.setSecurity(future);
+                    order.setQuantity(Math.abs(qty));
+                    order.setSide(qty > 0 ? Side.SELL : Side.BUY);
+
+                    getOrderService().sendOrder(order);
+                } else {
+
+                    logger.info("no delta hedge necessary on " + underlying);
+                }
+            }
+        });
+
+        // make sure the future is subscriped
+        getMarketDataService().subscribe(base.getName(), future.getId());
     }
 
     @Override
