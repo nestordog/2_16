@@ -190,362 +190,16 @@ public class ExClient {
     </preface>
     <chapter id="Introduction">
         <title>Introduction</title>
-        <para>
-            <emphasis role="bold">What is AlgoTrader:</emphasis>
-        </para>
-        <itemizedlist>
-            <listitem>
-                <para>AlgoTrader is a Server based Algorithmic Trading Platform</para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader enables development, simulation and execution of multiple
-                        strategies in parallel</para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader can trade multiple securities and multiple markets</para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader can create a signal based on one or more securities but then
-                        trade another security or combination of securities</para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader can trade Futures / Options in a continuous fashion (i.e.
-                        automatic rolling and constant maturity adjustment)</para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader supports Multi Module Strategies</para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader supports custom Derivative Spreads (e.g. Option Straddles,
-                        Strangles, Butterflys etc.)</para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader has several sophisticated built-in Execution Algorithms aimed
-                        at getting better execution prices as well as minimizing market visibility
-                        and impact</para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader has its own Option Pricing Engine and can therefore be used for
-                        OTC Options trading</para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader is built on Event Driven Architecture and therefore accommodates strategies
-                    that are predominantly time-based and cannot be programed with traditional
-                    procedural programming languages. Time-based Market Data Analysis and Signal
-                    Generation are coded in SQL-like statements, whereas procedural actions like
-                    placing an order are coded in plain Java Code. The combination of the two
-                    provides a best-of-both-worlds approach. </para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader is especially useful for strategies that need sophisticated time
-                    window functions and can be expressed with words like during, between,
-                    afterwards, parallel with, along with, finishes and begins with</para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader is extensible and fully customizable for situations where strategy specific
-                    functionalities are required. Full access to the Source Code of the System is
-                    provided. By its pluggable architecture the system accommodates integration of
-                    additional 3rd party libraries.</para>
-            </listitem>
-            <listitem>
-                <para>Through its flexible and extensible architecture AlgoTrader is best suited for
-                    quantitative strategies, that follow formal trading rules but have had to be
-                    traded manually due to a lack of a suitable trading platform.  As long as a
-                    trading strategy can be defined via a set of rules, AlgoTrader will be able to
-                    accommodate it. </para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader  enables rapid development of quantitative strategies that process
-                    large volumes of market data </para>
-            </listitem>
-        </itemizedlist>
-        <para>
-            <emphasis role="bold">What it is not:</emphasis>
-        </para>
-        <itemizedlist>
-            <listitem>
-                <para>AlgoTrader is not a Chart based Trading Platform (like Tradestation, MetaTrader or
-                    NinjaTrader). It does not have a fancy GUI with drag-and-drop functionality and
-                    hundreds of indicators. It is our belief, that successful strategies are based
-                    on economic facts and not on extensive back-testing or chart pattern analysis
-                    based on many different technical indicators. AlgoTrader does have a GUI Front
-                    end, but it's purpose is to give an overview of a strategy's current trading
-                    activities and state in Live Trading. If a strategy is simple enough that it can
-                    be developed with one of the above mentioned Platforms, it is recommended to use
-                    them. However if specific requirements of a Strategy cannot be met by these
-                    Platforms, AlgoTrader with its open architecture and available Source Code would
-                    be the right choice.</para>
-            </listitem>
-            <listitem>
-                <para>AlgoTrader is not a High-Frequency-Trading Application. If Latency in Microsecond or
-                    Nanosecond range is of concern, other platforms will be a better fit. AlgoTrader
-                    is best suited if complex trading logic is more important than being the first
-                    at the market. However, AlgoTrader is very much optimized for high-throughput
-                    and low latency, meaning that network design and distance to the executing
-                    market will still have a much greater influence on latency, than the actual
-                    internal processing inside AlgoTrader. </para>
-            </listitem>
-        </itemizedlist>
-        <para>
-            <emphasis role="bold">Features:</emphasis>
-        </para>
-        <itemizedlist>
-            <listitem>
-                <para>Automate Trading Strategies based on Complex Trading Rules</para>
-            </listitem>
-            <listitem>
-                <para>Enables Development, Simulation and Live Trading of several strategies in
-                    parallel</para>
-            </listitem>
-            <listitem>
-                <para>Multiple Broker Interfaces: </para>
-                <itemizedlist>
-                    <listitem>
-                        <para>Interactive Brokers (IB) Native </para>
-                    </listitem>
-                    <listitem>
-                        <para>Interactive Brokers (IB) Fix (via  QuickFix/J)</para>
-                    </listitem>
-                    <listitem>
-                        <para>JP Morgan via FIX (via  QuickFix/J)</para>
-                    </listitem>
-                    <listitem>
-                        <para>DukasCopy via Fix (via  QuickFix/J)</para>
-                    </listitem>
-                    <listitem>
-                        <para>additional Broker Interfaces can be added with minimal effort</para>
-                    </listitem>
-                </itemizedlist>
-            </listitem>
-            <listitem>
-                <para>Multiple Market Data Providers:</para>
-                <itemizedlist>
-                    <listitem>
-                        <para>Interactive Brokers </para>
-                    </listitem>
-                    <listitem>
-                        <para>Bloomberg</para>
-                    </listitem>
-                </itemizedlist>
-            </listitem>
-            <listitem>
-                <para>Support for wide array of security types and asset classes: e.g. Equities,
-                        Indices, Futures, Options, Rates, Forex/ForexFuture, etc.</para>
-            </listitem>
-            <listitem>
-                <para>Support for Synthetic Instruments &amp; Custom Derivative Spreads (i.e.
-                        virtual Securities consisting of several different Futures, Options, etc.)
-                    </para>
-            </listitem>
-            <listitem>
-                <para>Different Order Types including Market, Limit, Stop, Stop Limit</para>
-            </listitem>
-            <listitem>
-                <para>Several build-in Execution Algorithms: e.g. Slicing, Incremental and
-                    Distributional Algos (additional ExecutionAlgos on request)</para>
-            </listitem>
-            <listitem>
-                <para>Support for Multi Module Strategies (strategies that consist of several
-                        modules that communicate with each other)</para>
-            </listitem>
-            <listitem>
-                <para>Inter Module Communication based on Generic Events</para>
-            </listitem>
-            <listitem>
-                <para>Custom Alerts and Trade Suggestions (via Email or Text Message) which allow manual
-                    confirmation of automatically generated Signals</para>
-            </listitem>
-            <listitem>
-                <para>Multi-Account Functionality (including Sub Account, Account Group and
-                        Allocation Profile functionality)</para>
-            </listitem>
-            <listitem>
-                <para>Sophisticated Client Application:</para>
-                <itemizedlist>
-                    <listitem>
-                        <para>Full overview of Open Positions, Orders, Transactions,
-                                Subscriptions, Cash Balances</para>
-                    </listitem>
-                    <listitem>
-                        <para>Manual operations for Order Management, Position Management
-                                (e.g. stops), System Parameters, Market Data Feed, Forex
-                                Hedging, Portfolio Rebalancing , Position Transfers,
-                                Customization of Synthetic Instruments &amp; Derivative Spreads,
-                                etc.</para>
-                    </listitem>
-                    <listitem>
-                        <para>Technical Management interface for: QuickFix Sessions, Esper
-                                Engines, JDBC Connections, Logging Subsystem &amp; EhCache
-                                Database Cache, etc.</para>
-                    </listitem>
-                    <listitem>
-                        <para>Highly customizable Charting Functionality including Bars/Ticks,
-                            Indicators, horizontal/vertical Markers, Annotations, etc.</para>
-                    </listitem>
-                    <listitem>
-                        <para>Esper HQ based A multi-window user interface for management of Esper CEP engines, design
-                            and deployment of Esper Statements as well as creation and launching of
-                            configurable and interactive dashboards to present a one-screen overview
-                            of the system (Cockpit)</para>
-                    </listitem>
-                    <listitem>
-                        <para>Grails based CRUD Client (Create, Read, Update &amp; Delete) for
-                            management of Reference Data (e.g. Strategies, Securities, Security
-                            Families, Accounts, etc.)</para>
-                    </listitem>
-                </itemizedlist>
-            </listitem>
-            <listitem>
-                <para>Automated Reconciliation Process with external Brokers (Trades, Current
-                        Positions,Subscriptions &amp; Redemptions)</para>
-            </listitem>
-            <listitem>
-                <para>Automated Forex Hedging (based on Spot FX or FX Futures)</para>
-            </listitem>
-            <listitem>
-                <para>Options Pricing Engine using SABR Volatility Model</para>
-            </listitem>
-            <listitem>
-                <para>Sophisticated Portfolio Tracking &amp; Performance Measurement via graphs,
-                        key ratios, custom statistics (per strategy), etc.</para>
-            </listitem>
-            <listitem>
-                <para>Integrated Risk Management and Money Management</para>
-            </listitem>
-            <listitem>
-                <para>Different Numerical and Statistical Libraries</para>
-            </listitem>
-            <listitem>
-                <para>Backtesting of strategies using Historical Tick- or Bar-Data and Exchange Simulator. After
-                    Backtesting the same Code can be used for Live Trading</para>
-            </listitem>
-            <listitem>
-                <para>Historical Data Download functionality</para>
-            </listitem>
-            <listitem>
-                <para>Automated Parameter Optimization</para>
-            </listitem>
-            <listitem>
-                <para>Multi JVM approach (RMI/JMS based communication) vs. One JVM based approach
-                    (OSGI &amp; Spring DynamicModules)</para>
-            </listitem>
-            <listitem>
-                <para>Scalable / Low Latency / High Throughput Architecture:</para>
-                <itemizedlist>
-                    <listitem>
-                        <para>Scalability - Deployment onto multiple JVM's and/or multiple
-                            Servers</para>
-                    </listitem>
-                    <listitem>
-                        <para>High Throughput - Processing of large volumes of up to  500'000 market data events per
-                            second on a dual CPU 2GHz Intel based hardware, see <ulink url="http://esper.codehaus.org/esper/performance/performance.html">Esper Performance</ulink></para>
-                    </listitem>
-                    <listitem>
-                        <para>Low Latency - React in real-time to changing market conditions in timeframes below one
-                            millisecond, see <ulink url="http://esper.codehaus.org/esper/performance/performance.html">Esper Performance</ulink></para>
-                    </listitem>
-                </itemizedlist>
-            </listitem>
-            <listitem>
-                <para>High-Availability Server-Infrastructure based on a highly concurrent / memory
-                    efficient / multi-threaded architecture</para>
-            </listitem>
-            <listitem>
-                <para>Complex event processing (CEP) and event stream analysis of real-time or historical market
-                    data enable detection of patterns among market data events (event correlation),
-                    filter market data events, aggregate time or length windows of market data
-                    events, join market data event streams, trigger based on absence of market data
-                    events etc</para>
-            </listitem>
-            <listitem>
-                <para>Hibernate / RDBMS based Persistence Framework. All Orders, Transactions,
-                    Positions, Subscriptions, etc. are available in the Database where they can be
-                    accessed for Reporting Purposes. All Write-Operations are carried out
-                    asynchronous to minimize system latency.</para>
-            </listitem>
-            <listitem>
-                <para>Dynamic Datamodel which allows to define custom properties (e.g. integer or
-                    string property) on Entities like Strategy, Position &amp; Subscription </para>
-            </listitem>
-            <listitem>
-                <para>Spring Profiles based system packaging to enable customization of deployed
-                        Spring Services (e.g. FixOrderService types)</para>
-            </listitem>
-            <listitem>
-                <para>Highly customizable Logging based on <ulink url="http://logging.apache.org/log4j/">log4j</ulink> including
-                        Email-Logging, Text-Message-Logging, Portfolio Value Logging, etc.</para>
-            </listitem>
-            <listitem>
-                <para>Subversion / Maven based development / Release and Change Management
-                        Process</para>
-            </listitem>
-        </itemizedlist>
-        <para>
-            <emphasis role="bold">Technologies and architectural principals:</emphasis>
-        </para>
-        <itemizedlist>
-            <listitem>
-                <para>Event Driven Architecture / Complex Event Processing (CEP) using <ulink url="http://esper.codehaus.org/"> Esper</ulink>
-                </para>
-            </listitem>
-            <listitem>
-                <para>Model Driven Architecture based on <ulink url="http://www.uml.org/">
-                            UML</ulink> and <ulink url="http://www.andromda.org/"> AndroMDA</ulink>
-                </para>
-            </listitem>
-            <listitem>
-                <para>Service Oriented Architecture using <ulink url="http://www.springsource.org/"> Spring
-                        Framework</ulink>
-                </para>
-            </listitem>
-            <listitem>
-                <para>Persistence Framework based on <ulink url="http://www.hibernate.org">
-                            Hibernate</ulink>
-                </para>
-            </listitem>
-            <listitem>
-                <para>Messaging based on JMS and <ulink url="http://activemq.apache.org/">
-                            ActiveMQ</ulink>
-                </para>
-            </listitem>
-            <listitem>
-                <para>Fix Engine based on <ulink url="http://www.quickfixj.org/">
-                            QuickFix/J</ulink>
-                </para>
-            </listitem>
-            <listitem>
-                <para>JDBC based Persistence Layer with Support for multiple RDBMS Database Types:</para>
-                <itemizedlist>
-                    <listitem>
-                        <para>
-                            <ulink url="http://www.oracle.com/us/products/database/overview/index.html"> Oracle</ulink>
-                        </para>
-                    </listitem>
-                    <listitem>
-                        <para>
-                            <ulink url="http://www.mysql.com/"> MySql</ulink>
-                        </para>
-                    </listitem>
-                    <listitem>
-                        <para>
-                            <ulink url="http://www.postgresql.org/"> PostgresQL</ulink>
-                        </para>
-                    </listitem>
-                    <listitem>
-                        <para>
-                            <ulink url="http://www-01.ibm.com/software/data/db2/">
-                                        DB2</ulink>
-                        </para>
-                    </listitem>
-                    <listitem>
-                        <para>
-                            <ulink url="http://www.microsoft.com/en-us/sqlserver/default.aspx">
-                                        MS SQL</ulink>
-                        </para>
-                    </listitem>
-                </itemizedlist>
-            </listitem>
-        </itemizedlist>
+        <para>AlgoTrader is a Java based Algorithmic Trading Platform that enables development, simulation
+            and execution of multiple strategies in parallel. The automated Trading Software can
+            trade Forex, Options, Futures, Stocks &amp; Commodities on multiple markets. The system
+            is based on Complex Event Processing (CEP) and Event Stream Processing (ESP). </para>
+        <para>An overview of the system is available <ulink
+                url="http://www.algotrader.ch/algotrader/overview/">here</ulink></para>
+        <para>An overview of the features is available <ulink
+                url="http://www.algotrader.ch/algotrader/product-features/">here</ulink></para>
+        <para>A description of 3rd party libraries in use is available <ulink
+                url="http://www.algotrader.ch/algotrader/3rd-party-libraries/">here</ulink></para>
     </chapter>
     <chapter id="Architecture">
         <title>Architecture</title>
@@ -4437,6 +4091,22 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <para>The eclipse project algotrader-client depends on the two classpath variables
                     JConsole and Tools which have to point to the correct library inside the
                     JDK.</para>
+                <variablelist>
+                    <varlistentry>
+                        <term>Windows</term>
+                        <listitem>
+                            <para>jconsole.jar: &lt;JDK>\lib\jconsole.jar</para>
+                            <para>tools.jar: &lt;JDK>\lib\tools.jar</para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Linux / Mac</term>
+                        <listitem>
+                            <para>jconsole.jar: &lt;JDK>/classes/jconsole.jar</para>
+                            <para>tools.jar: &lt;JDK>/classes/classes.jar</para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
                 <para>To add those variables click project properties / Java Build Path / Libraries /
                     Variable / New by following below screen shots.</para>
                 <figure>
