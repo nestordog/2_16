@@ -48,8 +48,9 @@ public class BBMessageHandler implements EventHandler {
     private static Logger logger = MyLogger.getLogger(BBMessageHandler.class.getName());
 
     private static final Name SESSION_CONNECTION_UP = Name.getName("SessionConnectionUp");
-    private static final Name SESSION_TERMINATED = Name.getName("SessionTerminated");
     private static final Name SESSION_STARTED = Name.getName("SessionStarted");
+    private static final Name SESSION_TERMINATED = Name.getName("SessionTerminated");
+    private static final Name SESSION_STARTUP_FAILURE = Name.getName("SessionStartupFailure");
 
     private static final Name SERVICE_OPENED = Name.getName("ServiceOpened");
 
@@ -104,6 +105,8 @@ public class BBMessageHandler implements EventHandler {
             } else if (msg.messageType() == SESSION_TERMINATED) {
                 this.running = false;
                 logger.info("session terminated");
+            } else if (msg.messageType() == SESSION_STARTUP_FAILURE) {
+                logger.error(msg);
             } else {
                 throw new IllegalStateException("unknown messageType " + msg.messageType());
             }

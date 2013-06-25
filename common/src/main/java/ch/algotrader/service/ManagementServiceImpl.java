@@ -31,10 +31,6 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
-import ch.algotrader.util.BeanUtil;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Subscription;
@@ -44,6 +40,7 @@ import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.property.Property;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
@@ -54,7 +51,8 @@ import ch.algotrader.entity.trade.TickwiseIncrementalOrder;
 import ch.algotrader.entity.trade.VariableIncrementalOrder;
 import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.service.ManagementServiceBase;
+import ch.algotrader.esper.EsperManager;
+import ch.algotrader.util.BeanUtil;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.BarVO;
 import ch.algotrader.vo.MarketDataEventVO;
@@ -496,8 +494,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
             marketDataEventVO.setDateTime(marketDataEvent.getDateTime());
             marketDataEventVO.setVol(marketDataEvent.getVol());
-            marketDataEventVO.setOpenIntrest(marketDataEvent.getOpenIntrest());
-            marketDataEventVO.setSettlement(marketDataEvent.getSettlement());
             marketDataEventVO.setSecurityId(marketDataEvent.getSecurity().getId());
             marketDataEventVO.setCurrentValue(marketDataEvent.getCurrentValue());
 

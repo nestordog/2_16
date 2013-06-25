@@ -98,6 +98,7 @@
                                         <versionRange>[2.3.5,)</versionRange>
                                         <goals>
                                             <goal>resources</goal>
+                                            <goal>generate</goal>
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>

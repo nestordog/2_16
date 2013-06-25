@@ -26,11 +26,10 @@ import java.util.TreeMap;
 
 import org.supercsv.exception.SuperCSVException;
 
+import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.util.ConfigurationUtil;
 import ch.algotrader.util.RoundUtil;
-
-import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.vo.BarVO;
 
 /**
@@ -154,8 +153,6 @@ public class CsvBarToTickInterpolator {
                 tick.setVolAsk(0);
                 tick.setBid(new BigDecimal(0));
                 tick.setAsk(new BigDecimal(0));
-                tick.setOpenIntrest(0);
-                tick.setSettlement(new BigDecimal(0));
 
                 csvWriter.write(tick);
             }

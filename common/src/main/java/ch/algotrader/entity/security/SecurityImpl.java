@@ -144,8 +144,6 @@ public abstract class SecurityImpl extends Security {
             return false;
         } else if (tick.getAsk() == null) {
             return false;
-        } else if (tick.getSettlement() == null) {
-            return false;
         } else if (tick.getBidAskSpreadDouble() < 0) {
             int spreadTicks = -getSecurityFamily().getSpreadTicks(tick.getAsk(), tick.getBid());
             if (spreadTicks <= -2) {

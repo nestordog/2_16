@@ -30,10 +30,28 @@ import java.util.TreeSet;
 
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.MathException;
+import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
+import ch.algotrader.entity.Position;
+import ch.algotrader.entity.Subscription;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.FutureFamily;
+import ch.algotrader.entity.security.ImpliedVolatility;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.StockOption;
+import ch.algotrader.entity.security.StockOptionFamily;
 import ch.algotrader.entity.security.StockOptionImpl;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.enumeration.Duration;
+import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.enumeration.Side;
 import ch.algotrader.stockOption.SABR;
 import ch.algotrader.stockOption.StockOptionSymbol;
 import ch.algotrader.stockOption.StockOptionUtil;
@@ -41,15 +59,6 @@ import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
-
-import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.security.ImpliedVolatility;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.StockOption;
-import ch.algotrader.entity.security.StockOptionFamily;
-import ch.algotrader.enumeration.Duration;
-import ch.algotrader.enumeration.OptionType;
-import ch.algotrader.service.StockOptionServiceBase;
 import ch.algotrader.vo.ATMVolVO;
 import ch.algotrader.vo.SABRSmileVO;
 import ch.algotrader.vo.SABRSurfaceVO;
@@ -64,6 +73,59 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
     private static int advanceMinutes = 10;
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
+
+    private @Value("${delta.hedgeMinTimeToExpiration}") int deltaHedgeMinTimeToExpiration;
+    private @Value("${delta.hedgeMinAmount}") int deltaHedgeMinAmount;
+
+    @Override
+    protected void handleHedgeDelta(int underlyingId) throws Exception {
+
+        List<Position> positions = getPositionDao().findOpenPositionsByUnderlying(underlyingId);
+
+        // get the deltaAdjustedMarketValue
+        double deltaAdjustedMarketValue = 0;
+        for (Position position : positions) {
+            deltaAdjustedMarketValue += position.getMarketValueDouble() * position.getSecurity().getLeverage();
+        }
+
+        Security underlying = getSecurityDao().get(underlyingId);
+
+        // check if amount is larger than minimum
+        if (Math.abs(deltaAdjustedMarketValue) >= this.deltaHedgeMinAmount) {
+
+            Strategy base = getStrategyDao().findBase();
+
+            Subscription underlyingSubscription = getSubscriptionDao().findByStrategyAndSecurity(StrategyImpl.BASE, underlying.getId());
+            if (!underlyingSubscription.hasProperty("hedgingFamily")) {
+                throw new IllegalStateException("no hedgingFamily defined for security " + underlying);
+            }
+
+            FutureFamily futureFamily = getFutureFamilyDao().load(underlyingSubscription.getIntProperty("hedgingFamily"));
+
+            Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), this.deltaHedgeMinTimeToExpiration);
+            Future future = getLookupService().getFutureByMinExpiration(futureFamily.getId(), targetDate);
+
+            // make sure the future is subscriped
+            getMarketDataService().subscribe(base.getName(), future.getId());
+
+            // round to the number of contracts
+            int qty = (int) MathUtils.round(deltaAdjustedMarketValue / futureFamily.getContractSize(), 0);
+
+            // create the order
+            Order order = getLookupService().getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, futureFamily.getId());
+            order.setStrategy(base);
+            order.setSecurity(future);
+            order.setQuantity(Math.abs(qty));
+            order.setSide(qty > 0 ? Side.SELL : Side.BUY);
+
+            getOrderService().sendOrder(order);
+
+        } else {
+
+            logger.info("no delta hedge is performed on " + underlying + " because delta adjusted MarketValue " +
+                    RoundUtil.getBigDecimal(Math.abs(deltaAdjustedMarketValue)) + " is below " + this.deltaHedgeMinAmount);
+        }
+    }
 
     @Override
     protected StockOption handleCreateOTCStockOption(int stockOptionFamilyId, Date expirationDate, BigDecimal strike, OptionType type) throws Exception {

@@ -52,9 +52,7 @@ public class CsvTickWriter {
         "volAsk",
         "bid",
         "ask",
-        "vol",
-        "openIntrest",
-        "settlement"
+        "vol"
     };
 
     private static CellProcessor[] processor = new CellProcessor[] {
@@ -65,9 +63,7 @@ public class CsvTickWriter {
         null, //volAsk
         null, //bid
         null, //ask
-        null, //vol
-        null, //openIntrest
-        new ConvertNullTo("") //settlement
+        null //vol
     };
     //@formatter:on
 

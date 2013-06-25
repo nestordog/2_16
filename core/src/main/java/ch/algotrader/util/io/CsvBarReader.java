@@ -33,10 +33,9 @@ import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
-import ch.algotrader.entity.marketData.BarImpl;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.entity.marketData.BarImpl;
 
 /**
  * SuperCSV Reader that reads {@link Bar Bars} from the specified CSV-File.
@@ -56,9 +55,7 @@ public class CsvBarReader {
         new ParseBigDecimal(),
         new ParseBigDecimal(),
         new ParseBigDecimal(),
-        new ParseInt(),
-        new ParseInt(),
-        new ParseBigDecimal()
+        new ParseInt()
     };
     //@formatter:on
 

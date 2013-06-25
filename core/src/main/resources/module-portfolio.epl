@@ -79,9 +79,9 @@ group by
 output
     first every 5 seconds;
 
-@Name('EQUALIZE_FOREX_PORTFOLIO')
-@Condition(key='statement.equalizeForex')
-@Subscriber(className='ch.algotrader.service.ForexService.equalizeForex')
+@Name('HEDGE_FOREX')
+@Condition(key='statement.hedgeForex')
+@Subscriber(className='ch.algotrader.service.ForexService.hedgeForex')
 select
     null
 from

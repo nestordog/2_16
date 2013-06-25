@@ -295,8 +295,6 @@ public class LookupUtil {
         tick.setVolAsk(rawTickVO.getVolAsk());
         tick.setVol(rawTickVO.getVol());
         tick.setVol(rawTickVO.getVol());
-        tick.setOpenIntrest(rawTickVO.getOpenIntrest());
-        tick.setSettlement(rawTickVO.getSettlement());
 
         // cache security id, as queries byIsin get evicted from cache whenever any change to security table happens
         String isin = rawTickVO.getIsin();
@@ -328,8 +326,6 @@ public class LookupUtil {
         bar.setClose(rawBarVO.getClose());
         bar.setDateTime(rawBarVO.getDateTime());
         bar.setVol(rawBarVO.getVol());
-        bar.setOpenIntrest(rawBarVO.getOpenIntrest());
-        bar.setSettlement(rawBarVO.getSettlement());
 
         // cache security id, as queries byIsin get evicted from cache whenever any change to security table happens
         String isin = rawBarVO.getIsin();

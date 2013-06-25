@@ -22,8 +22,6 @@ select
     tick.volAsk as volAsk,
     case when tick.bid > 0 then tick.bid else 0.01 end as bid,
     tick.ask as ask,
-    tick.openIntrest as openIntrest,
-    tick.settlement as settlement,
     LookupUtil.getSecurityInitialized(tick.security.id) as security
 from
     NaturalIndexTick as indexTick,
@@ -44,7 +42,7 @@ select
     current_timestamp.toDate() as dateTime,
     RoundUtil.getBigDecimal(StockOptionUtil.getOptionPrice(option, fxTick.currentValueDouble, StockOptionUtil.getImpliedVolatilitySABR(option, fxTick.currentValueDouble, surface)), option.securityFamily.scale) as last,
     current_timestamp.toDate() as lastDateTime,
-    0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
+    0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask,
     LookupUtil.getSecurityInitialized(option.id) as security
 from
     Tick(instanceof(security, ch.algotrader.entity.security.Forex)) as fxTick,
@@ -63,7 +61,7 @@ select
     current_timestamp.toDate() as dateTime,
     RoundUtil.getBigDecimal(FutureUtil.getFuturePrice(future, indexTick.currentValueDouble)) as last,
     current_timestamp.toDate() as lastDateTime,
-    0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask, 0 as openIntrest, cast(0.0, BigDecimal) as settlement,
+    0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask,
     LookupUtil.getSecurityInitialized(future.id) as security
 from
     Tick(instanceof(security, ch.algotrader.entity.security.NaturalIndex)) as indexTick,
@@ -81,7 +79,7 @@ select
     current_timestamp.toDate() as dateTime,
     genericFutureTick.last as last,
     current_timestamp.toDate() as lastDateTime,
-    0 as vol, 0 as volBid, 0 as volAsk,    cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask,    0 as openIntrest, cast(0.0, BigDecimal) as settlement,
+    0 as vol, 0 as volBid, 0 as volAsk,    cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask,
     LookupUtil.getSecurityInitialized(future.id) as security
 from
     Tick(instanceof(security, ch.algotrader.entity.security.GenericFuture)) as genericFutureTick,

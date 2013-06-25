@@ -22,11 +22,9 @@ import java.text.SimpleDateFormat;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.util.RoundUtil;
-
-import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Direction;
+import ch.algotrader.util.RoundUtil;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -92,10 +90,6 @@ public class BarImpl extends Bar {
         buffer.append(getClose());
         buffer.append(",vol=");
         buffer.append(getVol());
-        buffer.append(",openIntrest=");
-        buffer.append(getOpenIntrest());
-        buffer.append(",settlement=");
-        buffer.append(getSettlement());
         buffer.append(",barSize=");
         buffer.append(getBarSize());
 

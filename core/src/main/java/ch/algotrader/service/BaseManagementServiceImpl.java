@@ -22,15 +22,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
-import ch.algotrader.util.RoundUtil;
-import ch.algotrader.util.metric.MetricsUtil;
-
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.service.BaseManagementServiceBase;
+import ch.algotrader.esper.EsperManager;
+import ch.algotrader.util.RoundUtil;
+import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -73,9 +71,15 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     }
 
     @Override
-    protected void handleEqualizeForex() throws Exception {
+    protected void handleHedgeForex() throws Exception {
 
-        getForexService().equalizeForex();
+        getForexService().hedgeForex();
+    }
+
+    @Override
+    protected void handleHedgeDelta(int underlyingId) throws Exception {
+
+        getStockOptionService().hedgeDelta(underlyingId);
     }
 
     @Override

@@ -22,14 +22,11 @@ import java.util.Date;
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
+import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.stockOption.StockOptionUtil;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
-
-import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.security.StockOption;
-import ch.algotrader.entity.security.StockOptionFamily;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -66,8 +63,8 @@ public class StockOptionImpl extends StockOption {
         double marginPerContract = 0;
         if (stockOptionMarketDataEvent != null && underlyingMarketDataEvent != null && stockOptionMarketDataEvent.getCurrentValueDouble() > 0.0) {
 
-            double stockOptionSettlement = stockOptionMarketDataEvent.getSettlement().doubleValue();
-            double underlyingSettlement = underlyingMarketDataEvent.getSettlement().doubleValue();
+            double stockOptionSettlement = stockOptionMarketDataEvent.getCurrentValueDouble();
+            double underlyingSettlement = underlyingMarketDataEvent.getCurrentValueDouble();
             int contractSize = getSecurityFamily().getContractSize();
             try {
                 marginPerContract = StockOptionUtil.getMaintenanceMargin(this, stockOptionSettlement, underlyingSettlement) * contractSize;
@@ -110,8 +107,6 @@ public class StockOptionImpl extends StockOption {
         if (tick.getVolBid() == 0) {
             return false;
         } else if (tick.getVolAsk() == 0) {
-            return false;
-        } else if (tick.getOpenIntrest() == 0) {
             return false;
         } else if (tick.getBid() != null && tick.getBid().doubleValue() <= 0) {
             return false;

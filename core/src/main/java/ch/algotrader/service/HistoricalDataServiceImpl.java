@@ -30,17 +30,15 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.entity.marketData.TickImpl;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.io.CsvTickWriter;
-
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.TimePeriod;
-import ch.algotrader.service.HistoricalDataServiceBase;
+import ch.algotrader.util.DateUtil;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.io.CsvTickWriter;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -130,8 +128,6 @@ public abstract class HistoricalDataServiceImpl extends HistoricalDataServiceBas
                     tick.setVolAsk(0);
                     tick.setBid(new BigDecimal(0));
                     tick.setAsk(new BigDecimal(0));
-                    tick.setOpenIntrest(0);
-                    tick.setSettlement(new BigDecimal(0));
 
                     timeTickMap.put(bar.getDateTime(), tick);
                 }

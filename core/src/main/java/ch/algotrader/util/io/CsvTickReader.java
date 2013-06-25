@@ -35,10 +35,9 @@ import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CSVContext;
 
-import ch.algotrader.entity.marketData.TickImpl;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickImpl;
 
 /**
  * SuperCSV Reader that reads {@link Tick Ticks} from the specified CSV-File.
@@ -60,9 +59,7 @@ public class CsvTickReader {
         new ParseInt(),
         new ParseBigDecimal(),
         new ParseBigDecimal(),
-        new ParseInt(),
-        new ParseInt(),
-        new ParseBigDecimal()
+        new ParseInt()
     };
     //@formatter:on
 

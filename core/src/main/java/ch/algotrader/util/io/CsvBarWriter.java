@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
-import org.supercsv.cellprocessor.ConvertNullTo;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.exception.SuperCSVException;
 import org.supercsv.exception.SuperCSVReflectionException;
@@ -50,9 +49,7 @@ public class CsvBarWriter {
         "high",
         "low",
         "close",
-        "vol",
-        "openIntrest",
-        "settlement"
+        "vol"
     };
 
     private static CellProcessor[] processor = new CellProcessor[] {
@@ -61,9 +58,7 @@ public class CsvBarWriter {
         null, //high
         null, //low
         null, //close
-        null, //vol
-        null, //openIntrest
-        new ConvertNullTo("") //settlement
+        null //vol
     };
     //@formatter:on
 

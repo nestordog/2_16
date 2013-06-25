@@ -25,11 +25,10 @@ import java.util.Date;
 
 import org.supercsv.exception.SuperCSVException;
 
+import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.util.ConfigurationUtil;
 import ch.algotrader.util.RoundUtil;
-
-import ch.algotrader.entity.marketData.Tick;
 
 /**
  * SuperCSV based utility class, that reads a Tick-File and interpolates additional Ticks based on it.
@@ -82,8 +81,6 @@ public class CsvLinerarInterpolator {
                 tick.setVolAsk(0);
                 tick.setBid(new BigDecimal(0));
                 tick.setAsk(new BigDecimal(0));
-                tick.setOpenIntrest(0);
-                tick.setSettlement(new BigDecimal(0));
 
                 csvWriter.write(tick);
             }

@@ -35,20 +35,17 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Value;
 
+import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickImpl;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.StockOption;
+import ch.algotrader.entity.security.StockOptionFamily;
 import ch.algotrader.entity.security.StockOptionImpl;
+import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.stockOption.StockOptionSymbol;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvIVolReader;
 import ch.algotrader.util.io.CsvTickReader;
-
-import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.StockOption;
-import ch.algotrader.entity.security.StockOptionFamily;
-import ch.algotrader.enumeration.OptionType;
-import ch.algotrader.service.ImportServiceBase;
-import ch.algotrader.service.ImportServiceException;
 import ch.algotrader.vo.IVolVO;
 
 /**
@@ -198,7 +195,6 @@ public class ImportServiceImpl extends ImportServiceBase {
                     tick.setBid(new BigDecimal(0));
                     tick.setAsk(new BigDecimal(0));
                     tick.setSecurity(family.getUnderlying());
-                    tick.setSettlement(new BigDecimal(0));
 
                     ticks.add(tick);
                 }
@@ -236,9 +232,7 @@ public class ImportServiceImpl extends ImportServiceBase {
                 tick.setBid(iVol.getBid());
                 tick.setAsk(iVol.getAsk());
                 tick.setVol(iVol.getVolume());
-                tick.setOpenIntrest(iVol.getOpenIntrest());
                 tick.setSecurity(stockOption);
-                tick.setSettlement(new BigDecimal(0));
 
                 ticks.add(tick);
             }

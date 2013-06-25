@@ -26,9 +26,8 @@ import java.text.SimpleDateFormat;
 import org.apache.commons.lang.time.DateUtils;
 import org.supercsv.exception.SuperCSVException;
 
-import ch.algotrader.util.DateUtil;
-
 import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.util.DateUtil;
 
 /**
  * SuperCSV based utility class that fills missing Bars in a Bar CSV-File.
@@ -126,8 +125,6 @@ public class CsvBarGapFiller {
         bar.setLow(price);
         bar.setClose(price);
         bar.setVol(origBar.getVol());
-        bar.setOpenIntrest(origBar.getOpenIntrest());
-        bar.setSettlement(origBar.getSettlement());
         return bar;
     }
 }
