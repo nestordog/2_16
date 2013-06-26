@@ -4528,7 +4528,7 @@ bin/activemq</screen>
             <variablelist>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/com/algoTrader/strategy/MovServiceImpl.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/MovServiceImpl.java</filename>
                     </term>
                     <listitem>
                         <para>the strategy service class</para>
@@ -4536,7 +4536,7 @@ bin/activemq</screen>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/com/algoTrader/strategy/MovStarter.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/MovStarter.java</filename>
                     </term>
                     <listitem>
                         <para>The class containing the main method to start the strategy in its own JVM in Live
@@ -4545,7 +4545,7 @@ bin/activemq</screen>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/com/algoTrader/strategy/MovSingleVMStarter.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/MovSingleVMStarter.java</filename>
                     </term>
                     <listitem>
                         <para>The class containing the main method to start the strategy in a single
@@ -6456,23 +6456,60 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
     </chapter>
     <chapter id="Market_Data">
         <title>Market Data</title>
-        <para>Market Data exists in three different types:</para>
+        <para>AlgoTrader provides Market Data Interfaces for both Bloomberg and Interactive Brokers. </para>
+        <para>To enable either of those Market Data Interfaces the following two steps have to be
+            executed: </para>
+        <orderedlist>
+            <listitem>
+                <para>The correct Spring Profile has to be activated according to <xref
+                        linkend="Spring-Profiles"/></para>
+            </listitem>
+            <listitem>
+                <para>Either <literal>market-data-ib</literal> or <literal>market-data-bb</literal>
+                    has to be added to the column <literal>INIT_MODULES</literal> of the
+                        <literal>strategy</literal> table</para>
+            </listitem>
+        </orderedlist>
+        <para>Both Market Data Interfaces have a set of unique artifacts:</para>
         <itemizedlist>
             <listitem>
-                <para>Bars (Open-High-Low-Close Price Bars, also containing adjusted close and
-                        volumes)</para>
+                <para>Configuration Files (<filename>conf-ib.properties</filename> and
+                        <filename>conf-bb.properties</filename>)</para>
+            </listitem>
+            <listitem>
+                <para>SessionFactory Classes (e.g. <classname>IBSessionFactory</classname>)
+                    responsible for creating Sessions. SessionFactories are available over
+                    JMX</para>
+            </listitem>
+            <listitem>
+                <para>Session Classes (e.g. <classname>IBSession</classname>). Representing an
+                    individual Market Data Connection</para>
+            </listitem>
+            <listitem>
+                <para>MessageHandler Classes (e.g. <classname>BBMessageHandler</classname>)
+                    responsible for receiving MarketDataEvents an propagating them into Esper</para>
+            </listitem>
+            <listitem>
+                <para>Esper Modules (e.g. <literal>market-data-ib</literal>) responsible for
+                    processing and filtering of MarketDataEvents</para>
+            </listitem>
+        </itemizedlist>
+        <para>Market Data Events itself are available in three different types:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Bars (Open-High-Low-Close Price Bars, also containing volumes)</para>
             </listitem>
             <listitem>
                 <para>Ticks (Snapshot of the market at a particular point in time, containing
                         information like last price, last time, bid, ask, volume, etc.)</para>
             </listitem>
             <listitem>
-                <para>PriceEvent (with its subclasses Trade, Quote, Bid and Ask representing a
-                        single atomic event in the market)</para>
+                <para>PriceEvent (i.e. Trade, Bid and Ask representing a single atomic event in the
+                    market)</para>
             </listitem>
         </itemizedlist>
-        <para>As the following diagram shows, Broker Interfaces can provide Price Events (Bid, Ask
-            &amp; Trade) or Ticks. In Simulation Ticks or Bars can be provided through
+        <para>As the following diagram shows, Broker Interfaces can provide Price Events (Trade, Bid &amp;
+            Ask) or individual Tick Fields. In Simulation Ticks or Bars can be provided through
             CSV-Files.</para>
         <figure>
             <title>Market Data Event Types</title>
@@ -6482,10 +6519,10 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 </imageobject>
             </mediaobject>
         </figure>
-        <para>Processing of MarketData is handled through the
-                <classname>MarketDataService</classname>, which is marked abstract and will have to
-            be subclassed by broker specific implementations (i.e.
-                <classname>IBMarketDataService</classname>).</para>
+        <para>Processing of MarketData is handled through the <classname>MarketDataService</classname>,
+            which is marked abstract and will have to be subclassed by broker specific
+            implementations (e.g. <classname>IBMarketDataService</classname> or
+                <classname>BBMarketDataService</classname>).</para>
         <para>The most important methods provided by the <classname>MarketDataService</classname>
             are <methodname>subscribe</methodname> and <methodname>unsubscribe</methodname>. Through
             the use of these methods new MarketData can be subscribed and unsubscribed. Subscribed
@@ -7316,7 +7353,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
             </figure>
             <para>All other services not mentioned above are active in all profiles.</para>
             <para>To enable a Profile on start-up, the following vm argument has to be used:</para>
-            <screen>-Dspring.profiles.active=server,trading,iBNative</screen>
+            <screen>-Dspring.profiles.active=server,iBMarketData,iBNative</screen>
         </section>
         <section>
             <title>Abstract Services</title>
@@ -8573,7 +8610,7 @@ where and s.name = 'BASE'</programlisting>
             <variablelist>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/com/algoTrader/strategy/forex/BoxServiceImpl.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/forex/BoxServiceImpl.java</filename>
                     </term>
                     <listitem>
                         <para>The strategy service class providing the main methods invoked by
@@ -8582,7 +8619,7 @@ where and s.name = 'BASE'</programlisting>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/com/algoTrader/strategy/forex/BoxChartServiceImpl.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/forex/BoxChartServiceImpl.java</filename>
                     </term>
                     <listitem>
                         <para>This class provides input data for the Box Custom Chart (see <xref linkend="Custom_Chart"/>).</para>
@@ -8590,7 +8627,7 @@ where and s.name = 'BASE'</programlisting>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/com/algoTrader/strategy/forex/BoxStarter.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/forex/BoxStarter.java</filename>
                     </term>
                     <listitem>
                         <para>The class containing the main method to start the strategy in Live
@@ -8601,7 +8638,7 @@ where and s.name = 'BASE'</programlisting>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/com/algoTrader/strategy/forex/Box.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/forex/Box.java</filename>
                     </term>
                     <listitem>
                         <para>A POJO class representing all properties of a Box (e.g.
@@ -8612,7 +8649,7 @@ where and s.name = 'BASE'</programlisting>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/com/algoTrader/strategy/forex/State.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/forex/State.java</filename>
                     </term>
                     <listitem>
                         <para>A Java Enum representing the different States the Strategy can pass
@@ -8623,7 +8660,7 @@ where and s.name = 'BASE'</programlisting>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/com/algoTrader/strategy/forex/VariableListener.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/forex/VariableListener.java</filename>
                     </term>
                     <listitem>
                         <para>Esper does not provide any persistence mechanisms between JVM
