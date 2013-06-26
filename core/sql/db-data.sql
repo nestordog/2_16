@@ -586,7 +586,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `strategy` WRITE;
 /*!40000 ALTER TABLE `strategy` DISABLE KEYS */;
-INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (1,'BASE','',0,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,algo-slicing,ib-market-data',NULL,0);
+INSERT INTO `strategy` (`id`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (1,'BASE','',0,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,algo-slicing,market-data-ib',NULL,0);
 /*!40000 ALTER TABLE `strategy` ENABLE KEYS */;
 UNLOCK TABLES;
 

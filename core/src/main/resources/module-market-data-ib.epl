@@ -51,14 +51,12 @@ update
     TickWindow as tickWindow
 set
     tickWindow.dateTime = current_timestamp.toDate(),
-    tickWindow.bid = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
+    tickWindow.bid = (case when tickPrice.price = -1 then null else RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale) end),
     tickWindow.refresh = true
 where
     tickPrice.field = com.ib.client.TickType.BID
 and
-    tickWindow.tickerId = tickPrice.tickerId
-and
-    not instanceof(tickWindow.security, ch.algotrader.entity.security.NaturalIndex); // IB sends -1 ASK for indices
+    tickWindow.tickerId = tickPrice.tickerId;
 
 @Name('UPDATE_TICK_WINDOW_ASK')
 @RunTimeOnly()
@@ -68,14 +66,12 @@ update
     TickWindow as tickWindow
 set
     tickWindow.dateTime = current_timestamp.toDate(),
-    tickWindow.ask = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
+    tickWindow.ask = (case when tickPrice.price = -1 then null else RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale) end),
     tickWindow.refresh = true
 where
     tickPrice.field = com.ib.client.TickType.ASK
 and
-    tickWindow.tickerId = tickPrice.tickerId
-and
-    not instanceof(tickWindow.security, ch.algotrader.entity.security.NaturalIndex); // IB sends -1 ASK for indices
+    tickWindow.tickerId = tickPrice.tickerId;
 
 @Name('UPDATE_TICK_WINDOW_VOL_BID')
 @RunTimeOnly()

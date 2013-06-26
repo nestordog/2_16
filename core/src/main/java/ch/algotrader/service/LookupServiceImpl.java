@@ -45,6 +45,7 @@ import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.security.StockOption;
 import ch.algotrader.entity.security.StockOptionFamily;
 import ch.algotrader.entity.strategy.CashBalance;
@@ -129,6 +130,30 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Security> handleGetSecuritiesByIds(Collection<Integer> ids) throws Exception {
 
         return getSecurityDao().findByIds(ids);
+    }
+
+    @Override
+    protected Collection<Stock> handleGetStocksBySector(String code) throws Exception {
+
+        return getStockDao().findBySectory(code);
+    }
+
+    @Override
+    protected Collection<Stock> handleGetStocksByIndustryGroup(String code) throws Exception {
+
+        return getStockDao().findByIndustryGroup(code);
+    }
+
+    @Override
+    protected Collection<Stock> handleGetStocksByIndustry(String code) throws Exception {
+
+        return getStockDao().findByIndustry(code);
+    }
+
+    @Override
+    protected Collection<Stock> handleGetStocksBySubIndustry(String code) throws Exception {
+
+        return getStockDao().findBySubIndustry(code);
     }
 
     @Override

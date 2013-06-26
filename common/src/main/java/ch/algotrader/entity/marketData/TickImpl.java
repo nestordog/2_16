@@ -140,7 +140,11 @@ public class TickImpl extends Tick {
     @Override
     public double getBidAskSpreadDouble() {
 
-        return getAsk().doubleValue() - getBid().doubleValue();
+        if (getBid() != null && getAsk() != null) {
+            return getAsk().doubleValue() - getBid().doubleValue();
+        } else {
+            return 0.0;
+        }
     }
 
     @Override
