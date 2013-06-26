@@ -266,7 +266,7 @@ public class LookupUtil {
     /**
      * attaches the fully initialized Security as well as the specified Date to the Tick contained in the {@link Pair}
      */
-    public static Tick completeTick(Pair<Tick, Object> pair, Date date) {
+    public static Tick completeTick(Pair<Tick, Object> pair) {
 
         Tick tick = pair.getFirst();
 
@@ -274,7 +274,6 @@ public class LookupUtil {
 
         Security security = cacheManager.get(SecurityImpl.class, securityId);
         tick.setSecurity(security);
-        tick.setDateTime(date);
 
         return tick;
     }

@@ -139,20 +139,16 @@ public abstract class SecurityImpl extends Security {
     @Override
     public boolean validateTick(Tick tick) {
 
-        // check these fields for all security-types
-        if (tick.getBid() == null) {
+        // BId / ASK cannot be negative
+        if (tick.getBid() != null && tick.getBid().doubleValue() < 0) {
             return false;
-        } else if (tick.getAsk() == null) {
+        } else if (tick.getAsk() != null && tick.getAsk().doubleValue() < 0) {
             return false;
-        } else if (tick.getBidAskSpreadDouble() < 0) {
-            int spreadTicks = -getSecurityFamily().getSpreadTicks(tick.getAsk(), tick.getBid());
-            if (spreadTicks <= -2) {
-                logger.warn("crossed spread: bid " + tick.getBid() + " ask " + tick.getAsk() + " for " + this);
-                return false;
-            } else {
-                // no logging, as this happens often for Forex
-                return false;
-            }
+
+            // spread cannot be crossed
+        } else if (tick.getBid() != null && tick.getAsk() != null && tick.getBidAskSpreadDouble() < 0) {
+            logger.warn("crossed spread: bid " + tick.getBid() + " ask " + tick.getAsk() + " for " + this);
+            return false;
         } else {
             return true;
         }

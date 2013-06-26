@@ -39,12 +39,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
 
-import ch.algotrader.adapter.ib.IBClient;
 import ch.algotrader.adapter.ib.IBDefaultMessageHandler;
+import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.util.MyLogger;
-
-import ch.algotrader.service.ib.IBNativeAccountServiceBase;
-import ch.algotrader.service.ib.IBNativeAccountServiceException;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -61,7 +58,7 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
 
     private @Value("${ib.retrievalTimeout}") int retrievalTimeout;
 
-    private IBClient client;
+    private IBSession client;
     private IBDefaultMessageHandler messageHandler;
 
     private Lock lock = new ReentrantLock();
@@ -159,7 +156,7 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
             }
         };
 
-        this.client = getIBClientFactory().getClient(clientId, this.messageHandler);
+        this.client = getIBSessionFactory().getClient(clientId, this.messageHandler);
 
         this.allAccountValues = new HashMap<String, Map<String, String>>();
         this.accounts = new HashSet<String>();

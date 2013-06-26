@@ -21,20 +21,18 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.adapter.ib.IBClient;
 import ch.algotrader.adapter.ib.IBIdGenerator;
+import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
-import ch.algotrader.util.MyLogger;
-
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.ConnectionState;
-import ch.algotrader.service.ib.IBNativeMarketDataServiceBase;
-import ch.algotrader.service.ib.IBNativeMarketDataServiceException;
+import ch.algotrader.esper.EsperManager;
+import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
 import ch.algotrader.vo.UnsubscribeTickVO;
+
 import com.ib.client.Contract;
 
 /**
@@ -46,14 +44,14 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
 
     private static final long serialVersionUID = -4704799803078842628L;
     private static Logger logger = MyLogger.getLogger(IBNativeMarketDataServiceImpl.class.getName());
-    private static IBClient client;
+    private static IBSession client;
 
     private @Value("${ib.genericTickList}") String genericTickList;
 
     @Override
     protected void handleInit() throws Exception {
 
-        client = getIBClientFactory().getDefaultClient();
+        client = getIBSessionFactory().getDefaultClient();
     }
 
     @Override

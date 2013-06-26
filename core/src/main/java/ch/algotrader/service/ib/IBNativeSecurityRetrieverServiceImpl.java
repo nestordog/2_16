@@ -32,29 +32,28 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
-import ch.algotrader.adapter.ib.IBClient;
 import ch.algotrader.adapter.ib.IBDefaultMessageHandler;
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBMarketConverter;
+import ch.algotrader.adapter.ib.IBSession;
+import ch.algotrader.entity.security.ForexFuture;
+import ch.algotrader.entity.security.ForexFutureFamily;
 import ch.algotrader.entity.security.ForexFutureImpl;
+import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.FutureImpl;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.StockOption;
+import ch.algotrader.entity.security.StockOptionFamily;
 import ch.algotrader.entity.security.StockOptionImpl;
+import ch.algotrader.enumeration.Market;
+import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.stockOption.StockOptionSymbol;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
-import ch.algotrader.entity.security.ForexFuture;
-import ch.algotrader.entity.security.ForexFutureFamily;
-import ch.algotrader.entity.security.Future;
-import ch.algotrader.entity.security.FutureFamily;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.security.StockOption;
-import ch.algotrader.entity.security.StockOptionFamily;
-import ch.algotrader.enumeration.Market;
-import ch.algotrader.enumeration.OptionType;
-import ch.algotrader.service.ib.IBNativeSecurityRetrieverServiceBase;
 import com.ib.client.Contract;
 import com.ib.client.ContractDetails;
 
@@ -70,7 +69,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
     private static Logger logger = MyLogger.getLogger(IBNativeSecurityRetrieverServiceImpl.class.getName());
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMddkkmmss");
 
-    private IBClient client;
+    private IBSession client;
     private IBDefaultMessageHandler messageHandler;
 
     private Lock lock = new ReentrantLock();
@@ -312,7 +311,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             }
         };
 
-        this.client = getIBClientFactory().getClient(clientId, this.messageHandler);
+        this.client = getIBSessionFactory().getClient(clientId, this.messageHandler);
 
         this.client.connect();
     }

@@ -28,7 +28,6 @@ import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import ch.algotrader.vo.TradeVO;
 
-import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Event;
 import com.bloomberglp.blpapi.EventHandler;
@@ -90,6 +89,9 @@ public class BBMessageHandler implements EventHandler {
             }
         } catch (Exception e) {
             logger.error("problem processing event", e);
+            for (Message msg : event) {
+                logger.error(msg.correlationID().value() + " " + msg);
+            }
         }
     }
 
@@ -117,10 +119,9 @@ public class BBMessageHandler implements EventHandler {
 
         for (Message msg : event) {
 
-            CorrelationID cid = msg.correlationID();
+            int cid = (int) msg.correlationID().value();
 
             if (msg.messageType() == SUBSCRIPTION_STARTED) {
-                // TODO check exceptions
                 logger.info("subscription for tickerId " + cid + " has started");
             } else if (msg.messageType() == SUBSCRIPTION_TERMINATED) {
                 logger.info("subscription for tickerId " + cid + " has terminated");
@@ -147,24 +148,108 @@ public class BBMessageHandler implements EventHandler {
 
                 if (!"INTRADAY".equals(marketDataEventSubType)) {
 
-                    propagateTrade(cid, fields);
-                    propagateBid(cid, fields);
-                    propagateAsk(cid, fields);
+                    // there might not have been a last trade
+                    Date lastDateTime = null;
+                    double last = 0;
+                    if (fields.hasElement("LAST_PRICE") && fields.getElement("LAST_PRICE").numValues() == 1) {
+                        lastDateTime = fields.getElementAsDate("TRADE_UPDATE_STAMP_RT").calendar().getTime();
+                        last = fields.getElementAsFloat64("LAST_PRICE");
+                    }
+
+                    // VOLUME is null for FX and indices
+                    int vol = 0;
+                    if (fields.hasElement("VOLUME") && fields.getElement("VOLUME").numValues() == 1) {
+                        vol = (int) fields.getElementAsInt64("VOLUME");
+                    }
+
+                    TradeVO tradeVO = new TradeVO(cid, lastDateTime, last, vol);
+                    EsperManager.sendEvent(StrategyImpl.BASE, tradeVO);
+
+                    // there are no BIDs for indices
+                    if (fields.hasElement("BID") && fields.getElement("BID").numValues() == 1) {
+
+                        double bid = fields.getElementAsFloat64("BID");
+
+                        // BID_SIZE is null for FX
+                        int volBid = 0;
+                        if (fields.hasElement("BID_SIZE") && fields.getElement("BID_SIZE").numValues() == 1) {
+                            volBid = fields.getElementAsInt32("BID_SIZE");
+                        }
+
+                        BidVO bidVO = new BidVO(cid, lastDateTime, bid, volBid);
+                        EsperManager.sendEvent(StrategyImpl.BASE, bidVO);
+                    }
+
+                    // there are no ASKs for indices
+                    if (fields.hasElement("ASK") && fields.getElement("ASK").numValues() == 1) {
+
+                        double ask = fields.getElementAsFloat64("ASK");
+
+                        // ASK_SIZE is null for FX
+                        int volAsk = 0;
+                        if (fields.hasElement("ASK_SIZE") && fields.getElement("ASK_SIZE").numValues() == 1) {
+                            volAsk = fields.getElementAsInt32("ASK_SIZE");
+                        }
+
+                        AskVO askVO = new AskVO(cid, lastDateTime, ask, volAsk);
+                        EsperManager.sendEvent(StrategyImpl.BASE, askVO);
+                    }
                 }
 
             } else if ("TRADE".equals(marketDataEventType)) {
 
-                propagateTrade(cid, fields);
+                Date lastDateTime = fields.getElementAsDate("TRADE_UPDATE_STAMP_RT").calendar().getTime();
+                double last = fields.getElementAsFloat64("LAST_PRICE");
+
+                // ASK_SIZE is null for FX and indices
+                int vol = 0;
+                if (fields.hasElement("VOLUME") && fields.getElement("VOLUME").numValues() == 1) {
+                    vol = (int) fields.getElementAsInt64("VOLUME");
+                }
+
+                TradeVO tradeVO = new TradeVO(cid, lastDateTime, last, vol);
+                EsperManager.sendEvent(StrategyImpl.BASE, tradeVO);
 
             } else if ("QUOTE".equals(marketDataEventType)) {
 
+
                 if ("BID".equals(marketDataEventSubType)) {
 
-                    propagateBid(cid, fields);
+                    Date dateTime = fields.getElementAsDate("BID_UPDATE_STAMP_RT").calendar().getTime();
+
+                    // remove existing BID if there is no value
+                    double bid = 0;
+                    if (fields.getElement("BID").numValues() == 1) {
+                        bid = fields.getElementAsFloat64("BID");
+                    }
+
+                    // BID_SIZE is null for FX
+                    int volBid = 0;
+                    if (fields.hasElement("BID_SIZE") && fields.getElement("BID_SIZE").numValues() == 1) {
+                        volBid = fields.getElementAsInt32("BID_SIZE");
+                    }
+
+                    BidVO bidVO = new BidVO(cid, dateTime, bid, volBid);
+                    EsperManager.sendEvent(StrategyImpl.BASE, bidVO);
 
                 } else if ("ASK".equals(marketDataEventSubType)) {
 
-                    propagateAsk(cid, fields);
+                    Date dateTime = fields.getElementAsDate("ASK_UPDATE_STAMP_RT").calendar().getTime();
+
+                    // remove existing ASK if there is no value
+                    double ask = 0;
+                    if (fields.getElement("ASK").numValues() == 1) {
+                        ask = fields.getElementAsFloat64("ASK");
+                    }
+
+                    // ASK_SIZE is null for FX
+                    int volAsk = 0;
+                    if (fields.hasElement("ASK_SIZE") && fields.getElement("ASK_SIZE").numValues() == 1) {
+                        volAsk = fields.getElementAsInt32("ASK_SIZE");
+                    }
+
+                    AskVO askVO = new AskVO(cid, dateTime, ask, volAsk);
+                    EsperManager.sendEvent(StrategyImpl.BASE, askVO);
 
                 } else {
                     throw new IllegalArgumentException("unkown marketDataEventSubType " + marketDataEventSubType);
@@ -173,34 +258,6 @@ public class BBMessageHandler implements EventHandler {
                 throw new IllegalArgumentException("unkown marketDataEventType " + marketDataEventType);
             }
         }
-    }
-
-    private void propagateTrade(int cid, Element fields) {
-
-        Date date = fields.getElementAsDate("TRADE_UPDATE_STAMP_RT").calendar().getTime();
-        double last = fields.getElementAsFloat64("LAST_PRICE");
-        int vol = (int) fields.getElementAsInt64("VOLUME");
-
-        TradeVO tradeVO = new TradeVO(cid, date, last, vol);
-        EsperManager.sendEvent(StrategyImpl.BASE, tradeVO);
-    }
-
-    private void propagateBid(int cid, Element fields) {
-
-        double bid = fields.getElementAsFloat64("BID");
-        int volBid = fields.getElementAsInt32("BID_SIZE");
-
-        BidVO bidVO = new BidVO(cid, bid, volBid);
-        EsperManager.sendEvent(StrategyImpl.BASE, bidVO);
-    }
-
-    private void propagateAsk(int cid, Element fields) {
-
-        double ask = fields.getElementAsFloat64("ASK");
-        int volAsk = fields.getElementAsInt32("ASK_SIZE");
-
-        AskVO askVO = new AskVO(cid, ask, volAsk);
-        EsperManager.sendEvent(StrategyImpl.BASE, askVO);
     }
 
     private void processAdminEvent(Event event, Session session) {

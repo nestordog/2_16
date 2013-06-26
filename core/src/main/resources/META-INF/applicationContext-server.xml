@@ -148,7 +148,7 @@
     <!-- =================================== Broker Interfaces  ========================================= -->
 
     <beans profile="iBMarketData,iBSecurityRetrieval">
-        <bean id="iBClientFactory" class="ch.algotrader.adapter.ib.IBClientFactory"/>
+        <bean id="iBSessionFactory" class="ch.algotrader.adapter.ib.IBSessionFactory"/>
     </beans>
 
     <beans profile="bBMarketData">
@@ -156,7 +156,7 @@
     </beans>
 
     <beans profile="jPMFix,iBFix,dCFix">
-        <bean id="fixClient" class="ch.algotrader.adapter.fix.FixClient"/>
+        <bean id="fixSessionFactory" class="ch.algotrader.adapter.fix.FixSessionFactory"/>
     </beans>
 
     <!-- =========================================== RECONCILIATION ================================================ -->

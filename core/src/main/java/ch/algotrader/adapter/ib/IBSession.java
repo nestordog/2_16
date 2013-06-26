@@ -36,9 +36,9 @@ import com.ib.client.EClientSocket;
  *
  * @version $Revision$ $Date$
  */
-public final class IBClient extends EClientSocket {
+public final class IBSession extends EClientSocket {
 
-    private static Logger logger = MyLogger.getLogger(IBClient.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBSession.class.getName());
 
     private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
     private static int port = ServiceLocator.instance().getConfiguration().getInt("ib.port"); //7496;//
@@ -50,7 +50,7 @@ public final class IBClient extends EClientSocket {
     /**
      * Constructor based on a {@code clientId} and a {@code IBDefaultMessageHandler MessageHandler}
      */
-    public IBClient(int clientId, IBDefaultMessageHandler messageHandler) {
+    public IBSession(int clientId, IBDefaultMessageHandler messageHandler) {
 
         super(messageHandler);
         this.clientId = clientId;

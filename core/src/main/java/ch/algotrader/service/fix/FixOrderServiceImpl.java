@@ -22,11 +22,8 @@ import org.apache.log4j.Logger;
 import quickfix.Message;
 import quickfix.StringField;
 import quickfix.field.MsgType;
-
-import ch.algotrader.util.MyLogger;
-
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.service.fix.FixOrderServiceBase;
+import ch.algotrader.util.MyLogger;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -42,14 +39,14 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
     @Override
     protected void handleInit() throws Exception {
 
-        getFixClient().createSession(getOrderServiceType());
+        getFixSessionFactory().createSession(getOrderServiceType());
     }
 
     @Override
     protected void handleSendAndPropagateOrder(Order order, Message message) throws Exception {
 
         // send the message to the FixClient
-        getFixClient().sendMessage(message, order.getAccount());
+        getFixSessionFactory().sendMessage(message, order.getAccount());
 
         StringField msgType = message.getHeader().getField(new MsgType());
         if (msgType.getValue().equals(MsgType.ORDER_SINGLE)) {

@@ -30,19 +30,18 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.adapter.ib.IBClient;
 import ch.algotrader.adapter.ib.IBDefaultMessageHandler;
 import ch.algotrader.adapter.ib.IBIdGenerator;
+import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.RoundUtil;
-
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataServiceException;
-import ch.algotrader.service.ib.IBNativeHistoricalDataServiceBase;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.RoundUtil;
+
 import com.ib.client.Contract;
 
 /**
@@ -57,10 +56,9 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
     private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 
-    private @Value("${simulation}") boolean simulation;
     private @Value("${ib.historicalDataTimeout}") int historicalDataTimeout;
 
-    private IBClient client;
+    private IBSession client;
     private IBDefaultMessageHandler messageHandler;
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
@@ -174,7 +172,7 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
             }
         };
 
-        this.client = getIBClientFactory().getClient(clientId, this.messageHandler);
+        this.client = getIBSessionFactory().getClient(clientId, this.messageHandler);
 
         this.success = false;
 

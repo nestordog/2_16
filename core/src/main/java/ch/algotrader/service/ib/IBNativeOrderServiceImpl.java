@@ -20,17 +20,16 @@ package ch.algotrader.service.ib;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.adapter.ib.IBClient;
 import ch.algotrader.adapter.ib.IBIdGenerator;
+import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
-import ch.algotrader.util.MyLogger;
-
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.ConnectionState;
-import ch.algotrader.service.ib.IBNativeOrderServiceBase;
+import ch.algotrader.util.MyLogger;
+
 import com.ib.client.Contract;
 
 /**
@@ -44,14 +43,14 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
 
     private static Logger logger = MyLogger.getLogger(IBNativeOrderServiceImpl.class.getName());
 
-    private static IBClient client;
+    private static IBSession client;
 
     private @Value("${ib.faMethod}") String faMethod;
 
     @Override
     protected void handleInit() throws Exception {
 
-        client = getIBClientFactory().getDefaultClient();
+        client = getIBSessionFactory().getDefaultClient();
     }
 
     @Override

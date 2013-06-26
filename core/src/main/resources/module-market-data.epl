@@ -44,7 +44,7 @@ on
 insert into
     Tick
 select
-    transpose(LookupUtil.completeTick(tickWindow, current_timestamp.toDate()))
+    transpose(LookupUtil.completeTick(tickWindow))
 from
     TickWindow as tickWindow
 where

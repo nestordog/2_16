@@ -18,7 +18,6 @@
 package ch.algotrader.entity.security;
 
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.security.Forex;
 import ch.algotrader.enumeration.Currency;
 
 /**
@@ -39,16 +38,13 @@ public class ForexImpl extends Forex {
     @Override
     public boolean validateTick(Tick tick) {
 
-        if (tick.getVolBid() == 0) {
+        if (tick.getBid() == null || tick.getBid().doubleValue() < 0) {
             return false;
-        } else if (tick.getVolAsk() == 0) {
+        } else if (tick.getAsk() == null || tick.getAsk().doubleValue() < 0) {
             return false;
-        } else if (tick.getBid().doubleValue() < 0) {
-            return false;
-        } else if (tick.getAsk().doubleValue() < 0) {
-            return false;
+        } else {
+            return true;
         }
 
-        return super.validateTick(tick);
     }
 }

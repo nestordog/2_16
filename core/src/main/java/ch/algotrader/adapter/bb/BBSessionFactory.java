@@ -35,7 +35,7 @@ import com.bloomberglp.blpapi.SessionOptions;
  *
  * @version $Revision: 5945 $ $Date: 2013-05-31 14:04:34 +0200 (Fr, 31 Mai 2013) $
  */
-@ManagedResource(objectName = "ch.algotrader.bb:name=BBSessionFactory")
+@ManagedResource(objectName = "ch.algotrader.adapter.bb:name=BBSessionFactory")
 public class BBSessionFactory {
 
     private @Value("${bb.host}") String host;

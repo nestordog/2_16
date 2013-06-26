@@ -18,7 +18,6 @@
 package ch.algotrader.entity.security;
 
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.security.NaturalIndex;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -36,8 +35,8 @@ public class NaturalIndexImpl extends NaturalIndex {
             return false;
         } else if (tick.getLastDateTime() == null) {
             return false;
+        } else {
+            return true;
         }
-
-        return super.validateTick(tick);
     }
 }

@@ -36,9 +36,7 @@ import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
-
 import ch.algotrader.adapter.fix.FixUtil;
-
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Security;
@@ -48,7 +46,6 @@ import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.OptionType;
-import ch.algotrader.service.fix.Fix44OrderServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -73,7 +70,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
         Security security = order.getSecurityInitialized();
 
         // assign a new clOrdID
-        String clOrdID = getFixClient().getNextOrderId(order.getAccount());
+        String clOrdID = getFixSessionFactory().getNextOrderId(order.getAccount());
         order.setIntId(clOrdID);
 
         NewOrderSingle newOrder = new NewOrderSingle();
@@ -147,7 +144,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
 
         // get origClOrdID and assign a new clOrdID
         String origClOrdID = order.getIntId();
-        String clOrdID = getFixClient().getNextOrderIdVersion(order);
+        String clOrdID = getFixSessionFactory().getNextOrderIdVersion(order);
 
         OrderCancelReplaceRequest replaceRequest = new OrderCancelReplaceRequest();
 
@@ -209,7 +206,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
 
         // get origClOrdID and assign a new clOrdID
         String origClOrdID = order.getIntId();
-        String clOrdID = getFixClient().getNextOrderIdVersion(order);
+        String clOrdID = getFixSessionFactory().getNextOrderIdVersion(order);
 
         OrderCancelRequest cancelRequest = new OrderCancelRequest();
 

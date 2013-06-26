@@ -19,12 +19,9 @@ package ch.algotrader.entity.security;
 
 import java.util.Date;
 
+import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.future.FutureUtil;
 import ch.algotrader.util.DateUtil;
-
-import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.security.Future;
-import ch.algotrader.entity.security.FutureFamily;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -72,15 +69,15 @@ public class FutureImpl extends Future {
     @Override
     public boolean validateTick(Tick tick) {
 
-        // futures need to have a bis/ask volume
-        // but might not have a last/lastDateTime yet on the current day
-        if (tick.getVolBid() == 0) {
+        // futures need to have a BID and ASK
+        if (tick.getBid() == null) {
             return false;
-        } else if (tick.getVolAsk() == 0) {
+        } else if (tick.getVolBid() == 0) {
             return false;
-        } else if (tick.getBid() != null && tick.getBid().doubleValue() <= 0) {
+        } else if (tick.getAsk() == null) {
             return false;
-        } else if (tick.getAsk() != null && tick.getAsk().doubleValue() <= 0) {
+        }
+        if (tick.getVolAsk() == 0) {
             return false;
         }
 

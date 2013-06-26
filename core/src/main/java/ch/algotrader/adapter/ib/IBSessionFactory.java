@@ -37,19 +37,19 @@ import ch.algotrader.enumeration.ConnectionState;
  *
  * @version $Revision$ $Date$
  */
-@ManagedResource(objectName = "ch.algotrader.ib:name=IBClientFactory")
-public class IBClientFactory {
+@ManagedResource(objectName = "ch.algotrader.adapter.ib:name=IBSessionFactory")
+public class IBSessionFactory {
 
     private @Value("${simulation}") boolean simulation;
     private @Value("${ib.defaultClientId}") int defaultClientId;
 
-    private IBClient defaultClient;
-    private Map<Integer, IBClient> clients = new HashMap<Integer, IBClient>();
+    private IBSession defaultClient;
+    private Map<Integer, IBSession> clients = new HashMap<Integer, IBSession>();
 
     /**
      * Gets the DefaultClient, usually clientId = 0.
      */
-    public IBClient getDefaultClient() {
+    public IBSession getDefaultClient() {
 
         if (this.simulation) {
             return null;
@@ -57,7 +57,7 @@ public class IBClientFactory {
 
         if (this.defaultClient == null) {
 
-            this.defaultClient = new IBClient(this.defaultClientId, new IBEsperMessageHandler(this.defaultClientId));
+            this.defaultClient = new IBSession(this.defaultClientId, new IBEsperMessageHandler(this.defaultClientId));
 
             this.clients.put(this.defaultClientId, this.defaultClient);
 
@@ -70,9 +70,9 @@ public class IBClientFactory {
     /**
      * Gets a new IBClient based on a {@code clientId} and a {@code IBDefaultMessageHandler MessageHandler}
      */
-    public IBClient getClient(int clientId, IBDefaultMessageHandler messageHandler) {
+    public IBSession getClient(int clientId, IBDefaultMessageHandler messageHandler) {
 
-        IBClient client = new IBClient(clientId, messageHandler);
+        IBSession client = new IBSession(clientId, messageHandler);
         this.clients.put(clientId, client);
 
         return client;
@@ -85,7 +85,7 @@ public class IBClientFactory {
     @ManagedOperationParameters({})
     public void connect() {
 
-        for (IBClient client : this.clients.values()) {
+        for (IBSession client : this.clients.values()) {
             client.connect();
         }
     }
@@ -97,7 +97,7 @@ public class IBClientFactory {
     @ManagedOperationParameters({})
     public void disconnect() {
 
-        for (IBClient client : this.clients.values()) {
+        for (IBSession client : this.clients.values()) {
             client.disconnect();
         }
     }
@@ -109,7 +109,7 @@ public class IBClientFactory {
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "logLevel", description = "<html> <head> </head> <body> <p> logLevel: </p> <ul>     <li> 1 (SYSTEM) </li> <li> 2 (ERROR) </li> <li> 3 (WARNING) </li> <li> 4 (INFORMATION) </li> <li> 5 (DETAIL) </li> </ul> </body> </html>") })
     public void setLogLevel(int logLevel) {
 
-        for (IBClient client : this.clients.values()) {
+        for (IBSession client : this.clients.values()) {
             client.setServerLogLevel(logLevel);
         }
     }
@@ -121,7 +121,7 @@ public class IBClientFactory {
     public Map<Integer, ConnectionState> getConnectionStates() {
 
         Map<Integer, ConnectionState> connectionStates = new HashMap<Integer, ConnectionState>();
-        for (Map.Entry<Integer, IBClient> entry : this.clients.entrySet()) {
+        for (Map.Entry<Integer, IBSession> entry : this.clients.entrySet()) {
             connectionStates.put(entry.getKey(), entry.getValue().getMessageHandler().getState());
         }
         return connectionStates;

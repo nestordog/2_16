@@ -5,8 +5,9 @@ on
 update
     TickWindow as tickWindow
 set
+    tickWindow.dateTime = trade.lastDateTime,
     tickWindow.lastDateTime = trade.lastDateTime,
-    tickWindow.last = RoundUtil.getBigDecimal(trade.last, tickWindow.security.securityFamily.scale),
+    tickWindow.last = (case when trade.last = 0 then null else RoundUtil.getBigDecimal(trade.last, tickWindow.security.securityFamily.scale) end),
     tickWindow.vol = trade.vol,
     tickWindow.refresh = true
 where
@@ -19,7 +20,8 @@ on
 update
     TickWindow as tickWindow
 set
-    tickWindow.bid = RoundUtil.getBigDecimal(bid.bid, tickWindow.security.securityFamily.scale),
+    tickWindow.dateTime = bid.dateTime,
+    tickWindow.bid = (case when bid.bid = 0 then null else RoundUtil.getBigDecimal(bid.bid, tickWindow.security.securityFamily.scale) end),
     tickWindow.volBid = bid.volBid,
     tickWindow.refresh = true
 where
@@ -32,7 +34,8 @@ on
 update
     TickWindow as tickWindow
 set
-    tickWindow.ask = RoundUtil.getBigDecimal(ask.ask, tickWindow.security.securityFamily.scale),
+    tickWindow.dateTime = ask.dateTime,
+    tickWindow.ask = (case when ask.ask = 0 then null else RoundUtil.getBigDecimal(ask.ask, tickWindow.security.securityFamily.scale) end),
     tickWindow.volAsk = ask.volAsk,
     tickWindow.refresh = true
 where

@@ -74,8 +74,8 @@ import ch.algotrader.util.collection.IntegerMap;
  *
  * @version $Revision$ $Date$
  */
-@ManagedResource(objectName = "ch.algotrader.fix:name=FixClient")
-public class FixClient implements InitializingBean {
+@ManagedResource(objectName = "ch.algotrader.adapter.fix:name=FixSessionFactory")
+public class FixSessionFactory implements InitializingBean {
 
     private static Logger logger = MyLogger.getLogger(EntityHandler.class.getName());
 

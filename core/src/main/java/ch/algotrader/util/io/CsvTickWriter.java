@@ -61,8 +61,8 @@ public class CsvTickWriter {
         new DateConverter(), //lastDateTime
         null, //volBid
         null, //volAsk
-        null, //bid
-        null, //ask
+        new ConvertNullTo(""), //bid
+        new ConvertNullTo(""), //ask
         null //vol
     };
     //@formatter:on

@@ -59,7 +59,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
         super.connectionClosed();
 
         //if connection gets closed, try to reconnect
-        ServiceLocator.instance().getService("iBClientFactory", IBClientFactory.class).getDefaultClient().connect();
+        ServiceLocator.instance().getService("iBClientFactory", IBSessionFactory.class).getDefaultClient().connect();
         logger.debug(EWrapperMsgGenerator.connectionClosed());
     }
 

@@ -39,10 +39,8 @@ import quickfix.field.FARequestID;
 import quickfix.field.SubMsgType;
 import quickfix.field.XMLContent;
 import quickfix.fix42.IBFAModification;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Account;
-import ch.algotrader.service.ib.IBFixAccountServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -190,7 +188,7 @@ public class IBFixAccountServiceImpl extends IBFixAccountServiceBase {
 
         this.groups = null;
 
-        getFixClient().sendMessage(faModification, account);
+        getFixSessionFactory().sendMessage(faModification, account);
 
         this.lock.lock();
         try {
@@ -224,7 +222,7 @@ public class IBFixAccountServiceImpl extends IBFixAccountServiceBase {
             throw new IllegalArgumentException("account does not exist " + accountName);
         }
 
-        getFixClient().sendMessage(faModification, account);
+        getFixSessionFactory().sendMessage(faModification, account);
     }
 
     @XmlRootElement(name = "ListOfGroups")

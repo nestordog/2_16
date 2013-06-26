@@ -25,7 +25,6 @@ import org.springframework.beans.factory.DisposableBean;
 
 import ch.algotrader.adapter.bb.BBIdGenerator;
 import ch.algotrader.adapter.bb.BBSession;
-import ch.algotrader.adapter.bb.BBUtil;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.StrategyImpl;
@@ -64,6 +63,9 @@ public class BBMarketDataServiceImpl extends BBMarketDataServiceBase implements 
             throw new IBNativeMarketDataServiceException("Bloomberg session is not running to subscribe " + security);
         }
 
+        // make sure SecurityFamily is initialized
+        security.getSecurityFamilyInitialized();
+
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
         int tickerId = BBIdGenerator.getInstance().getNextRequestId();
         Tick tick = Tick.Factory.newInstance();
@@ -76,23 +78,8 @@ public class BBMarketDataServiceImpl extends BBMarketDataServiceBase implements 
 
         EsperManager.sendEvent(StrategyImpl.BASE, subscribeTickEvent);
 
-        // get the topic
-        String topic = BBUtil.getTopic(security);
+        SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
 
-        // defined fields
-        List<String> fields = new ArrayList<String>();
-        fields.add("TRADE_UPDATE_STAMP_RT");
-        fields.add("VOLUME");
-        fields.add("LAST_PRICE");
-        fields.add("BID");
-        fields.add("ASK");
-        fields.add("BID_SIZE");
-        fields.add("ASK_SIZE");
-        fields.add("RT_OPEN_INTEREST");
-
-        // create the subscription list
-        SubscriptionList subscriptions = new SubscriptionList();
-        subscriptions.add(new Subscription(topic, fields, new CorrelationID(tickerId)));
         session.subscribe(subscriptions);
 
         logger.debug("request " + tickerId + " for : " + security);
@@ -111,13 +98,38 @@ public class BBMarketDataServiceImpl extends BBMarketDataServiceBase implements 
             throw new IBNativeMarketDataServiceException("tickerId for security " + security + " was not found");
         }
 
-        session.cancel(new CorrelationID(tickerId));
+        SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
+
+        session.unsubscribe(subscriptions);
 
         UnsubscribeTickVO unsubscribeTickEvent = new UnsubscribeTickVO();
         unsubscribeTickEvent.setSecurityId(security.getId());
         EsperManager.sendEvent(StrategyImpl.BASE, unsubscribeTickEvent);
 
         logger.debug("cancelled market data for : " + security);
+    }
+
+    private SubscriptionList getSubscriptionList(Security security, int tickerId) {
+
+        // get the topic
+        String topic = "/bbgid/" + security.getBbgid();
+
+        // defined fields
+        List<String> fields = new ArrayList<String>();
+        fields.add("TRADE_UPDATE_STAMP_RT");
+        fields.add("BID_UPDATE_STAMP_RT");
+        fields.add("ASK_UPDATE_STAMP_RT");
+        fields.add("VOLUME");
+        fields.add("LAST_PRICE");
+        fields.add("BID");
+        fields.add("ASK");
+        fields.add("BID_SIZE");
+        fields.add("ASK_SIZE");
+
+        // create the subscription list
+        SubscriptionList subscriptions = new SubscriptionList();
+        subscriptions.add(new Subscription(topic, fields, new CorrelationID(tickerId)));
+        return subscriptions;
     }
 
     @Override

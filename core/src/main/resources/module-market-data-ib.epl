@@ -5,6 +5,7 @@ on
 update
     TickWindow as tickWindow
 set
+    tickWindow.dateTime = current_timestamp.toDate(),
     tickWindow.last = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
     tickWindow.refresh = true
 where
@@ -19,6 +20,7 @@ on
 update
     TickWindow as tickWindow
 set
+    tickWindow.dateTime = current_timestamp.toDate(),
     tickWindow.lastDateTime = ch.algotrader.adapter.ib.IBUtil.getLastDateTime(tickString.value),
     tickWindow.refresh = true
 where
@@ -33,8 +35,9 @@ on
 update
     TickWindow as tickWindow
 set
+    tickWindow.dateTime = current_timestamp.toDate(),
     tickWindow.vol = tickSize.size,
-    tickWindow.refresh = false
+    tickWindow.refresh = true
 where
     tickSize.field = com.ib.client.TickType.VOLUME
 and
@@ -47,12 +50,15 @@ on
 update
     TickWindow as tickWindow
 set
+    tickWindow.dateTime = current_timestamp.toDate(),
     tickWindow.bid = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
     tickWindow.refresh = true
 where
     tickPrice.field = com.ib.client.TickType.BID
 and
-    tickWindow.tickerId = tickPrice.tickerId;
+    tickWindow.tickerId = tickPrice.tickerId
+and
+    not instanceof(tickWindow.security, ch.algotrader.entity.security.NaturalIndex); // IB sends -1 ASK for indices
 
 @Name('UPDATE_TICK_WINDOW_ASK')
 @RunTimeOnly()
@@ -61,12 +67,15 @@ on
 update
     TickWindow as tickWindow
 set
+    tickWindow.dateTime = current_timestamp.toDate(),
     tickWindow.ask = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
     tickWindow.refresh = true
 where
     tickPrice.field = com.ib.client.TickType.ASK
 and
-    tickWindow.tickerId = tickPrice.tickerId;
+    tickWindow.tickerId = tickPrice.tickerId
+and
+    not instanceof(tickWindow.security, ch.algotrader.entity.security.NaturalIndex); // IB sends -1 ASK for indices
 
 @Name('UPDATE_TICK_WINDOW_VOL_BID')
 @RunTimeOnly()
@@ -75,8 +84,9 @@ on
 update
     TickWindow as tickWindow
 set
+    tickWindow.dateTime = current_timestamp.toDate(),
     tickWindow.volBid = tickSize.size,
-    tickWindow.refresh = false
+    tickWindow.refresh = (case when instanceof(tickWindow.security,ch.algotrader.entity.security.Forex) then false else true end)
 where
     tickSize.field = com.ib.client.TickType.BID_SIZE
 and
@@ -89,8 +99,9 @@ on
 update
     TickWindow as tickWindow
 set
+    tickWindow.dateTime = current_timestamp.toDate(),
     tickWindow.volAsk = tickSize.size,
-    tickWindow.refresh = false
+    tickWindow.refresh = (case when instanceof(tickWindow.security,ch.algotrader.entity.security.Forex) then false else true end)
 where
     tickSize.field = com.ib.client.TickType.ASK_SIZE
 and
