@@ -90,7 +90,7 @@ public class BBMessageHandler implements EventHandler {
         } catch (Exception e) {
             logger.error("problem processing event", e);
             for (Message msg : event) {
-                logger.error(msg.correlationID().value() + " " + msg);
+                logger.error("correlationID: " + msg.correlationID().value() + ", " + msg);
             }
         }
     }
@@ -198,17 +198,21 @@ public class BBMessageHandler implements EventHandler {
 
             } else if ("TRADE".equals(marketDataEventType)) {
 
-                Date lastDateTime = fields.getElementAsDate("TRADE_UPDATE_STAMP_RT").calendar().getTime();
-                double last = fields.getElementAsFloat64("LAST_PRICE");
+                // ignore TRADES without a LAST_PRICE
+                if (fields.hasElement("LAST_PRICE")) {
 
-                // ASK_SIZE is null for FX and indices
-                int vol = 0;
-                if (fields.hasElement("VOLUME") && fields.getElement("VOLUME").numValues() == 1) {
-                    vol = (int) fields.getElementAsInt64("VOLUME");
+                    Date lastDateTime = fields.getElementAsDate("TRADE_UPDATE_STAMP_RT").calendar().getTime();
+                    double last = fields.getElementAsFloat64("LAST_PRICE");
+
+                    // ASK_SIZE is null for FX and indices
+                    int vol = 0;
+                    if (fields.hasElement("VOLUME") && fields.getElement("VOLUME").numValues() == 1) {
+                        vol = (int) fields.getElementAsInt64("VOLUME");
+                    }
+
+                    TradeVO tradeVO = new TradeVO(cid, lastDateTime, last, vol);
+                    EsperManager.sendEvent(StrategyImpl.BASE, tradeVO);
                 }
-
-                TradeVO tradeVO = new TradeVO(cid, lastDateTime, last, vol);
-                EsperManager.sendEvent(StrategyImpl.BASE, tradeVO);
 
             } else if ("QUOTE".equals(marketDataEventType)) {
 
