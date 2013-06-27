@@ -2923,9 +2923,14 @@ getOrderService().sendOrders(orders);</programlisting>
                                         broker but is still visible in the openOrderWindow</entry>
                                 </row>
                                 <row>
-                                    <entry>equalizeForex</entry>
+                                    <entry>hedgeForex</entry>
                                     <entry>adjusts the current FX Hedge for all non-base currencies
                                     </entry>
+                                </row>
+                                <row>
+                                    <entry>hedgeDelta</entry>
+                                    <entry>performs a Delta Hedge on the specified
+                                        underlying</entry>
                                 </row>
                                 <row>
                                     <entry>rebalancePortfolio</entry>
@@ -5823,6 +5828,18 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 property <parameter>baseSymbol</parameter> of the
                     <classname>SecurityFamly</classname>. The RIC on the other side uses the
                 property <parameter>ricRoot</parameter>.</para>
+        </section>
+        <section>
+            <title>Delta Hedging</title>
+            <para>Automatic Delta Hedging is provided by the Service
+                    <classname>ch.algotrader.service.StockOptionService</classname>. The method
+                    <methodname>hedgeDelta</methodname> will calculate the deltaAdjustedMarketValue
+                for all securities based on one particular underlying. The method will subsequently
+                build up a hedging position based on the nearest Future of the same underlying.
+                Since some underlyings have more than one Futures Chain based on them,  the property
+                    <parameter>hedgingFamily</parameter> needs to be defined on the Subscription of
+                the underlying. In addition the method  <methodname>hedgeDelta</methodname> can also
+                be invoked with the <classname>BaseManagementService</classname>.</para>
         </section>
         <section>
             <title>Option &amp; Future Chain Download</title>

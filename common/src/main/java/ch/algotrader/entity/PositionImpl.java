@@ -17,10 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
-import ch.algotrader.util.PositionUtil;
-import ch.algotrader.util.RoundUtil;
-
-import ch.algotrader.entity.Position;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexI;
@@ -29,6 +25,8 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Direction;
+import ch.algotrader.util.PositionUtil;
+import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.CurrencyAmountVO;
 
 /**
@@ -120,7 +118,7 @@ public class PositionImpl extends Position {
     @Override
     public double getAveragePriceDouble() {
 
-        return PositionUtil.getAveragePrice(getSecurity(), getTransactions(), true);
+        return PositionUtil.getAveragePrice(getSecurity(), getTransactionsInitialized(), true);
     }
 
     @Override

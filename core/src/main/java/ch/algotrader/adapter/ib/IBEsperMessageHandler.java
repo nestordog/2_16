@@ -22,17 +22,17 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.RoundUtil;
-
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.EsperManager;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.RoundUtil;
+
 import com.ib.client.Contract;
 import com.ib.client.EWrapperMsgGenerator;
 import com.ib.client.Execution;
@@ -59,7 +59,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
         super.connectionClosed();
 
         //if connection gets closed, try to reconnect
-        ServiceLocator.instance().getService("iBClientFactory", IBSessionFactory.class).getDefaultClient().connect();
+        ServiceLocator.instance().getService("iBSessionFactory", IBSessionFactory.class).getDefaultClient().connect();
         logger.debug(EWrapperMsgGenerator.connectionClosed());
     }
 
