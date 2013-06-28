@@ -331,7 +331,7 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter
         EPServiceProviderSPI spi = (EPServiceProviderSPI)epService;
         StatementMetricHandle metricsHandle = spi.getMetricReportingService().getStatementHandle("AbstractCoordinatedAdapter", "AbstractCoordinatedAdapter");
         EPStatementHandle stmtHandle = new EPStatementHandle("AbstractCoordinatedAdapter", "AbstractCoordinatedAdapter", null, "AbstractCoordinatedAdapter", false, metricsHandle, 0, false);
-        EPStatementAgentInstanceHandle agentInstanceHandle = new EPStatementAgentInstanceHandle(stmtHandle, new StatementAgentInstanceRWLockImpl("CSV", false), -1, new StatementAgentInstanceFilterVersion());
+        EPStatementAgentInstanceHandle agentInstanceHandle = new EPStatementAgentInstanceHandle(stmtHandle, new StatementAgentInstanceRWLockImpl(false), -1, new StatementAgentInstanceFilterVersion());
         EPStatementHandleCallback scheduleCSVHandle = new EPStatementHandleCallback(agentInstanceHandle, nextScheduleCallback);
         ScheduleSlot nextScheduleSlot;
 

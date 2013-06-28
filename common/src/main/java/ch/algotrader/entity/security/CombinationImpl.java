@@ -22,12 +22,8 @@ import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
 
-import ch.algotrader.util.collection.LongMap;
-
-import ch.algotrader.entity.security.Combination;
-import ch.algotrader.entity.security.Component;
-import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.Direction;
+import ch.algotrader.util.collection.LongMap;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -109,7 +105,7 @@ public class CombinationImpl extends Combination {
         return StringUtils.join(CollectionUtils.collect(getComponentsInitialized(), new Transformer<Component, String>() {
             @Override
             public String transform(Component component) {
-                return component.getQuantity() + "," + component.getSecurity();
+                return component.getQuantity() + " " + component.getSecurity();
             }
         }), "/");
     }

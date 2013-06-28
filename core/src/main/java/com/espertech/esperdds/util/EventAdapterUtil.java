@@ -97,6 +97,6 @@ public class EventAdapterUtil {
     }
 
     private static Log log = LogFactory.getLog(EventAdapterUtil.class);
-    private static final EventAdapterService eventAdapterServiceImpl = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl());
+    private static final EventAdapterService eventAdapterServiceImpl = new EventAdapterServiceImpl(new EventTypeIdGeneratorImpl(), 0);
 
 }

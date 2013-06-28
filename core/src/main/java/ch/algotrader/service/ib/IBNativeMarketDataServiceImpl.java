@@ -31,7 +31,6 @@ import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
-import ch.algotrader.vo.UnsubscribeTickVO;
 
 import com.ib.client.Contract;
 
@@ -109,9 +108,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
 
         client.cancelMktData(tickerId);
 
-        UnsubscribeTickVO unsubscribeTickEvent = new UnsubscribeTickVO();
-        unsubscribeTickEvent.setSecurityId(security.getId());
-        EsperManager.sendEvent(StrategyImpl.BASE, unsubscribeTickEvent);
+        EsperManager.executeQuery(StrategyImpl.BASE, "delete from TickWindow where security.id = " + security.getId());
 
         logger.debug("cancelled market data for : " + security);
     }

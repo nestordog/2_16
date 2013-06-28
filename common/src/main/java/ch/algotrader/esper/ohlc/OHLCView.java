@@ -142,7 +142,7 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
             this.isCallbackScheduled = true;
         }
 
-        agentInstanceContext.getTerminationCallbacks().add(this);
+        agentInstanceContext.addTerminationCallback(this);
     }
 
     @Override
@@ -362,7 +362,7 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
     @Override
     public void stopView() {
         stopSchedule();
-        this.agentInstanceContext.getTerminationCallbacks().remove(this);
+        this.agentInstanceContext.removeTerminationCallback(this);
     }
 
     @Override

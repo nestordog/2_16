@@ -24,21 +24,18 @@ import org.apache.commons.collections15.Predicate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
-import ch.algotrader.util.HibernateUtil;
-import ch.algotrader.util.MyLogger;
-
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.security.Combination;
 import ch.algotrader.entity.security.Component;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.CombinationType;
-import ch.algotrader.service.CombinationServiceBase;
+import ch.algotrader.esper.EsperManager;
+import ch.algotrader.util.HibernateUtil;
+import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.InsertComponentEventVO;
-import ch.algotrader.vo.RemoveComponentEventVO;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -227,37 +224,39 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         if (ratio >= 1.0) {
             closeCombination(combinationId, strategyName);
+            return null;
         } else if (ratio < 0) {
             throw new IllegalArgumentException("ratio cannot be smaller than zero");
-        }
+        } else {
 
-        Combination combination = getCombinationDao().get(combinationId);
-        if (combination == null) {
-            throw new IllegalArgumentException("combination does not exist: " + combinationId);
-        }
-
-        if (ratio != 0) {
-
-            // reduce all associated positions by the specified ratio
-            // Note: positions are not closed, because other combinations might relate to them as well
-            for (Component component : combination.getComponents()) {
-
-                long quantity = -Math.round(component.getQuantity() * ratio);
-                long absQuantity = Math.abs(quantity);
-
-                // adjust the component
-                addOrRemoveComponentQuantity(combinationId, component.getSecurity().getId(), quantity, true);
-
-                Position position = getPositionDao().findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
-
-                logger.info("reduce position " + position.getId() + " of combination " + combination + " by " + absQuantity);
-
-                // reduce the position
-                getPositionService().reducePosition(position.getId(), absQuantity);
+            Combination combination = getCombinationDao().get(combinationId);
+            if (combination == null) {
+                throw new IllegalArgumentException("combination does not exist: " + combinationId);
             }
-        }
 
-        return combination;
+            if (ratio != 0) {
+
+                // reduce all associated positions by the specified ratio
+                // Note: positions are not closed, because other combinations might relate to them as well
+                for (Component component : combination.getComponents()) {
+
+                    long quantity = -Math.round(component.getQuantity() * ratio);
+                    long absQuantity = Math.abs(quantity);
+
+                    // adjust the component
+                    addOrRemoveComponentQuantity(combinationId, component.getSecurity().getId(), quantity, true);
+
+                    Position position = getPositionDao().findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
+
+                    logger.info("reduce position " + position.getId() + " of combination " + combination + " by " + absQuantity);
+
+                    // reduce the position
+                    getPositionService().reducePosition(position.getId(), absQuantity);
+                }
+            }
+
+            return combination;
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -359,17 +358,13 @@ public class CombinationServiceImpl extends CombinationServiceBase {
      */
     private void removeFromComponentWindow(Component component) {
 
-        RemoveComponentEventVO removeComponentEvent = new RemoveComponentEventVO();
-
         // if a component is specified remove it, otherwise empty the entire window
-        if (component != null) {
-            removeComponentEvent.setComponentId(component.getId());
-        } else {
-            removeComponentEvent.setComponentId(0);
-        }
-
         if (EsperManager.isInitialized(StrategyImpl.BASE)) {
-            EsperManager.sendEvent(StrategyImpl.BASE, removeComponentEvent);
+            if (component != null) {
+                EsperManager.executeQuery(StrategyImpl.BASE, "delete from ComponentWindow where componentId = " + component.getId());
+            } else {
+                EsperManager.executeQuery(StrategyImpl.BASE, "delete from ComponentWindow");
+            }
         }
     }
 

@@ -32,7 +32,6 @@ import ch.algotrader.esper.EsperManager;
 import ch.algotrader.service.ib.IBNativeMarketDataServiceException;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
-import ch.algotrader.vo.UnsubscribeTickVO;
 
 import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Subscription;
@@ -102,9 +101,7 @@ public class BBMarketDataServiceImpl extends BBMarketDataServiceBase implements 
 
         session.unsubscribe(subscriptions);
 
-        UnsubscribeTickVO unsubscribeTickEvent = new UnsubscribeTickVO();
-        unsubscribeTickEvent.setSecurityId(security.getId());
-        EsperManager.sendEvent(StrategyImpl.BASE, unsubscribeTickEvent);
+        EsperManager.executeQuery(StrategyImpl.BASE, "delete from TickWindow where security.id = " + security.getId());
 
         logger.debug("cancelled market data for : " + security);
     }
