@@ -327,8 +327,16 @@ public class XTree extends JTree {
         DefaultMutableTreeNode childNode = null;
         DefaultMutableTreeNode parentNode = null;
 
-        if ("chart".equals(mbean.getKeyProperty("type"))) {
-            return;
+        if (System.getProperty("expertMode") == null) {
+            if ("chart".equals(mbean.getKeyProperty("type"))) {
+                return;
+            } else if (mbean.getCanonicalName().startsWith("JMImplementation")) {
+                return;
+            } else if (mbean.getCanonicalName().startsWith("com.sun")) {
+                return;
+            } else if (mbean.getCanonicalName().startsWith("java")) {
+                return;
+            }
         }
 
         // Add the node or replace its user object if already added

@@ -90,12 +90,13 @@ public class VMPanel extends JTabbedPane implements PropertyChangeListener {
     private long time0;
 
     static {
-        tabInfos.add(new TabInfo(OverviewTab.class, OverviewTab.getTabName(), true));
-        tabInfos.add(new TabInfo(MemoryTab.class, MemoryTab.getTabName(), true));
-        tabInfos.add(new TabInfo(SummaryTab.class, SummaryTab.getTabName(), true));
-        tabInfos.add(new TabInfo(ThreadTab.class, ThreadTab.getTabName(), true));
-        tabInfos.add(new TabInfo(ClassTab.class, ClassTab.getTabName(), true));
-        tabInfos.add(new TabInfo(MBeansTab.class, MBeansTab.getTabName(), true));
+        if (System.getProperty("expertMode") != null) {
+            tabInfos.add(new TabInfo(OverviewTab.class, OverviewTab.getTabName(), true));
+            tabInfos.add(new TabInfo(MemoryTab.class, MemoryTab.getTabName(), true));
+            tabInfos.add(new TabInfo(SummaryTab.class, SummaryTab.getTabName(), true));
+            tabInfos.add(new TabInfo(ThreadTab.class, ThreadTab.getTabName(), true));
+            tabInfos.add(new TabInfo(ClassTab.class, ClassTab.getTabName(), true));
+        }
     }
 
     public static TabInfo[] getTabInfos() {
