@@ -28,15 +28,6 @@ select
 from
     SubscribeTickEvent;
 
-@Name('DELETE_FROM_TICK_WINDOW')
-@RunTimeOnly()
-on
-    UnsubscribeTickEvent as unsubscribeEvent
-delete from
-    TickWindow as tickWindow
-where
-    tickWindow.security.id = unsubscribeEvent.securityId;
-
 @Name('INSERT_INTO_TICK')
 @RunTimeOnly()
 on

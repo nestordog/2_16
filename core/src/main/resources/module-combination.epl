@@ -30,16 +30,6 @@ select
 from
     InsertComponentEvent;
 
-@Name('DELETE_FROM_COMPONENT_WINDOW')
-on
-    RemoveComponentEvent as removeComponentEvent
-delete from
-    ComponentWindow as componentWindow
-where
-    removeComponentEvent.componentId = 0
-or
-    componentWindow.componentId = removeComponentEvent.componentId;
-
 @Name('UPDATE_COMPONENT_WINDOW')
 @Priority(3)
 on
