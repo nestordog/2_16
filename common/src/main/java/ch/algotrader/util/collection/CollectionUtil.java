@@ -28,6 +28,10 @@ import java.util.Collection;
  */
 public class CollectionUtil {
 
+    /**
+     * returns the one and only element of a collection.
+     * @throws IllegalStateException if the collection is empty or has more than one element.
+     */
     public static <E> E getSingleElement(Collection<E> collection) {
 
         if (collection.isEmpty()) {
@@ -39,6 +43,10 @@ public class CollectionUtil {
         }
     }
 
+    /**
+     * returns the one and only element of a collection or null if the collection is empty.
+     * @throws IllegalStateException if the collection has more than one element.
+     */
     public static <E> E getSingleElementOrNull(Collection<E> collection) {
 
         if (collection.isEmpty()) {
@@ -50,6 +58,10 @@ public class CollectionUtil {
         }
     }
 
+    /**
+     * returns the first element of a collection.
+     * @throws IllegalStateException if the collection is empty
+     */
     public static <E> E getFirstElement(Collection<E> collection) {
 
         if (collection.isEmpty()) {
@@ -59,6 +71,9 @@ public class CollectionUtil {
         }
     }
 
+    /**
+     * returns the first element of a collection or null if the collection is empty.
+     */
     public static <E> E getFirstElementOrNull(Collection<E> collection) {
 
         if (collection.isEmpty()) {
