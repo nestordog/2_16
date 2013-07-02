@@ -41,6 +41,7 @@ import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.esper.EsperManager;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.PortfolioService;
+import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.vo.RawBarVO;
 import ch.algotrader.vo.RawTickVO;
 
@@ -86,7 +87,7 @@ public class LookupUtil {
 
             Map<String, Object> namedParameters = new SingletonMap<String, Object>("isin", isin);
 
-            return (Security) cacheManager.query(queryString, namedParameters).iterator().next();
+            return (Security) CollectionUtil.getSingleElementOrNull(cacheManager.query(queryString, namedParameters));
         } else {
             return lookupService.getSecurityByIsin(isin);
         }
@@ -114,7 +115,7 @@ public class LookupUtil {
             namedParameters.put("strategyName", strategyName);
             namedParameters.put("securityId", securityId);
 
-            return (Subscription) cacheManager.query(queryString, namedParameters).iterator().next();
+            return (Subscription) CollectionUtil.getSingleElementOrNull(cacheManager.query(queryString, namedParameters));
         } else {
             return lookupService.getSubscriptionByStrategyAndSecurity(strategyName, securityId);
         }
@@ -163,7 +164,7 @@ public class LookupUtil {
             namedParameters.put("strategyName", strategyName);
             namedParameters.put("securityId", securityId);
 
-            return (Position) cacheManager.query(queryString, namedParameters).iterator().next();
+            return (Position) CollectionUtil.getSingleElementOrNull(cacheManager.query(queryString, namedParameters));
         } else {
             return lookupService.getPositionBySecurityAndStrategy(securityId, strategyName);
         }
