@@ -24,18 +24,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.algotrader.entity.marketData.TickImpl;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
-import ch.algotrader.util.metric.MetricsUtil;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.marketData.TickDaoBase;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.esper.EsperManager;
 import ch.algotrader.vo.RawTickVO;
 import ch.algotrader.vo.TickVO;
+
 import com.espertech.esper.collection.Pair;
 
 @SuppressWarnings("unchecked")
@@ -104,38 +100,7 @@ public class TickDaoImpl extends TickDaoBase {
     @Override
     public Tick rawTickVOToEntity(RawTickVO rawTickVO) {
 
-        long beforeRawToEntity = System.nanoTime();
-        Tick tick = new TickImpl();
-        super.rawTickVOToEntity(rawTickVO, tick, true);
-        long afterRawToEntity = System.nanoTime();
-
-        // cache security id, as queries byIsin get evicted from cache whenever any change to security table happens
-        long beforeGetSecurityId = System.nanoTime();
-        String isin = rawTickVO.getIsin();
-        Integer securityId = this.securityIds.get(isin);
-        if (securityId == null) {
-            securityId = getSecurityDao().findSecurityIdByIsin(isin);
-            this.securityIds.put(isin, securityId);
-        }
-        long afterGetSecurityId = System.nanoTime();
-
-        // get the fully initialized security
-        long beforeSecurityLookup = System.nanoTime();
-        Security security = getSecurityDao().get(securityId);
-        long afterSecurityLookup = System.nanoTime();
-
-        long beforeInitialization = System.nanoTime();
-        security.initialize();
-        tick.setSecurity(security);
-        long afterInitialization = System.nanoTime();
-
-        MetricsUtil.account("MarketDataEventDao.rawToEntity", (afterRawToEntity - beforeRawToEntity));
-        MetricsUtil.account("MarketDataEventDao.getSecurityId", (afterGetSecurityId - beforeGetSecurityId));
-        MetricsUtil.account("MarketDataEventDao.securityLookup", (afterSecurityLookup - beforeSecurityLookup));
-        MetricsUtil.account("MarketDataEventDao.initialization", (afterInitialization - beforeInitialization));
-
-
-        return tick;
+        throw new UnsupportedOperationException("not implemented (LookupUtil.rawTickVOToEntity(RawTickVO)");
     }
 
     @Override

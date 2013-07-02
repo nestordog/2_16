@@ -110,23 +110,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Combination handleGetCombinationInclComponentsInitialized(int id) throws java.lang.Exception {
-
-        Combination combination = getCombinationDao().get(id);
-
-        if (combination != null) {
-
-            // initialize the security
-            combination.initialize();
-
-            // initialize components
-            combination.getComponentsInitialized();
-        }
-
-        return combination;
-    }
-
-    @Override
     protected List<Security> handleGetSecuritiesByIds(Collection<Integer> ids) throws Exception {
 
         return getSecurityDao().findByIds(ids);

@@ -115,7 +115,7 @@ class CollectionHandler extends AbstractHandler {
     }
 
     @Override
-    protected boolean update(Object obj) {
+    protected Object update(Object obj) {
 
         if (!(obj instanceof PersistentCollection)) {
             throw new IllegalArgumentException("PersistentCollection needed");
@@ -123,49 +123,44 @@ class CollectionHandler extends AbstractHandler {
 
         PersistentCollection origCollection = (PersistentCollection) obj;
 
-        Object updatedObj = this.cacheManager.getGenericDao().getInitializedCollection(origCollection.getRole(), origCollection.getKey());
+        Object updatedCollection = this.cacheManager.getGenericDao().getInitializedCollection(origCollection.getRole(), origCollection.getKey());
 
         // owner does not exist anymore so remove it
-        if (updatedObj == null) {
+        if (updatedCollection == null) {
 
             Object owner = origCollection.getOwner();
             EntityCacheKey cacheKey = new EntityCacheKey((BaseEntityI) owner);
             this.cacheManager.getEntityCache().detach(cacheKey);
 
-            // update was not successfull
-            return false;
-
         } else {
 
             // getInitializedCollection should normally return a PersistentCollection
-            if (updatedObj instanceof PersistentCollection) {
+            if (updatedCollection instanceof PersistentCollection) {
 
-                PersistentCollection updatedCol = (PersistentCollection) updatedObj;
+                PersistentCollection updatedCol = (PersistentCollection) updatedCollection;
                 FieldUtil.copyAllFields(origCollection, updatedCol);
 
                 // make sure everything is in the cache
                 this.cacheManager.put(origCollection);
 
-                return true;
-
                 // log if PersistentCollection returns a Collection or Map to furhter investigate
             } else {
 
-                if (updatedObj instanceof Collection) {
-                    Collection<?> col = (Collection<?>) updatedObj;
+                if (updatedCollection instanceof Collection) {
+                    Collection<?> col = (Collection<?>) updatedCollection;
                     if (col.size() != 0) {
                         logger.error("non empty collection returned instead of PersistentCollection");
                     }
-                } else if (updatedObj instanceof Map) {
-                    Map<?, ?> map = (Map<?, ?>) updatedObj;
+                } else if (updatedCollection instanceof Map) {
+                    Map<?, ?> map = (Map<?, ?>) updatedCollection;
                     if (map.size() != 0) {
                         logger.error("non empty map returned instead of PersistentCollection");
                     }
                 }
-
-                return false;
             }
         }
+
+        return updatedCollection;
     }
 
     @Override

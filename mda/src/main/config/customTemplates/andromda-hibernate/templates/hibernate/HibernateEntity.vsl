@@ -351,4 +351,6 @@ ${comma}${property.getterSetterTypeName} ${property.name}## no newline
 #end
 #renderCompareToMethod($entity $entity.entityName $entity.identifiers)
 // HibernateEntity.vsl merge-point
+
+// ${entity.fullyQualifiedName} Entity merge-point 
 }

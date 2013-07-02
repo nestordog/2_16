@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.entity.BaseEntityI;
+import ch.algotrader.entity.security.Security;
 import ch.algotrader.hibernate.GenericDao;
 import ch.algotrader.util.MyLogger;
 
@@ -89,6 +90,21 @@ public class CacheManagerImpl implements CacheManager {
 
             // put into the cache
             put(result);
+
+            // make sure Securities are initialized (as they might have been put into the cache by the CollectionHandler)
+        } else {
+
+            if (result instanceof Security) {
+
+                Security security = (Security) result;
+                if (!security.isInitialized()) {
+
+                    // invoke an update and replace the result
+                    AbstractHandler handler = getHandler(result.getClass());
+
+                    result = (T) handler.update(result);
+                }
+            }
         }
 
         return result;
@@ -180,7 +196,7 @@ public class CacheManagerImpl implements CacheManager {
 
             AbstractHandler handler = getHandler(obj.getClass());
 
-            if (handler.update(obj)) {
+            if (handler.update(obj) != null) {
 
                 logger.trace("updated " + cacheKey + ": " + key);
             }

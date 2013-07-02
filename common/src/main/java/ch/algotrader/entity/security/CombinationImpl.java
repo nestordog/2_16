@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.util.collection.LongMap;
+import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -108,5 +109,22 @@ public class CombinationImpl extends Combination {
                 return component.getQuantity() + " " + component.getSecurity();
             }
         }), " + ");
+    }
+
+    @Override
+    public void initialize() {
+
+        if (!isInitialized()) {
+
+            // initialize components
+            long beforeComponents = System.nanoTime();
+
+            getComponentsInitialized();
+
+            MetricsUtil.accountEnd("Combination.components", beforeComponents);
+
+            super.initialize();
+
+        }
     }
 }

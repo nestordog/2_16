@@ -157,30 +157,35 @@ public abstract class SecurityImpl extends Security {
     @Override
     public void initialize() {
 
-        // initialize subscriptions before positions because the lazy loaded (= Proxy) Strategy
-        // so subscriptions would also get the Proxy insead of the implementation
-        long beforeSubscriptions = System.nanoTime();
-        getSubscriptionsInitialized();
-        long afterSubscriptions = System.nanoTime();
+        if (!isInitialized()) {
 
-        // initialize positions
-        long beforePositions = System.nanoTime();
-        getPositionsInitialized();
-        long afterPositions = System.nanoTime();
+            // initialize subscriptions before positions because the lazy loaded (= Proxy) Strategy
+            // so subscriptions would also get the Proxy insead of the implementation
+            long beforeSubscriptions = System.nanoTime();
+            getSubscriptionsInitialized();
+            long afterSubscriptions = System.nanoTime();
 
-        // initialize underlying
-        long beforeUnderlying = System.nanoTime();
-        getUnderlyingInitialized();
-        long afterUnderlying = System.nanoTime();
+            // initialize positions
+            long beforePositions = System.nanoTime();
+            getPositionsInitialized();
+            long afterPositions = System.nanoTime();
 
-        // initialize securityFamily
-        long beforeSecurityFamily = System.nanoTime();
-        getSecurityFamilyInitialized();
-        long afterSecurityFamily = System.nanoTime();
+            // initialize underlying
+            long beforeUnderlying = System.nanoTime();
+            getUnderlyingInitialized();
+            long afterUnderlying = System.nanoTime();
 
-        MetricsUtil.account("Security.positions", (afterPositions - beforePositions));
-        MetricsUtil.account("Security.subscriptions", (afterSubscriptions - beforeSubscriptions));
-        MetricsUtil.account("Security.underlying", (afterUnderlying - beforeUnderlying));
-        MetricsUtil.account("Security.securityFamily", (afterSecurityFamily - beforeSecurityFamily));
+            // initialize securityFamily
+            long beforeSecurityFamily = System.nanoTime();
+            getSecurityFamilyInitialized();
+            long afterSecurityFamily = System.nanoTime();
+
+            MetricsUtil.account("Security.positions", (afterPositions - beforePositions));
+            MetricsUtil.account("Security.subscriptions", (afterSubscriptions - beforeSubscriptions));
+            MetricsUtil.account("Security.underlying", (afterUnderlying - beforeUnderlying));
+            MetricsUtil.account("Security.securityFamily", (afterSecurityFamily - beforeSecurityFamily));
+
+            setInitialized();
+        }
     }
 }

@@ -104,7 +104,7 @@ public class EntityHandler extends AbstractHandler {
     }
 
     @Override
-    protected boolean update(Object obj) {
+    protected Object update(Object obj) {
 
         // get the updatedObj
         BaseEntityI origEntity = (BaseEntityI) obj;
@@ -115,9 +115,6 @@ public class EntityHandler extends AbstractHandler {
 
             EntityCacheKey cacheKey = new EntityCacheKey(origEntity);
             this.cacheManager.getEntityCache().detach(cacheKey);
-
-            // update was not successfull
-            return false;
 
         } else {
 
@@ -144,9 +141,9 @@ public class EntityHandler extends AbstractHandler {
                     }
                 }
             }
-
-            return true;
         }
+
+        return updatedEntity;
     }
 
     @Override

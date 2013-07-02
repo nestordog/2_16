@@ -65,12 +65,6 @@ public class GenericDao extends HibernateDaoSupport {
                     Security security = (Security) result;
 
                     security.initialize();
-
-                    // initialize Components
-                    if (result instanceof Combination) {
-                        Combination combination = (Combination) security;
-                        combination.getComponentsInitialized();
-                    }
                 }
 
                 return result;
