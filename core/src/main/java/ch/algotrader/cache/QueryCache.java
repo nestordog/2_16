@@ -77,21 +77,23 @@ class QueryCache {
      */
     void detach(String spaceName) {
 
-        Set<QueryCacheKey> space = this.spaces.get(spaceName);
+        if (this.spaces.containsKey(spaceName)) {
 
-        if (space != null) {
+            Set<QueryCacheKey> thisSpace = new HashSet<QueryCacheKey>(this.spaces.get(spaceName));
 
-            for (QueryCacheKey cacheKey : space) {
+            for (QueryCacheKey cacheKey : thisSpace) {
 
-                // remove the query
+                // remove the cacheKey
                 this.results.remove(cacheKey);
 
-                // remove the query also from all other spaces
-                for (Map.Entry<String, Set<QueryCacheKey>> entry : this.spaces.entrySet()) {
-
-                    entry.getValue().remove(cacheKey);
-                }
                 logger.trace("detached " + cacheKey);
+            }
+
+            // remove the cacheKeys of thisSpace also from all other spaces
+            for (Set<QueryCacheKey> space : this.spaces.values()) {
+                for (QueryCacheKey cacheKey : thisSpace) {
+                    space.remove(cacheKey);
+                }
             }
         }
     }

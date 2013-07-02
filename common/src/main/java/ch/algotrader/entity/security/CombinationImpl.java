@@ -107,6 +107,6 @@ public class CombinationImpl extends Combination {
             public String transform(Component component) {
                 return component.getQuantity() + " " + component.getSecurity();
             }
-        }), "/");
+        }), " + ");
     }
 }

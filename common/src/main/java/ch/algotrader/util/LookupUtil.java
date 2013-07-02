@@ -58,7 +58,7 @@ public class LookupUtil {
 
     private static final LookupService lookupService = ServiceLocator.instance().getLookupService();
     private static final PortfolioService portfolioService = ServiceLocator.instance().getPortfolioService();
-    private static final CacheManager cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManager.class);
+    private static final CacheManager cacheManager = ServiceLocator.instance().containsService("cacheManager") ? ServiceLocator.instance().getService("cacheManager", CacheManager.class) : null;
     private static final Map<String, Integer> securityIds = new HashMap<String, Integer>();
 
     /**
@@ -287,14 +287,14 @@ public class LookupUtil {
         Tick tick = new TickImpl();
 
         // copy all properties
+        tick.setDateTime(rawTickVO.getDateTime());
+        tick.setVol(rawTickVO.getVol());
         tick.setLast(rawTickVO.getLast());
         tick.setLastDateTime(rawTickVO.getLastDateTime());
         tick.setBid(rawTickVO.getBid());
         tick.setAsk(rawTickVO.getAsk());
         tick.setVolBid(rawTickVO.getVolBid());
         tick.setVolAsk(rawTickVO.getVolAsk());
-        tick.setVol(rawTickVO.getVol());
-        tick.setVol(rawTickVO.getVol());
 
         // cache security id, as queries byIsin get evicted from cache whenever any change to security table happens
         String isin = rawTickVO.getIsin();
@@ -319,13 +319,13 @@ public class LookupUtil {
         Bar bar = new BarImpl();
 
         // copy all properties
+        bar.setDateTime(rawBarVO.getDateTime());
+        bar.setVol(rawBarVO.getVol());
         bar.setBarSize(rawBarVO.getBarSize());
         bar.setOpen(rawBarVO.getOpen());
         bar.setHigh(rawBarVO.getHigh());
         bar.setLow(rawBarVO.getLow());
         bar.setClose(rawBarVO.getClose());
-        bar.setDateTime(rawBarVO.getDateTime());
-        bar.setVol(rawBarVO.getVol());
 
         // cache security id, as queries byIsin get evicted from cache whenever any change to security table happens
         String isin = rawBarVO.getIsin();
