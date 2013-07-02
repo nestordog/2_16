@@ -4100,15 +4100,15 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     <varlistentry>
                         <term>Windows</term>
                         <listitem>
-                            <para>jconsole.jar: &lt;JDK>\lib\jconsole.jar</para>
-                            <para>tools.jar: &lt;JDK>\lib\tools.jar</para>
+                            <para>jconsole.jar: <filename>&lt;JDK>\lib\jconsole.jar</filename></para>
+                            <para>tools.jar: <filename>&lt;JDK>\lib\tools.jar</filename></para>
                         </listitem>
                     </varlistentry>
                     <varlistentry>
                         <term>Linux / Mac</term>
                         <listitem>
-                            <para>jconsole.jar: &lt;JDK>/classes/jconsole.jar</para>
-                            <para>tools.jar: &lt;JDK>/classes/classes.jar</para>
+                            <para>jconsole.jar: <filename>&lt;JDK>/classes/jconsole.jar</filename></para>
+                            <para>tools.jar: <filename>&lt;JDK>/classes/classes.jar</filename></para>
                         </listitem>
                     </varlistentry>
                 </variablelist>
@@ -4125,10 +4125,42 @@ public class MovChartService extends ChartProvidingServiceImpl {
             </section>
         <section>
             <title>Generate the code</title>
-            <para>Right click on the project <filename>algotrader-mda</filename> / Run As / Maven
-                install. This will generate all necessary code into
-                    <filename>algotrader-core</filename> and<filename> algotrader-common</filename>
-                target directory.</para>
+                <para>Generation of the Code is based on <filename>.uml</filename> files, which can be retrieved
+                    via either of the following two methods:</para>
+                <itemizedlist>
+                    <listitem>
+                        <para>In Case MagicDraw is installed on the system, open the file:
+                                <filename>/algotrader-mda/src/main/uml/algotrader.xml</filename> and
+                            export the <filename>.uml</filename> files via: File / Export To / EMF
+                            UML2 (v2.x) XMI File.</para>
+                    </listitem>
+                    <listitem>
+                        <para>If MagicDraw is not installed on the system, the <filename>.uml</filename> files can be
+                            downloaded from the AlgoTrader Maven Repository (replacing x.y with the
+                            correct version):</para>
+                    </listitem>
+                </itemizedlist>
+                    <screen><ulink url="https://repo.algotrader.ch/maven/algotrader/algotrader-mda/1.13-SNAPSHOT/algoTrader.uml.zip">https://repo.algotrader.ch/maven/algotrader/algotrader-mda/x.y/algoTrader.uml.zip</ulink></screen>
+                <para>After this, the following <filename>.uml</filename> files should be available
+                    in the directory  <filename>/algotrader-mda/src/main/uml/</filename>:</para>
+                <screen>algoTrader-profile.profile.uml
+algoTrader.uml
+andromda-common.profile.uml
+andromda-persistence.profile.uml
+andromda-presentation.profile.uml
+andromda-process.profile.uml
+andromda-service.profile.uml
+andromda-webservice.profile.uml
+andromda-xml.profile.uml
+UML_Standard_Profile.MagicDraw_Profile.DSL_Customization.profile.uml
+UML_Standard_Profile.MagicDraw_Profile.profile.uml
+UML_Standard_Profile.StandardProfileL3.profile.uml
+UML_Standard_Profile.UML_Standard_Profile.profile.uml
+UML_Standard_Profile.Validation_Profile.profile.uml</screen>
+            <para>Inside Eclipse right click on the project <filename>algotrader-mda</filename> / Run As /
+                    Maven install. This will generate all necessary code into
+                        <filename>algotrader-core</filename> and<filename>
+                        algotrader-common</filename> target directory.</para>
         </section>
         <section>
             <title>Compile</title>
