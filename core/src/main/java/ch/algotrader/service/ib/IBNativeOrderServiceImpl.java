@@ -17,6 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -42,6 +45,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
     private static final long serialVersionUID = -7426452967133280762L;
 
     private static Logger logger = MyLogger.getLogger(IBNativeOrderServiceImpl.class.getName());
+    private static DateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 
     private static IBSession client;
 
@@ -179,6 +183,16 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
         //set the stop price if order is a stop order or stop limit order
         if (order instanceof StopOrderI) {
             ibOrder.m_auxPrice = ((StopOrderI) order).getStop().doubleValue();
+        }
+
+        // set Time-In-Force
+        if (order.getTif() != null) {
+            ibOrder.m_tif = order.getTif().getValue();
+
+            // set the TIF-Date
+            if (order.getTifDate() != null) {
+                ibOrder.m_goodTillDate = format.format(order.getTifDate());
+            }
         }
 
         // progapate the order to all corresponding esper engines
