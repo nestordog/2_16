@@ -222,7 +222,7 @@ public class LookupUtil {
     /**
      * Gets open Positions for the specified Strategy and SecurityFamily.
      */
-    public static Position[] getOpenPositionsByStrategyAndSecurityFamily(String strategyName, int securityFamily) {
+    public static Position[] getOpenPositionsByStrategyAndSecurityFamily(String strategyName, int securityFamilyId) {
 
         if (cacheManager != null) {
 
@@ -230,11 +230,11 @@ public class LookupUtil {
 
             Map<String, Object> namedParameters = new HashMap<String, Object>();
             namedParameters.put("strategyName", strategyName);
-            namedParameters.put("securityFamily", securityFamily);
+            namedParameters.put("securityFamilyId", securityFamilyId);
 
             return cacheManager.query(queryString, namedParameters).toArray(new Position[] {});
         } else {
-            return lookupService.getOpenPositionsByStrategyAndSecurityFamily(strategyName, securityFamily).toArray(new Position[] {});
+            return lookupService.getOpenPositionsByStrategyAndSecurityFamily(strategyName, securityFamilyId).toArray(new Position[] {});
         }
     }
 
