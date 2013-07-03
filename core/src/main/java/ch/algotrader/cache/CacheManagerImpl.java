@@ -89,7 +89,9 @@ public class CacheManagerImpl implements CacheManager {
             result = (T) this.genericDao.get(clazz, key);
 
             // put into the cache
-            put(result);
+            if (result != null) {
+                put(result);
+            }
 
             // make sure Securities are initialized (as they might have been put into the cache by the CollectionHandler)
         } else {
