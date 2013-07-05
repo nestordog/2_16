@@ -4214,7 +4214,7 @@ UML_Standard_Profile.Validation_Profile.profile.uml</screen>
                             <screen>-Dsimulation=true
 -DstrategyName=XXX
 -DdataSource.dataSet=yyy
--Dspring.profiles.active=simulation,server</screen>
+-Dspring.profiles.active=simulation</screen>
                         </listitem>
                     </varlistentry>
                     <varlistentry>
@@ -4281,7 +4281,11 @@ bin/activemq</screen>
                                 <term>Arguments-Tab / VM-Arguments</term>
                                 <listitem>
                                     <screen>-Dsimulation=false
--Dspring.profiles.active=server,trading,&lt;brokerProfile> </screen>
+-Dspring.profiles.active=server,&lt;marketDataProfile>,&lt;brokerProfile> </screen>
+                                    <para>
+                                        <parameter>marketDataProfile</parameter>: the SpringProfile
+                                        corresponding to the market data interface in use (e.g.
+                                        iBMarketData or bBMarketData)</para>
                                     <para>
                                         <parameter>brokerProfile</parameter>: the SpringProfile
                                         corresponding to the broker interface in use (e.g. iBNative
@@ -4343,7 +4347,15 @@ bin/activemq</screen>
                                 <listitem>
                                     <screen>-Dsimulation=false
 -Dmisc.singleVM=true
--Dspring.profiles.active=server,trading,&lt;brokerProfile> </screen>
+-Dspring.profiles.active=server,&lt;marketDataProfile>,&lt;brokerProfile> </screen>
+                                    <para>
+                                        <parameter>marketDataProfile</parameter>: the SpringProfile
+                                        corresponding to the market data interface in use (e.g.
+                                        iBMarketData or bBMarketData)</para>
+                                    <para>
+                                        <parameter>brokerProfile</parameter>: the SpringProfile
+                                        corresponding to the broker interface in use (e.g. iBNative
+                                        or iBFix)</para>
                                 </listitem>
                             </varlistentry>
                             <varlistentry>
