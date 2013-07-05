@@ -15,13 +15,11 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.log;
+package ch.algotrader.util;
 
 import java.io.PrintStream;
 
 import org.apache.log4j.Logger;
-
-import ch.algotrader.util.MyLogger;
 
 /**
  * Redirects all System.out and System.err prints to log4j.
