@@ -26,31 +26,28 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.entity.PositionImpl;
-import ch.algotrader.entity.TransactionImpl;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
-import ch.algotrader.esper.subscriber.Subscriber;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.RoundUtil;
-import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.metric.MetricsUtil;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
+import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.service.TransactionService;
-import ch.algotrader.service.TransactionServiceBase;
+import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.subscriber.Subscriber;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.RoundUtil;
+import ch.algotrader.util.collection.CollectionUtil;
+import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.OpenPositionVO;
 import ch.algotrader.vo.PositionMutationVO;
@@ -311,9 +308,9 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         //@formatter:off
         String logMessage = "executed transaction: " + transaction +
         ((profit != 0.0) ? (
-            " profit: " + RoundUtil.getBigDecimal(profit) +
-            " profitPct: " + RoundUtil.getBigDecimal(profitPct) +
-            " avgAge: " + RoundUtil.getBigDecimal(avgAge, 4))
+            ",profit=" + RoundUtil.getBigDecimal(profit) +
+            ",profitPct=" + RoundUtil.getBigDecimal(profitPct) +
+            ",avgAge=" + RoundUtil.getBigDecimal(avgAge, 4))
             : "");
         //@formatter:on
 
@@ -367,11 +364,11 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             //@formatter:off
             mailLogger.info("executed transaction: " +
                     fill.getSide() +
-                    " " + totalQuantity +
-                    " " + order.getSecurity() +
-                    " avgPrice: " + RoundUtil.getBigDecimal(totalPrice / totalQuantity, securityFamily.getScale()) +
-                    " " + securityFamily.getCurrency() +
-                    " strategy: " + order.getStrategy());
+                    "," + totalQuantity +
+                    "," + order.getSecurity() +
+                    ",avgPrice=" + RoundUtil.getBigDecimal(totalPrice / totalQuantity, securityFamily.getScale()) +
+                    "," + securityFamily.getCurrency() +
+                    ",strategy=" + order.getStrategy());
             //@formatter:on
         }
     }

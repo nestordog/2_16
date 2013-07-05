@@ -120,13 +120,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
         Security security = order.getSecurity();
 
-        // create one fill per order
-        Fill fill = new FillImpl();
-        fill.setDateTime(DateUtil.getCurrentEPTime());
-        fill.setExtDateTime(DateUtil.getCurrentEPTime());
-        fill.setSide(order.getSide());
-        fill.setQuantity(order.getQuantity());
-
+        // get the price
         BigDecimal price = new BigDecimal(0);
         if (order instanceof LimitOrderI) {
 
@@ -136,10 +130,17 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         } else {
 
             // all other orders are executed the the market
-            price = security.getCurrentMarketDataEvent().getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG);
+            price = security.getCurrentMarketDataEvent().getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG)
+                    .setScale(security.getSecurityFamily().getScale(), BigDecimal.ROUND_HALF_UP);
         }
-        fill.setPrice(price);
 
+        // create one fill per order
+        Fill fill = new FillImpl();
+        fill.setDateTime(DateUtil.getCurrentEPTime());
+        fill.setExtDateTime(DateUtil.getCurrentEPTime());
+        fill.setSide(order.getSide());
+        fill.setQuantity(order.getQuantity());
+        fill.setPrice(price);
         fill.setOrd(order);
 
         // propagate the fill
