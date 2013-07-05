@@ -19,8 +19,6 @@ package ch.algotrader.entity.trade;
 
 import org.apache.commons.lang.ClassUtils;
 
-import ch.algotrader.entity.trade.Order;
-
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
@@ -79,7 +77,7 @@ public abstract class OrderImpl extends Order {
         buffer.append(getStrategy());
 
         if (getIntId() != null) {
-            buffer.append("intId=");
+            buffer.append(",intId=");
             buffer.append(getIntId());
         }
 

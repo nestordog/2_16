@@ -23,16 +23,11 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import ch.algotrader.util.RoundUtil;
-
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.trade.LimitOrder;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderValidationException;
-import ch.algotrader.entity.trade.VariableIncrementalOrder;
 import ch.algotrader.enumeration.Side;
+import ch.algotrader.util.RoundUtil;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -52,13 +47,13 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
     public String getExtDescription() {
 
         //@formatter:off
-            return "startOffsetPct: " + getStartOffsetPct() +
-            " endOffsetPct: " + getEndOffsetPct() +
-            " spreadPositionIncrement: " + getIncrement() +
-            " startLimit: " + this.startLimit +
-            " endLimit: " + this.endLimit +
-            " currentLimit: " + this.currentLimit +
-            " increment: " + RoundUtil.getBigDecimal(this.increment, getSecurity().getSecurityFamily().getScale() + 1);
+            return "startOffsetPct=" + getStartOffsetPct() +
+            ",endOffsetPct=" + getEndOffsetPct() +
+            ",spreadPositionIncrement=" + getIncrement() +
+            ",startLimit=" + this.startLimit +
+            ",endLimit=" + this.endLimit +
+            ",currentLimit=" + this.currentLimit +
+            ",increment=" + RoundUtil.getBigDecimal(this.increment, getSecurity().getSecurityFamily().getScale() + 1);
         //@formatter:on
     }
 

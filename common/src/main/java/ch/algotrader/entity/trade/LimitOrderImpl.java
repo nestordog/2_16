@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-import ch.algotrader.entity.trade.LimitOrder;
-import ch.algotrader.entity.trade.OrderValidationException;
 
 
 /**
@@ -32,7 +30,7 @@ public class LimitOrderImpl extends LimitOrder {
 
     @Override
     public String getExtDescription() {
-        return "limit: " + getLimit();
+        return "limit=" + getLimit();
     }
 
     @Override

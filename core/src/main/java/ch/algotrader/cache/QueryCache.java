@@ -39,7 +39,7 @@ class QueryCache {
     private static Logger logger = MyLogger.getLogger(EntityCache.class.getName());
 
     private Map<String, Set<QueryCacheKey>> spaces = new HashMap<String, Set<QueryCacheKey>>();
-    private Map<QueryCacheKey, List<?>> results = new HashMap<QueryCacheKey, List<?>>();
+    private Map<QueryCacheKey, List<?>> queries = new HashMap<QueryCacheKey, List<?>>();
 
     /**
      * attaches a query to the cache and associates specified spaces with the query
@@ -59,7 +59,7 @@ class QueryCache {
         }
 
         // put the query itself
-        this.results.put(cacheKey, result);
+        this.queries.put(cacheKey, result);
 
         logger.trace("attached " + cacheKey);
     }
@@ -69,7 +69,7 @@ class QueryCache {
      */
     List<?> find(QueryCacheKey cacheKey) {
 
-        return this.results.get(cacheKey);
+        return this.queries.get(cacheKey);
     }
 
     /**
@@ -84,7 +84,7 @@ class QueryCache {
             for (QueryCacheKey cacheKey : thisSpace) {
 
                 // remove the cacheKey
-                this.results.remove(cacheKey);
+                this.queries.remove(cacheKey);
 
                 logger.trace("detached " + cacheKey);
             }
@@ -96,5 +96,16 @@ class QueryCache {
                 }
             }
         }
+    }
+
+    void clear() {
+
+        this.spaces.clear();
+        this.queries.clear();
+    }
+
+    int size() {
+
+        return this.queries.size();
     }
 }

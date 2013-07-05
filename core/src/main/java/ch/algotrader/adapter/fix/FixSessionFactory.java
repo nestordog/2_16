@@ -171,7 +171,7 @@ public class FixSessionFactory implements InitializingBean {
     /**
      * Gets the next {@code orderId} for the specified {@code account}
      */
-    public String getNextOrderId(Account account) {
+    public synchronized String getNextOrderId(Account account) {
 
         String sessionQualifier = account.getSessionQualifier();
         if (!this.orderIds.containsKey(sessionQualifier)) {

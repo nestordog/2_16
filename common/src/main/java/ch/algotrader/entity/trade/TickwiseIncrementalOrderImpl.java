@@ -26,10 +26,6 @@ import org.apache.commons.beanutils.BeanUtils;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.trade.LimitOrder;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderValidationException;
-import ch.algotrader.entity.trade.TickwiseIncrementalOrder;
 import ch.algotrader.enumeration.Side;
 
 /**
@@ -51,11 +47,11 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
     public String getExtDescription() {
 
         //@formatter:off
-        return "startOffsetTicks: " + getStartOffsetTicks() +
-            " endOffsetTicks: " + getEndOffsetTicks() +
-            (this.startLimit != null ? " startLimit: " + this.startLimit : "") +
-            (this.endLimit != null ? " endLimit: " + this.endLimit : "") +
-            (this.currentLimit != null ? " currentLimit: " + this.currentLimit : "");
+        return "startOffsetTicks=" + getStartOffsetTicks() +
+            ",endOffsetTicks=" + getEndOffsetTicks() +
+            (this.startLimit != null ? ",startLimit=" + this.startLimit : "") +
+            (this.endLimit != null ? ",endLimit=" + this.endLimit : "") +
+            (this.currentLimit != null ? ",currentLimit=" + this.currentLimit : "");
         //@formatter:on
     }
 

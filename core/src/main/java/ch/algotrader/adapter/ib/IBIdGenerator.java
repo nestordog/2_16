@@ -38,11 +38,11 @@ public final class IBIdGenerator {
         return instance;
     }
 
-    public String getNextOrderId() {
+    public synchronized String getNextOrderId() {
         return String.valueOf(this.orderId++);
     }
 
-    public int getNextRequestId() {
+    public synchronized int getNextRequestId() {
         return this.requestId++;
     }
 

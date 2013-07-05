@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-import ch.algotrader.entity.trade.OrderValidationException;
-import ch.algotrader.entity.trade.StopOrder;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -31,7 +29,7 @@ public class StopOrderImpl extends StopOrder {
 
     @Override
     public String getExtDescription() {
-        return "stop: " + getStop();
+        return "stop=" + getStop();
     }
 
     @Override

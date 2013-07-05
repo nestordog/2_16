@@ -25,18 +25,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.collection.Pair;
-
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.LimitOrder;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderValidationException;
-import ch.algotrader.entity.trade.SlicingOrder;
 import ch.algotrader.enumeration.Side;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.collection.Pair;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -57,10 +51,11 @@ public class SlicingOrderImpl extends SlicingOrder {
     public String getExtDescription() {
 
         //@formatter:off
-            return "vol: " + getMinVolPct() + " - " + getMaxVolPct() + " max " + getMaxQuantity() +
-            " duration: " + getMinDuration() + " - " + getMaxDuration() +
-            " delay: " + getMinDelay() + " - " + getMaxDelay() +
-            " currentOffsetTicks: " + this.currentOffsetTicks;
+            return "vol=" + getMinVolPct() + "-" + getMaxVolPct() +
+            ",max=" + getMaxQuantity() +
+            ",duration=" + getMinDuration() + "-" + getMaxDuration() +
+            ",delay=" + getMinDelay() + "-" + getMaxDelay() +
+            ",currentOffsetTicks=" + this.currentOffsetTicks;
         //@formatter:on
     }
 

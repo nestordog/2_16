@@ -18,11 +18,16 @@
 package ch.algotrader.cache;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
+import org.springframework.jmx.export.annotation.ManagedResource;
 
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.security.Security;
@@ -36,6 +41,7 @@ import ch.algotrader.util.MyLogger;
  *
  * @version $Revision$ $Date$
  */
+@ManagedResource(objectName = "ch.algotrader.cache:name=CacheManager")
 public class CacheManagerImpl implements CacheManager {
 
     private static Logger logger = MyLogger.getLogger(CacheManagerImpl.class.getName());
@@ -214,5 +220,26 @@ public class CacheManagerImpl implements CacheManager {
             return this.collectionHandler;
 
         throw new IllegalArgumentException("Can not manage object " + clazz.getName());
+    }
+
+    // Management Operations
+
+    @ManagedOperation
+    @ManagedOperationParameters({})
+    public void clear() {
+
+        this.entityCache.clear();
+        this.queryCache.clear();
+    }
+
+    @ManagedAttribute
+    public Map<String, Integer> getCacheSize() {
+
+        Map<String, Integer> numCached = new HashMap<String, Integer>();
+
+        numCached.put("entities", this.entityCache.size());
+        numCached.put("queries", this.queryCache.size());
+
+        return numCached;
     }
 }
