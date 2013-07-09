@@ -1,4 +1,20 @@
-Version 1.12 (R5597)
+Version 2.0
+Multi Account Handling
+Execution Algo DisbtributionOrder
+InteractiveBroker Financial Advisors Handling over FIX
+SABR Option Pricing Engine
+DocBook based documentation
+add JavaDoc
+relate Component to Combination instead of Security
+Level-Zero Cache
+Single-VM Live-Trading Mode
+Bloomberg Market Data Interface
+Eclipse Colorer
+Stock GICS
+Client Expert Mode
+Esper 4.9
+
+Version 1.12 (R5617)
 Esper 4.8
 use Spring Integration for Mail Reconciliation
 Esper Threading
