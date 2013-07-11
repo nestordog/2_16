@@ -84,19 +84,19 @@ public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheE
             @Override
             public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
 
-                logger.info("element removed " + element);
+                // do nothing
             }
 
             @Override
             public void notifyElementExpired(Ehcache cache, Element element) {
 
-                logger.info("element expired " + element);
+                // do nothing
             }
 
             @Override
             public void notifyElementEvicted(Ehcache cache, Element element) {
 
-                logger.info("element evicted " + element);
+                // do nothing
             }
 
             private void updateEntity(org.hibernate.cache.CacheKey hibernateCacheKey) {

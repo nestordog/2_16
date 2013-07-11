@@ -574,10 +574,12 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
             position.getSecurityInitialized();
             CurrencyAmountVO currencyAmount = position.getAttribution();
-            if (position.isCashPosition()) {
-                cashMap.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
-            } else {
-                securitiesMap.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
+            if (currencyAmount.getAmount() != null) {
+                if (position.isCashPosition()) {
+                    cashMap.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
+                } else {
+                    securitiesMap.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
+                }
             }
         }
 

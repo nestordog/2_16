@@ -154,6 +154,13 @@ public abstract class SecurityImpl extends Security {
         }
     }
 
+    private transient boolean initialized = false;
+
+    public boolean isInitialized() {
+
+        return this.initialized;
+    }
+
     @Override
     public void initialize() {
 
@@ -185,7 +192,7 @@ public abstract class SecurityImpl extends Security {
             MetricsUtil.account("Security.underlying", (afterUnderlying - beforeUnderlying));
             MetricsUtil.account("Security.securityFamily", (afterSecurityFamily - beforeSecurityFamily));
 
-            setInitialized();
+            this.initialized = true;
         }
     }
 }

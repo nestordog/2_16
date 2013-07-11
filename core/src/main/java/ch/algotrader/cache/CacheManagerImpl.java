@@ -105,13 +105,7 @@ public class CacheManagerImpl implements CacheManager {
             if (result instanceof Security) {
 
                 Security security = (Security) result;
-                if (!security.isInitialized()) {
-
-                    // invoke an update and replace the result
-                    AbstractHandler handler = getHandler(result.getClass());
-
-                    result = (T) handler.update(result);
-                }
+                security.initialize();
             }
         }
 

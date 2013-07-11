@@ -33,20 +33,4 @@
         </modelElements>
     </template>]]></to>
         </mapping>
-
-        <!-- Security initialized -->
-        <mapping>
-            <from><![CDATA[// Security Entity merge-point]]></from>
-            <to><![CDATA[private transient boolean initialized = false;
-
-    public void setInitialized()
-    {
-        this.initialized = true;
-    }
-
-    public boolean isInitialized()
-    {
-        return this.initialized;
-    }]]></to>
-        </mapping>
 </mappings>
