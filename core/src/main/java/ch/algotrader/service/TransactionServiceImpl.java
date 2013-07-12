@@ -66,6 +66,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
     private @Value("${simulation}") boolean simulation;
     private @Value("${simulation.logTransactions}") boolean logTransactions;
+    private @Value("${misc.portfolioDigits}") int portfolioDigits;
 
     @Override
     protected void handleCreateTransaction(Fill fill) {
@@ -112,6 +113,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             throw new IllegalArgumentException("strategy " + strategyName + " was not found");
         }
 
+        int scale = this.portfolioDigits;
         Security security = getSecurityDao().findById(securityId);
         if (TransactionType.BUY.equals(transactionType) ||
                 TransactionType.SELL.equals(transactionType) ||
@@ -123,6 +125,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             }
 
             currency = security.getSecurityFamily().getCurrency();
+            scale = security.getSecurityFamily().getScale();
 
             if (TransactionType.BUY.equals(transactionType)) {
                 quantity = Math.abs(quantity);
@@ -157,15 +160,12 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         Account account = getAccountDao().findByName(accountName);
 
-        // set scale
-        price = price.setScale(security.getSecurityFamily().getScale());
-
         // create the transaction
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(dateTime);
         transaction.setExtId(extId);
         transaction.setQuantity(quantity);
-        transaction.setPrice(price);
+        transaction.setPrice(price.setScale(scale));
         transaction.setType(transactionType);
         transaction.setSecurity(security);
         transaction.setStrategy(strategy);

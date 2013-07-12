@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -26,12 +27,10 @@ import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
-
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderStatusDaoBase;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.EsperManager;
 import ch.algotrader.vo.OrderStatusVO;
+
 import com.espertech.esper.collection.Pair;
 
 /**
@@ -61,7 +60,12 @@ public class OrderStatusDaoImpl extends OrderStatusDaoBase {
     @Override
     protected Collection<OrderStatusVO> handleFindOrderStatiByStrategy(String strategyName) throws Exception {
 
-        Collection<Pair<Order, Map<String, ?>>> pairs = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
+        Collection<Pair<Order, Map<String, ?>>> pairs;
+        if (EsperManager.isInitialized(StrategyImpl.BASE)) {
+            pairs = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
+        } else {
+            pairs = new ArrayList<Pair<Order, Map<String, ?>>>();
+        }
         return convertPairCollectionToOrderStatusVOCollection(pairs);
     }
 

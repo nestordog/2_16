@@ -48,6 +48,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
     private static DateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 
     private static IBSession client;
+    private static boolean firstOrder = true;
 
     private @Value("${ib.faMethod}") String faMethod;
 
@@ -73,6 +74,27 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
 
     @Override
     protected void handleSendOrder(SimpleOrder order) throws Exception {
+
+        // Because of an IB bug only one order can be submitted at a time when
+        // first connecting to IB, so wait 100ms after the first order
+
+        logger.info("before place");
+
+        if (firstOrder) {
+
+            synchronized (this) {
+                internalSendOrder(order);
+                Thread.sleep(200);
+                firstOrder = false;
+            }
+
+        } else {
+
+            internalSendOrder(order);
+        }
+    }
+
+    private void internalSendOrder(SimpleOrder order) throws Exception {
 
         String intId = IBIdGenerator.getInstance().getNextOrderId();
         order.setIntId(intId);
