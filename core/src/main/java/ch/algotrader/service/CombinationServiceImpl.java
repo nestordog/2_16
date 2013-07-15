@@ -202,11 +202,14 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         // Note: positions are not closed, because other combinations might relate to them as well
         for (Component component : combination.getComponents()) {
 
-            Position position = getPositionDao().findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
+            if (component.getQuantity() != 0) {
 
-            logger.info("close position " + position.getId() + " of combination " + combination);
+                Position position = getPositionDao().findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
 
-            getPositionService().reducePosition(position.getId(), component.getQuantity());
+                logger.info("reduce position " + position.getId() + " by " + component.getQuantity());
+
+                getPositionService().reducePosition(position.getId(), component.getQuantity());
+            }
         }
 
         // close non-tradeable position on the combination

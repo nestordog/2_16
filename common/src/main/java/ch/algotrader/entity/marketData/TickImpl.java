@@ -123,7 +123,9 @@ public class TickImpl extends Tick {
     public BigDecimal getMarketValue(Direction direction) {
 
         if (Direction.LONG.equals(direction)) {
-            return getBid();
+
+            // bid might be null
+            return getBid() != null ? getBid() : new BigDecimal(0);
         } else if (Direction.SHORT.equals(direction)) {
             return getAsk();
         } else {
