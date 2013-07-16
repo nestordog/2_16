@@ -277,7 +277,7 @@
         <andromda.version>3.4</andromda.version>
         <spring.version>3.2.3.RELEASE</spring.version>
         <esper.version>4.9.0</esper.version>
-        <esperee.version>4.8.0</esperee.version>
+        <esperee.version>4.9.0</esperee.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 </project>

@@ -1,18 +1,18 @@
 Version 2.0
 Multi Account Handling
-Execution Algo DisbtributionOrder
-InteractiveBroker Financial Advisors Handling over FIX
-SABR Option Pricing Engine
-DocBook based documentation
-add JavaDoc
-relate Component to Combination instead of Security
-Level-Zero Cache
-Single-VM Live-Trading Mode
 Bloomberg Market Data Interface
-Eclipse Colorer
-Stock GICS
+Level-Zero Cache
+New Execution Algorithm “Disbtributional”
+InteractiveBrokers Financial Advisors Handling over FIX
+SABR Option Pricing Engine
+Single-JVM Live-Trading Mode
+Eclipse Colorer Integration
+Support for Global Industry Classification Standard (GICS)
+relate Component to Combination instead of Security
+DocBook based documentation
+add JavaDoc Comments
 Client Expert Mode
-Esper 4.9
+3rd Party Library updates (Esper 4.9, Spring Framework 3.2.3, Spring Integration 2.2.4, Hibernate 3.6.10, etc.)
 
 Version 1.12 (R5617)
 Esper 4.8
