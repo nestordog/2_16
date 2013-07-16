@@ -46,7 +46,7 @@
    <xsl:param name="callout.icon.size">10pt</xsl:param>
 
   <!-- Admonitions -->
-  <xsl:param name="admon.graphics.extension" select="'.svg'"/>
+  <xsl:param name="admon.graphics.extension" select="'.png'"/>
 
 <xsl:attribute-set name="admonition.title.properties">
   <xsl:attribute name="font-size">13pt</xsl:attribute>

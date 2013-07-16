@@ -33,5 +33,6 @@
     <!-- Constants -->
     <variable name="misc_marketIntrest" type="double" constant="true"/>
     <variable name="misc_defaultRetrievalSeconds" type="double" constant="true"/>
+    <variable name="misc_orderAckSeconds" type="long" constant="true"/>
 
 </esper-configuration>

@@ -57,7 +57,7 @@ or
 select
     "missing reply on order: " || currentOrder.toString() as reason
 from
-    pattern[every currentOrder=GenericOrder -> (timer:interval(1 sec) and not OrderStatus(ord.intId = currentOrder.intId))];
+    pattern[every currentOrder=GenericOrder -> (timer:interval(misc_orderAckSeconds) and not OrderStatus(ord.intId = currentOrder.intId))];
 
 // ------------------------------ALGO ORDERS--------------------------------
 

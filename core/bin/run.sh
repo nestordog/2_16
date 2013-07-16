@@ -5,8 +5,8 @@ cd $ALGOTRADER_HOME
 nohup java \
 -cp classes:`cat bin/cp.txt` \
 -DstrategyName=BASE \
--Dcom.algoTrarder.rmi.registryPort=1099 \
--Dcom.algoTrarder.rmi.serverPort=1098 \
+-Dch.algotrader.rmi.registryPort=1099 \
+-Dch.algotrader.rmi.serverPort=1098 \
 -Djava.rmi.server.hostname=$EXT_HOSTNAME \
 -Dcom.sun.management.jmxremote.authenticate=false \
 -Dcom.sun.management.jmxremote.ssl=true \

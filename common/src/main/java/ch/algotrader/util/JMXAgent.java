@@ -39,8 +39,8 @@ import javax.rmi.ssl.SslRMIServerSocketFactory;
  * <p>
  * The JMX Agent takes the following two vm arguments to define both ports:
  * <pre>
- * -Dcom.algoTrarder.rmi.registryPort
- * -Dcom.algoTrarder.rmi.serverPort</pre>
+ * -Dch.algotrader.rmi.registryPort
+ * -Dch.algotrader.rmi.serverPort</pre>
  * In order to use this Custom JMXAgent the following has to be specified on the commandline:
  * <pre>-javaagent:lib/agent.jar</pre>
  * In addition the following vm argument has to be specified, which defines the public external host name:
@@ -52,8 +52,8 @@ import javax.rmi.ssl.SslRMIServerSocketFactory;
  */
 public class JMXAgent {
 
-    public static final String RMI_REGISTRY_PORT = "com.algoTrarder.rmi.registryPort";
-    public static final String RMI_SERVER_CONNECTION_PORT = "com.algoTrarder.rmi.serverPort";
+    public static final String RMI_REGISTRY_PORT = "ch.algotrader.rmi.registryPort";
+    public static final String RMI_SERVER_CONNECTION_PORT = "ch.algotrader.rmi.serverPort";
 
     private JMXAgent() {
     }
