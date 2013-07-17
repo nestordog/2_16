@@ -2366,31 +2366,35 @@ public class ExClient {
         <section>
             <title>Aggregation Functions</title>
             <para>The system provides the following three custom aggregation functions:</para>
-            <section>
+            <section id="GenericTALibFunction">
                 <title>GenericTALibFunction</title>
-                <para>The <classname>GenericTALibFunction</classname> is a portation of <ulink url="http://ta-lib.org/">http://ta-lib.org/</ulink> to AlgoTrader. It
+                <para>The <classname>GenericTALibFunction</classname> is a portation of <ulink
+                        url="http://ta-lib.org/">http://ta-lib.org/</ulink> to AlgoTrader. It
                     supports all TA-Lib operations.</para>
-                <para>To use the <classname>AggregateFunction</classname> the following configuration is added
-                    to the esper configuration <filename>esper-common.cfg.xml</filename>:</para>
+                <para>To use the <classname>AggregateFunction</classname> the following
+                    configuration is added to the esper configuration
+                        <filename>esper-common.cfg.xml</filename>:</para>
                 <programlisting lang="XML">&lt;plugin-aggregation-function name="talib" factory-class="ch.algotrader.esper.aggregation.GenericTALibFunctionFactory"/></programlisting>
-                <para> The <classname>AggregationFunction</classname> can be used in an esper statement like
-                    this: </para>
+                <para> The <classname>AggregationFunction</classname> can be used in an esper
+                    statement like this: </para>
                 <programlisting lang="Java">insert into StochF
 select talib("stochF", high, low, close, 3, 2, "Sma") as values
 from OHLCBar;
 
 select values.fastk, values.fastd
 from StochF(values != null);</programlisting>
-                <para>The following parameters from the <classname>com.tictactec.ta.lib.Core</classname> methods
-                    will be needed: </para>
+                <para>The following parameters from the
+                        <classname>com.tictactec.ta.lib.Core</classname> methods will be needed: </para>
                 <para>
                     <itemizedlist>
                         <listitem>
                             <para><parameter>in...</parameter> (i.e. <parameter>inHigh</parameter>,
-                                    <parameter>inLow</parameter>, <parameter>inClose</parameter>) </para>
+                                    <parameter>inLow</parameter>, <parameter>inClose</parameter>)
+                            </para>
                         </listitem>
                         <listitem>
-                            <para><parameter>optIn..</parameter> (i.e. <parameter>optInFastK_Period</parameter>,
+                            <para><parameter>optIn..</parameter> (i.e.
+                                    <parameter>optInFastK_Period</parameter>,
                                     <parameter>optInFastD_Period</parameter>,
                                     <parameter>optInFastD_MAType</parameter>) </para>
                         </listitem>
@@ -2401,8 +2405,8 @@ from StochF(values != null);</programlisting>
                         </listitem>
                     </itemizedlist>
                 </para>
-                <para>If the TA-Lib Function returns just one value, the value is directly exposed by the
-                        <classname>AggregationFunction</classname>. </para>
+                <para>If the TA-Lib Function returns just one value, the value is directly exposed
+                    by the <classname>AggregationFunction</classname>. </para>
                 <para>If the TA-Lib Function returns multiple-values, a dynamic class will be
                     generated on the fly, which gives access to properly typed return-values. All
                     return value names are lower-case! </para>
@@ -2675,7 +2679,7 @@ getOrderService().sendOrders(orders);</programlisting>
                     </imageobject>
                 </mediaobject>
             </figure>
-            <section>
+            <section id="Managed_Beans">
                 <title>AlgoTrader Managed Beans</title>
                 <para>Services tagged with <parameter>@algoTrader.service.manageable</parameter> are
                     automatically exposed through JMX by means of the
@@ -2687,7 +2691,8 @@ getOrderService().sendOrders(orders);</programlisting>
                         <title>Management Service Attributes</title>
                         <mediaobject>
                             <imageobject>
-                                <imagedata scalefit="1" fileref="images/ManagementServiceAttributes.gif"/>
+                                <imagedata scalefit="1"
+                                    fileref="images/ManagementServiceAttributes.gif"/>
                             </imageobject>
                         </mediaobject>
                     </figure>
@@ -2788,7 +2793,8 @@ getOrderService().sendOrders(orders);</programlisting>
                         <title>Management Service Operations</title>
                         <mediaobject>
                             <imageobject>
-                                <imagedata scalefit="1" fileref="images/ManagementServiceOperations.gif"/>
+                                <imagedata scalefit="1"
+                                    fileref="images/ManagementServiceOperations.gif"/>
                             </imageobject>
                         </mediaobject>
                     </figure>
@@ -2905,7 +2911,8 @@ getOrderService().sendOrders(orders);</programlisting>
                         <title>Base Management Service Operations</title>
                         <mediaobject>
                             <imageobject>
-                                <imagedata scalefit="1" fileref="images/BaseManagementServiceOperations.gif"/>
+                                <imagedata scalefit="1"
+                                    fileref="images/BaseManagementServiceOperations.gif"/>
                             </imageobject>
                         </mediaobject>
                     </figure>
@@ -2998,8 +3005,8 @@ getOrderService().sendOrders(orders);</programlisting>
 })</programlisting>
                 </section>
             </section>
-            <section>
-                <title id="Charts">Charts</title>
+            <section id="Charts">
+                <title>Charts</title>
                 <para>Every strategy will display a custom JConsole Tab with a Portfolio Chart. In
                     addition Strategies can configure additional Tabs with Custom Charts.</para>
                 <para>All Charts are based on <ulink url="http://www.jfree.org/jfreechart/">
@@ -3375,7 +3382,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     the person in charge of monitoring the System is being notified if the system is
                     down or not reachable anymore (e.g. stale JVM).</para>
             </section>
-            <section>
+            <section id="Additional_MBeans">
                 <title>Additional MBeans</title>
                 <para>In addition the following system functions can be monitored through JMX as
                     well:</para>
@@ -4097,49 +4104,49 @@ public class MovChartService extends ChartProvidingServiceImpl {
 
                 </section>
         </section>
-        <section>
-            <title>Subversion Checkout</title>
-            <important>
-                <para>Note: AndroMDA does not allow any special characters (i.e. spaces or
-                    exclamation marks) in the project path.</para>
-            </important>
-            <para>Do an svn checkout from the command line:</para>
-            <screen>svn checkout https://repo.algotrader.ch/svn/trunk/AlgoTrader</screen>
-            <para>Import the following projects into eclipse via File / Import / Maven / Existing Maven
-                    Projects:</para>
-            <itemizedlist>
-                <listitem>
-                    <para>
-                        <filename>algotrader </filename>
-                    </para>
-                </listitem>
-                <listitem>
-                    <para>
-                        <filename>algotrader/common</filename>
-                    </para>
-                </listitem>
-                <listitem>
-                    <para>
-                        <filename>algotrader/core</filename>
-                    </para>
-                </listitem>
-                <listitem>
-                    <para>
-                        <filename>algotrader/client</filename>
-                    </para>
-                </listitem>
-                <listitem>
-                    <para>
-                        <filename>algotrader/crud</filename>
-                    </para>
-                </listitem>
-                <listitem>
-                    <para>
+        <section id="Subversion_Checkout">
+                <title>Subversion Checkout</title>
+                <important>
+                    <para>Note: AndroMDA does not allow any special characters (i.e. spaces or
+                        exclamation marks) in the project path.</para>
+                </important>
+                <para>Do an svn checkout from the command line:</para>
+                <screen>svn checkout https://repo.algotrader.ch/svn/trunk/AlgoTrader</screen>
+                <para>Import the following projects into eclipse via File / Import / Maven /
+                    Existing Maven Projects:</para>
+                <itemizedlist>
+                    <listitem>
+                        <para>
+                            <filename>algotrader </filename>
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <filename>algotrader/common</filename>
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <filename>algotrader/core</filename>
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <filename>algotrader/client</filename>
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <filename>algotrader/crud</filename>
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para>
                             <filename>algotrader/mda</filename>
                         </para>
-                </listitem>
-            </itemizedlist>
-        </section>
+                    </listitem>
+                </itemizedlist>
+            </section>
             <section>
                 <title>Associate JConsole and Tools Variable</title>
                 <para>The eclipse project algotrader-client depends on the two classpath variables
@@ -5446,7 +5453,7 @@ create variable ch.algotrader.enumeration.State state =
             <para>To run a strategy in Simulation Mode with the currently defined parameters use the
                 procedure defined in <xref linkend="Starting_a_Strategy"/>.</para>
         </section>
-        <section>
+        <section id="Automated_Parameter_Optimization">
             <title>Automated Parameter Optimization</title>
             <para>The system allows to run many simulations in parallel. Using cloud based servers
                 thousands of simulation runs can be carried out in a matter of a few hours. Using
@@ -5499,10 +5506,10 @@ create variable ch.algotrader.enumeration.State state =
             <para>
                 <emphasis role="bold">optimizeMultiParam</emphasis>
             </para>
-            <para>Multiple Simulation runs by adjusting the value of multiple parameters around their start
-                values and trying to find the maximum ShareRatio. The example below will start the
-                optimization by setting the value of parameter a to 85.0 and parameter b to
-                150.0</para>
+            <para>Multiple Simulation runs by adjusting the value of multiple parameters around
+                their start values and trying to find the maximum ShareRatio. The example below will
+                start the optimization by setting the value of parameter a to 85.0 and parameter b
+                to 150.0</para>
             <screen>optimizeMultiParam SMI a:85.0 b:150.0</screen>
             <para>In order to process parameters with the correct decimal scale the following VM
                 argument has to be set:</para>
@@ -5924,16 +5931,16 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                     <classname>SecurityFamly</classname>. The RIC on the other side uses the
                 property <parameter>ricRoot</parameter>.</para>
         </section>
-        <section>
+        <section id="Delta_Hedging">
             <title>Delta Hedging</title>
             <para>Automatic Delta Hedging is provided by the Service
                     <classname>ch.algotrader.service.StockOptionService</classname>. The method
                     <methodname>hedgeDelta</methodname> will calculate the deltaAdjustedMarketValue
                 for all securities based on one particular underlying. The method will subsequently
                 build up a hedging position based on the nearest Future of the same underlying.
-                Since some underlyings have more than one Futures Chain based on them,  the property
+                Since some underlyings have more than one Futures Chain based on them, the property
                     <parameter>hedgingFamily</parameter> needs to be defined on the Subscription of
-                the underlying. In addition the method  <methodname>hedgeDelta</methodname> can also
+                the underlying. In addition the method <methodname>hedgeDelta</methodname> can also
                 be invoked with the <classname>BaseManagementService</classname>.</para>
         </section>
         <section>
@@ -6345,11 +6352,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                     be thrown.</para>
                 <para>The method <methodname>sendOrder</methodname> of the <classname>OrderService</classname>
                     is responsible for placing Orders. This method takes an
-                        <classname>Order</classname> object as parameter. If the second parameter
-                    named <parameter>suggest</parameter> is set to true, there will not be an actual
-                    Order going to the Broker but instead an Email with a Order Suggestion is sent
-                    to the registered Email addresses. This allows for manual confirmation of
-                    automatically generated Signals.</para>
+                        <classname>Order</classname> object as parameter. </para>
                 <para>The <methodname>sendOrder</methodname> method is responsible for invoking the
                     broker specific method <methodname>sendOrder</methodname> of the
                         <classname>ExternalOrderService</classname>. The method
@@ -6368,6 +6371,15 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 <para>In addition Open Orders are stored in the
                         <classname>OpenOrderWindow</classname> until their full execution or
                     cancellation.</para>
+                <section id="Trade_Suggestions">
+                    <title>Trade Suggestions</title>
+                    <para>If the second parameter of the The method
+                            <methodname>OrderService.sendOrder</methodname> named
+                            <parameter>suggest</parameter> is set to true, there will not be an
+                        actual Order going to the Broker but instead an Email with a Trade
+                        Suggestion is sent to the registered Email addresses. This allows for manual
+                        confirmation of automatically generated Signals.</para>
+                </section>
             </section>
             <section>
                 <title>Receive Fills</title>
