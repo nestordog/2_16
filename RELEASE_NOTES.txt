@@ -14,7 +14,7 @@ add JavaDoc Comments
 Client Expert Mode
 3rd Party Library updates (Esper 4.9, Spring Framework 3.2.3, Spring Integration 2.2.4, Hibernate 3.6.10, etc.)
 
-Version 1.12 (R5617)
+Version 1.12
 Esper 4.8
 use Spring Integration for Mail Reconciliation
 Esper Threading
@@ -36,7 +36,7 @@ Market Data Gap Checking
 Position Realized P/L
 Handle crossed spreads
 
-Version 1.11 (R5364)
+Version 1.11
 Reconciliation (IB / RBS / UI)
 SimpleOrders vs AlgoOrders (e.g. SlicingOrder)
 Fix Interface
@@ -46,12 +46,12 @@ MailMessageReceiver
 AndroMDA 3.4
 ForexFuture / FX Hedging by ForexFuture
 
-Version 1.10 (R5139)
+Version 1.10
 GenericEvents
 update Charting Functionality (add Indicators & Bars)
 JMX over SSL
 
-Version 1.9 (R4913)
+Version 1.9
 SyntheticSecurities (Combinations / SyntheticIndices)
 AlgoTraderSSHClient
 PropertyService / PropertyHolder / Property
@@ -60,14 +60,14 @@ Metrics Logging
 PortfolioService
 General performance optimizations
 
-Version 1.8 (R4728)
+Version 1.8
 IncrementalLimitOrder
 HistoricalDataService HistoricalBars
 MBean Annotations
 SecurityFamily TickSizePattern
 Measurement & MeasurementService
 
-Version 1.7 (R4620)
+Version 1.7
 update ServiceLocation & Configuration
 separation of code into core and common
 update Account Functionality
@@ -76,18 +76,18 @@ OrderValidation
 TWS 921.5 / IB Gateway 921.5 / IB Client 9.65 / IBController 2.9.0
 Esper 4.5
 
-Version 1.6 (R4573)
+Version 1.6
 TickCallback and OrderCallback
 Combinations & Allocations
 Asynchronous Event Propagation using ActiveMQ
 convert Model to UML2.0
 Esper 4.4
 
-Version 1.5 (R4352)
+Version 1.5
 async Order & MarketDataService
 Esper 4.3
 
-Version 1.4 (R4241)
+Version 1.4
 GenericFutures
 Cash Balances & FX-Equalization
 Management Service Diagrams
@@ -96,26 +96,26 @@ AndroMDA 3.4 SNAPSHOT
 Maven 2
 Esper 4.2
 
-Version 1.3 (R3745)
+Version 1.3
 implemented Futures
 
-Version 1.2 (R3710)
+Version 1.2
 separated AlgoTrader and AlgoTraderTheta projects
 
-Version 1.1 (R3640)
+Version 1.1
 implemented Forex
 
-Version 1.0 (R3483)
+Version 1.0
 separated JVMs for Framework and Strategies
 
-Version 0.9 (R3422)
+Version 0.9
 Spring RichClient using RMI
 
-Version 0.8 (R3285)
+Version 0.8
 implemented Portfolio Values
 
-Version 0.7 (R3188)
+Version 0.7
 implemented InteractiveBrokers adapter
 
-Version 0.6 (R2993)
+Version 0.6
 implemented Simulation Results

@@ -2115,8 +2115,72 @@ public class ExClient {
         <title>Esper Engine</title>
         <para>The system is built on CEP (Complex Event Processing) using the open source framework
                 <ulink url="http://esper.codehaus.org/">Esper</ulink>.</para>
-        <para>Individual Esper engines instances are used inside the Base as well as within the
-            strategies.</para>
+        <para>The following tutorials give a good overview of Esper:</para>
+        <itemizedlist>
+            <listitem>
+                <para><ulink url="http://esper.codehaus.org/tutorials/tutorial/tutorial.html">Esper
+                        Tutorial</ulink></para>
+            </listitem>
+            <listitem>
+                <para><ulink url="http://esper.codehaus.org/tutorials/tutorial/quickstart.html"
+                        >Esper Quick Start</ulink></para>
+            </listitem>
+            <listitem>
+                <para><ulink
+                        url="http://coffeeonesugar.wordpress.com/2009/07/21/getting-started-with-esper-in-5-minutes/"
+                        >Getting started with Esper in 5 minutes</ulink></para>
+            </listitem>
+            <listitem>
+                <para><ulink url="http://jnb.ociweb.com/jnb/jnbOct2008.html">Complex Event
+                        Processing with Esper</ulink></para>
+            </listitem>
+            <listitem>
+                <para><ulink
+                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/examples.html"
+                        >Esper Examples, Tutorials, Case Studies</ulink></para>
+            </listitem>
+        </itemizedlist>
+        <para>In addition the following chapters of the Esper Documentation are relevant for
+            developing trading strategies with AlgoTrader based on Esper:</para>
+        <itemizedlist>
+            <listitem>
+                <para><ulink
+                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/event_representation.html"
+                        >2. Event Representations</ulink> (2 - 2.5)</para>
+            </listitem>
+            <listitem>
+                <para><ulink
+                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/processingmodel.html"
+                        >3. Processing Model</ulink></para>
+            </listitem>
+            <listitem>
+                <para><ulink
+                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl_clauses.html"
+                        >5. EPL Reference: Clauses</ulink> (5 - 5.9, 5.12, 5.14, 5.15, 5.18)</para>
+            </listitem>
+            <listitem>
+                <para><ulink
+                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/event_patterns.html"
+                        >6. EPL Reference: Patterns</ulink></para>
+            </listitem>
+            <listitem>
+                <para><ulink
+                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl-operator.html"
+                        >8. EPL Reference: Operators</ulink></para>
+            </listitem>
+            <listitem>
+                <para><ulink
+                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/functionreference.html"
+                        >9. EPL Reference: Functions</ulink></para>
+            </listitem>
+            <listitem>
+                <para><ulink
+                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl-views.html"
+                        >12. EPL Reference: Views</ulink></para>
+            </listitem>
+        </itemizedlist>
+        <para>Inside AlgoTrader individual Esper engines instances are used within the Base as well as
+            within the strategies.</para>
         <para>Each of these engines can contain several modules. Modules specified within the column
             INIT_MODULES and RUN_MODULES of the Table strategy, are loaded automatically on
             start-up.</para>
@@ -8829,6 +8893,14 @@ where and s.name = 'BASE'</programlisting>
                     <listitem>
                         <para>Contains the database records needed to start the strategy. Needs to
                             be imported into the database before running the strategy.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><filename>/files/bardata/eurusd-1min-20111218-20130121/EU0009652759.zip</filename></term>
+                    <listitem>
+                        <para>Contains a .CSV file with bardata for the simulation. Unpack and copy
+                            to:</para>
+                        <para><filename>/core/files/bardata/eurusd-1min-20111218-20130121/EU0009652759.csv</filename></para>
                     </listitem>
                 </varlistentry>
             </variablelist>

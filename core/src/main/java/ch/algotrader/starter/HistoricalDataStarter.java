@@ -60,7 +60,7 @@ public class HistoricalDataStarter {
         }
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        IBNativeHistoricalDataService service = ServiceLocator.instance().getService("iBHistoricalDataService", IBNativeHistoricalDataService.class);
+        IBNativeHistoricalDataService service = ServiceLocator.instance().getService("historicalDataService", IBNativeHistoricalDataService.class);
 
         service.init();
 
