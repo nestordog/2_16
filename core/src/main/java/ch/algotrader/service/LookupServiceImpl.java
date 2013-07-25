@@ -56,6 +56,7 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.util.DateUtil;
@@ -649,12 +650,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected List<Bar> handleGetDailyBarsFromTicks(int securityId, Date fromDate, Date toDate) {
-
-        return getBarDao().findDailyBars(securityId, fromDate, toDate);
-    }
-
-    @Override
     protected List<Tick> handleGetSubscribedTicksByTimePeriod(Date startDate, Date endDate) throws Exception {
 
         return getTickDao().findSubscribedByTimePeriod(startDate, endDate);
@@ -664,6 +659,18 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected Tick handleGetTickBySecurityAndMaxDate(int securityId, Date date) {
 
         return getTickDao().findBySecurityAndMaxDate(securityId, date);
+    }
+
+    @Override
+    protected List<Bar> handleGetDailyBarsFromTicks(int securityId, Date fromDate, Date toDate) {
+
+        return getBarDao().findDailyBarsFromTicks(securityId, fromDate, toDate);
+    }
+
+    @Override
+    protected Collection<Bar> handleGetLastNBarsBySecurityAndBarSize(int n, int securityId, Duration barSize) throws Exception {
+
+        return getBarDao().findBarsBySecurityAndBarSize(1, n, securityId, barSize);
     }
 
     @Override

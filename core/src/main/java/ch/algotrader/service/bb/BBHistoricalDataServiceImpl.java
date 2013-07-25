@@ -5,6 +5,7 @@ import java.util.List;
 
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.enumeration.BarType;
+import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
 
 public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase {
@@ -17,8 +18,7 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase {
     }
 
     @Override
-    protected List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, int barSize,
-            TimePeriod barSizePeriod, BarType barType) throws Exception {
+    protected List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType) throws Exception {
         // TODO Auto-generated method stub
         return null;
     }

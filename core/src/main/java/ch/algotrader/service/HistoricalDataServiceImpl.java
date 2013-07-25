@@ -28,6 +28,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Predicate;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.entity.marketData.Bar;
@@ -35,9 +37,11 @@ import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.BarType;
+import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.io.CsvTickWriter;
 
 /**
@@ -48,6 +52,30 @@ import ch.algotrader.util.io.CsvTickWriter;
 public abstract class HistoricalDataServiceImpl extends HistoricalDataServiceBase {
 
     private static Logger logger = MyLogger.getLogger(HistoricalDataServiceImpl.class.getName());
+
+    @Override
+    protected void handleUpdateHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType) throws Exception {
+
+        // get all Bars from the Market Data Provider
+        List<Bar> bars = getHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
+
+        // get the last Bar int the Database
+        final Bar lastBar = CollectionUtil.getSingleElementOrNull(getBarDao().findBarsBySecurityAndBarSize(1, 1, securityId, barSize));
+
+        // remove all Bars prior to the lastBar
+        if (lastBar != null) {
+
+            CollectionUtils.filter(bars, new Predicate<Bar>() {
+                @Override
+                public boolean evaluate(Bar bar) {
+                    return bar.getDateTime().compareTo(lastBar.getDateTime()) > 0;
+                }
+            });
+        }
+
+        // save the Bars
+        getBarDao().create(bars);
+    }
 
     @Override
     protected void handleDownload1MinTicks(int[] securityIds, Set<BarType> barTypes, Date startDate, Date endDate) throws Exception {
@@ -87,7 +115,7 @@ public abstract class HistoricalDataServiceImpl extends HistoricalDataServiceBas
         // run all barTypes and get the ticks
         for (BarType barType : barTypes) {
 
-            List<Bar> bars = getHistoricalBars(security.getId(), date, 1, TimePeriod.DAY, 1, TimePeriod.MIN, barType);
+            List<Bar> bars = getHistoricalBars(security.getId(), date, 1, TimePeriod.DAY, Duration.MIN_1, barType);
 
             // filter Bars by date
             for (Iterator<Bar> it = bars.iterator(); it.hasNext();) {

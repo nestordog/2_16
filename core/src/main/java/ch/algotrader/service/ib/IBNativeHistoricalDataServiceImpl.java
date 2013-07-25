@@ -37,6 +37,7 @@ import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.BarType;
+import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataServiceException;
 import ch.algotrader.util.MyLogger;
@@ -65,6 +66,8 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
 
     private boolean success;
     private List<Bar> barList;
+    private Security security;
+    private Duration barSize;
 
     private static int clientId = 2;
 
@@ -95,13 +98,17 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
                         date = dateFormat.parse(dateString);
                     }
 
+                    int scale = IBNativeHistoricalDataServiceImpl.this.security.getSecurityFamily().getScale();
+                    Duration barSize = IBNativeHistoricalDataServiceImpl.this.barSize;
+
                     Bar bar = Bar.Factory.newInstance();
                     bar.setDateTime(date);
-                    bar.setOpen(RoundUtil.getBigDecimal(open));
-                    bar.setHigh(RoundUtil.getBigDecimal(high));
-                    bar.setLow(RoundUtil.getBigDecimal(low));
-                    bar.setClose(RoundUtil.getBigDecimal(close));
+                    bar.setOpen(RoundUtil.getBigDecimal(open, scale));
+                    bar.setHigh(RoundUtil.getBigDecimal(high, scale));
+                    bar.setLow(RoundUtil.getBigDecimal(low, scale));
+                    bar.setClose(RoundUtil.getBigDecimal(close, scale));
                     bar.setVol(volume);
+                    bar.setBarSize(barSize);
 
                     IBNativeHistoricalDataServiceImpl.this.barList.add(bar);
 
@@ -180,19 +187,19 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
     }
 
     @Override
-    protected synchronized List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, int barSize,
-            TimePeriod barSizePeriod, BarType barType) throws Exception {
+    protected synchronized List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType) throws Exception {
 
         this.barList = new ArrayList<Bar>();
         this.success = false;
 
-        Security security = getSecurityDao().get(securityId);
+        this.security = getSecurityDao().get(securityId);
+        this.barSize = barSize;
 
         this.lock.lock();
 
         try {
 
-            Contract contract = IBUtil.getContract(security);
+            Contract contract = IBUtil.getContract(this.security);
             int requestId = IBIdGenerator.getInstance().getNextRequestId();
             String dateString = dateTimeFormat.format(endDate);
 
@@ -220,31 +227,28 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
                     break;
             }
 
-            String barSizeString = barSize + " ";
-            switch (barSizePeriod) {
-                case MSEC:
-                    throw new IllegalArgumentException("MILLISECOND barSize is not allowed");
-                case SEC:
-                    barSizeString += "sec";
-                    break;
-                case MIN:
-                    barSizeString += "min";
-                    break;
-                case HOUR:
-                    barSizeString += "hour";
-                    break;
-                case DAY:
-                    barSizeString += "day";
-                    break;
-                case WEEK:
-                    throw new IllegalArgumentException("WEEK barSize is not allowed");
-                case MONTH:
-                    throw new IllegalArgumentException("MONTH barSize is not allowed");
-                case YEAR:
-                    throw new IllegalArgumentException("YEAR barSize is not allowed");
+            String[] barSizeName = barSize.name().split("_");
+
+            String barSizeString = barSizeName[1] + " ";
+            if (barSizeName[0].equals("MSEC")) {
+                throw new IllegalArgumentException("MILLISECOND barSize is not allowed");
+            } else if (barSizeName[0].equals("SEC")) {
+                barSizeString += "sec";
+            } else if (barSizeName[0].equals("MIN")) {
+                barSizeString += "min";
+            } else if (barSizeName[0].equals("HOUR")) {
+                barSizeString += "hour";
+            } else if (barSizeName[0].equals("DAY")) {
+                barSizeString += "day";
+            } else if (barSizeName[0].equals("WEEK")) {
+                throw new IllegalArgumentException("WEEK barSize is not allowed");
+            } else if (barSizeName[0].equals("MONTH")) {
+                throw new IllegalArgumentException("MONTH barSize is not allowed");
+            } else if (barSizeName[0].equals("YEAR")) {
+                throw new IllegalArgumentException("YEAR barSize is not allowed");
             }
 
-            if (barSize > 1) {
+            if (Integer.parseInt(barSizeName[1]) > 1) {
                 barSizeString += "s";
             }
 
@@ -262,7 +266,7 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
         }
 
         for (Bar bar : this.barList) {
-            bar.setSecurity(security);
+            bar.setSecurity(this.security);
         }
 
         return this.barList;
