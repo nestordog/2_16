@@ -668,7 +668,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Collection<Bar> handleGetLastNBarsBySecurityAndBarSize(int n, int securityId, Duration barSize) throws Exception {
+    protected List<Bar> handleGetLastNBarsBySecurityAndBarSize(int n, int securityId, Duration barSize) throws Exception {
 
         return getBarDao().findBarsBySecurityAndBarSize(1, n, securityId, barSize);
     }
