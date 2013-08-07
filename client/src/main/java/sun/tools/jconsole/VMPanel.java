@@ -86,6 +86,7 @@ public class VMPanel extends JTabbedPane implements PropertyChangeListener {
             "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
     private static ArrayList<TabInfo> tabInfos = new ArrayList<TabInfo>();
     private boolean wasConnected = false;
+    private boolean shouldUseSSL = true;
 
     // The everConnected flag keeps track of whether the window can be
     // closed if the user clicks Cancel after a failed connection attempt.
@@ -326,7 +327,7 @@ public class VMPanel extends JTabbedPane implements PropertyChangeListener {
 
                 @Override
                 public void run() {
-                    VMPanel.this.proxyClient.connect();
+                    VMPanel.this.proxyClient.connect(VMPanel.this.shouldUseSSL);
                 }
             }.start();
         }
