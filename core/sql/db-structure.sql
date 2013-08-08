@@ -94,7 +94,7 @@ DROP TABLE IF EXISTS `cash_balance`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cash_balance` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `CURRENCY` enum('CHF','EUR','USD','GBP') NOT NULL,
+  `CURRENCY` enum('USD','EUR','CHF','GBP','CAD','JPY','AUD','NZD','HKD','SEK','NOK') NOT NULL,
   `AMOUNT` decimal(15,2) NOT NULL,
   `STRATEGY_FK` int(11) NOT NULL,
   `VERSION` int(11) NOT NULL,
@@ -176,7 +176,7 @@ DROP TABLE IF EXISTS `forex`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `forex` (
   `ID` int(11) NOT NULL,
-  `BASE_CURRENCY` enum('CHF','EUR','USD','GBP') NOT NULL,
+  `BASE_CURRENCY` enum('USD','EUR','CHF','GBP','CAD','JPY','AUD','NZD','HKD','SEK','NOK') NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `FOREXIFKC` (`ID`),
   CONSTRAINT `FOREXIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -192,7 +192,7 @@ DROP TABLE IF EXISTS `forex_future`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `forex_future` (
   `ID` int(11) NOT NULL,
-  `BASE_CURRENCY` enum('CHF','EUR','USD') NOT NULL,
+  `BASE_CURRENCY` enum('USD','EUR','CHF','GBP','CAD','JPY','AUD','NZD','HKD','SEK','NOK') NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `FOREX_FUTUREIFKC` (`ID`),
   CONSTRAINT `FOREX_FUTUREIFKC` FOREIGN KEY (`ID`) REFERENCES `future` (`ID`)
@@ -208,7 +208,7 @@ DROP TABLE IF EXISTS `forex_future_family`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `forex_future_family` (
   `ID` int(11) NOT NULL,
-  `BASE_CURRENCY` enum('CHF','EUR','USD') NOT NULL,
+  `BASE_CURRENCY` enum('USD','EUR','CHF','GBP','CAD','JPY','AUD','NZD','HKD','SEK','NOK') NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `FOREX_FUTURE_FAMILYIFKC` (`ID`),
   CONSTRAINT `FOREX_FUTURE_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `future_family` (`ID`)
@@ -514,7 +514,7 @@ CREATE TABLE `security_family` (
   `BASE_SYMBOL` varchar(20) DEFAULT NULL,
   `RIC_ROOT` varchar(20) DEFAULT NULL,
   `MARKET` enum('SOFFEX','DTB','IDEALPRO','CBOE','SMART','CFE','GLOBEX','NYMEX','CME','NYSE','NASDAQ') NOT NULL,
-  `CURRENCY` enum('CHF','EUR','USD') NOT NULL,
+  `CURRENCY` enum('USD','EUR','CHF','GBP','CAD','JPY','AUD','NZD','HKD','SEK','NOK') NOT NULL,
   `CONTRACT_SIZE` int(11) NOT NULL,
   `SCALE` int(11) NOT NULL,
   `TICK_SIZE_PATTERN` varchar(20) NOT NULL,
@@ -679,7 +679,7 @@ CREATE TABLE `transaction` (
   `PRICE` decimal(15,5) NOT NULL,
   `EXECUTION_COMMISSION` decimal(15,2) DEFAULT NULL,
   `CLEARING_COMMISSION` decimal(15,2) DEFAULT NULL,
-  `CURRENCY` enum('CHF','EUR','USD','GBP') NOT NULL,
+  `CURRENCY` enum('USD','EUR','CHF','GBP','CAD','JPY','AUD','NZD','HKD','SEK','NOK') NOT NULL,
   `TYPE` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST_PAID','INTREST_RECEIVED','FEES','REFUND','REBALANCE','TRANSFER') NOT NULL,
   `DESCRIPTION` varchar(255) DEFAULT NULL,
   `SECURITY_FK` int(11) DEFAULT NULL,
