@@ -54,6 +54,7 @@ public class JMXAgent {
 
     public static final String RMI_REGISTRY_PORT = "ch.algotrader.rmi.registryPort";
     public static final String RMI_SERVER_CONNECTION_PORT = "ch.algotrader.rmi.serverPort";
+    public static final String RMI_SSL = "ch.algotrader.rmi.ssl";
 
     private JMXAgent() {
     }
@@ -62,6 +63,8 @@ public class JMXAgent {
 
         final int rmiRegistryPort = Integer.parseInt(System.getProperty(RMI_REGISTRY_PORT, "1099"));
         final int rmiServerPort = Integer.parseInt(System.getProperty(RMI_SERVER_CONNECTION_PORT, (rmiRegistryPort + 1) + ""));
+        final boolean rmiSsl = Boolean.parseBoolean(System.getProperty(RMI_SSL, "false"));
+
         final String hostname = InetAddress.getLocalHost().getHostName();
         final String publicHostName = System.getProperty("java.rmi.server.hostname", hostname);
 
@@ -75,10 +78,12 @@ public class JMXAgent {
         Map<String, Object> env = new HashMap<String, Object>();
 
         // Provide SSL-based RMI socket factories.
-        SslRMIClientSocketFactory csf = new SslRMIClientSocketFactory();
-        SslRMIServerSocketFactory ssf = new SslRMIServerSocketFactory();
-        env.put(RMIConnectorServer.RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE, csf);
-        env.put(RMIConnectorServer.RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE, ssf);
+        if (rmiSsl) {
+            SslRMIClientSocketFactory csf = new SslRMIClientSocketFactory();
+            SslRMIServerSocketFactory ssf = new SslRMIServerSocketFactory();
+            env.put(RMIConnectorServer.RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE, csf);
+            env.put(RMIConnectorServer.RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE, ssf);
+        }
 
         JMXServiceURL privateUrl = new JMXServiceURL("service:jmx:rmi://" + hostname + ":" + rmiServerPort + "/jndi/rmi://" + hostname + ":" + rmiRegistryPort + "/jmxrmi");
 
