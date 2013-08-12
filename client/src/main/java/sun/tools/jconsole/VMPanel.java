@@ -1,5 +1,6 @@
 // Algotrader
 // line 92 - 97: change tab order
+// line 98: shouldUseSSL = false
 // line 577 - 597: add timeout
 /*
  * Copyright (c) 2004, 2008, Oracle and/or its affiliates. All rights reserved.
@@ -86,7 +87,7 @@ public class VMPanel extends JTabbedPane implements PropertyChangeListener {
             "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
     private static ArrayList<TabInfo> tabInfos = new ArrayList<TabInfo>();
     private boolean wasConnected = false;
-    private boolean shouldUseSSL = true;
+    private boolean shouldUseSSL = false;
 
     // The everConnected flag keeps track of whether the window can be
     // closed if the user clicks Cancel after a failed connection attempt.
