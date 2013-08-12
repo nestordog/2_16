@@ -701,25 +701,6 @@ CREATE TABLE `transaction` (
   CONSTRAINT `TRANSACTION_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Final view structure for view `jpm_trades_per_day`
---
-
-/*!50001 DROP TABLE IF EXISTS `jpm_trades_per_day`*/;
-/*!50001 DROP VIEW IF EXISTS `jpm_trades_per_day`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = latin1 */;
-/*!50001 SET character_set_results     = latin1 */;
-/*!50001 SET collation_connection      = latin1_swedish_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `jpm_trades_per_day` AS select cast(`transaction`.`DATE_TIME` as date) AS `dateTime`,`transaction`.`SECURITY_FK` AS `SECURITY_FK`,`transaction`.`TYPE` AS `TYPE`,sum(`transaction`.`QUANTITY`) AS `qty` from (`transaction` join `account` on((`transaction`.`ACCOUNT_FK` = `account`.`ID`))) where (`account`.`NAME` = 'JPM_VOLA') group by cast(`transaction`.`DATE_TIME` as date),`transaction`.`SECURITY_FK`,`transaction`.`TYPE` */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
