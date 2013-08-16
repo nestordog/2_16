@@ -4,7 +4,7 @@
 # run-expiredOptions.sh 20110121 20110218 TRADES 2:3:4:5
 # run-expiredOptions.sh 20101115 20110216 BID:ASK 11534:11536:11538
 
-cd $ALGOTRADER_HOME
+cd "`dirname \"$0\"`"/..
 
 java \
 -cp `cat bin/cp.txt` \

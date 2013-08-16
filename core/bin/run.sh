@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd $ALGOTRADER_HOME
+cd "`dirname \"$0\"`"/..
 
 nohup java \
 -cp classes:`cat bin/cp.txt` \
