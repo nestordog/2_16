@@ -86,6 +86,42 @@ CREATE TABLE `bar` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `bond`
+--
+
+DROP TABLE IF EXISTS `bond`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `bond` (
+  `ID` int(11) NOT NULL,
+  `MATURITY` datetime NOT NULL,
+  `COUPON` double NOT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `COUPON` (`COUPON`),
+  KEY `BONDIFKC` (`ID`),
+  CONSTRAINT `BONDIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `bond_family`
+--
+
+DROP TABLE IF EXISTS `bond_family`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `bond_family` (
+  `ID` int(11) NOT NULL,
+  `MATURITY_DISTANCE` enum('MSEC_1','SEC_1','MIN_1','MIN_2','MIN_5','MIN_15','MIN_30','HOUR_1','HOUR_2','DAY_1','DAY_2','WEEK_1','WEEK_2','MONTH_1','MONTH_2','MONTH_3','MONTH_6','MONTH_9','MONTH_18','YEAR_1','YEAR_2') NOT NULL,
+  `LENGTH` int(11) NOT NULL,
+  `QUOTATION_STYLE` enum('PRICE','YIELD') NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `BOND_FAMILYIFKC` (`ID`),
+  CONSTRAINT `BOND_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `security_family` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `cash_balance`
 --
 
@@ -321,22 +357,6 @@ CREATE TABLE `intrest_rate` (
   CONSTRAINT `INTREST_RATEIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Temporary table structure for view `jpm_trades_per_day`
---
-
-DROP TABLE IF EXISTS `jpm_trades_per_day`;
-/*!50001 DROP VIEW IF EXISTS `jpm_trades_per_day`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE TABLE `jpm_trades_per_day` (
-  `dateTime` date,
-  `SECURITY_FK` int(11),
-  `TYPE` enum('BUY','SELL','EXPIRATION','CREDIT','DEBIT','INTREST_PAID','INTREST_RECEIVED','FEES','REFUND','REBALANCE','TRANSFER'),
-  `qty` decimal(41,0)
-) ENGINE=MyISAM */;
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `measurement`
@@ -675,6 +695,7 @@ CREATE TABLE `transaction` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `EXT_ID` varchar(30) DEFAULT NULL,
   `DATE_TIME` datetime NOT NULL,
+  `SETTLEMENT_DATE` datetime DEFAULT NULL,
   `QUANTITY` bigint(20) NOT NULL,
   `PRICE` decimal(15,5) NOT NULL,
   `EXECUTION_COMMISSION` decimal(15,2) DEFAULT NULL,
@@ -711,4 +732,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-07-30 15:03:28
+-- Dump completed on 2013-08-23 12:08:19

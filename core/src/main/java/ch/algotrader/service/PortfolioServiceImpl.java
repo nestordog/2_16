@@ -82,6 +82,12 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
         return RoundUtil.getBigDecimal(getCashBalanceDouble(strategyName, date));
     }
 
+    @SuppressWarnings("rawtypes")
+    @Override
+    protected BigDecimal handleGetCashBalance(String filter, Map namedParameters, Date date) {
+        return RoundUtil.getBigDecimal(getCashBalanceDouble(filter, namedParameters, date));
+    }
+
     @Override
     protected double handleGetCashBalanceDouble() {
 
@@ -136,6 +142,23 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
         Collection<Position> openPositions = getPositionDao().findOpenPositionsByStrategyAndMaxDate(strategyName, date);
 
         return getCashBalanceDoubleInternal(transactions, openPositions, date);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    protected double handleGetCashBalanceDouble(String filter, Map namedParameters, Date date) {
+
+        namedParameters.put("maxDate", date);
+
+        //@formatter:off
+        String query =
+                "from TransactionImpl as t "
+                + "where " + filter + " "
+                + "and t.dateTime <= :maxDate";
+
+        Collection<Transaction> transactions = (Collection<Transaction>) getGenericDao().find(query, namedParameters);
+
+        return getCashBalanceDoubleInternal(transactions, new ArrayList<Position>(), date);
     }
 
     private double getCashBalanceDoubleInternal(Collection<Transaction> transactions, Collection<Position> openPositions, Date date) {
@@ -201,6 +224,13 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
         return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(strategyName, date));
     }
 
+    @SuppressWarnings("rawtypes")
+    @Override
+    protected BigDecimal handleGetSecuritiesCurrentValue(String filter, Map namedParameters, Date date) throws Exception {
+
+        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(filter, namedParameters, date));
+    }
+
     @Override
     protected double handleGetSecuritiesCurrentValueDouble() {
 
@@ -243,6 +273,30 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
     protected double handleGetSecuritiesCurrentValueDouble(String strategyName, Date date) {
 
         Collection<Position> openPositions = getPositionDao().findOpenPositionsByStrategyAndMaxDate(strategyName, date);
+
+        return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    protected double handleGetSecuritiesCurrentValueDouble(String filter, Map namedParameters, Date date) {
+
+        //@formatter:off
+        String queryString =
+                "select new Position(sum(t.quantity), s) "
+                + "from TransactionImpl as t "
+                + "join t.security as s "
+                + "where s != null "
+                + "and t.dateTime <= :maxDate "
+                + "and " + filter + " "
+                + "group by s.id "
+                + "having sum(t.quantity) != 0 "
+                + "order by s.id";
+        //@formatter:on
+
+        namedParameters.put("maxDate", date);
+
+        List<Position> openPositions = (List<Position>) getGenericDao().find(queryString, namedParameters);
 
         return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
     }
