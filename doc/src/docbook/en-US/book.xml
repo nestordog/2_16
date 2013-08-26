@@ -194,12 +194,9 @@ public class ExClient {
             and execution of multiple strategies in parallel. The automated Trading Software can
             trade Forex, Options, Futures, Stocks &amp; Commodities on multiple markets. The system
             is based on Complex Event Processing (CEP) and Event Stream Processing (ESP). </para>
-        <para>An overview of the system is available <ulink
-                url="http://www.algotrader.ch/algotrader/overview/">here</ulink></para>
-        <para>An overview of the features is available <ulink
-                url="http://www.algotrader.ch/algotrader/product-features/">here</ulink></para>
-        <para>A description of 3rd party libraries in use is available <ulink
-                url="http://www.algotrader.ch/algotrader/3rd-party-libraries/">here</ulink></para>
+        <para>An overview of the system is available <ulink url="http://www.algotrader.ch/algotrader/overview/">here</ulink></para>
+        <para>An overview of the features is available <ulink url="http://www.algotrader.ch/algotrader/product-features/">here</ulink></para>
+        <para>A description of 3rd party libraries in use is available <ulink url="http://www.algotrader.ch/algotrader/3rd-party-libraries/">here</ulink></para>
     </chapter>
     <chapter id="Architecture">
         <title>Architecture</title>
@@ -1182,9 +1179,7 @@ public class ExClient {
             </listitem>
             <listitem>
                 <para>
-                    <ulink
-                        url="http://www.andromda.org/andromda-cartridges/andromda-spring-cartridge/howto.html"
-                        >Spring Cartridge HowTo</ulink>
+                    <ulink url="http://www.andromda.org/andromda-cartridges/andromda-spring-cartridge/howto.html">Spring Cartridge HowTo</ulink>
                 </para>
             </listitem>
             <listitem>
@@ -1196,7 +1191,7 @@ public class ExClient {
         <para>Much of the system is modeled in UML. It is recommended to use MagicDraw for modelling
             (see <xref linkend="Platform_requirements"/>)</para>
         <para>The actual UML Model is defined in the following xmi file:
-                <classname>/algotrader/mda/src/main/uml/algotrader.xml</classname>
+                <classname>/algotrader-mda/src/main/uml/algotrader.xml</classname>
         </para>
         <para>The model is transferred into code by means of <ulink url="http://www.andromda.org">
                 AndroMDA</ulink> which uses <ulink url="http://maven.apache.org"> Maven</ulink>
@@ -1406,39 +1401,39 @@ public class ExClient {
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>algotrader/common</term>
+                    <term>algotrader-common</term>
                     <listitem>
                         <para>contains java code directly needed by the strategies</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>algotrader/core</term>
+                    <term>algotrader-core</term>
                     <listitem>
                         <para>contains internal java code only needed by the Base</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>algotrader/mda</term>
+                    <term>algotrader-mda</term>
                     <listitem>
                         <para>UML Model and code generator see <xref linkend="Code_Generation"/>
                         </para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>algotrader/client</term>
+                    <term>algotrader-client</term>
                     <listitem>
                         <para>JMX Client based on JConsole</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>algotrader/crud</term>
+                    <term>algotrader-crud</term>
                     <listitem>
                         <para>DB management application for reference Data based on <ulink url="http://grails.org/"> Grails</ulink>
                         </para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>algotrader/doc</term>
+                    <term>algotrader-doc</term>
                     <listitem>
                         <para>Documentation based on <ulink url="http://www.docbook.org/">
                                 DocBook</ulink>, <ulink url="http://sagehill.net/docbookxsl/index.html"> DocBook XSL</ulink>
@@ -2122,61 +2117,42 @@ public class ExClient {
                         Tutorial</ulink></para>
             </listitem>
             <listitem>
-                <para><ulink url="http://esper.codehaus.org/tutorials/tutorial/quickstart.html"
-                        >Esper Quick Start</ulink></para>
+                <para><ulink url="http://esper.codehaus.org/tutorials/tutorial/quickstart.html">Esper Quick Start</ulink></para>
             </listitem>
             <listitem>
-                <para><ulink
-                        url="http://coffeeonesugar.wordpress.com/2009/07/21/getting-started-with-esper-in-5-minutes/"
-                        >Getting started with Esper in 5 minutes</ulink></para>
+                <para><ulink url="http://coffeeonesugar.wordpress.com/2009/07/21/getting-started-with-esper-in-5-minutes/">Getting started with Esper in 5 minutes</ulink></para>
             </listitem>
             <listitem>
                 <para><ulink url="http://jnb.ociweb.com/jnb/jnbOct2008.html">Complex Event
                         Processing with Esper</ulink></para>
             </listitem>
             <listitem>
-                <para><ulink
-                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/examples.html"
-                        >Esper Examples, Tutorials, Case Studies</ulink></para>
+                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/examples.html">Esper Examples, Tutorials, Case Studies</ulink></para>
             </listitem>
         </itemizedlist>
         <para>In addition the following chapters of the Esper Documentation are relevant for
             developing trading strategies with AlgoTrader based on Esper:</para>
         <itemizedlist>
             <listitem>
-                <para><ulink
-                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/event_representation.html"
-                        >2. Event Representations</ulink> (2 - 2.5)</para>
+                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/event_representation.html">2. Event Representations</ulink> (2 - 2.5)</para>
             </listitem>
             <listitem>
-                <para><ulink
-                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/processingmodel.html"
-                        >3. Processing Model</ulink></para>
+                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/processingmodel.html">3. Processing Model</ulink></para>
             </listitem>
             <listitem>
-                <para><ulink
-                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl_clauses.html"
-                        >5. EPL Reference: Clauses</ulink> (5 - 5.9, 5.12, 5.14, 5.15, 5.18)</para>
+                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl_clauses.html">5. EPL Reference: Clauses</ulink> (5 - 5.9, 5.12, 5.14, 5.15, 5.18)</para>
             </listitem>
             <listitem>
-                <para><ulink
-                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/event_patterns.html"
-                        >6. EPL Reference: Patterns</ulink></para>
+                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/event_patterns.html">6. EPL Reference: Patterns</ulink></para>
             </listitem>
             <listitem>
-                <para><ulink
-                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl-operator.html"
-                        >8. EPL Reference: Operators</ulink></para>
+                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl-operator.html">8. EPL Reference: Operators</ulink></para>
             </listitem>
             <listitem>
-                <para><ulink
-                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/functionreference.html"
-                        >9. EPL Reference: Functions</ulink></para>
+                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/functionreference.html">9. EPL Reference: Functions</ulink></para>
             </listitem>
             <listitem>
-                <para><ulink
-                        url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl-views.html"
-                        >12. EPL Reference: Views</ulink></para>
+                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl-views.html">12. EPL Reference: Views</ulink></para>
             </listitem>
         </itemizedlist>
         <para>Inside AlgoTrader individual Esper engines instances are used within the Base as well as
@@ -2432,8 +2408,7 @@ public class ExClient {
             <para>The system provides the following three custom aggregation functions:</para>
             <section id="GenericTALibFunction">
                 <title>GenericTALibFunction</title>
-                <para>The <classname>GenericTALibFunction</classname> is a portation of <ulink
-                        url="http://ta-lib.org/">http://ta-lib.org/</ulink> to AlgoTrader. It
+                <para>The <classname>GenericTALibFunction</classname> is a portation of <ulink url="http://ta-lib.org/">http://ta-lib.org/</ulink> to AlgoTrader. It
                     supports all TA-Lib operations.</para>
                 <para>To use the <classname>AggregateFunction</classname> the following
                     configuration is added to the esper configuration
@@ -2693,6 +2668,28 @@ getOrderService().sendOrders(orders);</programlisting>
             </para>
         </section>
         <section>
+            <title>Security and SecurityFamily Management</title>
+            <para>To update Securities and SecurityFamilies one can either use the <xref
+                    linkend="Grails_Client"/> or add necessary information directly into the
+                database.</para>
+            <para>Each Security consists of one record in the table security and one record with the
+                same ID in the corresponding instrument type specific table (e.g. stock,
+                stock_option, forex, etc.). Since the java class Security is marked abstract a singe
+                record in the security table without a matching record in the instrument type
+                specific table will raise the following Exception at start-up:</para>
+            <programlisting language="Java">  org.hibernate.InstantiationException: Cannot instantiate abstract class or interface:
+      ch.algotrader.entity.security.SecurityImpl  </programlisting>
+            <para>Each SecurityFamily is defined by a record in the table security_family and
+                optionally a record with the same ID in the corresponding instrument type specific
+                table (e.g. future_family, stock_option_family, etc.). Since some instrument types
+                (e.g. Stock and NaturalIndex) do not require additional instrument type specific
+                information a single record in the security_family table will be enough to
+                instantiate an object of class SecurityFamily.</para>
+            <para>The definition of the attributes of the classes Security and SecurityFamily are
+                documented in the <ulink url="http://doc.algotrader.ch/javadoc/index.html"
+                    >AlgoTrader JavaDoc</ulink></para>
+        </section>
+        <section>
             <title>Transaction Handling</title>
             <para>Using AndroMDA and Spring, Transaction Boundaries can be declared inside the UML
                 model using the tagged value
@@ -2755,8 +2752,7 @@ getOrderService().sendOrders(orders);</programlisting>
                         <title>Management Service Attributes</title>
                         <mediaobject>
                             <imageobject>
-                                <imagedata scalefit="1"
-                                    fileref="images/ManagementServiceAttributes.gif"/>
+                                <imagedata scalefit="1" fileref="images/ManagementServiceAttributes.gif"/>
                             </imageobject>
                         </mediaobject>
                     </figure>
@@ -2857,8 +2853,7 @@ getOrderService().sendOrders(orders);</programlisting>
                         <title>Management Service Operations</title>
                         <mediaobject>
                             <imageobject>
-                                <imagedata scalefit="1"
-                                    fileref="images/ManagementServiceOperations.gif"/>
+                                <imagedata scalefit="1" fileref="images/ManagementServiceOperations.gif"/>
                             </imageobject>
                         </mediaobject>
                     </figure>
@@ -2975,8 +2970,7 @@ getOrderService().sendOrders(orders);</programlisting>
                         <title>Base Management Service Operations</title>
                         <mediaobject>
                             <imageobject>
-                                <imagedata scalefit="1"
-                                    fileref="images/BaseManagementServiceOperations.gif"/>
+                                <imagedata scalefit="1" fileref="images/BaseManagementServiceOperations.gif"/>
                             </imageobject>
                         </mediaobject>
                     </figure>
@@ -3393,7 +3387,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
 }</programlisting>
                 </section>
             </section>
-            <section>
+            <section id="JMX_Access">
                 <title>JMX Access</title>
                 <section id="Local-JMX-Access">
                     <title>Local JMX Access</title>
@@ -3408,13 +3402,41 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <section id="Remote-JMX-Access">
                     <title>Remote JMX Access</title>
                     <para>To enable JMX for remote access the following VM arguments have to be
-                        used. This involves usage of a custom JMX agent that will make sure the
-                        specified <parameter>serverPort</parameter> is used. By default Java uses a
-                        random <parameter>serverPort</parameter>, which will not work when trying to
-                        access the system through a firewall.</para>
+                        used. </para>
                     <screen>-Dch.algotrader.rmi.registryPort=1099
 -Dch.algotrader.rmi.serverPort=1098
 -Djava.rmi.server.hostname=127.0.0.1
+-Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote.ssl=false
+-javaagent:lib/agent.jar</screen>
+                    <para>This involves usage of a custom JMX agent (ch.algotrader.util.JMXAgent
+                        defined inside lib/agent.jar) that will make sure the specified
+                            <parameter>serverPort</parameter> is used. By default Java uses a random
+                            <parameter>serverPort</parameter>, which will not work when trying to
+                        access the system through a firewall.</para>
+                    <para>See chapter <xref linkend="VM-Arguments"/> for a description of above
+                        VM-Arguments.</para>
+                    <para>Because this connection is insecure, the system should not be accessed via
+                        public internet. Instead it is recommended to setup the following two SSH
+                        Tunnels (e.g. by using Putty):</para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>1099 to localhost:1099</para>
+                        </listitem>
+                        <listitem>
+                            <para>1098 to localhost:1098</para>
+                        </listitem>
+                    </itemizedlist>
+                    <para>When starting JConsole connect to <literal>localhost:1099</literal></para>
+                </section>
+                <section>
+                    <title>Remote SSL JMX Access</title>
+                    <para>To enable JMX over SSL for secure remote access the following VM arguments
+                        have to be used.</para>
+                    <screen>-Dch.algotrader.rmi.registryPort=1099
+-Dch.algotrader.rmi.serverPort=1098
+-Dch.algotrader.rmi.ssl=true
+-Djava.rmi.server.hostname=&lt;externalServerURL>
 -Dcom.sun.management.jmxremote.authenticate=false
 -Dcom.sun.management.jmxremote.ssl=true
 -Dcom.sun.management.jmxremote.ssl.need.client.auth=true
@@ -3424,17 +3446,37 @@ public class MovChartService extends ChartProvidingServiceImpl {
 -Djavax.net.ssl.trustStore=...
 -Djavax.net.ssl.trustStorePassword=...
 -javaagent:lib/agent.jar</screen>
-                    <para>See chapter <xref linkend="VM-Arguments"/> for a description of above
-                        VM-Arguments.</para>
                     <para>When accessing the system through a firewall, the two ports 1099 and 1098
                         have to be opened.</para>
-                    <para>When starting JConsole connect to <literal>&lt;serverURL>:1099</literal>
-                        with the following VM-Arguments pointing to the same keystore and truststore
-                        (as well as passwords) used on the server:</para>
+                    <para>When starting JConsole connect to
+                            <literal>&lt;externalServerURL>:1099</literal> with the following
+                        VM-Arguments pointing to the same keystore and truststore (as well as
+                        passwords) used on the server:</para>
                     <screen>-Djavax.net.ssl.keyStore=...
 -Djavax.net.ssl.keyStorePassword=...
 -Djavax.net.ssl.trustStore=...
 -Djavax.net.ssl.trustStorePassword=...</screen>
+                    <note>
+                        <itemizedlist>
+                            <listitem>
+                                <para>The vm argument
+                                        <parameter>-Djava.rmi.server.hostname</parameter> will also
+                                    be used by SpringRMI. It is therefore important that the public
+                                    hostname is declarded in the local hosts file!!!</para>
+                                <para>It is easiest if the same keystore and truststore files are
+                                    used on server and client.</para>
+                            </listitem>
+                            <listitem>
+                                <para>The keystore password has to be the same as the key
+                                    password.</para>
+                            </listitem>
+                            <listitem>
+                                <para>In addition the truststore should also contain the default CA
+                                    Certs (copied from<filename>
+                                    jre/lib/security/cacerts</filename>).</para>
+                            </listitem>
+                        </itemizedlist>
+                    </note>
                 </section>
             </section>
             <section>
@@ -3598,7 +3640,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
 <section>
     <title>Installation</title>
     <para>To enable the EsperHQ Client the following two directories need to be added to the
-                    <filename>algotrader/core</filename> project:</para>
+                        <filename>algotrader-core</filename> project:</para>
             <itemizedlist>
                 <listitem>
                     <para><filename>data</filename></para>
@@ -3608,8 +3650,8 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 </listitem>
             </itemizedlist>
             <para>In addition the following section of the file<filename>
-                    /algotrader/common/src/main/resources/META-INF/esper-common.cfg.xml</filename>
-                have to be enabled:</para>
+                        /algotrader/common/src/main/resources/META-INF/esper-common.cfg.xml</filename>
+                    have to be enabled:</para>
             <programlisting language="XML">&lt;!-- Esper HQ -->
 &lt;plugin-loader name="EndpointMgmt"
     class-name="com.espertech.esperdds.client.EndpointMgmtPlugin">
@@ -3621,6 +3663,9 @@ public class MovChartService extends ChartProvidingServiceImpl {
     &lt;init-arg name="port" value="8400" />
     &lt;init-arg name="webapps" value="esperhq@webapps/esperhq" />
 &lt;/plugin-loader>    </programlisting>
+                <para>And the following VM-argument has to point to the algotrader-core
+                    project:</para>
+                <screen>-Desperee.base=D:/AlgoTrader/core</screen>
             <para>After starting the system, the EsperHQ client is now available via the following
                 URL:</para>
             <para>
@@ -3791,8 +3836,8 @@ public class MovChartService extends ChartProvidingServiceImpl {
         </section>
         <section id="Grails_Client">
             <title>Grails Client</title>
-            <para>The Grails Client is located in the Project <filename>AlgoTrader/crud</filename>
-                and provides CRUD (Create, Read, Update &amp; Delete) Operations for Management of
+            <para>The Grails Client is located in the Project <filename>AlgoTrader-crud</filename> and
+                provides CRUD (Create, Read, Update &amp; Delete) Operations for Management of
                 AlgoTrader Reference Data.</para>
             <para>The running application will look like this</para>
             <figure>
@@ -3927,11 +3972,11 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Subversion</term>
+                    <term>TortoiseSVN</term>
                     <listitem>
-                        <para>Install the latest 1.6 version of <ulink url="http://subversion.apache.org/">Subversion</ulink>. Subversion
-                            1.7 and later have a different repository structure and will therefore
-                            not work with the current AlgoTrader repository.</para>
+                        <para>Install the latest 1.6 version of <ulink url="http://tortoisesvn.tigris.org/">Subversion</ulink>. TortoiseSVN 1.7 and later have a different
+                            repository structure and will therefore not work with the current
+                            AlgoTrader repository.</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -3945,21 +3990,19 @@ public class MovChartService extends ChartProvidingServiceImpl {
                                 <para>Create a database named <literal>algotrader</literal></para>
                             </listitem>
                             <listitem>
-                                <para>run the script:
-                                        <command>algotrader-core/sql/db-structure.sql</command>
+                                <para>run the script: <command>algotrader/core/sql/db-structure.sql</command>
                                 </para>
                             </listitem>
                             <listitem>
-                                <para>run the script:
-                                        <command>algotrader-core/sql/db-data.sql</command>
+                                <para>run the script: <command>algotrader/core/sql/db-data.sql</command>
                                 </para>
                             </listitem>
                         </itemizedlist>
-                        <para>Per default the database password <literal>password</literal> is used.
-                            If a different password is chosen, the property
+                        <para>Per default the database password <literal>password</literal> is used. If a different
+                            password is chosen, the property
                                 <parameter>dataSource.password</parameter> needs to be updated
                             inside
-                                <command>algotrader-core/src/main/resources/META-INF/conf-core.properties</command>
+                                <command>algotrader/core/src/main/resources/META-INF/conf-core.properties</command>
                         </para>
                     </listitem>
                 </varlistentry>
@@ -3998,11 +4041,6 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     </thead>
                     <tbody>
                         <row>
-                            <entry>Java JDK</entry>
-                            <entry><ulink url="http://java.sun.com">http://java.sun.com</ulink></entry>
-                            <entry>1.6 &amp; 1.7</entry>
-                        </row>
-                        <row>
                             <entry>Eclipse IDE</entry>
                             <entry><ulink url="http://www.eclipse.org">http://www.eclipse.org</ulink></entry>
                             <entry>newest</entry>
@@ -4013,27 +4051,22 @@ public class MovChartService extends ChartProvidingServiceImpl {
                             <entry>newest</entry>
                         </row>
                         <row>
-                            <entry>Subversive SVN Connectors</entry>
-                            <entry>via Eclipse Preferences / Team / SVN / SVN Connector</entry>
-                            <entry>newest</entry>
-                        </row>
-                        <row>
-                            <entry>SVNKit</entry>
+                            <entry>SVNKit &amp; Subversive SVN Connectors</entry>
                             <entry>via Eclipse Preferences / Team / SVN / SVN Connector</entry>
                             <entry>1.3.7</entry>
                         </row>
                         <row>
-                            <entry>m2e</entry>
+                            <entry>m2e (if not included in Eclipse)</entry>
                             <entry><ulink url="http://download.eclipse.org/releases/...">http://download.eclipse.org/releases/...</ulink></entry>
                             <entry>newest</entry>
                         </row>
                         <row>
-                            <entry>m2e connector for build-helper-maven-plugin</entry>
+                            <entry>m2e build-helper-maven-plugin</entry>
                             <entry>via Eclipse Preferences / Maven / Discovery</entry>
                             <entry>newest</entry>
                         </row>
                         <row>
-                            <entry>Eclipse XML Tools</entry>
+                            <entry>XML Tools (if not included in Eclipse)</entry>
                             <entry><ulink url="http://download.eclipse.org/releases/...">http://download.eclipse.org/releases/...</ulink></entry>
                             <entry>newest</entry>
                         </row>
@@ -4045,29 +4078,19 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         </row>
                         <row>
                             <entry>Spring IDE Core</entry>
-                            <entry><ulink url="http://springide.org/updatesite">http://springide.org/updatesite</ulink></entry>
+                            <entry>via Eclipse Marketplace</entry>
                             <entry>newest</entry>
                         </row>
                         <row>
                             <entry>Spring IDE Autowire Extension</entry>
-                            <entry><ulink url="http://springide.org/updatesite">http://springide.org/updatesite</ulink></entry>
+                            <entry>via Eclipse Marketplace</entry>
                             <entry>newest</entry>
                         </row>
                         <row>
                             <entry>Veloeclipse</entry>
-                            <entry><ulink url="http://veloeclipse.googlecode.com">http://veloeclipse.googlecode.com</ulink></entry>
+                            <entry><ulink url="http://veloeclipse.googlecode.com/svn/trunk/update/">http://veloeclipse.googlecode.com/svn/trunk/update/</ulink></entry>
                             <entry>newest</entry>
                         </row>
-                        <row>
-                            <entry>JDT Decompiler Feature</entry>
-                            <entry><ulink url="http://jadclipse.sf.net/update">http://jadclipse.sf.net/update</ulink></entry>
-                            <entry>newest</entry>
-                        </row>
-                            <row>
-                                <entry>JD-Eclipse Plug-in</entry>
-                                <entry><ulink url="http://java.decompiler.free.fr/jd-eclipse/update">http://java.decompiler.free.fr/jd-eclipse/update</ulink></entry>
-                                <entry>newest</entry>
-                            </row>
                             <row>
                                 <entry>Eclipse Colorer</entry>
                                 <entry><ulink url="http://colorer.sf.net/eclipsecolorer/">http://colorer.sf.net/eclipsecolorer/</ulink></entry>
@@ -4077,11 +4100,6 @@ public class MovChartService extends ChartProvidingServiceImpl {
                             <entry>MagicDraw UML</entry>
                             <entry><ulink url="http://www.magicdraw.com">http://www.magicdraw.com</ulink></entry>
                             <entry>16.5</entry>
-                        </row>
-                        <row>
-                            <entry>MySql Database</entry>
-                            <entry><ulink url="http://www.mysql.com">http://www.mysql.com</ulink></entry>
-                            <entry>newest</entry>
                         </row>
                         <row>
                             <entry>TOAD for MySql</entry>
@@ -4143,7 +4161,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                                     <para>Install the <ulink url="http://colorer.sourceforge.net/eclipsecolorer/index.html">Eclipse Colorer Plugin</ulink></para>
                                 </listitem>
                                 <listitem>
-                                    <para>Copy the file <filename>/algotrader-core/src/main/resources/esper.hrc</filename> to
+                                    <para>Copy the file <filename>/algotrader/core/src/main/resources/esper.hrc</filename> to
                                     <filename>eclipse\plugins\net.sf.colorer_x.x.x\colorer\hrc\</filename></para>
                                 </listitem>
                                 <listitem>
@@ -4170,44 +4188,71 @@ public class MovChartService extends ChartProvidingServiceImpl {
         </section>
         <section id="Subversion_Checkout">
                 <title>Subversion Checkout</title>
+                <para>Create a directory named <filename>AlgoTrader</filename> at a discretionary
+                    location</para>
                 <important>
                     <para>Note: AndroMDA does not allow any special characters (i.e. spaces or
                         exclamation marks) in the project path.</para>
                 </important>
-                <para>Do an svn checkout from the command line:</para>
+                <para>Inside the directory <filename>AlgoTrader</filename> do an svn checkout from the command
+                    line:</para>
                 <screen>svn checkout https://repo.algotrader.ch/svn/trunk/AlgoTrader</screen>
-                <para>Import the following projects into eclipse via File / Import / Maven /
-                    Existing Maven Projects:</para>
+                <para>Import the following projects from the directory <filename>AlgoTrader</filename> into
+                    Eclipse via File / Import / Maven / Existing Maven Projects:</para>
                 <itemizedlist>
                     <listitem>
-                        <para>
-                            <filename>algotrader </filename>
+                        <para><filename>/pom.xml</filename>
                         </para>
                     </listitem>
                     <listitem>
-                        <para>
-                            <filename>algotrader/common</filename>
+                        <para><filename> /client/pom.xml</filename>
                         </para>
                     </listitem>
                     <listitem>
-                        <para>
-                            <filename>algotrader/core</filename>
+                        <para><filename> /common/pom.xml</filename>
                         </para>
                     </listitem>
                     <listitem>
-                        <para>
-                            <filename>algotrader/client</filename>
+                        <para><filename> /core/pom.xml</filename>
                         </para>
                     </listitem>
                     <listitem>
-                        <para>
-                            <filename>algotrader/crud</filename>
+                        <para><filename> /mda/pom.xml</filename>
                         </para>
                     </listitem>
+                </itemizedlist>
+                <note>
+                    <para>The following three projects do not need to be imported:<itemizedlist>
+                            <listitem>
+                                <para><filename> /client/bin/pom.xml</filename>
+                                </para>
+                            </listitem>
+                            <listitem>
+                                <para><filename> /core/bin/pom.xml</filename>
+                                </para>
+                            </listitem>
+                            <listitem>
+                                <para><filename> /doc/pom.xml</filename>
+                                </para>
+                            </listitem>
+                        </itemizedlist></para>
+                </note>
+                <para>This will result in the following Eclipse projects:</para>
+                <itemizedlist>
                     <listitem>
-                        <para>
-                            <filename>algotrader/mda</filename>
-                        </para>
+                        <para><filename>algotrader</filename></para>
+                    </listitem>
+                    <listitem>
+                        <para><filename>algotrader-client</filename></para>
+                    </listitem>
+                    <listitem>
+                        <para><filename>algotrader-common</filename></para>
+                    </listitem>
+                    <listitem>
+                        <para><filename>algotrader-core</filename></para>
+                    </listitem>
+                    <listitem>
+                        <para><filename>algotrader-mda</filename></para>
                     </listitem>
                 </itemizedlist>
             </section>
@@ -4242,6 +4287,13 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         </imageobject>
                     </mediaobject>
                 </figure>
+                <note>
+                    <para>The Maven m2e Eclipse Plugin currently does not accept classpath variables
+                        and prints the following error message:</para>
+                    <para>"An internal error occurred during: "Updating Maven Project". Unsupported
+                        IClasspathEntry kind=4"</para>
+                    <para>this message can be savely ignored.</para>
+                </note>
             </section>
         <section>
             <title>Generate the code</title>
@@ -4279,17 +4331,21 @@ UML_Standard_Profile.UML_Standard_Profile.profile.uml
 UML_Standard_Profile.Validation_Profile.profile.uml</screen>
             <para>Inside Eclipse right click on the project <filename>algotrader-mda</filename> / Run As /
                     Maven install. This will generate all necessary code into
-                        <filename>algotrader-core</filename> and<filename>
-                        algotrader-common</filename> target directory.</para>
+                        <filename>algotrader/core/target</filename> and<filename>
+                        algotrader/common/target</filename> directories.</para>
         </section>
         <section>
             <title>Compile</title>
+                <para>During the Maven Import process the m2e Eclipse Plugin will automatically make
+                    changes to some files. These changes are not needed and can be reverted by right
+                    clicking on the project  <filename>algotrader</filename> / Team / Revert.</para>
             <para>Now refresh all projects. Eclipse will compile all java code automatically.</para>
             <important>
-                <para>Before this is done, please check the Java Build Path of
-                        <filename>algotrader-code</filename> project. There are two sources
-                    configured. The source folder<filename> target/src/main/java</filename> might
-                    have an Exclude defined (Star-Star), which needs to be removed.</para>
+                <para>Before this is done, please check the Java Build Path of the
+                            <filename>algotrader-common</filename> and
+                            <filename>algotrader-core</filename>projects. There are two sources
+                        configured. The source folder<filename> target/src/main/java</filename>
+                        might have an Exclude defined (Star-Star), which needs to be removed.</para>
             </important>
         </section>
         <section id="Starting_a_Strategy">
@@ -4303,8 +4359,9 @@ UML_Standard_Profile.Validation_Profile.profile.uml</screen>
             <section id="Simulation_Mode">
                 <title>Simulation Mode</title>
                 <para>To run a strategy in Simulation Mode the class
-                        <classname>ch.algotrader.starter.SimulationStarter</classname> inside the
-                    core project <filename>algotrader/core</filename> has to be invoked.</para>
+                            <classname>ch.algotrader.starter.SimulationStarter</classname> inside
+                        the core project <filename>algotrader-core</filename> has to be
+                        invoked.</para>
                 <para>If using Eclipse specify the following in the Launch Configuration:</para>
                 <variablelist>
                     <varlistentry>
@@ -4528,8 +4585,8 @@ bin/activemq</screen>
                         </para>
                     </listitem>
                     <listitem>
-                        <para> create directories <filename>data</filename>,
-                                <filename>log</filename> and <filename>data</filename> underneath
+                        <para> create directories <filename>data</filename>, <filename>log</filename> and
+                                <filename>files</filename> underneath
                                 <filename>AlgoTrader</filename></para>
                     </listitem>
                     <listitem>
@@ -4547,17 +4604,17 @@ bin/activemq</screen>
                     </listitem>
                 </orderedlist>
             </para>
-        </section>
-        <section>
-            <title>Starting the Base</title>
-            <para>The Base can now be started via by calling the following shell script:</para>
-            <screen><filename>AlgoTrader/bin/run-base.sh</filename></screen>
-            <para>Depending on the actual requirements for the Server Environment (Operation System,
-                external Broker used, etc.) actual Configurations will vary substantially. </para>
-            <note>
-                <para>It is recommended to work with AlgoTrader Professional Services to plan an
-                    roll-out Server Environments</para>
-            </note>
+            <section>
+                <title>Starting the Base</title>
+                <para>The Base can now be started via by calling the following shell script:</para>
+                <screen><filename>AlgoTrader/bin/run-base.sh</filename></screen>
+                <para>Depending on the actual requirements for the Server Environment (Operation System,
+                    external Broker used, etc.) actual Configurations will vary substantially. </para>
+                <note>
+                    <para>It is recommended to work with AlgoTrader Professional Services to plan an
+                        roll-out Server Environments</para>
+                </note>
+            </section>
         </section>
         <section id="VM-Arguments">
             <title>VM-Arguments</title>
@@ -4588,6 +4645,13 @@ bin/activemq</screen>
                     <term>-Dch.algotrader.rmi.serverPort</term>
                     <listitem>
                         <para>the RMI server Port, e.g. 1098 (for <xref linkend="Remote-JMX-Access"/>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>-Dch.algotrader.rmi.ssl</term>
+                    <listitem>
+                        <para>use ssl socket factories (for <xref linkend="Remote-JMX-Access"
+                            />)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -6159,9 +6223,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 <itemizedlist>
                     <listitem>
                         <para>
-                            <ulink
-                                url="http://www.lesniewski.us/papers/published/HedgingUnderSABRModel.pdf"
-                                > Hedging under SABR Model, Refined risk management under the SABR
+                            <ulink url="http://www.lesniewski.us/papers/published/HedgingUnderSABRModel.pdf"> Hedging under SABR Model, Refined risk management under the SABR
                                 model.</ulink>
                         </para>
                     </listitem>
@@ -6649,8 +6711,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
             executed: </para>
         <orderedlist>
             <listitem>
-                <para>The correct Spring Profile has to be activated according to <xref
-                        linkend="Spring-Profiles"/></para>
+                <para>The correct Spring Profile has to be activated according to <xref linkend="Spring-Profiles"/></para>
             </listitem>
             <listitem>
                 <para>Either <literal>market-data-ib</literal> or <literal>market-data-bb</literal>
@@ -6772,8 +6833,8 @@ from
                     <para>
                         <parameter>baseDir</parameter> is the parent directory where all market data
                         files are stored. This is either the <filename>files/</filename> directory
-                        under <filename>algotrader/core</filename> or an arbitrary directory defined
-                        via the VM argument:</para>
+                        under the project <filename>algotrader-core</filename> or an arbitrary
+                        directory defined via the VM argument:</para>
                     <screen>-DdataSource.dataSetLocation</screen>
                 </listitem>
                 <listitem>
@@ -6982,9 +7043,9 @@ subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
         </section>
         <section>
             <title>Numeric Precision</title>
-            <para>In General different Securities are traded with different numeric precision (e.g.
-                S&amp;P Futures prices ahve two digits, whereas FX prices are usually 5-6 digits).
-                To accommodate different numeric precisions, AlgoTrader provides the following two
+            <para>In General different Securities are traded with different numeric precision (e.g. S&amp;P
+                Futures prices are two digits, whereas FX prices are usually 5-6 digits). To
+                accommodate different numeric precisions, AlgoTrader provides the following two
                 Fields inside the class <classname>SecurityFamily</classname>:</para>
             <itemizedlist>
                 <listitem>
@@ -7853,49 +7914,7 @@ private @Value("#{T(ch.algotrader.enumeration.Currency)
         </section>
         <section id="JMX">
             <title>JMX</title>
-            <para>Management is provided through JMX. The JMX connection is secured through SSL by
-                using the following vm arguments:</para>
-            <screen>-Dcom.sun.management.jmxremote.authenticate=false
--Dcom.sun.management.jmxremote.ssl=true
--Dcom.sun.management.jmxremote.ssl.need.client.auth=true
--Dcom.sun.management.jmxremote.registry.ssl=true
--Djavax.net.ssl.keyStore=keystore
--Djavax.net.ssl.keyStorePassword=...
--Djavax.net.ssl.trustStore=truststore
--Djavax.net.ssl.trustStorePassword=...</screen>
-            <para>By default only the RMI Registry Port can be defined through vm arguments
-                    (<parameter>com.sun.management.jmxremote.port</parameter>). The RMI Server Port
-                is chosen randomly which is not feasible through firewalls. For this reason a Custom
-                JMXAgent is in place, which takes the following two vm arguments to define both
-                ports:</para>
-            <screen>-Dch.algotrader.rmi.registryPort
--Dch.algotrader.rmi.serverPort</screen>
-            <para>In order to use this Custom JMXAgent the following has to be specified on the
-                commandline:</para>
-            <screen>-javaagent:lib/agent.jar</screen>
-            <para>In addition the following vm argument has to be specified, which defines the
-                public external host name:</para>
-            <screen>-Djava.rmi.server.hostname=xxx</screen>
-            <note>
-                <itemizedlist>
-                    <listitem>
-                        <para>This vm argument will also be used by SpringRMI. It is therefore
-                            important that the public hostname is declarded in the local hosts
-                            file!!!</para>
-                    </listitem>
-                    <listitem>
-                        <para>It is easiest if the same keystore and truststore files are used on
-                            server and client.</para>
-                    </listitem>
-                    <listitem>
-                        <para>The keystore password has to be the same as the key password.</para>
-                    </listitem>
-                    <listitem>
-                        <para>In addition the truststore should also contain the default CA Certs
-                            (copied from<filename> jre/lib/security/cacerts</filename>).</para>
-                    </listitem>
-                </itemizedlist>
-            </note>
+            <para>Management is provided through JMX. For further details see <xref linkend="JMX_Access"/>.</para>
         </section>
     </chapter>
     <chapter id="Threading_and_Concurrency">
@@ -8149,8 +8168,7 @@ where and s.name = 'BASE'</programlisting>
                     up-to-date versions of Entities without introducing any latency penalties. Under
                     the assumption that only a very small percentage of incoming market data events
                     will lead to an actual modification of objects in the database, AlgoTrader will
-                    be able to achieve Esper Performance Figures as published on the <ulink
-                        url="http://esper.codehaus.org/esper/performance/performance.html">Esper
+                    be able to achieve Esper Performance Figures as published on the <ulink url="http://esper.codehaus.org/esper/performance/performance.html">Esper
                         Performance Page</ulink></para>
                 <para>Access to the Level-Zero Cache is provided by the class
                         <classname>ch.algotrader.cache.CacheManager</classname> which is exposed as
@@ -8235,8 +8253,7 @@ where and s.name = 'BASE'</programlisting>
                     <title>Market Data Event Hibernate Sessions</title>
                     <mediaobject>
                         <imageobject>
-                            <imagedata scalefit="1"
-                                fileref="images/MarketDataEventHibernateSessions.png"/>
+                            <imagedata scalefit="1" fileref="images/MarketDataEventHibernateSessions.png"/>
                         </imageobject>
                     </mediaobject>
                 </figure>
@@ -8680,10 +8697,7 @@ where and s.name = 'BASE'</programlisting>
                     Strategy use extreme caution before trading it Live.</para>
             </warning>
             <para>The Strategy trades the EUR.USD FX Market and is based on the Stairstep Breakouts (SSBO)
-                Indicator that is presented on <ulink
-                    url="http://www.forexfactory.com/showthread.php?t=302007"
-                    >www.forexfactory.com</ulink> by <ulink
-                    url="http://www.forexfactory.com/forexhard">forexhard</ulink>.</para>
+                Indicator that is presented on <ulink url="http://www.forexfactory.com/showthread.php?t=302007">www.forexfactory.com</ulink> by <ulink url="http://www.forexfactory.com/forexhard">forexhard</ulink>.</para>
             <para>The Trading Idea behind the Strategy is the following: Markets will often stay within a
                 trading range for a considerable amount of time before they break-out in either
                 direction. The following Chart shows some examples of trading ranges.</para>
@@ -8898,13 +8912,66 @@ where and s.name = 'BASE'</programlisting>
                 <varlistentry>
                     <term><filename>/files/bardata/eurusd-1min-20111218-20130121/EU0009652759.zip</filename></term>
                     <listitem>
-                        <para>Contains a .CSV file with bardata for the simulation. Unpack and copy
-                            to:</para>
-                        <para><filename>/core/files/bardata/eurusd-1min-20111218-20130121/EU0009652759.csv</filename></para>
+                        <para>Contains a .CSV file with Bar Data for the simulation.  </para>
                     </listitem>
                 </varlistentry>
             </variablelist>
             <para> To start the Strategy please see the explanations in chapter <xref linkend="Starting_a_Strategy"/>.</para>
+        </section>
+        <section>
+            <title>Installation</title>
+            <variablelist>
+                <varlistentry>
+                    <term>SVN Checkout</term>
+                    <listitem>
+                        <para>Do an svn checkout from the command line:</para>
+                        <screen>svn checkout https://repo.algotrader.ch/svn/trunk/AlgoTraderExamples/box</screen>
+                        <para>Import the following the project <filename>box</filename> into eclipse
+                            via File / Import / Maven / Existing Maven Projects:</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Deploy Bar Data File</term>
+                    <listitem>
+                        <para>Unpack the file: </para>
+                        <para><filename>box/files/bardata/eurusd-1min-20111218-20130121/EU0009652759.zip</filename>
+                        </para>
+                        <para>to:</para>
+                        <para><filename>algotrader/core/files/bardata/eurusd-1min-20111218-20130121/EU0009652759.csv</filename></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>MySql Data</term>
+                    <listitem>
+                        <para>run the MySql Script: <command>box/sql/db-data.sql</command>
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Change Currency to USD</term>
+                    <listitem>
+                        <para>In the following two tables please set the column
+                                <literal>CURRENCY</literal> of row 1 to
+                            <literal>USD</literal>:</para>
+                        <itemizedlist>
+                            <listitem>
+                                <para>transaction</para>
+                            </listitem>
+                            <listitem>
+                                <para>cash_balance</para>
+                            </listitem>
+                        </itemizedlist>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Start the Back Test</term>
+                    <listitem>
+                        <para>launch the Eclipse Launch Configuration:
+                                <literal>SimulationStarter-simulateWCP-Box</literal>
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
         </section>
     </appendix>
 </book>
