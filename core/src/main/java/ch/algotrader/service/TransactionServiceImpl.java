@@ -38,6 +38,7 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.Side;
@@ -72,6 +73,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     protected void handleCreateTransaction(Fill fill) {
 
         Order order = fill.getOrd();
+        Broker broker = order.getAccount().getBroker();
 
         // reload the strategy and security to get potential changes
         Strategy strategy = getStrategyDao().load(order.getStrategy().getId());
@@ -84,8 +86,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         SecurityFamily securityFamily = security.getSecurityFamily();
         TransactionType transactionType = Side.BUY.equals(fill.getSide()) ? TransactionType.BUY : TransactionType.SELL;
         long quantity = Side.BUY.equals(fill.getSide()) ? fill.getQuantity() : -fill.getQuantity();
-        BigDecimal executionCommission = RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getExecutionCommission().doubleValue()));
-        BigDecimal clearingCommission = securityFamily.getClearingCommission() != null ? RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getClearingCommission().doubleValue())) : null;
+        BigDecimal executionCommission = RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getExecutionCommission(broker).doubleValue()));
+        BigDecimal clearingCommission = securityFamily.getClearingCommission(broker) != null ? RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getClearingCommission(broker).doubleValue())) : null;
 
         Transaction transaction = new TransactionImpl();
         transaction.setDateTime(fill.getExtDateTime());

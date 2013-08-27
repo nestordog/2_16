@@ -27,10 +27,8 @@ import quickfix.field.TransactTime;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
-
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.Market;
-import ch.algotrader.service.jpm.JPMFixOrderServiceBase;
+import ch.algotrader.enumeration.Broker;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -48,7 +46,7 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
         newOrder.set(new HandlInst('1'));
         newOrder.set(new TransactTime(new Date()));
 
-        String exchange = getExchange(order.getSecurity().getSecurityFamily().getMarket());
+        String exchange = order.getSecurity().getSecurityFamily().getMarket(Broker.JPM);
         newOrder.set(new ExDestination(exchange));
         newOrder.set(new SecurityExchange(exchange));
     }
@@ -60,7 +58,7 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
         replaceRequest.set(new HandlInst('1'));
         replaceRequest.set(new TransactTime(new Date()));
 
-        String exchange = getExchange(order.getSecurity().getSecurityFamily().getMarket());
+        String exchange = order.getSecurity().getSecurityFamily().getMarket(Broker.JPM);
         replaceRequest.set(new ExDestination(exchange));
         replaceRequest.set(new SecurityExchange(exchange));
     }
@@ -71,18 +69,7 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
         cancelRequest.set(new Account(order.getAccount().getExtAccount()));
         cancelRequest.set(new TransactTime(new Date()));
 
-        String exchange = getExchange(order.getSecurity().getSecurityFamily().getMarket());
+        String exchange = order.getSecurity().getSecurityFamily().getMarket(Broker.JPM);
         cancelRequest.set(new SecurityExchange(exchange));
-    }
-
-    private String getExchange(Market market) {
-
-        if (Market.CBOE.equals(market)) {
-            return "XCBO";
-        } else if (Market.CFE.equals(market)) {
-            return "XCBF";
-        } else {
-            throw new UnsupportedOperationException("market not supported " + market);
-        }
     }
 }

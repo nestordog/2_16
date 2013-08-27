@@ -73,7 +73,7 @@ public class FutureSymbol {
         StringBuffer buffer = new StringBuffer();
         buffer.append(week);
         buffer.append("F");
-        buffer.append(family.getBaseSymbol());
+        buffer.append(family.getIsinRoot() != null ? family.getIsinRoot() : family.getBaseSymbol());
         buffer.append(month);
         buffer.append(year);
         buffer.append("00000");
@@ -90,7 +90,7 @@ public class FutureSymbol {
         cal.setTime(expiration);
 
         StringBuffer buffer = new StringBuffer();
-        buffer.append(family.getRicRoot());
+        buffer.append(family.getRicRoot() != null ? family.getRicRoot() : family.getBaseSymbol());
         buffer.append(monthEnc[cal.get(Calendar.MONTH)]);
         buffer.append(String.valueOf(cal.get(Calendar.YEAR)).substring(3));
         buffer.append(":VE");

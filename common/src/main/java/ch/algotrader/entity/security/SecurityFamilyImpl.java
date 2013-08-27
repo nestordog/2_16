@@ -20,9 +20,8 @@ package ch.algotrader.entity.security;
 import java.math.BigDecimal;
 import java.text.ChoiceFormat;
 
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.util.RoundUtil;
-
-import ch.algotrader.entity.security.SecurityFamily;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -69,18 +68,61 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public BigDecimal adjustPrice(BigDecimal price, int ticks) {
+    public String getBaseSymbol(Broker broker) {
 
-        if (ticks > 0) {
-            for (int i = 0; i < ticks; i++) {
-                price = price.add(getTickSize(price, true));
-            }
-        } else if (ticks < 0) {
-            for (int i = 0; i > ticks; i--) {
-                price = price.subtract(getTickSize(price, false));
-            }
+        BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
+        if (brokerParams != null && brokerParams.getBaseSymbol() != null) {
+            return brokerParams.getBaseSymbol();
+        } else {
+            return getBaseSymbol();
         }
-        return price;
+    }
+
+    @Override
+    public String getMarket(Broker broker) {
+
+        BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
+        if (brokerParams != null && brokerParams.getMarket() != null) {
+            return brokerParams.getMarket();
+        } else {
+            return getMarket();
+        }
+    }
+
+    @Override
+    public BigDecimal getExecutionCommission(Broker broker) {
+
+        BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
+        if (brokerParams != null && brokerParams.getExecutionCommission() != null) {
+            return brokerParams.getExecutionCommission();
+        } else {
+            return getExecutionCommission();
+        }
+    }
+
+    @Override
+    public BigDecimal getClearingCommission(Broker broker) {
+
+        BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
+        if (brokerParams != null && brokerParams.getClearingCommission() != null) {
+            return brokerParams.getClearingCommission();
+        } else {
+            return getClearingCommission();
+        }
+    }
+
+    @Override
+    public BigDecimal getTotalCommission(Broker broker) {
+
+        if (getExecutionCommission(broker) != null && getClearingCommission(broker) != null) {
+            return getExecutionCommission(broker).add(getClearingCommission(broker));
+        } else if (getExecutionCommission(broker) == null) {
+            return getClearingCommission(broker);
+        } else if (getClearingCommission(broker) == null) {
+            return getExecutionCommission(broker);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -100,5 +142,20 @@ public class SecurityFamilyImpl extends SecurityFamily {
             }
         }
         return ticks;
+    }
+
+    @Override
+    public BigDecimal adjustPrice(BigDecimal price, int ticks) {
+
+        if (ticks > 0) {
+            for (int i = 0; i < ticks; i++) {
+                price = price.add(getTickSize(price, true));
+            }
+        } else if (ticks < 0) {
+            for (int i = 0; i > ticks; i--) {
+                price = price.subtract(getTickSize(price, false));
+            }
+        }
+        return price;
     }
 }

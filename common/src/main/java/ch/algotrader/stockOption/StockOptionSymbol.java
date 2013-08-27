@@ -91,7 +91,7 @@ public class StockOptionSymbol {
         StringBuffer buffer = new StringBuffer();
         buffer.append(week);
         buffer.append("O");
-        buffer.append(family.getBaseSymbol());
+        buffer.append(family.getIsinRoot() != null ? family.getIsinRoot() : family.getBaseSymbol());
         buffer.append(month);
         buffer.append(year);
         buffer.append(strikeVal);
@@ -108,7 +108,7 @@ public class StockOptionSymbol {
         cal.setTime(expiration);
 
         StringBuffer buffer = new StringBuffer();
-        buffer.append(family.getRicRoot());
+        buffer.append(family.getRicRoot() != null ? family.getRicRoot() : family.getBaseSymbol());
         if (OptionType.CALL.equals(type)) {
             buffer.append(monthCallEnc[cal.get(Calendar.MONTH)]);
         } else {

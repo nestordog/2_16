@@ -21,7 +21,6 @@ import quickfix.field.CumQty;
 import quickfix.field.ExecType;
 import quickfix.field.OrdType;
 import quickfix.field.Symbol;
-
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Security;
@@ -32,6 +31,7 @@ import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 
@@ -77,15 +77,14 @@ public class FixUtil {
         }
     }
 
-    public static Symbol getFixSymbol(Security security) {
+    public static Symbol getFixSymbol(Security security, Broker broker) {
 
         if (security instanceof StockOption) {
-            return new Symbol(security.getSecurityFamily().getBaseSymbol());
+            return new Symbol(security.getSecurityFamily().getBaseSymbol(broker));
         } else if (security instanceof Future) {
-            return new Symbol(security.getSecurityFamily().getBaseSymbol());
+            return new Symbol(security.getSecurityFamily().getBaseSymbol(broker));
         } else if (security instanceof Forex) {
-            String[] currencies = security.getSymbol().split("\\.");
-            return new Symbol(currencies[0]);
+            return new Symbol(((Forex) security).getBaseCurrency().getValue());
         } else if (security instanceof Stock) {
             return new Symbol(security.getSymbol());
         } else {

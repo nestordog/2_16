@@ -29,12 +29,10 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.ib.IBDefaultMessageHandler;
 import ch.algotrader.adapter.ib.IBIdGenerator;
-import ch.algotrader.adapter.ib.IBMarketConverter;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.entity.security.ForexFuture;
 import ch.algotrader.entity.security.ForexFutureFamily;
@@ -47,7 +45,7 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.StockOption;
 import ch.algotrader.entity.security.StockOptionFamily;
 import ch.algotrader.entity.security.StockOptionImpl;
-import ch.algotrader.enumeration.Market;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.stockOption.StockOptionSymbol;
@@ -117,10 +115,6 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             BigDecimal strike = RoundUtil.getBigDecimal(contract.m_strike, family.getScale());
             Date expiration = format.parse(contract.m_expiry + "130000");
 
-            if (underlying.getSecurityFamily().getMarket().equals(Market.CBOE) || underlying.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {
-                expiration = DateUtils.addDays(expiration, 1);
-            }
-
             final String isin = StockOptionSymbol.getIsin(family, expiration, type, strike);
             String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike, false);
             String ric = StockOptionSymbol.getRic(family, expiration, type, strike);
@@ -164,10 +158,6 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             Contract contract = contractDetails.m_summary;
             Date expiration = format.parse(contract.m_expiry + "130000");
 
-            if (underlying.getSecurityFamily().getMarket().equals(Market.CBOE) || underlying.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {
-                expiration = DateUtils.addDays(expiration, 1);
-            }
-
             String symbol = FutureSymbol.getSymbol(family, expiration);
             final String isin = FutureSymbol.getIsin(family, expiration);
             String ric = FutureSymbol.getRic(family, expiration);
@@ -209,10 +199,6 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             Contract contract = contractDetails.m_summary;
             Date expiration = format.parse(contract.m_expiry + "130000");
 
-            if (underlying.getSecurityFamily().getMarket().equals(Market.CBOE) || underlying.getSecurityFamily().getMarket().equals(Market.SOFFEX)) {
-                expiration = DateUtils.addDays(expiration, 1);
-            }
-
             String symbol = FutureSymbol.getSymbol(family, expiration);
             final String isin = FutureSymbol.getIsin(family, expiration);
             String ric = FutureSymbol.getRic(family, expiration);
@@ -249,8 +235,8 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             int requestId = IBIdGenerator.getInstance().getNextRequestId();
             Contract contract = new Contract();
             contract.m_currency = securityFamily.getCurrency().toString();
-            contract.m_symbol = securityFamily.getBaseSymbol();
-            contract.m_exchange = IBMarketConverter.marketToString(securityFamily.getMarket());
+            contract.m_symbol = securityFamily.getBaseSymbol(Broker.IB);
+            contract.m_exchange = securityFamily.getMarket(Broker.IB);
 
             if (securityFamily instanceof StockOptionFamily) {
                 contract.m_secType = "OPT";

@@ -41,6 +41,7 @@ import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.util.MyLogger;
@@ -198,11 +199,11 @@ public class RBSReconciliationServiceImpl extends RBSReconciliationServiceBase {
             }
 
             // check clearing commission
-            if (family.getClearingCommission() != null) {
+            if (family.getClearingCommission(Broker.RBS) != null) {
                 BigDecimal commissionPerContract = RoundUtil.getBigDecimal(commission.doubleValue() / absQuantity, this.portfolioDigits);
-                if (!family.getClearingCommission().setScale(this.portfolioDigits).equals(commissionPerContract)) {
+                if (!family.getClearingCommission(Broker.RBS).setScale(this.portfolioDigits).equals(commissionPerContract)) {
                     notificationLogger.warn("transaction " + format.format(tradeDate) + " " + transactionType + " " + absQuantity + " " + security + " price: " + tradePrice
-                            + " clearing commission is " + commissionPerContract + " where it should be " + family.getClearingCommission());
+                            + " clearing commission is " + commissionPerContract + " where it should be " + family.getClearingCommission(Broker.RBS));
                 }
             } else {
                 throw new IllegalArgumentException("no clearing commission defined for security family " + family);

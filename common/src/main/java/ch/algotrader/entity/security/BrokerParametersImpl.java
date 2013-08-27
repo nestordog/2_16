@@ -15,21 +15,20 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.ib;
-
-import ch.algotrader.enumeration.Market;
+package ch.algotrader.entity.security;
 
 /**
- * Utility class converting {@link Market Markets} to IB specific market representation.
- *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class IBMarketConverter {
+public class BrokerParametersImpl extends BrokerParameters {
 
-    public static String marketToString(Market market) {
+    private static final long serialVersionUID = 9199927863066920509L;
 
-        return market.toString();
+    @Override
+    public String toString() {
+
+        return getSecurityFamily() + ":" + getBroker();
     }
 }

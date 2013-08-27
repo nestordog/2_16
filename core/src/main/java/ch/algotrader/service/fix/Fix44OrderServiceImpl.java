@@ -45,6 +45,7 @@ import ch.algotrader.entity.security.StockOption;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopOrderI;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OptionType;
 
 /**
@@ -68,6 +69,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
     protected void handleSendOrder(SimpleOrder order) throws Exception {
 
         Security security = order.getSecurityInitialized();
+        Broker broker = order.getAccount().getBroker();
 
         // assign a new clOrdID
         String clOrdID = getFixSessionFactory().getNextOrderId(order.getAccount());
@@ -79,7 +81,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
         newOrder.set(new TransactTime(new Date()));
         newOrder.set(new ClOrdID(String.valueOf(clOrdID)));
 
-        newOrder.set(FixUtil.getFixSymbol(security));
+        newOrder.set(FixUtil.getFixSymbol(security, broker));
         newOrder.set(FixUtil.getFixSide(order.getSide()));
         newOrder.set(new OrderQty(order.getQuantity()));
         newOrder.set(FixUtil.getFixOrderType(order));
@@ -108,9 +110,8 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
 
         } else if (security instanceof Forex) {
 
-            String[] currencies = security.getSymbol().split("\\.");
             newOrder.set(new SecurityType(SecurityType.CASH));
-            newOrder.set(new Currency(currencies[1]));
+            newOrder.set(new Currency(security.getSecurityFamily().getCurrency().getValue()));
 
         } else if (security instanceof Stock) {
 
@@ -141,6 +142,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
     protected void handleModifyOrder(SimpleOrder order) throws Exception {
 
         Security security = order.getSecurityInitialized();
+        Broker broker = order.getAccount().getBroker();
 
         // get origClOrdID and assign a new clOrdID
         String origClOrdID = order.getIntId();
@@ -152,7 +154,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
         replaceRequest.set(new ClOrdID(clOrdID));
         replaceRequest.set(new OrigClOrdID(origClOrdID));
 
-        replaceRequest.set(FixUtil.getFixSymbol(security));
+        replaceRequest.set(FixUtil.getFixSymbol(security, broker));
         replaceRequest.set(FixUtil.getFixSide(order.getSide()));
         replaceRequest.set(new OrderQty(order.getQuantity()));
         replaceRequest.set(FixUtil.getFixOrderType(order));
@@ -203,6 +205,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
     protected void handleCancelOrder(SimpleOrder order) throws Exception {
 
         Security security = order.getSecurityInitialized();
+        Broker broker = order.getAccount().getBroker();
 
         // get origClOrdID and assign a new clOrdID
         String origClOrdID = order.getIntId();
@@ -214,7 +217,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
         cancelRequest.set(new ClOrdID(clOrdID));
         cancelRequest.set(new OrigClOrdID(origClOrdID));
 
-        cancelRequest.set(FixUtil.getFixSymbol(security));
+        cancelRequest.set(FixUtil.getFixSymbol(security, broker));
         cancelRequest.set(FixUtil.getFixSide(order.getSide()));
         cancelRequest.set(new OrderQty(order.getQuantity()));
 
