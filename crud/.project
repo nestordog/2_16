@@ -20,8 +20,14 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.m2e.core.maven2Builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
+		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 		<nature>org.springframework.ide.eclipse.core.springnature</nature>
 		<nature>org.grails.ide.eclipse.core.nature</nature>
 		<nature>org.eclipse.jdt.groovy.core.groovyNature</nature>
@@ -32,7 +38,7 @@
 		<link>
 			<name>.link_to_grails_plugins</name>
 			<type>2</type>
-			<locationURI>GRAILS_ROOT/2.2.4/projects/crud/plugins</locationURI>
+			<location>D:/AlgoTrader/crud/plugins</location>
 		</link>
 	</linkedResources>
 </projectDescription>

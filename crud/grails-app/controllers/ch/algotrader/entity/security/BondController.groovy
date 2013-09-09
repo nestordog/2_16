@@ -2,5 +2,5 @@ package ch.algotrader.entity.security
 
 class BondController {
 
-    static scaffold = BondImpl
+    def scaffold = BondImpl
 }

@@ -10,7 +10,6 @@ constraints= {
     underlying(nullable : true)
     securityFamily()
 
-    derivedSecurityFamilies(display : false)
     subscriptions(display : false)
     positions(display : false)
 }

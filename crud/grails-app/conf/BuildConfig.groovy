@@ -12,7 +12,9 @@ grails.project.source.level = 1.6
 //]
 
 grails.project.dependency.resolution = {
-    //    pom true
+
+    pom true
+
     // inherit Grails' default dependencies
     inherits("global") {
         // specify dependency exclusions here; for example, uncomment this to disable ehcache:

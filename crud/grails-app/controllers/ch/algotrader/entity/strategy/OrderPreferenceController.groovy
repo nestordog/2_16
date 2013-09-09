@@ -2,5 +2,5 @@ package ch.algotrader.entity.strategy
 
 class OrderPreferenceController {
 
-    static scaffold = OrderPreferenceImpl
+    def scaffold = OrderPreferenceImpl
 }

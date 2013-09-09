@@ -4,7 +4,7 @@ import grails.util.GrailsNameUtils
 
 class SecurityFamilyController {
 
-    static scaffold = SecurityFamilyImpl
+    def scaffold = SecurityFamilyImpl
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
