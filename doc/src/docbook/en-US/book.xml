@@ -4196,7 +4196,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 </important>
                 <para>Inside the directory <filename>AlgoTrader</filename> do an svn checkout from the command
                     line:</para>
-                <screen>svn checkout https://repo.algotrader.ch/svn/trunk/AlgoTrader</screen>
+                <screen>svn checkout https://repo.algotrader.ch/svn/tags/AlgoTrader/2.0</screen>
                 <para>Import the following projects from the directory <filename>AlgoTrader</filename> into
                     Eclipse via File / Import / Maven / Existing Maven Projects:</para>
                 <itemizedlist>
@@ -4581,7 +4581,7 @@ bin/activemq</screen>
                     <listitem>
                         <para> checkout the following directory via SVN, which contains the
                                 <filename>pom.xml</filename> and different shell scripts:
-                                <literal>https://repo.algotrader.ch/svn/trunk/AlgoTrader/core/bin</literal>
+                                <literal>https://repo.algotrader.ch/svn/tags/AlgoTrader/2.0/core/bin</literal>
                         </para>
                     </listitem>
                     <listitem>
@@ -4761,7 +4761,7 @@ bin/activemq</screen>
             <variablelist>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/ch/algoTrader/strategy/MovServiceImpl.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/MovService.java</filename>
                     </term>
                     <listitem>
                         <para>the strategy service class</para>
@@ -4868,7 +4868,7 @@ bin/activemq</screen>
    Strategy strategy = getLookupService().getStrategyByNameFetched(strategyName);<co id="movService-getStrategy"/>
    Security security = getLookupService().getSecurity(securityId);
 
-   int qty = (int) (strategy.getAvailableFundsDouble() / price.doubleValue());<co id="movService-getQuantity"/>
+   int qty = (int) (getPortfolioService().getAvailableFundsDouble(strategyName) / price.doubleValue());<co id="movService-getQuantity"/>
 
    if (qty &lt;= 0) { return; }
 
