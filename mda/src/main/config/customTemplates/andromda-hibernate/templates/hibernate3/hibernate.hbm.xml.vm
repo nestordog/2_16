@@ -132,7 +132,7 @@ ${indent}    </key>
 ${indent}    <list-index column="$otherEnd.collectionIndexName"/>
 #end
 #if ($otherEnd.map)
-${indent}    <map-key column="$otherEnd.collectionIndexName" type="$otherEnd.collectionIndexType"/>
+${indent}    <map-key column="$otherEnd.collectionIndexName.toUpperCase()" type="$otherEnd.collectionIndexType"/>
 #end
 ${indent}    <one-to-many class="$otherEnd.type.fullyQualifiedEntityImplementationName" not-found="$hibernateOneToManyNotFoundAction"/>
 ${indent}</$otherEnd.collectionType>

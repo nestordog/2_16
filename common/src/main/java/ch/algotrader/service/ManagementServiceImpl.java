@@ -205,7 +205,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
                 MarketDataEventVO marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, subscription.getSecurity());
 
                 // add properties from this strategies subscription
-                Map<String, Property> properties = subscription.getPropertiesInitialized();
+                Map<String, Property> properties = subscription.getPropsInitialized();
                 if (!properties.isEmpty()) {
                     marketDataEventVO.setProperties(properties);
                 }

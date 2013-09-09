@@ -37,7 +37,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public int getIntProperty(String name) {
 
-        Property property = getPropertiesInitialized().get(name);
+        Property property = getPropsInitialized().get(name);
         if (property != null) {
             if (property.getIntValue() != null) {
                 return property.getIntValue();
@@ -52,7 +52,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public double getDoubleProperty(String name) {
 
-        Property property = getPropertiesInitialized().get(name);
+        Property property = getPropsInitialized().get(name);
         if (property != null) {
             if (property.getDoubleValue() != null) {
                 return property.getDoubleValue();
@@ -67,7 +67,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public BigDecimal getMoneyProperty(String name) {
 
-        Property property = getPropertiesInitialized().get(name);
+        Property property = getPropsInitialized().get(name);
         if (property != null) {
             if (property.getMoneyValue() != null) {
                 return property.getMoneyValue();
@@ -82,7 +82,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public String getTextProperty(String name) {
 
-        Property property = getPropertiesInitialized().get(name);
+        Property property = getPropsInitialized().get(name);
         if (property != null) {
             if (property.getTextValue() != null) {
                 return property.getTextValue();
@@ -97,7 +97,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public Date getDateProperty(String name) {
 
-        Property property = getPropertiesInitialized().get(name);
+        Property property = getPropsInitialized().get(name);
         if (property != null) {
             if (property.getDateValue() != null) {
                 return property.getDateValue();
@@ -112,7 +112,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public boolean getBooleanProperty(String name) {
 
-        Property property = getPropertiesInitialized().get(name);
+        Property property = getPropsInitialized().get(name);
         if (property != null) {
             if (property.getBooleanValue() != null) {
                 return property.getBooleanValue();
@@ -127,14 +127,14 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public Boolean hasProperty(String name) {
 
-        return getProperties().containsKey(name);
+        return getProps().containsKey(name);
     }
 
     @Override
     public Map<String, Object> getPropertyNameValueMap() {
 
         Map<String, Object> nameValuePairs = new HashMap<String, Object>();
-        for (Property property : getProperties().values()) {
+        for (Property property : getProps().values()) {
             nameValuePairs.put(property.getName(), property.getValue());
         }
         return nameValuePairs;

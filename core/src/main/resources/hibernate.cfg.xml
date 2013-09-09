@@ -22,19 +22,20 @@
 <!--     <property name="hibernate.show_sql">true</property> -->
 
     <mapping resource="META-INF/Hibernate.hbm.xml" />
-    <mapping resource="ch/algoTrader/entity/Account.hbm.xml" />
-    <mapping resource="ch/algoTrader/entity/Transaction.hbm.xml" />
-    <mapping resource="ch/algoTrader/entity/marketData/MarketDataEvent.hbm.xml" />
-    <mapping resource="ch/algoTrader/entity/property/Property.hbm.xml" />
-    <mapping resource="ch/algoTrader/entity/property/PropertyHolder.hbm.xml" />
-    <mapping resource="ch/algoTrader/entity/security/Component.hbm.xml" />
-    <mapping resource="ch/algoTrader/entity/security/Security.hbm.xml" />
-    <mapping resource="ch/algoTrader/entity/security/SecurityFamily.hbm.xml" />
-    <mapping resource="ch/algoTrader/entity/strategy/Allocation.hbm.xml" />
-    <mapping resource="ch/algoTrader/entity/strategy/CashBalance.hbm.xml" />
-    <mapping resource="ch/algoTrader/entity/strategy/DefaultOrderPreference.hbm.xml" />
-    <mapping resource="ch/algoTrader/entity/strategy/Measurement.hbm.xml" />
-    <mapping resource="ch/algoTrader/entity/strategy/PortfolioValue.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/Account.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/Transaction.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/marketData/MarketDataEvent.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/property/Property.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/property/PropertyHolder.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/security/Component.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/security/Security.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/security/SecurityFamily.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/security/BrokerParameters.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/strategy/Allocation.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/strategy/CashBalance.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/strategy/DefaultOrderPreference.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/strategy/Measurement.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/strategy/PortfolioValue.hbm.xml" />
 
 </session-factory>
 </hibernate-configuration>

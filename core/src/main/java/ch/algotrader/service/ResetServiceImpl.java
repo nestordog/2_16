@@ -34,7 +34,6 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.StockOptionDao;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.service.ResetServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -122,7 +121,7 @@ public class ResetServiceImpl extends ResetServiceBase {
         Collection<Property> nonPersistentProperties = getPropertyDao().findNonPersistent();
         getPropertyDao().remove(nonPersistentProperties);
         for (Property property : nonPersistentProperties) {
-            property.getPropertyHolder().removeProperties(property.getName());
+            property.getPropertyHolder().removeProps(property.getName());
         }
 
         // delete all measurements

@@ -17,12 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import ch.algotrader.util.BeanUtil;
-
-import ch.algotrader.entity.strategy.Allocation;
-import ch.algotrader.entity.strategy.OrderPreference;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.util.BeanUtil;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -79,6 +76,6 @@ public class OrderPreferenceImpl extends OrderPreference {
     @Override
     public String toString() {
 
-        return getName() + "," + getOrderType() + "," + getPropertyNameValueMap();
+        return getName() + ":" + getOrderType();
     }
 }

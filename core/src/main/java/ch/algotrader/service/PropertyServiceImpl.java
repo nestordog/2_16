@@ -19,11 +19,9 @@ package ch.algotrader.service;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-
 import ch.algotrader.entity.property.Property;
 import ch.algotrader.entity.property.PropertyHolder;
-import ch.algotrader.service.PropertyServiceBase;
+import ch.algotrader.util.MyLogger;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -40,7 +38,7 @@ public class PropertyServiceImpl extends PropertyServiceBase {
         // reattach the propertyHolder
         PropertyHolder propertyHolder = getPropertyHolderDao().load(propertyHolderId);
 
-        Property property = propertyHolder.getProperties().get(name);
+        Property property = propertyHolder.getProps().get(name);
         if (property == null) {
 
             // create the property
@@ -50,7 +48,7 @@ public class PropertyServiceImpl extends PropertyServiceBase {
             property.setPersistent(persistent);
 
             // associate the propertyHolder
-            propertyHolder.addProperties(name, property);
+            propertyHolder.addProps(name, property);
 
             getPropertyDao().create(property);
 
@@ -68,13 +66,13 @@ public class PropertyServiceImpl extends PropertyServiceBase {
     protected PropertyHolder handleRemoveProperty(int propertyHolderId, String name) throws Exception {
 
         PropertyHolder propertyHolder = getPropertyHolderDao().load(propertyHolderId);
-        Property property = propertyHolder.getProperties().get(name);
+        Property property = propertyHolder.getProps().get(name);
 
         if (property != null) {
 
             getPropertyDao().remove(property.getId());
 
-            propertyHolder.removeProperties(name);
+            propertyHolder.removeProps(name);
         }
 
         logger.info("removed property " + name + " from " + propertyHolder);

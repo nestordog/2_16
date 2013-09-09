@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import ch.algotrader.entity.strategy.DefaultOrderPreference;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -31,6 +30,6 @@ public class DefaultOrderPreferenceImpl extends DefaultOrderPreference {
     @Override
     public String toString() {
 
-        return getStrategy() + "," + getSecurityFamily() + "," + getOrderPreference();
+        return getStrategy() + ":" + getSecurityFamily() + ":" + getOrderPreference();
     }
 }

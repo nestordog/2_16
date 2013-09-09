@@ -74,7 +74,7 @@ public class PositionDaoImpl extends PositionDaoBase {
         positionVO.setMargin(position.getMaintenanceMargin() != null ? position.getMaintenanceMargin().setScale(scale, BigDecimal.ROUND_HALF_UP) : null);
 
         // add properties if any
-        Map<String, Property> properties = position.getPropertiesInitialized();
+        Map<String, Property> properties = position.getPropsInitialized();
         if (!properties.isEmpty()) {
             positionVO.setProperties(properties);
         }
