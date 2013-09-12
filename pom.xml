@@ -203,6 +203,7 @@
         <module>core/bin</module>
         <module>client/bin</module>
         <module>doc</module>
+        <module>crud</module>
     </modules>
     <dependencyManagement>
         <dependencies>
