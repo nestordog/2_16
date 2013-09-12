@@ -2670,8 +2670,8 @@ getOrderService().sendOrders(orders);</programlisting>
         <section>
             <title>Security and SecurityFamily Management</title>
             <para>To update Securities and SecurityFamilies one can either use the <xref
-                    linkend="Grails_Client"/> or add necessary information directly into the
-                database.</para>
+                    linkend="Reference_Data_Manager"/> or add necessary information directly into
+                the database.</para>
             <para>Each Security consists of one record in the table security and one record with the
                 same ID in the corresponding instrument type specific table (e.g. stock,
                 stock_option, forex, etc.). Since the java class Security is marked abstract a singe
@@ -2686,8 +2686,7 @@ getOrderService().sendOrders(orders);</programlisting>
                 information a single record in the security_family table will be enough to
                 instantiate an object of class SecurityFamily.</para>
             <para>The definition of the attributes of the classes Security and SecurityFamily are
-                documented in the <ulink url="http://doc.algotrader.ch/javadoc/index.html"
-                    >AlgoTrader JavaDoc</ulink></para>
+                documented in the <ulink url="http://doc.algotrader.ch/javadoc/index.html">AlgoTrader JavaDoc</ulink></para>
         </section>
         <section>
             <title>Transaction Handling</title>
@@ -2714,7 +2713,7 @@ getOrderService().sendOrders(orders);</programlisting>
                 <para>EsperHQ Client: Management of Esper CEP Engines</para>
             </listitem>
             <listitem>
-                <para>Grails Client: Reference Data Management</para>
+                <para>Reference Data Manager</para>
             </listitem>
         </itemizedlist>
         <section id="JMX_Client">
@@ -3834,130 +3833,144 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     request.</para>
             </section>
         </section>
-        <section id="Grails_Client">
-            <title>Grails Client</title>
-            <para>The Grails Client is located in the Project <filename>AlgoTrader-crud</filename> and
-                provides CRUD (Create, Read, Update &amp; Delete) Operations for Management of
-                AlgoTrader Reference Data.</para>
+        <section id="Reference_Data_Manager">
+            <title>Reference Data Manager</title>
+            <para>The Reference Data Manager allows manipulations (create, modify any delete) of Reference
+                Data inside the AlgoTrader Database.</para>
+            <para>The Grails Client is located in the Project <filename>algotrader/crud</filename>.</para>
             <para>The running application will look like this</para>
             <figure>
-                <title>Grails Client</title>
+                <title>Reference Data Manager List Page</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="images/GrailsClient.gif" scalefit="1"/>
+                        <imagedata fileref="images/GrailsClient-StockOption-List.gif" scalefit="1"/>
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>Currently CRUD Operations are available for the following entities:</para>
+            <figure>
+                <title>Reference Data Manager View Page</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="images/GrailsClient-StockOption-View.gif" scalefit="1"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <figure>
+                <title>Reference Data Manager Edit Page</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="images/GrailsClient-StockOption-Edit.gif" scalefit="1"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>Currently Refrence Data Management operations are available for the following
+                entities:</para>
             <itemizedlist>
                 <listitem>
-                    <para>Strategy</para>
+                    <para>Account</para>
                 </listitem>
                 <listitem>
-                    <para>Security</para>
+                    <para>Allocation</para>
                 </listitem>
                 <listitem>
-                    <para>Forex</para>
+                    <para>BrokerParameters</para>
                 </listitem>
                 <listitem>
-                    <para>Future</para>
+                    <para>Component</para>
                 </listitem>
                 <listitem>
-                    <para>StockOption</para>
+                    <para>DefaultOrderPreference</para>
                 </listitem>
                 <listitem>
-                    <para>IntrestRate</para>
+                    <para>OrderPreference</para>
+                </listitem>
+                <listitem>
+                    <para>Property</para>
                 </listitem>
                 <listitem>
                     <para>SecurityFamily</para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>BondFamily</para>
+                        </listitem>
+                        <listitem>
+                            <para>ForexFutureFamily</para>
+                        </listitem>
+                        <listitem>
+                            <para>FutureFamily</para>
+                        </listitem>
+                        <listitem>
+                            <para>GenericFutureFamily</para>
+                        </listitem>
+                        <listitem>
+                            <para>StockOptionFamily</para>
+                        </listitem>
+                    </itemizedlist>
                 </listitem>
                 <listitem>
-                    <para>Subscription</para>
+                    <para>Security</para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>Bond</para>
+                        </listitem>
+                        <listitem>
+                            <para>Combination</para>
+                        </listitem>
+                        <listitem>
+                            <para>ForexFuture</para>
+                        </listitem>
+                        <listitem>
+                            <para>Forex</para>
+                        </listitem>
+                        <listitem>
+                            <para>Future</para>
+                        </listitem>
+                        <listitem>
+                            <para>GenericFuture</para>
+                        </listitem>
+                        <listitem>
+                            <para>ImpliedVolatility</para>
+                        </listitem>
+                        <listitem>
+                            <para>IntrestRate</para>
+                        </listitem>
+                        <listitem>
+                            <para>NaturalIndex</para>
+                        </listitem>
+                        <listitem>
+                            <para>Stock</para>
+                        </listitem>
+                        <listitem>
+                            <para>StockOption</para>
+                        </listitem>
+                    </itemizedlist>
+                </listitem>
+                <listitem>
+                    <para>Strategy</para>
                 </listitem>
             </itemizedlist>
-            <para>AlgoTrader CRUD is based on the <ulink url="http://grails.org"> grails</ulink>
-                project, which has a feature called scaffolding, that is able to automatically
-                create a CRUD application based on hibernate mapping files and Java Domain classes
-                (= AndroMDA Entities).</para>
-            <para>Please make sure that the <filename>algotrader/code</filename> project is
-                available in the local maven repository by issuing the following maven command
-                inside algotrader-code:</para>
-            <screen>mvn install</screen>
-            <section>
-                <title>Run using Maven</title>
-                <para>To run the application using maven the following two files have to be patched
-                    in the local maven repository:</para>
-                <itemizedlist>
-                    <listitem>
-                        <para>
-                            <ulink url="http://algo-trader.googlecode.com/files/grails-gorm-1.3.7.jar">
-                                grails-gorm-1.3.7.jar</ulink> to
-                                <filename>user_home\.m2\repository\org\grails\grails-gorm\1.3.7</filename>
-                        </para>
-                    </listitem>
-                    <listitem>
-                        <para>
-                            <ulink url="http://algo-trader.googlecode.com/files/grails-web-1.3.7.jar">
-                                grails-web-1.3.7.jar</ulink> to
-                                <filename>user_home\.m2\repository\org\grails\grails-web\1.3.7</filename>
-                        </para>
-                    </listitem>
-                </itemizedlist>
-                <para>To start the AlgoTraderCrud application execute the following maven
-                    command:</para>
-                <screen>mvn -Ddisable.auto.recompile=true grails:run-app</screen>
-                <para>After Tomcat has started up, the AlgoTrader CRUD application can be accessed
-                    at the following URL: <ulink url="http://localhost:8080/algotrader-crud/">http://localhost:8080/algotrader-crud/</ulink>
-                </para>
-            </section>
-            <section>
-                <title>Run Using Grails</title>
-                <para>Alternatively the application can be started using Grails directly:</para>
-                <para>Please install version 1.3.7 from <ulink url="http://grails.org/Download">http://grails.org/download</ulink>
-                </para>
-                <para>Set the environment variable <parameter>GRAILS_HOME</parameter> to the
-                    directory where you installed grails and also add the
-                        <filename>GRAILS_HOME/bin</filename> directory to the PATH environment
-                    variable.</para>
-                <para>In addition the following two files have to be patched in the local ivy2
+            <para>The AlgoTrader Reference Data Manager is based on the <ulink url="http://grails.org">
+                    grails</ulink> project, which has a feature called scaffolding, that is able to
+                automatically create a CRUD (Create, Read, Update &amp; Delete) application based on
+                hibernate mapping files and Java Domain classes (= AndroMDA Entities).</para>
+                <para>To run the application using maven the following file has to be copied to the local maven
                     repository:</para>
                 <itemizedlist>
                     <listitem>
                         <para>
-                            <ulink url="http://algo-trader.googlecode.com/files/grails-gorm-1.3.7.jar">
-                                grails-gorm-1.3.7.jar</ulink> to
-                                <filename>user_home\.ivy2\cache\org.grails\grails-gorm\1.3.7</filename>
-                        </para>
-                    </listitem>
-                    <listitem>
-                        <para>
-                            <ulink url="http://algo-trader.googlecode.com/files/grails-web-1.3.7.jar">
-                                grails-web-1.3.7.jar</ulink> to
-                                <filename>user_home\.ivy2\cache\org.grails\grails-web\1.3.7</filename>
+                            <ulink
+                                url="http://algo-trader.googlecode.com/files/grails-web-1.3.7.jar">
+                                algotrader/crud/lib/grails-web-2.2.4.jar</ulink> to
+                                <filename>user_home\.m2\repository\org\grails\grails-web\2.2.4</filename>
                         </para>
                     </listitem>
                 </itemizedlist>
-                <para>To start the AlgoTraderCrud application execute the following grails
-                    command:</para>
-                <screen>grails -Ddisable.auto.recompile=true run-app</screen>
-                <para>After Tomcat has started up, the AlgoTraderCrud application can be accessed at
-                    the following URL: <ulink url="http://localhost:8080/algotrader-crud/">http://localhost:8080/algotrader-crud/</ulink>
+                <para>To start the Reference Data Manager execute the following maven command:</para>
+                <screen>mvn -Ddisable.auto.recompile=true grails:run-app</screen>
+                <para>After started up, the Reference Data Manager can be accessed at the following URL: <ulink
+                        url="http://localhost:8080/algotrader-crud/"
+                        >http://localhost:8080/crud/</ulink>
                 </para>
-                <note>
-                    <itemizedlist>
-                        <listitem>
-                            <para>If unexpected results show up, it usually helps to delete
-                                everything in the <filename>target</filename> directory inside the
-                                AlgoTraderCrud application before starting up</para>
-                        </listitem>
-                        <listitem>
-                            <para>Also it might help to do a "mvn install" on all AlgoTrader maven
-                                projects to ensure that the latest version exists in the local
-                                repository</para>
-                        </listitem>
-                    </itemizedlist>
-                </note>
-            </section>
         </section>
     </chapter>
     <chapter id="Installation">
@@ -4650,8 +4663,7 @@ bin/activemq</screen>
                 <varlistentry>
                     <term>-Dch.algotrader.rmi.ssl</term>
                     <listitem>
-                        <para>use ssl socket factories (for <xref linkend="Remote-JMX-Access"
-                            />)</para>
+                        <para>use ssl socket factories (for <xref linkend="Remote-JMX-Access"/>)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
