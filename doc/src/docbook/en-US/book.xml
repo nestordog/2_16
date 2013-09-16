@@ -2669,8 +2669,7 @@ getOrderService().sendOrders(orders);</programlisting>
         </section>
         <section>
             <title>Security and SecurityFamily Management</title>
-            <para>To update Securities and SecurityFamilies one can either use the <xref
-                    linkend="Reference_Data_Manager"/> or add necessary information directly into
+            <para>To update Securities and SecurityFamilies one can either use the <xref linkend="Reference_Data_Manager"/> or add necessary information directly into
                 the database.</para>
             <para>Each Security consists of one record in the table security and one record with the
                 same ID in the corresponding instrument type specific table (e.g. stock,
@@ -3955,9 +3954,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 hibernate mapping files and Java Domain classes (= AndroMDA Entities).</para>
                 <para>To start the Reference Data Manager execute the following maven command:</para>
                 <screen>mvn -Ddisable.auto.recompile=true grails:run-app</screen>
-                <para>After started up, the Reference Data Manager can be accessed at the following URL: <ulink
-                        url="http://localhost:8080/algotrader-crud/"
-                        >http://localhost:8080/crud/</ulink>
+                <para>After started up, the Reference Data Manager can be accessed at the following URL: <ulink url="http://localhost:8080/algotrader-crud/">http://localhost:8080/crud/</ulink>
                 </para>
         </section>
     </chapter>
@@ -4962,7 +4959,7 @@ bin/activemq</screen>
             </section>
             <section>
                 <title>MovSingleVMStarter</title>
-                <programlisting>public class MovStarter {
+                <programlisting language="Java">public class MovStarter {
 
   public static void main(String[] args) extends BaseStarter {
 
@@ -4973,7 +4970,17 @@ bin/activemq</screen>
     MovService movService = ServiceLocator.instance().
       getService("movService", MovService.class); <co id="movSingleVMStarter-getMovService"/>
 
-    ...
+    String strategyName = movService.getStrategyName();
+
+    EsperManager.initServiceProvider(strategyName); <co id="movSingleVMStarter-initEsper"/>
+
+    EsperManager.deployInitModules(strategyName); <co id="movSingleVMStarter-initModules"/>
+
+    movService.prefeedTicks(); <co id="movSingleVMStarter-prefeed"/>
+
+    EsperManager.setInternalClock(strategyName, true); <co id="movSingleVMStarter-internalClock"/>
+
+    EsperManager.deployRunModules(strategyName); <co id="movSingleVMStarter-runModules"/>
   }
 }</programlisting>
                 <para>The Starter Class needs to extend the <classname>BaseStarter</classname> class. The main
@@ -4990,9 +4997,26 @@ bin/activemq</screen>
                     <callout arearefs="movSingleVMStarter-getMovService">
                         <para>get a reference to the MovService</para>
                     </callout>
+                    <callout arearefs="movSingleVMStarter-initEsper">
+                        <para>initialize the Esper Engine for the MOV Strategy</para>
+                    </callout>
+                    <callout arearefs="movSingleVMStarter-initModules">
+                        <para>deploy all init-modules</para>
+                    </callout>
+                    <callout arearefs="movSingleVMStarter-prefeed">
+                        <para>start feeding historical market data events (of a certain time period)
+                            to initialize the moving average indicators. The Esper Engine is set to
+                            externalClock, which means that it's time is advanced according to
+                            prefeeded market data events</para>
+                    </callout>
+                    <callout arearefs="movSingleVMStarter-internalClock">
+                        <para>switch to internalClock. After this, the Esper Engine's time is
+                            advanced according to the Wall Clock.</para>
+                    </callout>
+                    <callout arearefs="movSingleVMStarter-runModules">
+                        <para>deploy the run modules.</para>
+                    </callout>
                 </calloutlist>
-                <para>The rest of the <methodname>main</methodname> method looks the same as the one
-                    from <classname>MovStarter</classname>.</para>
             </section>
             <section>
                 <title>module-mov-init.epl</title>
