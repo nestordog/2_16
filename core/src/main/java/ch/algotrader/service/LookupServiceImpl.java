@@ -94,6 +94,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected Security handleGetSecurityBySymbol(String symbol) throws Exception {
+
+        return getSecurityDao().findBySymbol(symbol);
+    }
+
+    @Override
     protected Security handleGetSecurityInclFamilyAndUnderlying(int securityId) throws Exception {
 
         return getSecurityDao().findByIdInclFamilyAndUnderlying(securityId);
