@@ -1,4 +1,7 @@
-//AlgoTrader line 364 - 387: make execDetails single line
+//AlgoTrader line 376 - 393: make execDetails single line
+/* Copyright (C) 2013 Interactive Brokers LLC. All rights reserved.  This code is subject to the terms
+ * and conditions of the IB API Non-Commercial License or the IB API Commercial License, as applicable. */
+
 package com.ib.client;
 
 import java.text.DateFormat;
@@ -64,9 +67,18 @@ public class EWrapperMsgGenerator extends AnyWrapperMsgGenerator {
         String msg = "open order: orderId=" + orderId +
         " action=" + order.m_action +
         " quantity=" + order.m_totalQuantity +
+        " conid=" + contract.m_conId +
         " symbol=" + contract.m_symbol +
-        " exchange=" + contract.m_exchange +
         " secType=" + contract.m_secType +
+        " expiry=" + contract.m_expiry +
+        " strike=" + contract.m_strike +
+        " right=" + contract.m_right +
+        " multiplier=" + contract.m_multiplier +
+        " exchange=" + contract.m_exchange +
+        " primaryExch=" + contract.m_primaryExch +
+        " currency=" + contract.m_currency +
+        " localSymbol=" + contract.m_localSymbol +
+        " tradingClass=" + contract.m_tradingClass +
         " type=" + order.m_orderType +
         " lmtPrice=" + Util.DoubleMaxString(order.m_lmtPrice) +
         " auxPrice=" + Util.DoubleMaxString(order.m_auxPrice) +
@@ -268,7 +280,6 @@ public class EWrapperMsgGenerator extends AnyWrapperMsgGenerator {
 
     private static String contractDetailsMsg(ContractDetails contractDetails) {
         String msg = "marketName = " + contractDetails.m_marketName + "\n"
-        + "tradingClass = " + contractDetails.m_tradingClass + "\n"
         + "minTick = " + contractDetails.m_minTick + "\n"
         + "price magnifier = " + contractDetails.m_priceMagnifier + "\n"
         + "orderTypes = " + contractDetails.m_orderTypes + "\n"
@@ -299,7 +310,8 @@ public class EWrapperMsgGenerator extends AnyWrapperMsgGenerator {
         + "exchange = " + contract.m_exchange + "\n"
         + "primaryExch = " + contract.m_primaryExch + "\n"
         + "currency = " + contract.m_currency + "\n"
-        + "localSymbol = " + contract.m_localSymbol + "\n";
+        + "localSymbol = " + contract.m_localSymbol + "\n"
+        + "tradingClass = " + contract.m_tradingClass + "\n";
         return msg;
     }
 
@@ -323,7 +335,7 @@ public class EWrapperMsgGenerator extends AnyWrapperMsgGenerator {
         + "exchange = " + contract.m_exchange + "\n"
         + "currency = " + contract.m_currency + "\n"
         + "marketName = " + contractDetails.m_marketName + "\n"
-        + "tradingClass = " + contractDetails.m_tradingClass + "\n"
+        + "tradingClass = " + contract.m_tradingClass + "\n"
         + "conid = " + contract.m_conId + "\n"
         + "minTick = " + contractDetails.m_minTick + "\n"
         + "orderTypes = " + contractDetails.m_orderTypes + "\n"
@@ -361,16 +373,10 @@ public class EWrapperMsgGenerator extends AnyWrapperMsgGenerator {
     }
 
     static public String execDetails( int reqId, Contract contract, Execution execution) {
-        String msg = "exec details: orderId=" + execution.m_orderId
+        String msg = "reqId=" + reqId
+        + " orderId=" + execution.m_orderId
         + " clientId=" + execution.m_clientId
-        + " symbol=" + contract.m_symbol
-        + " secType=" + contract.m_secType
-        + " expiry=" + contract.m_expiry
-        + " strike=" + contract.m_strike
-        + " right=" + contract.m_right
-        + " contractExchange=" + contract.m_exchange
-        + " currency=" + contract.m_currency
-        + " localSymbol=" + contract.m_localSymbol
+        + contractMsg(contract)
         + " execId=" + execution.m_execId
         + " time=" + execution.m_time
         + " acctNumber=" + execution.m_acctNumber
@@ -383,8 +389,8 @@ public class EWrapperMsgGenerator extends AnyWrapperMsgGenerator {
         + " cumQty=" + execution.m_cumQty
         + " avgPrice=" + execution.m_avgPrice
         + " orderRef=" + execution.m_orderRef
-        + " evRule = " + execution.m_evRule
-        + " evMultiplier = " + execution.m_evMultiplier;
+        + " evRule=" + execution.m_evRule
+        + " evMultiplier=" + execution.m_evMultiplier;
         return msg;
     }
 
@@ -459,7 +465,7 @@ public class EWrapperMsgGenerator extends AnyWrapperMsgGenerator {
         " currency=" + contract.m_currency +
         " localSymbol=" + contract.m_localSymbol +
         " marketName=" + contractDetails.m_marketName +
-        " tradingClass=" + contractDetails.m_tradingClass +
+        " tradingClass=" + contract.m_tradingClass +
         " distance=" + distance +
         " benchmark=" + benchmark +
         " projection=" + projection +
@@ -503,4 +509,34 @@ public class EWrapperMsgGenerator extends AnyWrapperMsgGenerator {
         " yieldRedemptionDate=" + Util.IntMaxString(commissionReport.m_yieldRedemptionDate);
         return msg;
     }
+
+    static public String position( String account, Contract contract, int position, double avgCost) {
+        String msg = " ---- Position begin ----\n"
+        + "account = " + account + "\n"
+        + contractMsg(contract)
+        + "position = " + Util.IntMaxString(position) + "\n"
+        + "avgCost = " + Util.DoubleMaxString(avgCost) + "\n"
+        + " ---- Position end ----\n";
+        return msg;
+    }
+
+    static public String positionEnd() {
+        return " =============== end ===============";
+    }
+
+    static public String accountSummary( int reqId, String account, String tag, String value, String currency) {
+        String msg = " ---- Account Summary begin ----\n"
+        + "reqId = " + reqId + "\n"
+        + "account = " + account + "\n"
+        + "tag = " + tag + "\n"
+        + "value = " + value + "\n"
+        + "currency = " + currency + "\n"
+        + " ---- Account Summary end ----\n";
+        return msg;
+    }
+
+    static public String accountSummaryEnd( int reqId) {
+        return "id=" + reqId + " =============== end ===============";
+    }
+
 }

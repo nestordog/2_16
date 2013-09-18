@@ -1,12 +1,12 @@
-// AlgoTrader: add logger / remove System.out
-/*
- * EClientSocket.java
- *
- */
+// AlgoTrader: 271 + 274 add logger / remove System.out
+/* Copyright (C) 2013 Interactive Brokers LLC. All rights reserved.  This code is subject to the terms
+ * and conditions of the IB API Non-Commercial License or the IB API Commercial License, as applicable. */
+
 package com.ib.client;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -92,10 +92,13 @@ public class EClientSocket {
     // 59 = can receive evRule, evMultiplier in contractDescription/bondContractDescription/executionDetails
     //      can receive multiplier in executionDetails
     // 60 = can receive deltaNeutralOpenClose, deltaNeutralShortSale, deltaNeutralShortSaleSlot and deltaNeutralDesignatedLocation in openOrder
+    // 61 = can receive multiplier in openOrder
+    //      can receive tradingClass in openOrder, updatePortfolio, execDetails and position
+    // 62 = can receive avgCost in position message
 
     private static Logger logger = MyLogger.getLogger(EClientSocket.class.getName());
 
-    private static final int CLIENT_VERSION = 60;
+    private static final int CLIENT_VERSION = 62;
     private static final int SERVER_VERSION = 38;
     private static final byte[] EOL = {0};
     private static final String BAG_SEC_TYPE = "BAG";
@@ -154,6 +157,10 @@ public class EClientSocket {
     private static final int CANCEL_CALC_OPTION_PRICE = 57;
     private static final int REQ_GLOBAL_CANCEL = 58;
     private static final int REQ_MARKET_DATA_TYPE = 59;
+    private static final int REQ_POSITIONS = 61;
+    private static final int REQ_ACCOUNT_SUMMARY = 62;
+    private static final int CANCEL_ACCOUNT_SUMMARY = 63;
+    private static final int CANCEL_POSITIONS = 64;
 
     private static final int MIN_SERVER_VER_REAL_TIME_BARS = 34;
     private static final int MIN_SERVER_VER_SCALE_ORDERS = 35;
@@ -188,26 +195,25 @@ public class EClientSocket {
     private static final int MIN_SERVER_VER_ORDER_COMBO_LEGS_PRICE = 61;
     private static final int MIN_SERVER_VER_TRAILING_PERCENT = 62;
     private static final int MIN_SERVER_VER_DELTA_NEUTRAL_OPEN_CLOSE = 66;
+    private static final int MIN_SERVER_VER_ACCT_SUMMARY = 67;
+    private static final int MIN_SERVER_VER_TRADING_CLASS = 68;
 
     private AnyWrapper             m_anyWrapper;    // msg handler
-    private DataOutputStream     m_dos;      // the socket output stream
+    protected DataOutputStream m_dos;   // the socket output stream
     private boolean             m_connected;// true if we are connected
     private EReader             m_reader;   // thread which reads msgs from socket
-    private int                 m_serverVersion = 0;
+    private int m_serverVersion;
     private String              m_TwsTime;
 
     public int serverVersion()          { return m_serverVersion;   }
     public String TwsConnectionTime()   { return m_TwsTime; }
     public AnyWrapper wrapper()         { return m_anyWrapper; }
     public EReader reader()             { return m_reader; }
+    public boolean isConnected()         { return m_connected; }
 
 
     public EClientSocket( AnyWrapper anyWrapper) {
         m_anyWrapper = anyWrapper;
-    }
-
-    public boolean isConnected() {
-        return m_connected;
     }
 
     public synchronized void eConnect( String host, int port, int clientId) {
@@ -294,14 +300,14 @@ public class EClientSocket {
         m_serverVersion = 0;
         m_TwsTime = "";
 
-        DataOutputStream dos = m_dos;
+        FilterOutputStream dos = m_dos;
         m_dos = null;
 
         EReader reader = m_reader;
         m_reader = null;
 
         try {
-            // stop reader thread
+            // stop reader thread; reader thread will close input stream
             if( reader != null) {
                 reader.interrupt();
             }
@@ -310,7 +316,7 @@ public class EClientSocket {
         }
 
         try {
-            // close socket
+            // close output stream
             if( dos != null) {
                 dos.close();
             }
@@ -322,7 +328,7 @@ public class EClientSocket {
     public synchronized void cancelScannerSubscription( int tickerId) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -349,7 +355,7 @@ public class EClientSocket {
     public synchronized void reqScannerParameters() {
         // not connected?
         if (!m_connected) {
-            error(EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -372,11 +378,10 @@ public class EClientSocket {
         }
     }
 
-    public synchronized void reqScannerSubscription( int tickerId,
-        ScannerSubscription subscription) {
+    public synchronized void reqScannerSubscription( int tickerId, ScannerSubscription subscription) {
         // not connected?
         if (!m_connected) {
-            error(EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -411,7 +416,7 @@ public class EClientSocket {
             sendMax(subscription.couponRateBelow());
             send(subscription.excludeConvertible());
             if (m_serverVersion >= 25) {
-                send(subscription.averageOptionVolumeAbove());
+                sendMax(subscription.averageOptionVolumeAbove());
                 send(subscription.scannerSettingPairs());
             }
             if (m_serverVersion >= 27) {
@@ -453,7 +458,15 @@ public class EClientSocket {
             }
         }
 
-        final int VERSION = 9;
+        if (m_serverVersion < MIN_SERVER_VER_TRADING_CLASS) {
+            if (!IsEmpty(contract.m_tradingClass)) {
+                error(tickerId, EClientErrors.UPDATE_TWS,
+                    "  It does not support tradingClass parameter in reqMarketData.");
+                return;
+            }
+        }
+
+        final int VERSION = 10;
 
         try {
             // send req mkt data msg
@@ -480,6 +493,9 @@ public class EClientSocket {
             send(contract.m_currency);
             if(m_serverVersion >= 2) {
                 send( contract.m_localSymbol);
+            }
+            if(m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
+                send( contract.m_tradingClass);
             }
             if(m_serverVersion >= 8 && BAG_SEC_TYPE.equalsIgnoreCase(contract.m_secType)) {
                 if ( contract.m_comboLegs == null ) {
@@ -535,7 +551,7 @@ public class EClientSocket {
     public synchronized void cancelHistoricalData( int tickerId ) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -562,7 +578,7 @@ public class EClientSocket {
     public void cancelRealTimeBars(int tickerId) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -586,17 +602,18 @@ public class EClientSocket {
         }
     }
 
+    /** Note that formatData parameter affects intra-day bars only; 1-day bars always return with date in YYYYMMDD format. */
     public synchronized void reqHistoricalData( int tickerId, Contract contract,
                                                 String endDateTime, String durationStr,
                                                 String barSizeSetting, String whatToShow,
                                                 int useRTH, int formatDate) {
         // not connected?
         if( !m_connected) {
-            error( tickerId, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
-        final int VERSION = 4;
+        final int VERSION = 5;
 
         try {
           if (m_serverVersion < 16) {
@@ -605,11 +622,22 @@ public class EClientSocket {
             return;
           }
 
+          if (m_serverVersion < MIN_SERVER_VER_TRADING_CLASS) {
+              if (!IsEmpty(contract.m_tradingClass) || (contract.m_conId > 0)) {
+                  error(tickerId, EClientErrors.UPDATE_TWS,
+                      "  It does not support conId and tradingClass parameters in reqHistroricalData.");
+                  return;
+              }
+          }
+
           send(REQ_HISTORICAL_DATA);
           send(VERSION);
           send(tickerId);
 
           // send contract fields
+          if (m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
+              send(contract.m_conId);
+          }
           send(contract.m_symbol);
           send(contract.m_secType);
           send(contract.m_expiry);
@@ -620,6 +648,9 @@ public class EClientSocket {
           send(contract.m_primaryExch);
           send(contract.m_currency);
           send(contract.m_localSymbol);
+          if (m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
+              send(contract.m_tradingClass);
+          }
           if (m_serverVersion >= 31) {
               send(contract.m_includeExpired ? 1 : 0);
           }
@@ -660,7 +691,7 @@ public class EClientSocket {
     public synchronized void reqRealTimeBars(int tickerId, Contract contract, int barSize, String whatToShow, boolean useRTH) {
         // not connected?
         if (!m_connected ) {
-            error(EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
         if (m_serverVersion < MIN_SERVER_VER_REAL_TIME_BARS) {
@@ -668,8 +699,15 @@ public class EClientSocket {
                   "  It does not support real time bars.");
             return;
         }
+        if (m_serverVersion < MIN_SERVER_VER_TRADING_CLASS) {
+            if (!IsEmpty(contract.m_tradingClass) || (contract.m_conId > 0)) {
+                  error(tickerId, EClientErrors.UPDATE_TWS,
+                      "  It does not support conId and tradingClass parameters in reqRealTimeBars.");
+                  return;
+            }
+        }
 
-        final int VERSION = 1;
+        final int VERSION = 2;
 
         try {
             // send req mkt data msg
@@ -678,6 +716,9 @@ public class EClientSocket {
             send(tickerId);
 
             // send contract fields
+            if (m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
+                send(contract.m_conId);
+            }
             send(contract.m_symbol);
             send(contract.m_secType);
             send(contract.m_expiry);
@@ -688,7 +729,10 @@ public class EClientSocket {
             send(contract.m_primaryExch);
             send(contract.m_currency);
             send(contract.m_localSymbol);
-            send(barSize);
+            if (m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
+                send(contract.m_tradingClass);
+            }
+            send(barSize);  // this parameter is not currently used
             send(whatToShow);
             send(useRTH);
 
@@ -700,11 +744,10 @@ public class EClientSocket {
 
     }
 
-    public synchronized void reqContractDetails(int reqId, Contract contract)
-    {
+    public synchronized void reqContractDetails(int reqId, Contract contract) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -723,7 +766,15 @@ public class EClientSocket {
             }
         }
 
-        final int VERSION = 6;
+        if (m_serverVersion < MIN_SERVER_VER_TRADING_CLASS) {
+            if (!IsEmpty(contract.m_tradingClass)) {
+                  error(reqId, EClientErrors.UPDATE_TWS,
+                      "  It does not support tradingClass parameter in reqContractDetails.");
+                  return;
+            }
+        }
+
+        final int VERSION = 7;
 
         try {
             // send req mkt data msg
@@ -749,6 +800,9 @@ public class EClientSocket {
             send( contract.m_exchange);
             send( contract.m_currency);
             send( contract.m_localSymbol);
+            if (m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
+                send(contract.m_tradingClass);
+            }
             if (m_serverVersion >= 31) {
                 send(contract.m_includeExpired);
             }
@@ -764,11 +818,10 @@ public class EClientSocket {
         }
     }
 
-    public synchronized void reqMktDepth( int tickerId, Contract contract, int numRows)
-    {
+    public synchronized void reqMktDepth( int tickerId, Contract contract, int numRows) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -779,7 +832,15 @@ public class EClientSocket {
             return;
         }
 
-        final int VERSION = 3;
+        if (m_serverVersion < MIN_SERVER_VER_TRADING_CLASS) {
+            if (!IsEmpty(contract.m_tradingClass) || (contract.m_conId > 0)) {
+                  error(tickerId, EClientErrors.UPDATE_TWS,
+                      "  It does not support conId and tradingClass parameters in reqMktDepth.");
+                  return;
+            }
+        }
+
+        final int VERSION = 4;
 
         try {
             // send req mkt data msg
@@ -788,6 +849,9 @@ public class EClientSocket {
             send( tickerId);
 
             // send contract fields
+            if (m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
+                send(contract.m_conId);
+            }
             send( contract.m_symbol);
             send( contract.m_secType);
             send( contract.m_expiry);
@@ -799,6 +863,9 @@ public class EClientSocket {
             send( contract.m_exchange);
             send( contract.m_currency);
             send( contract.m_localSymbol);
+            if (m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
+                send(contract.m_tradingClass);
+            }
             if (m_serverVersion >= 19) {
                 send( numRows);
             }
@@ -812,7 +879,7 @@ public class EClientSocket {
     public synchronized void cancelMktData( int tickerId) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -833,7 +900,7 @@ public class EClientSocket {
     public synchronized void cancelMktDepth( int tickerId) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -863,11 +930,11 @@ public class EClientSocket {
                                               String account, int override) {
         // not connected?
         if( !m_connected) {
-            error( tickerId, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
-        final int VERSION = 1;
+        final int VERSION = 2;
 
         try {
           if (m_serverVersion < 21) {
@@ -876,11 +943,22 @@ public class EClientSocket {
             return;
           }
 
+          if (m_serverVersion < MIN_SERVER_VER_TRADING_CLASS) {
+              if (!IsEmpty(contract.m_tradingClass) || (contract.m_conId > 0)) {
+                    error(tickerId, EClientErrors.UPDATE_TWS,
+                        "  It does not support conId and tradingClass parameters in exerciseOptions.");
+                    return;
+              }
+          }
+
           send(EXERCISE_OPTIONS);
           send(VERSION);
           send(tickerId);
 
           // send contract fields
+          if (m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
+              send(contract.m_conId);
+          }
           send(contract.m_symbol);
           send(contract.m_secType);
           send(contract.m_expiry);
@@ -890,6 +968,9 @@ public class EClientSocket {
           send(contract.m_exchange);
           send(contract.m_currency);
           send(contract.m_localSymbol);
+          if (m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
+              send(contract.m_tradingClass);
+          }
           send(exerciseAction);
           send(exerciseQuantity);
           send(account);
@@ -904,7 +985,7 @@ public class EClientSocket {
     public synchronized void placeOrder( int id, Contract contract, Order order) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1089,7 +1170,15 @@ public class EClientSocket {
             }
         }
 
-        int VERSION = (m_serverVersion < MIN_SERVER_VER_NOT_HELD) ? 27 : 39;
+        if (m_serverVersion < MIN_SERVER_VER_TRADING_CLASS) {
+            if (!IsEmpty(contract.m_tradingClass)) {
+                  error(id, EClientErrors.UPDATE_TWS,
+                      "  It does not support tradingClass parameters in placeOrder.");
+                  return;
+            }
+        }
+
+        int VERSION = (m_serverVersion < MIN_SERVER_VER_NOT_HELD) ? 27 : 40;
 
         // send place order msg
         try {
@@ -1116,6 +1205,9 @@ public class EClientSocket {
             send( contract.m_currency);
             if( m_serverVersion >= 2) {
                 send (contract.m_localSymbol);
+            }
+            if (m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
+                send(contract.m_tradingClass);
             }
             if( m_serverVersion >= MIN_SERVER_VER_SEC_ID_TYPE){
                 send( contract.m_secIdType);
@@ -1415,7 +1507,7 @@ public class EClientSocket {
     public synchronized void reqAccountUpdates(boolean subscribe, String acctCode) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1441,7 +1533,7 @@ public class EClientSocket {
     public synchronized void reqExecutions(int reqId, ExecutionFilter filter) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1478,7 +1570,7 @@ public class EClientSocket {
     public synchronized void cancelOrder( int id) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1499,7 +1591,7 @@ public class EClientSocket {
     public synchronized void reqOpenOrders() {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1519,7 +1611,7 @@ public class EClientSocket {
     public synchronized void reqIds( int numIds) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1539,7 +1631,7 @@ public class EClientSocket {
     public synchronized void reqNewsBulletins( boolean allMsgs) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1559,7 +1651,7 @@ public class EClientSocket {
     public synchronized void cancelNewsBulletins() {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1579,7 +1671,7 @@ public class EClientSocket {
     public synchronized void setServerLogLevel(int logLevel) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1597,11 +1689,10 @@ public class EClientSocket {
         }
     }
 
-    public synchronized void reqAutoOpenOrders(boolean bAutoBind)
-    {
+    public synchronized void reqAutoOpenOrders(boolean bAutoBind) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1622,7 +1713,7 @@ public class EClientSocket {
     public synchronized void reqAllOpenOrders() {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1642,7 +1733,7 @@ public class EClientSocket {
     public synchronized void reqManagedAccts() {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1662,7 +1753,7 @@ public class EClientSocket {
     public synchronized void requestFA( int faDataType ) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1689,7 +1780,7 @@ public class EClientSocket {
     public synchronized void replaceFA( int faDataType, String xml ) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1717,7 +1808,7 @@ public class EClientSocket {
     public synchronized void reqCurrentTime() {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1740,10 +1831,10 @@ public class EClientSocket {
         }
     }
 
-    public synchronized void reqFundamentalData(int reqId, Contract contract,
-            String reportType) {
+    public synchronized void reqFundamentalData(int reqId, Contract contract, String reportType) {
+        // not connected?
         if( !m_connected) {
-            error( reqId, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1753,7 +1844,15 @@ public class EClientSocket {
             return;
         }
 
-        final int VERSION = 1;
+        if( m_serverVersion < MIN_SERVER_VER_TRADING_CLASS) {
+            if( contract.m_conId > 0) {
+                  error(reqId, EClientErrors.UPDATE_TWS,
+                      "  It does not support conId parameter in reqFundamentalData.");
+                  return;
+            }
+        }
+
+        final int VERSION = 2;
 
         try {
             // send req fund data msg
@@ -1762,6 +1861,9 @@ public class EClientSocket {
             send( reqId);
 
             // send contract fields
+            if( m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
+                send(contract.m_conId);
+            }
             send( contract.m_symbol);
             send( contract.m_secType);
             send( contract.m_exchange);
@@ -1778,8 +1880,9 @@ public class EClientSocket {
     }
 
     public synchronized void cancelFundamentalData(int reqId) {
+        // not connected?
         if( !m_connected) {
-            error( reqId, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1806,8 +1909,9 @@ public class EClientSocket {
     public synchronized void calculateImpliedVolatility(int reqId, Contract contract,
             double optionPrice, double underPrice) {
 
+        // not connected?
         if (!m_connected) {
-            error(EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1817,7 +1921,15 @@ public class EClientSocket {
             return;
         }
 
-        final int VERSION = 1;
+        if (m_serverVersion < MIN_SERVER_VER_TRADING_CLASS) {
+            if (!IsEmpty(contract.m_tradingClass)) {
+                  error(reqId, EClientErrors.UPDATE_TWS,
+                      "  It does not support tradingClass parameter in calculateImpliedVolatility.");
+                  return;
+            }
+        }
+
+        final int VERSION = 2;
 
         try {
             // send calculate implied volatility msg
@@ -1837,6 +1949,9 @@ public class EClientSocket {
             send( contract.m_primaryExch);
             send( contract.m_currency);
             send( contract.m_localSymbol);
+            if( m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
+                send(contract.m_tradingClass);
+            }
 
             send( optionPrice);
             send( underPrice);
@@ -1849,8 +1964,9 @@ public class EClientSocket {
 
     public synchronized void cancelCalculateImpliedVolatility(int reqId) {
 
+        // not connected?
         if (!m_connected) {
-            error(EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1877,8 +1993,9 @@ public class EClientSocket {
     public synchronized void calculateOptionPrice(int reqId, Contract contract,
             double volatility, double underPrice) {
 
+        // not connected?
         if (!m_connected) {
-            error(EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1888,7 +2005,15 @@ public class EClientSocket {
             return;
         }
 
-        final int VERSION = 1;
+        if (m_serverVersion < MIN_SERVER_VER_TRADING_CLASS) {
+            if (!IsEmpty(contract.m_tradingClass)) {
+                  error(reqId, EClientErrors.UPDATE_TWS,
+                      "  It does not support tradingClass parameter in calculateOptionPrice.");
+                  return;
+            }
+        }
+
+        final int VERSION = 2;
 
         try {
             // send calculate option price msg
@@ -1908,6 +2033,9 @@ public class EClientSocket {
             send( contract.m_primaryExch);
             send( contract.m_currency);
             send( contract.m_localSymbol);
+            if( m_serverVersion >= MIN_SERVER_VER_TRADING_CLASS) {
+                send(contract.m_tradingClass);
+            }
 
             send( volatility);
             send( underPrice);
@@ -1920,8 +2048,9 @@ public class EClientSocket {
 
     public synchronized void cancelCalculateOptionPrice(int reqId) {
 
+        // not connected?
         if (!m_connected) {
-            error(EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1948,7 +2077,7 @@ public class EClientSocket {
     public synchronized void reqGlobalCancel() {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1974,7 +2103,7 @@ public class EClientSocket {
     public synchronized void reqMarketDataType(int marketDataType) {
         // not connected?
         if( !m_connected) {
-            error( EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+            notConnected();
             return;
         }
 
@@ -1998,6 +2127,120 @@ public class EClientSocket {
         }
     }
 
+    public synchronized void reqPositions() {
+        // not connected?
+        if( !m_connected) {
+            notConnected();
+            return;
+        }
+
+        if (m_serverVersion < MIN_SERVER_VER_ACCT_SUMMARY) {
+            error(EClientErrors.NO_VALID_ID, EClientErrors.UPDATE_TWS,
+            "  It does not support position requests.");
+            return;
+        }
+
+        final int VERSION = 1;
+
+        Builder b = new Builder();
+        b.send( REQ_POSITIONS);
+        b.send( VERSION);
+
+
+        try {
+            m_dos.write( b.getBytes() );
+        }
+        catch (IOException e) {
+            error( EClientErrors.NO_VALID_ID, EClientErrors.FAIL_SEND_REQPOSITIONS, "" + e);
+        }
+    }
+
+    public synchronized void cancelPositions() {
+        // not connected?
+        if( !m_connected) {
+            notConnected();
+            return;
+        }
+
+        if (m_serverVersion < MIN_SERVER_VER_ACCT_SUMMARY) {
+            error(EClientErrors.NO_VALID_ID, EClientErrors.UPDATE_TWS,
+            "  It does not support position cancellation.");
+            return;
+        }
+
+        final int VERSION = 1;
+
+        Builder b = new Builder();
+        b.send( CANCEL_POSITIONS);
+        b.send( VERSION);
+
+        try {
+            m_dos.write( b.getBytes() );
+        }
+        catch (IOException e) {
+            error( EClientErrors.NO_VALID_ID, EClientErrors.FAIL_SEND_CANPOSITIONS, "" + e);
+        }
+    }
+
+    public synchronized void reqAccountSummary( int reqId, String group, String tags) {
+        // not connected?
+        if( !m_connected) {
+            notConnected();
+            return;
+        }
+
+        if (m_serverVersion < MIN_SERVER_VER_ACCT_SUMMARY) {
+            error(EClientErrors.NO_VALID_ID, EClientErrors.UPDATE_TWS,
+            "  It does not support account summary requests.");
+            return;
+        }
+
+        final int VERSION = 1;
+
+        Builder b = new Builder();
+        b.send( REQ_ACCOUNT_SUMMARY);
+        b.send( VERSION);
+        b.send( reqId);
+        b.send( group);
+        b.send( tags);
+
+        try {
+           m_dos.write( b.getBytes() );
+        }
+        catch (IOException e) {
+            error( EClientErrors.NO_VALID_ID, EClientErrors.FAIL_SEND_REQACCOUNTDATA, "" + e);
+        }
+    }
+
+    public synchronized void cancelAccountSummary( int reqId) {
+        // not connected?
+        if( !m_connected) {
+            notConnected();
+            return;
+        }
+
+        if (m_serverVersion < MIN_SERVER_VER_ACCT_SUMMARY) {
+            error(EClientErrors.NO_VALID_ID, EClientErrors.UPDATE_TWS,
+            "  It does not support account summary cancellation.");
+            return;
+        }
+
+        final int VERSION = 1;
+
+        Builder b = new Builder();
+        b.send( CANCEL_ACCOUNT_SUMMARY);
+        b.send( VERSION);
+        b.send( reqId);
+
+        try {
+            m_dos.write( b.getBytes() );
+        }
+        catch (IOException e) {
+            error( EClientErrors.NO_VALID_ID, EClientErrors.FAIL_SEND_CANACCOUNTDATA, "" + e);
+        }
+    }
+
+    /** @deprecated, never called. */
     protected synchronized void error( String err) {
         m_anyWrapper.error( err);
     }
@@ -2021,7 +2264,7 @@ public class EClientSocket {
         return !is( str);
     }
 
-    private void error(int id, EClientErrors.CodeMsgPair pair, String tail) {
+    protected void error(int id, EClientErrors.CodeMsgPair pair, String tail) {
         error(id, pair.code(), pair.msg() + tail);
     }
 
@@ -2081,4 +2324,7 @@ public class EClientSocket {
         return Util.StringIsEmpty(str);
     }
 
+    protected void notConnected() {
+        error(EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED, "");
+    }
 }

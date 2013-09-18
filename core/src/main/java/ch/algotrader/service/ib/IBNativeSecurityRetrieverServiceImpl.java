@@ -238,6 +238,10 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             contract.m_symbol = securityFamily.getBaseSymbol(Broker.IB);
             contract.m_exchange = securityFamily.getMarket(Broker.IB);
 
+            if (securityFamily.getTradingClass() != null) {
+                contract.m_tradingClass = securityFamily.getTradingClass();
+            }
+
             if (securityFamily instanceof StockOptionFamily) {
                 contract.m_secType = "OPT";
             } else if (securityFamily instanceof FutureFamily) {
@@ -259,7 +263,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         Comparator<Security> comparator = new Comparator<Security>() {
             @Override
             public int compare(Security o1, Security o2) {
-                return o1.getIsin().compareTo(o2.getIsin());
+                return o1.getConid().compareTo(o2.getConid());
             }
         };
         return comparator;

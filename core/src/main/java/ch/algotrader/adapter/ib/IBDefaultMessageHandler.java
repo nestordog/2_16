@@ -22,10 +22,10 @@ import java.net.SocketException;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.util.MyLogger;
+
 import com.ib.client.CommissionReport;
 import com.ib.client.Contract;
 import com.ib.client.ContractDetails;
@@ -380,5 +380,21 @@ public class IBDefaultMessageHandler implements EWrapper {
 
     @Override
     public void commissionReport(CommissionReport paramCommissionReport) {
+    }
+
+    @Override
+    public void position(String paramString, Contract paramContract, int paramInt, double paramDouble) {
+    }
+
+    @Override
+    public void positionEnd() {
+    }
+
+    @Override
+    public void accountSummary(int paramInt, String paramString1, String paramString2, String paramString3, String paramString4) {
+    }
+
+    @Override
+    public void accountSummaryEnd(int paramInt) {
     }
 }
