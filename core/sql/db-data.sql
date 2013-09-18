@@ -30,19 +30,6 @@ INSERT INTO `account` (`ID`, `NAME`, `ACTIVE`, `BROKER`, `ORDER_SERVICE_TYPE`, `
 UNLOCK TABLES;
 
 --
--- Dumping data for table `allocation`
---
--- WHERE:  id<1000
-
-LOCK TABLES `allocation` WRITE;
-/*!40000 ALTER TABLE `allocation` DISABLE KEYS */;
-INSERT INTO `allocation` (`ID`, `VALUE`, `ORDER_PREFERENCE_FK`, `ACCOUNT_FK`) VALUES (1,0.5,204,100);
-INSERT INTO `allocation` (`ID`, `VALUE`, `ORDER_PREFERENCE_FK`, `ACCOUNT_FK`) VALUES (2,0.25,204,101);
-INSERT INTO `allocation` (`ID`, `VALUE`, `ORDER_PREFERENCE_FK`, `ACCOUNT_FK`) VALUES (3,0.25,204,103);
-/*!40000 ALTER TABLE `allocation` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Dumping data for table `broker_parameters`
 --
 -- WHERE:  id<1000
