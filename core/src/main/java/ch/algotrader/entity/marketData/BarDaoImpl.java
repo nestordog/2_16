@@ -20,6 +20,7 @@ package ch.algotrader.entity.marketData;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.algotrader.entity.security.Security;
 import ch.algotrader.vo.BarVO;
 import ch.algotrader.vo.RawBarVO;
 
@@ -51,9 +52,25 @@ public class BarDaoImpl extends BarDaoBase {
         return rawBarVO;
     }
 
+    /**
+     * set the FileName to the first non-null value of isin, symbol, bbgid, ric and conid or id
+     */
     private void completeRawBarVO(Bar bar, RawBarVO barVO) {
 
-        barVO.setIsin(bar.getSecurity().getIsin());
+        Security security = bar.getSecurity();
+        if (security.getIsin() != null) {
+            barVO.setFileName(security.getIsin());
+        } else if (security.getSymbol() != null) {
+            barVO.setFileName(security.getSymbol());
+        } else if (security.getBbgid() != null) {
+            barVO.setFileName(security.getBbgid());
+        } else if (security.getRic() != null) {
+            barVO.setFileName(security.getRic());
+        } else if (security.getConid() != null) {
+            barVO.setFileName(security.getConid());
+        } else {
+            barVO.setFileName(String.valueOf(security.getId()));
+        }
     }
 
     @Override

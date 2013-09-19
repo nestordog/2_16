@@ -100,6 +100,24 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected Security handleGetSecurityByBbgid(String bbgid) throws Exception {
+
+        return getSecurityDao().findByBbgid(bbgid);
+    }
+
+    @Override
+    protected Security handleGetSecurityByRic(String ric) throws Exception {
+
+        return getSecurityDao().findByRic(ric);
+    }
+
+    @Override
+    protected Security handleGetSecurityByConid(String conid) throws Exception {
+
+        return getSecurityDao().findByConid(conid);
+    }
+
+    @Override
     protected Security handleGetSecurityInclFamilyAndUnderlying(int securityId) throws Exception {
 
         return getSecurityDao().findByIdInclFamilyAndUnderlying(securityId);

@@ -6875,13 +6875,35 @@ from
                 </listitem>
                 <listitem>
                     <para>
-                        <parameter>filename</parameter> has to be according to the defined isin in
-                        the table security: <filename>CH0008616382.csv</filename>. <emphasis>'Note:
-                            the filename for <xref linkend="Generic_Events"/> follows a different
-                            logic</emphasis>
+                        <parameter>filename</parameter> can be either of the following values
+                        followed by <filename>.csv</filename>
                     </para>
+                    <itemizedlist>
+                        <listitem>
+                            <para><literal>isin</literal></para>
+                        </listitem>
+                        <listitem>
+                            <para><literal>symbol</literal></para>
+                        </listitem>
+                        <listitem>
+                            <para><literal>bbgid</literal></para>
+                        </listitem>
+                        <listitem>
+                            <para><literal>ric</literal></para>
+                        </listitem>
+                        <listitem>
+                            <para><literal>conid</literal></para>
+                        </listitem>
+                        <listitem>
+                            <para><literal>securityId</literal></para>
+                        </listitem>
+                    </itemizedlist>
                 </listitem>
             </itemizedlist>
+            <note>
+                <para>the filename for <xref linkend="Generic_Events"/> follows a different
+                    logic</para>
+            </note>
             <para>The first line within the file is the header row.</para>
             <para>If externally provided Tickdata uses other time formats (i.e. DDMMYYY-hhmmss),
                 these should be converted to milliseconds before using with AlgoTrader.</para>
@@ -7850,49 +7872,8 @@ private @Value("#{T(ch.algotrader.enumeration.Currency)
     </chapter>
     <chapter id="Remoting">
         <title>Remoting</title>
-        <section id="RMI">
-            <title>RMI</title>
-            <para>The following RMI services are defined by the system:</para>
-            <itemizedlist>
-                <listitem>
-                    <para>Spring Remoting (RMI Registry 1199):
-                            <classname>RmiServiceExporter</classname> (defined in
-                            <filename>applicationContext-export-remoteServices.xml</filename>)</para>
-                </listitem>
-                <listitem>
-                    <para>JMX (RMI Registry 1099)</para>
-                    <itemizedlist>
-                        <listitem>
-                            <para>AlgoTrader: <classname>AnnotationMBeanExporter</classname>
-                                    (defined in
-                                    <filename>applicationContext-common.xml</filename>)</para>
-                        </listitem>
-                        <listitem>
-                            <para>Hibernate:
-                                        <classname>hibernate.jmx.StatisticsService</classname>
-                                    (defined in
-                                    <filename>applicationContext-server.xml</filename>)</para>
-                        </listitem>
-                        <listitem>
-                            <para>EhCache:
-                                        <classname>net.sf.ehcache.management.ManagementService</classname>
-                                    (defined in
-                                    <filename>applicationContext-server.xml</filename>)</para>
-                        </listitem>
-                        <listitem>
-                            <para>Log4J:<classname> Log4JExporter</classname> (defined in
-                                        <filename>applicationContext-server.xml</filename>)</para>
-                        </listitem>
-                        <listitem>
-                            <para>Esper: <classname>EsperJMX</classname> (defined in
-                                        <filename>esper-xxx.cfg.xml</filename>)</para>
-                        </listitem>
-                    </itemizedlist>
-                </listitem>
-            </itemizedlist>
-        </section>
-        <section>
-            <title>Socket</title>
+        <section id="Sockets">
+            <title>Sockets</title>
             <table frame="all" pgwide="1">
                 <title>Sockets</title>
                 <tgroup cols="3">
@@ -7918,6 +7899,11 @@ private @Value("#{T(ch.algotrader.enumeration.Currency)
                             <entry>1199</entry>
                         </row>
                         <row>
+                            <entry>ActiveMQ JMS</entry>
+                            <entry>Java Messaging Service via ActiveMQ</entry>
+                            <entry>61616</entry>
+                        </row>
+                        <row>
                             <entry>MySql</entry>
                             <entry>Database connection</entry>
                             <entry>3306</entry>
@@ -7936,9 +7922,50 @@ private @Value("#{T(ch.algotrader.enumeration.Currency)
                 </tgroup>
             </table>
         </section>
+        <section id="RMI">
+            <title>RMI</title>
+            <para>The following RMI services are defined by the system:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>Spring Remoting (RMI Registry 1199):
+                            <classname>RmiServiceExporter</classname> (defined in
+                            <filename>applicationContext-export-remoteServices.xml</filename>)</para>
+                </listitem>
+                <listitem>
+                    <para>JMX (RMI Registry 1099)</para>
+                </listitem>
+            </itemizedlist>
+        </section>
         <section id="JMX">
             <title>JMX</title>
-            <para>Management is provided through JMX. For further details see <xref linkend="JMX_Access"/>.</para>
+            <para>Management is provided through JMX. For further details see <xref linkend="JMX_Access"/>.
+                The following Services are manageable via JMX:<itemizedlist>
+                    <listitem>
+                        <para>AlgoTrader: <classname>AnnotationMBeanExporter</classname> (defined in
+                                <filename>applicationContext-common.xml</filename>)</para>
+                    </listitem>
+                    <listitem>
+                        <para>Hibernate: <classname>hibernate.jmx.StatisticsService</classname>
+                            (defined in <filename>applicationContext-server.xml</filename>)</para>
+                    </listitem>
+                    <listitem>
+                        <para>EhCache:
+                                <classname>net.sf.ehcache.management.ManagementService</classname>
+                            (defined in <filename>applicationContext-server.xml</filename>)</para>
+                    </listitem>
+                    <listitem>
+                        <para>Log4J:<classname> Log4JExporter</classname> (defined in
+                                <filename>applicationContext-server.xml</filename>)</para>
+                    </listitem>
+                    <listitem>
+                        <para>Esper: <classname>EsperJMX</classname> (defined in
+                                <filename>esper-xxx.cfg.xml</filename>)</para>
+                    </listitem>
+                </itemizedlist></para>
+        </section>
+        <section id="ActiveMQ">
+            <title>ActiveMQ</title>
+            <para>For messaging based on JMS ActiveMQ is used (Port 61616)</para>
         </section>
     </chapter>
     <chapter id="Threading_and_Concurrency">

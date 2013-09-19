@@ -86,9 +86,25 @@ public class TickDaoImpl extends TickDaoBase {
         tickVO.setCurrentValue(tick.getCurrentValue());
     }
 
+    /**
+     * set the FileName to the first non-null value of isin, symbol, bbgid, ric and conid or id
+     */
     private void completeRawTickVO(Tick tick, RawTickVO rawTickVO) {
 
-        rawTickVO.setIsin(tick.getSecurity().getIsin());
+        Security security = tick.getSecurity();
+        if (security.getIsin() != null) {
+            rawTickVO.setFileName(security.getIsin());
+        } else if (security.getSymbol() != null) {
+            rawTickVO.setFileName(security.getSymbol());
+        } else if (security.getBbgid() != null) {
+            rawTickVO.setFileName(security.getBbgid());
+        } else if (security.getRic() != null) {
+            rawTickVO.setFileName(security.getRic());
+        } else if (security.getConid() != null) {
+            rawTickVO.setFileName(security.getConid());
+        } else {
+            rawTickVO.setFileName(String.valueOf(security.getId()));
+        }
     }
 
     @Override

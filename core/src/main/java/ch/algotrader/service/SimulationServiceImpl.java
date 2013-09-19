@@ -49,7 +49,12 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.Position;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.esper.EsperManager;
 import ch.algotrader.esper.io.CsvBarInputAdapterSpec;
 import ch.algotrader.esper.io.CsvTickInputAdapterSpec;
@@ -57,16 +62,6 @@ import ch.algotrader.esper.io.GenericEventInputAdapterSpec;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.util.spring.Configuration;
-
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.entity.Position;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.enumeration.MarketDataType;
-import ch.algotrader.service.SimulationService;
-import ch.algotrader.service.SimulationServiceBase;
-import ch.algotrader.service.SimulationServiceException;
-import ch.algotrader.service.StrategyService;
 import ch.algotrader.vo.EndOfSimulationVO;
 import ch.algotrader.vo.MaxDrawDownVO;
 import ch.algotrader.vo.OptimizationResultVO;
@@ -74,6 +69,7 @@ import ch.algotrader.vo.PerformanceKeysVO;
 import ch.algotrader.vo.PeriodPerformanceVO;
 import ch.algotrader.vo.SimulationResultVO;
 import ch.algotrader.vo.TradesVO;
+
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 /**
@@ -211,14 +207,34 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategiesInclFamily();
         for (Security security : securities) {
 
-            if (security.getIsin() == null) {
-                logger.warn("no data available for " + security.getSymbol());
-                continue;
+            MarketDataType marketDataType = getConfiguration().getDataSetType();
+            String path = baseDir + marketDataType.toString().toLowerCase() + "data" + File.separator + dataSet + File.separator;
+
+            // try to find the security by isin, symbol, bbgid, ric conid or id
+            File file = null;
+            if (security.getIsin() != null) {
+                file = new File(path + security.getIsin() + ".csv");
             }
 
-            MarketDataType marketDataType = getConfiguration().getDataSetType();
-            String fileName = security.getIsin() != null ? security.getIsin() : String.valueOf(security.getId());
-            File file = new File(baseDir + marketDataType.toString().toLowerCase() + "data" + File.separator + dataSet + File.separator + fileName + ".csv");
+            if ((file == null || !file.exists()) && security.getSymbol() != null) {
+                file = new File(path + security.getSymbol() + ".csv");
+            }
+
+            if ((file == null || !file.exists()) && security.getBbgid() != null) {
+                file = new File(path + security.getBbgid() + ".csv");
+            }
+
+            if ((file == null || !file.exists()) && security.getRic() != null) {
+                file = new File(path + security.getRic() + ".csv");
+            }
+
+            if ((file == null || !file.exists()) && security.getConid() != null) {
+                file = new File(path + security.getConid() + ".csv");
+            }
+
+            if (file == null || !file.exists()) {
+                file = new File(path + security.getId() + ".csv");
+            }
 
             if (file == null || !file.exists()) {
                 logger.warn("no data available for " + security.getSymbol());

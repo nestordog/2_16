@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.collections15.map.SingletonMap;
+import org.apache.commons.lang.math.NumberUtils;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.cache.CacheManager;
@@ -296,16 +297,8 @@ public class LookupUtil {
         tick.setVolBid(rawTickVO.getVolBid());
         tick.setVolAsk(rawTickVO.getVolAsk());
 
-        // cache security id, as queries byIsin get evicted from cache whenever any change to security table happens
-        String isin = rawTickVO.getIsin();
-        Integer securityId = securityIds.get(isin);
-        if (securityId == null) {
-            securityId = lookupService.getSecurityByIsin(isin).getId();
-            securityIds.put(isin, securityId);
-        }
-
-        // get the fully initialized security
-        Security security = cacheManager.get(SecurityImpl.class, securityId);
+        String fileName = rawTickVO.getFileName();
+        Security security = getSecurity(fileName);
         tick.setSecurity(security);
 
         return tick;
@@ -327,18 +320,48 @@ public class LookupUtil {
         bar.setLow(rawBarVO.getLow());
         bar.setClose(rawBarVO.getClose());
 
-        // cache security id, as queries byIsin get evicted from cache whenever any change to security table happens
-        String isin = rawBarVO.getIsin();
-        Integer securityId = securityIds.get(isin);
-        if (securityId == null) {
-            securityId = lookupService.getSecurityByIsin(isin).getId();
-            securityIds.put(isin, securityId);
-        }
-
-        // get the fully initialized security
-        Security security = cacheManager.get(SecurityImpl.class, securityId);
+        // cache securities, as queries by isin, symbol etc. get evicted from cache whenever any change to security table happens
+        String fileName = rawBarVO.getFileName();
+        Security security = getSecurity(fileName);
         bar.setSecurity(security);
 
         return bar;
+    }
+
+    private static Security getSecurity(String fileName) {
+
+        // check if the security is cached
+        Integer securityId = securityIds.get(fileName);
+
+        // try to find the security by isin, symbol, bbgid, ric conid or id
+        Security security;
+        if (securityId == null) {
+            security = lookupService.getSecurityByIsin(fileName);
+            if (security == null) {
+                security = lookupService.getSecurityBySymbol(fileName);
+                if (security == null) {
+                    security = lookupService.getSecurityByBbgid(fileName);
+                    if (security == null) {
+                        security = lookupService.getSecurityByRic(fileName);
+                        if (security == null) {
+                            security = lookupService.getSecurityByConid(fileName);
+                            if (security == null && NumberUtils.isDigits(fileName)) {
+                                security = lookupService.getSecurity(Integer.parseInt(fileName));
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (security != null) {
+                securityId = security.getId();
+                securityIds.put(fileName, securityId);
+            } else {
+                throw new IllegalStateException("Security could not be found by fileName " + fileName);
+            }
+        }
+
+        // get the fully initialized security
+        return cacheManager.get(SecurityImpl.class, securityId);
     }
 }
