@@ -21,12 +21,6 @@
             <type>pom</type>
         </dependency>
         <dependency>
-            <groupId>org.grails</groupId>
-            <artifactId>grails-web</artifactId>
-            <version>2.2.4at</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
             <groupId>org.grails.plugins</groupId>
             <artifactId>tomcat</artifactId>
             <version>${grails.version}</version>
@@ -297,7 +291,7 @@
             <plugin>
                 <groupId>org.grails</groupId>
                 <artifactId>grails-maven-plugin</artifactId>
-                <version>${grails.version}</version>
+                <version>${grails.version}at</version>
                 <configuration>
                     <!-- Whether for Fork a JVM to run Grails commands -->
                     <fork>false</fork>
