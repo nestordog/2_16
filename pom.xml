@@ -263,13 +263,13 @@
     </dependencyManagement>
     <distributionManagement>
         <repository>
-            <id>bubba-deploy</id>
-            <name>Bubba Repositiory</name>
+            <id>algotrader-deploy</id>
+            <name>AlgoTrader Repositiory</name>
             <url>scp://repo.algotrader.ch/home/web/maven</url>
         </repository>
         <snapshotRepository>
-            <id>bubba-deploy</id>
-            <name>Bubba Repositiory</name>
+            <id>algotrader-deploy</id>
+            <name>AlgoTrader Repositiory</name>
             <url>scp://repo.algotrader.ch/home/web/maven</url>
         </snapshotRepository>
     </distributionManagement>

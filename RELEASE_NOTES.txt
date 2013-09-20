@@ -1,5 +1,8 @@
 Version 2.1
 BrokerParameters
+AlgoTrader Reference Data Manager
+BreakOut Example Strategy
+More flexilility on market data file naming
 
 Version 2.0
 Multi Account Handling
