@@ -111,7 +111,6 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         Collection<Strategy> strategies = getLookupService().getAutoActivateStrategies();
         for (Strategy strategy : strategies) {
             EsperManager.initServiceProvider(strategy.getName());
-            EsperManager.deployAllModules(strategy.getName());
         }
 
         // rebalance portfolio (to distribute initial CREDIT to strategies)
@@ -120,6 +119,11 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         // init all StrategyServices in the classpath
         for (StrategyService strategyService : ServiceLocator.instance().getServices(StrategyService.class)) {
             strategyService.initSimulation();
+        }
+
+        // init modules of all activatable strategies
+        for (Strategy strategy : strategies) {
+            EsperManager.deployAllModules(strategy.getName());
         }
 
         // feed the ticks
