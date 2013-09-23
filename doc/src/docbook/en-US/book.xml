@@ -3426,6 +3426,11 @@ public class MovChartService extends ChartProvidingServiceImpl {
                         </listitem>
                     </itemizedlist>
                     <para>When starting JConsole connect to <literal>localhost:1099</literal></para>
+                    <note>
+                        <para>In non-SSL configurations it is possible to use the same port for the
+                                <literal>registryPort</literal> and <literal>serverPort</literal>.
+                        </para>
+                    </note>
                 </section>
                 <section>
                     <title>Remote SSL JMX Access</title>
@@ -3472,6 +3477,12 @@ public class MovChartService extends ChartProvidingServiceImpl {
                                 <para>In addition the truststore should also contain the default CA
                                     Certs (copied from<filename>
                                     jre/lib/security/cacerts</filename>).</para>
+                            </listitem>
+                            <listitem>
+                                <para>Do not use the same port for the
+                                        <literal>registryPort</literal> and
+                                        <literal>serverPort</literal>, as this will not work in SSL
+                                    configurations.</para>
                             </listitem>
                         </itemizedlist>
                     </note>
@@ -4592,8 +4603,8 @@ bin/activemq</screen>
                             all Maven Dependencies</para>
                     </listitem>
                     <listitem>
-                        <para> if necessary modify <filename>AlgoTrader/bin/run-base.sh</filename>
-                            (i.e. add custom VM-Arguments) </para>
+                        <para> if necessary modify <filename>AlgoTrader/bin/run.sh</filename> (i.e. add custom
+                            VM-Arguments) </para>
                     </listitem>
                     <listitem>
                         <para> copy files <filename>keystore</filename> and
@@ -4605,7 +4616,7 @@ bin/activemq</screen>
             <section>
                 <title>Starting the Base</title>
                 <para>The Base can now be started via by calling the following shell script:</para>
-                <screen><filename>AlgoTrader/bin/run-base.sh</filename></screen>
+                <screen><filename>AlgoTrader/bin/run.sh</filename></screen>
                 <para>Depending on the actual requirements for the Server Environment (Operation System,
                     external Broker used, etc.) actual Configurations will vary substantially. </para>
                 <note>
