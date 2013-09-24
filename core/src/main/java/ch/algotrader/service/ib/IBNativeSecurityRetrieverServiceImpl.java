@@ -312,13 +312,6 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             // ignore stocks that already exist
             if (!existingStocks.contains(stock)) {
                 newStocks.add(stock);
-            } else {
-                for (Stock stk : existingStocks) {
-                    if (stk.getSymbol().equals(stock.getSymbol())) {
-                        stk.setConid(stock.getConid());
-                        getStockDao().update(stk);
-                    }
-                }
             }
         }
 
