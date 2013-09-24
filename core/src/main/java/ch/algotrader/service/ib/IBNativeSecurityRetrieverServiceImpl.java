@@ -42,6 +42,8 @@ import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.FutureImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.Stock;
+import ch.algotrader.entity.security.StockImpl;
 import ch.algotrader.entity.security.StockOption;
 import ch.algotrader.entity.security.StockOptionFamily;
 import ch.algotrader.entity.security.StockOptionImpl;
@@ -65,7 +67,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
     private static final long serialVersionUID = 6446509772400405052L;
 
     private static Logger logger = MyLogger.getLogger(IBNativeSecurityRetrieverServiceImpl.class.getName());
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMddkkmmss");
+    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
 
     private IBSession client;
     private IBDefaultMessageHandler messageHandler;
@@ -82,9 +84,45 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
         SecurityFamily securityFamily = getSecurityFamilyDao().get(securityFamilyId);
 
-        // engage the retrieval process
-        retrieveContractDetails(securityFamily);
+        this.contractDetailsList = new ArrayList<ContractDetails>();
 
+        IBNativeSecurityRetrieverServiceImpl.this.lock.lock();
+
+        try {
+
+            int requestId = IBIdGenerator.getInstance().getNextRequestId();
+            Contract contract = new Contract();
+
+            contract.m_symbol = securityFamily.getBaseSymbol(Broker.IB);
+
+            contract.m_currency = securityFamily.getCurrency().toString();
+
+            contract.m_exchange = securityFamily.getMarket(Broker.IB);
+
+            contract.m_multiplier = String.valueOf(securityFamily.getContractSize());
+
+            if (securityFamily instanceof StockOptionFamily) {
+                contract.m_secType = "OPT";
+            } else if (securityFamily instanceof FutureFamily) {
+                contract.m_secType = "FUT";
+            } else {
+                throw new IllegalArgumentException("illegal securityFamily type");
+            }
+
+            if (securityFamily.getTradingClass() != null) {
+                contract.m_tradingClass = securityFamily.getTradingClass();
+            }
+
+            this.client.reqContractDetails(requestId, contract);
+
+            // await retrieval of contractDetails
+            this.condition.await();
+
+        } finally {
+            IBNativeSecurityRetrieverServiceImpl.this.lock.unlock();
+        }
+
+        // process retrieved contractDetails
         if (securityFamily instanceof StockOptionFamily) {
             retrieveStockOptions((StockOptionFamily) securityFamily);
         } else if (securityFamily instanceof ForexFutureFamily) {
@@ -92,15 +130,47 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         } else if (securityFamily instanceof FutureFamily) {
             retrieveFutures((FutureFamily) securityFamily);
         } else {
-            throw new IllegalArgumentException(securityFamily.getClass() + " not allowed");
+            throw new IllegalArgumentException("illegal securityFamily type");
         }
+    }
+
+    @Override
+    protected void handleRetrieveStocks(int securityFamilyId, String symbol) throws Exception {
+
+        SecurityFamily securityFamily = getSecurityFamilyDao().get(securityFamilyId);
+
+        this.contractDetailsList = new ArrayList<ContractDetails>();
+
+        IBNativeSecurityRetrieverServiceImpl.this.lock.lock();
+
+        try {
+
+            int requestId = IBIdGenerator.getInstance().getNextRequestId();
+            Contract contract = new Contract();
+
+            contract.m_symbol = symbol;
+
+            contract.m_currency = securityFamily.getCurrency().toString();
+
+            contract.m_exchange = securityFamily.getMarket(Broker.IB);
+
+            contract.m_secType = "STK";
+
+            this.client.reqContractDetails(requestId, contract);
+
+            // await retrieval of contractDetails
+            this.condition.await();
+
+        } finally {
+            IBNativeSecurityRetrieverServiceImpl.this.lock.unlock();
+        }
+
+        retrieveStocks(securityFamily);
     }
 
     private void retrieveStockOptions(StockOptionFamily family) throws Exception {
 
-        Security underlying = family.getUnderlying();
-
-        // get all current stockOptions (sorted by isin)
+        // get all current stockOptions
         Set<Security> existingStockOptions = new TreeSet<Security>(getComparator());
         existingStockOptions.addAll(getStockOptionDao().findStockOptionsBySecurityFamily(family.getId()));
 
@@ -108,12 +178,11 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         for (ContractDetails contractDetails : this.contractDetailsList) {
 
             StockOption stockOption = new StockOptionImpl();
-            stockOption.setSecurityFamily(family);
 
             Contract contract = contractDetails.m_summary;
             OptionType type = "C".equals(contract.m_right) ? OptionType.CALL : OptionType.PUT;
             BigDecimal strike = RoundUtil.getBigDecimal(contract.m_strike, family.getScale());
-            Date expiration = format.parse(contract.m_expiry + "130000");
+            Date expiration = format.parse(contract.m_expiry);
 
             final String isin = StockOptionSymbol.getIsin(family, expiration, type, strike);
             String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike, false);
@@ -127,8 +196,8 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             stockOption.setType(type);
             stockOption.setStrike(strike);
             stockOption.setExpiration(expiration);
-            stockOption.setUnderlying(underlying);
             stockOption.setSecurityFamily(family);
+            stockOption.setUnderlying(family.getUnderlying());
 
             // ignore stockOptions that already exist
             if (!existingStockOptions.contains(stockOption)) {
@@ -143,9 +212,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
     private void retrieveFutures(FutureFamily family) throws Exception {
 
-        Security underlying = family.getUnderlying();
-
-        // get all current futures (sorted by isin)
+        // get all current futures
         Set<Future> existingFutures = new TreeSet<Future>(getComparator());
         existingFutures.addAll(getFutureDao().findFuturesBySecurityFamily(family.getId()));
 
@@ -153,10 +220,9 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         for (ContractDetails contractDetails : this.contractDetailsList) {
 
             Future future = new FutureImpl();
-            future.setSecurityFamily(family);
 
             Contract contract = contractDetails.m_summary;
-            Date expiration = format.parse(contract.m_expiry + "130000");
+            Date expiration = format.parse(contract.m_expiry);
 
             String symbol = FutureSymbol.getSymbol(family, expiration);
             final String isin = FutureSymbol.getIsin(family, expiration);
@@ -168,8 +234,8 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             future.setRic(ric);
             future.setConid(conid);
             future.setExpiration(expiration);
-            future.setUnderlying(underlying);
             future.setSecurityFamily(family);
+            future.setUnderlying(family.getUnderlying());
 
             // ignore futures that already exist
             if (!existingFutures.contains(future)) {
@@ -184,9 +250,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
     private void retrieveForexFutures(ForexFutureFamily family) throws Exception {
 
-        Security underlying = family.getUnderlying();
-
-        // get all current forexFutures (sorted by isin)
+        // get all current forexFutures
         Set<ForexFuture> existingForexFutures = new TreeSet<ForexFuture>(getComparator());
         existingForexFutures.addAll(getForexFutureDao().findForexFuturesBySecurityFamily(family.getId()));
 
@@ -194,10 +258,9 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         for (ContractDetails contractDetails : this.contractDetailsList) {
 
             ForexFuture forexFuture = new ForexFutureImpl();
-            forexFuture.setSecurityFamily(family);
 
             Contract contract = contractDetails.m_summary;
-            Date expiration = format.parse(contract.m_expiry + "130000");
+            Date expiration = format.parse(contract.m_expiry);
 
             String symbol = FutureSymbol.getSymbol(family, expiration);
             final String isin = FutureSymbol.getIsin(family, expiration);
@@ -209,8 +272,8 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             forexFuture.setRic(ric);
             forexFuture.setConid(conid);
             forexFuture.setExpiration(expiration);
-            forexFuture.setUnderlying(underlying);
             forexFuture.setSecurityFamily(family);
+            forexFuture.setUnderlying(family.getUnderlying());
             forexFuture.setBaseCurrency(family.getBaseCurrency());
 
             // ignore forexFutures that already exist
@@ -224,37 +287,37 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         logger.debug("retrieved forexFutures for forexFuturefamily: " + family.getName() + " " + newForexFutures);
     }
 
-    private void retrieveContractDetails(SecurityFamily securityFamily) throws InterruptedException {
+    private void retrieveStocks(SecurityFamily family) throws Exception {
 
-        this.contractDetailsList = new ArrayList<ContractDetails>();
+        // get all current stocks
+        Set<Stock> existingStocks = new TreeSet<Stock>(getComparator());
+        existingStocks.addAll(getStockDao().findStocksBySecurityFamily(family.getId()));
 
-        IBNativeSecurityRetrieverServiceImpl.this.lock.lock();
+        // contractDetailsList most likely only contains one entry
+        Set<Stock> newStocks = new TreeSet<Stock>();
+        for (ContractDetails contractDetails : this.contractDetailsList) {
 
-        try {
+            Stock stock = new StockImpl();
 
-            int requestId = IBIdGenerator.getInstance().getNextRequestId();
-            Contract contract = new Contract();
-            contract.m_currency = securityFamily.getCurrency().toString();
-            contract.m_symbol = securityFamily.getBaseSymbol(Broker.IB);
-            contract.m_exchange = securityFamily.getMarket(Broker.IB);
+            Contract contract = contractDetails.m_summary;
 
-            if (securityFamily.getTradingClass() != null) {
-                contract.m_tradingClass = securityFamily.getTradingClass();
+            String symbol = contract.m_symbol;
+            String conid = String.valueOf(contract.m_conId);
+
+            stock.setSymbol(symbol);
+            stock.setConid(conid);
+            stock.setSecurityFamily(family);
+            stock.setUnderlying(family.getUnderlying());
+
+            // ignore stocks that already exist
+            if (!existingStocks.contains(stock)) {
+                newStocks.add(stock);
             }
-
-            if (securityFamily instanceof StockOptionFamily) {
-                contract.m_secType = "OPT";
-            } else if (securityFamily instanceof FutureFamily) {
-                contract.m_secType = "FUT";
-            }
-
-            this.client.reqContractDetails(requestId, contract);
-
-            this.condition.await();
-
-        } finally {
-            IBNativeSecurityRetrieverServiceImpl.this.lock.unlock();
         }
+
+        getStockDao().create(newStocks);
+
+        logger.debug("retrieved stocks for securityfamily: " + family.getName() + " " + newStocks);
     }
 
     private Comparator<Security> getComparator() {
@@ -263,7 +326,13 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         Comparator<Security> comparator = new Comparator<Security>() {
             @Override
             public int compare(Security o1, Security o2) {
-                return o1.getConid().compareTo(o2.getConid());
+                if (o1.getConid() != null & o2.getConid() != null) {
+                    return o1.getConid().compareTo(o2.getConid());
+                } else if (o1.getSymbol() != null & o2.getSymbol() != null) {
+                    return o1.getSymbol().compareTo(o2.getSymbol());
+                } else {
+                    throw new IllegalStateException("cannot compare " + o1 + " " + o2);
+                }
             }
         };
         return comparator;
@@ -298,6 +367,25 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
                 super.connectionClosed();
 
                 IBNativeSecurityRetrieverServiceImpl.this.client.connect();
+            }
+
+            @Override
+            public void error(int id, int code, String errorMsg) {
+
+                if (code == 200) {
+
+                    logger.warn("No security definition has been found for the request");
+
+                    IBNativeSecurityRetrieverServiceImpl.this.lock.lock();
+
+                    try {
+                        IBNativeSecurityRetrieverServiceImpl.this.condition.signalAll();
+                    } finally {
+                        IBNativeSecurityRetrieverServiceImpl.this.lock.unlock();
+                    }
+                } else {
+                    super.error(id, code, errorMsg);
+                }
             }
         };
 

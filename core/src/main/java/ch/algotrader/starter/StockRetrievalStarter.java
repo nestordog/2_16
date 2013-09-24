@@ -23,15 +23,15 @@ import ch.algotrader.ServiceLocator;
 import ch.algotrader.service.ib.IBNativeSecurityRetrieverService;
 
 /**
- * Starter Class for downloading {@link ch.algotrader.entity.security.Future Future} and {@link ch.algotrader.entity.security.StockOption StockOption} chains.
+ * Starter Class for downloading {@link ch.algotrader.entity.security.Stock Stocks}
  * <p>
- * Usage: {@code SecurityRetrievalStarter securityFamilyId1 securityFamilyId2}
+ * Usage: {@code SecurityRetrievalStarter securityFamilyId symbol1 symbol2 ...}
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class SecurityRetrievalStarter {
+public class StockRetrievalStarter {
 
     public static void main(String[] args) throws ParseException {
 
@@ -40,10 +40,10 @@ public class SecurityRetrievalStarter {
 
         service.init();
 
-        for (String arg : args) {
+        for (int i = 1; i < args.length; i++) {
 
-            int securityFamilyId = Integer.parseInt(arg);
-            service.retrieve(securityFamilyId);
+            int securityFamilyId = Integer.parseInt(args[0]);
+            service.retrieveStocks(securityFamilyId, args[i]);
         }
 
         ServiceLocator.instance().shutdown();

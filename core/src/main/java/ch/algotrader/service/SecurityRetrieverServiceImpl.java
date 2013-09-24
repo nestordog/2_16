@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import ch.algotrader.service.SecurityRetrieverServiceBase;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -28,4 +27,7 @@ public abstract class SecurityRetrieverServiceImpl extends SecurityRetrieverServ
 
     @Override
     protected abstract void handleRetrieve(int securityFamilyId) throws Exception;
+
+    @Override
+    protected abstract void handleRetrieveStocks(int securityFamilyId, String symbol) throws Exception;
 }
