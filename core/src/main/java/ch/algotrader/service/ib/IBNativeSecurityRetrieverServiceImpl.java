@@ -312,6 +312,13 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             // ignore stocks that already exist
             if (!existingStocks.contains(stock)) {
                 newStocks.add(stock);
+            } else {
+                for (Stock stk : existingStocks) {
+                    if (stk.getSymbol().equals(stock.getSymbol())) {
+                        stk.setConid(stock.getConid());
+                        getStockDao().update(stk);
+                    }
+                }
             }
         }
 
@@ -326,13 +333,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         Comparator<Security> comparator = new Comparator<Security>() {
             @Override
             public int compare(Security o1, Security o2) {
-                if (o1.getConid() != null & o2.getConid() != null) {
-                    return o1.getConid().compareTo(o2.getConid());
-                } else if (o1.getSymbol() != null & o2.getSymbol() != null) {
-                    return o1.getSymbol().compareTo(o2.getSymbol());
-                } else {
-                    throw new IllegalStateException("cannot compare " + o1 + " " + o2);
-                }
+                return o1.getConid().compareTo(o2.getConid());
             }
         };
         return comparator;
