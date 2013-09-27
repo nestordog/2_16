@@ -241,7 +241,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             }
 
             if (file == null || !file.exists()) {
-                logger.warn("no data available for " + security.getSymbol());
+                logger.warn("no data available for " + security.getSymbol() + " in " + path);
                 continue;
             } else {
                 logger.info("data available for " + security.getSymbol());
