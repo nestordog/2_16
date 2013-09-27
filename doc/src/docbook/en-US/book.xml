@@ -1197,8 +1197,8 @@ public class ExClient {
                 AndroMDA</ulink> which uses <ulink url="http://maven.apache.org"> Maven</ulink>
             artifacts and <ulink url="http://velocity.apache.org"> Velocity</ulink> templates for
             code generation.</para>
-        <para>Generated code is placed under the directory
-                <filename>/target/src/main/java</filename>, whereas implementation classes are
+        <para>Generated code is placed under the directory <filename>/target/src/main/java</filename> and
+                <filename>/target/src/main/resources</filename>, whereas implementation classes are
             generated into the directory <filename>/src</filename> with only the method
             signatures.</para>
         <para>Configuration of the code generator is placed into the <filename>/mda</filename>
@@ -1461,19 +1461,25 @@ public class ExClient {
                                 <entry>
                                     <filename>src/main/java</filename>
                                 </entry>
-                                <entry>manually created source files</entry>
+                                <entry>manually created class files</entry>
                             </row>
                             <row>
                                 <entry>
                                     <filename>target/src/main/java</filename>
                                 </entry>
-                                <entry>generated source files</entry>
+                                <entry>generated class files</entry>
                             </row>
                             <row>
                                 <entry>
                                     <filename>src/main/resouces</filename>
                                 </entry>
-                                <entry>configuration files</entry>
+                                <entry>manually created configuration files</entry>
+                            </row>
+                            <row>
+                                <entry>
+                                    <filename>target/src/main/resources</filename>
+                                </entry>
+                                <entry>generated configuration files</entry>
                             </row>
                         </tbody>
                     </tgroup>
@@ -1498,19 +1504,25 @@ public class ExClient {
                                 <entry>
                                     <filename>src/main/java </filename>
                                 </entry>
-                                <entry>manually created source files</entry>
+                                <entry>manually created class files</entry>
                             </row>
                             <row>
                                 <entry>
                                     <filename>target/src/main/java</filename>
                                 </entry>
-                                <entry>generated source files</entry>
+                                <entry>generated class files</entry>
                             </row>
                             <row>
                                 <entry>
                                     <filename>src/main/resouces</filename>
                                 </entry>
-                                <entry>configuration files</entry>
+                                <entry>manually created configuration files</entry>
+                            </row>
+                            <row>
+                                <entry>
+                                    <filename>target/src/main/resources</filename>
+                                </entry>
+                                <entry>generated configuration files</entry>
                             </row>
                             <row>
                                 <entry>
