@@ -126,15 +126,15 @@
 
                 <property name="daos">${core.generated.dir}</property>
                 <property name="dao-impls">${core.manual.dir}</property>
-                <property name="spring-configuration">${core.generated.dir}</property>
+                <property name="spring-configuration">${core.generated-config.dir}</property>
                 <property name="services">${core.generated.dir}</property>
                 <property name="service-impls">${core.manual.dir}</property>
                 <property name="service-interfaces">${common.generated.dir}</property>
                 <property name="criteria">${common.generated.dir}</property>
                 <property name="server">${core.generated.dir}</property>
                 <property name="server-impl">${core.manual.dir}</property>
-                <property name="client-config">${common.generated.dir}</property>
-                <property name="osgi">${common.generated.dir}</property>
+                <property name="client-config">${common.generated-config.dir}</property>
+                <property name="osgi">${common.generated-config.dir}</property>
                 <property name="richClient">true</property>
                 <property name="serviceRemoteContext">algoTrader</property>
                 <property name="serviceRemotingType">rmi</property>
@@ -161,11 +161,11 @@
                 <property name="hibernateDefaultCascade">none</property>
                 <property name="entities">${common.generated.dir}</property>
                 <property name="entity-impls">${common.manual.dir}</property>
-                <property name="entity-mappings">${core.generated.dir}</property>
+                <property name="entity-mappings">${core.generated-config.dir}</property>
                 <property name="user-types">${core.generated.dir}</property>
                 <property name="customTypesPackage">${application.package}</property>
                 <property name="compositionDefinesEagerLoading">true</property>
-                <property name="cache">${core.generated.dir}</property>
+                <property name="cache">${core.generated-config.dir}</property>
                 <property name="mergeLocation">${conf.dir}/customTemplates/andromda-hibernate</property>
                 <property name="mergeMappingsUri">file:${conf.dir}/mappings/HibernateMergeMappings.xml</property>
                 <property name="ehCacheMaxElementsInMemory">100000</property>

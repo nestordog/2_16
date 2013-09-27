@@ -75,6 +75,7 @@
                     <version>1.5</version>
                     <executions>
                         <execution>
+                            <id>generated-sources</id>
                             <phase>generate-sources</phase>
                             <goals>
                                 <goal>add-source</goal>
@@ -85,10 +86,24 @@
                                 </sources>
                             </configuration>
                         </execution>
+                        <execution>
+                            <id>generated-resources</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>add-resource</goal>
+                            </goals>
+                            <configuration>
+                                <resources>
+                                    <resource>
+                                        <directory>target/src/main/resources</directory>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
                     </executions>
                 </plugin>
                 <plugin>
-                    <groupId>org.andromda.maven.plugins</groupId>
+                <groupId>org.andromda.maven.plugins</groupId>
                     <artifactId>andromda-maven-plugin</artifactId>
                     <version>${andromda.version}</version>
                 </plugin>

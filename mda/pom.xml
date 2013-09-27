@@ -86,8 +86,10 @@
         <conf.dir>${project.basedir}/src/main/config</conf.dir>
         <!-- cartridge output locations -->
         <common.generated.dir>${project.basedir}/../common/target/src/main/java</common.generated.dir>
+        <common.generated-config.dir>${project.basedir}/../common/target/src/main/resources</common.generated-config.dir>
         <common.manual.dir>${project.basedir}/../common/src/main/java</common.manual.dir>
         <core.generated.dir>${project.basedir}/../core/target/src/main/java</core.generated.dir>
+        <core.generated-config.dir>${project.basedir}/../core/target/src/main/resources</core.generated-config.dir>
         <core.manual.dir>${project.basedir}/../core/src/main/java</core.manual.dir>
         <!-- hibernate configuration -->
         <!-- default strategy to use when using inhertiance -->
