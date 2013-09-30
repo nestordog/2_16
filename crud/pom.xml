@@ -21,6 +21,12 @@
             <type>pom</type>
         </dependency>
         <dependency>
+            <groupId>org.grails</groupId>
+            <artifactId>grails-test</artifactId>
+            <version>${grails.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.grails.plugins</groupId>
             <artifactId>tomcat</artifactId>
             <version>${grails.version}</version>
@@ -247,6 +253,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
     </dependencies>
     <build>
         <pluginManagement />
