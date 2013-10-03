@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ import org.apache.commons.beanutils.BeanUtils;
 
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.TransactionType;
 
 /**
  * Provides different Position related utility methods.
@@ -122,58 +120,6 @@ public class PositionUtil {
         }
     }
 
-    /**
-     * Selects all Transactions that represent the currently open part of a Position.
-     * Transaction quantities might be reduced if a position has been partly closed
-     */
-    public static List<Transaction> getOpenPositionTransactions(Collection<Transaction> transactions) {
-
-        // group BUY and SELL transactions by security
-        Map<Security, Collection<Transaction>> transactionsPerSecurity = new HashMap<Security, Collection<Transaction>>();
-        for (Transaction transaction : transactions) {
-            if (transaction.getType().equals(TransactionType.BUY) || transaction.getType().equals(TransactionType.SELL)) {
-                if (!transactionsPerSecurity.containsKey(transaction.getSecurity())) {
-                    transactionsPerSecurity.put(transaction.getSecurity(), new HashSet<Transaction>());
-                }
-                transactionsPerSecurity.get(transaction.getSecurity()).add(transaction);
-            }
-        }
-
-        // for every security the the corresponding open positions
-        List<Transaction> openPositionTransactions = new ArrayList<Transaction>();
-        for (Map.Entry<Security, Collection<Transaction>> entry : transactionsPerSecurity.entrySet()) {
-
-            openPositionTransactions.addAll(getOpenPositionTransactionsSingleSecurity(entry.getValue()));
-        }
-        return openPositionTransactions;
-    }
-
-    /**
-     * Selects all Transactions that represent the already closed part of a Position.
-     * Transaction quantities might be reduced if a position has been partly closed
-     */
-    public static List<Transaction> getClosedPositionTransactions(Collection<Transaction> transactions) {
-
-        // group BUY and SELL transactions by security
-        Map<Security, Collection<Transaction>> transactionsPerSecurity = new HashMap<Security, Collection<Transaction>>();
-        for (Transaction transaction : transactions) {
-            if (transaction.getType().equals(TransactionType.BUY) || transaction.getType().equals(TransactionType.SELL)) {
-                if (!transactionsPerSecurity.containsKey(transaction.getSecurity())) {
-                    transactionsPerSecurity.put(transaction.getSecurity(), new HashSet<Transaction>());
-                }
-                transactionsPerSecurity.get(transaction.getSecurity()).add(transaction);
-            }
-        }
-
-        // for every security the the corresponding open positions
-        List<Transaction> closedPositionTransactions = new ArrayList<Transaction>();
-        for (Map.Entry<Security, Collection<Transaction>> entry : transactionsPerSecurity.entrySet()) {
-
-            closedPositionTransactions.addAll(getClosedPositionTransactionsSingleSecurity(entry.getValue()));
-        }
-        return closedPositionTransactions;
-    }
-
     private static List<Transaction> getOpenPositionTransactionsSingleSecurity(Collection<Transaction> transactions) {
 
         ArrayList<Transaction> sortedTransactions = new ArrayList<Transaction>(transactions);
@@ -210,7 +156,7 @@ public class PositionUtil {
 
                         // transaction will be partly removed
                     } else {
-                        openPositionTransaction.setQuantity(openPositionTransaction.getQuantity() + runningQuantity);
+                        adjustTransaction(openPositionTransaction, openPositionTransaction.getQuantity() + runningQuantity);
                         runningQuantity = 0;
                         break;
                     }
@@ -247,7 +193,7 @@ public class PositionUtil {
             if (quantity == 0) {
                 transactionMap.remove(openPositionTransaction.getId());
             } else {
-                transaction.setQuantity(quantity);
+                adjustTransaction(transaction, quantity);
             }
         }
 
@@ -282,5 +228,23 @@ public class PositionUtil {
         }
 
         return clone;
+    }
+
+    private static void adjustTransaction(Transaction transaction, long quantity) {
+
+        int scale = transaction.getSecurity().getSecurityFamily().getScale();
+        if (transaction.getExecutionCommission() != null) {
+            double executionCommission = transaction.getExecutionCommission().doubleValue();
+            double newExecutionCommission = executionCommission / transaction.getQuantity() * quantity;
+            transaction.setExecutionCommission(RoundUtil.getBigDecimal(newExecutionCommission, scale));
+        }
+
+        if (transaction.getClearingCommission() != null) {
+            double clearingCommission = transaction.getClearingCommission().doubleValue();
+            double newClearingCommission = clearingCommission / transaction.getQuantity() * quantity;
+            transaction.setClearingCommission(RoundUtil.getBigDecimal(newClearingCommission, scale));
+        }
+
+        transaction.setQuantity(quantity);
     }
 }
