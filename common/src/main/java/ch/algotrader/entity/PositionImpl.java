@@ -25,7 +25,6 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Direction;
-import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.CurrencyAmountVO;
 
@@ -77,7 +76,7 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getMarketPriceDouble() {
+    public double getMarketPrice() {
 
         if (isOpen()) {
 
@@ -93,88 +92,62 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getMarketPriceBaseDouble() {
+    public double getMarketPriceBase() {
 
-        return getMarketPriceDouble() * getSecurity().getFXRateBase();
+        return getMarketPrice() * getSecurity().getFXRateBase();
     }
 
     @Override
-    public double getMarketValueDouble() {
+    public double getMarketValue() {
 
         if (isOpen()) {
 
-            return getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getMarketPriceDouble();
+            return getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getMarketPrice();
         } else {
             return 0.0;
         }
     }
 
     @Override
-    public double getMarketValueBaseDouble() {
+    public double getMarketValueBase() {
 
-        return getMarketValueDouble() * getSecurity().getFXRateBase();
+        return getMarketValue() * getSecurity().getFXRateBase();
     }
 
     @Override
-    public double getAveragePriceDouble() {
+    public double getAveragePrice() {
 
-        return PositionUtil.getAveragePrice(getSecurity(), getTransactionsInitialized(), true);
+        return getCost() / getQuantity() / getSecurity().getSecurityFamily().getContractSize();
     }
 
     @Override
-    public double getAveragePriceBaseDouble() {
+    public double getAveragePriceBase() {
 
-        return getAveragePriceDouble() * getSecurity().getFXRateBase();
+        return getAveragePrice() * getSecurity().getFXRateBase();
     }
 
     @Override
-    public double getAverageAge() {
+    public double getCostBase() {
 
-        return PositionUtil.getAverageAge(getTransactions());
+        return getCost() * getSecurity().getFXRateBase();
     }
 
     @Override
-    public double getCostDouble() {
+    public double getUnrealizedPL() {
 
-        if (isOpen()) {
-            return PositionUtil.getCost(getTransactions(), true);
-        } else {
-            return 0.0;
-        }
+        return getMarketValue() - getCost();
     }
 
     @Override
-    public double getCostBaseDouble() {
+    public double getUnrealizedPLBase() {
 
-        return getCostDouble() * getSecurity().getFXRateBase();
+        return getUnrealizedPL() * getSecurity().getFXRateBase();
     }
 
     @Override
-    public double getUnrealizedPLDouble() {
-        if (isOpen()) {
+    public double getRealizedPLBase() {
 
-            return getMarketValueDouble() - getCostDouble();
-        } else {
-            return 0.0;
-        }
-    }
-
-    @Override
-    public double getUnrealizedPLBaseDouble() {
-
-        return getUnrealizedPLDouble() * getSecurity().getFXRateBase();
-    }
-
-    @Override
-    public double getRealizedPLDouble() {
-
-        return PositionUtil.getRealizedPL(getTransactions(), true);
-    }
-
-    @Override
-    public double getRealizedPLBaseDouble() {
-
-        return getRealizedPLDouble() * getSecurity().getFXRateBase();
+        return getRealizedPL() * getSecurity().getFXRateBase();
     }
 
     @Override
@@ -210,15 +183,15 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getMaxLossDouble() {
+    public double getMaxLoss() {
 
         if (isOpen() && getExitValue() != null) {
 
             double maxLossPerItem;
             if (Direction.LONG.equals(getDirection())) {
-                maxLossPerItem = getMarketPriceDouble() - getExitValueDouble();
+                maxLossPerItem = getMarketPrice() - getExitValueDouble();
             } else {
-                maxLossPerItem = getExitValueDouble() - getMarketPriceDouble();
+                maxLossPerItem = getExitValueDouble() - getMarketPrice();
             }
             return -getQuantity() * getSecurity().getSecurityFamily().getContractSize() * maxLossPerItem;
         } else {
@@ -227,15 +200,15 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getMaxLossBaseDouble() {
+    public double getMaxLossBase() {
 
-        return getMaxLossDouble() * getSecurity().getFXRateBase();
+        return getMaxLoss() * getSecurity().getFXRateBase();
     }
 
     @Override
     public double getExposure() {
 
-        return getMarketValueDouble() * getSecurity().getLeverage();
+        return getMarketValue() * getSecurity().getLeverage();
     }
 
     @Override
@@ -253,7 +226,7 @@ public class PositionImpl extends Position {
 
         } else {
             currency = securityFamily.getCurrency();
-            amount = getMarketValueDouble();
+            amount = getMarketValue();
         }
 
         CurrencyAmountVO currencyAmount = new CurrencyAmountVO();

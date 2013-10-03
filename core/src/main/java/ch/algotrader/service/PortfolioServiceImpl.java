@@ -118,7 +118,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
         // sum of all FX positions
         for (Position position : positions) {
-            amount += position.getMarketValueBaseDouble();
+            amount += position.getMarketValueBase();
         }
 
         return amount;
@@ -255,7 +255,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
             Security security = openPosition.getSecurityInitialized();
             if (!(security instanceof Forex)) {
-                amount += openPosition.getMarketValueBaseDouble();
+                amount += openPosition.getMarketValueBase();
             }
         }
         return amount;

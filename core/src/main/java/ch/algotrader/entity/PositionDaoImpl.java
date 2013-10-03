@@ -20,11 +20,8 @@ package ch.algotrader.entity;
 import java.math.BigDecimal;
 import java.util.Map;
 
-import ch.algotrader.util.RoundUtil;
-
-import ch.algotrader.entity.Position;
-import ch.algotrader.entity.PositionDaoBase;
 import ch.algotrader.entity.property.Property;
+import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.ExpirePositionVO;
 import ch.algotrader.vo.OpenPositionVO;
@@ -63,14 +60,14 @@ public class PositionDaoImpl extends PositionDaoBase {
         positionVO.setName(position.getSecurity().toString());
         positionVO.setStrategy(position.getStrategy().toString());
         positionVO.setCurrency(position.getSecurity().getSecurityFamily().getCurrency());
-        positionVO.setMarketPrice(RoundUtil.getBigDecimal(position.getMarketPriceDouble(), scale));
-        positionVO.setMarketValue(RoundUtil.getBigDecimal(position.getMarketValueDouble()));
-        positionVO.setAveragePrice(RoundUtil.getBigDecimal(position.getAveragePriceDouble(), scale));
-        positionVO.setCost(RoundUtil.getBigDecimal(position.getCostDouble()));
-        positionVO.setUnrealizedPL(RoundUtil.getBigDecimal(position.getUnrealizedPLDouble()));
-        positionVO.setRealizedPL(RoundUtil.getBigDecimal(position.getRealizedPLDouble()));
+        positionVO.setMarketPrice(RoundUtil.getBigDecimal(position.getMarketPrice(), scale));
+        positionVO.setMarketValue(RoundUtil.getBigDecimal(position.getMarketValue()));
+        positionVO.setAveragePrice(RoundUtil.getBigDecimal(position.getAveragePrice(), scale));
+        positionVO.setCost(RoundUtil.getBigDecimal(position.getCost()));
+        positionVO.setUnrealizedPL(RoundUtil.getBigDecimal(position.getUnrealizedPL()));
+        positionVO.setRealizedPL(RoundUtil.getBigDecimal(position.getRealizedPL()));
         positionVO.setExitValue(position.getExitValue() != null ? position.getExitValue().setScale(scale, BigDecimal.ROUND_HALF_UP) : null);
-        positionVO.setMaxLoss(RoundUtil.getBigDecimal(position.getMaxLossDouble()));
+        positionVO.setMaxLoss(RoundUtil.getBigDecimal(position.getMaxLoss()));
         positionVO.setMargin(position.getMaintenanceMargin() != null ? position.getMaintenanceMargin().setScale(scale, BigDecimal.ROUND_HALF_UP) : null);
 
         // add properties if any

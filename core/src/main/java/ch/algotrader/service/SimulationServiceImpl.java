@@ -82,7 +82,6 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
     private static Logger resultLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
-    private static DecimalFormat fourDigitFormat = new DecimalFormat("#,##0.00");
     private static DateFormat monthFormat = new SimpleDateFormat(" MMM-yy ");
     private static DateFormat yearFormat = new SimpleDateFormat("   yyyy ");
     private static final NumberFormat format = NumberFormat.getInstance();
@@ -601,7 +600,6 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         buffer.append(" totalProfit=" + twoDigitFormat.format(tradesVO.getTotalProfit()));
         buffer.append(" avgProfit=" + twoDigitFormat.format(tradesVO.getAvgProfit()));
         buffer.append(" avgProfitPct=" + twoDigitFormat.format(tradesVO.getAvgProfitPct() * 100) + "%");
-        buffer.append(" avgAge=" + fourDigitFormat.format(tradesVO.getAvgAge()));
         buffer.append("\r\n");
 
         return buffer;

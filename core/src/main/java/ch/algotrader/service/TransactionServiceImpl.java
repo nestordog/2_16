@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Value;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
-import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.entity.security.Security;
@@ -40,12 +39,12 @@ import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EsperManager;
 import ch.algotrader.esper.subscriber.Subscriber;
 import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
@@ -204,12 +203,9 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     @Override
     protected PositionMutationVO handlePersistTransaction(Transaction transaction) {
 
-        double profit = 0.0;
-        double profitPct = 0.0;
-        double avgAge = 0;
-
         OpenPositionVO openPositionVO = null;
         ClosePositionVO closePositionVO = null;
+        TradePerformanceVO tradePerformance = null;
 
         // position handling (incl ClosePositionVO and TradePerformanceVO)
         if (transaction.getSecurity() != null) {
@@ -219,19 +215,11 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             Position position = getPositionDao().findBySecurityAndStrategyIdLocked(transaction.getSecurity().getId(), transaction.getStrategy().getId());
             if (position == null) {
 
-                position = new PositionImpl();
-                position.setQuantity(transaction.getQuantity());
+                position = PositionUtil.processFirstTransaction(transaction);
 
-                position.setExitValue(null);
-                position.setMaintenanceMargin(null);
-
-                // associate the security
+                // associate relations
+                transaction.setPosition(position);
                 transaction.getSecurity().addPositions(position);
-
-                // associate the transaction
-                position.addTransactions(transaction);
-
-                // associate the strategy
                 position.setStrategy(transaction.getStrategy());
 
                 getPositionDao().create(position);
@@ -243,24 +231,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 // get the closePositionVO (must be done before closing the position)
                 closePositionVO = getPositionDao().toClosePositionVO(position);
 
-                // evaluate the profit in closing transactions (must be done before attaching the new transaction)
-                if (Long.signum(position.getQuantity()) * Long.signum(transaction.getQuantity()) == -1) {
-
-                    double cost, value;
-                    if (Math.abs(transaction.getQuantity()) <= Math.abs(position.getQuantity())) {
-                        cost = position.getCostDouble() * Math.abs((double) transaction.getQuantity() / (double) position.getQuantity());
-                        value = transaction.getNetValueDouble();
-                    } else {
-                        cost = position.getCostDouble();
-                        value = transaction.getNetValueDouble() * Math.abs((double) position.getQuantity() / (double) transaction.getQuantity());
-                    }
-
-                    profit = value - cost;
-                    profitPct = Direction.LONG.equals(position.getDirection()) ? ((value - cost) / cost) : ((cost - value) / cost);
-                    avgAge = position.getAverageAge();
-                }
-
-                position.setQuantity(position.getQuantity() + transaction.getQuantity());
+                // process the transaction (adjust quantity, cost and realizedPL)
+                tradePerformance = PositionUtil.processTransaction(position, transaction);
 
                 // in case a position was closed reset exitValue and margin
                 if (!position.isOpen()) {
@@ -275,12 +247,11 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 }
 
                 // associate the position
-                position.addTransactions(transaction);
+                transaction.setPosition(position);
             }
 
             // if no position was open before initialize the openPosition event
             if (!existingOpenPosition) {
-
                 openPositionVO = getPositionDao().toOpenPositionVO(position);
             }
         }
@@ -291,30 +262,20 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         // save a portfolioValue (if necessary)
         getPortfolioPersistenceService().savePortfolioValue(transaction);
 
-        // update all entities
+        // create the transaction
         getTransactionDao().create(transaction);
 
-        // propagate the TradePerformance event
-        if (profit != 0.0 && this.simulation) {
-            TradePerformanceVO tradePerformance = new TradePerformanceVO();
-            tradePerformance.setProfit(profit);
-            tradePerformance.setProfitPct(profitPct);
-            tradePerformance.setAvgAge(avgAge);
-            tradePerformance.setWinning(profit > 0);
+        // prepare log message and propagate tradePerformance
+        String logMessage = "executed transaction: " + transaction;
+        if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {
 
-            if (EsperManager.isInitialized(StrategyImpl.BASE)) {
+            logMessage += ",profit=" + RoundUtil.getBigDecimal(tradePerformance.getProfit()) + ",profitPct=" + RoundUtil.getBigDecimal(tradePerformance.getProfitPct());
+
+            // propagate the TradePerformance event
+            if (this.simulation && EsperManager.isInitialized(StrategyImpl.BASE)) {
                 EsperManager.sendEvent(StrategyImpl.BASE, tradePerformance);
             }
         }
-
-        //@formatter:off
-        String logMessage = "executed transaction: " + transaction +
-        ((profit != 0.0) ? (
-            ",profit=" + RoundUtil.getBigDecimal(profit) +
-            ",profitPct=" + RoundUtil.getBigDecimal(profitPct) +
-            ",avgAge=" + RoundUtil.getBigDecimal(avgAge, 4))
-            : "");
-        //@formatter:on
 
         if (this.simulation && this.logTransactions) {
             simulationLogger.info(logMessage);
@@ -323,13 +284,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         }
 
         // return PositionMutation event if existent
-        if (openPositionVO != null) {
-            return openPositionVO;
-        } else if (closePositionVO != null)
-            return closePositionVO;
-         else {
-            return null;
-        }
+        return openPositionVO != null ? openPositionVO : closePositionVO != null ? closePositionVO : null;
     }
 
     @Override

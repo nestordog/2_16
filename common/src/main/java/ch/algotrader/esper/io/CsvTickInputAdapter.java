@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.esper.io;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.algotrader.vo.RawTickVO;
 
 import com.espertech.esper.client.EPException;
@@ -50,7 +52,7 @@ public class CsvTickInputAdapter extends CSVInputAdapter {
         if (event != null && event.getBeanToSend() instanceof RawTickVO) {
 
             RawTickVO tick = (RawTickVO) event.getBeanToSend();
-            String fileName = this.spec.getFile().getName().split("\\.")[0];
+            String fileName = StringUtils.substringBeforeLast(this.spec.getFile().getName(), ".");
             tick.setFileName(fileName);
         }
         return event;

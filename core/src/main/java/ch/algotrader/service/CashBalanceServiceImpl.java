@@ -80,7 +80,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
     }
 
     @Override
-    protected void handleResetCashBalances() throws Exception {
+    protected String handleResetCashBalances() throws Exception {
 
         // get all existing cashBalances
         Collection<CashBalance> existingCashBalances = getCashBalanceDao().loadAll();
@@ -97,6 +97,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
         }
 
         // create cash balances
+        StringBuffer buffer = new StringBuffer();
         for (Map.Entry<Pair<Strategy, Currency>, BigDecimal> entry : map.entrySet()) {
 
             Strategy strategy = entry.getKey().getFirst();
@@ -114,7 +115,10 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
                     cashBalance.setAmount(amount);
 
-                    logger.info("adjusted cashBalance: " + cashBalance + " from: " + oldAmount);
+                    String info = "adjusted cashBalance " + cashBalance + " from " + oldAmount;
+                    logger.info(info);
+                    buffer.append(info + "\n");
+
                 }
 
             } else {
@@ -128,7 +132,10 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
                 getCashBalanceDao().create(cashBalance);
 
-                logger.info("created cashBalance: " + cashBalance);
+                String info = "created cashBalance " + cashBalance;
+                logger.info(info);
+                buffer.append(info + "\n");
+
             }
         }
 
@@ -138,9 +145,13 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
             Strategy strategy = cashBalance.getStrategy();
             strategy.getCashBalances().remove(cashBalance);
 
-            logger.info("removed cashBalance: " + cashBalance);
+            String info = "removed cashBalance " + cashBalance;
+            logger.info(info);
+            buffer.append(info + "\n");
         }
 
         getCashBalanceDao().remove(existingCashBalances);
+
+        return buffer.toString();
     }
 }

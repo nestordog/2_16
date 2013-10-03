@@ -39,8 +39,7 @@ select
     count(allTrades) as count,
     sum(allTrades.profit) as totalProfit,
     avg(allTrades.profit) as avgProfit,
-    avg(allTrades.profitPct) as avgProfitPct,
-    avg(allTrades.avgAge) as avgAge
+    avg(allTrades.profitPct) as avgProfitPct
 from
     TradePerformance.win:keepall() as allTrades;
 
@@ -52,8 +51,7 @@ select
     count(winningTrades) as count,
     sum(winningTrades.profit) as totalProfit,
     avg(winningTrades.profit) as avgProfit,
-    avg(winningTrades.profitPct) as avgProfitPct,
-    avg(winningTrades.avgAge) as avgAge
+    avg(winningTrades.profitPct) as avgProfitPct
 from
     TradePerformance(winning = true).win:keepall() as winningTrades;
 
@@ -65,8 +63,7 @@ select
     count(loosingTrades) as count,
     sum(loosingTrades.profit) as totalProfit,
     avg(loosingTrades.profit) as avgProfit,
-    avg(loosingTrades.profitPct) as avgProfitPct,
-    avg(loosingTrades.avgAge) as avgAge
+    avg(loosingTrades.profitPct) as avgProfitPct
 from
     TradePerformance(winning = false).win:keepall() as loosingTrades;
 

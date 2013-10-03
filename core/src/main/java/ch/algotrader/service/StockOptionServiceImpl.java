@@ -87,7 +87,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         // get the deltaAdjustedMarketValue
         double deltaAdjustedMarketValue = 0;
         for (Position position : positions) {
-            deltaAdjustedMarketValue += position.getMarketValueDouble() * position.getSecurity().getLeverage();
+            deltaAdjustedMarketValue += position.getMarketValue() * position.getSecurity().getLeverage();
         }
 
         final Security underlying = getSecurityDao().get(underlyingId);

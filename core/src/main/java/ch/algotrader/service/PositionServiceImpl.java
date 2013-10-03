@@ -21,24 +21,16 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Predicate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.entity.PositionImpl;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
-import ch.algotrader.esper.callback.TradeCallback;
-import ch.algotrader.stockOption.StockOptionUtil;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.RoundUtil;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Position;
+import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Combination;
@@ -48,15 +40,20 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.StockOption;
 import ch.algotrader.entity.strategy.DefaultOrderPreference;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.service.MarketDataService;
-import ch.algotrader.service.PositionServiceBase;
-import ch.algotrader.service.PositionServiceException;
+import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.callback.TradeCallback;
+import ch.algotrader.stockOption.StockOptionUtil;
+import ch.algotrader.util.DateUtil;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.PositionUtil;
+import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.ExpirePositionVO;
 
@@ -214,7 +211,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         Security security = position.getSecurity();
         SecurityFamily family = security.getSecurityFamily();
         long quantity = position.getQuantity();
-        BigDecimal price = RoundUtil.getBigDecimal(position.getMarketPriceDouble(),family.getScale());
+        BigDecimal price = RoundUtil.getBigDecimal(position.getMarketPrice(), family.getScale());
 
         // debit transaction
         Transaction debitTransaction = Transaction.Factory.newInstance();
@@ -382,48 +379,69 @@ public class PositionServiceImpl extends PositionServiceBase {
     @Override
     protected String handleResetPositions() throws Exception {
 
-        Collection<Position> targetOpenPositions = getPositionDao().findOpenPositionsFromTransactions();
+        Collection<Transaction> transactions = getTransactionDao().findAllTradesInclSecurity();
 
+        // process all transactions to establis current position states
+        Map<Security, Position> positionMap = new HashMap<Security, Position>();
+        for (Transaction transaction : transactions) {
+
+            // crate a position if we come across a security for the first time
+            Position position = positionMap.get(transaction.getSecurity());
+            if (position == null) {
+                position = PositionUtil.processFirstTransaction(transaction);
+                positionMap.put(position.getSecurity(), position);
+            } else {
+                PositionUtil.processTransaction(position, transaction);
+            }
+        }
+
+        // update positions
         StringBuffer buffer = new StringBuffer();
-        for (Position targetOpenPosition : targetOpenPositions) {
+        for (Position targetOpenPosition : positionMap.values()) {
 
             Position actualOpenPosition = getPositionDao().findBySecurityAndStrategy(targetOpenPosition.getSecurity().getId(), targetOpenPosition.getStrategy().getName());
+
+            // create if it does not exist
             if (actualOpenPosition == null) {
 
                 String warning = "position on security " + targetOpenPosition.getSecurity() + " strategy " + targetOpenPosition.getStrategy() + " quantity " + targetOpenPosition.getQuantity() + " does not exist";
                 logger.warn(warning);
-                buffer.append(warning + "\\n");
+                buffer.append(warning + "\n");
 
-            } else if (actualOpenPosition.getQuantity() != targetOpenPosition.getQuantity()) {
+            } else {
 
-                long existingQty = actualOpenPosition.getQuantity();
-                actualOpenPosition.setQuantity(targetOpenPosition.getQuantity());
+                // check quantity
+                if (actualOpenPosition.getQuantity() != targetOpenPosition.getQuantity()) {
 
-                String warning = "adjusted quantity of position " + actualOpenPosition.getId() + " from " + existingQty + " to " + targetOpenPosition.getQuantity();
-                logger.warn(warning);
-                buffer.append(warning + "\\n");
-            }
-        }
+                    long existingQty = actualOpenPosition.getQuantity();
+                    actualOpenPosition.setQuantity(targetOpenPosition.getQuantity());
 
-        List<Position> actualOpenPositions = getPositionDao().findOpenTradeablePositions();
-
-        for (final Position actualOpenPosition : actualOpenPositions) {
-
-            Position targetOpenPosition = CollectionUtils.find(targetOpenPositions, new Predicate<Position>() {
-                @Override
-                public boolean evaluate(Position targetOpenPosition) {
-                    return actualOpenPosition.getSecurity().getId() == targetOpenPosition.getSecurity().getId()
-                            && actualOpenPosition.getStrategy().getName().equals(targetOpenPosition.getStrategy().getName());
+                    String warning = "adjusted quantity of position " + actualOpenPosition.getId() + " from " + existingQty + " to " + targetOpenPosition.getQuantity();
+                    logger.warn(warning);
+                    buffer.append(warning + "\n");
                 }
-            });
 
-            if (targetOpenPosition == null) {
+                // check cost
+                if (actualOpenPosition.getCost() != targetOpenPosition.getCost()) {
 
-                long existingQty = actualOpenPosition.getQuantity();
-                actualOpenPosition.setQuantity(0);
-                String warning = "closed position " + actualOpenPosition.getId() + " qty was " + existingQty;
-                logger.warn(warning);
-                buffer.append(warning + "\\n");
+                    double existingCost = actualOpenPosition.getCost();
+                    actualOpenPosition.setCost(targetOpenPosition.getCost());
+
+                    String warning = "adjusted cost of position " + actualOpenPosition.getId() + " from " + existingCost + " to " + targetOpenPosition.getCost();
+                    logger.warn(warning);
+                    buffer.append(warning + "\n");
+                }
+
+                // check realizedPL
+                if (actualOpenPosition.getRealizedPL() != targetOpenPosition.getRealizedPL()) {
+
+                    double existingRealizedPL = actualOpenPosition.getRealizedPL();
+                    actualOpenPosition.setRealizedPL(targetOpenPosition.getRealizedPL());
+
+                    String warning = "adjusted realizedPL of position " + actualOpenPosition.getId() + " from " + existingRealizedPL + " to " + targetOpenPosition.getRealizedPL();
+                    logger.warn(warning);
+                    buffer.append(warning + "\n");
+                }
             }
         }
 
