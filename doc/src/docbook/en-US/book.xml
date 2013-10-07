@@ -3989,7 +3989,15 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 <varlistentry>
                     <term>Java JDK</term>
                     <listitem>
-                        <para>Install the latest Java JDK from <ulink url="http://www.oracle.com/technetwork/java/index.html">Oracle</ulink></para>
+                        <para>Install the latest Java JDK 1.7 from <ulink
+                                url="http://www.oracle.com/technetwork/java/index.html"
+                                >Oracle</ulink></para>
+                        <note>
+                            <para>Java JDK 1.6 will work for AlgoTrader Base and Strategies. However
+                                the AlgoTrader client needs 1.7 since it uses some of the features
+                                provided only by the 1.7 version of JConsole integrated into the
+                                JDK.</para>
+                        </note>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
