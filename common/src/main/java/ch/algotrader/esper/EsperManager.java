@@ -49,7 +49,13 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
 
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.Subscription;
+import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.entity.trade.Order;
 import ch.algotrader.esper.annotation.Condition;
 import ch.algotrader.esper.annotation.Listeners;
 import ch.algotrader.esper.annotation.RunTimeOnly;
@@ -69,15 +75,9 @@ import ch.algotrader.esper.subscriber.SubscriberCreator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
-
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.Order;
 import ch.algotrader.vo.GenericEventVO;
 import ch.algotrader.vo.StatementMetricVO;
+
 import com.espertech.esper.adapter.InputAdapter;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationEngineDefaults.Threading;
@@ -558,17 +558,22 @@ public class EsperManager {
     public static Object getLastEvent(String strategyName, String statementName) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
-        if (statement != null && statement.isStarted()) {
+        if (statement == null) {
+            throw new IllegalStateException("statement " + statementName + " does not exist");
+        } else if (!statement.isStarted()) {
+            throw new IllegalStateException("statement " + statementName + " is not started");
+        } else {
             SafeIterator<EventBean> it = statement.safeIterator();
             try {
                 if (it.hasNext()) {
                     return it.next().getUnderlying();
+                } else {
+                    return null;
                 }
             } finally {
                 it.close();
             }
         }
-        return null;
     }
 
     /**
@@ -577,15 +582,22 @@ public class EsperManager {
     public static Object getLastEventProperty(String strategyName, String statementName, String propertyName) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
-        if (statement != null && statement.isStarted()) {
+        if (statement == null) {
+            throw new IllegalStateException("statement " + statementName + " does not exist");
+        } else if (!statement.isStarted()) {
+            throw new IllegalStateException("statement " + statementName + " is not started");
+        } else {
             SafeIterator<EventBean> it = statement.safeIterator();
             try {
-                return it.next().get(propertyName);
+                if (it.hasNext()) {
+                    return it.next().get(propertyName);
+                } else {
+                    return null;
+                }
             } finally {
                 it.close();
             }
         }
-        return null;
     }
 
     /**
@@ -595,8 +607,12 @@ public class EsperManager {
     public static List getAllEvents(String strategyName, String statementName) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
-        List<Object> list = new ArrayList<Object>();
-        if (statement != null && statement.isStarted()) {
+        if (statement == null) {
+            throw new IllegalStateException("statement " + statementName + " does not exist");
+        } else if (!statement.isStarted()) {
+            throw new IllegalStateException("statement " + statementName + " is not started");
+        } else {
+            List<Object> list = new ArrayList<Object>();
             SafeIterator<EventBean> it = statement.safeIterator();
             try {
                 while (it.hasNext()) {
@@ -604,11 +620,11 @@ public class EsperManager {
                     Object underlying = bean.getUnderlying();
                     list.add(underlying);
                 }
+                return list;
             } finally {
                 it.close();
             }
         }
-        return list;
     }
 
     /**
@@ -618,8 +634,12 @@ public class EsperManager {
     public static List getAllEventsProperty(String strategyName, String statementName, String property) {
 
         EPStatement statement = getServiceProvider(strategyName).getEPAdministrator().getStatement(statementName);
-        List<Object> list = new ArrayList<Object>();
-        if (statement != null && statement.isStarted()) {
+        if (statement == null) {
+            throw new IllegalStateException("statement " + statementName + " does not exist");
+        } else if (!statement.isStarted()) {
+            throw new IllegalStateException("statement " + statementName + " is not started");
+        } else {
+            List<Object> list = new ArrayList<Object>();
             SafeIterator<EventBean> it = statement.safeIterator();
             try {
                 while (it.hasNext()) {
@@ -627,11 +647,11 @@ public class EsperManager {
                     Object underlying = bean.get(property);
                     list.add(underlying);
                 }
+                return list;
             } finally {
                 it.close();
             }
         }
-        return list;
     }
 
     /**

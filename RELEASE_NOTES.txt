@@ -3,6 +3,7 @@ BrokerParameters
 AlgoTrader Reference Data Manager
 BreakOut Example Strategy
 More flexilility on market data file naming
+Switch from LIFO to average cost
 
 Version 2.0
 Multi Account Handling

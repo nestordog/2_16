@@ -68,14 +68,12 @@ import ch.algotrader.vo.TransactionVO;
  */
 public class ManagementServiceImpl extends ManagementServiceBase {
 
-    private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
-
     private @Value("${misc.displayClosedPositions}") boolean displayClosedPositions;
 
     @Override
-    protected String handleGetCurrentTime() throws Exception {
+    protected Date handleGetCurrentTime() throws Exception {
 
-        return format.format(new Date(EsperManager.getCurrentTime(getConfiguration().getStartedStrategyName())));
+        return new Date(EsperManager.getCurrentTime(getConfiguration().getStartedStrategyName()));
     }
 
     @Override
