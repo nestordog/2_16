@@ -155,7 +155,7 @@
         <bean id="bBSessionFactory" class="ch.algotrader.adapter.bb.BBSessionFactory"/>
     </beans>
 
-    <beans profile="jPMFix,iBFix,dCFix">
+    <beans profile="jPMFix,iBFix,dCFix,rTFix">
         <bean id="fixSessionFactory" class="ch.algotrader.adapter.fix.FixSessionFactory"/>
     </beans>
 
