@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
-import org.opentradingsolutions.log4fix.Log4FIX;
 import org.quickfixj.jmx.JmxExporter;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -98,11 +97,11 @@ public class FixSessionFactory implements InitializingBean {
 
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(this.settings);
 
-        Log4FIX log4Fix = Log4FIX.createForLiveUpdates(this.settings);
-        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(this.settings), new FileLogFactory(this.settings), log4Fix.getLogFactory() });
-        log4Fix.show();
+        //        Log4FIX log4Fix = Log4FIX.createForLiveUpdates(this.settings);
+        //        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(this.settings), new FileLogFactory(this.settings), log4Fix.getLogFactory() });
+        //        log4Fix.show();
 
-        //        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(this.settings), new FileLogFactory(this.settings) });
+        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(this.settings), new FileLogFactory(this.settings) });
 
         MessageFactory messageFactory = new DefaultMessageFactory();
 
