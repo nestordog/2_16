@@ -203,18 +203,15 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <showDeprecation>true</showDeprecation>
-                    <showWarnings>true</showWarnings>
-                    <compilerArgument>-Xlint:fallthrough,finally,serial</compilerArgument>
                 </configuration>
             </plugin>
         </plugins>
     </build>
     <modules>
-        <module>common</module>
+        <module>mda</module><module>common</module>
         <module>core</module>
         <module>client</module>
-        <module>mda</module>
+
         <module>core/bin</module>
         <module>client/bin</module>
         <module>doc</module>
