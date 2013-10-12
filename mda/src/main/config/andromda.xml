@@ -23,11 +23,11 @@
                     <uri>${model.uri}</uri>
                     <!-- List any additional referenced models needed for code generation here, even if already referenced internally within the model file -->
                     <!--uri>file:${project.basedir}/uml/AdditionalModel.emx</uri-->
-                    <moduleSearchLocations>
-                        <location patterns="**/*.uml,**/*.e*x">${project.basedir}/src/main/uml</location>
-                        <location patterns="**/${andromda.version}/*.e*x">${settings.localRepository}/org/andromda/profiles/emf/rsm75</location>
-                        <location patterns="**/${andromda.version}/*.uml">${settings.localRepository}/org/andromda/profiles/emf/uml22</location>
-                    </moduleSearchLocations>
+                    <!--<moduleSearchLocations> -->
+                    <!--  <location patterns="**/*.uml,**/*.e*x">${project.basedir}/src/main/uml</location> -->
+                    <!--  <location patterns="**/${andromda.version}/*.e*x">${settings.localRepository}/org/andromda/profiles/emf/rsm75</location> -->
+                    <!--  <location patterns="**/${andromda.version}/*.uml">${settings.localRepository}/org/andromda/profiles/emf/uml22</location> -->
+                    <!--</moduleSearchLocations> -->
                     <!-- Can filter in/out specific andromda model validation constraints (default true=validate all) -->
                     <constraints enforceAll="true">
                         <!-- <constraint enforce="false">**::wrapped primitive attribute should not be required</constraint> -->

@@ -32,6 +32,11 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>algotrader</groupId>
+            <artifactId>algotrader-uml</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.andromda.cartridges</groupId>
             <artifactId>andromda-hibernate-cartridge</artifactId>
             <version>${andromda.version}</version>
@@ -78,7 +83,7 @@
         <!-- Avoid JDK6 XJC runtime error on wdsl2java from conflicting Jaxb2.2 -->
         <!-- Versioned independently from CXF core -->
         <cxf.xjc.version>2.3.0</cxf.xjc.version>
-        <model.uri>file:${project.basedir}/src/main/uml/algoTrader.uml</model.uri>
+        <model.uri>jar:file:${settings.localRepository}/algotrader/algotrader-uml/${project.version}/algotrader-uml-${project.version}.jar!/algoTrader.uml</model.uri>
         <filter />
         <validation>true</validation>
         <!-- ant script location for temp copy of resources -->

@@ -208,10 +208,10 @@
         </plugins>
     </build>
     <modules>
-        <module>mda</module><module>common</module>
+        <module>mda</module>
+        <module>common</module>
         <module>core</module>
         <module>client</module>
-
         <module>core/bin</module>
         <module>client/bin</module>
         <module>doc</module>
