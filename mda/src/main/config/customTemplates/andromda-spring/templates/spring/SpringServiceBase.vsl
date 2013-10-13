@@ -266,11 +266,11 @@ $attribute.getDocumentation("     * ")
             throw ex;
         }
 #end
-        catch (Throwable th)
+        catch (Exception ex)
         {
             throw new ${service.fullyQualifiedDefaultExceptionName}(
-                "Error performing '${service.fullyQualifiedName}.${operation.signature}' --> " + th,
-                th);
+                "Error performing '${service.fullyQualifiedName}.${operation.signature}' --> " + ex,
+                ex);
         }
     }
 
