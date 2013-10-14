@@ -3633,6 +3633,8 @@ public class MovChartService extends ChartProvidingServiceImpl {
                             </imageobject>
                         </mediaobject>
                     </figure>
+                    <para>To enable Expert Mode add the following vm argument:</para>
+                    <screen>-DexpertMode=true</screen>
                 </section>
             </section>
         </section>
@@ -4341,7 +4343,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
                             correct version):</para>
                     </listitem>
                 </itemizedlist>
-                    <screen><ulink url="https://repo.algotrader.ch/maven/algotrader/algotrader-mda/1.13-SNAPSHOT/algoTrader.uml.zip">https://repo.algotrader.ch/maven/algotrader/algotrader-mda/x.y/algoTrader.uml.zip</ulink></screen>
+                    <screen>https://repo.algotrader.ch/maven/algotrader/algotrader-mda/x.y/algoTrader.uml.zip</screen>
                 <para>After this, the following <filename>.uml</filename> files should be available
                     in the directory  <filename>/algotrader-mda/src/main/uml/</filename>:</para>
                 <screen>algoTrader-profile.profile.uml
