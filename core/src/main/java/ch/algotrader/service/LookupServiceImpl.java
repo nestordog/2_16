@@ -43,6 +43,7 @@ import ch.algotrader.entity.security.Combination;
 import ch.algotrader.entity.security.Component;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
+import ch.algotrader.entity.security.IntrestRate;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
@@ -707,6 +708,19 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected double handleGetForexRateDoubleByDate(Currency baseCurrency, Currency transactionCurrency, Date date) throws Exception {
 
         return getForexDao().getRateDoubleByDate(baseCurrency, transactionCurrency, date);
+    }
+
+    @Override
+    protected double handleGetInterestRateByCurrencyDurationAndDate(Currency currency, long duration, Date date) throws Exception {
+
+        IntrestRate intrestRate = getIntrestRateDao().findByCurrencyAndDuration(currency, duration);
+
+        List<Tick> ticks = getTickDao().findTicksBySecurityAndMaxDate(1, 1, intrestRate.getId(), date, this.intervalDays);
+        if (ticks.isEmpty()) {
+            throw new IllegalStateException("cannot get intrestRate for " + currency + " and duration " + duration + " because no last tick is available for date " + date);
+        }
+
+        return CollectionUtil.getFirstElement(ticks).getCurrentValueDouble();
     }
 
     @Override
