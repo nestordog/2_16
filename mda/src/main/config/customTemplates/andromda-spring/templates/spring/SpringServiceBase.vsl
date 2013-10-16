@@ -1,5 +1,6 @@
 ## AlgoTrader: 15075
-## line 287 - 306: remove getPrincipal
+## line 165 - 167: add @Transaction annotations
+## line 290 - 309: remove getPrincipal
 ## line 336 - 390:  remove getMessages
 
 #set ($generatedFile = "${service.implementationPackagePath}/${service.baseName}.java")
@@ -161,6 +162,9 @@ $attribute.getDocumentation("     * ")
      */
 #if ($enableAnnotations)
     @Override
+#end
+#if ($operation.findTaggedValue("andromda_spring_transaction_type"))
+	@org.springframework.transaction.annotation.Transactional(propagation = org.springframework.transaction.annotation.Propagation.${operation.transactionType.substring(12)})
 #end
 #if($stringUtils.isNotBlank($operation.findTaggedValue('algoTrader_service_method_manageable_attribute')))
 	@org.springframework.jmx.export.annotation.ManagedAttribute#if($stringUtils.isNotBlank($operation.getDocumentation('')))(description="$stringUtils.toSingleLine($operation.getDocumentation(''))")#end

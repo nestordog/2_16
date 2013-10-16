@@ -161,7 +161,7 @@
 
     <!-- =========================================== RECONCILIATION ================================================ -->
 
-    <beans profile="ucitsReconciliation,bviReconciliation">
+    <beans profile="reconciliation">
 
         <task:scheduler id="taskScheduler" pool-size="1"/>
 
