@@ -41,6 +41,7 @@ import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Combination;
 import ch.algotrader.entity.security.Component;
+import ch.algotrader.entity.security.EasyToBorrow;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.IntrestRate;
@@ -56,6 +57,7 @@ import ch.algotrader.entity.strategy.OrderPreference;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OptionType;
@@ -812,6 +814,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected Collection<EasyToBorrow> handleGetEasyToBorrowByDateAndBroker(Date date, Broker broker) throws Exception {
+
+        return getEasyToBorrowDao().findByDateAndBroker(date, broker);
+    }
+
+    @Override
     protected Date handleGetCurrentDBTime() throws Exception {
 
         return getStrategyDao().findCurrentDBTime();
@@ -848,4 +856,5 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         return nameValuePairsByDate;
     }
+
 }

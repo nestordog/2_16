@@ -226,6 +226,26 @@ CREATE TABLE `default_order_preference` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `easy_to_borrow`
+--
+
+DROP TABLE IF EXISTS `easy_to_borrow`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `easy_to_borrow` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `DATE` datetime NOT NULL,
+  `BROKER` varchar(255) NOT NULL COMMENT 'The {@link Broker} which these parameters apply to.',
+  `QUANTITY` bigint(20) NOT NULL,
+  `STOCK_FK` int(11) NOT NULL COMMENT 'A Single Stock',
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `DATE_BROKER_STOCK_UNIQUE` (`DATE`,`BROKER`,`STOCK_FK`),
+  KEY `EASY_TO_BORROW_STOCK_FKC` (`STOCK_FK`),
+  CONSTRAINT `EASY_TO_BORROW_STOCK_FKC` FOREIGN KEY (`STOCK_FK`) REFERENCES `stock` (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `forex`
 --
 
@@ -758,4 +778,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-10-10 15:05:38
+-- Dump completed on 2013-10-18 17:07:38
