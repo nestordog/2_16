@@ -1,3 +1,4 @@
+// Algotrader: line 72 - 75 check if line is not empty
 package org.supercsv.io;
 
 import java.io.IOException;
@@ -15,12 +16,9 @@ import org.supercsv.util.MethodCache;
 import org.supercsv.util.Util;
 
 /**
- * This class reads a line from a csv file, instantiates a bean and populate its
- * fields.
+ * This class reads a line from a csv file, instantiates a bean and populate its fields.
  *
  * @author Kasper B. Graversen
- *
- *         AlgoTrader line 45: ignore lines with null value
  */
 public class CsvBeanReader extends AbstractCsvReader implements ICsvBeanReader {
 /**
@@ -72,15 +70,15 @@ public CsvBeanReader(final Reader reader, final CsvPreference preferences) {
                 // System.out.println(String.format("mapping[i]= %s, lR[%d] = %s val '%s'", nameMapping[i], i,
                 // lineResult
                 // .get(i).getClass(), lineResult.get(i)));
-                    if (this.lineResult.get(i) != null) {
-                        this.cache.getSetMethod(resultBean, nameMapping[i], this.lineResult.get(i).getClass())//
-                                .invoke(resultBean, this.lineResult.get(i));
-                    }
+                if (lineResult.get(i) != null) {
+                    cache.getSetMethod(resultBean, nameMapping[i], lineResult.get(i).getClass())//
+                        .invoke(resultBean, lineResult.get(i));
+                }
             }
             catch(final IllegalArgumentException e) {
                 throw new SuperCSVException("Method set" + nameMapping[i].substring(0, 1).toUpperCase()
-                    + nameMapping[i].substring(1) + "() does not accept input \"" + this.lineResult.get(i) + "\" of type "
-                    + this.lineResult.get(i).getClass().getName(), null, e);
+                    + nameMapping[i].substring(1) + "() does not accept input \"" + lineResult.get(i) + "\" of type "
+                    + lineResult.get(i).getClass().getName(), null, e);
             }
         }
         return resultBean;
@@ -100,9 +98,9 @@ public CsvBeanReader(final Reader reader, final CsvPreference preferences) {
  * {@inheritDoc}
  */
 public <T> T read(final Class<T> clazz, final String... nameMapping) throws IOException, SuperCSVReflectionException {
-    if( this.tokenizer.readStringList(super.line) ) {
-        this.lineResult.clear();
-        this.lineResult.addAll(super.line);
+    if( tokenizer.readStringList(super.line) ) {
+        lineResult.clear();
+        lineResult.addAll(super.line);
         return fillObject(clazz, nameMapping);
     }
     return null; // EOF
@@ -113,8 +111,8 @@ public <T> T read(final Class<T> clazz, final String... nameMapping) throws IOEx
  */
 public <T> T read(final Class<T> clazz, final String[] nameMapping, final CellProcessor[] processors)
     throws IOException, SuperCSVReflectionException, SuperCSVException {
-    if( this.tokenizer.readStringList(super.line) ) {
-        Util.processStringList(this.lineResult, super.line, processors, this.tokenizer.getLineNumber());
+    if( tokenizer.readStringList(super.line) ) {
+        Util.processStringList(lineResult, super.line, processors, tokenizer.getLineNumber());
         return fillObject(clazz, nameMapping);
     }
     return null; // EOF

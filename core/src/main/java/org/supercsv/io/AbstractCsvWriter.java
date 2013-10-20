@@ -1,3 +1,4 @@
+// AlgoTrader: line 163 + 171 add flush
 package org.supercsv.io;
 
 import java.io.BufferedWriter;
@@ -25,16 +26,17 @@ CsvPreference preference;
 
 protected AbstractCsvWriter(final Writer stream, final CsvPreference preference) {
     setPreferences(preference);
-    outStream = new BufferedWriter(stream);
-    lineNo = 1;
+    this.outStream = new BufferedWriter(stream);
+    this.lineNo = 1;
 }
 
 /**
  * {@inheritDoc}
  */
+@Override
 public void close() throws IOException {
-    outStream.flush();
-    outStream.close();
+    this.outStream.flush();
+    this.outStream.close();
 }
 
 /**
@@ -49,12 +51,12 @@ protected String escapeString(final String csvElem) {
         return "";
     }
 
-    sb.delete(0, sb.length()); // reusing builder object
+    this.sb.delete(0, this.sb.length()); // reusing builder object
 
-    final int delimiter = preference.getDelimiterChar();
-    final char quote = (char) preference.getQuoteChar();
+    final int delimiter = this.preference.getDelimiterChar();
+    final char quote = (char) this.preference.getQuoteChar();
     final char whiteSpace = ' ';
-    final String EOLSymbols = preference.getEndOfLineSymbols();
+    final String EOLSymbols = this.preference.getEndOfLineSymbols();
 
     boolean needForEscape = false; // if newline or start with space
     if( csvElem.charAt(0) == whiteSpace ) {
@@ -69,52 +71,54 @@ protected String escapeString(final String csvElem) {
 
         if( c == delimiter ) {
             needForEscape = true;
-            sb.append(c);
+            this.sb.append(c);
         }
         else
             if( c == quote ) {
                 // if its the first character, escape it and set need for space
                 if( i == 0 ) {
-                    sb.append(quote);
-                    sb.append(quote);
+                    this.sb.append(quote);
+                    this.sb.append(quote);
                     needForEscape = true;
                 }
                 else {
-                    sb.append(quote);
-                    sb.append(quote);
-                    needForEscape = true;
+                    this.sb.append(quote);
+                    this.sb.append(quote);
+                    needForEscape = true; // TODO review comments above
                 }
             }
             else
                 if( c == '\n' ) {
                     needForEscape = true;
-                    sb.append(EOLSymbols);
+                    this.sb.append(EOLSymbols);
                 }
                 else {
-                    sb.append(c);
+                    this.sb.append(c);
                 }
     }
 
     // if element contains a newline (mac,windows or linux), escape the
     // whole with a surrounding quotes
     if( needForEscape ) {
-        return quote + sb.toString() + quote;
+        return quote + this.sb.toString() + quote;
     }
 
-    return sb.toString();
+    return this.sb.toString();
 
 }
 
 /**
  * {@inheritDoc}
  */
+@Override
 public int getLineNumber() {
-    return lineNo;
+    return this.lineNo;
 }
 
 /**
  * {@inheritDoc}
  */
+@Override
 public ICsvWriter setPreferences(final CsvPreference preference) {
     this.preference = preference;
     return this;
@@ -142,9 +146,9 @@ protected void write(final Object... content) throws IOException {
 }
 
 protected void write(final String... content) throws IOException {
-    lineNo++;
+    this.lineNo++;
 
-    final int delimiter = preference.getDelimiterChar();
+    final int delimiter = this.preference.getDelimiterChar();
     int i = 0;
     switch( content.length ) {
     case 0:
@@ -157,23 +161,24 @@ protected void write(final String... content) throws IOException {
     default:
         // write first 0..N-1 elems
         for( ; i < content.length - 1; i++ ) {
-            outStream.write(escapeString(content[i]));
-            outStream.write(delimiter);
-            outStream.flush();
+            this.outStream.write(escapeString(content[i]));
+            this.outStream.write(delimiter);
+            this.outStream.flush();
         }
         break;
     }
 
     // write last elem (without delimiter) and the EOL
-    outStream.write(escapeString(content[i]));
-    outStream.write(preference.getEndOfLineSymbols());
-    outStream.flush();
+    this.outStream.write(escapeString(content[i]));
+    this.outStream.write(this.preference.getEndOfLineSymbols());
+    this.outStream.flush();
     return;
 }
 
 /**
  * {@inheritDoc}
  */
+@Override
 public void writeHeader(final String... header) throws IOException, SuperCSVException {
     this.write(header);
 }
