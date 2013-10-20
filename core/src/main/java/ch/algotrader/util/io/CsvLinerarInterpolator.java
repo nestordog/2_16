@@ -23,8 +23,6 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.supercsv.exception.SuperCSVException;
-
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.util.ConfigurationUtil;
@@ -45,7 +43,7 @@ public class CsvLinerarInterpolator {
     private static double recordsPerHour = 2.0;
     private static double offsetHour = 9.0;
 
-    public static void main(String[] args) throws SuperCSVException, IOException, ParseException {
+    public static void main(String[] args) throws IOException, ParseException {
 
         interpolate(args[0], args[1]);
     }

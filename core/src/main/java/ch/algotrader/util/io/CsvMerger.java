@@ -29,7 +29,6 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.supercsv.exception.SuperCSVException;
 
 import ch.algotrader.entity.marketData.Tick;
 
@@ -42,7 +41,7 @@ import ch.algotrader.entity.marketData.Tick;
  */
 public class CsvMerger {
 
-    public static void main(String[] args) throws SuperCSVException, IOException {
+    public static void main(String[] args) throws IOException {
 
         merge(args[0], args[1], args[2]);
     }

@@ -24,7 +24,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.supercsv.exception.SuperCSVException;
 
 import ch.algotrader.entity.marketData.Tick;
 
@@ -45,7 +44,7 @@ public class CsvGapChecker {
     private static double maxGapMins = 30.0;
     private static String marketOpen = "15:40:00";
 
-    public static void main(String[] args) throws SuperCSVException, IOException, ParseException {
+    public static void main(String[] args) throws IOException, ParseException {
 
         check(args[0]);
     }

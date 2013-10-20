@@ -24,8 +24,6 @@ import java.util.Date;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-import org.supercsv.exception.SuperCSVException;
-
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.util.ConfigurationUtil;
@@ -52,7 +50,7 @@ public class CsvBarToTickInterpolator {
     private static boolean spreadEven = true;
     private static boolean enforceHighLow = true;
 
-    public static void main(String[] args) throws SuperCSVException, IOException {
+    public static void main(String[] args) throws IOException {
 
         interpolate(args[0], args[1]);
     }

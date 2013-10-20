@@ -24,7 +24,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.supercsv.exception.SuperCSVException;
 
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.util.DateUtil;
@@ -43,7 +42,7 @@ public class CsvBarGapFiller {
     private static double weekendDiff = 2800;
     private static String endTime = "23:00";
 
-    public static void main(String[] args) throws SuperCSVException, IOException, ParseException {
+    public static void main(String[] args) throws IOException, ParseException {
 
         fill(args[0], args[1]);
     }

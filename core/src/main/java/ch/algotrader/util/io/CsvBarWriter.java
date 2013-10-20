@@ -24,11 +24,9 @@ import java.util.Date;
 
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.exception.SuperCSVException;
-import org.supercsv.exception.SuperCSVReflectionException;
 import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
-import org.supercsv.util.CSVContext;
+import org.supercsv.util.CsvContext;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Bar;
@@ -66,7 +64,7 @@ public class CsvBarWriter {
 
     private CsvBeanWriter writer;
 
-    public CsvBarWriter(File file) throws SuperCSVException, IOException {
+    public CsvBarWriter(File file) throws IOException {
 
         boolean exists = file.exists();
 
@@ -77,7 +75,7 @@ public class CsvBarWriter {
         }
     }
 
-    public CsvBarWriter(String fileName) throws SuperCSVException, IOException {
+    public CsvBarWriter(String fileName) throws IOException {
 
         this(new File("files" + File.separator + "bardata" + File.separator + dataSet + File.separator + fileName + ".csv"));
     }
@@ -89,7 +87,7 @@ public class CsvBarWriter {
         }
 
         @Override
-        public Object execute(final Object value, final CSVContext context) throws NumberFormatException {
+        public Object execute(final Object value, final CsvContext context) throws NumberFormatException {
             if (value == null) {
                 return "";
             }
@@ -99,7 +97,7 @@ public class CsvBarWriter {
         }
     }
 
-    public void write(Bar bar) throws SuperCSVReflectionException, IOException {
+    public void write(Bar bar) throws IOException {
 
         this.writer.write(bar, header, processor);
     }

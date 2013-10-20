@@ -27,11 +27,9 @@ import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.ParseBigDecimal;
 import org.supercsv.cellprocessor.ParseInt;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.exception.SuperCSVException;
-import org.supercsv.exception.SuperCSVReflectionException;
 import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
-import org.supercsv.util.CSVContext;
+import org.supercsv.util.CsvContext;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Bar;
@@ -62,14 +60,14 @@ public class CsvBarReader {
     private String[] header;
     private CsvBeanReader reader;
 
-    public CsvBarReader(File file) throws SuperCSVException, IOException {
+    public CsvBarReader(File file) throws IOException {
 
         Reader inFile = new FileReader(file);
         this.reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
-        this.header = this.reader.getCSVHeader(true);
+        this.header = this.reader.getHeader(true);
     }
 
-    public CsvBarReader(String fileName) throws SuperCSVException, IOException {
+    public CsvBarReader(String fileName) throws IOException {
 
         this(new File("files" + File.separator + "bardata" + File.separator + dataSet + File.separator + fileName + ".csv"));
     }
@@ -81,7 +79,7 @@ public class CsvBarReader {
         }
 
         @Override
-        public Object execute(final Object value, final CSVContext context) throws NumberFormatException {
+        public Object execute(final Object value, final CsvContext context) throws NumberFormatException {
 
             Date date;
             if (value == null || "".equals(value)) {
@@ -94,7 +92,7 @@ public class CsvBarReader {
         }
     }
 
-    public Bar readBar() throws SuperCSVReflectionException, IOException {
+    public Bar readBar() throws IOException {
 
         Bar bar;
         if ((bar = this.reader.read(BarImpl.class, this.header, processor)) != null) {

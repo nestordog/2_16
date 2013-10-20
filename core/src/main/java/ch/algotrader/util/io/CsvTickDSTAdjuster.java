@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import org.supercsv.exception.SuperCSVException;
-
 import ch.algotrader.entity.marketData.Tick;
 
 /**
@@ -35,7 +33,7 @@ import ch.algotrader.entity.marketData.Tick;
  */
 public class CsvTickDSTAdjuster {
 
-    public static void main(String[] args) throws SuperCSVException, IOException {
+    public static void main(String[] args) throws IOException {
 
         adjust(args[0], args[1]);
     }

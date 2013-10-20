@@ -31,7 +31,6 @@ import org.supercsv.cellprocessor.ParseInt;
 import org.supercsv.cellprocessor.ParseLong;
 import org.supercsv.cellprocessor.constraint.StrNotNullOrEmpty;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.exception.SuperCSVReflectionException;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
@@ -69,11 +68,11 @@ public class CsvRBSTradeReader {
     //@formatter:on
 
 
-    public static List<Map<String, ? super Object>> readPositions(byte[] data) throws SuperCSVReflectionException, IOException {
+    public static List<Map<String, ? super Object>> readPositions(byte[] data) throws IOException {
 
         Reader isr = new InputStreamReader(new ByteArrayInputStream(data));
         CsvMapReader reader = new CsvMapReader(isr, CsvPreference.EXCEL_PREFERENCE);
-        String[] header = reader.getCSVHeader(true);
+        String[] header = reader.getHeader(true);
 
         List<Map<String, ? super Object>> list = new ArrayList<Map<String, ? super Object>>();
 

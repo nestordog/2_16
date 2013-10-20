@@ -25,11 +25,9 @@ import java.util.Date;
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.ConvertNullTo;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.exception.SuperCSVException;
-import org.supercsv.exception.SuperCSVReflectionException;
 import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
-import org.supercsv.util.CSVContext;
+import org.supercsv.util.CsvContext;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Tick;
@@ -71,7 +69,7 @@ public class CsvTickWriter {
 
     private CsvBeanWriter writer;
 
-    public CsvTickWriter(File file) throws SuperCSVException, IOException {
+    public CsvTickWriter(File file) throws IOException {
 
         boolean exists = file.exists();
 
@@ -82,7 +80,7 @@ public class CsvTickWriter {
         }
     }
 
-    public CsvTickWriter(String fileName) throws SuperCSVException, IOException {
+    public CsvTickWriter(String fileName) throws IOException {
 
         this(new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + fileName + ".csv"));
     }
@@ -94,7 +92,7 @@ public class CsvTickWriter {
         }
 
         @Override
-        public Object execute(final Object value, final CSVContext context) throws NumberFormatException {
+        public Object execute(final Object value, final CsvContext context) throws NumberFormatException {
             if (value == null) {
                 return "";
             }
@@ -104,7 +102,7 @@ public class CsvTickWriter {
         }
     }
 
-    public void write(Tick tick) throws SuperCSVReflectionException, IOException {
+    public void write(Tick tick) throws IOException {
 
         this.writer.write(tick, header, processor);
     }

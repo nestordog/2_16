@@ -26,14 +26,11 @@ import java.util.Date;
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.ParseBigDecimal;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.exception.SuperCSVException;
-import org.supercsv.exception.SuperCSVReflectionException;
 import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
-import org.supercsv.util.CSVContext;
+import org.supercsv.util.CsvContext;
 
 import ch.algotrader.util.ConfigurationUtil;
-
 import ch.algotrader.vo.BarVO;
 
 /**
@@ -59,12 +56,12 @@ public class CsvBarVOReader {
     private String[] header;
     private CsvBeanReader reader;
 
-    public CsvBarVOReader(String symbol) throws SuperCSVException, IOException {
+    public CsvBarVOReader(String symbol) throws IOException {
 
         File file = new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + symbol + ".csv");
         Reader inFile = new FileReader(file);
         this.reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
-        this.header = this.reader.getCSVHeader(true);
+        this.header = this.reader.getHeader(true);
     }
 
     private static class ParseDate extends CellProcessorAdaptor {
@@ -74,7 +71,7 @@ public class CsvBarVOReader {
         }
 
         @Override
-        public Object execute(final Object value, final CSVContext context) {
+        public Object execute(final Object value, final CsvContext context) {
 
             Date date = new Date(Long.parseLong((String) value));
 
@@ -82,7 +79,7 @@ public class CsvBarVOReader {
         }
     }
 
-    public BarVO readBarVO() throws SuperCSVReflectionException, IOException {
+    public BarVO readBarVO() throws IOException {
 
         BarVO bar;
         if ((bar = this.reader.read(BarVO.class, this.header, processor)) != null) {

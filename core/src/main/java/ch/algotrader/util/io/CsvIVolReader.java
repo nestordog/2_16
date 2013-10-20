@@ -27,8 +27,6 @@ import org.supercsv.cellprocessor.ParseDate;
 import org.supercsv.cellprocessor.ParseInt;
 import org.supercsv.cellprocessor.Token;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.exception.SuperCSVException;
-import org.supercsv.exception.SuperCSVReflectionException;
 import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
 
@@ -78,15 +76,15 @@ public class CsvIVolReader {
 
     private CsvBeanReader reader;
 
-    public CsvIVolReader(String fileName) throws SuperCSVException, IOException {
+    public CsvIVolReader(String fileName) throws IOException {
 
         File file = new File("files" + File.separator + "iVol" + File.separator + fileName);
         Reader inFile = new FileReader(file);
         this.reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
-        this.reader.getCSVHeader(true);
+        this.reader.getHeader(true);
     }
 
-    public IVolVO readHloc() throws SuperCSVReflectionException, IOException {
+    public IVolVO readHloc() throws IOException {
 
         IVolVO ivol;
         if ((ivol = this.reader.read(IVolVO.class, this.header, processor)) != null) {

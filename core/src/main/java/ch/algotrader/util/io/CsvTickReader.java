@@ -29,11 +29,9 @@ import org.supercsv.cellprocessor.ParseBigDecimal;
 import org.supercsv.cellprocessor.ParseInt;
 import org.supercsv.cellprocessor.Token;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.exception.SuperCSVException;
-import org.supercsv.exception.SuperCSVReflectionException;
 import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
-import org.supercsv.util.CSVContext;
+import org.supercsv.util.CsvContext;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Tick;
@@ -66,14 +64,14 @@ public class CsvTickReader {
     private String[] header;
     private CsvBeanReader reader;
 
-    public CsvTickReader(File file) throws SuperCSVException, IOException {
+    public CsvTickReader(File file) throws IOException {
 
         Reader inFile = new FileReader(file);
         this.reader = new CsvBeanReader(inFile, CsvPreference.EXCEL_PREFERENCE);
-        this.header = this.reader.getCSVHeader(true);
+        this.header = this.reader.getHeader(true);
     }
 
-    public CsvTickReader(String fileName) throws SuperCSVException, IOException {
+    public CsvTickReader(String fileName) throws IOException {
 
         this(new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + fileName + ".csv"));
     }
@@ -85,7 +83,7 @@ public class CsvTickReader {
         }
 
         @Override
-        public Object execute(final Object value, final CSVContext context) throws NumberFormatException {
+        public Object execute(final Object value, final CsvContext context) throws NumberFormatException {
 
             Date date;
             if (value == null || "".equals(value)) {
@@ -98,7 +96,7 @@ public class CsvTickReader {
         }
     }
 
-    public Tick readTick() throws SuperCSVReflectionException, IOException {
+    public Tick readTick() throws IOException {
 
         Tick tick;
         if ((tick = this.reader.read(TickImpl.class, this.header, processor)) != null) {
