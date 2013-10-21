@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.sun</groupId>
             <artifactId>jconsole</artifactId>
-            <version>1.7.0_25</version>
+            <version>1.7.0_25-at</version>
         </dependency>
     </dependencies>
 </project>
