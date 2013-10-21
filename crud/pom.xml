@@ -298,7 +298,7 @@
             <plugin>
                 <groupId>org.grails</groupId>
                 <artifactId>grails-maven-plugin</artifactId>
-                <version>${grails.version}at</version>
+                <version>${grails.version}-at</version>
                 <configuration>
                     <!-- Whether for Fork a JVM to run Grails commands -->
                     <fork>false</fork>
