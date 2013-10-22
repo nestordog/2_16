@@ -24,6 +24,7 @@ import quickfix.field.CFICode;
 import quickfix.field.ClOrdID;
 import quickfix.field.ContractMultiplier;
 import quickfix.field.Currency;
+import quickfix.field.ExpireTime;
 import quickfix.field.MaturityDate;
 import quickfix.field.MaturityMonthYear;
 import quickfix.field.OrderQty;
@@ -47,6 +48,7 @@ import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.enumeration.TIF;
 
 /**
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -131,6 +133,14 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
             newOrder.set(new StopPx(((StopOrderI) order).getStop().doubleValue()));
         }
 
+        // set TIF
+        if (order.getTif() != null) {
+            newOrder.set(FixUtil.getTimeInForce(order.getTif()));
+            if (order.getTif() == TIF.GTD && order.getTifDate() != null) {
+                newOrder.set(new ExpireTime(order.getTifDate()));
+            }
+        }
+
         // broker-specific settings
         sendOrder(order, newOrder);
 
@@ -192,6 +202,14 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
         //set the stop price if order is a stop order or stop limit order
         if (order instanceof StopOrderI) {
             replaceRequest.set(new StopPx(((StopOrderI) order).getStop().doubleValue()));
+        }
+
+        // set TIF
+        if (order.getTif() != null) {
+            replaceRequest.set(FixUtil.getTimeInForce(order.getTif()));
+            if (order.getTif() == TIF.GTD && order.getTifDate() != null) {
+                replaceRequest.set(new ExpireTime(order.getTifDate()));
+            }
         }
 
         // broker-specific settings

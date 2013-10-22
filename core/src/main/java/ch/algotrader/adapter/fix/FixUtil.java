@@ -21,6 +21,7 @@ import quickfix.field.CumQty;
 import quickfix.field.ExecType;
 import quickfix.field.OrdType;
 import quickfix.field.Symbol;
+import quickfix.field.TimeInForce;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Security;
@@ -34,6 +35,7 @@ import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.enumeration.TIF;
 
 /**
  * Utility class providing conversion methods for Fix specific types.
@@ -115,6 +117,22 @@ public class FixUtil {
             return new OrdType(OrdType.STOP_LIMIT);
         } else {
             throw new IllegalArgumentException("unsupported order type " + order.getClass().getName());
+        }
+    }
+
+    public static TimeInForce getTimeInForce(final TIF tif) {
+
+        switch (tif) {
+            case DAY:
+                return new TimeInForce(TimeInForce.DAY);
+            case GTC:
+                return new TimeInForce(TimeInForce.GOOD_TILL_CANCEL);
+            case GTD:
+                return new TimeInForce(TimeInForce.GOOD_TILL_DATE);
+            case OPG:
+                return new TimeInForce(TimeInForce.AT_THE_OPENING);
+            default:
+                throw new IllegalArgumentException("unknown timeInForce " + tif);
         }
     }
 }

@@ -17,22 +17,18 @@
  ***********************************************************************************/
 package ch.algotrader.service.rt;
 
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.TIF;
-import quickfix.field.ExpireTime;
+import java.util.Date;
+
 import quickfix.field.HandlInst;
 import quickfix.field.OrderID;
-import quickfix.field.TargetSubID;
-import quickfix.field.TimeInForce;
 import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
-
-import java.util.Date;
+import ch.algotrader.entity.trade.SimpleOrder;
 
 /**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
@@ -40,71 +36,24 @@ public class RTFixOrderServiceImpl extends RTFixOrderServiceBase {
 
     private static final long serialVersionUID = 1030392480992545177L;
 
-    private final String targetSubId;
-
-    public RTFixOrderServiceImpl(final String targetSubId) {
-        super();
-        this.targetSubId = targetSubId;
-    }
-
-    public RTFixOrderServiceImpl() {
-        this("DEMO");
-    }
-
     @Override
-    protected void handleSendOrder(
-            final SimpleOrder order, final NewOrderSingle newOrder) throws Exception {
-        if (this.targetSubId != null) {
-            newOrder.getHeader().setField(new TargetSubID(this.targetSubId));
-        }
-        if (order.getTif() != null) {
-            newOrder.set(getTimeInForce(order.getTif()));
-            if (order.getTif() == TIF.GTD && order.getTifDate() != null) {
-                newOrder.set(new ExpireTime(order.getTifDate()));
-            }
-        }
+    protected void handleSendOrder(final SimpleOrder order, final NewOrderSingle newOrder) throws Exception {
+
         newOrder.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC));
     }
 
     @Override
-    protected void handleModifyOrder(
-            final SimpleOrder order, final OrderCancelReplaceRequest replaceRequest) throws Exception {
-        if (this.targetSubId != null) {
-            replaceRequest.getHeader().setField(new TargetSubID(this.targetSubId));
-        }
+    protected void handleModifyOrder(final SimpleOrder order, final OrderCancelReplaceRequest replaceRequest) throws Exception {
+
         replaceRequest.set(new OrderID(order.getExtId()));
-        if (order.getTif() != null) {
-            replaceRequest.set(getTimeInForce(order.getTif()));
-            if (order.getTif() == TIF.GTD && order.getTifDate() != null) {
-                replaceRequest.set(new ExpireTime(order.getTifDate()));
-            }
-        }
         replaceRequest.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC));
         replaceRequest.set(new TransactTime(new Date()));
     }
 
     @Override
-    protected void handleCancelOrder(
-            final SimpleOrder order, final OrderCancelRequest cancelRequest) throws Exception {
-        if (this.targetSubId != null) {
-            cancelRequest.getHeader().setField(new TargetSubID(this.targetSubId));
-        }
+    protected void handleCancelOrder(final SimpleOrder order, final OrderCancelRequest cancelRequest) throws Exception {
+
         cancelRequest.set(new OrderID(order.getExtId()));
         cancelRequest.set(new TransactTime(new Date()));
     }
-
-    private TimeInForce getTimeInForce(final TIF tif) {
-        switch (tif) {
-        case DAY:
-            return new TimeInForce(TimeInForce.DAY);
-        case GTC:
-            return new TimeInForce(TimeInForce.GOOD_TILL_CANCEL);
-        case GTD:
-            return new TimeInForce(TimeInForce.GOOD_TILL_DATE);
-        case OPG:
-            return new TimeInForce(TimeInForce.AT_THE_OPENING);
-        }
-        return null;
-    }
-
 }

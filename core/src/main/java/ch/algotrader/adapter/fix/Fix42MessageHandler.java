@@ -32,16 +32,16 @@ import quickfix.field.OrigClOrdID;
 import quickfix.field.Text;
 import quickfix.fix42.ExecutionReport;
 import quickfix.fix42.OrderCancelReject;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.RoundUtil;
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.EsperManager;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.RoundUtil;
 
 /**
  * Generic Fix42MessageHandler. Needs to be overwritten by specific broker interfaces.
@@ -141,14 +141,7 @@ public class Fix42MessageHandler {
             Text text = orderCancelReject.getText();
             ClOrdID clOrdID = orderCancelReject.getClOrdID();
             OrigClOrdID origClOrdID = orderCancelReject.getOrigClOrdID();
-            if ("Too late to cancel".equals(text.getValue()) || "Cannot cancel the filled order".equals(text.getValue())) {
-                logger.info("cannot cancel, order has already been executed, clOrdID: " + clOrdID.getValue() +
-                        " origOrdID: " + origClOrdID.getValue());
-            } else {
-                logger.error("order cancel/replace has been rejected, clOrdID: " + clOrdID.getValue() +
-                        " origOrdID: " + origClOrdID.getValue() +
-                        " reason: " + text.getValue());
-            }
+            logger.error("order cancel/replace has been rejected, clOrdID: " + clOrdID.getValue() + " origOrdID: " + origClOrdID.getValue() + " reason: " + text.getValue());
         } catch (FieldNotFound e) {
             logger.error(e);
         }

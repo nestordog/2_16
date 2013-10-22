@@ -22,19 +22,21 @@ import org.apache.log4j.Logger;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
+import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
 import quickfix.field.FAConfigurationAction;
 import quickfix.field.FARequestID;
 import quickfix.field.OrdStatus;
+import quickfix.field.OrigClOrdID;
+import quickfix.field.Text;
 import quickfix.field.XMLContent;
 import quickfix.fix42.ExecutionReport;
 import quickfix.fix42.IBFAModification;
-
-import ch.algotrader.adapter.fix.Fix42MessageHandler;
-import ch.algotrader.util.MyLogger;
-
+import quickfix.fix42.OrderCancelReject;
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.adapter.fix.Fix42MessageHandler;
 import ch.algotrader.service.ib.IBFixAccountService;
+import ch.algotrader.util.MyLogger;
 
 /**
  * IB specific Fix42MessageHandler.
@@ -89,6 +91,23 @@ public class IBFixMessageHandler extends Fix42MessageHandler {
                 accountService.updateGroups(fARequestID, xmlContent);
             } else {
                 throw new UnsupportedOperationException();
+            }
+        } catch (FieldNotFound e) {
+            logger.error(e);
+        }
+    }
+
+    @Override
+    public void onMessage(OrderCancelReject orderCancelReject, SessionID sessionID) {
+
+        try {
+            Text text = orderCancelReject.getText();
+            ClOrdID clOrdID = orderCancelReject.getClOrdID();
+            OrigClOrdID origClOrdID = orderCancelReject.getOrigClOrdID();
+            if ("Too late to cancel".equals(text.getValue()) || "Cannot cancel the filled order".equals(text.getValue())) {
+                logger.info("cannot cancel, order has already been executed, clOrdID: " + clOrdID.getValue() + " origOrdID: " + origClOrdID.getValue());
+            } else {
+                super.onMessage(orderCancelReject, sessionID);
             }
         } catch (FieldNotFound e) {
             logger.error(e);

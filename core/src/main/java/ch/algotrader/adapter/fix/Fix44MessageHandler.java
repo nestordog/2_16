@@ -17,6 +17,20 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
+import org.apache.log4j.Logger;
+
+import quickfix.FieldNotFound;
+import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.field.ClOrdID;
+import quickfix.field.ExecType;
+import quickfix.field.OrigClOrdID;
+import quickfix.field.Text;
+import quickfix.fix44.ExecutionReport;
+import quickfix.fix44.OrderCancelReject;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
@@ -27,24 +41,11 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.EsperManager;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
-import org.apache.log4j.Logger;
-import quickfix.FieldNotFound;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.field.ClOrdID;
-import quickfix.field.ExecType;
-import quickfix.field.OrigClOrdID;
-import quickfix.field.Text;
-import quickfix.fix44.ExecutionReport;
-import quickfix.fix44.OrderCancelReject;
-
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * Generic Fix44MessageHandler. Needs to be overwritten by specific broker interfaces.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
@@ -56,8 +57,8 @@ public class Fix44MessageHandler {
         // do nothing
     }
 
-    public void onMessage(
-            final ExecutionReport executionReport, final SessionID sessionID) {
+    public void onMessage(final ExecutionReport executionReport, final SessionID sessionID) {
+
         try {
 
             // ignore PENDING_NEW, PENDING_CANCEL and PENDING_REPLACE
@@ -107,9 +108,7 @@ public class Fix44MessageHandler {
                 Date extDateTime = executionReport.getTransactTime().getValue();
                 Side side = FixUtil.getSide(executionReport.getSide());
                 long quantity = (long) executionReport.getLastQty().getValue();
-                BigDecimal price = RoundUtil.getBigDecimal(
-                        executionReport.getLastPx().getValue(),
-                        order.getSecurity().getSecurityFamily().getScale());
+                BigDecimal price = RoundUtil.getBigDecimal(executionReport.getLastPx().getValue(), order.getSecurity().getSecurityFamily().getScale());
                 String extId = executionReport.getExecID().getValue();
 
                 // assemble the fill
@@ -131,23 +130,15 @@ public class Fix44MessageHandler {
         }
     }
 
-    public void onMessage(
-            final OrderCancelReject orderCancelReject, final SessionID sessionID)  {
+    public void onMessage(final OrderCancelReject orderCancelReject, final SessionID sessionID)  {
+
         try {
             Text text = orderCancelReject.getText();
             ClOrdID clOrdID = orderCancelReject.getClOrdID();
             OrigClOrdID origClOrdID = orderCancelReject.getOrigClOrdID();
-            if ("Too late to cancel".equals(text.getValue()) || "Cannot cancel the filled order".equals(text.getValue())) {
-                logger.info("cannot cancel, order has already been executed, clOrdID: " + clOrdID.getValue() +
-                        " origOrdID: " + origClOrdID.getValue());
-            } else {
-                logger.error("order cancel/replace has been rejected, clOrdID: " + clOrdID.getValue() +
-                        " origOrdID: " + origClOrdID.getValue() +
-                        " reason: " + text.getValue());
-            }
+            logger.error("order cancel/replace has been rejected, clOrdID: " + clOrdID.getValue() + " origOrdID: " + origClOrdID.getValue() + " reason: " + text.getValue());
         } catch (FieldNotFound e) {
             logger.error(e);
         }
     }
-
 }
