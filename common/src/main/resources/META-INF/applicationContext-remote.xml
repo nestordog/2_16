@@ -76,4 +76,14 @@
         <property name="cacheLevel" ref="org.springframework.jms.listener.DefaultMessageListenerContainer.CACHE_CONSUMER"/>
     </bean>
 
+    <!-- ActiveMQ queue for startegy specific messages  -->
+    <!-- is defined in applicationContext-client.xml -->
+
+    <!-- message listener for startegy specific messages -->
+    <bean id="strategyMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="jmsActiveMQFactory" />
+        <property name="destination" ref="strategyQueue" />
+        <property name="messageListener" ref="jmsInputAdapter" />
+    </bean>
+
 </beans>
