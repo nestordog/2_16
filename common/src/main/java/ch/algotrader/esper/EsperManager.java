@@ -71,6 +71,7 @@ import ch.algotrader.esper.io.CsvBarInputAdapter;
 import ch.algotrader.esper.io.CsvBarInputAdapterSpec;
 import ch.algotrader.esper.io.CsvTickInputAdapter;
 import ch.algotrader.esper.io.CsvTickInputAdapterSpec;
+import ch.algotrader.esper.io.CustomSender;
 import ch.algotrader.esper.subscriber.SubscriberCreator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.CollectionUtil;
@@ -708,7 +709,10 @@ public class EsperManager {
      */
     public static void initCoordination(String strategyName) {
 
-        coordinators.put(strategyName, new AdapterCoordinatorImpl(getServiceProvider(strategyName), true, true));
+        AdapterCoordinatorImpl coordinator = new AdapterCoordinatorImpl(getServiceProvider(strategyName), true, true);
+        coordinator.setSender(new CustomSender());
+
+        coordinators.put(strategyName, coordinator);
     }
 
     /**
@@ -905,41 +909,46 @@ public class EsperManager {
 
         for (String strategyName : serviceProviders.keySet()) {
 
-            List<StatementMetricVO> metrics = getAllEvents(strategyName, "METRICS");
+            if (isDeployed(strategyName, "METRICS")) {
 
-            // consolidate ON_TRADE_COMPLETED and ON_FIRST_TICK
-            for (final String statementName :  new String[] {"ON_TRADE_COMPLETED", "ON_FIRST_TICK"}) {
+                List<StatementMetricVO> metrics = getAllEvents(strategyName, "METRICS");
 
-                // select metrics where the statementName startsWith
-                Collection<StatementMetricVO> selectedMetrics = CollectionUtils.select(metrics, new Predicate<StatementMetricVO>() {
-                    @Override
-                    public boolean evaluate(StatementMetricVO metric) {
-                        return metric.getStatementName() != null && metric.getStatementName().startsWith(statementName);
-                    }});
+                // consolidate ON_TRADE_COMPLETED and ON_FIRST_TICK
+                for (final String statementName : new String[] { "ON_TRADE_COMPLETED", "ON_FIRST_TICK" }) {
 
-                // add cpuTime, wallTime and numInput
-                if (selectedMetrics.size() > 0) {
+                    // select metrics where the statementName startsWith
+                    Collection<StatementMetricVO> selectedMetrics = CollectionUtils.select(metrics, new Predicate<StatementMetricVO>() {
+                        @Override
+                        public boolean evaluate(StatementMetricVO metric) {
+                            return metric.getStatementName() != null && metric.getStatementName().startsWith(statementName);
+                        }
+                    });
 
-                    long cpuTime = 0;
-                    long wallTime = 0;
-                    long numInput = 0;
-                    for (StatementMetricVO metric : selectedMetrics) {
+                    // add cpuTime, wallTime and numInput
+                    if (selectedMetrics.size() > 0) {
 
-                        cpuTime += metric.getCpuTime();
-                        wallTime += metric.getWallTime();
-                        numInput += metric.getNumInput();
+                        long cpuTime = 0;
+                        long wallTime = 0;
+                        long numInput = 0;
+                        for (StatementMetricVO metric : selectedMetrics) {
 
-                        // remove the original metric
-                        metrics.remove(metric);
-                    };
+                            cpuTime += metric.getCpuTime();
+                            wallTime += metric.getWallTime();
+                            numInput += metric.getNumInput();
 
-                    // add a consolidated metric
-                    metrics.add(new StatementMetricVO(strategyName, statementName, cpuTime, wallTime, numInput));
+                            // remove the original metric
+                            metrics.remove(metric);
+                        }
+                        ;
+
+                        // add a consolidated metric
+                        metrics.add(new StatementMetricVO(strategyName, statementName, cpuTime, wallTime, numInput));
+                    }
                 }
-            }
 
-            for (StatementMetricVO metric : metrics) {
-                logger.info(metric.getEngineURI() + "." + metric.getStatementName() + ": " + metric.getWallTime() + " millis " +  metric.getNumInput() + " events");
+                for (StatementMetricVO metric : metrics) {
+                    logger.info(metric.getEngineURI() + "." + metric.getStatementName() + ": " + metric.getWallTime() + " millis " + metric.getNumInput() + " events");
+                }
             }
         }
     }

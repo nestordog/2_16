@@ -43,7 +43,6 @@ public class CsvTickInputAdapter extends CSVInputAdapter {
 
         super(epService, spec);
         this.spec = spec;
-        this.setSender(new CustomSender());
     }
 
     @Override
