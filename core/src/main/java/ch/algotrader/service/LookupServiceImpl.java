@@ -713,6 +713,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected IntrestRate handleGetInterestRateByCurrencyAndDuration(Currency currency, long duration) throws Exception {
+
+        return getIntrestRateDao().findByCurrencyAndDuration(currency, duration);
+    }
+
+    @Override
     protected double handleGetInterestRateByCurrencyDurationAndDate(Currency currency, long duration, Date date) throws Exception {
 
         IntrestRate intrestRate = getIntrestRateDao().findByCurrencyAndDuration(currency, duration);
