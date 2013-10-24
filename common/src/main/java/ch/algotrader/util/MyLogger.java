@@ -21,9 +21,8 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
 
-import ch.algotrader.esper.EsperManager;
-
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.esper.EngineLocator;
 
 /**
  * Custom Log4J Logger that replaces the System Time with the current Esper Time.
@@ -68,9 +67,9 @@ public class MyLogger extends Logger {
         if (ServiceLocator.instance().isInitialized()) {
             if (ServiceLocator.instance().getConfiguration().getSimulation()) {
                 String strategyName = ServiceLocator.instance().getConfiguration().getStartedStrategyName();
-                if (EsperManager.isInitialized(strategyName)) {
+                if (EngineLocator.instance().hasEngine(strategyName)) {
 
-                    long engineTime = EsperManager.getCurrentTime(strategyName);
+                    long engineTime = EngineLocator.instance().getEngine(strategyName).getCurrentTime();
                     if (engineTime != 0) {
 
                         callAppenders(new LoggingEvent(fqcn, this, engineTime, level, message, t));

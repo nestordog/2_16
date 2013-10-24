@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.FillImpl;
@@ -39,7 +38,7 @@ import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
@@ -157,7 +156,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         orderStatus.setOrd(order);
 
         // send the orderStatus to base
-        EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
+        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
 
         // propagate the OrderStatus to the strategy
         propagateOrderStatus(orderStatus);
@@ -230,7 +229,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         orderStatus.setOrd(order);
 
         // send the orderStatus
-        EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
+        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
 
         logger.info("cancelled algo order: " + order);
     }
@@ -281,11 +280,11 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     protected void handlePropagateOrder(Order order) throws Exception {
 
         // send the order into the base engine to be correlated with fills
-        EsperManager.sendEvent(StrategyImpl.BASE, order);
+        EngineLocator.instance().getBaseEngine().sendEvent(order);
 
         // also send the order to the strategy that placed the order
         if (!order.getStrategy().isBase()) {
-            EsperManager.sendEvent(order.getStrategy().getName(), order);
+            EngineLocator.instance().getEngine(order.getStrategy().getName()).sendEvent(order);
         }
     }
 
@@ -294,7 +293,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
         // send the fill to the strategy that placed the corresponding order
         if (orderStatus.getOrd() != null && !orderStatus.getOrd().getStrategy().isBase()) {
-            EsperManager.sendEvent(orderStatus.getOrd().getStrategy().getName(), orderStatus);
+            EngineLocator.instance().getEngine(orderStatus.getOrd().getStrategy().getName()).sendEvent(orderStatus);
         }
 
         if (!this.simulation) {

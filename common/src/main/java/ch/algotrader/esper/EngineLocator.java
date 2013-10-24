@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -66,14 +67,39 @@ public class EngineLocator {
         this.engines.put(engineName, engine);
     }
 
+    public void initBaseEngine() {
+
+        initEngine(StrategyImpl.BASE);
+    }
+
+    public Collection<Engine> getEngines() {
+
+        return this.engines.values();
+    }
+
+    public Set<String> getEngineNames() {
+
+        return this.engines.keySet();
+    }
+
     public Engine getEngine(String engineName) {
 
         return this.engines.get(engineName);
     }
 
+    public Engine getBaseEngine() {
+
+        return getEngine(StrategyImpl.BASE);
+    }
+
     public boolean hasEngine(String engineName) {
 
         return this.engines.containsKey(engineName);
+    }
+
+    public boolean hasBaseEngine() {
+
+        return hasEngine(StrategyImpl.BASE);
     }
 
     public void destroyEngine(String engineName) {

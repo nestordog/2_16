@@ -21,8 +21,7 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
@@ -163,7 +162,7 @@ public class BBMessageHandler implements EventHandler {
                     }
 
                     TradeVO tradeVO = new TradeVO(cid, lastDateTime, last, vol);
-                    EsperManager.sendEvent(StrategyImpl.BASE, tradeVO);
+                    EngineLocator.instance().getBaseEngine().sendEvent(tradeVO);
 
                     // there are no BIDs for indices
                     if (fields.hasElement("BID") && fields.getElement("BID").numValues() == 1) {
@@ -177,7 +176,7 @@ public class BBMessageHandler implements EventHandler {
                         }
 
                         BidVO bidVO = new BidVO(cid, lastDateTime, bid, volBid);
-                        EsperManager.sendEvent(StrategyImpl.BASE, bidVO);
+                        EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
                     }
 
                     // there are no ASKs for indices
@@ -192,7 +191,7 @@ public class BBMessageHandler implements EventHandler {
                         }
 
                         AskVO askVO = new AskVO(cid, lastDateTime, ask, volAsk);
-                        EsperManager.sendEvent(StrategyImpl.BASE, askVO);
+                        EngineLocator.instance().getBaseEngine().sendEvent(askVO);
                     }
                 }
 
@@ -211,7 +210,7 @@ public class BBMessageHandler implements EventHandler {
                     }
 
                     TradeVO tradeVO = new TradeVO(cid, lastDateTime, last, vol);
-                    EsperManager.sendEvent(StrategyImpl.BASE, tradeVO);
+                    EngineLocator.instance().getBaseEngine().sendEvent(tradeVO);
                 }
 
             } else if ("QUOTE".equals(marketDataEventType)) {
@@ -234,7 +233,7 @@ public class BBMessageHandler implements EventHandler {
                     }
 
                     BidVO bidVO = new BidVO(cid, dateTime, bid, volBid);
-                    EsperManager.sendEvent(StrategyImpl.BASE, bidVO);
+                    EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
 
                 } else if ("ASK".equals(marketDataEventSubType)) {
 
@@ -253,7 +252,7 @@ public class BBMessageHandler implements EventHandler {
                     }
 
                     AskVO askVO = new AskVO(cid, dateTime, ask, volAsk);
-                    EsperManager.sendEvent(StrategyImpl.BASE, askVO);
+                    EngineLocator.instance().getBaseEngine().sendEvent(askVO);
 
                 } else {
                     throw new IllegalArgumentException("unkown marketDataEventSubType " + marketDataEventSubType);

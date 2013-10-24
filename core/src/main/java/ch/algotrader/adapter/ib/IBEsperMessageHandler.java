@@ -23,13 +23,12 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
@@ -103,7 +102,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
 
         logger.debug(EWrapperMsgGenerator.execDetails(reqId, contract, execution));
 
-        EsperManager.sendEvent(StrategyImpl.BASE, fill);
+        EngineLocator.instance().getBaseEngine().sendEvent(fill);
     }
 
     @Override
@@ -129,7 +128,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
 
             logger.debug(EWrapperMsgGenerator.orderStatus(orderId, statusString, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
 
-            EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
+            EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
         }
     }
 
@@ -139,7 +138,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
         logger.trace(EWrapperMsgGenerator.tickPrice(tickerId, field, price, canAutoExecute));
 
         TickPrice o = new TickPrice(tickerId, field, price, canAutoExecute);
-        EsperManager.sendEvent(StrategyImpl.BASE, o);
+        EngineLocator.instance().getBaseEngine().sendEvent(o);
     }
 
     @Override
@@ -147,7 +146,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
         logger.trace(EWrapperMsgGenerator.tickSize(tickerId, field, size));
 
         TickSize o = new TickSize(tickerId, field, size);
-        EsperManager.sendEvent(StrategyImpl.BASE, o);
+        EngineLocator.instance().getBaseEngine().sendEvent(o);
     }
 
     @Override
@@ -156,6 +155,6 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
         logger.trace(EWrapperMsgGenerator.tickString(tickerId, tickType, value));
 
         TickString o = new TickString(tickerId, tickType, value);
-        EsperManager.sendEvent(StrategyImpl.BASE, o);
+        EngineLocator.instance().getBaseEngine().sendEvent(o);
     }
 }

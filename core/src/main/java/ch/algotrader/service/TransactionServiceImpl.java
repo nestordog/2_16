@@ -34,14 +34,13 @@ import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.esper.subscriber.Subscriber;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.PositionUtil;
@@ -186,16 +185,16 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         PositionMutationVO positionMutationEvent = transactionService.persistTransaction(transaction);
 
         // check if esper is initialized
-        if (EsperManager.isInitialized(StrategyImpl.BASE)) {
+        if (EngineLocator.instance().hasBaseEngine()) {
 
             // propagate the positionMutationEvent to the corresponding strategy
             if (positionMutationEvent != null) {
-                EsperManager.sendEvent(positionMutationEvent.getStrategy(), positionMutationEvent);
+                EngineLocator.instance().getEngine(positionMutationEvent.getStrategy()).sendEvent(positionMutationEvent);
             }
 
             // propagate the transaction to the corresponding strategy
             if (!transaction.getStrategy().isBase()) {
-                EsperManager.sendEvent(transaction.getStrategy().getName(), transaction);
+                EngineLocator.instance().getEngine(transaction.getStrategy().getName()).sendEvent(transaction);
             }
         }
     }
@@ -272,8 +271,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             logMessage += ",profit=" + RoundUtil.getBigDecimal(tradePerformance.getProfit()) + ",profitPct=" + RoundUtil.getBigDecimal(tradePerformance.getProfitPct());
 
             // propagate the TradePerformance event
-            if (this.simulation && EsperManager.isInitialized(StrategyImpl.BASE)) {
-                EsperManager.sendEvent(StrategyImpl.BASE, tradePerformance);
+            if (this.simulation && EngineLocator.instance().hasBaseEngine()) {
+                EngineLocator.instance().getBaseEngine().sendEvent(tradePerformance);
             }
         }
 
@@ -292,7 +291,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         // send the fill to the strategy that placed the corresponding order
         if (!fill.getOrd().getStrategy().isBase()) {
-            EsperManager.sendEvent(fill.getOrd().getStrategy().getName(), fill);
+            EngineLocator.instance().getEngine(fill.getOrd().getStrategy().getName()).sendEvent(fill);
         }
 
         if (!this.simulation) {

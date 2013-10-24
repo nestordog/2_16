@@ -26,14 +26,14 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import ch.algotrader.entity.trade.OrderStatus;
-
 /**
- * Base Esper Callback Class that will be invoked as soon as all {@code orders} passed to {@link EsperManager#addTradeCallback} have been
+ * Base Esper Callback Class that will be invoked as soon as all {@code orders} passed to {@link Engine#addTradeCallback} have been
  * fully executed or cancelled.
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -85,7 +85,7 @@ public abstract class TradeCallback {
         String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_") + "_" + owningStrategyName;
 
         // undeploy the statement
-        EsperManager.undeployStatement(strategyName, alias);
+        EngineLocator.instance().getEngine(strategyName).undeployStatement(alias);
 
         long startTime = System.nanoTime();
         logger.debug("onTradeCompleted start " + sortedSecurityIds + " " + owningStrategyName);

@@ -21,8 +21,7 @@ import java.util.Map;
 
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.LookupUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.RawBarVO;
@@ -53,7 +52,7 @@ public class CustomSender extends AbstractSender {
             long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();
-            EsperManager.sendEvent(StrategyImpl.BASE, tick);
+            EngineLocator.instance().getBaseEngine().sendEvent(tick);
             long afterSendEvent = System.nanoTime();
 
             MetricsUtil.account("CustomSender.completeRaw", (afterCompleteRaw - beforeCompleteRawT));
@@ -67,7 +66,7 @@ public class CustomSender extends AbstractSender {
             long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();
-            EsperManager.sendEvent(StrategyImpl.BASE, bar);
+            EngineLocator.instance().getBaseEngine().sendEvent(bar);
             long afterSendEvent = System.nanoTime();
 
             MetricsUtil.account("CustomSender.completeRaw", (afterCompleteRaw - beforeCompleteRawT));
@@ -77,7 +76,7 @@ public class CustomSender extends AbstractSender {
         } else if (beanToSend instanceof CurrentTimeEvent) {
 
             long beforeSendEvent = System.nanoTime();
-            EsperManager.setCurrentTime((CurrentTimeEvent) beanToSend);
+            EngineLocator.instance().sendEventToAllEngines(beanToSend);
             long afterSendEvent = System.nanoTime();
 
             MetricsUtil.account("CustomSender.sendCurrentTimeEvent", (afterSendEvent - beforeSendEvent));

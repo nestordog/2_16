@@ -31,21 +31,20 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import ch.algotrader.entity.SubscriptionImpl;
-import ch.algotrader.esper.EsperManager;
-import ch.algotrader.util.HibernateUtil;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.io.CsvTickWriter;
-import ch.algotrader.util.metric.MetricsUtil;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Subscription;
+import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.service.MarketDataServiceBase;
+import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.util.HibernateUtil;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.io.CsvTickWriter;
+import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.GenericEventVO;
+
 import com.espertech.esper.collection.Pair;
 
 /**
@@ -182,7 +181,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         Collection<Tick> ticks = getTickDao().findCurrentTicksByStrategy(strategyName);
 
         for (Tick tick : ticks) {
-            EsperManager.sendEvent(strategyName, tick);
+            EngineLocator.instance().getEngine(strategyName).sendEvent(tick);
         }
     }
 
@@ -205,7 +204,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             long startTime = System.nanoTime();
 
-            EsperManager.sendMarketDataEvent(marketDataEvent);
+            EngineLocator.instance().sendMarketDataEvent(marketDataEvent);
 
             MetricsUtil.accountEnd("PropagateMarketDataEventSubscriber.update", startTime);
         }
@@ -220,7 +219,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
                 logger.trace(genericEvent);
             }
 
-            EsperManager.sendGenericEvent(genericEvent);
+            EngineLocator.instance().sendGenericEvent(genericEvent);
         }
     }
 

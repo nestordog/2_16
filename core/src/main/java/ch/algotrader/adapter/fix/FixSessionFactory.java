@@ -58,11 +58,10 @@ import quickfix.SocketInitiator;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.cache.EntityHandler;
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.IntegerMap;
 
@@ -258,7 +257,7 @@ public class FixSessionFactory implements InitializingBean {
 
             Object[] logonParams = { logonMinute, logonHour, logonDay, logonSecond };
 
-            EsperManager.deployStatement(StrategyImpl.BASE, "prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGON", logonParams, new Object() {
+            EngineLocator.instance().getBaseEngine().deployStatement("prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGON", logonParams, new Object() {
                 @SuppressWarnings("unused")
                 public void update() {
                     Session session = Session.lookupSession(sessionId);
@@ -281,7 +280,7 @@ public class FixSessionFactory implements InitializingBean {
 
             Object[] logoutParams = { logoutMinute, logoutHour, logoutDay, logoutSecond };
 
-            EsperManager.deployStatement(StrategyImpl.BASE, "prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGOUT", logoutParams, new Object() {
+            EngineLocator.instance().getBaseEngine().deployStatement("prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGOUT", logoutParams, new Object() {
                 @SuppressWarnings("unused")
                 public void update() {
                     Session session = Session.lookupSession(sessionId);

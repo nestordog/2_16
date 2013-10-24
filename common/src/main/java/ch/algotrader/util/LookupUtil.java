@@ -39,7 +39,7 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.security.StockOption;
 import ch.algotrader.entity.strategy.PortfolioValue;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.util.collection.CollectionUtil;
@@ -253,7 +253,7 @@ public class LookupUtil {
     public static boolean hasCurrentMarketDataEvents() {
 
         String startedStrategyName = ServiceLocator.instance().getConfiguration().getStartedStrategyName();
-        return (EsperManager.getLastEvent(startedStrategyName, "CURRENT_MARKET_DATA_EVENT") != null);
+        return (EngineLocator.instance().getEngine(startedStrategyName).getLastEvent("CURRENT_MARKET_DATA_EVENT") != null);
     }
 
     /**

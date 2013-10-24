@@ -32,13 +32,12 @@ import quickfix.field.Text;
 import quickfix.fix44.ExecutionReport;
 import quickfix.fix44.OrderCancelReject;
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
@@ -99,7 +98,7 @@ public class Fix44MessageHandler {
                 orderStatus.setIntId(intId);
             }
 
-            EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
+            EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
 
             // only create fills if status is PARTIALLY_FILLED or FILLED
             if (execType.getValue() == ExecType.PARTIAL_FILL || execType.getValue() == ExecType.FILL) {
@@ -123,7 +122,7 @@ public class Fix44MessageHandler {
                 // associate the fill with the order
                 order.addFills(fill);
 
-                EsperManager.sendEvent(StrategyImpl.BASE, fill);
+                EngineLocator.instance().getBaseEngine().sendEvent(fill);
             }
         } catch (FieldNotFound e) {
             logger.error(e);

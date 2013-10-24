@@ -26,9 +26,8 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.vo.OrderStatusVO;
 
 import com.espertech.esper.collection.Pair;
@@ -44,7 +43,7 @@ public class OrderStatusDaoImpl extends OrderStatusDaoBase {
     @Override
     protected Collection<OrderStatusVO> handleFindAllOrderStati() throws Exception {
 
-        Collection<Pair<Order, Map<String, ?>>> pairs = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow");
+        Collection<Pair<Order, Map<String, ?>>> pairs = EngineLocator.instance().getBaseEngine().executeQuery("select * from OpenOrderWindow");
         return convertPairCollectionToOrderStatusVOCollection(pairs);
     }
 
@@ -52,7 +51,8 @@ public class OrderStatusDaoImpl extends OrderStatusDaoBase {
     @Override
     protected OrderStatusVO handleFindOrderStatusByIntId(String intId) throws Exception {
 
-        Pair<Order, Map<String, ?>> pair = (Pair<Order, Map<String, ?>>) EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where intId = '" + intId + "'");
+        Pair<Order, Map<String, ?>> pair = (Pair<Order, Map<String, ?>>) EngineLocator.instance().getBaseEngine()
+                .executeSingelObjectQuery("select * from OpenOrderWindow where intId = '" + intId + "'");
         return convertPairToOrderStatusVO(pair);
     }
 
@@ -61,8 +61,8 @@ public class OrderStatusDaoImpl extends OrderStatusDaoBase {
     protected Collection<OrderStatusVO> handleFindOrderStatiByStrategy(String strategyName) throws Exception {
 
         Collection<Pair<Order, Map<String, ?>>> pairs;
-        if (EsperManager.isInitialized(StrategyImpl.BASE)) {
-            pairs = EsperManager.executeQuery(StrategyImpl.BASE, "select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
+        if (EngineLocator.instance().hasBaseEngine()) {
+            pairs = EngineLocator.instance().getBaseEngine().executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
         } else {
             pairs = new ArrayList<Pair<Order, Map<String, ?>>>();
         }

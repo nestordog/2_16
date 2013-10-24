@@ -23,13 +23,12 @@ import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import ch.algotrader.esper.EsperManager;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.security.ExpirableFamilyI;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.ExpirationType;
+import ch.algotrader.esper.EngineLocator;
 
 /**
  * Provides Date related Utility Methods.
@@ -47,8 +46,8 @@ public class DateUtil {
     public static Date getCurrentEPTime() {
 
         String strategyName = ServiceLocator.instance().getConfiguration().getStartedStrategyName();
-        if (EsperManager.isInitialized(strategyName) && !EsperManager.isInternalClock(strategyName)) {
-            return new Date(EsperManager.getCurrentTime(strategyName));
+        if (EngineLocator.instance().hasEngine(strategyName) && !EngineLocator.instance().getEngine(strategyName).isInternalClock()) {
+            return new Date(EngineLocator.instance().getEngine(strategyName).getCurrentTime());
         } else {
             return new Date();
         }

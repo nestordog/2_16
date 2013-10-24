@@ -21,12 +21,11 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
@@ -106,20 +105,20 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(Status.CANCELED);
 
-        EsperManager.sendEvent(StrategyImpl.BASE, orderStatus);
+        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
     }
 
     @Override
     protected void handleLogMetrics() throws Exception {
 
         MetricsUtil.logMetrics();
-        EsperManager.logStatementMetrics();
+        EngineLocator.instance().logStatementMetrics();
     }
 
     @Override
     protected void handleResetMetrics() throws Exception {
 
         MetricsUtil.resetMetrics();
-        EsperManager.resetStatementMetrics();
+        EngineLocator.instance().resetStatementMetrics();
     }
 }

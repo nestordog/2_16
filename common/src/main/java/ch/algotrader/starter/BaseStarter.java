@@ -17,10 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.starter;
 
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
-
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.MarketDataService;
 
@@ -36,9 +34,9 @@ public abstract class BaseStarter {
     public static void startBase() throws Exception {
 
         // start all BASE rules
-        EsperManager.initServiceProvider(StrategyImpl.BASE);
-        EsperManager.setInternalClock(StrategyImpl.BASE, true);
-        EsperManager.deployAllModules(StrategyImpl.BASE);
+        EngineLocator.instance().initBaseEngine();
+        EngineLocator.instance().getBaseEngine().setInternalClock(true);
+        EngineLocator.instance().getBaseEngine().deployAllModules();
 
         // initialize services
         for (InitializingServiceI service : ServiceLocator.instance().getServices(InitializingServiceI.class)) {

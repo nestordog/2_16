@@ -19,14 +19,14 @@ package ch.algotrader.esper.callback;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
-
 import ch.algotrader.vo.ClosePositionVO;
 
 /**
- * Base Esper Callback Class that will be invoked as soon as a Position on the given Security passed to {@link EsperManager#addClosePositionCallback} has been closed.
+ * Base Esper Callback Class that will be invoked as soon as a Position on the given Security passed to {@link Engine#addClosePositionCallback} has been closed.
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
@@ -45,7 +45,7 @@ public abstract class ClosePositionCallback {
         String alias = "ON_CLOSE_POSITION_" + positionVO.getSecurityId();
 
         // undeploy the statement
-        EsperManager.undeployStatement(positionVO.getStrategy(), alias);
+        EngineLocator.instance().getEngine(positionVO.getStrategy()).undeployStatement(alias);
 
         long startTime = System.nanoTime();
         logger.debug("onClosePosition start " + positionVO.getSecurityId());

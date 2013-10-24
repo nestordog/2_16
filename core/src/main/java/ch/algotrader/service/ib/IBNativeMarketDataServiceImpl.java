@@ -26,9 +26,8 @@ import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.ConnectionState;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
 
@@ -83,7 +82,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
         subscribeTickEvent.setTick(tick);
         subscribeTickEvent.setTickerId(tickerId);
 
-        EsperManager.sendEvent(StrategyImpl.BASE, subscribeTickEvent);
+        EngineLocator.instance().getBaseEngine().sendEvent(subscribeTickEvent);
 
         // requestMarketData from IB
         Contract contract = IBUtil.getContract(security);
@@ -108,7 +107,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
 
         client.cancelMktData(tickerId);
 
-        EsperManager.executeQuery(StrategyImpl.BASE, "delete from TickWindow where security.id = " + security.getId());
+        EngineLocator.instance().getBaseEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
 
         logger.debug("cancelled market data for : " + security);
     }

@@ -40,14 +40,13 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.StockOption;
 import ch.algotrader.entity.strategy.DefaultOrderPreference;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.stockOption.StockOptionUtil;
 import ch.algotrader.util.DateUtil;
@@ -148,7 +147,7 @@ public class PositionServiceImpl extends PositionServiceBase {
                 getMarketDataService().unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
             }
         } else {
-            EsperManager.addTradeCallback(StrategyImpl.BASE, Collections.singleton(order), new TradeCallback(true) {
+            EngineLocator.instance().getBaseEngine().addTradeCallback(Collections.singleton(order), new TradeCallback(true) {
                 @Override
                 public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
                     if (unsubscribe) {
@@ -272,7 +271,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
 
         // propagate the ClosePosition event
-        EsperManager.sendEvent(position.getStrategy().getName(), closePositionVO);
+        EngineLocator.instance().getEngine(position.getStrategy().getName()).sendEvent(closePositionVO);
 
         // remove the association
         position.getSecurity().removePositions(position);
@@ -516,6 +515,6 @@ public class PositionServiceImpl extends PositionServiceBase {
         getMarketDataService().unsubscribe(position.getStrategy().getName(), security.getId());
 
         // propagate the ExpirePosition event
-        EsperManager.sendEvent(position.getStrategy().getName(), expirePositionEvent);
+        EngineLocator.instance().getEngine(position.getStrategy().getName()).sendEvent(expirePositionEvent);
     }
 }

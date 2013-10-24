@@ -53,9 +53,8 @@ import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.MarketDataType;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.esper.io.CsvBarInputAdapterSpec;
 import ch.algotrader.esper.io.CsvTickInputAdapterSpec;
 import ch.algotrader.esper.io.GenericEventInputAdapterSpec;
@@ -109,7 +108,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         // init all activatable strategies
         Collection<Strategy> strategies = getLookupService().getAutoActivateStrategies();
         for (Strategy strategy : strategies) {
-            EsperManager.initServiceProvider(strategy.getName());
+            EngineLocator.instance().initEngine(strategy.getName());
         }
 
         // rebalance portfolio (to distribute initial CREDIT to strategies)
@@ -122,7 +121,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         // init modules of all activatable strategies
         for (Strategy strategy : strategies) {
-            EsperManager.deployAllModules(strategy.getName());
+            EngineLocator.instance().getEngine(strategy.getName()).deployAllModules();
         }
 
         // feed the ticks
@@ -130,7 +129,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         // log metrics in case they have been enabled
         MetricsUtil.logMetrics();
-        EsperManager.logStatementMetrics();
+        EngineLocator.instance().logStatementMetrics();
 
         // close all open positions that might still exist
         for (Position position : getLookupService().getOpenTradeablePositions()) {
@@ -138,14 +137,14 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         }
 
         // send the EndOfSimulation event
-        EsperManager.sendEvent(StrategyImpl.BASE, new EndOfSimulationVO());
+        EngineLocator.instance().getBaseEngine().sendEvent(new EndOfSimulationVO());
 
         // get the results
         SimulationResultVO resultVO = getSimulationResultVO(startTime);
 
         // destroy all service providers
         for (Strategy strategy : strategies) {
-            EsperManager.destroyServiceProvider(strategy.getName());
+            EngineLocator.instance().destroyEngine(strategy.getName());
         }
 
         // clear the second-level cache
@@ -166,7 +165,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
      */
     private void inputCSV() {
 
-        EsperManager.initCoordination(StrategyImpl.BASE);
+        EngineLocator.instance().getBaseEngine().initCoordination();
 
         String baseDir = this.dataSetLocation.equals("") ? "files" + File.separator : this.dataSetLocation;
         String dataSet = getConfiguration().getDataSet();
@@ -198,10 +197,10 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
                     String eventTypeName = eventClassName.substring(eventClassName.lastIndexOf(".") + 1);
 
                     // add the eventType (in case it does not exist yet)
-                    EsperManager.addEventType(StrategyImpl.BASE, eventTypeName, eventClassName);
+                    EngineLocator.instance().getBaseEngine().addEventType(eventTypeName, eventClassName);
 
                     GenericEventInputAdapterSpec spec = new GenericEventInputAdapterSpec(file, eventTypeName);
-                    EsperManager.coordinate(StrategyImpl.BASE, spec);
+                    EngineLocator.instance().getBaseEngine().coordinate(spec);
                 }
 
             }
@@ -255,13 +254,13 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
                 throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
             }
 
-            EsperManager.coordinate(StrategyImpl.BASE, spec);
+            EngineLocator.instance().getBaseEngine().coordinate(spec);
 
             logger.debug("started simulation for security " + security.getSymbol());
         }
 
 
-        EsperManager.startCoordination(StrategyImpl.BASE);
+        EngineLocator.instance().getBaseEngine().startCoordination();
     }
 
     @Override
@@ -389,12 +388,12 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     @SuppressWarnings("unchecked")
     private SimulationResultVO getSimulationResultVO(final long startTime) {
 
-        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) EsperManager.getLastEvent(StrategyImpl.BASE, "INSERT_INTO_PERFORMANCE_KEYS");
-        List<PeriodPerformanceVO> monthlyPerformances = EsperManager.getAllEvents(StrategyImpl.BASE, "KEEP_MONTHLY_PERFORMANCE");
-        MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) EsperManager.getLastEvent(StrategyImpl.BASE, "INSERT_INTO_MAX_DRAW_DOWN");
-        TradesVO allTrades = (TradesVO) EsperManager.getLastEvent(StrategyImpl.BASE, "INSERT_INTO_ALL_TRADES");
-        TradesVO winningTrades = (TradesVO) EsperManager.getLastEvent(StrategyImpl.BASE, "INSERT_INTO_WINNING_TRADES");
-        TradesVO loosingTrades = (TradesVO) EsperManager.getLastEvent(StrategyImpl.BASE, "INSERT_INTO_LOOSING_TRADES");
+        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) EngineLocator.instance().getBaseEngine().getLastEvent("INSERT_INTO_PERFORMANCE_KEYS");
+        List<PeriodPerformanceVO> monthlyPerformances = EngineLocator.instance().getBaseEngine().getAllEvents("KEEP_MONTHLY_PERFORMANCE");
+        MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) EngineLocator.instance().getBaseEngine().getLastEvent("INSERT_INTO_MAX_DRAW_DOWN");
+        TradesVO allTrades = (TradesVO) EngineLocator.instance().getBaseEngine().getLastEvent("INSERT_INTO_ALL_TRADES");
+        TradesVO winningTrades = (TradesVO) EngineLocator.instance().getBaseEngine().getLastEvent("INSERT_INTO_WINNING_TRADES");
+        TradesVO loosingTrades = (TradesVO) EngineLocator.instance().getBaseEngine().getLastEvent("INSERT_INTO_LOOSING_TRADES");
 
         // compile yearly performance
         List<PeriodPerformanceVO> yearlyPerformances = null;

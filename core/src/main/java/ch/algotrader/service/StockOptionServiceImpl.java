@@ -53,7 +53,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.stockOption.SABR;
 import ch.algotrader.stockOption.StockOptionSymbol;
@@ -104,7 +104,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
         final Future future = getLookupService().getFutureByMinExpiration(futureFamily.getId(), targetDate);
         final double deltaAdjustedMarketValuePerContract = deltaAdjustedMarketValue / futureFamily.getContractSize();
 
-        EsperManager.addFirstTickCallback(StrategyImpl.BASE, Collections.singleton((Security) future), new TickCallback() {
+        EngineLocator.instance().getBaseEngine().addFirstTickCallback(Collections.singleton((Security) future), new TickCallback() {
             @Override
             public void onFirstTick(String strategyName, List<Tick> ticks) throws Exception {
 

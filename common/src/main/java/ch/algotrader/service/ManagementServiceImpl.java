@@ -51,7 +51,7 @@ import ch.algotrader.entity.trade.TickwiseIncrementalOrder;
 import ch.algotrader.entity.trade.VariableIncrementalOrder;
 import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.BarVO;
@@ -73,7 +73,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected Date handleGetCurrentTime() throws Exception {
 
-        return new Date(EsperManager.getCurrentTime(getConfiguration().getStartedStrategyName()));
+        return new Date(EngineLocator.instance().getEngine(getConfiguration().getStartedStrategyName()).getCurrentTime());
     }
 
     @Override
@@ -171,7 +171,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected List<MarketDataEventVO> handleGetMarketDataEvents() {
 
         String strategyName = getConfiguration().getStartedStrategyName();
-        List<MarketDataEvent> marketDataEvents = EsperManager.getAllEventsProperty(strategyName, "CURRENT_MARKET_DATA_EVENT", "marketDataEvent");
+        List<MarketDataEvent> marketDataEvents = EngineLocator.instance().getEngine(strategyName).getAllEventsProperty("CURRENT_MARKET_DATA_EVENT", "marketDataEvent");
 
         List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents);
 
@@ -253,13 +253,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected void handleDeployStatement(String moduleName, String statementName) throws Exception {
 
-        EsperManager.deployStatement(getConfiguration().getStartedStrategyName(), moduleName, statementName);
+        EngineLocator.instance().getEngine(getConfiguration().getStartedStrategyName()).deployStatement(moduleName, statementName);
     }
 
     @Override
     protected void handleDeployModule(String moduleName) throws Exception {
 
-        EsperManager.deployModule(getConfiguration().getStartedStrategyName(), moduleName);
+        EngineLocator.instance().getEngine(getConfiguration().getStartedStrategyName()).deployModule(moduleName);
     }
 
     @Override
@@ -373,7 +373,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected void handleSetVariableValue(String variableName, String value) {
 
-        EsperManager.setVariableValueFromString(getConfiguration().getStartedStrategyName(), variableName, value);
+        EngineLocator.instance().getEngine(getConfiguration().getStartedStrategyName()).setVariableValueFromString(variableName, value);
     }
 
     @Override

@@ -30,9 +30,8 @@ import ch.algotrader.entity.security.Combination;
 import ch.algotrader.entity.security.Component;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.CombinationType;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.InsertComponentEventVO;
@@ -362,11 +361,11 @@ public class CombinationServiceImpl extends CombinationServiceBase {
     private void removeFromComponentWindow(Component component) {
 
         // if a component is specified remove it, otherwise empty the entire window
-        if (EsperManager.isInitialized(StrategyImpl.BASE)) {
+        if (EngineLocator.instance().hasBaseEngine()) {
             if (component != null) {
-                EsperManager.executeQuery(StrategyImpl.BASE, "delete from ComponentWindow where componentId = " + component.getId());
+                EngineLocator.instance().getBaseEngine().executeQuery("delete from ComponentWindow where componentId = " + component.getId());
             } else {
-                EsperManager.executeQuery(StrategyImpl.BASE, "delete from ComponentWindow");
+                EngineLocator.instance().getBaseEngine().executeQuery("delete from ComponentWindow");
             }
         }
     }
@@ -385,8 +384,8 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             insertComponentEvent.setCombinationId(combination.getId());
             insertComponentEvent.setComponentCount(combination.getComponentCount());
 
-            if (EsperManager.isInitialized(StrategyImpl.BASE)) {
-                EsperManager.sendEvent(StrategyImpl.BASE, insertComponentEvent);
+            if (EngineLocator.instance().hasBaseEngine()) {
+                EngineLocator.instance().getBaseEngine().sendEvent(insertComponentEvent);
             }
         }
     }

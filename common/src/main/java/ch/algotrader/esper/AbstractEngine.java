@@ -31,12 +31,15 @@ import com.espertech.esperio.csv.CSVInputAdapterSpec;
  *
  * @version $Revision$ $Date$
  */
-public class AbstractEngine implements Engine {
+public abstract class AbstractEngine implements Engine {
+
+    protected String engineName;
+    protected boolean internalClock;
 
     @Override
     public String getName() {
 
-        return null;
+        return this.engineName;
     }
 
     @Override
@@ -147,14 +150,15 @@ public class AbstractEngine implements Engine {
     }
 
     @Override
-    public void setInternalClock(boolean internal) {
+    public void setInternalClock(boolean internalClock) {
 
+        this.internalClock = internalClock;
     }
 
     @Override
     public boolean isInternalClock() {
 
-        return false;
+        return this.internalClock;
     }
 
     @Override

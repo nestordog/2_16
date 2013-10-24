@@ -27,15 +27,15 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import ch.algotrader.entity.marketData.Tick;
-
 /**
  * Base Esper Callback Class that will be invoked as soon as at least one Tick has arrived for each of the {@code securities}
- * passed to {@link EsperManager#addFirstTickCallback}
+ * passed to {@link Engine#addFirstTickCallback}
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
@@ -64,7 +64,7 @@ public abstract class TickCallback {
         String alias = "ON_FIRST_TICK_" + StringUtils.join(sortedSecurityIds, "_");
 
         // undeploy the statement
-        EsperManager.undeployStatement(strategyName, alias);
+        EngineLocator.instance().getEngine(strategyName).undeployStatement(alias);
 
         long startTime = System.nanoTime();
         logger.debug("onFirstTick start " + sortedSecurityIds);

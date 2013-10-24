@@ -27,8 +27,7 @@ import java.util.Map;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.esper.EsperManager;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.vo.RawTickVO;
 import ch.algotrader.vo.TickVO;
 
@@ -124,7 +123,7 @@ public class TickDaoImpl extends TickDaoBase {
 
         // sometimes Esper returns a Map instead of scalar
         String query = "select tickerId from TickWindow where security.id = " + securityId;
-        Object obj = EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, query);
+        Object obj = EngineLocator.instance().getBaseEngine().executeSingelObjectQuery(query);
         if (obj instanceof Map) {
             return ((Map<String, Integer>) obj).get("tickerId");
         } else {
@@ -140,7 +139,7 @@ public class TickDaoImpl extends TickDaoBase {
         Collection<Tick> ticks = new ArrayList<Tick>();
         for (Subscription subscription : subscriptions) {
             String query = "select * from TickWindow where security.id = " + subscription.getSecurity().getId();
-            Pair<Tick, Object> pair = (Pair<Tick, Object>)EsperManager.executeSingelObjectQuery(StrategyImpl.BASE, query);
+            Pair<Tick, Object> pair = (Pair<Tick, Object>) EngineLocator.instance().getBaseEngine().executeSingelObjectQuery(query);
             if (pair != null) {
 
                 Tick tick = pair.getFirst();

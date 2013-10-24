@@ -123,9 +123,7 @@ public class EngineImpl extends AbstractEngine {
     private static List<String> moduleDeployExcludeStatements = Arrays.asList((ServiceLocator.instance().getConfiguration().getString("misc.moduleDeployExcludeStatements")).split(","));
     private static int outboundThreads = ServiceLocator.instance().getConfiguration().getInt("misc.outboundThreads");
 
-    private String engineName;
     private EPServiceProvider serviceProvider;
-    private boolean internalClock;
     private AdapterCoordinator coordinator;
     private JmsTemplate strategyTemplate;
 
@@ -197,12 +195,6 @@ public class EngineImpl extends AbstractEngine {
         this.internalClock = false;
 
         logger.debug("initialized service provider: " + engineName);
-    }
-
-    @Override
-    public String getName() {
-
-        return this.engineName;
     }
 
     /**
@@ -600,11 +592,11 @@ public class EngineImpl extends AbstractEngine {
      * Sets the internal clock of the specified Esper Engine
      */
     @Override
-    public void setInternalClock(boolean internal) {
+    public void setInternalClock(boolean internalClock) {
 
-        this.internalClock = internal;
+        super.setInternalClock(internalClock);
 
-        if (internal) {
+        if (internalClock) {
             sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_INTERNAL));
             EPServiceProviderImpl provider = (EPServiceProviderImpl) this.serviceProvider;
             provider.getTimerService().enableStats();
@@ -614,18 +606,9 @@ public class EngineImpl extends AbstractEngine {
             provider.getTimerService().disableStats();
         }
 
-        setVariableValue("internal_clock", internal);
+        setVariableValue("internal_clock", internalClock);
 
-        logger.debug("set internal clock to: " + internal);
-    }
-
-    /**
-     * Returns true if the specified Esper Engine uses internal clock
-     */
-    @Override
-    public boolean isInternalClock() {
-
-        return this.internalClock;
+        logger.debug("set internal clock to: " + internalClock);
     }
 
     /**
@@ -946,7 +929,7 @@ public class EngineImpl extends AbstractEngine {
     private Module getModule(String moduleName) {
 
         String fileName = "module-" + moduleName + ".epl";
-        InputStream stream = EsperManager.class.getResourceAsStream("/" + fileName);
+        InputStream stream = this.getClass().getResourceAsStream("/" + fileName);
         if (stream == null) {
             throw new IllegalArgumentException(fileName + " does not exist");
         }
