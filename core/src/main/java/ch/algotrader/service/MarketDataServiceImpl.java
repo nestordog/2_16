@@ -181,7 +181,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         Collection<Tick> ticks = getTickDao().findCurrentTicksByStrategy(strategyName);
 
         for (Tick tick : ticks) {
-            EngineLocator.instance().getEngine(strategyName).sendEvent(tick);
+            EngineLocator.instance().sendEvent(strategyName, tick);
         }
     }
 

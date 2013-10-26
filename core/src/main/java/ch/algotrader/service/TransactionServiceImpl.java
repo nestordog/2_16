@@ -189,12 +189,12 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
             // propagate the positionMutationEvent to the corresponding strategy
             if (positionMutationEvent != null) {
-                EngineLocator.instance().getEngine(positionMutationEvent.getStrategy()).sendEvent(positionMutationEvent);
+                EngineLocator.instance().sendEvent(positionMutationEvent.getStrategy(), positionMutationEvent);
             }
 
             // propagate the transaction to the corresponding strategy
             if (!transaction.getStrategy().isBase()) {
-                EngineLocator.instance().getEngine(transaction.getStrategy().getName()).sendEvent(transaction);
+                EngineLocator.instance().sendEvent(transaction.getStrategy().getName(), transaction);
             }
         }
     }
@@ -291,7 +291,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         // send the fill to the strategy that placed the corresponding order
         if (!fill.getOrd().getStrategy().isBase()) {
-            EngineLocator.instance().getEngine(fill.getOrd().getStrategy().getName()).sendEvent(fill);
+            EngineLocator.instance().sendEvent(fill.getOrd().getStrategy().getName(), fill);
         }
 
         if (!this.simulation) {

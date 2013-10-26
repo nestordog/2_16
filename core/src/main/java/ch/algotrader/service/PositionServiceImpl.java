@@ -271,7 +271,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         ClosePositionVO closePositionVO = getPositionDao().toClosePositionVO(position);
 
         // propagate the ClosePosition event
-        EngineLocator.instance().getEngine(position.getStrategy().getName()).sendEvent(closePositionVO);
+        EngineLocator.instance().sendEvent(position.getStrategy().getName(), closePositionVO);
 
         // remove the association
         position.getSecurity().removePositions(position);
@@ -515,6 +515,6 @@ public class PositionServiceImpl extends PositionServiceBase {
         getMarketDataService().unsubscribe(position.getStrategy().getName(), security.getId());
 
         // propagate the ExpirePosition event
-        EngineLocator.instance().getEngine(position.getStrategy().getName()).sendEvent(expirePositionEvent);
+        EngineLocator.instance().sendEvent(position.getStrategy().getName(), expirePositionEvent);
     }
 }

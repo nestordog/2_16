@@ -284,7 +284,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
         // also send the order to the strategy that placed the order
         if (!order.getStrategy().isBase()) {
-            EngineLocator.instance().getEngine(order.getStrategy().getName()).sendEvent(order);
+            EngineLocator.instance().sendEvent(order.getStrategy().getName(), order);
         }
     }
 
@@ -293,7 +293,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
         // send the fill to the strategy that placed the corresponding order
         if (orderStatus.getOrd() != null && !orderStatus.getOrd().getStrategy().isBase()) {
-            EngineLocator.instance().getEngine(orderStatus.getOrd().getStrategy().getName()).sendEvent(orderStatus);
+            EngineLocator.instance().sendEvent(orderStatus.getOrd().getStrategy().getName(), orderStatus);
         }
 
         if (!this.simulation) {
