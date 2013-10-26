@@ -42,7 +42,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.jms.core.JmsTemplate;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.security.Security;
@@ -119,13 +118,11 @@ public class EngineImpl extends AbstractEngine {
     private static final String newline = System.getProperty("line.separator");
 
     private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
-    private static boolean singleVM = ServiceLocator.instance().getConfiguration().getBoolean("misc.singleVM");
     private static List<String> moduleDeployExcludeStatements = Arrays.asList((ServiceLocator.instance().getConfiguration().getString("misc.moduleDeployExcludeStatements")).split(","));
     private static int outboundThreads = ServiceLocator.instance().getConfiguration().getInt("misc.outboundThreads");
 
     private EPServiceProvider serviceProvider;
     private AdapterCoordinator coordinator;
-    private JmsTemplate strategyTemplate;
 
     private static ThreadLocal<AtomicBoolean> processing = new ThreadLocal<AtomicBoolean>() {
         @Override
@@ -197,9 +194,6 @@ public class EngineImpl extends AbstractEngine {
         logger.debug("initialized service provider: " + engineName);
     }
 
-    /**
-     * Destroys the specified Esper Engine.
-     */
     @Override
     public void destroy() {
 
@@ -208,29 +202,18 @@ public class EngineImpl extends AbstractEngine {
         logger.debug("destroyed service provider: " + this.engineName);
     }
 
-    /**
-     * Deploys the statement from the given {@code moduleName} with the given {@code statementName} into the specified Esper Engine.
-     */
     @Override
     public void deployStatement(String moduleName, String statementName) {
 
         deployStatement(moduleName, statementName, null, new Object[] {}, null);
     }
 
-    /**
-     * Deploys the statement from the given {@code moduleName} with the given {@code statementName} into the specified Esper Engine.
-     * In addition the given {@code alias} and Prepared Statement {@code params} are set on the statement
-     */
     @Override
     public void deployStatement(String moduleName, String statementName, String alias, Object[] params) {
 
         deployStatement(moduleName, statementName, alias, params, null);
     }
 
-    /**
-     * Deploys the statement from the given {@code moduleName} with the given {@code statementName} into the specified Esper Engine.
-     * In addition the given {@code alias}, Prepared Statement {@code params} and {@code callback} are set on the statement.
-     */
     @Override
     public void deployStatement(String moduleName, String statementName, String alias, Object[] params, Object callback) {
 
@@ -266,9 +249,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Deploys all modules defined for given Strategy
-     */
     @Override
     public void deployAllModules() {
 
@@ -276,9 +256,6 @@ public class EngineImpl extends AbstractEngine {
         deployRunModules();
     }
 
-    /**
-     * Deploys all init-modules defined for given Strategy
-     */
     @Override
     public void deployInitModules() {
 
@@ -292,9 +269,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Deploys all run-modules defined for given Strategy
-     */
     @Override
     public void deployRunModules() {
 
@@ -308,9 +282,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Deploys the specified module into the specified Esper Engine.
-     */
     @Override
     public void deployModule(String moduleName) {
 
@@ -330,11 +301,6 @@ public class EngineImpl extends AbstractEngine {
         logger.debug("deployed module " + moduleName);
     }
 
-    /**
-     * Returns true if the statement by the given {@code statementNameRegex} is deployed.
-     *
-     * @param statementNameRegex statement name regular expression
-     */
     @Override
     public boolean isDeployed(final String statementNameRegex) {
 
@@ -358,9 +324,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Undeploys the specified statement from the specified Esper Engine.
-     */
     @Override
     public void undeployStatement(String statementName) {
 
@@ -373,9 +336,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Restarts the given Statement
-     */
     @Override
     public void restartStatement(String statementName) {
 
@@ -389,9 +349,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Undeploys the specified module from the specified Esper Engine.
-     */
     @Override
     public void undeployModule(String moduleName) {
 
@@ -410,11 +367,6 @@ public class EngineImpl extends AbstractEngine {
         logger.debug("undeployed module " + moduleName);
     }
 
-    /**
-     * Adds the given Event Type to the specified Esper Engine.
-     * this method can be used if an Event Type is not known at compile time and can therefore not be configured
-     * inside an {@code esper-xxx.cfg.xml} file
-     */
     @Override
     public void addEventType(String eventTypeName, String eventClassName) {
 
@@ -424,34 +376,23 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Sends an Event into the corresponding Esper Engine.
-     */
     @Override
     public void sendEvent(Object obj) {
 
-        if (simulation || singleVM) {
+        long startTime = System.nanoTime();
 
-            long startTime = System.nanoTime();
-
-            internalSendEvent(obj);
-
-            MetricsUtil.accountEnd("EsperManager." + obj.getClass(), startTime);
-
+        // if the engine is currently processing and event route the new event
+        if (processing.get().get()) {
+            this.serviceProvider.getEPRuntime().route(obj);
         } else {
-
-            // check if it is the localStrategy
-            if (ServiceLocator.instance().getConfiguration().getStartedStrategyName().equals(this.engineName)) {
-                internalSendEvent(obj);
-            } else {
-                externalSendEvent(obj);
-            }
+            processing.get().set(true);
+            this.serviceProvider.getEPRuntime().sendEvent(obj);
+            processing.get().set(false);
         }
+
+        MetricsUtil.accountEnd("EsperManager." + obj.getClass(), startTime);
     }
 
-    /**
-     * Executes an arbitrary EPL query on the Esper Engine.
-     */
     @Override
     @SuppressWarnings("rawtypes")
     public List executeQuery(String query) {
@@ -465,9 +406,6 @@ public class EngineImpl extends AbstractEngine {
         return objects;
     }
 
-    /**
-     * Executes an arbitrary EPL query that is supposed to return one single object on the Esper Engine.
-     */
     @Override
     @SuppressWarnings("unchecked")
     public Object executeSingelObjectQuery(String query) {
@@ -482,9 +420,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Retrieves the last event currently held by the given statement.
-     */
     @Override
     public Object getLastEvent(String statementName) {
 
@@ -507,9 +442,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Retrieves the last event currently held by the given statement and returns the property by the {@code propertyName}
-     */
     @Override
     public Object getLastEventProperty(String statementName, String propertyName) {
 
@@ -532,9 +464,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Retrieves all events currently held by the given statement.
-     */
     @Override
     @SuppressWarnings("rawtypes")
     public List getAllEvents(String statementName) {
@@ -560,9 +489,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Retrieves all events currently held by the given statement and returns the property by the {@code propertyName} for all events.
-     */
     @Override
     @SuppressWarnings("rawtypes")
     public List getAllEventsProperty(String statementName, String property) {
@@ -588,9 +514,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Sets the internal clock of the specified Esper Engine
-     */
     @Override
     public void setInternalClock(boolean internalClock) {
 
@@ -611,18 +534,12 @@ public class EngineImpl extends AbstractEngine {
         logger.debug("set internal clock to: " + internalClock);
     }
 
-    /**
-     * Retruns the current time of the given Esper Engine
-     */
     @Override
     public long getCurrentTime() {
 
         return this.serviceProvider.getEPRuntime().getCurrentTime();
     }
 
-    /**
-     * Prepares the given Esper Engine for coordinated input of CSV-Files
-     */
     @Override
     public void initCoordination() {
 
@@ -631,9 +548,6 @@ public class EngineImpl extends AbstractEngine {
         ((AdapterCoordinatorImpl) this.coordinator).setSender(new CustomSender());
     }
 
-    /**
-     * Queues the specified {@code csvInputAdapterSpec} for coordination with the given Esper Engine.
-     */
     @Override
     public void coordinate(CSVInputAdapterSpec csvInputAdapterSpec) {
 
@@ -648,10 +562,6 @@ public class EngineImpl extends AbstractEngine {
         this.coordinator.coordinate(inputAdapter);
     }
 
-    /**
-     * Queues the specified {@code collection} for coordination with the given Esper Engine.
-     * The property by the name of {@code timeStampProperty} is used to identify the current time.
-     */
     @Override
     @SuppressWarnings({ "rawtypes" })
     public void coordinate(Collection collection, String timeStampProperty) {
@@ -660,9 +570,7 @@ public class EngineImpl extends AbstractEngine {
         this.coordinator.coordinate(inputAdapter);
     }
 
-    /**
-     * Queues subscribed Ticks for coordination with the given Esper Engine.
-     */
+
     @Override
     public void coordinateTicks(Date startDate) {
 
@@ -670,18 +578,13 @@ public class EngineImpl extends AbstractEngine {
         this.coordinator.coordinate(inputAdapter);
     }
 
-    /**
-     * Starts coordination for the given Esper Engine.
-     */
+
     @Override
     public void startCoordination() {
 
         this.coordinator.start();
     }
 
-    /**
-     * sets the value of the specified Esper Variable
-     */
     @Override
     public void setVariableValue(String variableName, Object value) {
 
@@ -693,9 +596,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * sets the value of the specified Esper Variable by parsing the given String value.
-     */
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void setVariableValueFromString(String variableName, String value) {
@@ -716,9 +616,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Returns the value of the specified Esper Variable
-     */
     @Override
     public Object getVariableValue(String variableName) {
 
@@ -727,10 +624,6 @@ public class EngineImpl extends AbstractEngine {
         return runtime.getVariableValue(variableName);
     }
 
-    /**
-     * Adds a {@link TradeCallback} to the given Esper Engine that will be invoked as soon as all {@code orders} have been
-     * fully exectured or cancelled.
-     */
     @Override
     public void addTradeCallback(Collection<Order> orders, TradeCallback callback) {
 
@@ -764,10 +657,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Adds a {@link TickCallback} to the given Esper Engine that will be invoked as soon as at least one Tick has arrived
-     * for each of the specified {@code securities}
-     */
     @Override
     public void addFirstTickCallback(Collection<Security> securities, TickCallback callback) {
 
@@ -792,10 +681,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Adds a {@link OpenPositionCallback} to the given Esper Engine that will be invoked as soon as a new Position
-     * on the given Security has been opened.
-     */
     @Override
     public void addOpenPositionCallback(int securityId, OpenPositionCallback callback) {
 
@@ -810,10 +695,6 @@ public class EngineImpl extends AbstractEngine {
         }
     }
 
-    /**
-     * Adds a {@link OpenPositionCallback} to the given Esper Engine that will be invoked as soon as a Position
-     * on the given Security has been closed.
-     */
     @Override
     public void addClosePositionCallback(int securityId, ClosePositionCallback callback) {
 
@@ -829,7 +710,7 @@ public class EngineImpl extends AbstractEngine {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static void initVariables(Configuration configuration) {
+    private void initVariables(Configuration configuration) {
 
         try {
             Map<String, ConfigurationVariable> variables = configuration.getVariables();
@@ -1027,34 +908,7 @@ public class EngineImpl extends AbstractEngine {
         }).toArray(new String[] {});
     }
 
-    private void internalSendEvent(Object obj) {
-
-        // if the engine is currently processing and event route the new event
-        if (processing.get().get()) {
-            this.serviceProvider.getEPRuntime().route(obj);
-        } else {
-            processing.get().set(true);
-            this.serviceProvider.getEPRuntime().sendEvent(obj);
-            processing.get().set(false);
-        }
-    }
-
-    /**
-     * manual lookup of templates since they are only available if applicationContext-jms.xml is active
-     */
-    private void externalSendEvent(Object obj) {
-
-        if (this.strategyTemplate == null) {
-            this.strategyTemplate = ServiceLocator.instance().getService("strategyTemplate", JmsTemplate.class);
-        }
-
-        // sent to the strateyg queue
-        this.strategyTemplate.convertAndSend(this.engineName + ".QUEUE", obj);
-
-        logger.trace("propagated event to " + this.engineName + " " + obj);
-    }
-
-    private static Object getSubscriber(String fqdn) throws ClassNotFoundException {
+    private Object getSubscriber(String fqdn) throws ClassNotFoundException {
 
         // try to see if the fqdn represents a class
         try {

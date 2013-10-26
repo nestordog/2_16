@@ -51,11 +51,12 @@ public class EngineLocator {
     private static final EngineLocator instance = new EngineLocator();
 
     private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
+    private static String startedStrategyName = ServiceLocator.instance().getConfiguration().getStartedStrategyName();
     private static boolean singleVM = ServiceLocator.instance().getConfiguration().getBoolean("misc.singleVM");
 
     private Map<String, Engine> engines = new HashMap<String, Engine>();
-    private JmsTemplate marketDataTemplate;
-    private JmsTemplate genericTemplate;
+
+    private Map<String, JmsTemplate> templates = new HashMap<String, JmsTemplate>();
 
     public static final EngineLocator instance() {
         return instance;
@@ -115,6 +116,35 @@ public class EngineLocator {
     }
 
     /**
+     * Sends an Event to the corresponding Esper Engine.
+     * Use this method for situations where the corresponding Engine might be running localy ore remote,
+     * otherwise use {@link Engine#sendEvent}.
+     *
+     */
+    public void sendEvent(String engineName, Object obj) {
+
+        if (simulation || singleVM) {
+
+            if (hasEngine(engineName)) {
+                getEngine(engineName).sendEvent(obj);
+            }
+
+        } else {
+
+            // check if it is the localStrategy
+            if (startedStrategyName.equals(engineName)) {
+
+                getEngine(engineName).sendEvent(obj);
+
+            } else {
+
+                // sent to the strategy queue
+                getTemplate("strategyTemplate").convertAndSend(engineName + ".QUEUE", obj);
+            }
+        }
+    }
+
+    /**
      * Sends a MarketDataEvent into the corresponding Esper Engine.
      * In Live-Trading the {@code marketDataTemplate} will be used.
      */
@@ -130,12 +160,8 @@ public class EngineLocator {
 
         } else {
 
-            if (this.marketDataTemplate == null) {
-                this.marketDataTemplate = ServiceLocator.instance().getService("marketDataTemplate", JmsTemplate.class);
-            }
-
             // send using the jms template
-            this.marketDataTemplate.convertAndSend(marketDataEvent, new MessagePostProcessor() {
+            getTemplate("marketDataTemplate").convertAndSend(marketDataEvent, new MessagePostProcessor() {
 
                 @Override
                 public Message postProcessMessage(Message message) throws JMSException {
@@ -164,12 +190,8 @@ public class EngineLocator {
 
         } else {
 
-            if (this.genericTemplate == null) {
-                this.genericTemplate = ServiceLocator.instance().getService("genericTemplate", JmsTemplate.class);
-            }
-
             // send using the jms template
-            this.genericTemplate.convertAndSend(event, new MessagePostProcessor() {
+            getTemplate("genericTemplate").convertAndSend(event, new MessagePostProcessor() {
 
                 @Override
                 public Message postProcessMessage(Message message) throws JMSException {
@@ -252,5 +274,17 @@ public class EngineLocator {
         for (Engine engine : this.engines.values()) {
             engine.restartStatement("METRICS");
         }
+    }
+
+    /**
+     * manual lookup of templates since they are only available if applicationContext-jms.xml is active
+     */
+    private JmsTemplate getTemplate(String name) {
+
+        if (!this.templates.containsKey(name)) {
+            this.templates.put(name, ServiceLocator.instance().getService(name, JmsTemplate.class));
+        }
+
+        return this.templates.get(name);
     }
 }

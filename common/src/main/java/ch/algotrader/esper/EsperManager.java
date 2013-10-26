@@ -183,7 +183,7 @@ public class EsperManager {
      */
     public static void sendEvent(String strategyName, Object obj) {
 
-        EngineLocator.instance().getEngine(strategyName).sendEvent(obj);
+        EngineLocator.instance().sendEvent(strategyName, obj);
     }
 
     /**
