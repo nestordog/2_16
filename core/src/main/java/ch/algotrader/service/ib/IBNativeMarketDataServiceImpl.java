@@ -49,7 +49,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
     @Override
     protected void handleInit() throws Exception {
 
-        client = getIBSessionFactory().getDefaultClient();
+        client = getIBSessionFactory().getDefaultSession();
     }
 
     @Override

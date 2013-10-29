@@ -383,7 +383,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             }
         };
 
-        this.client = getIBSessionFactory().getClient(clientId, this.messageHandler);
+        this.client = getIBSessionFactory().getSession(clientId, this.messageHandler);
 
         this.client.connect();
     }

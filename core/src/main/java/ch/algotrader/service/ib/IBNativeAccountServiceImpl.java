@@ -156,7 +156,7 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
             }
         };
 
-        this.client = getIBSessionFactory().getClient(clientId, this.messageHandler);
+        this.client = getIBSessionFactory().getSession(clientId, this.messageHandler);
 
         this.allAccountValues = new HashMap<String, Map<String, String>>();
         this.accounts = new HashSet<String>();

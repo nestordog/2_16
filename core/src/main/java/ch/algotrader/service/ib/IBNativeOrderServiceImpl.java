@@ -55,7 +55,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
     @Override
     protected void handleInit() throws Exception {
 
-        client = getIBSessionFactory().getDefaultClient();
+        client = getIBSessionFactory().getDefaultSession();
     }
 
     @Override

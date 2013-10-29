@@ -30,7 +30,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import ch.algotrader.enumeration.ConnectionState;
 
 /**
- * Factory class for IBClients (IB Connections).
+ * Factory class for IBSessions (IB Connections).
  * This class an its public methods are available through JMX.
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
@@ -41,87 +41,87 @@ import ch.algotrader.enumeration.ConnectionState;
 public class IBSessionFactory {
 
     private @Value("${simulation}") boolean simulation;
-    private @Value("${ib.defaultClientId}") int defaultClientId;
+    private @Value("${ib.defaultSessionId}") int defaultSessionId;
 
-    private IBSession defaultClient;
-    private Map<Integer, IBSession> clients = new HashMap<Integer, IBSession>();
+    private IBSession defaultSession;
+    private Map<Integer, IBSession> sessions = new HashMap<Integer, IBSession>();
 
     /**
-     * Gets the DefaultClient, usually clientId = 0.
+     * Gets the DefaultSession
      */
-    public IBSession getDefaultClient() {
+    public IBSession getDefaultSession() {
 
         if (this.simulation) {
             return null;
         }
 
-        if (this.defaultClient == null) {
+        if (this.defaultSession == null) {
 
-            this.defaultClient = new IBSession(this.defaultClientId, new IBEsperMessageHandler(this.defaultClientId));
+            this.defaultSession = new IBSession(this.defaultSessionId, new IBEsperMessageHandler(this.defaultSessionId));
 
-            this.clients.put(this.defaultClientId, this.defaultClient);
+            this.sessions.put(this.defaultSessionId, this.defaultSession);
 
-            this.defaultClient.connect();
+            this.defaultSession.connect();
         }
 
-        return this.defaultClient;
+        return this.defaultSession;
     }
 
     /**
-     * Gets a new IBClient based on a {@code clientId} and a {@code IBDefaultMessageHandler MessageHandler}
+     * Gets a new IBSession based on a {@code sessionId} and a {@code IBDefaultMessageHandler MessageHandler}
      */
-    public IBSession getClient(int clientId, IBDefaultMessageHandler messageHandler) {
+    public IBSession getSession(int sessionId, IBDefaultMessageHandler messageHandler) {
 
-        IBSession client = new IBSession(clientId, messageHandler);
-        this.clients.put(clientId, client);
+        IBSession session = new IBSession(sessionId, messageHandler);
+        this.sessions.put(sessionId, session);
 
-        return client;
+        return session;
     }
 
     /**
-     * (re)connects all IBClients
+     * (re)connects all IBSessions
      */
     @ManagedOperation
     @ManagedOperationParameters({})
     public void connect() {
 
-        for (IBSession client : this.clients.values()) {
-            client.connect();
+        for (IBSession session : this.sessions.values()) {
+            session.connect();
         }
     }
 
     /**
-     * disconnects all IBClients
+     * disconnects all IBSessions
      */
     @ManagedOperation
     @ManagedOperationParameters({})
     public void disconnect() {
 
-        for (IBSession client : this.clients.values()) {
-            client.disconnect();
+        for (IBSession session : this.sessions.values()) {
+            session.disconnect();
         }
     }
 
     /**
-     * Sets the Log Level on all IBClients
+     * Sets the Log Level on all IBSessions
      */
     @ManagedOperation
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "logLevel", description = "<html> <head> </head> <body> <p> logLevel: </p> <ul>     <li> 1 (SYSTEM) </li> <li> 2 (ERROR) </li> <li> 3 (WARNING) </li> <li> 4 (INFORMATION) </li> <li> 5 (DETAIL) </li> </ul> </body> </html>") })
     public void setLogLevel(int logLevel) {
 
-        for (IBSession client : this.clients.values()) {
-            client.setServerLogLevel(logLevel);
+        for (IBSession session : this.sessions.values()) {
+            session.setServerLogLevel(logLevel);
         }
     }
 
     /**
-     * Returns a Map with {@code clientId} and {@code connectionState} of all IB Clients
+     * Returns a Map with {@code sessionId} and {@code connectionState} of all IBSessions
      */
     @ManagedAttribute
     public Map<Integer, ConnectionState> getConnectionStates() {
 
         Map<Integer, ConnectionState> connectionStates = new HashMap<Integer, ConnectionState>();
-        for (Map.Entry<Integer, IBSession> entry : this.clients.entrySet()) {
+        for (Map.Entry<Integer, IBSession> entry : this.sessions.entrySet()) {
             connectionStates.put(entry.getKey(), entry.getValue().getMessageHandler().getState());
         }
         return connectionStates;
