@@ -69,7 +69,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
     private static Logger logger = MyLogger.getLogger(IBNativeSecurityRetrieverServiceImpl.class.getName());
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
 
-    private IBSession client;
+    private IBSession session;
     private IBDefaultMessageHandler messageHandler;
 
     private Lock lock = new ReentrantLock();
@@ -77,7 +77,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
     private List<ContractDetails> contractDetailsList;
 
-    private static int clientId = 3;
+    private static int sessionId = 3;
 
     @Override
     protected void handleRetrieve(int securityFamilyId) throws Exception {
@@ -113,7 +113,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
                 contract.m_tradingClass = securityFamily.getTradingClass();
             }
 
-            this.client.reqContractDetails(requestId, contract);
+            this.session.reqContractDetails(requestId, contract);
 
             // await retrieval of contractDetails
             this.condition.await();
@@ -156,7 +156,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
             contract.m_secType = "STK";
 
-            this.client.reqContractDetails(requestId, contract);
+            this.session.reqContractDetails(requestId, contract);
 
             // await retrieval of contractDetails
             this.condition.await();
@@ -335,7 +335,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
     @Override
     protected void handleInit() throws java.lang.Exception {
 
-        this.messageHandler = new IBDefaultMessageHandler(clientId) {
+        this.messageHandler = new IBDefaultMessageHandler(sessionId) {
 
             @Override
             public void contractDetails(int reqId, ContractDetails contractDetails) {
@@ -360,7 +360,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
                 super.connectionClosed();
 
-                IBNativeSecurityRetrieverServiceImpl.this.client.connect();
+                IBNativeSecurityRetrieverServiceImpl.this.session.connect();
             }
 
             @Override
@@ -383,8 +383,8 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             }
         };
 
-        this.client = getIBSessionFactory().getSession(clientId, this.messageHandler);
+        this.session = getIBSessionFactory().getSession(sessionId, this.messageHandler);
 
-        this.client.connect();
+        this.session.connect();
     }
 }

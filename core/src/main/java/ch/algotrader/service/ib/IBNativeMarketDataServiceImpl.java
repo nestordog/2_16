@@ -42,25 +42,23 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
 
     private static final long serialVersionUID = -4704799803078842628L;
     private static Logger logger = MyLogger.getLogger(IBNativeMarketDataServiceImpl.class.getName());
-    private static IBSession client;
+    private static IBSession session;
 
     private @Value("${ib.genericTickList}") String genericTickList;
 
     @Override
     protected void handleInit() throws Exception {
 
-        client = getIBSessionFactory().getDefaultSession();
+        session = getIBSessionFactory().getDefaultSession();
     }
 
     @Override
     protected void handleInitSubscriptions() {
 
-        if (client != null
-                && (client.getMessageHandler().getState().getValue() >= ConnectionState.LOGGED_ON.getValue())
-                && !client.getMessageHandler().isRequested()) {
+        if (session != null && (session.getMessageHandler().getState().getValue() >= ConnectionState.LOGGED_ON.getValue()) && !session.getMessageHandler().isRequested()) {
 
-            client.getMessageHandler().setRequested(true);
-            client.getMessageHandler().setState(ConnectionState.SUBSCRIBED);
+            session.getMessageHandler().setRequested(true);
+            session.getMessageHandler().setState(ConnectionState.SUBSCRIBED);
 
             super.handleInitSubscriptions();
         }
@@ -69,7 +67,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
     @Override
     protected void handleExternalSubscribe(Security security) throws Exception {
 
-        if (client.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
+        if (session.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
             throw new IBNativeMarketDataServiceException("IB is not logged on to subscribe " + security);
         }
 
@@ -87,7 +85,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
         // requestMarketData from IB
         Contract contract = IBUtil.getContract(security);
 
-        client.reqMktData(tickerId, contract, this.genericTickList, false);
+        session.reqMktData(tickerId, contract, this.genericTickList, false);
 
         logger.debug("request " + tickerId + " for : " + security);
     }
@@ -95,7 +93,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
     @Override
     protected void handleExternalUnsubscribe(Security security) throws Exception {
 
-        if (!client.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED)) {
+        if (!session.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED)) {
             throw new IBNativeMarketDataServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
         }
 
@@ -105,7 +103,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
             throw new IBNativeMarketDataServiceException("tickerId for security " + security + " was not found");
         }
 
-        client.cancelMktData(tickerId);
+        session.cancelMktData(tickerId);
 
         EngineLocator.instance().getBaseEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
 
@@ -115,8 +113,8 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
     @Override
     public void destroy() throws Exception {
 
-        if (client != null && client.isConnected()) {
-            client.disconnect();
+        if (session != null && session.isConnected()) {
+            session.disconnect();
         }
     }
 }

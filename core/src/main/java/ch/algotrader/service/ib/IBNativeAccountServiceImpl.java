@@ -58,7 +58,7 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
 
     private @Value("${ib.retrievalTimeout}") int retrievalTimeout;
 
-    private IBSession client;
+    private IBSession session;
     private IBDefaultMessageHandler messageHandler;
 
     private Lock lock = new ReentrantLock();
@@ -68,12 +68,12 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
     private Set<String> accounts;
     private Map<String, Map<String, Double>> profiles;
 
-    private static int clientId = 1;
+    private static int sessionId = 1;
 
     @Override
     protected void handleInit() throws java.lang.Exception {
 
-        this.messageHandler = new IBDefaultMessageHandler(clientId) {
+        this.messageHandler = new IBDefaultMessageHandler(sessionId) {
 
             @Override
             public void updateAccountValue(String key, String value, String currency, String accountName) {
@@ -152,17 +152,17 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
 
                 super.connectionClosed();
 
-                IBNativeAccountServiceImpl.this.client.connect();
+                IBNativeAccountServiceImpl.this.session.connect();
             }
         };
 
-        this.client = getIBSessionFactory().getSession(clientId, this.messageHandler);
+        this.session = getIBSessionFactory().getSession(sessionId, this.messageHandler);
 
         this.allAccountValues = new HashMap<String, Map<String, String>>();
         this.accounts = new HashSet<String>();
         this.profiles = new HashMap<String, Map<String, Double>>();
 
-        this.client.connect();
+        this.session.connect();
     }
 
     private String retrieveAccountValue(String accountName, String currency, String key) throws InterruptedException {
@@ -173,7 +173,7 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
 
             IBNativeAccountServiceImpl.this.allAccountValues.put(accountName, new HashMap<String, String>());
 
-            this.client.reqAccountUpdates(true, accountName);
+            this.session.reqAccountUpdates(true, accountName);
 
             while (this.allAccountValues.get(accountName) == null || this.allAccountValues.get(accountName).get(key) == null) {
 
@@ -195,7 +195,7 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
 
             try {
 
-                this.client.requestFA(1);
+                this.session.requestFA(1);
 
                 while (this.accounts.size() == 0) {
 
@@ -218,7 +218,7 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
 
             try {
 
-                this.client.requestFA(2);
+                this.session.requestFA(2);
 
                 while (this.profiles.size() == 0) {
 
@@ -270,8 +270,8 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
     @Override
     public void destroy() throws Exception {
 
-        if (this.client != null) {
-            this.client.disconnect();
+        if (this.session != null) {
+            this.session.disconnect();
         }
     }
 }

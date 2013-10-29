@@ -47,7 +47,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
     private static Logger logger = MyLogger.getLogger(IBNativeOrderServiceImpl.class.getName());
     private static DateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 
-    private static IBSession client;
+    private static IBSession session;
     private static boolean firstOrder = true;
 
     private @Value("${ib.faMethod}") String faMethod;
@@ -55,7 +55,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
     @Override
     protected void handleInit() throws Exception {
 
-        client = getIBSessionFactory().getDefaultSession();
+        session = getIBSessionFactory().getDefaultSession();
     }
 
     @Override
@@ -110,7 +110,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
     @Override
     protected void handleCancelOrder(SimpleOrder order) throws Exception {
 
-        if (client == null || client.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
+        if (session == null || session.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
             logger.error("order cannot be cancelled, because IB is not logged on");
             return;
         }
@@ -118,7 +118,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
         // progapate the order (even though nothing actually changed) to be able to identify missing replies
         getOrderService().propagateOrder(order);
 
-        client.cancelOrder(Integer.parseInt(order.getIntId()));
+        session.cancelOrder(Integer.parseInt(order.getIntId()));
 
         logger.info("requested order cancellation for order: " + order);
     }
@@ -129,7 +129,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
      */
     private void sendOrModifyOrder(Order order) throws Exception {
 
-        if (client == null || client.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
+        if (session == null || session.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
             logger.error("order cannot be sent / modified, because IB is not logged on");
             return;
         }
@@ -220,8 +220,8 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
         // progapate the order to all corresponding esper engines
         getOrderService().propagateOrder(order);
 
-        // place the order through IBClient
-        client.placeOrder(Integer.parseInt(order.getIntId()), contract, ibOrder);
+        // place the order through IBSession
+        session.placeOrder(Integer.parseInt(order.getIntId()), contract, ibOrder);
 
         logger.info("placed or modified order: " + order);
     }

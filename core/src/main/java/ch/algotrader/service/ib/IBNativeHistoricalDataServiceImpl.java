@@ -59,7 +59,7 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
 
     private @Value("${ib.historicalDataTimeout}") int historicalDataTimeout;
 
-    private IBSession client;
+    private IBSession session;
     private IBDefaultMessageHandler messageHandler;
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
@@ -68,13 +68,14 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
     private List<Bar> barList;
     private Security security;
     private Duration barSize;
+    private int scale;
 
-    private static int clientId = 2;
+    private static int sessionId = 2;
 
     @Override
     protected void handleInit() throws Exception {
 
-        this.messageHandler = new IBDefaultMessageHandler(clientId) {
+        this.messageHandler = new IBDefaultMessageHandler(sessionId) {
 
             @Override
             public void historicalData(int requestId, String dateString, double open, double high, double low, double close, int volume, int count, double WAP,
@@ -98,17 +99,14 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
                         date = dateFormat.parse(dateString);
                     }
 
-                    int scale = IBNativeHistoricalDataServiceImpl.this.security.getSecurityFamily().getScale();
-                    Duration barSize = IBNativeHistoricalDataServiceImpl.this.barSize;
-
                     Bar bar = Bar.Factory.newInstance();
                     bar.setDateTime(date);
-                    bar.setOpen(RoundUtil.getBigDecimal(open, scale));
-                    bar.setHigh(RoundUtil.getBigDecimal(high, scale));
-                    bar.setLow(RoundUtil.getBigDecimal(low, scale));
-                    bar.setClose(RoundUtil.getBigDecimal(close, scale));
+                    bar.setOpen(RoundUtil.getBigDecimal(open, IBNativeHistoricalDataServiceImpl.this.scale));
+                    bar.setHigh(RoundUtil.getBigDecimal(high, IBNativeHistoricalDataServiceImpl.this.scale));
+                    bar.setLow(RoundUtil.getBigDecimal(low, IBNativeHistoricalDataServiceImpl.this.scale));
+                    bar.setClose(RoundUtil.getBigDecimal(close, IBNativeHistoricalDataServiceImpl.this.scale));
                     bar.setVol(volume);
-                    bar.setBarSize(barSize);
+                    bar.setBarSize(IBNativeHistoricalDataServiceImpl.this.barSize);
 
                     IBNativeHistoricalDataServiceImpl.this.barList.add(bar);
 
@@ -141,7 +139,7 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
 
                 super.connectionClosed();
 
-                IBNativeHistoricalDataServiceImpl.this.client.connect();
+                IBNativeHistoricalDataServiceImpl.this.session.connect();
             }
 
             @Override
@@ -179,21 +177,22 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
             }
         };
 
-        this.client = getIBSessionFactory().getSession(clientId, this.messageHandler);
+        this.session = getIBSessionFactory().getSession(sessionId, this.messageHandler);
 
         this.success = false;
 
-        this.client.connect();
+        this.session.connect();
     }
 
     @Override
     protected synchronized List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType) throws Exception {
 
-        this.barList = new ArrayList<Bar>();
-        this.success = false;
-
         this.security = getSecurityDao().get(securityId);
         this.barSize = barSize;
+        this.scale = this.security.getSecurityFamily().getScale();
+
+        this.barList = new ArrayList<Bar>();
+        this.success = false;
 
         this.lock.lock();
 
@@ -205,26 +204,20 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
 
             String durationString = timePeriodLength + " ";
             switch (timePeriod) {
-                case MSEC:
-                    throw new IllegalArgumentException("MILLISECOND durationPeriod is not allowed");
                 case SEC:
                     durationString += "S";
                     break;
-                case MIN:
-                    throw new IllegalArgumentException("MINUTE durationPeriod is not allowed");
-                case HOUR:
-                    throw new IllegalArgumentException("HOUR durationPeriod is not allowed");
                 case DAY:
                     durationString += "D";
                     break;
                 case WEEK:
                     durationString += "W";
                     break;
-                case MONTH:
-                    throw new IllegalArgumentException("MONTH durationPeriod is not allowed");
                 case YEAR:
                     durationString += "Y";
                     break;
+                default:
+                    throw new IllegalArgumentException("timePeriod is not allowed " + timePeriod);
             }
 
             String[] barSizeName = barSize.name().split("_");
@@ -252,11 +245,32 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
                 barSizeString += "s";
             }
 
-            this.client.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barType.getValue(), 1, 1);
+            String barTypeString;
+            switch (barType) {
+                case TRADES:
+                    barTypeString = "TRADES";
+                    break;
+                case MIDPOINT:
+                    barTypeString = "MIDPOINT";
+                    break;
+                case BID:
+                    barTypeString = "BID";
+                    break;
+                case ASK:
+                    barTypeString = "ASK";
+                    break;
+                case BID_ASK:
+                    barTypeString = "BID_ASK";
+                    break;
+                default:
+                    throw new IllegalArgumentException("unsupported barType " + barType);
+            }
+
+            this.session.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, 1, 1);
 
             while (this.success == false) {
                 if (!this.condition.await(this.historicalDataTimeout, TimeUnit.SECONDS)) {
-                    this.client.cancelHistoricalData(requestId);
+                    this.session.cancelHistoricalData(requestId);
                     continue;
                 }
             }
@@ -275,8 +289,8 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
     @Override
     public void destroy() throws Exception {
 
-        if (this.client != null) {
-            this.client.disconnect();
+        if (this.session != null) {
+            this.session.disconnect();
         }
     }
 }
