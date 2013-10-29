@@ -45,7 +45,7 @@ public class BBSessionFactory {
 
     public BBSession getMarketDataSession() throws Exception {
 
-        return getSession("mktdata", new BBMessageHandler());
+        return getSession("mktdata", new BBMarketDataMessageHandler());
     }
 
     public BBSession getReferenceDataSession() throws Exception {

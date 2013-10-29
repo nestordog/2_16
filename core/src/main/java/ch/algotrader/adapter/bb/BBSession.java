@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.bb;
 
+import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.Session;
 import com.bloomberglp.blpapi.SessionOptions;
 
@@ -29,8 +30,8 @@ import com.bloomberglp.blpapi.SessionOptions;
  */
 public final class BBSession extends Session {
 
+    private Service service;
     private String serviceName;
-
     private BBMessageHandler messageHandler;
 
     public BBSession(String serviceName, SessionOptions sessionOptions, BBMessageHandler messageHandler) {
@@ -46,7 +47,17 @@ public final class BBSession extends Session {
         this.serviceName = serviceName;
     }
 
+    public Service getService() {
+
+        if (this.service == null) {
+            this.service = getService("//blp/" + this.serviceName);
+        }
+
+        return this.service;
+    }
+
     public String getServiceName() {
+
         return this.serviceName;
     }
 
