@@ -76,6 +76,16 @@ public abstract class BBMessageHandler implements EventHandler {
                     processSessionStatus(event, session);
                 }
                 return false;
+            case Event.EventType.Constants.SERVICE_STATUS:
+                synchronized (this.lock) {
+                    processServiceStatus(event, session);
+                }
+                return false;
+            case Event.EventType.Constants.ADMIN:
+                synchronized (this.lock) {
+                    processAdminEvent(event, session);
+                }
+                return false;
             case Event.EventType.Constants.PARTIAL_RESPONSE:
                 processResponseEvent(event, session);
                 return false;
@@ -89,11 +99,6 @@ public abstract class BBMessageHandler implements EventHandler {
                 return false;
             case Event.EventType.Constants.SUBSCRIPTION_DATA:
                 processSubscriptionDataEvent(event, session);
-                return false;
-            case Event.EventType.Constants.ADMIN:
-                synchronized (this.lock) {
-                    processAdminEvent(event, session);
-                }
                 return false;
             default:
                 processMiscEvents(event, session);
@@ -121,6 +126,18 @@ public abstract class BBMessageHandler implements EventHandler {
         }
     }
 
+    private void processServiceStatus(Event event, Session session) {
+
+        for (Message msg : event) {
+            if (msg.messageType() == SERVICE_OPENED) {
+                String serviceName = msg.getElementAsString("serviceName");
+                logger.info("service has been opened " + serviceName);
+            } else {
+                throw new IllegalArgumentException("unknown msgType " + msg.messageType());
+            }
+        }
+    }
+
     private void processAdminEvent(Event event, Session session) {
 
         for (Message msg : event) {
@@ -131,12 +148,7 @@ public abstract class BBMessageHandler implements EventHandler {
     private void processMiscEvents(Event event, Session session) {
 
         for (Message msg : event) {
-            if (msg.messageType() == SERVICE_OPENED) {
-                String serviceName = msg.getElementAsString("serviceName");
-                logger.info("service has been opened " + serviceName);
-            } else {
-                throw new IllegalArgumentException("unknown msgType " + msg.messageType());
-            }
+            throw new IllegalArgumentException("unknown msgType " + msg.messageType());
         }
     }
 
