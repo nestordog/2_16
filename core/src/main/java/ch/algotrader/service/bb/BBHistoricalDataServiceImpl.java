@@ -61,7 +61,7 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
     @Override
     protected List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, BarType barType) throws Exception {
 
-        final Security security = getSecurityDao().get(securityId);
+        Security security = getSecurityDao().get(securityId);
 
         // send the request
         sendRequest(security, endDate, timePeriodLength, timePeriod, barSize, barType);
@@ -153,7 +153,7 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
         }
     }
 
-    public class BBHistoricalDataMessageHandler extends BBMessageHandler {
+    private class BBHistoricalDataMessageHandler extends BBMessageHandler {
 
         private final Security security;
         private final Duration barSize;
@@ -201,7 +201,7 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
 
                     // ceil the date according to barSize
                     Date dateTime;
-                    switch (barSize) {
+                    switch (this.barSize) {
                         case MIN_1:
                             dateTime= DateUtils.ceiling(time, Calendar.MINUTE);
                             break;
@@ -227,10 +227,10 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
                             dateTime= DateUtils.ceiling(time, Calendar.DATE);
                             break;
                         default:
-                            throw new IllegalArgumentException("barSize is not allowed " + barSize);
+                            throw new IllegalArgumentException("barSize is not allowed " + this.barSize);
                     }
 
-                    int scale = security.getSecurityFamily().getScale();
+                    int scale = this.security.getSecurityFamily().getScale();
 
                     Bar bar = Bar.Factory.newInstance();
                     bar.setDateTime(dateTime);
@@ -240,7 +240,7 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
                     bar.setClose(RoundUtil.getBigDecimal(close, scale));
                     bar.setVol((int) volume);
                     bar.setBarSize(this.barSize);
-                    bar.setSecurity(security);
+                    bar.setSecurity(this.security);
 
                     this.barList.add(bar);
                 }
