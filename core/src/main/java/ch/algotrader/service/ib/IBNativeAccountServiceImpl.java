@@ -55,7 +55,6 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
     private static Logger logger = MyLogger.getLogger(IBNativeAccountServiceImpl.class.getName());
 
     private @Value("${ib.faEnabled}") boolean faEnabled;
-
     private @Value("${ib.retrievalTimeout}") int retrievalTimeout;
 
     private IBSession session;
@@ -73,88 +72,7 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
     @Override
     protected void handleInit() throws java.lang.Exception {
 
-        this.messageHandler = new IBDefaultMessageHandler(sessionId) {
-
-            @Override
-            public void updateAccountValue(String key, String value, String currency, String accountName) {
-
-                IBNativeAccountServiceImpl.this.lock.lock();
-
-                try {
-
-                    Map<String, String> values = IBNativeAccountServiceImpl.this.allAccountValues.get(accountName);
-                    values.put(key, value);
-
-                    IBNativeAccountServiceImpl.this.condition.signalAll();
-
-                } finally {
-                    IBNativeAccountServiceImpl.this.lock.unlock();
-                }
-            }
-
-            @Override
-            public void receiveFA(int faDataType, String xml) {
-
-                IBNativeAccountServiceImpl.this.lock.lock();
-
-                try {
-
-                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                    DocumentBuilder builder = factory.newDocumentBuilder();
-                    Document document = builder.parse(new InputSource(new StringReader(xml)));
-
-                    if (faDataType == 1) {
-
-                        // parse the document using XPath
-                        NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//Group[name='AllClients']/ListOfAccts/String");
-
-                        // get accounts
-                        Node node;
-                        IBNativeAccountServiceImpl.this.accounts = new HashSet<String>();
-                        while ((node = iterator.nextNode()) != null) {
-                            IBNativeAccountServiceImpl.this.accounts.add(node.getFirstChild().getNodeValue());
-                        }
-
-                    } else if (faDataType == 2) {
-
-                        // parse the document using XPath
-                        NodeIterator profileIterator = XPathAPI.selectNodeIterator(document, "//AllocationProfile");
-
-                        Node profileNode;
-                        IBNativeAccountServiceImpl.this.profiles = new HashMap<String, Map<String, Double>>();
-                        while ((profileNode = profileIterator.nextNode()) != null) {
-                            String name = XPathAPI.selectSingleNode(profileNode, "name/text()").getNodeValue();
-
-                            // get allocations
-                            NodeIterator allocationIterator = XPathAPI.selectNodeIterator(profileNode, "ListOfAllocations/Allocation");
-                            Map<String, Double> allocations = new HashMap<String, Double>();
-                            Node allocationNode;
-                            while ((allocationNode = allocationIterator.nextNode()) != null) {
-                                String account = XPathAPI.selectSingleNode(allocationNode, "acct/text()").getNodeValue();
-                                String amount = XPathAPI.selectSingleNode(allocationNode, "amount/text()").getNodeValue();
-                                allocations.put(account, Double.valueOf(amount));
-                            }
-                            IBNativeAccountServiceImpl.this.profiles.put(name, allocations);
-                        }
-                    }
-
-                    IBNativeAccountServiceImpl.this.condition.signalAll();
-
-                } catch (Exception e) {
-                    IBNativeAccountServiceImpl.logger.error("error parsing fa document", e);
-                } finally {
-                    IBNativeAccountServiceImpl.this.lock.unlock();
-                }
-            }
-
-            @Override
-            public void connectionClosed() {
-
-                super.connectionClosed();
-
-                IBNativeAccountServiceImpl.this.session.connect();
-            }
-        };
+        this.messageHandler = new IBAccountMessageHandler(sessionId);
 
         this.session = getIBSessionFactory().getSession(sessionId, this.messageHandler);
 
@@ -163,6 +81,39 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
         this.profiles = new HashMap<String, Map<String, Double>>();
 
         this.session.connect();
+    }
+
+    @Override
+    protected long handleGetQuantityByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception {
+
+        long quantityByMargin = 0;
+        StringBuffer buffer = new StringBuffer("quantityByMargin:");
+        for (String account : getAccounts()) {
+            double availableAmount = Double.parseDouble(retrieveAccountValue(account, "CHF", "AvailableFunds"));
+            long quantity = (long) (availableAmount / initialMarginPerContractInBase);
+            quantityByMargin += quantity;
+
+            buffer.append(" " + account + "=" + quantity);
+        }
+        logger.debug(buffer.toString());
+
+        return quantityByMargin;
+    }
+
+    @Override
+    protected long handleGetQuantityByAllocation(String strategyName, long requestedQuantity) throws Exception {
+
+        long quantityByAllocation = 0;
+        StringBuffer buffer = new StringBuffer("quantityByAllocation:");
+        for (Map.Entry<String, Double> entry : getAllocations(strategyName).entrySet()) {
+            long quantity = (long) (entry.getValue() / 100.0 * requestedQuantity);
+            quantityByAllocation += quantity;
+
+            buffer.append(" " + entry.getKey() + "=" + quantity);
+        }
+        logger.debug(buffer.toString());
+
+        return quantityByAllocation;
     }
 
     private String retrieveAccountValue(String accountName, String currency, String key) throws InterruptedException {
@@ -235,43 +186,97 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
     }
 
     @Override
-    protected long handleGetQuantityByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception {
-
-        long quantityByMargin = 0;
-        StringBuffer buffer = new StringBuffer("quantityByMargin:");
-        for (String account : getAccounts()) {
-            double availableAmount = Double.parseDouble(retrieveAccountValue(account, "CHF", "AvailableFunds"));
-            long quantity = (long) (availableAmount / initialMarginPerContractInBase);
-            quantityByMargin += quantity;
-
-            buffer.append(" " + account + "=" + quantity);
-        }
-        logger.debug(buffer.toString());
-
-        return quantityByMargin;
-    }
-
-    @Override
-    protected long handleGetQuantityByAllocation(String strategyName, long requestedQuantity) throws Exception {
-
-        long quantityByAllocation = 0;
-        StringBuffer buffer = new StringBuffer("quantityByAllocation:");
-        for (Map.Entry<String, Double> entry : getAllocations(strategyName).entrySet()) {
-            long quantity = (long) (entry.getValue() / 100.0 * requestedQuantity);
-            quantityByAllocation += quantity;
-
-            buffer.append(" " + entry.getKey() + "=" + quantity);
-        }
-        logger.debug(buffer.toString());
-
-        return quantityByAllocation;
-    }
-
-    @Override
     public void destroy() throws Exception {
 
         if (this.session != null) {
             this.session.disconnect();
+        }
+    }
+
+    private class IBAccountMessageHandler extends IBDefaultMessageHandler {
+
+        public IBAccountMessageHandler(int clientId) {
+            super(clientId);
+        }
+
+        @Override
+        public void updateAccountValue(String key, String value, String currency, String accountName) {
+
+            IBNativeAccountServiceImpl.this.lock.lock();
+
+            try {
+
+                Map<String, String> values = IBNativeAccountServiceImpl.this.allAccountValues.get(accountName);
+                values.put(key, value);
+
+                IBNativeAccountServiceImpl.this.condition.signalAll();
+
+            } finally {
+                IBNativeAccountServiceImpl.this.lock.unlock();
+            }
+        }
+
+        @Override
+        public void receiveFA(int faDataType, String xml) {
+
+            IBNativeAccountServiceImpl.this.lock.lock();
+
+            try {
+
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document document = builder.parse(new InputSource(new StringReader(xml)));
+
+                if (faDataType == 1) {
+
+                    // parse the document using XPath
+                    NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//Group[name='AllClients']/ListOfAccts/String");
+
+                    // get accounts
+                    Node node;
+                    IBNativeAccountServiceImpl.this.accounts = new HashSet<String>();
+                    while ((node = iterator.nextNode()) != null) {
+                        IBNativeAccountServiceImpl.this.accounts.add(node.getFirstChild().getNodeValue());
+                    }
+
+                } else if (faDataType == 2) {
+
+                    // parse the document using XPath
+                    NodeIterator profileIterator = XPathAPI.selectNodeIterator(document, "//AllocationProfile");
+
+                    Node profileNode;
+                    IBNativeAccountServiceImpl.this.profiles = new HashMap<String, Map<String, Double>>();
+                    while ((profileNode = profileIterator.nextNode()) != null) {
+                        String name = XPathAPI.selectSingleNode(profileNode, "name/text()").getNodeValue();
+
+                        // get allocations
+                        NodeIterator allocationIterator = XPathAPI.selectNodeIterator(profileNode, "ListOfAllocations/Allocation");
+                        Map<String, Double> allocations = new HashMap<String, Double>();
+                        Node allocationNode;
+                        while ((allocationNode = allocationIterator.nextNode()) != null) {
+                            String account = XPathAPI.selectSingleNode(allocationNode, "acct/text()").getNodeValue();
+                            String amount = XPathAPI.selectSingleNode(allocationNode, "amount/text()").getNodeValue();
+                            allocations.put(account, Double.valueOf(amount));
+                        }
+                        IBNativeAccountServiceImpl.this.profiles.put(name, allocations);
+                    }
+                }
+
+                IBNativeAccountServiceImpl.this.condition.signalAll();
+
+            } catch (Exception e) {
+                IBNativeAccountServiceImpl.logger.error("error parsing fa document", e);
+            } finally {
+                IBNativeAccountServiceImpl.this.lock.unlock();
+            }
+        }
+
+        @Override
+        public void connectionClosed() {
+
+            super.connectionClosed();
+
+            IBNativeAccountServiceImpl.this.session.connect();
         }
     }
 }

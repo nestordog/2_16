@@ -61,6 +61,7 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
 
     private IBSession session;
     private IBDefaultMessageHandler messageHandler;
+
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
 
@@ -75,107 +76,7 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
     @Override
     protected void handleInit() throws Exception {
 
-        this.messageHandler = new IBDefaultMessageHandler(sessionId) {
-
-            @Override
-            public void historicalData(int requestId, String dateString, double open, double high, double low, double close, int volume, int count, double WAP,
-                    boolean hasGaps) {
-
-                IBNativeHistoricalDataServiceImpl.this.lock.lock();
-                try {
-
-                    if (dateString.startsWith("finished")) {
-
-                        IBNativeHistoricalDataServiceImpl.this.success = true;
-                        IBNativeHistoricalDataServiceImpl.this.condition.signalAll();
-
-                        return;
-                    }
-
-                    Date date = null;
-                    try {
-                        date = dateTimeFormat.parse(dateString);
-                    } catch (Exception e) {
-                        date = dateFormat.parse(dateString);
-                    }
-
-                    Bar bar = Bar.Factory.newInstance();
-                    bar.setDateTime(date);
-                    bar.setOpen(RoundUtil.getBigDecimal(open, IBNativeHistoricalDataServiceImpl.this.scale));
-                    bar.setHigh(RoundUtil.getBigDecimal(high, IBNativeHistoricalDataServiceImpl.this.scale));
-                    bar.setLow(RoundUtil.getBigDecimal(low, IBNativeHistoricalDataServiceImpl.this.scale));
-                    bar.setClose(RoundUtil.getBigDecimal(close, IBNativeHistoricalDataServiceImpl.this.scale));
-                    bar.setVol(volume);
-                    bar.setBarSize(IBNativeHistoricalDataServiceImpl.this.barSize);
-
-                    IBNativeHistoricalDataServiceImpl.this.barList.add(bar);
-
-                    if (hasGaps) {
-
-                        // @formatter:off
-                        String message = "bar with gaps " + dateString +
-                                " open=" + open +
-                                " high=" + high +
-                                " low=" + low +
-                                " close=" + close +
-                                " volume=" + volume +
-                                " count=" + count +
-                                " WAP=" + WAP +
-                                " hasGaps=" + hasGaps;
-                        // @formatter:on
-
-                        logger.error(message, new HistoricalDataServiceException(message));
-                    }
-
-                } catch (Exception e) {
-                    throw new HistoricalDataServiceException(e);
-                } finally {
-                    IBNativeHistoricalDataServiceImpl.this.lock.unlock();
-                }
-            }
-
-            @Override
-            public void connectionClosed() {
-
-                super.connectionClosed();
-
-                IBNativeHistoricalDataServiceImpl.this.session.connect();
-            }
-
-            @Override
-            public void error(int requestId, int code, String errorMsg) {
-
-                // 165 Historical data farm is connected
-                // 162 Historical market data Service error message.
-                // 2105 A historical data farm is disconnected.
-                // 2107 A historical data farm connection has become inactive
-                // but should be available upon demand.
-                if (code == 162 || code == 165 || code == 2105 || code == 2106 || code == 2107) {
-
-                    IBNativeHistoricalDataServiceImpl.this.lock.lock();
-                    try {
-
-                        if (code == 2105 || code == 2107) {
-
-                            super.error(requestId, code, errorMsg);
-                            IBNativeHistoricalDataServiceImpl.this.success = false;
-                        }
-
-                        if (code == 162) {
-
-                            logger.warn("HMDS query returned no data");
-                            IBNativeHistoricalDataServiceImpl.this.success = true;
-                        }
-
-                        IBNativeHistoricalDataServiceImpl.this.condition.signalAll();
-                    } finally {
-                        IBNativeHistoricalDataServiceImpl.this.lock.unlock();
-                    }
-                } else {
-                    super.error(requestId, code, errorMsg);
-                }
-            }
-        };
+        this.messageHandler = new IBHistoricalMessageHandler(sessionId);
 
         this.session = getIBSessionFactory().getSession(sessionId, this.messageHandler);
 
@@ -291,6 +192,112 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
 
         if (this.session != null) {
             this.session.disconnect();
+        }
+    }
+
+    private class IBHistoricalMessageHandler extends IBDefaultMessageHandler {
+
+        private IBHistoricalMessageHandler(int clientId) {
+            super(clientId);
+        }
+
+        @Override
+        public void historicalData(int requestId, String dateString, double open, double high, double low, double close, int volume, int count, double WAP,
+                boolean hasGaps) {
+
+            IBNativeHistoricalDataServiceImpl.this.lock.lock();
+            try {
+
+                if (dateString.startsWith("finished")) {
+
+                    IBNativeHistoricalDataServiceImpl.this.success = true;
+                    IBNativeHistoricalDataServiceImpl.this.condition.signalAll();
+
+                    return;
+                }
+
+                Date date = null;
+                try {
+                    date = dateTimeFormat.parse(dateString);
+                } catch (Exception e) {
+                    date = dateFormat.parse(dateString);
+                }
+
+                Bar bar = Bar.Factory.newInstance();
+                bar.setDateTime(date);
+                bar.setOpen(RoundUtil.getBigDecimal(open, IBNativeHistoricalDataServiceImpl.this.scale));
+                bar.setHigh(RoundUtil.getBigDecimal(high, IBNativeHistoricalDataServiceImpl.this.scale));
+                bar.setLow(RoundUtil.getBigDecimal(low, IBNativeHistoricalDataServiceImpl.this.scale));
+                bar.setClose(RoundUtil.getBigDecimal(close, IBNativeHistoricalDataServiceImpl.this.scale));
+                bar.setVol(volume);
+                bar.setBarSize(IBNativeHistoricalDataServiceImpl.this.barSize);
+
+                IBNativeHistoricalDataServiceImpl.this.barList.add(bar);
+
+                if (hasGaps) {
+
+                    // @formatter:off
+                    String message = "bar with gaps " + dateString +
+                            " open=" + open +
+                            " high=" + high +
+                            " low=" + low +
+                            " close=" + close +
+                            " volume=" + volume +
+                            " count=" + count +
+                            " WAP=" + WAP +
+                            " hasGaps=" + hasGaps;
+                    // @formatter:on
+
+                    logger.error(message, new HistoricalDataServiceException(message));
+                }
+
+            } catch (Exception e) {
+                throw new HistoricalDataServiceException(e);
+            } finally {
+                IBNativeHistoricalDataServiceImpl.this.lock.unlock();
+            }
+        }
+
+        @Override
+        public void connectionClosed() {
+
+            super.connectionClosed();
+
+            IBNativeHistoricalDataServiceImpl.this.session.connect();
+        }
+
+        @Override
+        public void error(int requestId, int code, String errorMsg) {
+
+            // 165 Historical data farm is connected
+            // 162 Historical market data Service error message.
+            // 2105 A historical data farm is disconnected.
+            // 2107 A historical data farm connection has become inactive
+            // but should be available upon demand.
+            if (code == 162 || code == 165 || code == 2105 || code == 2106 || code == 2107) {
+
+                IBNativeHistoricalDataServiceImpl.this.lock.lock();
+                try {
+
+                    if (code == 2105 || code == 2107) {
+
+                        super.error(requestId, code, errorMsg);
+                        IBNativeHistoricalDataServiceImpl.this.success = false;
+                    }
+
+                    if (code == 162) {
+
+                        logger.warn("HMDS query returned no data");
+                        IBNativeHistoricalDataServiceImpl.this.success = true;
+                    }
+
+                    IBNativeHistoricalDataServiceImpl.this.condition.signalAll();
+                } finally {
+                    IBNativeHistoricalDataServiceImpl.this.lock.unlock();
+                }
+            } else {
+                super.error(requestId, code, errorMsg);
+            }
         }
     }
 }

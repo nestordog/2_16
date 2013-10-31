@@ -80,6 +80,16 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
     private static int sessionId = 3;
 
     @Override
+    protected void handleInit() throws java.lang.Exception {
+
+        this.messageHandler = new IBSecurityRetrieverMessageHandler(sessionId);
+
+        this.session = getIBSessionFactory().getSession(sessionId, this.messageHandler);
+
+        this.session.connect();
+    }
+
+    @Override
     protected void handleRetrieve(int securityFamilyId) throws Exception {
 
         SecurityFamily securityFamily = getSecurityFamilyDao().get(securityFamilyId);
@@ -332,19 +342,44 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         return comparator;
     }
 
-    @Override
-    protected void handleInit() throws java.lang.Exception {
+    private class IBSecurityRetrieverMessageHandler extends IBDefaultMessageHandler {
 
-        this.messageHandler = new IBDefaultMessageHandler(sessionId) {
+        private IBSecurityRetrieverMessageHandler(int clientId) {
+            super(clientId);
+        }
 
-            @Override
-            public void contractDetails(int reqId, ContractDetails contractDetails) {
+        @Override
+        public void contractDetails(int reqId, ContractDetails contractDetails) {
 
-                IBNativeSecurityRetrieverServiceImpl.this.contractDetailsList.add(contractDetails);
+            IBNativeSecurityRetrieverServiceImpl.this.contractDetailsList.add(contractDetails);
+        }
+
+        @Override
+        public void contractDetailsEnd(int reqId) {
+
+            IBNativeSecurityRetrieverServiceImpl.this.lock.lock();
+
+            try {
+                IBNativeSecurityRetrieverServiceImpl.this.condition.signalAll();
+            } finally {
+                IBNativeSecurityRetrieverServiceImpl.this.lock.unlock();
             }
+        }
 
-            @Override
-            public void contractDetailsEnd(int reqId) {
+        @Override
+        public void connectionClosed() {
+
+            super.connectionClosed();
+
+            IBNativeSecurityRetrieverServiceImpl.this.session.connect();
+        }
+
+        @Override
+        public void error(int id, int code, String errorMsg) {
+
+            if (code == 200) {
+
+                logger.warn("No security definition has been found for the request");
 
                 IBNativeSecurityRetrieverServiceImpl.this.lock.lock();
 
@@ -353,38 +388,9 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
                 } finally {
                     IBNativeSecurityRetrieverServiceImpl.this.lock.unlock();
                 }
+            } else {
+                super.error(id, code, errorMsg);
             }
-
-            @Override
-            public void connectionClosed() {
-
-                super.connectionClosed();
-
-                IBNativeSecurityRetrieverServiceImpl.this.session.connect();
-            }
-
-            @Override
-            public void error(int id, int code, String errorMsg) {
-
-                if (code == 200) {
-
-                    logger.warn("No security definition has been found for the request");
-
-                    IBNativeSecurityRetrieverServiceImpl.this.lock.lock();
-
-                    try {
-                        IBNativeSecurityRetrieverServiceImpl.this.condition.signalAll();
-                    } finally {
-                        IBNativeSecurityRetrieverServiceImpl.this.lock.unlock();
-                    }
-                } else {
-                    super.error(id, code, errorMsg);
-                }
-            }
-        };
-
-        this.session = getIBSessionFactory().getSession(sessionId, this.messageHandler);
-
-        this.session.connect();
+        }
     }
 }
