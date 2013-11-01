@@ -114,6 +114,9 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
                 case WEEK:
                     durationString += "W";
                     break;
+                case MONTH:
+                    durationString += "M";
+                    break;
                 case YEAR:
                     durationString += "Y";
                     break;
@@ -124,9 +127,7 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
             String[] barSizeName = barSize.name().split("_");
 
             String barSizeString = barSizeName[1] + " ";
-            if (barSizeName[0].equals("MSEC")) {
-                throw new IllegalArgumentException("MILLISECOND barSize is not allowed");
-            } else if (barSizeName[0].equals("SEC")) {
+            if (barSizeName[0].equals("SEC")) {
                 barSizeString += "sec";
             } else if (barSizeName[0].equals("MIN")) {
                 barSizeString += "min";
@@ -134,12 +135,8 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
                 barSizeString += "hour";
             } else if (barSizeName[0].equals("DAY")) {
                 barSizeString += "day";
-            } else if (barSizeName[0].equals("WEEK")) {
-                throw new IllegalArgumentException("WEEK barSize is not allowed");
-            } else if (barSizeName[0].equals("MONTH")) {
-                throw new IllegalArgumentException("MONTH barSize is not allowed");
-            } else if (barSizeName[0].equals("YEAR")) {
-                throw new IllegalArgumentException("YEAR barSize is not allowed");
+            } else {
+                throw new IllegalArgumentException("barSize is not allowed " + barSize);
             }
 
             if (Integer.parseInt(barSizeName[1]) > 1) {
