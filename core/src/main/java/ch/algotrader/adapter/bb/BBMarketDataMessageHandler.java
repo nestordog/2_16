@@ -30,7 +30,6 @@ import ch.algotrader.vo.TradeVO;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Event;
 import com.bloomberglp.blpapi.Message;
-import com.bloomberglp.blpapi.Name;
 import com.bloomberglp.blpapi.Session;
 
 /**
@@ -44,10 +43,6 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
 
     private static Logger logger = MyLogger.getLogger(BBMarketDataMessageHandler.class.getName());
 
-    private static final Name SUBSCRIPTION_STARTED = Name.getName("SubscriptionStarted");
-    private static final Name SUBSCRIPTION_FAILURE = Name.getName("SubscriptionFailure");
-    private static final Name SUBSCRIPTION_TERMINATED = Name.getName("SubscriptionTerminated");
-
     @Override
     protected void processSubscriptionStatus(Event event, Session session) {
 
@@ -55,11 +50,11 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
 
             int cid = (int) msg.correlationID().value();
 
-            if (msg.messageType() == SUBSCRIPTION_STARTED) {
+            if (msg.messageType() == BBConstants.SUBSCRIPTION_STARTED) {
                 logger.info("subscription for tickerId " + cid + " has started");
-            } else if (msg.messageType() == SUBSCRIPTION_TERMINATED) {
+            } else if (msg.messageType() == BBConstants.SUBSCRIPTION_TERMINATED) {
                 logger.info("subscription for tickerId " + cid + " has terminated");
-            } else if (msg.messageType() == SUBSCRIPTION_FAILURE) {
+            } else if (msg.messageType() == BBConstants.SUBSCRIPTION_FAILURE) {
                 logger.warn(msg);
             } else {
                 throw new IllegalStateException("unknown messageType " + msg.messageType());

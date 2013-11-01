@@ -24,7 +24,6 @@ import ch.algotrader.util.MyLogger;
 import com.bloomberglp.blpapi.Event;
 import com.bloomberglp.blpapi.EventHandler;
 import com.bloomberglp.blpapi.Message;
-import com.bloomberglp.blpapi.Name;
 import com.bloomberglp.blpapi.Session;
 
 /**
@@ -37,13 +36,6 @@ import com.bloomberglp.blpapi.Session;
 public abstract class BBMessageHandler implements EventHandler {
 
     private static Logger logger = MyLogger.getLogger(BBMessageHandler.class.getName());
-
-    private static final Name SESSION_CONNECTION_UP = Name.getName("SessionConnectionUp");
-    private static final Name SESSION_STARTED = Name.getName("SessionStarted");
-    private static final Name SESSION_TERMINATED = Name.getName("SessionTerminated");
-    private static final Name SESSION_STARTUP_FAILURE = Name.getName("SessionStartupFailure");
-
-    private static final Name SERVICE_OPENED = Name.getName("ServiceOpened");
 
     private final Object lock = new Object();
     private boolean running;
@@ -110,15 +102,15 @@ public abstract class BBMessageHandler implements EventHandler {
 
         for (Message msg : event) {
 
-            if (msg.messageType() == SESSION_CONNECTION_UP) {
+            if (msg.messageType() == BBConstants.SESSION_CONNECTION_UP) {
                 logger.info("session connection up");
-            } else if (msg.messageType() == SESSION_STARTED) {
+            } else if (msg.messageType() == BBConstants.SESSION_STARTED) {
                 this.running = true;
                 logger.info("session started");
-            } else if (msg.messageType() == SESSION_TERMINATED) {
+            } else if (msg.messageType() == BBConstants.SESSION_TERMINATED) {
                 this.running = false;
                 logger.info("session terminated");
-            } else if (msg.messageType() == SESSION_STARTUP_FAILURE) {
+            } else if (msg.messageType() == BBConstants.SESSION_STARTUP_FAILURE) {
                 logger.error(msg);
             } else {
                 throw new IllegalStateException("unknown messageType " + msg.messageType());
@@ -129,7 +121,7 @@ public abstract class BBMessageHandler implements EventHandler {
     private void processServiceStatus(Event event, Session session) {
 
         for (Message msg : event) {
-            if (msg.messageType() == SERVICE_OPENED) {
+            if (msg.messageType() == BBConstants.SERVICE_OPENED) {
                 String serviceName = msg.getElementAsString("serviceName");
                 logger.info("service has been opened " + serviceName);
             } else {
