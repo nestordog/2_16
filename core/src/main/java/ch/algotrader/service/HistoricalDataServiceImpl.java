@@ -59,4 +59,21 @@ public abstract class HistoricalDataServiceImpl extends HistoricalDataServiceBas
         // save the Bars
         getBarDao().create(bars);
     }
+
+    @Override
+    protected void handleReplaceHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType) throws Exception {
+
+        // get all Bars from the Market Data Provider
+        List<Bar> bars = getHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
+
+        // remove all Bars in the database after the first newly retrieved Bar
+        final Bar firstBar = CollectionUtil.getFirstElementOrNull(bars);
+        if (firstBar != null) {
+            List<Bar> obsoleteBars = getBarDao().findBarsBySecurityBarSizeAndMinDate(securityId, barSize, firstBar.getDateTime());
+            getBarDao().remove(obsoleteBars);
+        }
+
+        // save the newly retrieved Bars
+        getBarDao().create(bars);
+    }
 }
