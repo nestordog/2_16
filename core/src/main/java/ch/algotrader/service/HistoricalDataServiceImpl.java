@@ -18,7 +18,10 @@
 package ch.algotrader.service;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
@@ -64,16 +67,43 @@ public abstract class HistoricalDataServiceImpl extends HistoricalDataServiceBas
     protected void handleReplaceHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType) throws Exception {
 
         // get all Bars from the Market Data Provider
-        List<Bar> bars = getHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
+        List<Bar> newBars = getHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
 
         // remove all Bars in the database after the first newly retrieved Bar
-        final Bar firstBar = CollectionUtil.getFirstElementOrNull(bars);
+        final Bar firstBar = CollectionUtil.getFirstElementOrNull(newBars);
         if (firstBar != null) {
-            List<Bar> obsoleteBars = getBarDao().findBarsBySecurityBarSizeAndMinDate(securityId, barSize, firstBar.getDateTime());
-            getBarDao().remove(obsoleteBars);
+
+            List<Bar> existingBars = getBarDao().findBarsBySecurityBarSizeAndMinDate(securityId, barSize, firstBar.getDateTime());
+
+            if (existingBars.size() > 0) {
+
+                // store bars according to their date
+                Map<Date, Bar> dateBarMap = new HashMap<Date, Bar>();
+                for (Bar bar : existingBars) {
+                    dateBarMap.put(bar.getDateTime(), bar);
+                }
+
+                //update existing bars
+                for (Iterator<Bar> it = newBars.iterator(); it.hasNext();) {
+
+                    Bar newBar = it.next();
+                    Bar existingBar = dateBarMap.remove(newBar.getDateTime());
+                    if (existingBar != null) {
+                        existingBar.setOpen(newBar.getOpen());
+                        existingBar.setHigh(newBar.getHigh());
+                        existingBar.setLow(newBar.getLow());
+                        existingBar.setClose(newBar.getClose());
+                        existingBar.setVol(newBar.getVol());
+                        it.remove();
+                    }
+                }
+
+                // remove obsolete Bars
+                getBarDao().remove(dateBarMap.values());
+            }
         }
 
-        // save the newly retrieved Bars
-        getBarDao().create(bars);
+        // save the newly retrieved Bars that do not exist yet in the db
+        getBarDao().create(newBars);
     }
 }
