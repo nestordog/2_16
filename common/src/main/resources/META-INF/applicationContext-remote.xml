@@ -52,7 +52,7 @@
         <constructor-arg value="GENERIC.TOPIC" />
     </bean>
 
-    <!-- Spring JMS Template used for marketData -->
+    <!-- Spring JMS Template used for generic events (that might be sent from strategy to strategy) -->
     <bean id="genericTemplate" class="org.springframework.jms.core.JmsTemplate">
         <property name="connectionFactory">
             <ref bean="jmsActiveMQFactory" />
