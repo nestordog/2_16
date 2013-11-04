@@ -4,6 +4,9 @@ AlgoTrader Reference Data Manager
 BreakOut Example Strategy
 More flexilility on market data file naming
 Switch from LIFO to average cost
+East-to-Borrow list for stocks
+RealTick Fix interface
+Integration Tests
 
 Version 2.0
 Multi Account Handling

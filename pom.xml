@@ -216,6 +216,7 @@
         <module>client/bin</module>
         <module>doc</module>
         <module>crud</module>
+        <module>test</module>
     </modules>
     <dependencyManagement>
         <dependencies>
