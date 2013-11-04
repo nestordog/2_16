@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>${groupId}</groupId>
+    <artifactId>${artifactId}</artifactId>
+    <version>${version}</version>
+    <name>${artifactId} Strategy</name>
+    <developers>
+        <developer>
+            <name></name>
+            <email></email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>UTC+1</timezone>
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>AlgoTrader License Agreement</name>
+            <url>LICENSE.txt</url>
+        </license>
+    </licenses>
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${basedir}/..</directory>
+                <includes>
+                    <include>LICENSE.txt</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgument>-Xlint:cast,unchecked,fallthrough,finally,serial</compilerArgument>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>algotrader</groupId>
+            <artifactId>algotrader-common</artifactId>
+            <version>2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.espertech</groupId>
+            <artifactId>esperee</artifactId>
+            <version>4.9.0</version>
+            <type>pom</type>
+        </dependency>
+    </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>bubba-deploy</id>
+            <name>Bubba Repositiory</name>
+            <url>scp://repo.algotrader.ch/home/web/maven</url>
+        </repository>
+        <snapshotRepository>
+            <id>bubba-deploy</id>
+            <name>Bubba Repositiory</name>
+            <url>scp://repo.algotrader.ch/home/web/maven</url>
+        </snapshotRepository>
+    </distributionManagement>
+    <properties>
+        <java.version>1.6</java.version>
+    </properties>
+</project>

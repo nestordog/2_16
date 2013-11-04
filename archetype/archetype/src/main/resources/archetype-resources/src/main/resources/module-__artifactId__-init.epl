@@ -1,0 +1,9 @@
+//Example
+@Name('MOVING_AVERAGE')
+insert into
+    Indicator
+select
+    talib("movingAverage", currentValueDouble, movLengthFast, "Sma")
+    - talib("movingAverage", currentValueDouble, movLengthSlow, "Sma") as value
+from
+    Tick(security.isin = securityId);
