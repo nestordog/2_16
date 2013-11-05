@@ -17,7 +17,7 @@ public class ${nameOfService}SingleVMStarter extends BaseStarter  {
         startBase();
 
         ${nameOfService}Service ${artifactId}Service = ServiceLocator.instance().getService("${artifactId}Service", ${nameOfService}Service.class);
-        String strategyName = null;
+        String strategyName = ${artifactId}Service.getStrategyName();
 
         EsperManager.initServiceProvider(strategyName);
 
