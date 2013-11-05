@@ -41,7 +41,7 @@
                 <include>**/*.sql</include>
             </includes>
         </fileSet>
-        <fileSet encoding="UTF-8">
+        <fileSet encoding="UTF-8" filtered="true">
             <directory>bin</directory>
             <includes>
                 <include>**/*.launch</include>
@@ -49,9 +49,6 @@
         </fileSet>
         <fileSet encoding="UTF-8">
             <directory>log</directory>
-            <includes>
-                <include>**/*.csv</include>
-            </includes>
         </fileSet>
         <fileSet encoding="UTF-8">
             <directory>.settings</directory>
@@ -67,10 +64,10 @@
             </includes>
         </fileSet>
         <fileSet filtered="true" encoding="UTF-8">
-            <directory>file/bardata </directory>
+            <directory>files/bardata </directory>
         </fileSet>
         <fileSet filtered="true" encoding="UTF-8">
-            <directory>file/tickdata</directory>
+            <directory>files/tickdata</directory>
         </fileSet>
 
     </fileSets>

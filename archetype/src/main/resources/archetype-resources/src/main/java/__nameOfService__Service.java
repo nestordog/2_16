@@ -12,5 +12,6 @@ public class ${nameOfService}Service extends StrategyServiceImpl {
 
     public void openPosition(String strategyName, int securityId, BigDecimal price) {
 
+        //TODO: Generated Method
     }
 }
