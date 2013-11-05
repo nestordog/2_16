@@ -2,7 +2,6 @@ package ${package};
 
 import ch.algotrader.starter.BaseStarter;
 import ch.algotrader.esper.EsperManager;
-import ch.algotrader.starter.BaseStarter;
 
 /**
  * This class starts the strategy in Live Trading Mode in a single VM
@@ -23,10 +22,8 @@ public class ${nameOfService}SingleVMStarter extends BaseStarter  {
 
         EsperManager.deployInitModules(strategyName);
 
-        // switch to internalClock
         EsperManager.setInternalClock(strategyName, true);
 
-        //activate the rest of the rules
         EsperManager.deployRunModules(strategyName);
     }
 }
