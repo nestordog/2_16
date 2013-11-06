@@ -41,7 +41,7 @@ public class RTFixMessageHandler extends Fix44MessageHandler {
     protected void processOrderStatus(ExecutionReport executionReport, Order order, OrderStatus orderStatus) throws FieldNotFound {
 
         // Note: store OrderID sind RealTick requires it for cancels and replaces
-        if (executionReport.getOrderID() != null && !order.getExtId().equals(executionReport.getOrderID())) {
+        if (executionReport.getOrderID() != null && (order.getExtId() == null || !order.getExtId().equals(executionReport.getOrderID()))) {
             orderStatus.setExtId(executionReport.getOrderID().getValue());
         }
     }

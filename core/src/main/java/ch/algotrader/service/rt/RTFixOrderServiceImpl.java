@@ -19,8 +19,11 @@ package ch.algotrader.service.rt;
 
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import quickfix.field.HandlInst;
 import quickfix.field.OrderID;
+import quickfix.field.TargetSubID;
 import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
@@ -36,10 +39,13 @@ public class RTFixOrderServiceImpl extends RTFixOrderServiceBase {
 
     private static final long serialVersionUID = 1030392480992545177L;
 
+    private @Value("${rt.targetSubId}") String targetSubId;
+
     @Override
     protected void handleSendOrder(final SimpleOrder order, final NewOrderSingle newOrder) throws Exception {
 
         newOrder.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC));
+        newOrder.getHeader().setField(new TargetSubID(this.targetSubId));
     }
 
     @Override
@@ -48,6 +54,7 @@ public class RTFixOrderServiceImpl extends RTFixOrderServiceBase {
         replaceRequest.set(new OrderID(order.getExtId()));
         replaceRequest.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC));
         replaceRequest.set(new TransactTime(new Date()));
+        replaceRequest.getHeader().setField(new TargetSubID(this.targetSubId));
     }
 
     @Override
@@ -55,5 +62,6 @@ public class RTFixOrderServiceImpl extends RTFixOrderServiceBase {
 
         cancelRequest.set(new OrderID(order.getExtId()));
         cancelRequest.set(new TransactTime(new Date()));
+        cancelRequest.getHeader().setField(new TargetSubID(this.targetSubId));
     }
 }
