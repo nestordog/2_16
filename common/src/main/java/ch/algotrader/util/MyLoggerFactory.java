@@ -25,7 +25,7 @@ import org.apache.log4j.spi.LoggerFactory;
 /**
  * Factory for {@link MyLogger}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

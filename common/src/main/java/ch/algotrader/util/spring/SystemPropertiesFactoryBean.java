@@ -40,7 +40,7 @@ import org.springframework.core.Constants;
  * defined using {@link #setProperties(Properties)} or {@link #setLocations(org.springframework.core.io.Resource[])} or
  * their names have been included explicitly in the set passed to {@link #setSystemProperties(Set)}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

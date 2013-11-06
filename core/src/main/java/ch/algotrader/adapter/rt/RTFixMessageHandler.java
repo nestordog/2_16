@@ -27,7 +27,7 @@ import ch.algotrader.entity.trade.OrderStatus;
 /**
  * RealTick specific Fix44MessageHandler.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

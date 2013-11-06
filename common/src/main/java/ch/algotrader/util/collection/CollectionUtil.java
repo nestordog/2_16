@@ -22,7 +22,7 @@ import java.util.Collection;
 /**
  * Provides single/first element lookup methods for Collections.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

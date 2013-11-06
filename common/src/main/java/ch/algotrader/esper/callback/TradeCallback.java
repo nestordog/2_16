@@ -36,7 +36,7 @@ import ch.algotrader.util.metric.MetricsUtil;
  * Base Esper Callback Class that will be invoked as soon as all {@code orders} passed to {@link Engine#addTradeCallback} have been
  * fully executed or cancelled.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

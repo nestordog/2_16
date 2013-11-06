@@ -37,7 +37,7 @@ import ch.algotrader.util.collection.Pair;
 /**
  * Provides methods for unziping of Zip-Files.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

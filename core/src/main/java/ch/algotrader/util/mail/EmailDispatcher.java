@@ -33,7 +33,7 @@ import ch.algotrader.util.MyLogger;
 /**
  * Dispatches a {link Message} based on the defined {@link Disposition Dispositions}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

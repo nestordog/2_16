@@ -26,7 +26,7 @@ import com.espertech.esperio.csv.CSVInputAdapterSpec;
  * A {@link CSVInputAdapterSpec} used to input arbitrary events from  a file.
  * Will use {@code time} as {@code timestampColumn}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

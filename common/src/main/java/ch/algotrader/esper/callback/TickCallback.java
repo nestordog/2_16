@@ -37,7 +37,7 @@ import ch.algotrader.util.metric.MetricsUtil;
  * Base Esper Callback Class that will be invoked as soon as at least one Tick has arrived for each of the {@code securities}
  * passed to {@link Engine#addFirstTickCallback}
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

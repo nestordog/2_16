@@ -34,7 +34,7 @@ package ch.algotrader.stockOption;
  * The approximation is accurate to absolute error less than 8 * 10^(-16).
  * Reference: Evaluating the Normal Distribution by George Marsaglia: http://www.jstatsoft.org/v11/a04/paper
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

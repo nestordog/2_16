@@ -31,7 +31,7 @@ import com.bloomberglp.blpapi.SessionOptions;
  * Factory class for Bloomberg Sessions.
  * This class an its public methods are available through JMX.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision: 5945 $ $Date: 2013-05-31 14:04:34 +0200 (Fr, 31 Mai 2013) $
  */

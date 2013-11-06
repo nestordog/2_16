@@ -51,7 +51,7 @@ import com.espertech.esper.collection.Pair;
 /**
  * Provides static Lookup methods based mainly on the {@link ch.algotrader.service.LookupService}
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

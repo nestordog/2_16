@@ -32,7 +32,7 @@ import ch.algotrader.ServiceLocator;
  * <p>
  * Example: {@code accountService:restorePortfolioValues:07.01.12:03.12.12}
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

@@ -24,7 +24,7 @@ import java.io.Serializable;
  * the objects that form the pair equal, i.e. first pair first object equals (.equals) the second pair first object,
  * and the first pair second object equals the second pair second object.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

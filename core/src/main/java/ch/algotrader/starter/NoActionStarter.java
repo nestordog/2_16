@@ -23,7 +23,7 @@ import ch.algotrader.ServiceLocator;
  * Starter Class that initializes only the Spring Environment.
  * It does not initialize EsperEngines or execute any actions.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

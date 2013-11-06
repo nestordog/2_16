@@ -25,7 +25,7 @@ import ch.algotrader.service.MarketDataService;
 /**
  * Abstract Base Class for starting the Base in Live Trading Mode
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

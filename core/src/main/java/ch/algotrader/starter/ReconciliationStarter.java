@@ -37,7 +37,7 @@ import ch.algotrader.service.ReconciliationService;
  * <p>
  * Usage: {@code ReconciliationStarter serviceName fileName(s)}
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

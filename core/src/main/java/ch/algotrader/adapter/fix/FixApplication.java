@@ -38,7 +38,7 @@ import ch.algotrader.util.MyLogger;
 /**
  * Implementation of {@link quickfix.Application} also extending {@link MessageCracker}
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

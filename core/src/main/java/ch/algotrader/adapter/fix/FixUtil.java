@@ -40,7 +40,7 @@ import ch.algotrader.enumeration.TIF;
 /**
  * Utility class providing conversion methods for Fix specific types.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

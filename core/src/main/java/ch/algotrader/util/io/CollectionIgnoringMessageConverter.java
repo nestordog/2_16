@@ -35,7 +35,7 @@ import org.springframework.jms.support.converter.SimpleMessageConverter;
 /**
  * A ActiveMQ {@link SimpleMessageConverter} that does not serialize {@link Collection Collections} or {@link Map Maps}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

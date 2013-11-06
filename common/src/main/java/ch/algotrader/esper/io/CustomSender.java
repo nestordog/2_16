@@ -34,7 +34,7 @@ import com.espertech.esperio.AbstractSender;
 /**
  * Custom Esper Sender that initializes Ticks and Bars.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

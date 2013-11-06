@@ -33,7 +33,7 @@ import ch.algotrader.vo.BarVO;
 /**
  * SuperCSV based utility class, that reads a Bar-File and interpolates Tick based on it.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

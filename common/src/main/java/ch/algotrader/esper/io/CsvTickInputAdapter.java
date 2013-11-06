@@ -31,7 +31,7 @@ import com.espertech.esperio.csv.CSVInputAdapter;
  * A {@link CSVInputAdapter} used to input {@link ch.algotrader.entity.marketData.Tick Ticks}.
  * Will retrieve the {@code isin} for the {@code fileName}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

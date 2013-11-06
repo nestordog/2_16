@@ -98,7 +98,7 @@ import ch.algotrader.vo.SeriesDefinitionVO;
 import ch.algotrader.vo.ValueMarkerVO;
 
 /**
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

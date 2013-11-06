@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import ch.algotrader.enumeration.Direction;
 
 /**
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

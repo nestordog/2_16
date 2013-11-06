@@ -35,7 +35,7 @@ import ch.algotrader.entity.marketData.Tick;
 /**
  * SuperCSV based utility class, that merges Tick CSV files.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

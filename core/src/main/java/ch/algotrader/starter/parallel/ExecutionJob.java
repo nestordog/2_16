@@ -28,7 +28,7 @@ import ch.algotrader.util.MyLogger;
 /**
  * Worker Class used in conjunction with {@link MavenLauncher} to start a simulation process in a separate JVM.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

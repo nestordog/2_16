@@ -49,7 +49,7 @@ import ch.algotrader.util.io.CsvTickReader;
 import ch.algotrader.vo.IVolVO;
 
 /**
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

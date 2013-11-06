@@ -29,7 +29,7 @@ import org.springframework.integration.support.MessageBuilder;
  * Splits a {@link Message} containing a {@link List} of {@link EmailFragment EmailFragments} into a
  * {@link List} of {@link Message Messages} with payload data.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

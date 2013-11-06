@@ -26,7 +26,7 @@ import org.apache.commons.beanutils.ConvertUtilsBean;
 /**
  * Contains utility methods for populating JavaBeans properties via reflection.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

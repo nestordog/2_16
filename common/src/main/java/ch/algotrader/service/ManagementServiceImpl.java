@@ -62,7 +62,7 @@ import ch.algotrader.vo.TickVO;
 import ch.algotrader.vo.TransactionVO;
 
 /**
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

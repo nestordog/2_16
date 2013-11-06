@@ -33,7 +33,7 @@ import com.espertech.esper.epl.agg.service.AggregationValidationContext;
  * </pre>
  * <i>Note: ExponentialMovingAverage is also available through the GenericTALibFunction.</i>
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

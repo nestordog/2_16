@@ -20,7 +20,7 @@ package ch.algotrader.util.mail;
 /**
  * POJO representing an Email Fragment with its binary data and {@code fileName}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

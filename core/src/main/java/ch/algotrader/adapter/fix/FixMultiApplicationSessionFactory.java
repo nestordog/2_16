@@ -31,7 +31,7 @@ import quickfix.SessionSettings;
 /**
  * Creates a new {@link quickfix.Application} for each session using the specified ApplicationFactory.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

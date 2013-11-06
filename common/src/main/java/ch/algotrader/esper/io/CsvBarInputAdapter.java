@@ -31,7 +31,7 @@ import com.espertech.esperio.csv.CSVInputAdapterSpec;
  *  A {@link CSVInputAdapter} used to input {@link ch.algotrader.entity.marketData.Bar Bars}.
  *  Will retrieve the {@code isin} for the {@code fileName} and the {@code barSize} from the {@link CSVInputAdapterSpec}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

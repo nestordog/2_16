@@ -46,7 +46,7 @@ import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.vo.OrderStatusVO;
 
 /**
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

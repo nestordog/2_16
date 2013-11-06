@@ -28,7 +28,7 @@ import ch.algotrader.entity.security.SecurityFamily;
 /**
  * Utility class to generate symbol, isin and ric for {@link ch.algotrader.entity.security.Future Futures}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

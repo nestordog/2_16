@@ -41,7 +41,7 @@ import ch.algotrader.entity.security.Security;
 /**
  * A generic Data Access Object providing Hibernate lookup methods.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

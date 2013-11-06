@@ -53,7 +53,7 @@ import ch.algotrader.util.io.CsvTickWriter;
  * <p>
  * Examle: {@code 20120115 20120216 BID:ASK 29:103850:104586:104587:104588}
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

@@ -27,7 +27,7 @@ import com.espertech.esper.plugin.PluginLoaderInitContext;
 /**
  * Loader for Spring-configured input and output adapters.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

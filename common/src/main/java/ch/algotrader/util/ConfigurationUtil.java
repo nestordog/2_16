@@ -24,7 +24,7 @@ import java.util.Properties;
 /**
  * Helper class to retrieve properties from conf.properties and system properties before SpringContext is initialized
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

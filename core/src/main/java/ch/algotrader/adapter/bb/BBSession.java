@@ -24,7 +24,7 @@ import com.bloomberglp.blpapi.SessionOptions;
 /**
  * Represents a Bloomberg Session
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision: 5941 $ $Date: 2013-05-31 13:23:59 +0200 (Fr, 31 Mai 2013) $
  */

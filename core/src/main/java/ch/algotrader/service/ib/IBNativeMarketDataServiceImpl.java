@@ -34,7 +34,7 @@ import ch.algotrader.vo.SubscribeTickVO;
 import com.ib.client.Contract;
 
 /**
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

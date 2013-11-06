@@ -27,7 +27,7 @@ import ch.algotrader.vo.TradePerformanceVO;
 /**
  * Provides different Position related utility methods.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

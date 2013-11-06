@@ -25,7 +25,7 @@ import ch.algotrader.esper.Engine;
 /**
  * Esper Callback Class that will throw an exception unluss all {@code orders} passed to {@link Engine#addTradeCallback} have been fully exectured.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

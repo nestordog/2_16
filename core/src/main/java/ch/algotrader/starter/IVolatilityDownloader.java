@@ -50,7 +50,7 @@ import ch.algotrader.util.XmlUtil;
 /**
  * Utility class to download multiple market data files from www.ivolatility.com
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

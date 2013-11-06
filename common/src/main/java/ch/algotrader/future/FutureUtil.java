@@ -26,7 +26,7 @@ import ch.algotrader.enumeration.Duration;
 /**
  * Utility class containing static methods around {@link Future Futures}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

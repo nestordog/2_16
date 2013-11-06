@@ -20,7 +20,7 @@ package ch.algotrader.adapter.bb;
 /**
  * BB Correlation Id Generator.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision: 5937 $ $Date: 2013-05-31 12:00:00 +0200 (Fr, 31 Mai 2013) $
  */

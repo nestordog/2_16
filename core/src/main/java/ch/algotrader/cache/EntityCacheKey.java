@@ -24,7 +24,7 @@ import ch.algotrader.entity.BaseEntityI;
 /**
  * A CacheKey for Entities composed of a {@code clazz} and a {@code key}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

@@ -20,7 +20,7 @@ package ch.algotrader.entity;
 import ch.algotrader.entity.SubscriptionDaoBase;
 
 /**
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

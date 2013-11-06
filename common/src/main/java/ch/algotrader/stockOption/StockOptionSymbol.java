@@ -33,7 +33,7 @@ import ch.algotrader.util.BaseConverterUtil;
 /**
  * Utility class to generate symbol, isin and ric for {@link ch.algotrader.entity.security.StockOption StockOptions}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

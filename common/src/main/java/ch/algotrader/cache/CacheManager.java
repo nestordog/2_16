@@ -26,7 +26,7 @@ import ch.algotrader.entity.BaseEntityI;
 /**
  * Entry point to the Level-0 Cache
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

@@ -28,7 +28,7 @@ import ch.algotrader.util.MyLogger;
 /**
  * Prints all values as a comma-separated-list (CSV) to Log. (Headers are not available).
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

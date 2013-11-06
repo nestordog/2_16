@@ -22,7 +22,7 @@ import ch.algotrader.service.ReconciliationService;
 /**
  * Pojo that defines Mail-Dispatching Rules.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

@@ -69,7 +69,7 @@ import ch.algotrader.util.collection.IntegerMap;
  * Main entry point to Fix sessions.
  * This class an its public methods are available through JMX.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

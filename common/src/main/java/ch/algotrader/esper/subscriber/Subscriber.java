@@ -20,7 +20,7 @@ package ch.algotrader.esper.subscriber;
 /**
  * Base class for all Subscribers being created througn {@link SubscriberCreator}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

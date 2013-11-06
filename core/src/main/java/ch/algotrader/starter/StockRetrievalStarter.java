@@ -27,7 +27,7 @@ import ch.algotrader.service.ib.IBNativeSecurityRetrieverService;
  * <p>
  * Usage: {@code SecurityRetrievalStarter securityFamilyId symbol1 symbol2 ...}
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

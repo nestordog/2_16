@@ -22,7 +22,7 @@ import java.util.Date;
 /**
  * Subclass of {@link java.util.Date} that has a Constructor that accepts a String representation of milliseconds.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

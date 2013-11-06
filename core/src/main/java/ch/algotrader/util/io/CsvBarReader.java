@@ -38,7 +38,7 @@ import ch.algotrader.entity.marketData.BarImpl;
 /**
  * SuperCSV Reader that reads {@link Bar Bars} from the specified CSV-File.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

@@ -23,7 +23,7 @@ import java.util.Map;
 import ch.algotrader.service.StrategyServiceBase;
 
 /**
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

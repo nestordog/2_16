@@ -30,7 +30,7 @@ import com.espertech.esper.client.util.XMLEventRenderer;
 /**
  * Prints all values to the Log in XML format.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

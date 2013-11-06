@@ -54,7 +54,7 @@ import ch.algotrader.service.SimulationService;
  * <p>Multiple Simulation runs by adjusting the value of multiple parameters around their start values and trying to find the maximum ShareRatio. The example below will start the optimiziation by settting the value of parameter a to 85.0 and parameter b to 150.0
  * <p>Example: {@code optimizeMultiParam SMI a:85.0 b:150.0}
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

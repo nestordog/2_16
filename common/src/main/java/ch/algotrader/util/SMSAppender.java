@@ -34,7 +34,7 @@ import org.apache.log4j.spi.LoggingEvent;
 /**
  * A custom {@code org.apache.log4j.net.SMTPAppender} designed to compose SMS messages.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

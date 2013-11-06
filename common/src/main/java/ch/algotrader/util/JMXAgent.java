@@ -46,7 +46,7 @@ import javax.rmi.ssl.SslRMIServerSocketFactory;
  * In addition the following vm argument has to be specified, which defines the public external host name:
  * <pre>-Djava.rmi.server.hostname=algotrader.com</pre>
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

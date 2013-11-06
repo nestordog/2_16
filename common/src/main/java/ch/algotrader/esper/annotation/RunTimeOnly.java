@@ -20,7 +20,7 @@ package ch.algotrader.esper.annotation;
 /**
  * Esper Statement is only deployed in Live-Trading mode.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

@@ -31,7 +31,7 @@ import ch.algotrader.util.RoundUtil;
 /**
  * SuperCSV based utility class, that reads a Tick-File and interpolates additional Ticks based on it.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

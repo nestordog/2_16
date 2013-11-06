@@ -37,7 +37,7 @@ import ch.algotrader.vo.SABRSurfaceVO;
 /**
  * Utility class containing static methods around {@link StockOption StockOptions}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

@@ -32,7 +32,7 @@ import com.espertech.esperio.csv.CSVInputAdapterSpec;
  * A {@link CSVInputAdapterSpec} used to input {@link ch.algotrader.entity.marketData.Bar Bars}.
  * Will use {@code dateTime} as {@code timestampColumn}.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

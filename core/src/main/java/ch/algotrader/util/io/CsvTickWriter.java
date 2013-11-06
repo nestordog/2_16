@@ -35,7 +35,7 @@ import ch.algotrader.entity.marketData.Tick;
 /**
  * SuperCSV Writer that writes {@link Tick Ticks} to the specified CSV-File.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

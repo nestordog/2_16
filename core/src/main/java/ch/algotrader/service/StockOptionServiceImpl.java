@@ -67,7 +67,7 @@ import ch.algotrader.vo.SABRSmileVO;
 import ch.algotrader.vo.SABRSurfaceVO;
 
 /**
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

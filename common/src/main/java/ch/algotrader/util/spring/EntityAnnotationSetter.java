@@ -40,7 +40,7 @@ import org.springframework.core.type.filter.AbstractClassTestingTypeFilter;
  * This Bean needs to be configured with the {@code init} method to make sure that all static field values are assigned
  * before the first Entity instances are created.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

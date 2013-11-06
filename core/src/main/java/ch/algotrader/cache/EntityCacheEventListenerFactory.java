@@ -36,7 +36,7 @@ import ch.algotrader.util.MyLogger;
 /**
  * EhCache CacheEventListenerFactory that creates a {@link CacheEventListener} which notifies on Entities being updated in the 2nd level cache.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */

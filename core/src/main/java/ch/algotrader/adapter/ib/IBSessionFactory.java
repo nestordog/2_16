@@ -33,7 +33,7 @@ import ch.algotrader.enumeration.ConnectionState;
  * Factory class for IBSessions (IB Connections).
  * This class an its public methods are available through JMX.
  *
- * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
