@@ -27,7 +27,7 @@ import ch.algotrader.vo.SABRSmileVO;
 /**
  * Static methods around the SABR Volatility model.
  *
- * @author <a href="mailto:eburgene@gmail.com">Emanuel Burgener</a>
+ * @author <a href="mailto:eburgener@algotrader.ch">Emanuel Burgener</a>
  *
  * @version $Revision$ $Date$
  */
