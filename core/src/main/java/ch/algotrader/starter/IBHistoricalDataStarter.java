@@ -57,9 +57,9 @@ import ch.algotrader.util.io.CsvTickWriter;
  *
  * @version $Revision$ $Date$
  */
-public class HistoricalDataStarter {
+public class IBHistoricalDataStarter {
 
-    private static Logger logger = MyLogger.getLogger(HistoricalDataStarter.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBHistoricalDataStarter.class.getName());
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
 
