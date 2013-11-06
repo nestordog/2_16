@@ -17,11 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.rt;
 
-import org.apache.log4j.Logger;
-
+import quickfix.FieldNotFound;
 import quickfix.SessionSettings;
+import quickfix.fix44.ExecutionReport;
 import ch.algotrader.adapter.fix.Fix44MessageHandler;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
 
 /**
  * RealTick specific Fix44MessageHandler.
@@ -32,10 +33,16 @@ import ch.algotrader.util.MyLogger;
  */
 public class RTFixMessageHandler extends Fix44MessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(RTFixMessageHandler.class.getName());
-
     public RTFixMessageHandler(SessionSettings settings) {
         super(settings);
     }
 
+    @Override
+    protected void processOrderStatus(ExecutionReport executionReport, Order order, OrderStatus orderStatus) throws FieldNotFound {
+
+        // Note: store OrderID sind RealTick requires it for cancels and replaces
+        if (executionReport.getOrderID() != null && !order.getExtId().equals(executionReport.getOrderID())) {
+            orderStatus.setExtId(executionReport.getOrderID().getValue());
+        }
+    }
 }

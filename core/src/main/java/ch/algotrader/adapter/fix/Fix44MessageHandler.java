@@ -98,6 +98,8 @@ public class Fix44MessageHandler {
                 orderStatus.setIntId(intId);
             }
 
+            processOrderStatus(executionReport, order, orderStatus);
+
             EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
 
             // only create fills if status is PARTIALLY_FILLED or FILLED
@@ -119,6 +121,8 @@ public class Fix44MessageHandler {
                 fill.setPrice(price);
                 fill.setExtId(extId);
 
+                processFill(executionReport, order, fill);
+
                 // associate the fill with the order
                 order.addFills(fill);
 
@@ -139,5 +143,13 @@ public class Fix44MessageHandler {
         } catch (FieldNotFound e) {
             logger.error(e);
         }
+    }
+
+    protected void processOrderStatus(ExecutionReport executionReport, Order order, OrderStatus orderStatus) throws FieldNotFound {
+        // do nothing (can be overwritten by subclasses)
+    }
+
+    protected void processFill(ExecutionReport executionReport, Order order, Fill fill) throws FieldNotFound {
+        // do nothing (can be overwritten by subclasses)
     }
 }
