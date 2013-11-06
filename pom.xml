@@ -217,6 +217,7 @@
         <module>doc</module>
         <module>crud</module>
         <module>test</module>
+        <module>archetype</module>
     </modules>
     <dependencyManagement>
         <dependencies>
