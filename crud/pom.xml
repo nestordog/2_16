@@ -1,18 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>algotrader</groupId>
         <artifactId>algotrader</artifactId>
         <version>2.1-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <artifactId>crud</artifactId>
-    <name>AlgoTrader Reference Data Manager</name>
+    <artifactId>algotrader-crud</artifactId>
     <packaging>grails-app</packaging>
-    <properties>
-        <grails.version>2.2.4</grails.version>
-    </properties>
+    <name>AlgoTrader Reference Data Manager</name>
+
     <dependencies>
         <dependency>
             <groupId>org.grails</groupId>
@@ -253,8 +249,8 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
     </dependencies>
+
     <build>
         <pluginManagement />
         <plugins>
@@ -307,6 +303,7 @@
             </plugin>
         </plugins>
     </build>
+
     <repositories>
         <repository>
             <id>grails</id>
@@ -319,24 +316,4 @@
             <url>http://repo.grails.org/grails/plugins</url>
         </repository>
     </repositories>
-    <profiles>
-        <profile>
-            <id>tools</id>
-            <activation>
-                <property>
-                    <name>java.vendor</name>
-                    <value>Sun Microsystems Inc.</value>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.sun</groupId>
-                    <artifactId>tools</artifactId>
-                    <version>${java.version}</version>
-                    <scope>system</scope>
-                    <systemPath>${java.home}/../lib/tools.jar</systemPath>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
 </project>

@@ -7,7 +7,7 @@
     </parent>
     <artifactId>algotrader-archetype</artifactId>
     <packaging>maven-archetype</packaging>
-    <name>Algotrader Strategy Archetype</name>
+    <name>Algotrader Archetype</name>
 
     <build>
         <extensions>
@@ -26,5 +26,4 @@
             </plugins>
         </pluginManagement>
     </build>
-
 </project>
