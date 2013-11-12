@@ -91,23 +91,19 @@ public abstract class OrderImpl extends Order {
     }
 
     @Override
-    public boolean equals(final Object obj) {
+    public boolean equals(final Object object) {
 
-        if (this == obj) {
+        if (this == object) {
             return true;
         }
-        if (obj instanceof Order) {
-
-            final Order that = (Order) obj;
-            if ((this.getIntId() == null) || (that.getIntId() == null)) {
-                return false;
-            } else {
-                return this.getIntId().equals(that.getIntId());
-            }
-
-        } else {
+        if (!(object instanceof Order)) {
             return false;
         }
+        final Order that = (Order) object;
+        if ((this.getIntId() == null) || (that.getIntId() == null) || !this.getIntId().equals(that.getIntId())) {
+            return false;
+        }
+        return true;
     }
 
     @Override
