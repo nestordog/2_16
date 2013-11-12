@@ -50,7 +50,7 @@ public class EmailTransformer {
     private static final Logger logger = MyLogger.getLogger(EmailTransformer.class.getName());
 
     @Transformer
-    public Message<List<EmailFragment>> transform(Message<javax.mail.Message> message) {
+    public Message<List<EmailFragment>> transform(Message<javax.mail.Message> message) throws MessagingException {
 
         javax.mail.Message mailMessage = message.getPayload();
 
@@ -68,17 +68,16 @@ public class EmailTransformer {
      *
      * If the mail message is an instance of {@link Multipart} then we delegate
      * to {@link #handleMultipart(Multipart, List)}.
+     * @throws MessagingException
      */
-    public void handleMessage(final javax.mail.Message mailMessage, final List<EmailFragment> emailFragments) {
+    public void handleMessage(final javax.mail.Message mailMessage, final List<EmailFragment> emailFragments) throws MessagingException {
 
         final Object content;
 
         try {
             content = mailMessage.getContent();
         } catch (IOException e) {
-            throw new IllegalStateException("error while retrieving the email contents.", e);
-        } catch (MessagingException e) {
-            throw new IllegalStateException("error while retrieving the email contents.", e);
+            throw new MessagingException("error while retrieving the email contents.", e);
         }
 
         // only handle multi part messages
@@ -86,7 +85,7 @@ public class EmailTransformer {
             Multipart multipart = (Multipart) content;
             handleMultipart(multipart, emailFragments);
         } else {
-            throw new IllegalStateException("message is not a multipart message");
+            throw new MessagingException("message is not a multipart message");
         }
     }
 
@@ -94,73 +93,50 @@ public class EmailTransformer {
      * Parses any {@link Multipart} instances that contains attachments
      *
      * Will create the respective {@link EmailFragment}s representing those attachments.
+     * @throws MessagingException
      */
-    public void handleMultipart(Multipart multipart, List<EmailFragment> emailFragments) {
+    public void handleMultipart(Multipart multipart, List<EmailFragment> emailFragments) throws MessagingException {
 
-        final int count;
-
-        try {
-            count = multipart.getCount();
-        } catch (MessagingException e) {
-            throw new IllegalStateException("error while retrieving the number of enclosed bodyparts", e);
-        }
+        final int count = multipart.getCount();
 
         for (int i = 0; i < count; i++) {
 
-            final BodyPart bodyPart;
+            BodyPart bodyPart = multipart.getBodyPart(i);
+            String filename = bodyPart.getFileName();
+            String disposition = bodyPart.getDisposition();
 
-            try {
-                bodyPart = multipart.getBodyPart(i);
-            } catch (MessagingException e) {
-                throw new IllegalStateException("error while retrieving body part", e);
-            }
-
-            String filename;
-            final String disposition;
-
-            try {
-
-                filename = bodyPart.getFileName();
-                disposition = bodyPart.getDisposition();
-
-                if (filename == null && bodyPart instanceof MimeBodyPart) {
-                    filename = ((MimeBodyPart) bodyPart).getContentID();
-                }
-
-            } catch (MessagingException e) {
-                throw new IllegalStateException("unable to retrieve body part meta data.", e);
+            if (filename == null && bodyPart instanceof MimeBodyPart) {
+                filename = ((MimeBodyPart) bodyPart).getContentID();
             }
 
             if (disposition == null) {
 
                 //ignore message body
+
             } else if (disposition.equalsIgnoreCase(Part.ATTACHMENT) || disposition.equalsIgnoreCase(Part.INLINE)) {
 
-                BufferedInputStream bis;
                 try {
-                    bis = new BufferedInputStream(bodyPart.getInputStream());
+                    BufferedInputStream bis = new BufferedInputStream(bodyPart.getInputStream());
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    try {
+
+                        IOUtils.copy(bis, bos);
+
+                        emailFragments.add(new EmailFragment(filename, bos.toByteArray()));
+
+                        logger.info(String.format("processing file: %s", new Object[] { filename }));
+
+                    } finally {
+                        bos.close();
+                        bis.close();
+                    }
+
                 } catch (IOException e) {
-                    throw new IllegalStateException("error while getting input stream", e);
-                } catch (MessagingException e) {
-                    throw new IllegalStateException("error while getting input stream", e);
+                    throw new MessagingException("error processing streams", e);
                 }
-
-                ByteArrayOutputStream bos;
-                try {
-                    bos = new ByteArrayOutputStream();
-                    IOUtils.copy(bis, bos);
-                    bos.close();
-                    bis.close();
-                } catch (IOException e) {
-                    throw new IllegalStateException("error while copying input stream to the ByteArrayOutputStream", e);
-                }
-
-                emailFragments.add(new EmailFragment(filename, bos.toByteArray()));
-
-                logger.info(String.format("processing file: %s", new Object[] { filename }));
 
             } else {
-                throw new IllegalStateException("unkown disposition " + disposition);
+                throw new MessagingException("unkown disposition " + disposition);
             }
         }
     }

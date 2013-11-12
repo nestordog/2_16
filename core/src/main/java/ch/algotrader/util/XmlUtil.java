@@ -19,18 +19,17 @@ package ch.algotrader.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-
-import ch.algotrader.util.MyLogger;
 
 import ch.algotrader.ServiceLocator;
 
@@ -45,30 +44,30 @@ public class XmlUtil {
 
     private static boolean saveToFile = ServiceLocator.instance().getConfiguration().getBoolean("misc.saveToFile");
 
-    private static Logger logger = MyLogger.getLogger(XmlUtil.class.getName());
-
     /**
      * Writes a {@link Document} to a textFile specified by {@code fileName} and {@code directory}
+     * @throws TransformerException
+     * @throws IOException
      */
-    public static void saveDocumentToFile(Document document, String fileName, String directory) {
+    public static void saveDocumentToFile(Document document, String fileName, String directory) throws TransformerException, IOException {
 
         if (!saveToFile) {
             return;
         }
 
+        TransformerFactory factory = TransformerFactory.newInstance();
+        Transformer transformer = factory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        transformer.setOutputProperty(OutputKeys.MEDIA_TYPE, "text/xml");
+        DOMSource source = new DOMSource(document);
+        OutputStream out = new FileOutputStream("files" + File.separator + directory + File.separator + fileName);
+
         try {
-            TransformerFactory factory = TransformerFactory.newInstance();
-            Transformer transformer = factory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-            transformer.setOutputProperty(OutputKeys.MEDIA_TYPE, "text/xml");
-            DOMSource source = new DOMSource(document);
-            OutputStream out = new FileOutputStream("files" + File.separator + directory + File.separator + fileName);
             StreamResult result = new StreamResult(out);
             transformer.transform(source, result);
+        } finally {
             out.close();
-        } catch (Exception ex) {
-            logger.warn(fileName + " could not be written to the file (" + ex.getClass().getName() + ")");
         }
     }
 }

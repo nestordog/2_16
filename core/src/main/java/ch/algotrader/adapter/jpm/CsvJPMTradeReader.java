@@ -20,7 +20,6 @@ package ch.algotrader.adapter.jpm;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,19 +57,23 @@ public class CsvJPMTradeReader {
 
     public static List<Map<String, ? super Object>> readTrades(byte[] data) throws IOException {
 
-        Reader isr = new InputStreamReader(new ByteArrayInputStream(data));
-        CsvMapReader reader = new CsvMapReader(isr, CsvPreference.EXCEL_PREFERENCE);
-        String[] header = reader.getHeader(true);
+        InputStreamReader inputStreamReader = new InputStreamReader(new ByteArrayInputStream(data));
+        CsvMapReader mapReader = new CsvMapReader(inputStreamReader, CsvPreference.EXCEL_PREFERENCE);
 
-        List<Map<String, ? super Object>> list = new ArrayList<Map<String, ? super Object>>();
+        List<Map<String, ? super Object>> list;
+        try {
+            String[] header = mapReader.getHeader(true);
 
-        Map<String, ? super Object> position;
-        while ((position = reader.read(header, processor)) != null) {
-            list.add(position);
+            list = new ArrayList<Map<String, ? super Object>>();
+
+            Map<String, ? super Object> position;
+            while ((position = mapReader.read(header, processor)) != null) {
+                list.add(position);
+            }
+
+            return list;
+        } finally {
+            mapReader.close();
         }
-
-        reader.close();
-
-        return list;
     }
 }

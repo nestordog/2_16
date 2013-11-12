@@ -43,7 +43,7 @@ import ch.algotrader.service.ReconciliationService;
  */
 public class ReconciliationStarter {
 
-    public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
+    public static void main(String[] args) throws Exception {
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
         ReconciliationService service = ServiceLocator.instance().getService(args[0], ReconciliationService.class);
@@ -51,11 +51,19 @@ public class ReconciliationStarter {
         for (int i = 1; i < args.length; i++) {
 
             File file = new File(args[i]);
-            InputStream bis = new BufferedInputStream(new FileInputStream(file));
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            IOUtils.copy(bis, bos);
+            InputStream inputStream = new BufferedInputStream(new FileInputStream(new File(args[i])));
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-            service.reconcile(file.getName(), bos.toByteArray());
+            byte[] bytes = null;
+            try {
+                IOUtils.copy(inputStream, outputStream);
+                bytes = outputStream.toByteArray();
+            } catch (Exception e) {
+                inputStream.close();
+                outputStream.close();
+            }
+
+            service.reconcile(file.getName(), bytes);
         }
 
         ServiceLocator.instance().shutdown();

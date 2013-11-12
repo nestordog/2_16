@@ -24,13 +24,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 
 import ch.algotrader.util.collection.Pair;
 
@@ -43,79 +43,73 @@ import ch.algotrader.util.collection.Pair;
  */
 public class ZipUtil {
 
-    private static Logger logger = MyLogger.getLogger(ZipUtil.class.getName());
+    private static final int BUFFER = 2048;
 
     /**
      * unzipes a Zip-File specified by {@code fileName} to the same directory.
      * If {@code delete} is true, the original Zip-file will be deleted.
+     * @throws IOException
      */
-    public static List<String> unzip(String fileName, boolean delete) {
+    public static List<String> unzip(String fileName, boolean delete) throws IOException {
 
-        List<String> fileNames = new ArrayList<String>();
+        File file = new File(fileName);
+        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(file)));
 
         try {
-            int BUFFER = 2048;
-            File file = new File(fileName);
-            FileInputStream fis = new FileInputStream(file);
-            ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
 
             ZipEntry entry;
+            List<String> fileNames = new ArrayList<String>();
             while ((entry = zis.getNextEntry()) != null) {
 
                 String entryFileName = file.getParent() + File.separator + entry.getName();
                 fileNames.add(entryFileName);
 
-                FileOutputStream fos = new FileOutputStream(entryFileName);
-                BufferedOutputStream bos = new BufferedOutputStream(fos, BUFFER);
-
-                IOUtils.copy(zis, bos);
-
-                bos.flush();
-                bos.close();
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(entryFileName), BUFFER);
+                try {
+                    IOUtils.copy(zis, bos);
+                } finally {
+                    bos.close();
+                }
             }
-
-            zis.close();
 
             if (delete) {
                 file.delete();
             }
 
-        } catch (Exception e) {
-            logger.error("problem unzipping", e);
-        }
+            return fileNames;
 
-        return fileNames;
+        } finally {
+            zis.close();
+        }
     }
 
     /**
      * Unzipes a Zip-File specified as a byte[] and returns a List of Pairs containing the filename and the File content.
+     * @throws IOException
      */
-    public static List<Pair<String, byte[]>> unzip(byte[] data) {
+    public static List<Pair<String, byte[]>> unzip(byte[] data) throws IOException {
 
         List<Pair<String, byte[]>> entries = new ArrayList<Pair<String, byte[]>>();
 
+        ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(data));
         try {
-            ByteArrayInputStream bis = new ByteArrayInputStream(data);
-            ZipInputStream zis = new ZipInputStream(bis);
 
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
 
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                IOUtils.copy(zis, bos);
-
-                entries.add(new Pair<String, byte[]>(entry.getName(), bos.toByteArray()));
-
-                bos.flush();
-                bos.close();
+                try {
+                    IOUtils.copy(zis, bos);
+                    entries.add(new Pair<String, byte[]>(entry.getName(), bos.toByteArray()));
+                } finally {
+                    bos.close();
+                }
             }
 
+            return entries;
+
+        } finally {
             zis.close();
-
-        } catch (Exception e) {
-            logger.error("problem unzipping", e);
         }
-
-        return entries;
     }
 }

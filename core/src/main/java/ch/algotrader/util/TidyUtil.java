@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -96,16 +95,21 @@ public class TidyUtil {
      * Parses an arbitrary {@link InputStream} and returns a cleaned and filtered {@link Document}.
      * During the Filtering Process all HTML-Tags between any of the {@code regexs} will be removed.
      */
-    public static Document parseAndFilter(InputStream in) throws UnsupportedEncodingException, IOException {
+    public static Document parseAndFilter(InputStream in) throws IOException {
 
         // get the content
-        StringBuffer out = new StringBuffer();
-        byte[] b = new byte[1024];
-        for (int n; (n = in.read(b)) != -1;) {
-            out.append(new String(b, 0, n, "UTF-8"));
+        String content;
+        try {
+            StringBuffer out = new StringBuffer();
+            byte[] b = new byte[1024];
+            for (int n; (n = in.read(b)) != -1;) {
+                out.append(new String(b, 0, n, "UTF-8"));
+            }
+
+            content = out.toString();
+        } finally {
+            in.close();
         }
-        in.close();
-        String content = out.toString();
 
         // parse using the regex
         for (String regex : regexs) {
@@ -115,6 +119,11 @@ public class TidyUtil {
         }
 
         // get the document
-        return getInstance().parseDOM(new ByteArrayInputStream(content.getBytes()), null);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes());
+        try {
+            return getInstance().parseDOM(inputStream, null);
+        } finally {
+            inputStream.close();
+        }
     }
 }

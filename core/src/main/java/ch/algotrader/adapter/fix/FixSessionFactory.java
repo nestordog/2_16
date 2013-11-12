@@ -89,8 +89,11 @@ public class FixSessionFactory implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
 
         InputStream inputStream = this.getClass().getResourceAsStream("/fix.cfg");
-        this.settings = new SessionSettings(inputStream);
-        inputStream.close();
+        try {
+            this.settings = new SessionSettings(inputStream);
+        } finally {
+            inputStream.close();
+        }
 
         FixApplicationFactory applicationFactory = new FixApplicationFactory(this.settings);
 

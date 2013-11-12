@@ -70,19 +70,23 @@ public class CsvRBSTradeReader {
 
     public static List<Map<String, ? super Object>> readPositions(byte[] data) throws IOException {
 
-        Reader isr = new InputStreamReader(new ByteArrayInputStream(data));
-        CsvMapReader reader = new CsvMapReader(isr, CsvPreference.EXCEL_PREFERENCE);
-        String[] header = reader.getHeader(true);
+        Reader inputStreamReader = new InputStreamReader(new ByteArrayInputStream(data));
+        CsvMapReader mapReader = new CsvMapReader(inputStreamReader, CsvPreference.EXCEL_PREFERENCE);
 
-        List<Map<String, ? super Object>> list = new ArrayList<Map<String, ? super Object>>();
+        try {
+            String[] header = mapReader.getHeader(true);
 
-        Map<String, ? super Object> position;
-        while ((position = reader.read(header, processor)) != null) {
-            list.add(position);
+            List<Map<String, ? super Object>> list = new ArrayList<Map<String, ? super Object>>();
+
+            Map<String, ? super Object> position;
+            while ((position = mapReader.read(header, processor)) != null) {
+                list.add(position);
+            }
+
+            return list;
+
+        } finally {
+            mapReader.close();
         }
-
-        reader.close();
-
-        return list;
     }
 }

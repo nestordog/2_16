@@ -90,6 +90,7 @@ import com.espertech.esper.client.deploy.DeploymentInformation;
 import com.espertech.esper.client.deploy.EPDeploymentAdmin;
 import com.espertech.esper.client.deploy.Module;
 import com.espertech.esper.client.deploy.ModuleItem;
+import com.espertech.esper.client.deploy.ParseException;
 import com.espertech.esper.client.soda.AnnotationPart;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.time.CurrentTimeEvent;
@@ -809,42 +810,49 @@ public class EngineImpl extends AbstractEngine {
 
     private Module getModule(String moduleName) {
 
-        String fileName = "module-" + moduleName + ".epl";
-        InputStream stream = this.getClass().getResourceAsStream("/" + fileName);
-        if (stream == null) {
-            throw new IllegalArgumentException(fileName + " does not exist");
-        }
-
-        // process loads
         try {
+
+            String fileName = "module-" + moduleName + ".epl";
+            InputStream stream = getClass().getResourceAsStream("/" + fileName);
+            if (stream == null) {
+                throw new IllegalArgumentException(fileName + " does not exist");
+            }
+
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-            StringWriter buffer = new StringWriter();
-            String strLine;
-            while ((strLine = reader.readLine()) != null) {
-                if (!strLine.startsWith("load")) {
-                    buffer.append(strLine);
-                    buffer.append(newline);
-                } else {
-                    String argument = StringUtils.substringAfter(strLine, "load").trim();
-                    String moduleBaseName = argument.split("\\.")[0];
-                    String statementName = argument.split("\\.")[1].split(";")[0];
-                    Module module = EPLModuleUtil.readResource("module-" + moduleBaseName + ".epl");
-                    for (ModuleItem item : module.getItems()) {
-                        if (item.getExpression().contains("@Name('" + statementName + "')")) {
-                            buffer.append(item.getExpression());
-                            buffer.append(";");
-                            buffer.append(newline);
-                            break;
+
+            // process loads
+            try {
+                StringWriter buffer = new StringWriter();
+                String strLine;
+                while ((strLine = reader.readLine()) != null) {
+                    if (!strLine.startsWith("load")) {
+                        buffer.append(strLine);
+                        buffer.append(newline);
+                    } else {
+                        String argument = StringUtils.substringAfter(strLine, "load").trim();
+                        String moduleBaseName = argument.split("\\.")[0];
+                        String statementName = argument.split("\\.")[1].split(";")[0];
+                        Module module = EPLModuleUtil.readResource("module-" + moduleBaseName + ".epl");
+                        for (ModuleItem item : module.getItems()) {
+                            if (item.getExpression().contains("@Name('" + statementName + "')")) {
+                                buffer.append(item.getExpression());
+                                buffer.append(";");
+                                buffer.append(newline);
+                                break;
+                            }
                         }
                     }
                 }
+
+                return EPLModuleUtil.parseInternal(buffer.toString(), fileName);
+
+            } finally {
+                reader.close();
             }
-            reader.close();
-            stream.close();
 
-            return EPLModuleUtil.parseInternal(buffer.toString(), fileName);
-
-        } catch (Exception e) {
+        } catch (ParseException e) {
+            throw new RuntimeException(moduleName + " could not be deployed", e);
+        } catch (IOException e) {
             throw new RuntimeException(moduleName + " could not be deployed", e);
         }
     }

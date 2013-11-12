@@ -86,7 +86,7 @@ public class IVolatilityDownloader {
     }
 
     // @formatter:off
-    private static void login(HttpClient httpclient) throws IOException, HttpException {
+    private static void login(HttpClient httpclient) throws IOException, HttpException, TransformerException {
 
         // cookie settings http.protocol.cookie-policy
         httpclient.getParams().setParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, new Boolean(true));
@@ -170,7 +170,7 @@ public class IVolatilityDownloader {
         }
     }
 
-    private static void logout(HttpClient httpclient) throws IOException, HttpException {
+    private static void logout(HttpClient httpclient) throws IOException, HttpException, TransformerException {
         //logout
         GetMethod logoutGet = new GetMethod("https://www.ivolatility.com/logoff.j");
         logoutGet.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
@@ -204,13 +204,16 @@ public class IVolatilityDownloader {
                 BufferedInputStream inputStream = new BufferedInputStream(fileGet.getResponseBodyAsStream());
                 FileOutputStream outputStream = new FileOutputStream("files" + File.separator + "ivol" + File.separator + "file-" + fileFormat.format(date) + ".csv");
 
-                int input;
-                while ((input = inputStream.read()) != -1) {
-                    outputStream.write(input);
-                }
+                try {
+                    int input;
+                    while ((input = inputStream.read()) != -1) {
+                        outputStream.write(input);
+                    }
 
-                outputStream.close();
-                inputStream.close();
+                } finally {
+                    outputStream.close();
+                    inputStream.close();
+                }
             }
         } finally {
             fileGet.releaseConnection();
