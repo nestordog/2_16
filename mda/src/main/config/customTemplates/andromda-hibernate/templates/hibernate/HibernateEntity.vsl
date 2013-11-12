@@ -1,5 +1,6 @@
 ## AlgoTrader: 15249
 ## line 96 - 98: add implements $entity.implementedInterfaceList in case of generalization
+## line 196: only generate equals and hashCode for non-transient entities
 #set ($generatedFile = "${entity.packagePath}/${entity.entityName}.java")
 // license-header java merge-point
 //
@@ -192,7 +193,7 @@ $operation.getDocumentation("     * ")
 #end
 
 #end
-#if ($generateEntityEqualsAndHashCode.equalsIgnoreCase('true'))
+#if ($generateEntityEqualsAndHashCode.equalsIgnoreCase('true') && $stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_transient')))
 #set ($identifiers = $entity.getIdentifiers(false))
     /**
 #if ($identifiers.empty)

@@ -18,6 +18,7 @@
 package ch.algotrader.entity.trade;
 
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.ObjectUtils;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -87,5 +88,31 @@ public abstract class OrderImpl extends Order {
         }
 
         return buffer.toString();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Order) {
+
+            final Order that = (Order) obj;
+            if ((this.getIntId() == null) || (that.getIntId() == null)) {
+                return false;
+            } else {
+                return this.getIntId().equals(that.getIntId());
+            }
+
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        return ObjectUtils.hashCode(this.getIntId());
     }
 }
