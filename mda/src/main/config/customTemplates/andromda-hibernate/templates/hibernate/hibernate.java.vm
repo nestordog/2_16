@@ -1,0 +1,93 @@
+## AlgoTrader, line 33 handle id == 0
+##  This macro will render the equals() method
+##  If an entity is rendered, the attributeSet consists of the identifiers,
+##  if an value type is renderer, the attributeSet consists of all attributes
+##
+#macro (renderEqualsMethod $class $className $attributeSet)
+#if ($enableAnnotations)
+    @Override
+#end
+    public boolean equals(Object object)
+    {
+#if ($attributeSet.empty)
+        return super.equals(object);
+#else
+        if (this == object)
+        {
+            return true;
+        }
+        if (!(object instanceof $className))
+        {
+            return false;
+        }
+        final $className that = ($className)object;
+#if($class.compositeIdentifier)
+        if (this.$class.identifierName == null || that.$class.identifierName == null || !this.${class.identifierName}.equals(that.${class.identifierName}))
+        {
+            return false;
+        }
+#else
+#foreach ($attribute in $attributeSet)
+#set ($idType = $attribute.type)
+#if ($idType.primitive)
+        if (this.$attribute.name == 0 || that.${attribute.getterName}() == 0 || this.$attribute.name != that.${attribute.getterName}())
+        {
+            return false;
+        }
+#elseif ($idType.arrayType)
+        if (!java.util.Arrays.equals(this.$attribute.name, that.${attribute.getterName}()))
+        {
+            return false;
+        }
+#else
+        if (this.$attribute.name == null || that.${attribute.getterName}() == null || !this.${attribute.name}.equals(that.${attribute.getterName}()))
+        {
+            return false;
+        }
+#end
+#end
+#end
+        return true;
+#end
+    }
+#end
+##
+##  This macro will render the hashCode() method
+##  If an entity is rendered, the attributeSet consists of the identifiers,
+##  if an value type is renderer, the attributeSet consists of all attributes
+##
+#macro (renderHashCodeMethod $class $className $attributeSet)
+#if ($enableAnnotations)
+    @Override
+#end
+    public int hashCode()
+    {
+#if ($attributeSet.empty)
+        return super.hashCode();
+#else
+#if ($class.generalization)
+        int hashCode = super.hashCode();
+#else
+        int hashCode = 0;
+#end
+#if($class.compositeIdentifier)
+        hashCode = 29 * hashCode + (this.$class.identifierName == null ? 0 : this.${class.identifierName}.hashCode());
+#else
+#foreach ($attribute in $attributeSet)
+#set ($attrType = $attribute.type)
+#if  ($attribute.getterSetterTypeName == "boolean")
+        hashCode = 29 * hashCode + (${attribute.name} ? 1 : 0);
+#elseif ($attrType.arrayType)
+        // arrays are not part of the hashCode calculation
+#elseif ($attrType.primitive)
+        hashCode = 29 * hashCode + (int)${attribute.name};
+#else
+        hashCode = 29 * hashCode + (this.${attribute.name} == null ? 0 : this.${attribute.name}.hashCode());
+#end## if
+#end## foreach
+#end
+
+        return hashCode;
+#end## $attributeSet.empty
+    }
+#end
