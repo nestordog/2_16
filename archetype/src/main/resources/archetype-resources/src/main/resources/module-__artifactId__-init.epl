@@ -1,4 +1,4 @@
-//Example
+//Example Statement to create a simple moving average indicator
 @Name('MOVING_AVERAGE')
 insert into
     Indicator
@@ -7,3 +7,16 @@ select
     - talib("movingAverage", currentValueDouble, movLengthSlow, "Sma") as value
 from
     Tick(security.isin = securityId);
+
+// keeps the last MarketDataEvent per security up to one week
+@Name('CURRENT_MARKET_DATA_EVENT')
+@RunTimeOnly()
+select
+    marketDataEvent.security.id as securityId,
+    marketDataEvent.* as marketDataEvent
+from
+    MarketDataEvent.std:groupwin(security.id).win:length(1) as marketDataEvent
+where
+    marketDataEvent.security is not null
+and
+    marketDataEvent.dateTime.time > (current_timestamp - DateUtil.getDuration('WEEK_1'));

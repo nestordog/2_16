@@ -1,7 +1,8 @@
 package ${package};
 
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.starter.BaseStarter;
-import ch.algotrader.esper.EsperManager;
 
 /**
  * This class starts the strategy in Live Trading Mode in a single VM
@@ -18,12 +19,12 @@ public class ${nameOfService}SingleVMStarter extends BaseStarter  {
         ${nameOfService}Service ${artifactId}Service = ServiceLocator.instance().getService("${artifactId}Service", ${nameOfService}Service.class);
         String strategyName = ${artifactId}Service.getStrategyName();
 
-        EsperManager.initServiceProvider(strategyName);
+        EngineLocator.instance().initEngine(strategyName);
 
-        EsperManager.deployInitModules(strategyName);
+        EngineLocator.instance().getEngine(strategyName).deployInitModules();
 
-        EsperManager.setInternalClock(strategyName, true);
+        EngineLocator.instance().getEngine(strategyName).setInternalClock(true);
 
-        EsperManager.deployRunModules(strategyName);
+        EngineLocator.instance().getEngine(strategyName).deployRunModules();
     }
 }
