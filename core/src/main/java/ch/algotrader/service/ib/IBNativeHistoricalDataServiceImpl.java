@@ -89,6 +89,11 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
     protected synchronized List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType) throws Exception {
 
         this.security = getSecurityDao().get(securityId);
+
+        if (this.security == null) {
+            throw new IBNativeHistoricalDataServiceException("security was not found " + securityId);
+        }
+
         this.barSize = barSize;
         this.scale = this.security.getSecurityFamily().getScale();
 

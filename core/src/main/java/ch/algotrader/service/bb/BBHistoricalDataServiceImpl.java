@@ -48,6 +48,10 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
     protected List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, BarType barType) throws Exception {
 
         Security security = getSecurityDao().get(securityId);
+        if (security == null) {
+            throw new BBHistoricalDataServiceException("security was not found " + securityId);
+        }
+
         String securityString = "/bbgid/" + security.getBbgid();
 
         // send the request by using either IntrayBarRequest or HistoricalDataRequest
@@ -269,7 +273,12 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
                 Element bbBar = data.getValueAsElement(i);
 
                 Date date = bbBar.getElementAsDate(BBConstants.DATE).calendar().getTime();
-                double close = bbBar.getElementAsFloat64("PX_LAST");
+
+                //ignore bars with not PX_LAST
+                double close = 0;
+                if (!bbBar.hasElement("PX_LAST")) {
+                    continue;
+                }
 
                 // instruments might only have a PX_LAST
                 double open, high, low;
