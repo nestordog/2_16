@@ -272,13 +272,13 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
 
                 Element bbBar = data.getValueAsElement(i);
 
-                Date date = bbBar.getElementAsDate(BBConstants.DATE).calendar().getTime();
-
                 //ignore bars with not PX_LAST
-                double close = 0;
                 if (!bbBar.hasElement("PX_LAST")) {
                     continue;
                 }
+
+                Date date = bbBar.getElementAsDate(BBConstants.DATE).calendar().getTime();
+                double close = bbBar.getElementAsFloat64("PX_LAST");
 
                 // instruments might only have a PX_LAST
                 double open, high, low;
