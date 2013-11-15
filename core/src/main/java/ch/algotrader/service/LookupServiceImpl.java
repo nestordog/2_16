@@ -138,6 +138,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected Collection<Security> handleGetAllSecurities() throws java.lang.Exception {
+
+        return getSecurityDao().loadAll();
+    }
+
+    @Override
     protected List<Security> handleGetSecuritiesByIds(Collection<Integer> ids) throws Exception {
 
         return getSecurityDao().findByIds(ids);
@@ -493,6 +499,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected List<Position> handleGetOpenPositionsByStrategyTypeAndUnderlyingType(String strategyName, Class type, Class underlyingType) throws Exception {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
