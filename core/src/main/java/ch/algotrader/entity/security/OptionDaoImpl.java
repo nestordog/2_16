@@ -17,12 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import ch.algotrader.entity.security.StockOptionDaoBase;
+import ch.algotrader.entity.security.OptionDaoBase;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class StockOptionDaoImpl extends StockOptionDaoBase {
+public class OptionDaoImpl extends OptionDaoBase {
 }

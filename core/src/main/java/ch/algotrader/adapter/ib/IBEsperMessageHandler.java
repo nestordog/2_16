@@ -124,7 +124,7 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
             orderStatus.setStatus(status);
             orderStatus.setFilledQuantity(filledQuantity);
             orderStatus.setRemainingQuantity(remainingQuantity);
-            orderStatus.setOrd(order);
+            orderStatus.setOrder(order);
 
             logger.debug(EWrapperMsgGenerator.orderStatus(orderId, statusString, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
 

@@ -1,15 +1,15 @@
-@Name('CREATE_NATURAL_INDEX_TICK')
-@Condition(key='statement.loadStockOptionsFromDB')
+@Name('CREATE_INDEX_TICK')
+@Condition(key='statement.loadOptionsFromDB')
 insert into
-    NaturalIndexTick
+    IndexTick
 select
     *
 from
-    Tick(instanceof(security, ch.algotrader.entity.security.NaturalIndex));
+    Tick(instanceof(security, `ch.algotrader.entity.security.Index`));
 
 @Name('INSERT_INTO_TICK_OPTIONS_FROM_DB')
 @SimulationOnly
-@Condition(key='statement.loadStockOptionsFromDB')
+@Condition(key='statement.loadOptionsFromDB')
 @Priority(2)
 insert into
     Tick
@@ -24,30 +24,30 @@ select
     tick.ask as ask,
     LookupUtil.getSecurityInitialized(tick.security.id) as security
 from
-    NaturalIndexTick as indexTick,
-    method:LookupUtil.getSubscribedStockOptions() as stockOption,
-    method:LookupUtil.getTickByDateAndSecurity(stockOption.id, indexTick.dateTime.roundFloor('day')) as tick
+    IndexTick as indexTick,
+    method:LookupUtil.getSubscribedOptions() as option,
+    method:LookupUtil.getTickByDateAndSecurity(option.id, indexTick.dateTime.roundFloor('day')) as tick
 where
-    stockOption.underlying.id = indexTick.security.id
+    option.underlying.id = indexTick.security.id
 order by
        tick.security.id;
 
 @Name('INSERT_INTO_TICK_SIMULATED_OPTIONS_BY_IVOL')
 @SimulationOnly
-@Condition(key='statement.simulateStockOptions')
+@Condition(key='statement.simulateOptions')
 @Priority(2)
 insert into
     Tick
 select
     current_timestamp.toDate() as dateTime,
-    RoundUtil.getBigDecimal(StockOptionUtil.getOptionPrice(option, fxTick.currentValueDouble, StockOptionUtil.getImpliedVolatilitySABR(option, fxTick.currentValueDouble, surface)), option.securityFamily.scale) as last,
+    RoundUtil.getBigDecimal(OptionUtil.getOptionPrice(option, fxTick.currentValueDouble, OptionUtil.getImpliedVolatilitySABR(option, fxTick.currentValueDouble, surface)), option.securityFamily.scale) as last,
     current_timestamp.toDate() as lastDateTime,
     0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask,
     LookupUtil.getSecurityInitialized(option.id) as security
 from
     Tick(instanceof(security, ch.algotrader.entity.security.Forex)) as fxTick,
     method:LookupUtil.getSABRSurface(fxTick.security.id, current_timestamp.toDate()) as surface,
-    method:LookupUtil.getSubscribedStockOptions() as option
+    method:LookupUtil.getSubscribedOptions() as option
 order by
     option.id;
 
@@ -64,7 +64,7 @@ select
     0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask,
     LookupUtil.getSecurityInitialized(future.id) as security
 from
-    Tick(instanceof(security, ch.algotrader.entity.security.NaturalIndex)) as indexTick,
+    Tick(instanceof(security, `ch.algotrader.entity.security.Index`)) as indexTick,
     method:LookupUtil.getSubscribedFutures() as future
 where
     future.underlying.id = indexTick.security.id;

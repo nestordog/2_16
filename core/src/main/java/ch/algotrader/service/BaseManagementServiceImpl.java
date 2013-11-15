@@ -78,7 +78,7 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
     @Override
     protected void handleHedgeDelta(int underlyingId) throws Exception {
 
-        getStockOptionService().hedgeDelta(underlyingId);
+        getOptionService().hedgeDelta(underlyingId);
     }
 
     @Override

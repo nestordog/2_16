@@ -6,10 +6,10 @@
 select
     cast(currentOrder.parentOrder, ch.algotrader.entity.trade.SlicingOrder).decreaseOffsetTicks()
 from
-    //every GenericOrder -> (OrderStatusC and not (OrderStatusEorPE or GenericOrder))
-    pattern [every currentOrder=GenericOrder(instanceof(parentOrder,ch.algotrader.entity.trade.SlicingOrder))
-        -> (OrderStatus(status = Status.CANCELED, ord.intId = currentOrder.intId)
-            and not (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, ord.intId = currentOrder.intId) or GenericOrder(intId = currentOrder.intId)))];
+    //every Order -> (OrderStatusC and not (OrderStatusEorPE or Order))
+    pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.SlicingOrder))
+        -> (OrderStatus(status = Status.CANCELED, `order`.intId = currentOrder.intId)
+            and not (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, `order`.intId = currentOrder.intId) or `Order`(intId = currentOrder.intId)))];
 
 @Name('SLICINING_INCREASE_OFFSET_TICKS')
 @RunTimeOnly
@@ -17,10 +17,10 @@ from
 select
     cast(currentOrder.parentOrder, ch.algotrader.entity.trade.SlicingOrder).increaseOffsetTicks()
 from
-    //every GenericOrder -> (OrderStatusEorPE and not (OrderStatusC or GenericOrder))
-    pattern [every currentOrder=GenericOrder(instanceof(parentOrder,ch.algotrader.entity.trade.SlicingOrder))
-        -> (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, ord.intId = currentOrder.intId)
-            and not (OrderStatus(status = Status.CANCELED, ord.intId = currentOrder.intId) or GenericOrder(intId = currentOrder.intId)))];
+    //every Order -> (OrderStatusEorPE and not (OrderStatusC or Order))
+    pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.SlicingOrder))
+        -> (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, `order`.intId = currentOrder.intId)
+            and not (OrderStatus(status = Status.CANCELED, `order`.intId = currentOrder.intId) or `Order`(intId = currentOrder.intId)))];
 
 @Name('SLICINING_CANCEL_ORDER')
 @RunTimeOnly
@@ -28,10 +28,10 @@ from
 select
     currentOrder
 from
-    //every GenericOrder -> (timer:interval and not OrderStatusEorC)
-    pattern [every currentOrder=GenericOrder(instanceof(parentOrder,ch.algotrader.entity.trade.SlicingOrder))
+    //every Order -> (timer:interval and not OrderStatusEorC)
+    pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.SlicingOrder))
         -> (timer:interval(cast(currentOrder.parentOrder.minDuration?,double) + (cast(currentOrder.parentOrder.maxDuration?,double) - cast(currentOrder.parentOrder.minDuration?,double)) * Math.random())
-            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.intId = currentOrder.intId))];
+            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, `order`.intId = currentOrder.intId))];
 
 @Name('SLICINING_NEXT_ORDER')
 @RunTimeOnly
@@ -41,9 +41,9 @@ select
 from
     // every SlicingOrder -> every ((OrderStatusLimit -> timer:interval) and not OrderStatusSlicing)
     pattern [every slicingOrder=ch.algotrader.entity.trade.SlicingOrder
-            -> every ((OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.parentOrder.intId = slicingOrder.intId)
+            -> every ((OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, `order`.parentOrder.intId = slicingOrder.intId)
             -> timer:interval(slicingOrder.minDelay + (slicingOrder.maxDelay - slicingOrder.minDelay) * Math.random()))
-            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.intId = slicingOrder.intId))] unidirectional,
+            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, `order`.intId = slicingOrder.intId))] unidirectional,
     OpenOrderWindow() as openOrderWindow
 where
     openOrderWindow.intId = slicingOrder.intId;

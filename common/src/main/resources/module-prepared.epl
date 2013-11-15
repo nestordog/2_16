@@ -12,11 +12,11 @@ select
     engineStrategy.name as strategyName,
     orderStatus
 from
-    pattern[[?] (every-distinct(ord.security.id)
+    pattern[[?] (every-distinct(`order`.security.id)
         (orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED,
-            ord.security.id in (?),
-            ord.strategy.name = ?,
-            ord.algoOrder = ?)))];
+            `order`.security.id in (?),
+            `order`.strategy.name = ?,
+            `order`.algoOrder = ?)))];
 
 @Name('ON_OPEN_POSITION')
 select

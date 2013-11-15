@@ -140,7 +140,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         fill.setSide(order.getSide());
         fill.setQuantity(order.getQuantity());
         fill.setPrice(price);
-        fill.setOrd(order);
+        fill.setOrder(order);
 
         // propagate the fill
         getTransactionService().propagateFill(fill);
@@ -153,7 +153,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         orderStatus.setStatus(Status.EXECUTED);
         orderStatus.setFilledQuantity(order.getQuantity());
         orderStatus.setRemainingQuantity(0);
-        orderStatus.setOrd(order);
+        orderStatus.setOrder(order);
 
         // send the orderStatus to base
         EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
@@ -226,7 +226,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         orderStatus.setStatus(Status.CANCELED);
         orderStatus.setFilledQuantity(orderStatusVO.getFilledQuantity());
         orderStatus.setRemainingQuantity(orderStatusVO.getRemainingQuantity());
-        orderStatus.setOrd(order);
+        orderStatus.setOrder(order);
 
         // send the orderStatus
         EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
@@ -292,8 +292,8 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     protected void handlePropagateOrderStatus(OrderStatus orderStatus) throws Exception {
 
         // send the fill to the strategy that placed the corresponding order
-        if (orderStatus.getOrd() != null && !orderStatus.getOrd().getStrategy().isBase()) {
-            EngineLocator.instance().sendEvent(orderStatus.getOrd().getStrategy().getName(), orderStatus);
+        if (orderStatus.getOrder() != null && !orderStatus.getOrder().getStrategy().isBase()) {
+            EngineLocator.instance().sendEvent(orderStatus.getOrder().getStrategy().getName(), orderStatus);
         }
 
         if (!this.simulation) {

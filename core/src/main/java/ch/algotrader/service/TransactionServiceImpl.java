@@ -70,7 +70,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     @Override
     protected void handleCreateTransaction(Fill fill) {
 
-        Order order = fill.getOrd();
+        Order order = fill.getOrder();
         Broker broker = order.getAccount().getBroker();
 
         // reload the strategy and security to get potential changes
@@ -290,12 +290,12 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     protected void handlePropagateFill(Fill fill) {
 
         // send the fill to the strategy that placed the corresponding order
-        if (!fill.getOrd().getStrategy().isBase()) {
-            EngineLocator.instance().sendEvent(fill.getOrd().getStrategy().getName(), fill);
+        if (!fill.getOrder().getStrategy().isBase()) {
+            EngineLocator.instance().sendEvent(fill.getOrder().getStrategy().getName(), fill);
         }
 
         if (!this.simulation) {
-            logger.info("received fill: " + fill + " for order: " + fill.getOrd());
+            logger.info("received fill: " + fill + " for order: " + fill.getOrder());
         }
     }
 
@@ -314,7 +314,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             }
 
             Fill fill = CollectionUtil.getFirstElement(fills);
-            Order order = fill.getOrd();
+            Order order = fill.getOrder();
             SecurityFamily securityFamily = order.getSecurity().getSecurityFamily();
 
             //@formatter:off

@@ -34,23 +34,20 @@ import org.apache.log4j.Logger;
 import ch.algotrader.adapter.ib.IBDefaultMessageHandler;
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBSession;
-import ch.algotrader.entity.security.ForexFuture;
-import ch.algotrader.entity.security.ForexFutureFamily;
-import ch.algotrader.entity.security.ForexFutureImpl;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.FutureImpl;
+import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.security.OptionFamily;
+import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.security.StockImpl;
-import ch.algotrader.entity.security.StockOption;
-import ch.algotrader.entity.security.StockOptionFamily;
-import ch.algotrader.entity.security.StockOptionImpl;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.future.FutureSymbol;
-import ch.algotrader.stockOption.StockOptionSymbol;
+import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
@@ -111,7 +108,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
             contract.m_multiplier = String.valueOf(securityFamily.getContractSize());
 
-            if (securityFamily instanceof StockOptionFamily) {
+            if (securityFamily instanceof OptionFamily) {
                 contract.m_secType = "OPT";
             } else if (securityFamily instanceof FutureFamily) {
                 contract.m_secType = "FUT";
@@ -133,10 +130,8 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         }
 
         // process retrieved contractDetails
-        if (securityFamily instanceof StockOptionFamily) {
-            retrieveStockOptions((StockOptionFamily) securityFamily);
-        } else if (securityFamily instanceof ForexFutureFamily) {
-            retrieveForexFutures((ForexFutureFamily) securityFamily);
+        if (securityFamily instanceof OptionFamily) {
+            retrieveOptions((OptionFamily) securityFamily);
         } else if (securityFamily instanceof FutureFamily) {
             retrieveFutures((FutureFamily) securityFamily);
         } else {
@@ -178,46 +173,46 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         retrieveStocks(securityFamily);
     }
 
-    private void retrieveStockOptions(StockOptionFamily family) throws Exception {
+    private void retrieveOptions(OptionFamily family) throws Exception {
 
-        // get all current stockOptions
-        Set<Security> existingStockOptions = new TreeSet<Security>(getComparator());
-        existingStockOptions.addAll(getStockOptionDao().findStockOptionsBySecurityFamily(family.getId()));
+        // get all current options
+        Set<Security> existingOptions = new TreeSet<Security>(getComparator());
+        existingOptions.addAll(getOptionDao().findBySecurityFamily(family.getId()));
 
-        Set<StockOption> newStockOptions = new TreeSet<StockOption>();
+        Set<Option> newOptions = new TreeSet<Option>();
         for (ContractDetails contractDetails : this.contractDetailsList) {
 
-            StockOption stockOption = new StockOptionImpl();
+            Option option = new OptionImpl();
 
             Contract contract = contractDetails.m_summary;
             OptionType type = "C".equals(contract.m_right) ? OptionType.CALL : OptionType.PUT;
             BigDecimal strike = RoundUtil.getBigDecimal(contract.m_strike, family.getScale());
             Date expiration = format.parse(contract.m_expiry);
 
-            final String isin = StockOptionSymbol.getIsin(family, expiration, type, strike);
-            String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike, false);
-            String ric = StockOptionSymbol.getRic(family, expiration, type, strike);
+            final String isin = OptionSymbol.getIsin(family, expiration, type, strike);
+            String symbol = OptionSymbol.getSymbol(family, expiration, type, strike, false);
+            String ric = OptionSymbol.getRic(family, expiration, type, strike);
             String conid = String.valueOf(contract.m_conId);
 
-            stockOption.setSymbol(symbol);
-            stockOption.setIsin(isin);
-            stockOption.setRic(ric);
-            stockOption.setConid(conid);
-            stockOption.setType(type);
-            stockOption.setStrike(strike);
-            stockOption.setExpiration(expiration);
-            stockOption.setSecurityFamily(family);
-            stockOption.setUnderlying(family.getUnderlying());
+            option.setSymbol(symbol);
+            option.setIsin(isin);
+            option.setRic(ric);
+            option.setConid(conid);
+            option.setType(type);
+            option.setStrike(strike);
+            option.setExpiration(expiration);
+            option.setSecurityFamily(family);
+            option.setUnderlying(family.getUnderlying());
 
-            // ignore stockOptions that already exist
-            if (!existingStockOptions.contains(stockOption)) {
-                newStockOptions.add(stockOption);
+            // ignore options that already exist
+            if (!existingOptions.contains(option)) {
+                newOptions.add(option);
             }
         }
 
-        getStockOptionDao().create(newStockOptions);
+        getOptionDao().create(newOptions);
 
-        logger.debug("retrieved options for optionfamily: " + family.getName() + " " + newStockOptions);
+        logger.debug("retrieved options for optionfamily: " + family.getName() + " " + newOptions);
     }
 
     private void retrieveFutures(FutureFamily family) throws Exception {
@@ -256,45 +251,6 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         getFutureDao().create(newFutures);
 
         logger.debug("retrieved futures for futurefamily: " + family.getName() + " " + newFutures);
-    }
-
-    private void retrieveForexFutures(ForexFutureFamily family) throws Exception {
-
-        // get all current forexFutures
-        Set<ForexFuture> existingForexFutures = new TreeSet<ForexFuture>(getComparator());
-        existingForexFutures.addAll(getForexFutureDao().findForexFuturesBySecurityFamily(family.getId()));
-
-        Set<ForexFuture> newForexFutures = new TreeSet<ForexFuture>();
-        for (ContractDetails contractDetails : this.contractDetailsList) {
-
-            ForexFuture forexFuture = new ForexFutureImpl();
-
-            Contract contract = contractDetails.m_summary;
-            Date expiration = format.parse(contract.m_expiry);
-
-            String symbol = FutureSymbol.getSymbol(family, expiration);
-            final String isin = FutureSymbol.getIsin(family, expiration);
-            String ric = FutureSymbol.getRic(family, expiration);
-            String conid = String.valueOf(contract.m_conId);
-
-            forexFuture.setSymbol(symbol);
-            forexFuture.setIsin(isin);
-            forexFuture.setRic(ric);
-            forexFuture.setConid(conid);
-            forexFuture.setExpiration(expiration);
-            forexFuture.setSecurityFamily(family);
-            forexFuture.setUnderlying(family.getUnderlying());
-            forexFuture.setBaseCurrency(family.getBaseCurrency());
-
-            // ignore forexFutures that already exist
-            if (!existingForexFutures.contains(forexFuture)) {
-                newForexFutures.add(forexFuture);
-            }
-        }
-
-        getForexFutureDao().create(newForexFutures);
-
-        logger.debug("retrieved forexFutures for forexFuturefamily: " + family.getName() + " " + newForexFutures);
     }
 
     private void retrieveStocks(SecurityFamily family) throws Exception {

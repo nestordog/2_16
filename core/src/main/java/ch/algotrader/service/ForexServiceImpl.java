@@ -30,7 +30,6 @@ import org.springframework.beans.factory.annotation.Value;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.ForexFuture;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.strategy.Strategy;
@@ -64,17 +63,17 @@ public class ForexServiceImpl extends ForexServiceBase {
 
         Strategy base = getStrategyDao().findBase();
 
-        // potentially close a ForexFuture position if it is below the MinTimeToExpiration
+        // potentially close a Forex Future position if it is below the MinTimeToExpiration
         if (this.fxFutureHedgeEnabled) {
 
             // get the closing orders
             final List<Order> orders = new ArrayList<Order>();
-            for (Position position : getLookupService().getOpenPositionsByStrategyAndType(StrategyImpl.BASE, ForexFuture.class)) {
+            for (Position position : getLookupService().getOpenPositionsByStrategyTypeAndUnderlyingType(StrategyImpl.BASE, Future.class, Forex.class)) {
 
                 // check if expiration is below minimum
-                ForexFuture forexFuture = (ForexFuture) position.getSecurityInitialized();
+                Future future = (Future) position.getSecurityInitialized();
 
-                Forex forex = (Forex) forexFuture.getUnderlyingInitialized();
+                Forex forex = (Forex) future.getUnderlyingInitialized();
 
                 Subscription forexSubscription = getSubscriptionDao().findByStrategyAndSecurity(StrategyImpl.BASE, forex.getId());
                 if (!forexSubscription.hasProperty("hedgingFamily")) {
@@ -82,16 +81,16 @@ public class ForexServiceImpl extends ForexServiceBase {
                 }
 
                 FutureFamily futureFamily = getFutureFamilyDao().load(forexSubscription.getIntProperty("hedgingFamily"));
-                if (!forexFuture.getSecurityFamily().equals(futureFamily)) {
-                    // continue forex is not hedged with this forexFutureFamily
+                if (!future.getSecurityFamily().equals(futureFamily)) {
+                    // continue if forex is not hedged with this futureFamily
                     continue;
                 }
 
-                if (forexFuture.getTimeToExpiration() < this.fxFutureHedgeMinTimeToExpiration) {
+                if (future.getTimeToExpiration() < this.fxFutureHedgeMinTimeToExpiration) {
 
-                    Order order = getLookupService().getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, forexFuture.getSecurityFamily().getId());
+                    Order order = getLookupService().getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, future.getSecurityFamily().getId());
                     order.setStrategy(base);
-                    order.setSecurity(forexFuture);
+                    order.setSecurity(future);
                     order.setQuantity(Math.abs(position.getQuantity()));
                     order.setSide(position.getQuantity() > 0 ? Side.SELL : Side.BUY);
 

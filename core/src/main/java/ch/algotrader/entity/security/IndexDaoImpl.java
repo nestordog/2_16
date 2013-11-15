@@ -17,12 +17,13 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import ch.algotrader.entity.security.ForexFutureDaoBase;
+import ch.algotrader.entity.security.IndexDaoBase;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class ForexFutureDaoImpl extends ForexFutureDaoBase {
+public class IndexDaoImpl extends IndexDaoBase {
+
 }

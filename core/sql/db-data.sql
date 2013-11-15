@@ -79,18 +79,6 @@ INSERT INTO `forex` (`ID`, `BASE_CURRENCY`) VALUES (11,'GBP');
 UNLOCK TABLES;
 
 --
--- Dumping data for table `forex_future_family`
---
--- WHERE:  id<1000
-
-LOCK TABLES `forex_future_family` WRITE;
-/*!40000 ALTER TABLE `forex_future_family` DISABLE KEYS */;
-INSERT INTO `forex_future_family` (`ID`, `BASE_CURRENCY`) VALUES (44,'EUR');
-INSERT INTO `forex_future_family` (`ID`, `BASE_CURRENCY`) VALUES (45,'EUR');
-/*!40000 ALTER TABLE `forex_future_family` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Dumping data for table `future_family`
 --
 -- WHERE:  id<1000
@@ -161,6 +149,22 @@ INSERT INTO `implied_volatility` (`ID`, `DURATION`, `MONEYNESS`, `DELTA`, `TYPE`
 UNLOCK TABLES;
 
 --
+-- Dumping data for table `index`
+--
+-- WHERE:  id<1000
+
+LOCK TABLES `index` WRITE;
+/*!40000 ALTER TABLE `index` DISABLE KEYS */;
+INSERT INTO `index` (`ID`) VALUES (2);
+INSERT INTO `index` (`ID`) VALUES (3);
+INSERT INTO `index` (`ID`) VALUES (4);
+INSERT INTO `index` (`ID`) VALUES (5);
+INSERT INTO `index` (`ID`) VALUES (12);
+INSERT INTO `index` (`ID`) VALUES (29);
+/*!40000 ALTER TABLE `index` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Dumping data for table `intrest_rate`
 --
 -- WHERE:  id<1000
@@ -173,19 +177,17 @@ INSERT INTO `intrest_rate` (`ID`, `DURATION`) VALUES (7,2592000000);
 UNLOCK TABLES;
 
 --
--- Dumping data for table `natural_index`
+-- Dumping data for table `option_family`
 --
 -- WHERE:  id<1000
 
-LOCK TABLES `natural_index` WRITE;
-/*!40000 ALTER TABLE `natural_index` DISABLE KEYS */;
-INSERT INTO `natural_index` (`ID`) VALUES (2);
-INSERT INTO `natural_index` (`ID`) VALUES (3);
-INSERT INTO `natural_index` (`ID`) VALUES (4);
-INSERT INTO `natural_index` (`ID`) VALUES (5);
-INSERT INTO `natural_index` (`ID`) VALUES (12);
-INSERT INTO `natural_index` (`ID`) VALUES (29);
-/*!40000 ALTER TABLE `natural_index` ENABLE KEYS */;
+LOCK TABLES `option_family` WRITE;
+/*!40000 ALTER TABLE `option_family` DISABLE KEYS */;
+INSERT INTO `option_family` (`ID`, `INTREST`, `DIVIDEND`, `MARGIN_PARAMETER`, `EXPIRATION_TYPE`, `EXPIRATION_DISTANCE`, `STRIKE_DISTANCE`) VALUES (3,0.0015,0.03,0.075,'NEXT_3_RD_FRIDAY','MONTH_1',50);
+INSERT INTO `option_family` (`ID`, `INTREST`, `DIVIDEND`, `MARGIN_PARAMETER`, `EXPIRATION_TYPE`, `EXPIRATION_DISTANCE`, `STRIKE_DISTANCE`) VALUES (6,0.006,0.03,0.075,'NEXT_3_RD_FRIDAY','MONTH_1',25);
+INSERT INTO `option_family` (`ID`, `INTREST`, `DIVIDEND`, `MARGIN_PARAMETER`, `EXPIRATION_TYPE`, `EXPIRATION_DISTANCE`, `STRIKE_DISTANCE`) VALUES (24,0.009,0.02,0.075,'NEXT_3_RD_FRIDAY','MONTH_1',5);
+INSERT INTO `option_family` (`ID`, `INTREST`, `DIVIDEND`, `MARGIN_PARAMETER`, `EXPIRATION_TYPE`, `EXPIRATION_DISTANCE`, `STRIKE_DISTANCE`) VALUES (26,0.01,0,0.075,'THIRTY_DAYS_BEFORE_NEXT_3_RD_FRIDAY','MONTH_1',1);
+/*!40000 ALTER TABLE `option_family` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -558,20 +560,6 @@ INSERT INTO `stock` (`ID`, `GICS`) VALUES (166,NULL);
 UNLOCK TABLES;
 
 --
--- Dumping data for table `stock_option_family`
---
--- WHERE:  id<1000
-
-LOCK TABLES `stock_option_family` WRITE;
-/*!40000 ALTER TABLE `stock_option_family` DISABLE KEYS */;
-INSERT INTO `stock_option_family` (`ID`, `INTREST`, `DIVIDEND`, `MARGIN_PARAMETER`, `EXPIRATION_TYPE`, `EXPIRATION_DISTANCE`, `STRIKE_DISTANCE`) VALUES (3,0.0015,0.03,0.075,'NEXT_3_RD_FRIDAY','MONTH_1',50);
-INSERT INTO `stock_option_family` (`ID`, `INTREST`, `DIVIDEND`, `MARGIN_PARAMETER`, `EXPIRATION_TYPE`, `EXPIRATION_DISTANCE`, `STRIKE_DISTANCE`) VALUES (6,0.006,0.03,0.075,'NEXT_3_RD_FRIDAY','MONTH_1',25);
-INSERT INTO `stock_option_family` (`ID`, `INTREST`, `DIVIDEND`, `MARGIN_PARAMETER`, `EXPIRATION_TYPE`, `EXPIRATION_DISTANCE`, `STRIKE_DISTANCE`) VALUES (24,0.009,0.02,0.075,'NEXT_3_RD_FRIDAY','MONTH_1',5);
-INSERT INTO `stock_option_family` (`ID`, `INTREST`, `DIVIDEND`, `MARGIN_PARAMETER`, `EXPIRATION_TYPE`, `EXPIRATION_DISTANCE`, `STRIKE_DISTANCE`) VALUES (26,0.01,0,0.075,'THIRTY_DAYS_BEFORE_NEXT_3_RD_FRIDAY','MONTH_1',1);
-/*!40000 ALTER TABLE `stock_option_family` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Dumping data for table `strategy`
 --
 -- WHERE:  id<1000
@@ -626,4 +614,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-10-10 15:05:38
+-- Dump completed on 2013-11-15 10:10:55

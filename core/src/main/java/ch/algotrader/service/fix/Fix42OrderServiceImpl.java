@@ -40,9 +40,9 @@ import quickfix.fix42.OrderCancelRequest;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.Stock;
-import ch.algotrader.entity.security.StockOption;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopOrderI;
@@ -89,17 +89,17 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
         newOrder.set(FixUtil.getFixOrderType(order));
 
         // populate security information
-        if (security instanceof StockOption) {
+        if (security instanceof Option) {
 
-            StockOption stockOption = (StockOption) security;
+            Option option = (Option) security;
 
             newOrder.set(new SecurityType(SecurityType.OPTION));
-            newOrder.set(new Currency(stockOption.getSecurityFamily().getCurrency().toString()));
-            newOrder.set(new PutOrCall(OptionType.PUT.equals(stockOption.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
-            newOrder.set(new StrikePrice(stockOption.getStrike().doubleValue()));
-            newOrder.set(new ContractMultiplier(stockOption.getSecurityFamily().getContractSize()));
-            newOrder.set(new MaturityMonthYear(monthFormat.format(stockOption.getExpiration())));
-            newOrder.set(new MaturityDay(dayFormat.format(stockOption.getExpiration())));
+            newOrder.set(new Currency(option.getSecurityFamily().getCurrency().toString()));
+            newOrder.set(new PutOrCall(OptionType.PUT.equals(option.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
+            newOrder.set(new StrikePrice(option.getStrike().doubleValue()));
+            newOrder.set(new ContractMultiplier(option.getSecurityFamily().getContractSize()));
+            newOrder.set(new MaturityMonthYear(monthFormat.format(option.getExpiration())));
+            newOrder.set(new MaturityDay(dayFormat.format(option.getExpiration())));
 
         } else if (security instanceof Future) {
 
@@ -170,14 +170,14 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
         replaceRequest.set(FixUtil.getFixOrderType(order));
 
         // populate security information
-        if (security instanceof StockOption) {
+        if (security instanceof Option) {
 
-            StockOption stockOption = (StockOption) security;
+            Option option = (Option) security;
 
             replaceRequest.set(new SecurityType(SecurityType.OPTION));
-            replaceRequest.set(new PutOrCall(OptionType.PUT.equals(stockOption.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
-            replaceRequest.set(new StrikePrice(stockOption.getStrike().doubleValue()));
-            replaceRequest.set(new MaturityMonthYear(monthFormat.format(stockOption.getExpiration())));
+            replaceRequest.set(new PutOrCall(OptionType.PUT.equals(option.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
+            replaceRequest.set(new StrikePrice(option.getStrike().doubleValue()));
+            replaceRequest.set(new MaturityMonthYear(monthFormat.format(option.getExpiration())));
 
         } else if (security instanceof Future) {
 
@@ -240,14 +240,14 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
         cancelRequest.set(new OrderQty(order.getQuantity()));
 
         // populate security information
-        if (security instanceof StockOption) {
+        if (security instanceof Option) {
 
-            StockOption stockOption = (StockOption) security;
+            Option option = (Option) security;
 
             cancelRequest.set(new SecurityType(SecurityType.OPTION));
-            cancelRequest.set(new PutOrCall(OptionType.PUT.equals(stockOption.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
-            cancelRequest.set(new StrikePrice(stockOption.getStrike().doubleValue()));
-            cancelRequest.set(new MaturityMonthYear(monthFormat.format(stockOption.getExpiration())));
+            cancelRequest.set(new PutOrCall(OptionType.PUT.equals(option.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
+            cancelRequest.set(new StrikePrice(option.getStrike().doubleValue()));
+            cancelRequest.set(new MaturityMonthYear(monthFormat.format(option.getExpiration())));
 
         } else if (security instanceof Future) {
 

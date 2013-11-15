@@ -37,12 +37,12 @@ import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickImpl;
+import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.security.OptionFamily;
+import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.StockOption;
-import ch.algotrader.entity.security.StockOptionFamily;
-import ch.algotrader.entity.security.StockOptionImpl;
 import ch.algotrader.enumeration.OptionType;
-import ch.algotrader.stockOption.StockOptionSymbol;
+import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvIVolReader;
 import ch.algotrader.util.io.CsvTickReader;
@@ -124,14 +124,14 @@ public class ImportServiceImpl extends ImportServiceBase {
     }
 
     @Override
-    protected void handleImportIVolTicks(String stockOptionFamilyId, String fileName) throws Exception {
+    protected void handleImportIVolTicks(String optionFamilyId, String fileName) throws Exception {
 
-        StockOptionFamily family = getStockOptionFamilyDao().get(Integer.parseInt(stockOptionFamilyId));
-        Map<String, StockOption> stockOptions = new HashMap<String, StockOption>();
+        OptionFamily family = getOptionFamilyDao().get(Integer.parseInt(optionFamilyId));
+        Map<String, Option> options = new HashMap<String, Option>();
 
         for (Security security : family.getSecurities()) {
-            StockOption stockOption = (StockOption) security;
-            stockOptions.put(stockOption.getSymbol(), stockOption);
+            Option option = (Option) security;
+            options.put(option.getSymbol(), option);
         }
 
         Date date = null;
@@ -202,28 +202,28 @@ public class ImportServiceImpl extends ImportServiceBase {
                 BigDecimal strike = iVol.getStrike();
                 Date expiration = DateUtils.setHours(DateUtils.addDays(iVol.getExpiration(), -1), 13); // adjusted expiration date
                 OptionType type = "C".equals(iVol.getType()) ? OptionType.CALL : OptionType.PUT;
-                String symbol = StockOptionSymbol.getSymbol(family, expiration, type, strike, false);
-                String isin = StockOptionSymbol.getIsin(family, expiration, type, strike);
-                String ric = StockOptionSymbol.getRic(family, expiration, type, strike);
+                String symbol = OptionSymbol.getSymbol(family, expiration, type, strike, false);
+                String isin = OptionSymbol.getIsin(family, expiration, type, strike);
+                String ric = OptionSymbol.getRic(family, expiration, type, strike);
 
-                // check if we have the stockOption already
-                StockOption stockOption = stockOptions.get(symbol);
+                // check if we have the option already
+                Option option = options.get(symbol);
 
-                // otherwise create the stockOption
-                if (stockOption == null) {
+                // otherwise create the option
+                if (option == null) {
 
-                    stockOption = new StockOptionImpl();
-                    stockOption.setStrike(iVol.getStrike());
-                    stockOption.setExpiration(expiration); // adjusted expiration date
-                    stockOption.setType(type);
-                    stockOption.setSymbol(symbol);
-                    stockOption.setIsin(isin);
-                    stockOption.setRic(ric);
-                    stockOption.setSecurityFamily(family);
-                    stockOption.setUnderlying(family.getUnderlying());
+                    option = new OptionImpl();
+                    option.setStrike(iVol.getStrike());
+                    option.setExpiration(expiration); // adjusted expiration date
+                    option.setType(type);
+                    option.setSymbol(symbol);
+                    option.setIsin(isin);
+                    option.setRic(ric);
+                    option.setSecurityFamily(family);
+                    option.setUnderlying(family.getUnderlying());
 
-                    getStockOptionDao().create(stockOption);
-                    stockOptions.put(stockOption.getSymbol(), stockOption);
+                    getOptionDao().create(option);
+                    options.put(option.getSymbol(), option);
                 }
 
                 // create the tick
@@ -232,7 +232,7 @@ public class ImportServiceImpl extends ImportServiceBase {
                 tick.setBid(iVol.getBid());
                 tick.setAsk(iVol.getAsk());
                 tick.setVol(iVol.getVolume());
-                tick.setSecurity(stockOption);
+                tick.setSecurity(option);
 
                 ticks.add(tick);
             }

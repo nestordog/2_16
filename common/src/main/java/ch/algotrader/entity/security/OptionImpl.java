@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.stockOption.StockOptionUtil;
+import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 
@@ -33,10 +33,10 @@ import ch.algotrader.util.MyLogger;
  *
  * @version $Revision$ $Date$
  */
-public class StockOptionImpl extends StockOption {
+public class OptionImpl extends Option {
 
     private static final long serialVersionUID = -3168298592370987085L;
-    private static Logger logger = MyLogger.getLogger(StockOptionImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(OptionImpl.class.getName());
 
     @Override
     public double getLeverage() {
@@ -44,7 +44,7 @@ public class StockOptionImpl extends StockOption {
         try {
             double underlyingSpot = getUnderlying().getCurrentMarketDataEvent().getCurrentValueDouble();
             double currentValue = getCurrentMarketDataEvent().getCurrentValueDouble();
-            double delta = StockOptionUtil.getDelta(this, currentValue, underlyingSpot);
+            double delta = OptionUtil.getDelta(this, currentValue, underlyingSpot);
 
             return underlyingSpot / currentValue * delta;
 
@@ -57,17 +57,17 @@ public class StockOptionImpl extends StockOption {
     @Override
     public double getMargin() {
 
-        MarketDataEvent stockOptionMarketDataEvent = getCurrentMarketDataEvent();
+        MarketDataEvent optionMarketDataEvent = getCurrentMarketDataEvent();
         MarketDataEvent underlyingMarketDataEvent = getUnderlying().getCurrentMarketDataEvent();
 
         double marginPerContract = 0;
-        if (stockOptionMarketDataEvent != null && underlyingMarketDataEvent != null && stockOptionMarketDataEvent.getCurrentValueDouble() > 0.0) {
+        if (optionMarketDataEvent != null && underlyingMarketDataEvent != null && optionMarketDataEvent.getCurrentValueDouble() > 0.0) {
 
-            double stockOptionSettlement = stockOptionMarketDataEvent.getCurrentValueDouble();
+            double optionSettlement = optionMarketDataEvent.getCurrentValueDouble();
             double underlyingSettlement = underlyingMarketDataEvent.getCurrentValueDouble();
             int contractSize = getSecurityFamily().getContractSize();
             try {
-                marginPerContract = StockOptionUtil.getMaintenanceMargin(this, stockOptionSettlement, underlyingSettlement) * contractSize;
+                marginPerContract = OptionUtil.getMaintenanceMargin(this, optionSettlement, underlyingSettlement) * contractSize;
             } catch (MathException e) {
                 logger.warn("could not calculate margin for " + this, e);
             }
@@ -86,7 +86,7 @@ public class StockOptionImpl extends StockOption {
     @Override
     public int getDuration() {
 
-        StockOptionFamily family = (StockOptionFamily) this.getSecurityFamily();
+        OptionFamily family = (OptionFamily) this.getSecurityFamily();
         Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), DateUtil.getCurrentEPTime());
         return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double) family.getExpirationDistance().value()));
     }

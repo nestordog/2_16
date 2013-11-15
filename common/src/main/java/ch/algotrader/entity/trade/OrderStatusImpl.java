@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-import ch.algotrader.entity.trade.OrderStatus;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -35,9 +34,9 @@ public class OrderStatusImpl extends OrderStatus {
 
         buffer.append(getStatus());
 
-        if (getOrd() != null) {
+        if (getOrder() != null) {
             buffer.append(",");
-            buffer.append(getOrd().getDescription());
+            buffer.append(getOrder().getDescription());
         }
 
         buffer.append(",filledQuantity=");
@@ -46,5 +45,10 @@ public class OrderStatusImpl extends OrderStatus {
         buffer.append(getRemainingQuantity());
 
         return buffer.toString();
+    }
+
+    @Override
+    public void setOrd(Order order) {
+        super.setOrder(order);
     }
 }

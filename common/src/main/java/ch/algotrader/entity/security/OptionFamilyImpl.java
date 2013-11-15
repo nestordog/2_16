@@ -17,13 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import ch.algotrader.entity.security.NaturalIndexDaoBase;
+import ch.algotrader.entity.security.OptionFamily;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class NaturalIndexDaoImpl extends NaturalIndexDaoBase {
+public class OptionFamilyImpl extends OptionFamily {
 
+    private static final long serialVersionUID = 519607244906935422L;
 }

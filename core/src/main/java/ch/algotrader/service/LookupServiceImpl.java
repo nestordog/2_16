@@ -45,11 +45,11 @@ import ch.algotrader.entity.security.EasyToBorrow;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.IntrestRate;
+import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
-import ch.algotrader.entity.security.StockOption;
-import ch.algotrader.entity.security.StockOptionFamily;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.DefaultOrderPreference;
 import ch.algotrader.entity.strategy.Measurement;
@@ -78,7 +78,7 @@ import ch.algotrader.vo.TransactionVO;
 public class LookupServiceImpl extends LookupServiceBase {
 
     private @Value("${simulation}") boolean simulation;
-    private @Value("${statement.simulateStockOptions}") boolean simulateStockOptions;
+    private @Value("${statement.simulateOptions}") boolean simulateOptions;
     private @Value("${statement.simulateFuturesByUnderlying}") boolean simulateFuturesByUnderlying;
     private @Value("${statement.simulateFuturesByGenericFutures}") boolean simulateFuturesByGenericFutures;
     private @Value("${misc.transactionDisplayCount}") int transactionDisplayCount;
@@ -196,72 +196,72 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected StockOption handleGetStockOptionByMinExpirationAndMinStrikeDistance(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot,
+    protected Option handleGetOptionByMinExpirationAndMinStrikeDistance(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot,
             OptionType optionType) throws Exception {
 
-        StockOption stockOption = CollectionUtil.getSingleElementOrNull(getStockOptionDao().findByMinExpirationAndMinStrikeDistance(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
+        Option option = CollectionUtil.getSingleElementOrNull(getOptionDao().findByMinExpirationAndMinStrikeDistance(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
 
         // if no stock option was found, create it if simulating options
-        if (this.simulation && this.simulateStockOptions) {
+        if (this.simulation && this.simulateOptions) {
 
-            StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
-            if ((stockOption == null) || Math.abs(stockOption.getStrike().doubleValue() - underlyingSpot.doubleValue()) > family.getStrikeDistance()) {
+            OptionFamily family = getOptionFamilyDao().findByUnderlying(underlyingId);
+            if ((option == null) || Math.abs(option.getStrike().doubleValue() - underlyingSpot.doubleValue()) > family.getStrikeDistance()) {
 
-                stockOption = getStockOptionService().createDummyStockOption(family.getId(), targetExpirationDate, underlyingSpot, optionType);
+                option = getOptionService().createDummyOption(family.getId(), targetExpirationDate, underlyingSpot, optionType);
             }
         }
 
-        if (stockOption == null) {
-            throw new LookupServiceException("no stockOption available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type " + optionType);
+        if (option == null) {
+            throw new LookupServiceException("no option available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type " + optionType);
         } else {
-            return stockOption;
+            return option;
         }
     }
 
     @Override
-    protected StockOption handleGetStockOptionByMinExpirationAndMinStrikeDistanceWithTicks(int underlyingId, Date targetExpirationDate,
+    protected Option handleGetOptionByMinExpirationAndMinStrikeDistanceWithTicks(int underlyingId, Date targetExpirationDate,
             BigDecimal underlyingSpot, OptionType optionType, Date date) throws Exception {
 
-        return CollectionUtil.getSingleElementOrNull(getStockOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date));
+        return CollectionUtil.getSingleElementOrNull(getOptionDao().findByMinExpirationAndMinStrikeDistanceWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date));
     }
 
     @Override
-    protected StockOption handleGetStockOptionByMinExpirationAndStrikeLimit(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot,
+    protected Option handleGetOptionByMinExpirationAndStrikeLimit(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot,
             OptionType optionType)
             throws Exception {
 
-        StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
+        OptionFamily family = getOptionFamilyDao().findByUnderlying(underlyingId);
 
-        StockOption stockOption = CollectionUtil.getSingleElementOrNull(getStockOptionDao().findByMinExpirationAndStrikeLimit(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
+        Option option = CollectionUtil.getSingleElementOrNull(getOptionDao().findByMinExpirationAndStrikeLimit(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
 
         // if no future was found, create it if simulating options
-        if (this.simulation && this.simulateStockOptions) {
-            if ((stockOption == null) || Math.abs(stockOption.getStrike().doubleValue() - underlyingSpot.doubleValue()) > family.getStrikeDistance()) {
+        if (this.simulation && this.simulateOptions) {
+            if ((option == null) || Math.abs(option.getStrike().doubleValue() - underlyingSpot.doubleValue()) > family.getStrikeDistance()) {
 
-                stockOption = getStockOptionService().createDummyStockOption(family.getId(), targetExpirationDate, underlyingSpot, optionType);
+                option = getOptionService().createDummyOption(family.getId(), targetExpirationDate, underlyingSpot, optionType);
             }
         }
 
-        if (stockOption == null) {
-            throw new LookupServiceException("no stockOption available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type "
+        if (option == null) {
+            throw new LookupServiceException("no option available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type "
                     + optionType);
         } else {
-            return stockOption;
+            return option;
         }
     }
 
     @Override
-    protected StockOption handleGetStockOptionByMinExpirationAndStrikeLimitWithTicks(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot,
+    protected Option handleGetOptionByMinExpirationAndStrikeLimitWithTicks(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot,
             OptionType optionType,
             Date date) throws Exception {
 
-        return CollectionUtil.getSingleElementOrNull(getStockOptionDao().findByMinExpirationAndStrikeLimitWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date));
+        return CollectionUtil.getSingleElementOrNull(getOptionDao().findByMinExpirationAndStrikeLimitWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date));
     }
 
     @Override
-    protected List<StockOption> handleGetSubscribedStockOptions() throws Exception {
+    protected List<Option> handleGetSubscribedOptions() throws Exception {
 
-        return getStockOptionDao().findSubscribedStockOptions();
+        return getOptionDao().findSubscribedOptions();
     }
 
     @Override
@@ -413,9 +413,9 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected StockOptionFamily handleGetStockOptionFamilyByUnderlying(int id) throws Exception {
+    protected OptionFamily handleGetOptionFamilyByUnderlying(int id) throws Exception {
 
-        return getStockOptionFamilyDao().findByUnderlying(id);
+        return getOptionFamilyDao().findByUnderlying(id);
     }
 
     @Override
@@ -490,6 +490,14 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
         return getPositionDao().findOpenPositionsByStrategyAndType(strategyName, discriminator);
+    }
+
+    @Override
+    protected List<Position> handleGetOpenPositionsByStrategyTypeAndUnderlyingType(String strategyName, Class type, Class underlyingType) throws Exception {
+
+        int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
+        int underlyingDiscriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), underlyingType);
+        return getPositionDao().findOpenPositionsByStrategyTypeAndUnderlyingType(strategyName, discriminator, underlyingDiscriminator);
     }
 
     @Override

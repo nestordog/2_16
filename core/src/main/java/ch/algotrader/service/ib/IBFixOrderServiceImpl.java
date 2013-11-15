@@ -31,7 +31,7 @@ import quickfix.field.OpenClose;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
-import ch.algotrader.entity.security.StockOption;
+import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.service.InitializingServiceI;
 
@@ -73,7 +73,7 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
             newOrder.set(new ClearingAccount(order.getAccount().getExtClearingAccount()));
         }
 
-        if (order.getSecurity() instanceof StockOption) {
+        if (order.getSecurity() instanceof Option) {
             newOrder.set(new OpenClose(OpenClose.OPEN));
         }
     }

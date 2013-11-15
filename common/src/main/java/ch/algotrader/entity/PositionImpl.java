@@ -19,7 +19,7 @@ package ch.algotrader.entity;
 
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.ForexI;
+import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
@@ -218,12 +218,20 @@ public class PositionImpl extends Position {
         Currency currency = null;
         SecurityFamily securityFamily = getSecurity().getSecurityFamily();
 
-        // Forex and ForexFutures are attributed in their baseCurrency
-        if (getSecurity() instanceof ForexI) {
+        // Forex are attributed in their baseCurrency
+        if (getSecurity() instanceof Forex) {
 
-            currency = ((ForexI) getSecurity()).getBaseCurrency();
+            currency = ((Forex) getSecurity()).getBaseCurrency();
             amount = getQuantity() * securityFamily.getContractSize();
 
+            // Futures on Forex are attributed in the base currenty for their underlying baseCurrency
+        } else if (getSecurity() instanceof Future && getSecurity().getUnderlying() != null && getSecurity().getUnderlyingInitialized() instanceof Forex) {
+
+            Forex forex = (Forex) getSecurity().getUnderlyingInitialized();
+            currency = forex.getBaseCurrency();
+            amount = getQuantity() * securityFamily.getContractSize();
+
+            // everything else is attributed in their currency
         } else {
             currency = securityFamily.getCurrency();
             amount = getMarketValue();

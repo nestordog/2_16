@@ -37,7 +37,7 @@ import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityImpl;
-import ch.algotrader.entity.security.StockOption;
+import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
@@ -123,17 +123,17 @@ public class LookupUtil {
     }
 
     /**
-     * Gets all StockOptions that are subscribed by at least one Strategy.
+     * Gets all Options that are subscribed by at least one Strategy.
      */
-    public static StockOption[] getSubscribedStockOptions() {
+    public static Option[] getSubscribedOptions() {
 
         if (cacheManager != null) {
 
-            String queryString = "select distinct s from StockOptionImpl as s join s.subscriptions as s2 where s2 != null order by s.id";
+            String queryString = "select distinct s from OptionImpl as s join s.subscriptions as s2 where s2 != null order by s.id";
 
-            return cacheManager.query(queryString).toArray(new StockOption[] {});
+            return cacheManager.query(queryString).toArray(new Option[] {});
         } else {
-            return lookupService.getSubscribedStockOptions().toArray(new StockOption[] {});
+            return lookupService.getSubscribedOptions().toArray(new Option[] {});
         }
     }
 

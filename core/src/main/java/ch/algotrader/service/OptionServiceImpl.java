@@ -43,10 +43,10 @@ import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.ImpliedVolatility;
+import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.security.OptionFamily;
+import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.StockOption;
-import ch.algotrader.entity.security.StockOptionFamily;
-import ch.algotrader.entity.security.StockOptionImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
@@ -55,9 +55,9 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.esper.callback.TickCallback;
-import ch.algotrader.stockOption.SABR;
-import ch.algotrader.stockOption.StockOptionSymbol;
-import ch.algotrader.stockOption.StockOptionUtil;
+import ch.algotrader.option.OptionSymbol;
+import ch.algotrader.option.OptionUtil;
+import ch.algotrader.option.SABR;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
@@ -71,9 +71,9 @@ import ch.algotrader.vo.SABRSurfaceVO;
  *
  * @version $Revision$ $Date$
  */
-public class StockOptionServiceImpl extends StockOptionServiceBase {
+public class OptionServiceImpl extends OptionServiceBase {
 
-    private static Logger logger = MyLogger.getLogger(StockOptionServiceImpl.class.getName());
+    private static Logger logger = MyLogger.getLogger(OptionServiceImpl.class.getName());
     private static int advanceMinutes = 10;
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
 
@@ -132,61 +132,61 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     }
 
     @Override
-    protected StockOption handleCreateOTCStockOption(int stockOptionFamilyId, Date expirationDate, BigDecimal strike, OptionType type) throws Exception {
+    protected Option handleCreateOTCOption(int optionFamilyId, Date expirationDate, BigDecimal strike, OptionType type) throws Exception {
 
-        StockOptionFamily family = getStockOptionFamilyDao().get(stockOptionFamilyId);
+        OptionFamily family = getOptionFamilyDao().get(optionFamilyId);
         Security underlying = family.getUnderlying();
 
         // symbol / isin
-        String symbol = StockOptionSymbol.getSymbol(family, expirationDate, type, strike, true);
+        String symbol = OptionSymbol.getSymbol(family, expirationDate, type, strike, true);
 
-        StockOption stockOption = new StockOptionImpl();
-        stockOption.setSymbol(symbol);
-        stockOption.setStrike(strike);
-        stockOption.setExpiration(expirationDate);
-        stockOption.setType(type);
-        stockOption.setUnderlying(underlying);
-        stockOption.setSecurityFamily(family);
+        Option option = new OptionImpl();
+        option.setSymbol(symbol);
+        option.setStrike(strike);
+        option.setExpiration(expirationDate);
+        option.setType(type);
+        option.setUnderlying(underlying);
+        option.setSecurityFamily(family);
 
-        getStockOptionDao().create(stockOption);
+        getOptionDao().create(option);
 
-        logger.info("created OTC option " + stockOption);
+        logger.info("created OTC option " + option);
 
-        return stockOption;
+        return option;
     }
 
     @Override
-    protected StockOption handleCreateDummyStockOption(int stockOptionFamilyId, Date targetExpirationDate, BigDecimal targetStrike, OptionType type) throws Exception {
+    protected Option handleCreateDummyOption(int optionFamilyId, Date targetExpirationDate, BigDecimal targetStrike, OptionType type) throws Exception {
 
-        StockOptionFamily family = getStockOptionFamilyDao().get(stockOptionFamilyId);
+        OptionFamily family = getOptionFamilyDao().get(optionFamilyId);
         Security underlying = family.getUnderlying();
 
         // get next expiration date after targetExpirationDate according to expirationType
         Date expirationDate = DateUtil.getExpirationDate(family.getExpirationType(), targetExpirationDate);
 
         // get nearest strike according to strikeDistance
-        BigDecimal strike = roundStockOptionStrikeToNextN(targetStrike, family.getStrikeDistance(), type);
+        BigDecimal strike = roundOptionStrikeToNextN(targetStrike, family.getStrikeDistance(), type);
 
         // symbol / isin
-        String symbol = StockOptionSymbol.getSymbol(family, expirationDate, type, strike, false);
-        String isin = StockOptionSymbol.getIsin(family, expirationDate, type, strike);
-        String ric = StockOptionSymbol.getRic(family, expirationDate, type, strike);
+        String symbol = OptionSymbol.getSymbol(family, expirationDate, type, strike, false);
+        String isin = OptionSymbol.getIsin(family, expirationDate, type, strike);
+        String ric = OptionSymbol.getRic(family, expirationDate, type, strike);
 
-        StockOption stockOption = new StockOptionImpl();
-        stockOption.setSymbol(symbol);
-        stockOption.setIsin(isin);
-        stockOption.setRic(ric);
-        stockOption.setStrike(strike);
-        stockOption.setExpiration(expirationDate);
-        stockOption.setType(type);
-        stockOption.setUnderlying(underlying);
-        stockOption.setSecurityFamily(family);
+        Option option = new OptionImpl();
+        option.setSymbol(symbol);
+        option.setIsin(isin);
+        option.setRic(ric);
+        option.setStrike(strike);
+        option.setExpiration(expirationDate);
+        option.setType(type);
+        option.setUnderlying(underlying);
+        option.setSecurityFamily(family);
 
-        getStockOptionDao().create(stockOption);
+        getOptionDao().create(option);
 
-        logger.info("created dummy option " + stockOption);
+        logger.info("created dummy option " + option);
 
-        return stockOption;
+        return option;
     }
 
     @Override
@@ -263,7 +263,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     @Override
     protected SABRSmileVO handleCalibrateSABRSmileByOptionPrice(int underlyingId, OptionType optionType, Date expirationDate, Date date) throws Exception {
 
-        StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
+        OptionFamily family = getOptionFamilyDao().findByUnderlying(underlyingId);
 
         double years = (expirationDate.getTime() - date.getTime()) / (double) Duration.YEAR_1.getValue();
 
@@ -274,27 +274,27 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
         BigDecimal underlyingSpot = underlyingTick.getLast();
 
-        double forward = StockOptionUtil.getForward(underlyingSpot.doubleValue(), years, family.getIntrest(), family.getDividend());
-        double atmStrike = roundStockOptionStrikeToNextN(underlyingSpot, family.getStrikeDistance(), optionType).doubleValue();
+        double forward = OptionUtil.getForward(underlyingSpot.doubleValue(), years, family.getIntrest(), family.getDividend());
+        double atmStrike = roundOptionStrikeToNextN(underlyingSpot, family.getStrikeDistance(), optionType).doubleValue();
 
-        List<Tick> ticks = getTickDao().findStockOptionTicksBySecurityDateTypeAndExpirationInclSecurity(underlyingId, date, optionType, expirationDate);
+        List<Tick> ticks = getTickDao().findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(underlyingId, date, optionType, expirationDate);
         List<Double> strikes = new ArrayList<Double>();
         List<Double> currentValues = new ArrayList<Double>();
         List<Double> volatilities = new ArrayList<Double>();
         double atmVola = 0;
         for (Tick tick : ticks) {
 
-            StockOption stockOption = (StockOption) tick.getSecurity();
+            Option option = (Option) tick.getSecurity();
 
             if (!tick.isSpreadValid()) {
                 continue;
             }
 
-            double strike = stockOption.getStrike().doubleValue();
+            double strike = option.getStrike().doubleValue();
             double currentValue = tick.getCurrentValueDouble();
 
             try {
-                double volatility = StockOptionUtil.getImpliedVolatility(underlyingSpot.doubleValue(), stockOption.getStrike().doubleValue(), currentValue, years, family.getIntrest(),
+                double volatility = OptionUtil.getImpliedVolatility(underlyingSpot.doubleValue(), option.getStrike().doubleValue(), currentValue, years, family.getIntrest(),
                         family.getDividend(), optionType);
 
                 strikes.add(strike);
@@ -380,12 +380,12 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
     private SABRSmileVO internalCalibrateSABRByIVol(int underlyingId, Duration duration, Collection<Tick> ticks, double underlyingSpot) throws Exception {
 
-        // we need the StockOptionFamily because the IVol Family does not have intrest and dividend
-        StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlyingId);
+        // we need the OptionFamily because the IVol Family does not have intrest and dividend
+        OptionFamily family = getOptionFamilyDao().findByUnderlying(underlyingId);
 
         double years = (double) duration.getValue() / Duration.YEAR_1.getValue();
 
-        double forward = StockOptionUtil.getForward(underlyingSpot, years, family.getIntrest(), family.getDividend());
+        double forward = OptionUtil.getForward(underlyingSpot, years, family.getIntrest(), family.getDividend());
 
         List<Double> strikes = new ArrayList<Double>();
         List<Double> volatilities = new ArrayList<Double>();
@@ -402,7 +402,7 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
                     atmVola = volatility;
                     strike = forward;
                 } else {
-                    strike = StockOptionUtil.getStrikeByDelta(impliedVola.getDelta(), volatility, years, forward, family.getIntrest(), impliedVola.getType());
+                    strike = OptionUtil.getStrikeByDelta(impliedVola.getDelta(), volatility, years, forward, family.getIntrest(), impliedVola.getType());
                 }
 
             } else if (impliedVola.getMoneyness() != null) {
@@ -434,18 +434,18 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
     @Override
     protected ATMVolVO handleCalculateATMVol(Security underlying, Date date) throws MathException {
 
-        StockOptionFamily family = getStockOptionFamilyDao().findByUnderlying(underlying.getId());
+        OptionFamily family = getOptionFamilyDao().findByUnderlying(underlying.getId());
 
         Tick underlyingTick = getTickDao().findBySecurityAndMaxDate(underlying.getId(), date);
         if (underlyingTick == null || underlyingTick.getLast() == null) {
             return null;
         }
 
-        List<StockOption> callOptions = getStockOptionDao().findByMinExpirationAndStrikeLimit(1, 1, underlying.getId(), date, underlyingTick.getLast(), OptionType.CALL);
-        List<StockOption> putOptions = getStockOptionDao().findByMinExpirationAndStrikeLimit(1, 1, underlying.getId(), date, underlyingTick.getLast(), OptionType.PUT);
+        List<Option> callOptions = getOptionDao().findByMinExpirationAndStrikeLimit(1, 1, underlying.getId(), date, underlyingTick.getLast(), OptionType.CALL);
+        List<Option> putOptions = getOptionDao().findByMinExpirationAndStrikeLimit(1, 1, underlying.getId(), date, underlyingTick.getLast(), OptionType.PUT);
 
-        StockOption callOption = CollectionUtil.getFirstElementOrNull(callOptions);
-        StockOption putOption = CollectionUtil.getFirstElementOrNull(putOptions);
+        Option callOption = CollectionUtil.getFirstElementOrNull(callOptions);
+        Option putOption = CollectionUtil.getFirstElementOrNull(putOptions);
 
         Tick callTick = getTickDao().findBySecurityAndMaxDate(callOption.getId(), date);
         if (callTick == null || callTick.getBid() == null || callTick.getAsk() == null) {
@@ -459,15 +459,15 @@ public class StockOptionServiceImpl extends StockOptionServiceBase {
 
         double years = (callOption.getExpiration().getTime() - date.getTime()) / (double) Duration.YEAR_1.getValue();
 
-        double callVola = StockOptionUtil.getImpliedVolatility(underlyingTick.getCurrentValueDouble(), callOption.getStrike().doubleValue(),
+        double callVola = OptionUtil.getImpliedVolatility(underlyingTick.getCurrentValueDouble(), callOption.getStrike().doubleValue(),
                 callTick.getCurrentValueDouble(), years, family.getIntrest(), family.getDividend(), OptionType.CALL);
-        double putVola = StockOptionUtil.getImpliedVolatility(underlyingTick.getCurrentValueDouble(), putOption.getStrike().doubleValue(),
+        double putVola = OptionUtil.getImpliedVolatility(underlyingTick.getCurrentValueDouble(), putOption.getStrike().doubleValue(),
                 putTick.getCurrentValueDouble(), years, family.getIntrest(), family.getDividend(), OptionType.PUT);
 
         return new ATMVolVO(years, callVola, putVola);
     }
 
-    private BigDecimal roundStockOptionStrikeToNextN(BigDecimal spot, double n, OptionType type) {
+    private BigDecimal roundOptionStrikeToNextN(BigDecimal spot, double n, OptionType type) {
 
         if (OptionType.CALL.equals(type)) {
             // increase by strikeOffset and round to upper n

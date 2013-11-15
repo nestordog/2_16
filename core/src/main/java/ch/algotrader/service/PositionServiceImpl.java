@@ -35,9 +35,9 @@ import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Combination;
 import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.security.StockOption;
 import ch.algotrader.entity.strategy.DefaultOrderPreference;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.Order;
@@ -48,7 +48,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.esper.callback.TradeCallback;
-import ch.algotrader.stockOption.StockOptionUtil;
+import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.PositionUtil;
@@ -152,7 +152,7 @@ public class PositionServiceImpl extends PositionServiceBase {
                 public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
                     if (unsubscribe) {
                         for (OrderStatus orderStatus : orderStati) {
-                            Order order = orderStatus.getOrd();
+                            Order order = orderStatus.getOrder();
                             if (Status.EXECUTED.equals(orderStatus.getStatus())) {
                                 // use ServiceLocator because TradeCallback is executed in a new thread
                                 MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
@@ -490,12 +490,12 @@ public class PositionServiceImpl extends PositionServiceBase {
         transaction.setStrategy(position.getStrategy());
         transaction.setCurrency(security.getSecurityFamily().getCurrency());
 
-        if (security instanceof StockOption) {
+        if (security instanceof Option) {
 
-            StockOption stockOption = (StockOption) security;
+            Option option = (Option) security;
             int scale = security.getSecurityFamily().getScale();
             double underlyingSpot = security.getUnderlying().getCurrentMarketDataEvent().getCurrentValueDouble();
-            double intrinsicValue = StockOptionUtil.getIntrinsicValue(stockOption, underlyingSpot);
+            double intrinsicValue = OptionUtil.getIntrinsicValue(option, underlyingSpot);
             BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue, scale);
             transaction.setPrice(price);
 

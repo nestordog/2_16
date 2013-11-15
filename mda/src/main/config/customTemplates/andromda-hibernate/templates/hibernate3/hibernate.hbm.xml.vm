@@ -173,11 +173,11 @@ ${indent}</many-to-one>
 #set($associationSchema = "")
 #end
 #if ($otherEnd.set || $otherEnd.map)
-${indent}<$otherEnd.collectionType name="$otherEnd.name" table="$otherEnd.association.tableName.toLowerCase()"#if($stringUtils.isNotBlank($entity.schema)) schema="$associationSchema"#end order-by="$sourceEnd.orderByColumns" lazy="$otherEnd.lazy" fetch="$otherEnd.outerJoin" inverse="$otherEnd.hibernateInverse"#if ($otherEnd.hibernateCascade) cascade="$otherEnd.hibernateCascade"#end#if ($otherEnd.whereClause) where="$otherEnd.whereClause"#end#if ($stringUtils.isNotBlank($otherEnd.sortType)) sort="$otherEnd.sortType"#end>
+${indent}<$otherEnd.collectionType name="$otherEnd.name" table="`$otherEnd.association.tableName.toLowerCase()`"#if($stringUtils.isNotBlank($entity.schema)) schema="$associationSchema"#end order-by="$sourceEnd.orderByColumns" lazy="$otherEnd.lazy" fetch="$otherEnd.outerJoin" inverse="$otherEnd.hibernateInverse"#if ($otherEnd.hibernateCascade) cascade="$otherEnd.hibernateCascade"#end#if ($otherEnd.whereClause) where="$otherEnd.whereClause"#end#if ($stringUtils.isNotBlank($otherEnd.sortType)) sort="$otherEnd.sortType"#end>
 #elseif ($otherEnd.bag)
-${indent}<$otherEnd.collectionType name="$otherEnd.name" table="$otherEnd.association.tableName.toLowerCase()" order-by="$sourceEnd.orderByColumns" lazy="$otherEnd.lazy" fetch="$otherEnd.outerJoin" inverse="$otherEnd.hibernateInverse"#if ($otherEnd.hibernateCascade) cascade="$otherEnd.hibernateCascade"#end#if ($otherEnd.whereClause) where="$otherEnd.whereClause"#end>
+${indent}<$otherEnd.collectionType name="$otherEnd.name" table="`$otherEnd.association.tableName.toLowerCase()`" order-by="$sourceEnd.orderByColumns" lazy="$otherEnd.lazy" fetch="$otherEnd.outerJoin" inverse="$otherEnd.hibernateInverse"#if ($otherEnd.hibernateCascade) cascade="$otherEnd.hibernateCascade"#end#if ($otherEnd.whereClause) where="$otherEnd.whereClause"#end>
 #elseif ($otherEnd.list)
-${indent}<$otherEnd.collectionType name="$otherEnd.name" table="$otherEnd.association.tableName.toLowerCase()" lazy="$otherEnd.lazy" fetch="$otherEnd.outerJoin" inverse="$otherEnd.hibernateInverse"#if ($otherEnd.hibernateCascade) cascade="$otherEnd.hibernateCascade"#end#if ($otherEnd.whereClause) where="$otherEnd.whereClause"#end>
+${indent}<$otherEnd.collectionType name="$otherEnd.name" table="`$otherEnd.association.tableName.toLowerCase()`" lazy="$otherEnd.lazy" fetch="$otherEnd.outerJoin" inverse="$otherEnd.hibernateInverse"#if ($otherEnd.hibernateCascade) cascade="$otherEnd.hibernateCascade"#end#if ($otherEnd.whereClause) where="$otherEnd.whereClause"#end>
 #end
 #if ($stringUtils.isNotBlank($doc))
 ${indent}    <meta attribute="field-description">$doc</meta>
@@ -215,7 +215,7 @@ ${indent}</$otherEnd.collectionType>
 ##
 #macro (renderSubClass3 $entity $indent)
 ## Should only get get invoked for inheritance class or subclass.
-${indent}<$entity.mappingClassName#if($mapSubclassesInSeparateFile) extends="$entity.generalization.fullyQualifiedEntityImplementationName"#end name="$entity.fullyQualifiedEntityImplementationName"#if($entity.tableRequired) table="$entity.tableName.toLowerCase()"#else discriminator-value="$entity.hibernateDiscriminatorValue"#end#if(!$entity.lazy) lazy="false"#end#if($entity.hibernateProxy) proxy="$entity.fullyQualifiedEntityImplementationName"#end dynamic-insert="$entity.dynamicInsert" dynamic-update="$entity.dynamicUpdate" abstract="$entity.abstract"#if ($stringUtils.isNotBlank($entity.schema)) schema="$entity.schema"#end>
+${indent}<$entity.mappingClassName#if($mapSubclassesInSeparateFile) extends="$entity.generalization.fullyQualifiedEntityImplementationName"#end name="$entity.fullyQualifiedEntityImplementationName"#if($entity.tableRequired) table="`$entity.tableName.toLowerCase()`"#else discriminator-value="$entity.hibernateDiscriminatorValue"#end#if(!$entity.lazy) lazy="false"#end#if($entity.hibernateProxy) proxy="$entity.fullyQualifiedEntityImplementationName"#end dynamic-insert="$entity.dynamicInsert" dynamic-update="$entity.dynamicUpdate" abstract="$entity.abstract"#if ($stringUtils.isNotBlank($entity.schema)) schema="$entity.schema"#end>
 #set ($doc=$stringUtils.replaceChars($identifier.getDocumentation("",999,false), "\"'&<>", ""))
 #if ($stringUtils.isNotBlank($doc))
 ${indent}    <meta attribute="field-description">$doc</meta>

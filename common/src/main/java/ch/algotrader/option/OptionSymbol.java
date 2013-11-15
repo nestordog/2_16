@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.stockOption;
+package ch.algotrader.option;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -31,13 +31,13 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.util.BaseConverterUtil;
 
 /**
- * Utility class to generate symbol, isin and ric for {@link ch.algotrader.entity.security.StockOption StockOptions}.
+ * Utility class to generate symbol, isin and ric for {@link ch.algotrader.entity.security.Option Options}.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class StockOptionSymbol {
+public class OptionSymbol {
 
     private static final String[] monthCallEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
     private static final String[] monthPutEnc = { "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X" };
@@ -47,7 +47,7 @@ public class StockOptionSymbol {
     private static SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
 
     /**
-     * Generates the symbole for the specified {@link ch.algotrader.entity.security.StockOptionFamily}.
+     * Generates the symbole for the specified {@link ch.algotrader.entity.security.OptionFamily}.
      */
     public static String getSymbol(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike, boolean includeDay) {
 
@@ -67,7 +67,7 @@ public class StockOptionSymbol {
     }
 
     /**
-     * Generates the ISIN for the specified {@link ch.algotrader.entity.security.StockOptionFamily}.
+     * Generates the ISIN for the specified {@link ch.algotrader.entity.security.OptionFamily}.
      */
     public static String getIsin(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike) {
 
@@ -100,7 +100,7 @@ public class StockOptionSymbol {
     }
 
     /**
-     * Generates the RIC for the specified {@link ch.algotrader.entity.security.StockOptionFamily}.
+     * Generates the RIC for the specified {@link ch.algotrader.entity.security.OptionFamily}.
      */
     public static String getRic(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike) {
 

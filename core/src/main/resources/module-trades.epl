@@ -9,7 +9,7 @@ as select
     0L as filledQuantity,
     0L as remainingQuantity
 from
-    GenericOrder;
+    `Order`;
 
 @Name('INSERT_INTO_OPEN_ORDER_WINDOW')
 @RunTimeOnly()
@@ -21,7 +21,7 @@ select
     0L as filledQuantity,
     quantity as remainingQuantity
 from
-    GenericOrder;
+    `Order`;
 
 @Name('UPDATE_OPEN_ORDER_WINDOW')
 @RunTimeOnly()
@@ -33,10 +33,10 @@ set
     openOrderWindow.status = orderStatus.status,
     openOrderWindow.filledQuantity = orderStatus.filledQuantity,
     openOrderWindow.remainingQuantity = orderStatus.remainingQuantity,
-    openOrderWindow.intId = case when orderStatus.intId is not null then orderStatus.intId else orderStatus.ord.intId end,
-    openOrderWindow.extId = case when orderStatus.extId is not null then orderStatus.extId else orderStatus.ord.extId end
+    openOrderWindow.intId = case when orderStatus.intId is not null then orderStatus.intId else orderStatus.`order`.intId end,
+    openOrderWindow.extId = case when orderStatus.extId is not null then orderStatus.extId else orderStatus.`order`.extId end
 where
-    openOrderWindow.intId = orderStatus.ord.intId;
+    openOrderWindow.intId = orderStatus.`order`.intId;
 
 @Name('DELETE_FROM_OPEN_ORDER_WINDOW')
 @RunTimeOnly()
@@ -45,9 +45,9 @@ on
 delete from
     OpenOrderWindow as openOrderWindow
 where
-    orderStatus.ord is null
+    orderStatus.`order` is null
 or
-    orderStatus.ord.intId = openOrderWindow.intId
+    orderStatus.`order`.intId = openOrderWindow.intId
 or
     orderStatus.intId = openOrderWindow.intId;
 
@@ -57,7 +57,7 @@ or
 select
     "missing reply on order: " || currentOrder.toString() as reason
 from
-    pattern[every currentOrder=GenericOrder -> (timer:interval(misc_orderAckSeconds) and not OrderStatus(ord.intId = currentOrder.intId))];
+    pattern[every currentOrder=`Order` -> (timer:interval(misc_orderAckSeconds) and not OrderStatus(`order`.intId = currentOrder.intId))];
 
 // ------------------------------ALGO ORDERS--------------------------------
 
@@ -77,12 +77,12 @@ select
     Status.SUBMITTED as status,
     0 as filledQuantity,
     openOrderWindow.remainingQuantity as remainingQuantity,
-    ord.parentOrder as ord
+    `order`.parentOrder as ord
 from
-    OrderStatus(status = Status.SUBMITTED, ord.parentOrder.algoOrder) as orderStatus unidirectional,
+    OrderStatus(status = Status.SUBMITTED, `order`.parentOrder.algoOrder) as orderStatus unidirectional,
     OpenOrderWindow(status = Status.OPEN) as openOrderWindow
 where
-    openOrderWindow.intId = orderStatus.ord.parentOrder.intId;
+    openOrderWindow.intId = orderStatus.`order`.parentOrder.intId;
 
 @Name('INSERT_INTO_ALGO_ORDER_STATUS_FROM_FILL')
 @RunTimeOnly()
@@ -92,20 +92,20 @@ select
     case when openOrderWindow.remainingQuantity - fill.quantity > 0 then Status.PARTIALLY_EXECUTED else Status.EXECUTED end as status,
     openOrderWindow.filledQuantity + fill.quantity as filledQuantity,
     openOrderWindow.remainingQuantity - fill.quantity as remainingQuantity,
-    ord.parentOrder as ord
+    `order`.parentOrder as ord
 from
-    Fill(ord.parentOrder.algoOrder) as fill unidirectional,
+    Fill(`order`.parentOrder.algoOrder) as fill unidirectional,
     OpenOrderWindow() as openOrderWindow
 where
-    openOrderWindow.intId = fill.ord.parentOrder.intId;
+    openOrderWindow.intId = fill.`order`.parentOrder.intId;
 
 @Name('ALGO_ORDER_DONE')
 @RunTimeOnly
 @Subscriber(className='ch.algotrader.esper.subscriber.VoidSubscriber')
 select
-    cast(ord, ch.algotrader.entity.trade.AlgoOrder).done()
+    cast(`order`, ch.algotrader.entity.trade.AlgoOrder).done()
 from
-    OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, ord.algoOrder);
+    OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, `order`.algoOrder);
 
 // ------------------------------LOGGING / PROPAGATION--------------------------------
 
@@ -118,8 +118,8 @@ select
 from
     pattern [every fill=Fill -> orderStatus=OrderStatus(
         status = Status.EXECUTED or status = Status.CANCELED,
-        (not fill.ord.parentOrder is null and ord.intId = fill.ord.parentOrder.intId) or
-        (fill.ord.parentOrder is null and ord.intId = fill.ord.intId))];
+        (not fill.`order`.parentOrder is null and `order`.intId = fill.`order`.parentOrder.intId) or
+        (fill.`order`.parentOrder is null and `order`.intId = fill.`order`.intId))];
 
 @Name('PROPAGATE_ORDER_STATUS')
 @RunTimeOnly()

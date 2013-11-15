@@ -23,10 +23,10 @@ import java.util.Date;
 
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
-import ch.algotrader.entity.security.NaturalIndex;
+import ch.algotrader.entity.security.Index;
+import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.Stock;
-import ch.algotrader.entity.security.StockOption;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
@@ -55,19 +55,19 @@ public class IBUtil {
 
         Contract contract = new Contract();
 
-        if (security instanceof StockOption) {
+        if (security instanceof Option) {
 
-            StockOption stockOption = (StockOption) security;
+            Option option = (Option) security;
 
-            contract.m_symbol = stockOption.getSecurityFamily().getBaseSymbol(Broker.IB);
+            contract.m_symbol = option.getSecurityFamily().getBaseSymbol(Broker.IB);
             contract.m_secType = "OPT";
             contract.m_exchange = "SMART";
-            contract.m_primaryExch = stockOption.getSecurityFamily().getMarket(Broker.IB);
-            contract.m_currency = stockOption.getSecurityFamily().getCurrency().toString();
-            contract.m_strike = stockOption.getStrike().doubleValue();
-            contract.m_right = stockOption.getType().toString();
-            contract.m_multiplier = String.valueOf(stockOption.getSecurityFamily().getContractSize());
-            contract.m_expiry = dayFormat.format(stockOption.getExpiration());
+            contract.m_primaryExch = option.getSecurityFamily().getMarket(Broker.IB);
+            contract.m_currency = option.getSecurityFamily().getCurrency().toString();
+            contract.m_strike = option.getStrike().doubleValue();
+            contract.m_right = option.getType().toString();
+            contract.m_multiplier = String.valueOf(option.getSecurityFamily().getContractSize());
+            contract.m_expiry = dayFormat.format(option.getExpiration());
 
         } else if (security instanceof Future) {
 
@@ -94,7 +94,7 @@ public class IBUtil {
             contract.m_exchange = "SMART";
             contract.m_primaryExch = security.getSecurityFamily().getMarket(Broker.IB);
 
-        } else if (security instanceof NaturalIndex) {
+        } else if (security instanceof Index) {
 
             contract.m_currency = security.getSecurityFamily().getCurrency().toString();
             contract.m_symbol = security.getSymbol();

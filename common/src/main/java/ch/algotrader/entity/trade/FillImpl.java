@@ -42,22 +42,22 @@ public class FillImpl extends Fill {
         buffer.append(",");
         buffer.append(getQuantity());
 
-        if (getOrd() != null) {
+        if (getOrder() != null) {
             buffer.append(",");
-            buffer.append(getOrd().getSecurity());
+            buffer.append(getOrder().getSecurity());
         }
 
-        if (getOrd() != null) {
+        if (getOrder() != null) {
             buffer.append(",");
-            buffer.append(getOrd().getStrategy());
+            buffer.append(getOrder().getStrategy());
         }
 
         buffer.append(",price=");
         buffer.append(getPrice());
 
-        if (getOrd() != null) {
+        if (getOrder() != null) {
             buffer.append(",");
-            buffer.append(getOrd().getSecurity().getSecurityFamily().getCurrency());
+            buffer.append(getOrder().getSecurity().getSecurityFamily().getCurrency());
         }
 
         buffer.append(",extId=");

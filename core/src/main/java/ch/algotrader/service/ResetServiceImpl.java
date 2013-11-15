@@ -30,8 +30,8 @@ import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.property.Property;
 import ch.algotrader.entity.security.Component;
 import ch.algotrader.entity.security.FutureDao;
+import ch.algotrader.entity.security.OptionDao;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.StockOptionDao;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Strategy;
 
@@ -42,7 +42,7 @@ import ch.algotrader.entity.strategy.Strategy;
  */
 public class ResetServiceImpl extends ResetServiceBase {
 
-    private @Value("${statement.simulateStockOptions}") boolean simulateStockOptions;
+    private @Value("${statement.simulateOptions}") boolean simulateOptions;
     private @Value("${statement.simulateFuturesByUnderlying}") boolean simulateFuturesByUnderlying;
     private @Value("${statement.simulateFuturesByGenericFutures}") boolean simulateFuturesByGenericFutures;
 
@@ -127,9 +127,9 @@ public class ResetServiceImpl extends ResetServiceBase {
         // delete all measurements
         getMeasurementDao().remove(getMeasurementDao().loadAll());
 
-        // delete all StockOptions if they are beeing simulated
-        if (this.simulateStockOptions) {
-            getSecurityDao().remove((Collection<Security>) getStockOptionDao().loadAll(StockOptionDao.TRANSFORM_NONE));
+        // delete all Options if they are beeing simulated
+        if (this.simulateOptions) {
+            getSecurityDao().remove((Collection<Security>) getOptionDao().loadAll(OptionDao.TRANSFORM_NONE));
         }
 
         // delete all Futures if they are beeing simulated

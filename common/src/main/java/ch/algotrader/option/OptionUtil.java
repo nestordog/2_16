@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.stockOption;
+package ch.algotrader.option;
 
 import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.MathException;
@@ -25,41 +25,40 @@ import org.apache.commons.math.analysis.polynomials.PolynomialSplineFunction;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolver;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
-import ch.algotrader.util.DateUtil;
-
-import ch.algotrader.entity.security.StockOption;
-import ch.algotrader.entity.security.StockOptionFamily;
+import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.util.DateUtil;
 import ch.algotrader.vo.SABRSmileVO;
 import ch.algotrader.vo.SABRSurfaceVO;
 
 /**
- * Utility class containing static methods around {@link StockOption StockOptions}.
+ * Utility class containing static methods around {@link Option Options}.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class StockOptionUtil {
+public class OptionUtil {
 
     private static double beta = 0.999;
 
     /**
-     * Gets the fair-price of a {@link StockOption} based on the price of the {@code underlyingSpot} and {@code volatility}.
-     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link StockOptionFamily}.
+     * Gets the fair-price of a {@link Option} based on the price of the {@code underlyingSpot} and {@code volatility}.
+     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link OptionFamily}.
      */
-    public static double getOptionPrice(StockOption stockOption, double underlyingSpot, double vola) {
+    public static double getOptionPrice(Option option, double underlyingSpot, double vola) {
 
-        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
+        OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
 
-        return getOptionPrice(underlyingSpot, stockOption.getStrike().doubleValue(), vola, years, family.getIntrest(), family.getDividend(), stockOption.getType());
+        return getOptionPrice(underlyingSpot, option.getStrike().doubleValue(), vola, years, family.getIntrest(), family.getDividend(), option.getType());
     }
 
     /**
-     * Gets the fair-price of a {@link StockOption}.
+     * Gets the fair-price of a {@link Option}.
      */
     public static double getOptionPrice(double underlyingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
 
@@ -84,20 +83,20 @@ public class StockOptionUtil {
     }
 
     /**
-     * Gets the implied volatility of a {@link StockOption} using a {@link UnivariateRealSolverFactory}.
-     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link StockOptionFamily}.
+     * Gets the implied volatility of a {@link Option} using a {@link UnivariateRealSolverFactory}.
+     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link OptionFamily}.
      */
-    public static double getImpliedVolatility(StockOption stockOption, double underlyingSpot, final double currentValue) throws MathException {
+    public static double getImpliedVolatility(Option option, double underlyingSpot, final double currentValue) throws MathException {
 
-        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
+        OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
 
-        return getImpliedVolatility(underlyingSpot, stockOption.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
+        return getImpliedVolatility(underlyingSpot, option.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
     }
 
     /**
-     * Gets the implied volatility of a {@link StockOption} using a {@link UnivariateRealSolverFactory}.
+     * Gets the implied volatility of a {@link Option} using a {@link UnivariateRealSolverFactory}.
      */
     @SuppressWarnings("deprecation")
     public static double getImpliedVolatility(final double underlyingSpot, final double strike, final double currentValue, final double years, final double intrest,
@@ -127,20 +126,20 @@ public class StockOptionUtil {
     }
 
     /**
-     * Gets the implied volatility of a {@link StockOption} using the Newton Rapson Method.
-     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link StockOptionFamily}.
+     * Gets the implied volatility of a {@link Option} using the Newton Rapson Method.
+     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link OptionFamily}.
      */
-    public static double getImpliedVolatilityNR(StockOption stockOption, double underlyingSpot, final double currentValue) throws MathException {
+    public static double getImpliedVolatilityNR(Option option, double underlyingSpot, final double currentValue) throws MathException {
 
-        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
+        OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
 
-        return getImpliedVolatilityNR(underlyingSpot, stockOption.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
+        return getImpliedVolatilityNR(underlyingSpot, option.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
     }
 
     /**
-     * Gets the implied volatility of a {@link StockOption} using the Newton Rapson Method.
+     * Gets the implied volatility of a {@link Option} using the Newton Rapson Method.
      */
     public static double getImpliedVolatilityNR(final double underlyingSpot, final double strike, final double currentValue, final double years,
             final double intrest, final double dividend, final OptionType type) throws MathException {
@@ -167,20 +166,20 @@ public class StockOptionUtil {
     }
 
     /**
-     * Gets the implied volatility of a {@link StockOption} based on a {@link SABRSurfaceVO}.
-     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link StockOptionFamily}.
+     * Gets the implied volatility of a {@link Option} based on a {@link SABRSurfaceVO}.
+     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link OptionFamily}.
      */
-    public static double getImpliedVolatilitySABR(StockOption stockOption, double underlyingSpot, final SABRSurfaceVO surface) throws MathException {
+    public static double getImpliedVolatilitySABR(Option option, double underlyingSpot, final SABRSurfaceVO surface) throws MathException {
 
-        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
+        OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
 
-        return getImpliedVolatilitySABR(underlyingSpot, stockOption.getStrike().doubleValue(), years, family.getIntrest(), family.getDividend(), stockOption.getType(), surface);
+        return getImpliedVolatilitySABR(underlyingSpot, option.getStrike().doubleValue(), years, family.getIntrest(), family.getDividend(), option.getType(), surface);
     }
 
     /**
-     * Gets the implied volatility of a {@link StockOption} based on a {@link SABRSurfaceVO}.
+     * Gets the implied volatility of a {@link Option} based on a {@link SABRSurfaceVO}.
      */
     public static double getImpliedVolatilitySABR(final double underlyingSpot, final double strike, final double years, final double intrest, final double dividend,
             final OptionType type, final SABRSurfaceVO surface) throws MathException {
@@ -208,15 +207,15 @@ public class StockOptionUtil {
     }
 
     /**
-     * Gets the intrinsic value of a {@link StockOption}.
+     * Gets the intrinsic value of a {@link Option}.
      */
-    public static double getIntrinsicValue(StockOption stockOption, double underlyingSpot) throws RuntimeException {
+    public static double getIntrinsicValue(Option option, double underlyingSpot) throws RuntimeException {
 
-        return getIntrinsicValue(underlyingSpot, stockOption.getStrike().doubleValue(), stockOption.getType());
+        return getIntrinsicValue(underlyingSpot, option.getStrike().doubleValue(), option.getType());
     }
 
     /**
-     * Gets the intrinsic value of a {@link StockOption}.
+     * Gets the intrinsic value of a {@link Option}.
      */
     public static double getIntrinsicValue(double underlyingSpot, double strike, OptionType type) {
 
@@ -228,22 +227,22 @@ public class StockOptionUtil {
     }
 
     /**
-     * Gets the delta of a {@link StockOption}
-     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link StockOptionFamily}.
+     * Gets the delta of a {@link Option}
+     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link OptionFamily}.
      */
-    public static double getDelta(StockOption stockOption, double currentValue, double underlyingSpot) throws MathException {
+    public static double getDelta(Option option, double currentValue, double underlyingSpot) throws MathException {
 
-        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
+        OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
-        double strike = stockOption.getStrike().doubleValue();
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
-        double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
-        return StockOptionUtil.getDelta(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), stockOption.getType());
+        double strike = option.getStrike().doubleValue();
+        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
+        return OptionUtil.getDelta(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), option.getType());
 
     }
 
     /**
-     * Gets the delta of a {@link StockOption}
+     * Gets the delta of a {@link Option}
      */
     public static double getDelta(double underlyingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
 
@@ -262,21 +261,21 @@ public class StockOptionUtil {
     }
 
     /**
-     * Gets the vega of a {@link StockOption}
-     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link StockOptionFamily}.
+     * Gets the vega of a {@link Option}
+     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link OptionFamily}.
      */
-    public static double getVega(StockOption stockOption, double currentValue, double underlyingSpot) throws MathException {
+    public static double getVega(Option option, double currentValue, double underlyingSpot) throws MathException {
 
-        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
+        OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
-        double strike = stockOption.getStrike().doubleValue();
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
-        double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
-        return StockOptionUtil.getVega(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend());
+        double strike = option.getStrike().doubleValue();
+        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
+        return OptionUtil.getVega(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend());
     }
 
     /**
-     * Gets the vega of a {@link StockOption}
+     * Gets the vega of a {@link Option}
      */
     public static double getVega(double underlyingSpot, double strike, double volatility, double years, double intrest, double dividend) {
 
@@ -289,22 +288,22 @@ public class StockOptionUtil {
     }
 
     /**
-     * Gets the theta of a {@link StockOption}
-     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link StockOptionFamily}.
+     * Gets the theta of a {@link Option}
+     * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link OptionFamily}.
      */
-    public static double getTheta(StockOption stockOption, double currentValue, double underlyingSpot) throws MathException {
+    public static double getTheta(Option option, double currentValue, double underlyingSpot) throws MathException {
 
-        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
+        OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
-        double strike = stockOption.getStrike().doubleValue();
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
-        double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), stockOption.getType());
-        return StockOptionUtil.getTheta(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), stockOption.getType());
+        double strike = option.getStrike().doubleValue();
+        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
+        return OptionUtil.getTheta(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), option.getType());
 
     }
 
     /**
-     * Gets the theta of a {@link StockOption}
+     * Gets the theta of a {@link Option}
      */
     public static double getTheta(double underlyingSpot, double strike, double volatility, double years, double intrest, double dividend, OptionType type) {
 
@@ -328,32 +327,32 @@ public class StockOptionUtil {
     }
 
     /**
-     * Gets the current maintenace margin for a StockOption using the Eurex Risk based Margining.
-     * {@code duration}, {@code intrest}, {@code dividend} and {@code marginParameter} are retrieved from the {@link StockOptionFamily}.
+     * Gets the current maintenace margin for an Option using the Eurex Risk based Margining.
+     * {@code duration}, {@code intrest}, {@code dividend} and {@code marginParameter} are retrieved from the {@link OptionFamily}.
      */
-    public static double getMaintenanceMargin(StockOption stockOption, double stockOptionSettlement, double underlyingSettlement) throws MathException {
+    public static double getMaintenanceMargin(Option option, double optionSettlement, double underlyingSettlement) throws MathException {
 
-        return getTotalMargin(stockOption, stockOptionSettlement, underlyingSettlement) - stockOptionSettlement;
+        return getTotalMargin(option, optionSettlement, underlyingSettlement) - optionSettlement;
     }
 
     /**
-     * Gets the total maintenace margin for a StockOption using the Eurex Risk based Margining
-     * {@code duration}, {@code intrest}, {@code dividend} and {@code marginParameter} are retrieved from the {@link StockOptionFamily}.
+     * Gets the total maintenace margin for an Option using the Eurex Risk based Margining
+     * {@code duration}, {@code intrest}, {@code dividend} and {@code marginParameter} are retrieved from the {@link OptionFamily}.
      */
-    public static double getTotalMargin(StockOption stockOption, double stockOptionSettlement, double underlyingSettlement) throws MathException {
+    public static double getTotalMargin(Option option, double optionSettlement, double underlyingSettlement) throws MathException {
 
-        StockOptionFamily family = (StockOptionFamily) stockOption.getSecurityFamily();
+        OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
-        double years = (stockOption.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
 
-        return getTotalMargin(underlyingSettlement, stockOption.getStrike().doubleValue(), stockOptionSettlement, years, family.getIntrest(), family.getDividend(), stockOption.getType(),
+        return getTotalMargin(underlyingSettlement, option.getStrike().doubleValue(), optionSettlement, years, family.getIntrest(), family.getDividend(), option.getType(),
                 family.getMarginParameter());
     }
 
     /**
-     * Gets the total maintenace margin for a {@link StockOption} using the Eurex Risk based Margining
+     * Gets the total maintenace margin for a {@link Option} using the Eurex Risk based Margining
      */
-    public static double getTotalMargin(double underlyingSettlement, double strike, double stockOptionSettlement, double years, double intrest,
+    public static double getTotalMargin(double underlyingSettlement, double strike, double optionSettlement, double years, double intrest,
             double dividend, OptionType type, double marginParameter) throws MathException {
 
         double marginLevel;
@@ -363,13 +362,13 @@ public class StockOptionUtil {
             marginLevel = underlyingSettlement * (1.0 - marginParameter);
         }
 
-        double volatility = StockOptionUtil.getImpliedVolatility(underlyingSettlement, strike, stockOptionSettlement, years, intrest, dividend, type);
+        double volatility = OptionUtil.getImpliedVolatility(underlyingSettlement, strike, optionSettlement, years, intrest, dividend, type);
 
         return getOptionPrice(marginLevel, strike, volatility, years, intrest, 0, type);
     }
 
     /**
-     * Gets the forward price of a {@link StockOption}
+     * Gets the forward price of a {@link Option}
      */
     public static double getForward(double spot, double years, double intrest, double dividend) {
 
@@ -377,19 +376,19 @@ public class StockOptionUtil {
     }
 
     /**
-     * Gets the moneyness of a {@link StockOption}
+     * Gets the moneyness of a {@link Option}
      */
-    public static double getMoneyness(StockOption stockOption, double underlyingSpot) {
+    public static double getMoneyness(Option option, double underlyingSpot) {
 
-        if (OptionType.CALL.equals(stockOption.getType())) {
-            return (underlyingSpot - stockOption.getStrike().doubleValue()) / underlyingSpot;
+        if (OptionType.CALL.equals(option.getType())) {
+            return (underlyingSpot - option.getStrike().doubleValue()) / underlyingSpot;
         } else {
-            return (stockOption.getStrike().doubleValue() - underlyingSpot) / underlyingSpot;
+            return (option.getStrike().doubleValue() - underlyingSpot) / underlyingSpot;
         }
     }
 
     /**
-     * Gets the strike of a {@link StockOption} based on its delta.
+     * Gets the strike of a {@link Option} based on its delta.
      * Based on FX conventions as reported in "FX Volatility Smile Construction" by Dimitri Reiswich and Uwe Wystrup
      */
     public static double getStrikeByDelta(double delta, double impliedVol, double years, double forward, double intrest, OptionType type) {

@@ -91,7 +91,7 @@ public class Fix44MessageHandler {
             orderStatus.setStatus(status);
             orderStatus.setFilledQuantity(filledQuantity);
             orderStatus.setRemainingQuantity(remainingQuantity);
-            orderStatus.setOrd(order);
+            orderStatus.setOrder(order);
 
             // update intId in case it has changed
             if (!order.getIntId().equals(intId)) {

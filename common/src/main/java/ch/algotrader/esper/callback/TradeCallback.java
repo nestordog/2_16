@@ -63,7 +63,7 @@ public abstract class TradeCallback {
         if (this.expectFullExecution) {
             for (OrderStatus orderStatus : orderStati) {
                 if (orderStatus.getRemainingQuantity() > 0) {
-                    logger.error("order on " + orderStatus.getOrd().getSecurityInitialized() +
+                    logger.error("order on " + orderStatus.getOrder().getSecurityInitialized() +
                             " has not been fully executed, filledQty: " + orderStatus.getFilledQuantity() +
                             " remainingQty: " + orderStatus.getRemainingQuantity());
                 }
@@ -75,11 +75,11 @@ public abstract class TradeCallback {
         TreeSet<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(orderStatusList, new Transformer<OrderStatus, Integer>() {
             @Override
             public Integer transform(OrderStatus order) {
-                return order.getOrd().getSecurity().getId();
+                return order.getOrder().getSecurity().getId();
             }
         }));
 
-        String owningStrategyName = orderStati[0].getOrd().getStrategy().getName();
+        String owningStrategyName = orderStati[0].getOrder().getStrategy().getName();
 
         // get the statement alias based on all security ids
         String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_") + "_" + owningStrategyName;

@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.stockOption;
+package ch.algotrader.option;
 
 /**
  * Function to compute the Gaussian pdf (probability density function) and the Gaussian cdf (cumulative density function)

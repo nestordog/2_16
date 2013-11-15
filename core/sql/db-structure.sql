@@ -242,7 +242,7 @@ CREATE TABLE `easy_to_borrow` (
   UNIQUE KEY `DATE_BROKER_STOCK_UNIQUE` (`DATE`,`BROKER`,`STOCK_FK`),
   KEY `EASY_TO_BORROW_STOCK_FKC` (`STOCK_FK`),
   CONSTRAINT `EASY_TO_BORROW_STOCK_FKC` FOREIGN KEY (`STOCK_FK`) REFERENCES `stock` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -258,38 +258,6 @@ CREATE TABLE `forex` (
   PRIMARY KEY (`ID`),
   KEY `FOREXIFKC` (`ID`),
   CONSTRAINT `FOREXIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `forex_future`
---
-
-DROP TABLE IF EXISTS `forex_future`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `forex_future` (
-  `ID` int(11) NOT NULL,
-  `BASE_CURRENCY` enum('USD','EUR','CHF','GBP','CAD','JPY','AUD','NZD','HKD','SEK','NOK') NOT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `FOREX_FUTUREIFKC` (`ID`),
-  CONSTRAINT `FOREX_FUTUREIFKC` FOREIGN KEY (`ID`) REFERENCES `future` (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `forex_future_family`
---
-
-DROP TABLE IF EXISTS `forex_future_family`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `forex_future_family` (
-  `ID` int(11) NOT NULL,
-  `BASE_CURRENCY` enum('USD','EUR','CHF','GBP','CAD','JPY','AUD','NZD','HKD','SEK','NOK') NOT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `FOREX_FUTURE_FAMILYIFKC` (`ID`),
-  CONSTRAINT `FOREX_FUTURE_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `future_family` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -385,6 +353,21 @@ CREATE TABLE `implied_volatility` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `index`
+--
+
+DROP TABLE IF EXISTS `index`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `index` (
+  `ID` int(11) NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `NATURAL_INDEXIFKC` (`ID`),
+  CONSTRAINT `NATURAL_INDEXIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `intrest_rate`
 --
 
@@ -425,17 +408,44 @@ CREATE TABLE `measurement` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `natural_index`
+-- Table structure for table `option`
 --
 
-DROP TABLE IF EXISTS `natural_index`;
+DROP TABLE IF EXISTS `option`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `natural_index` (
+CREATE TABLE `option` (
   `ID` int(11) NOT NULL,
+  `STRIKE` decimal(12,5) NOT NULL,
+  `EXPIRATION` datetime NOT NULL,
+  `TYPE` enum('CALL','PUT') NOT NULL,
   PRIMARY KEY (`ID`),
-  KEY `NATURAL_INDEXIFKC` (`ID`),
-  CONSTRAINT `NATURAL_INDEXIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `EXPIRATION` (`EXPIRATION`),
+  KEY `STOCK_OPTIONIFKC` (`ID`),
+  KEY `STRIKE` (`STRIKE`),
+  KEY `TYPE` (`TYPE`),
+  CONSTRAINT `STOCK_OPTIONIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `option_family`
+--
+
+DROP TABLE IF EXISTS `option_family`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `option_family` (
+  `ID` int(11) NOT NULL,
+  `INTREST` double NOT NULL,
+  `DIVIDEND` double NOT NULL,
+  `MARGIN_PARAMETER` double DEFAULT NULL,
+  `EXPIRATION_TYPE` enum('NEXT_3_RD_FRIDAY','NEXT_3_RD_FRIDAY_3_MONTHS','THIRTY_DAYS_BEFORE_NEXT_3_RD_FRIDAY') DEFAULT NULL,
+  `EXPIRATION_DISTANCE` enum('MSEC_1','SEC_1','MIN_1','MIN_2','MIN_5','MIN_15','MIN_30','HOUR_1','HOUR_2','DAY_1','DAY_2','WEEK_1','WEEK_2','MONTH_1','MONTH_2','MONTH_3','MONTH_6','MONTH_9','MONTH_18','YEAR_1','YEAR_2') DEFAULT NULL,
+  `STRIKE_DISTANCE` double DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `STOCK_OPTION_FAMILYIFKC` (`ID`),
+  CONSTRAINT `STOCK_OPTION_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `security_family` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -621,48 +631,6 @@ CREATE TABLE `stock` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `stock_option`
---
-
-DROP TABLE IF EXISTS `stock_option`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `stock_option` (
-  `ID` int(11) NOT NULL,
-  `STRIKE` decimal(13,6) NOT NULL,
-  `EXPIRATION` datetime NOT NULL,
-  `TYPE` enum('CALL','PUT') NOT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `EXPIRATION` (`EXPIRATION`),
-  KEY `STOCK_OPTIONIFKC` (`ID`),
-  KEY `STRIKE` (`STRIKE`),
-  KEY `TYPE` (`TYPE`),
-  CONSTRAINT `STOCK_OPTIONIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `stock_option_family`
---
-
-DROP TABLE IF EXISTS `stock_option_family`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `stock_option_family` (
-  `ID` int(11) NOT NULL,
-  `INTREST` double NOT NULL,
-  `DIVIDEND` double NOT NULL,
-  `MARGIN_PARAMETER` double DEFAULT NULL,
-  `EXPIRATION_TYPE` enum('NEXT_3_RD_FRIDAY','NEXT_3_RD_FRIDAY_3_MONTHS','THIRTY_DAYS_BEFORE_NEXT_3_RD_FRIDAY') DEFAULT NULL,
-  `EXPIRATION_DISTANCE` enum('MSEC_1','SEC_1','MIN_1','MIN_2','MIN_5','MIN_15','MIN_30','HOUR_1','HOUR_2','DAY_1','DAY_2','WEEK_1','WEEK_2','MONTH_1','MONTH_2','MONTH_3','MONTH_6','MONTH_9','MONTH_18','YEAR_1','YEAR_2') DEFAULT NULL,
-  `STRIKE_DISTANCE` double DEFAULT NULL,
-  PRIMARY KEY (`ID`),
-  KEY `STOCK_OPTION_FAMILYIFKC` (`ID`),
-  CONSTRAINT `STOCK_OPTION_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `security_family` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `strategy`
 --
 
@@ -778,4 +746,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-10-18 17:07:38
+-- Dump completed on 2013-11-15 10:10:55
