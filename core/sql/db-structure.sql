@@ -181,6 +181,23 @@ CREATE TABLE `combination` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `commodity`
+--
+
+DROP TABLE IF EXISTS `commodity`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `commodity` (
+  `ID` int(11) NOT NULL,
+  `TYPE` enum('ENERGY','INDUSTRIAL_METALS','PRECIOUS_METALS','AGRICULTURE','LIVESTOCK') NOT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `TYPE` (`TYPE`),
+  KEY `COMMODITYIFKC` (`ID`),
+  CONSTRAINT `COMMODITYIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `component`
 --
 
@@ -258,6 +275,21 @@ CREATE TABLE `forex` (
   PRIMARY KEY (`ID`),
   KEY `FOREXIFKC` (`ID`),
   CONSTRAINT `FOREXIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `fund`
+--
+
+DROP TABLE IF EXISTS `fund`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `fund` (
+  `ID` int(11) NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `FUNDIFKC` (`ID`),
+  CONSTRAINT `FUNDIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -361,6 +393,7 @@ DROP TABLE IF EXISTS `index`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `index` (
   `ID` int(11) NOT NULL,
+  `TYPE` enum('EQUITY','VOLATILITY','COMMODITY') NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `NATURAL_INDEXIFKC` (`ID`),
   CONSTRAINT `NATURAL_INDEXIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -746,4 +779,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-11-15 10:10:55
+-- Dump completed on 2013-11-15 12:35:47
