@@ -281,15 +281,19 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
                 double close = bbBar.getElementAsFloat64("PX_LAST");
 
                 // instruments might only have a PX_LAST
-                double open, high, low;
+                double open = close;
                 if (bbBar.hasElement("OPEN")) {
                     open = bbBar.getElementAsFloat64("OPEN");
+                }
+
+                double high = close;
+                if (bbBar.hasElement("HIGH")) {
                     high = bbBar.getElementAsFloat64("HIGH");
+                }
+
+                double low = close;
+                if (bbBar.hasElement("LOW")) {
                     low = bbBar.getElementAsFloat64("LOW");
-                } else {
-                    open = close;
-                    high = close;
-                    low = close;
                 }
 
                 long volume = 0;
