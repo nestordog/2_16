@@ -15,21 +15,19 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.entity;
+package ch.algotrader.adapter.rt;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 /**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * RealTick Test Suite
+ *
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-    AccountTest.class,
-    PositionTest.class
- })
-public class EntityTestSuite {
-
+@Suite.SuiteClasses({RTOrderTest.class})
+public class RTTestSuite {
 }

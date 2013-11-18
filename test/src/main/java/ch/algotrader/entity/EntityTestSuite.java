@@ -15,19 +15,24 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.test.realtick;
+package ch.algotrader.entity;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import ch.algotrader.entity.marketData.TickTest;
+
 /**
- * RealTick Test Suite
- *
- * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({RTOrderTest.class})
-public class RTTestSuite {
+@Suite.SuiteClasses({
+    AccountTest.class,
+    PositionTest.class,
+    TickTest.class
+ })
+public class EntityTestSuite {
+
 }

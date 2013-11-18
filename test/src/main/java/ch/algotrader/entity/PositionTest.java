@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package com.algoTrader.entity;
+package ch.algotrader.entity;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -107,13 +107,13 @@ public class PositionTest extends EntityTest {
     @Test
     public void findOpenPositionsAggregated() {
 
-        //        this.positionDao.findOpenPositionsAggregated();
+        this.positionDao.findOpenPositionsAggregated();
     }
 
     @Test
     public void findOpenPositionsByMaxDateAggregated() {
 
-        //        this.positionDao.findOpenPositionsByMaxDateAggregated(null);
+        this.positionDao.findOpenPositionsByMaxDateAggregated(null);
     }
 
     @Test

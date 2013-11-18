@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.test.realtick;
+package ch.algotrader.adapter.rt;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
