@@ -39,151 +39,151 @@ public class PositionTest extends EntityTest {
     }
 
     @Test
-    public void findById() {
+    public void testFindById() {
 
         this.positionDao.findById(0);
     }
 
     @Test
-    public void findByIdInclSecurityAndSecurityFamily() {
+    public void testFindByIdInclSecurityAndSecurityFamily() {
 
         this.positionDao.findByIdInclSecurityAndSecurityFamily(0);
     }
 
     @Test
-    public void findBySecurityAndStrategy() {
+    public void testFindBySecurityAndStrategy() {
 
         this.positionDao.findBySecurityAndStrategy(0, null);
     }
 
     @Test
-    public void findBySecurityAndStrategyIdLocked() {
+    public void testFindBySecurityAndStrategyIdLocked() {
 
         this.positionDao.findBySecurityAndStrategyIdLocked(0, 0);
     }
 
     @Test
-    public void findByStrategy() {
+    public void testFindByStrategy() {
 
         this.positionDao.findByStrategy(null);
     }
 
     @Test
-    public void findExpirablePositions() {
+    public void testFindExpirablePositions() {
 
         this.positionDao.findExpirablePositions(null);
     }
 
     @Test
-    public void findNonPersistent() {
+    public void testFindNonPersistent() {
 
         this.positionDao.findNonPersistent();
     }
 
     @Test
-    public void findOpenFXPositions() {
+    public void testFindOpenFXPositions() {
 
         this.positionDao.findOpenFXPositions();
     }
 
     @Test
-    public void findOpenFXPositionsAggregated() {
+    public void testFindOpenFXPositionsAggregated() {
 
         this.positionDao.findOpenFXPositionsAggregated();
     }
 
     @Test
-    public void findOpenFXPositionsByStrategy() {
+    public void testFindOpenFXPositionsByStrategy() {
 
         this.positionDao.findOpenFXPositionsByStrategy(null);
     }
 
     @Test
-    public void findOpenPositions() {
+    public void testFindOpenPositions() {
 
         this.positionDao.findOpenPositions();
     }
 
     @Test
-    public void findOpenPositionsAggregated() {
+    public void testFindOpenPositionsAggregated() {
 
         this.positionDao.findOpenPositionsAggregated();
     }
 
     @Test
-    public void findOpenPositionsByMaxDateAggregated() {
+    public void testFindOpenPositionsByMaxDateAggregated() {
 
         this.positionDao.findOpenPositionsByMaxDateAggregated(null);
     }
 
     @Test
-    public void findOpenPositionsBySecurity() {
+    public void testFindOpenPositionsBySecurity() {
 
         this.positionDao.findOpenPositionsBySecurity(0);
     }
 
     @Test
-    public void findOpenPositionsByStrategy() {
+    public void testFindOpenPositionsByStrategy() {
 
         this.positionDao.findOpenPositionsByStrategy(null);
     }
 
     @Test
-    public void findOpenPositionsByStrategyAndMaxDate() {
+    public void testFindOpenPositionsByStrategyAndMaxDate() {
 
         this.positionDao.findOpenPositionsByStrategyAndMaxDate(null, null);
     }
 
     @Test
-    public void findOpenPositionsByStrategyAndSecurityFamily() {
+    public void testFindOpenPositionsByStrategyAndSecurityFamily() {
 
         this.positionDao.findOpenPositionsByStrategyAndSecurityFamily(null, 0);
     }
 
     @Test
-    public void findOpenPositionsByStrategyAndType() {
+    public void testFindOpenPositionsByStrategyAndType() {
 
         this.positionDao.findOpenPositionsByStrategyAndType(null, 0);
     }
 
     @Test
-    public void findOpenPositionsByStrategyTypeAndUnderlyingType() {
+    public void testFindOpenPositionsByStrategyTypeAndUnderlyingType() {
 
         this.positionDao.findOpenPositionsByStrategyTypeAndUnderlyingType(null, 0, 0);
     }
 
     @Test
-    public void findOpenPositionsByUnderlying() {
+    public void testFindOpenPositionsByUnderlying() {
 
         this.positionDao.findOpenPositionsByUnderlying(0);
     }
 
     @Test
-    public void findOpenPositionsFromTransactions() {
+    public void testFindOpenPositionsFromTransactions() {
 
         this.positionDao.findOpenPositionsFromTransactions();
     }
 
     @Test
-    public void findOpenTradeablePositions() {
+    public void testFindOpenTradeablePositions() {
 
         this.positionDao.findOpenTradeablePositions();
     }
 
     @Test
-    public void findOpenTradeablePositionsAggregated() {
+    public void testFindOpenTradeablePositionsAggregated() {
 
         this.positionDao.findOpenTradeablePositionsAggregated();
     }
 
     @Test
-    public void findOpenTradeablePositionsByStrategy() {
+    public void testFindOpenTradeablePositionsByStrategy() {
 
         this.positionDao.findOpenTradeablePositionsByStrategy(null);
     }
 
     @Test
-    public void findPersistent() {
+    public void testFindPersistent() {
 
         this.positionDao.findPersistent();
     }

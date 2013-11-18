@@ -40,13 +40,13 @@ public class AccountTest extends EntityTest {
     }
 
     @Test
-    public void findByName() {
+    public void testFindByName() {
 
         this.accountDao.findByName("DC");
     }
 
     @Test
-    public void findActiveSessionsByOrderServiceType() {
+    public void testFindActiveSessionsByOrderServiceType() {
 
         this.accountDao.findActiveSessionsByOrderServiceType(OrderServiceType.DC_FIX);
 

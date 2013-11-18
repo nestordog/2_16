@@ -17,14 +17,13 @@
  ***********************************************************************************/
 package ch.algotrader.entity.marketData;
 
-import java.util.ArrayList;
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.EntityTest;
-import ch.algotrader.entity.marketData.TickDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -42,91 +41,79 @@ public class TickTest extends EntityTest {
     }
 
     @Test
-    public void findByIdInclSecurityAndSecurityFamily() {
+    public void testFindByIdInclSecurityAndSecurityFamily() {
 
-        this.tickDao.findByIdsInclSecurityAndUnderlying(new ArrayList<Integer>());
+        this.tickDao.findByIdsInclSecurityAndUnderlying(Collections.singleton(0));
     }
 
     @Test
-    public void findBySecurity() {
+    public void testFindBySecurity() {
 
         this.tickDao.findBySecurity(0);
     }
 
     @Test
-    public void findBySecurityAndMaxDate() {
+    public void testFindBySecurityAndMaxDate() {
 
         this.tickDao.findBySecurityAndMaxDate(0, null);
     }
 
     @Test
-    public void findCurrentTicksByStrategy() {
-
-        this.tickDao.findCurrentTicksByStrategy(null);
-    }
-
-    @Test
-    public void findDailyTickIdsAfterTime() {
+    public void testFindDailyTickIdsAfterTime() {
 
         this.tickDao.findDailyTickIdsAfterTime(0, null);
     }
 
     @Test
-    public void findDailyTickIdsBeforeTime() {
+    public void testFindDailyTickIdsBeforeTime() {
 
         this.tickDao.findDailyTickIdsBeforeTime(0, null);
     }
 
     @Test
-    public void findHourlyTickIdsAfterMinutesByMinDate() {
+    public void testFindHourlyTickIdsAfterMinutesByMinDate() {
 
         this.tickDao.findHourlyTickIdsAfterMinutesByMinDate(0, 0, null);
     }
 
     @Test
-    public void findHourlyTickIdsBeforeMinutesByMinDate() {
+    public void testFindHourlyTickIdsBeforeMinutesByMinDate() {
 
         this.tickDao.findHourlyTickIdsBeforeMinutesByMinDate(0, 0, null);
     }
 
     @Test
-    public void findImpliedVolatilityTicksBySecurityAndDate() {
+    public void testFindImpliedVolatilityTicksBySecurityAndDate() {
 
         this.tickDao.findImpliedVolatilityTicksBySecurityAndDate(0, null);
     }
 
     @Test
-    public void findImpliedVolatilityTicksBySecurityDateAndDuration() {
+    public void testFindImpliedVolatilityTicksBySecurityDateAndDuration() {
 
         this.tickDao.findImpliedVolatilityTicksBySecurityDateAndDuration(0, null, null);
     }
 
     @Test
-    public void findOptionTicksBySecurityDateTypeAndExpirationInclSecurity() {
+    public void testFindOptionTicksBySecurityDateTypeAndExpirationInclSecurity() {
 
         this.tickDao.findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(0, null, null, null);
     }
 
     @Test
-    public void findSubscribedByTimePeriod() {
+    public void testFindSubscribedByTimePeriod() {
 
         this.tickDao.findSubscribedByTimePeriod(null, null);
     }
 
     @Test
-    public void findTickerIdBySecurity() {
-
-        this.tickDao.findTickerIdBySecurity(0);
-    }
-
-    @Test
-    public void findTicksBySecurityAndMaxDate() {
+    public void testFindTicksBySecurityAndMaxDate() {
 
         this.tickDao.findTicksBySecurityAndMaxDate(0, null, 0);
     }
 
     @Test
-    public void findTicksBySecurityAndMinDate() {
+    public void testFindTicksBySecurityAndMinDate() {
 
         this.tickDao.findTicksBySecurityAndMinDate(0, null, 0);
     }
