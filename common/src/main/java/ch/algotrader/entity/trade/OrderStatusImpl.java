@@ -46,9 +46,4 @@ public class OrderStatusImpl extends OrderStatus {
 
         return buffer.toString();
     }
-
-    @Override
-    public void setOrd(Order order) {
-        super.setOrder(order);
-    }
 }

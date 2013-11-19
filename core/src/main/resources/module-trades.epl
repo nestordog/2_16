@@ -77,7 +77,7 @@ select
     Status.SUBMITTED as status,
     0 as filledQuantity,
     openOrderWindow.remainingQuantity as remainingQuantity,
-    `order`.parentOrder as ord
+    `order`.parentOrder as `order`
 from
     OrderStatus(status = Status.SUBMITTED, `order`.parentOrder.algoOrder) as orderStatus unidirectional,
     OpenOrderWindow(status = Status.OPEN) as openOrderWindow
@@ -92,7 +92,7 @@ select
     case when openOrderWindow.remainingQuantity - fill.quantity > 0 then Status.PARTIALLY_EXECUTED else Status.EXECUTED end as status,
     openOrderWindow.filledQuantity + fill.quantity as filledQuantity,
     openOrderWindow.remainingQuantity - fill.quantity as remainingQuantity,
-    `order`.parentOrder as ord
+    `order`.parentOrder as `order`
 from
     Fill(`order`.parentOrder.algoOrder) as fill unidirectional,
     OpenOrderWindow() as openOrderWindow
