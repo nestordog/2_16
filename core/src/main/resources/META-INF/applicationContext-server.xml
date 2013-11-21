@@ -147,7 +147,7 @@
 
     <!-- =================================== Broker Interfaces  ========================================= -->
 
-    <beans profile="iBMarketData,iBSecurityRetrieval">
+    <beans profile="iBMarketData,iBNative,iBSecurityRetrieval">
         <bean id="iBSessionFactory" class="ch.algotrader.adapter.ib.IBSessionFactory"/>
     </beans>
 
