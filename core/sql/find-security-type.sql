@@ -1,0 +1,13 @@
+set @id=29;
+select id from `option` where id = @id
+union select "future" from future where id = @id
+union select "forex" from forex where id = @id
+union select "stock" from stock where id = @id
+union select "fund" from fund where id = @id
+union select "index" from `index` where id = @id
+union select "generic_future" from generic_future where id = @id
+union select "implied_volatility" from implied_volatility where id = @id
+union select "intrest_rate" from intrest_rate where id = @id
+union select "bond" from bond where id = @id
+union select "commodity" from commodity where id = @id
+union select "combination" from combination where id = @id
