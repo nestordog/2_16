@@ -24,6 +24,8 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.service.MarketDataService;
+import ch.algotrader.service.ib.IBNativeMarketDataService;
 import ch.algotrader.util.MyLogger;
 
 import com.ib.client.CommissionReport;
@@ -185,7 +187,10 @@ public class IBDefaultMessageHandler implements EWrapper {
 
                     // initSubscriptions if there is a marketDataService
                     if (ServiceLocator.instance().containsService("marketDataService")) {
-                        ServiceLocator.instance().getMarketDataService().initSubscriptions();
+                        MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
+                        if (marketDataService instanceof IBNativeMarketDataService) {
+                            marketDataService.initSubscriptions();
+                        }
                     }
                 }
                 logger.debug(message);

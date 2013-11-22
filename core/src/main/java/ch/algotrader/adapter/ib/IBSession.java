@@ -23,10 +23,12 @@ import java.net.Socket;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.service.MarketDataService;
+import ch.algotrader.service.ib.IBNativeMarketDataService;
+import ch.algotrader.util.MyLogger;
+
 import com.ib.client.EClientSocket;
 
 /**
@@ -93,8 +95,11 @@ public final class IBSession extends EClientSocket {
             // in case there is no 2104 message from the IB Gateway (Market data farm connection is OK)
             // manually invoke initSubscriptions after some time if there is marketDataService
             if (ServiceLocator.instance().containsService("marketDataService")) {
-                sleep();
-                ServiceLocator.instance().getMarketDataService().initSubscriptions();
+                MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
+                if (marketDataService instanceof IBNativeMarketDataService) {
+                    sleep();
+                    marketDataService.initSubscriptions();
+                }
             }
         }
     }
