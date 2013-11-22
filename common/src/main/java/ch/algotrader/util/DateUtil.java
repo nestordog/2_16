@@ -277,7 +277,7 @@ public class DateUtil {
         Date todayClose = setTime(currentDateTime, securityFamily.getMarketClose());
 
         // close is on the next day
-        if (securityFamily.getMarketOpen().compareTo(securityFamily.getMarketClose()) > 0) {
+        if (securityFamily.getMarketOpen().compareTo(securityFamily.getMarketClose()) >= 0) {
             todayClose = DateUtils.addDays(todayClose, 1);
         }
 
