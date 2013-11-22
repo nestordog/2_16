@@ -21,6 +21,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang.Validate;
+
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Index;
@@ -55,52 +57,68 @@ public class IBUtil {
 
         Contract contract = new Contract();
 
-        if (security instanceof Option) {
+        // use Conid if available
+        if (security.getConid() != null) {
 
-            Option option = (Option) security;
+            contract.m_conId = Integer.parseInt(security.getConid());
+            contract.m_exchange = security.getSecurityFamily().getMarket();
 
-            contract.m_symbol = option.getSecurityFamily().getBaseSymbol(Broker.IB);
-            contract.m_secType = "OPT";
-            contract.m_exchange = "SMART";
-            contract.m_primaryExch = option.getSecurityFamily().getMarket(Broker.IB);
-            contract.m_currency = option.getSecurityFamily().getCurrency().toString();
-            contract.m_strike = option.getStrike().doubleValue();
-            contract.m_right = option.getType().toString();
-            contract.m_multiplier = String.valueOf(option.getSecurityFamily().getContractSize());
-            contract.m_expiry = dayFormat.format(option.getExpiration());
+        } else {
 
-        } else if (security instanceof Future) {
+            if (security instanceof Option) {
 
-            Future future = (Future) security;
+                Validate.notNull(security.getSecurityFamily().getBaseSymbol(Broker.IB), "securityFamily.baseSymbol");
 
-            contract.m_symbol = future.getSecurityFamily().getBaseSymbol(Broker.IB);
-            contract.m_secType = "FUT";
-            contract.m_exchange = future.getSecurityFamily().getMarket(Broker.IB);
-            contract.m_currency = future.getSecurityFamily().getCurrency().toString();
-            contract.m_expiry = monthFormat.format(future.getExpiration());
+                Option option = (Option) security;
 
-        } else if (security instanceof Forex) {
+                contract.m_symbol = option.getSecurityFamily().getBaseSymbol(Broker.IB);
+                contract.m_secType = "OPT";
+                contract.m_exchange = "SMART";
+                contract.m_primaryExch = option.getSecurityFamily().getMarket(Broker.IB);
+                contract.m_currency = option.getSecurityFamily().getCurrency().toString();
+                contract.m_strike = option.getStrike().doubleValue();
+                contract.m_right = option.getType().toString();
+                contract.m_multiplier = String.valueOf(option.getSecurityFamily().getContractSize());
+                contract.m_expiry = dayFormat.format(option.getExpiration());
 
-            contract.m_symbol = ((Forex) security).getBaseCurrency().getValue();
-            contract.m_secType = "CASH";
-            contract.m_exchange = security.getSecurityFamily().getMarket(Broker.IB);
-            contract.m_currency = security.getSecurityFamily().getCurrency().getValue();
+            } else if (security instanceof Future) {
 
-        } else if (security instanceof Stock) {
+                Validate.notNull(security.getSecurityFamily().getBaseSymbol(Broker.IB), "securityFamily.baseSymbol");
 
-            contract.m_currency = security.getSecurityFamily().getCurrency().toString();
-            contract.m_symbol = security.getSymbol();
-            contract.m_secType = "STK";
-            contract.m_exchange = "SMART";
-            contract.m_primaryExch = security.getSecurityFamily().getMarket(Broker.IB);
+                Future future = (Future) security;
 
-        } else if (security instanceof Index) {
+                contract.m_symbol = future.getSecurityFamily().getBaseSymbol(Broker.IB);
+                contract.m_secType = "FUT";
+                contract.m_exchange = future.getSecurityFamily().getMarket(Broker.IB);
+                contract.m_currency = future.getSecurityFamily().getCurrency().toString();
+                contract.m_expiry = monthFormat.format(future.getExpiration());
 
-            contract.m_currency = security.getSecurityFamily().getCurrency().toString();
-            contract.m_symbol = security.getSymbol();
-            contract.m_secType = "IND";
-            contract.m_exchange = security.getSecurityFamily().getMarket(Broker.IB);
+            } else if (security instanceof Forex) {
 
+                contract.m_symbol = ((Forex) security).getBaseCurrency().getValue();
+                contract.m_secType = "CASH";
+                contract.m_exchange = security.getSecurityFamily().getMarket(Broker.IB);
+                contract.m_currency = security.getSecurityFamily().getCurrency().getValue();
+
+            } else if (security instanceof Stock) {
+
+                Validate.notNull(security.getSymbol(), "securityFamily.symbol");
+
+                contract.m_currency = security.getSecurityFamily().getCurrency().toString();
+                contract.m_symbol = security.getSymbol();
+                contract.m_secType = "STK";
+                contract.m_exchange = "SMART";
+                contract.m_primaryExch = security.getSecurityFamily().getMarket(Broker.IB);
+
+            } else if (security instanceof Index) {
+
+                Validate.notNull(security.getSymbol(), "securityFamily.symbol");
+
+                contract.m_currency = security.getSecurityFamily().getCurrency().toString();
+                contract.m_symbol = security.getSymbol();
+                contract.m_secType = "IND";
+                contract.m_exchange = security.getSecurityFamily().getMarket(Broker.IB);
+            }
         }
 
         return contract;

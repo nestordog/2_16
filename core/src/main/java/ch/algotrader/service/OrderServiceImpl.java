@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -32,7 +33,6 @@ import ch.algotrader.entity.trade.FillImpl;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.OrderServiceType;
@@ -60,13 +60,18 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     @Override
     protected void handleValidateOrder(Order order) throws Exception {
 
+        // validate general properties
+        Validate.notNull(order.getStrategy(), "missing strategy for order " + order);
+        Validate.notNull(order.getSecurity(), "missing security for order " + order);
+        Validate.notNull(order.getSide(), "missing side for order " + order);
+        Validate.isTrue(order.getQuantity() != 0, "quanity cannot be zero for order " + order);
+        Validate.isTrue(order.getQuantity() > 0, "quantity has to be positive for order " + order);
+
         // validate order specific properties
         order.validate();
 
         // check that the security is tradeable
-        if (!order.getSecurity().getSecurityFamily().isTradeable()) {
-            throw new OrderValidationException(order.getSecurity() + " is not tradeable");
-        }
+        Validate.isTrue(order.getSecurity().getSecurityFamily().isTradeable(), order.getSecurity() + " is not tradeable");
 
         // external validation of the order
         if (!this.simulation && order instanceof SimpleOrder) {
@@ -112,10 +117,6 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     }
 
     private void sendSimulatedOrder(Order order) {
-
-        if (order.getQuantity() < 0) {
-            throw new IllegalArgumentException("quantity has to be positive");
-        }
 
         Security security = order.getSecurity();
 
@@ -307,18 +308,14 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     @SuppressWarnings("unchecked")
     private ExternalOrderService getExternalOrderService(Order order) throws Exception {
 
-        if (order.getAccount() == null) {
-            throw new IllegalStateException("account missing for order: " + order);
-        }
+        Validate.notNull(order.getAccount(), "missing account for order: " + order);
 
         OrderServiceType orderServiceType = order.getAccount().getOrderServiceType();
         Class<ExternalOrderService> orderServiceClass = (Class<ExternalOrderService>) Class.forName(orderServiceType.getValue());
 
         ExternalOrderService externalOrderService = CollectionUtil.getSingleElementOrNull(ServiceLocator.instance().getServices(orderServiceClass));
 
-        if (externalOrderService == null) {
-            throw new IllegalStateException("externalOrderService was not found: " + orderServiceType);
-        }
+        Validate.notNull(externalOrderService, "externalOrderService was not found: " + orderServiceType);
 
         return externalOrderService;
     }
