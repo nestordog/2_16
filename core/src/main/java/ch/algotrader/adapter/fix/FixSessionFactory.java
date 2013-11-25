@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.quickfixj.jmx.JmxExporter;
 import org.springframework.beans.factory.InitializingBean;
@@ -167,6 +168,8 @@ public class FixSessionFactory implements InitializingBean {
      */
     public void sendMessage(Message message, Account account) throws SessionNotFound {
 
+        Validate.notNull(account.getSessionQualifier(), "no session qualifier defined for account " + account);
+
         Session session = Session.lookupSession(getSessionID(account.getSessionQualifier()));
         if (session.isLoggedOn()) {
             session.send(message);
@@ -179,6 +182,8 @@ public class FixSessionFactory implements InitializingBean {
      * Gets the next {@code orderId} for the specified {@code account}
      */
     public synchronized String getNextOrderId(Account account) {
+
+        Validate.notNull(account.getSessionQualifier(), "no session qualifier defined for account " + account);
 
         String sessionQualifier = account.getSessionQualifier();
         if (!this.orderIds.containsKey(sessionQualifier)) {
