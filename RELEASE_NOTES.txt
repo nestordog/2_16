@@ -8,6 +8,7 @@ East-to-Borrow list for stocks
 RealTick Fix interface
 Integration Tests
 Maven Archetype
+Embedded in-memory DataSource based on H2 database
 
 Version 2.0
 Multi Account Handling
