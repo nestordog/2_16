@@ -48,6 +48,7 @@ public abstract class SecurityImpl extends Security {
 
     private static @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
     private static @Value("${misc.initialMarginMarkup}") double initialMarginMarkup;
+    private static @Value("${misc.validateCrossedSpread}") boolean validateCrossedSpread;
 
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -144,9 +145,10 @@ public abstract class SecurityImpl extends Security {
             return false;
         } else if (tick.getAsk() != null && tick.getAsk().doubleValue() < 0) {
             return false;
+        }
 
             // spread cannot be crossed
-        } else if (tick.getBid() != null && tick.getAsk() != null && tick.getBidAskSpreadDouble() < 0) {
+        if (validateCrossedSpread && tick.getBid() != null && tick.getAsk() != null && tick.getBidAskSpreadDouble() < 0) {
             logger.warn("crossed spread: bid " + tick.getBid() + " ask " + tick.getAsk() + " for " + this);
             return false;
         } else {
