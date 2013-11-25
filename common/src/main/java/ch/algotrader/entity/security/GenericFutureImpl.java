@@ -19,10 +19,8 @@ package ch.algotrader.entity.security;
 
 import java.util.Date;
 
+import ch.algotrader.enumeration.Duration;
 import ch.algotrader.util.DateUtil;
-
-import ch.algotrader.entity.security.GenericFuture;
-import ch.algotrader.entity.security.GenericFutureFamily;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -38,6 +36,7 @@ public class GenericFutureImpl extends GenericFuture {
 
         GenericFutureFamily family = (GenericFutureFamily) getSecurityFamily();
 
-        return DateUtil.getExpirationDateNMonths(family.getExpirationType(), DateUtil.getCurrentEPTime(), getDuration());
+        int months = (int) (getDuration().getValue() / Duration.MONTH_1.getValue());
+        return DateUtil.getExpirationDateNMonths(family.getExpirationType(), DateUtil.getCurrentEPTime(), months);
     }
 }

@@ -550,6 +550,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected List<Transaction> handleGetTradesByMinDateAndMaxDate(Date minDate, Date maxDate) throws Exception {
+
+        return getTransactionDao().findTradesByMinDateAndMaxDate(minDate, maxDate);
+    }
+
+    @Override
     protected List<TransactionVO> handleGetTransactionsVO(String strategyName) throws Exception {
 
         if (strategyName.equals(StrategyImpl.BASE)) {
