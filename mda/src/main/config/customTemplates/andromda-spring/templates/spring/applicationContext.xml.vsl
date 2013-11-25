@@ -1,6 +1,7 @@
 ## AlgoTrader: 15250
 ## line 16 - 20: update xmlns defintion
 ## line 40 - 42: only output hbm.xml if tag algoTrader_entity_transient is not set
+## line 64 - 139: outcomment hibernateProperties
 ## line 173 + 175 : only output EntityDao if tag algoTrader_entity_transient is not set
 ## line 157: set service name instead of fqdn className
 ## line 178 - 188: outcomment generation of DAO Proxies
@@ -61,82 +62,82 @@
     </bean>
 
 #end
-    <bean id="${beanNamePrefix}hibernateProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-        <property name="properties">
-            <props>
-#if ($stringUtils.isNotBlank($hibernatePoolSize))
-                <prop key="hibernate.pool.size">$hibernatePoolSize</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateTransactionManagerStrategy))
-                <prop key="hibernate.transaction.manager.strategy">$hibernateTransactionManagerStrategy</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateUserTransactionName))
-                <prop key="hibernate.jta.UserTransaction">$hibernateUserTransactionName</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateTransactionManagerLookup))
-                <prop key="hibernate.transaction.manager_lookup_class">$hibernateTransactionManagerLookup</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateUseOuterJoin))
-                <prop key="hibernate.use_outer_join">$hibernateUseOuterJoin</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateShowSql))
-                <prop key="hibernate.show_sql">$hibernateShowSql</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateJndiName))
-                <prop key="hibernate.session_factory_name">$hibernateJndiName</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateDialect))
-                <prop key="hibernate.dialect">$hibernateDialect</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateDefaultSchema))
-                <prop key="hibernate.default_schema">$hibernateDefaultSchema</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateMaxFetchDepth))
-                <prop key="hibernate.max_fetch_depth">$hibernateMaxFetchDepth</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateJdbcFetchSize))
-                <prop key="hibernate.jdbc.fetch_size">$hibernateJdbcFetchSize</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateDefaultBatchFetchSize))
-                <prop key="hibernate.default_batch_fetch_size">$hibernateDefaultBatchFetchSize</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateJdbcBatchSize))
-                <prop key="hibernate.jdbc.batch_size">$hibernateJdbcBatchSize</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateJdbcUseScrollableResultSet))
-                <prop key="hibernate.jdbc.use_scrollable_resultset">$hibernateJdbcUseScrollableResultSet</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateJdbcUseStreamsForBinary))
-                <prop key="hibernate.use_streams_for_binary">$hibernateJdbcUseStreamsForBinary</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateHbm2DDLAuto))
-                <prop key="hibernate.hbm2ddl.auto">$hibernateHbm2DDLAuto</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateQuerySubstitutions))
-                <prop key="hibernate.query.substitutions">$hibernateQuerySubstitutions</prop>
-#end
-#if ($enableCaching)
-                <prop key="hibernate.cache.use_query_cache">$hibernateEnableCache</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateCacheProvider))
-                <prop key="hibernate.cache.provider_class">$hibernateCacheProvider</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateQueryCacheFactory))
-                <prop key="hibernate.cache.query_cache_factory">$hibernateQueryCacheFactory</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateConnectionReleaseMode))
-                <prop key="hibernate.connection.release_mode">$hibernateConnectionReleaseMode</prop>
-#end
-#if ($stringUtils.isNotBlank($hibernateTransactionFactoryClass))
-                <prop key="transaction.factory_class">$hibernateTransactionFactoryClass</prop>
-#end
-                <!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
-                <!-- <prop key="hibernate.show_sql">true</prop> -->
-                <!-- applicationContext hibernateProperties merge-point -->
-            </props>
-        </property>
-    </bean>
-
+##    <bean id="${beanNamePrefix}hibernateProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+##        <property name="properties">
+##            <props>
+###if ($stringUtils.isNotBlank($hibernatePoolSize))
+##                <prop key="hibernate.pool.size">$hibernatePoolSize</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateTransactionManagerStrategy))
+##                <prop key="hibernate.transaction.manager.strategy">$hibernateTransactionManagerStrategy</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateUserTransactionName))
+##                <prop key="hibernate.jta.UserTransaction">$hibernateUserTransactionName</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateTransactionManagerLookup))
+##                <prop key="hibernate.transaction.manager_lookup_class">$hibernateTransactionManagerLookup</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateUseOuterJoin))
+##                <prop key="hibernate.use_outer_join">$hibernateUseOuterJoin</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateShowSql))
+##                <prop key="hibernate.show_sql">$hibernateShowSql</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateJndiName))
+##                <prop key="hibernate.session_factory_name">$hibernateJndiName</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateDialect))
+##                <prop key="hibernate.dialect">$hibernateDialect</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateDefaultSchema))
+##                <prop key="hibernate.default_schema">$hibernateDefaultSchema</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateMaxFetchDepth))
+##                <prop key="hibernate.max_fetch_depth">$hibernateMaxFetchDepth</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateJdbcFetchSize))
+##                <prop key="hibernate.jdbc.fetch_size">$hibernateJdbcFetchSize</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateDefaultBatchFetchSize))
+##                <prop key="hibernate.default_batch_fetch_size">$hibernateDefaultBatchFetchSize</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateJdbcBatchSize))
+##                <prop key="hibernate.jdbc.batch_size">$hibernateJdbcBatchSize</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateJdbcUseScrollableResultSet))
+##                <prop key="hibernate.jdbc.use_scrollable_resultset">$hibernateJdbcUseScrollableResultSet</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateJdbcUseStreamsForBinary))
+##                <prop key="hibernate.use_streams_for_binary">$hibernateJdbcUseStreamsForBinary</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateHbm2DDLAuto))
+##                <prop key="hibernate.hbm2ddl.auto">$hibernateHbm2DDLAuto</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateQuerySubstitutions))
+##                <prop key="hibernate.query.substitutions">$hibernateQuerySubstitutions</prop>
+###end
+###if ($enableCaching)
+##                <prop key="hibernate.cache.use_query_cache">$hibernateEnableCache</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateCacheProvider))
+##                <prop key="hibernate.cache.provider_class">$hibernateCacheProvider</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateQueryCacheFactory))
+##                <prop key="hibernate.cache.query_cache_factory">$hibernateQueryCacheFactory</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateConnectionReleaseMode))
+##                <prop key="hibernate.connection.release_mode">$hibernateConnectionReleaseMode</prop>
+###end
+###if ($stringUtils.isNotBlank($hibernateTransactionFactoryClass))
+##                <prop key="transaction.factory_class">$hibernateTransactionFactoryClass</prop>
+###end
+##                <!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
+##                <!-- <prop key="hibernate.show_sql">true</prop> -->
+##                <!-- applicationContext hibernateProperties merge-point -->
+##            </props>
+##        </property>
+##    </bean>
+##
     <!-- Hibernate SessionFactory -->
     <bean id="${beanNamePrefix}sessionFactory" class="$sessionFactory">
         <property name="dataSource" ref="${beanNamePrefix}dataSource"/>

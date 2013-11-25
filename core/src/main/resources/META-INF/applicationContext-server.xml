@@ -7,35 +7,14 @@
     xmlns:int-mail="http://www.springframework.org/schema/integration/mail"
     xmlns:task="http://www.springframework.org/schema/task"
     xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc"
     xsi:schemaLocation="http://www.springframework.org/schema/integration/mail http://www.springframework.org/schema/integration/mail/spring-integration-mail-2.1.xsd
         http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.2.xsd
         http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file-2.2.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
-
-    <!-- ============================= Data Source an Transaction Management ============================ -->
-
-    <!-- Local DataSource that works in any environment -->
-    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
-        <property name="driverClass"><value>${dataSource.driver}</value></property>
-        <property name="user"><value>${dataSource.user}</value></property>
-        <property name="password"><value>${dataSource.password}</value></property>
-        <property name="jdbcUrl"><value>${dataSource.url}</value></property>
-<!--         <property name="minPoolSize"><value>5</value></property> -->
-<!--         <property name="maxPoolSize"><value>10</value></property> -->
-          <property name="idleConnectionTestPeriod"><value>300</value></property>
-          <property name="maxIdleTime"><value>1800</value></property>
-    </bean>
-
-    <!-- (local) Transaction Manager -->
-    <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-        <property name="sessionFactory" ref="sessionFactory"/>
-    </bean>
-
-    <bean id="genericDao" class="ch.algotrader.hibernate.GenericDao">
-        <property name="sessionFactory" ref="sessionFactory"/>
-    </bean>
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
+        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd">
 
     <!-- =========================================== Cache ================================================ -->
 
@@ -87,6 +66,63 @@
         </property>
         <property name="server" ref="mbeanServer"/>
     </bean>
+
+    <!-- ============================= Data Source an Transaction Management ============================ -->
+
+    <bean id="hibernateProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="properties">
+            <props>
+                <prop key="hibernate.default_batch_fetch_size">16</prop>
+                <prop key="hibernate.cache.use_second_level_cache">true</prop>
+                <prop key="hibernate.cache.use_query_cache">true</prop>
+                <prop key="hibernate.cache.provider_class">net.sf.ehcache.hibernate.SingletonEhCacheProvider</prop>
+                <prop key="hibernate.cache.query_cache_factory">org.hibernate.cache.StandardQueryCacheFactory</prop>
+                <!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
+                <!-- <prop key="hibernate.show_sql">true</prop> -->
+            </props>
+        </property>
+    </bean>
+
+    <!-- (local) Transaction Manager -->
+    <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="genericDao" class="ch.algotrader.hibernate.GenericDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <!-- Pooled DataSource (for production use) -->
+    <beans profile="pooledDataSource">
+        <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+            <property name="driverClass"><value>${dataSource.driver}</value></property>
+            <property name="user"><value>${dataSource.user}</value></property>
+            <property name="password"><value>${dataSource.password}</value></property>
+            <property name="jdbcUrl"><value>${dataSource.url}</value></property>
+    <!--         <property name="minPoolSize"><value>5</value></property> -->
+    <!--         <property name="maxPoolSize"><value>10</value></property> -->
+              <property name="idleConnectionTestPeriod"><value>300</value></property>
+              <property name="maxIdleTime"><value>1800</value></property>
+        </bean>
+    </beans>
+
+    <!-- Single Connection DataSource (for development / testing) -->
+    <beans profile="singleDataSource">
+        <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+            <property name="driverClassName"><value>${dataSource.driver}</value></property>
+            <property name="username"><value>${dataSource.user}</value></property>
+            <property name="password"><value>${dataSource.password}</value></property>
+            <property name="url"><value>${dataSource.url}</value></property>
+        </bean>
+    </beans>
+
+    <!-- Embedded H2 DataSource (for development / testing) -->
+    <beans profile="embeddedDataSource">
+        <jdbc:embedded-database id="dataSource" type="H2">
+            <jdbc:script location="classpath:/META-INF/h2.sql"/>
+            <jdbc:script location="classpath*:/META-INF/h2-*.sql"/>
+        </jdbc:embedded-database>
+    </beans>
 
     <!-- =================================== JMS  ========================================= -->
 
