@@ -21,7 +21,7 @@ import java.util.Date;
 
 import ch.algotrader.entity.strategy.Measurement;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.service.MeasurementServiceBase;
+import ch.algotrader.util.DateUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -60,7 +60,7 @@ public class MeasurementServiceImpl extends MeasurementServiceBase {
     @Override
     protected Measurement handleCreateMeasurement(String strategyName, String name, Object value) throws Exception {
 
-        return createMeasurement(strategyName, name, new Date(), value);
+        return createMeasurement(strategyName, name, DateUtil.getCurrentEPTime(), value);
     }
 
     @Override
