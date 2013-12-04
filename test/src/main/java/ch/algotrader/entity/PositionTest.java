@@ -39,12 +39,6 @@ public class PositionTest extends EntityTest {
     }
 
     @Test
-    public void testFindById() {
-
-        this.positionDao.findById(0);
-    }
-
-    @Test
     public void testFindByIdInclSecurityAndSecurityFamily() {
 
         this.positionDao.findByIdInclSecurityAndSecurityFamily(0);
