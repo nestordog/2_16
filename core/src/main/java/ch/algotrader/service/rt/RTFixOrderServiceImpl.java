@@ -19,7 +19,10 @@ package ch.algotrader.service.rt;
 
 import java.util.Date;
 
+import quickfix.field.Account;
+import quickfix.field.ExecInst;
 import quickfix.field.HandlInst;
+import quickfix.field.LocateReqd;
 import quickfix.field.OrderID;
 import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
@@ -40,18 +43,35 @@ public class RTFixOrderServiceImpl extends RTFixOrderServiceBase {
     protected void handleSendOrder(final SimpleOrder order, final NewOrderSingle newOrder) throws Exception {
 
         newOrder.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC));
+        newOrder.set(new ExecInst(String.valueOf(ExecInst.NOT_HELD)));
+        newOrder.set(new LocateReqd(true));
+
+        // handling for accounts
+        if (order.getAccount().getExtAccount() != null) {
+            newOrder.set(new Account(order.getAccount().getExtAccount()));
+        }
     }
 
     @Override
     protected void handleModifyOrder(final SimpleOrder order, final OrderCancelReplaceRequest replaceRequest) throws Exception {
 
-        replaceRequest.set(new OrderID(order.getExtId()));
         replaceRequest.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC));
-        replaceRequest.set(new TransactTime(new Date()));
+        replaceRequest.set(new ExecInst(String.valueOf(ExecInst.NOT_HELD)));
+        replaceRequest.set(new LocateReqd(true));
+
+        // handling for accounts
+        if (order.getAccount().getExtAccount() != null) {
+            replaceRequest.set(new Account(order.getAccount().getExtAccount()));
+        }
     }
 
     @Override
     protected void handleCancelOrder(final SimpleOrder order, final OrderCancelRequest cancelRequest) throws Exception {
+
+        // handling for accounts
+        if (order.getAccount().getExtAccount() != null) {
+            cancelRequest.set(new Account(order.getAccount().getExtAccount()));
+        }
 
         cancelRequest.set(new OrderID(order.getExtId()));
         cancelRequest.set(new TransactTime(new Date()));
