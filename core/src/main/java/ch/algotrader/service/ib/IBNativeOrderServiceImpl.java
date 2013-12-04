@@ -138,7 +138,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
 
         com.ib.client.Order ibOrder = new com.ib.client.Order();
         ibOrder.m_totalQuantity = (int) order.getQuantity();
-        ibOrder.m_action = order.getSide().toString();
+        ibOrder.m_action = IBUtil.getIBSide(order.getSide());
         ibOrder.m_orderType = IBUtil.getIBOrderType(order);
         ibOrder.m_transmit = true;
 

@@ -24,9 +24,9 @@ import quickfix.field.Symbol;
 import quickfix.field.TimeInForce;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.Stock;
-import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
@@ -52,6 +52,8 @@ public class FixUtil {
             return Side.BUY;
         } else if (side.getValue() == quickfix.field.Side.SELL) {
             return Side.SELL;
+        } else if (side.getValue() == quickfix.field.Side.SELL_SHORT) {
+            return Side.SELL_SHORT;
         } else {
             throw new IllegalArgumentException("unknow side " + side);
         }
@@ -100,6 +102,8 @@ public class FixUtil {
             return new quickfix.field.Side(quickfix.field.Side.BUY);
         } else if (side.equals(Side.SELL)) {
             return new quickfix.field.Side(quickfix.field.Side.SELL);
+        } else if (side.equals(Side.SELL_SHORT)) {
+            return new quickfix.field.Side(quickfix.field.Side.SELL_SHORT);
         } else {
             throw new IllegalArgumentException("unknow side " + side);
         }

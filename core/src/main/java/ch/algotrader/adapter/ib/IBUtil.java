@@ -137,6 +137,19 @@ public class IBUtil {
         }
     }
 
+    public static String getIBSide(Side side) {
+
+        if (side.equals(Side.BUY)) {
+            return "BUY";
+        } else if (side.equals(Side.SELL)) {
+            return "SELL";
+        } else if (side.equals(Side.SELL_SHORT)) {
+            return "SSHORT";
+        } else {
+            throw new IllegalArgumentException("unknow side " + side);
+        }
+    }
+
     public static Date getExecutionDateTime(Execution execution) {
 
         try {
