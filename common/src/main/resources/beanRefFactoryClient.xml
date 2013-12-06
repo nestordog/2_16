@@ -11,6 +11,7 @@
                 <value>classpath:/META-INF/applicationContext-remote.xml</value>
                 <value>classpath*:/META-INF/applicationContext-client*.xml</value>
                 <value>classpath:/META-INF/applicationContext-import-remoteServices.xml</value>
+                <value>classpath*:/META-INF/applicationContext-import-remoteServices-ext.xml</value>
            </list>
         </constructor-arg>
     </bean>

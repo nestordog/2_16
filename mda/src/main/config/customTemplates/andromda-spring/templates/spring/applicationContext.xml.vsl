@@ -1,7 +1,8 @@
 ## AlgoTrader: 15250
 ## line 16 - 20: update xmlns defintion
+## line 28 - 33: outcomment GENERAL DEFINITIONS
 ## line 40 - 42: only output hbm.xml if tag algoTrader_entity_transient is not set
-## line 64 - 139: outcomment hibernateProperties
+## line 64 - 168: outcomment hibernateProperties
 ## line 173 + 175 : only output EntityDao if tag algoTrader_entity_transient is not set
 ## line 157: set service name instead of fqdn className
 ## line 178 - 188: outcomment generation of DAO Proxies
@@ -26,11 +27,11 @@
 
     <!-- ========================= GENERAL DEFINITIONS ========================= -->
 
-    <!-- Message source for this context, loaded from localized "${messageBundlePath}_xx" files -->
-    <bean id="$messageSourceBeanName" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
-        <property name="basename"><value>$messageBundlePath</value></property>
-    </bean>
-
+##    <!-- Message source for this context, loaded from localized "${messageBundlePath}_xx" files -->
+##    <bean id="$messageSourceBeanName" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+##        <property name="basename"><value>$messageBundlePath</value></property>
+##    </bean>
+##
     <!-- applicationContext merge-point -->
 #set ($daosEnabled = $daosEnabled && !$entities.empty)
 ## only generate this stuff if 'daos' has been defined in a namespace
@@ -138,33 +139,35 @@
 ##        </property>
 ##    </bean>
 ##
-    <!-- Hibernate SessionFactory -->
-    <bean id="${beanNamePrefix}sessionFactory" class="$sessionFactory">
-        <property name="dataSource" ref="${beanNamePrefix}dataSource"/>
-#if ($hibernateEntityAnnotations)
-#if (!$hibernateUtils.version4)
-        <property name="configurationClass">
-            <value>org.hibernate.cfg.AnnotationConfiguration</value>
-        </property>
-#end
-        <property name="annotatedClasses" ref="hibernateAnnotatedClasses"/>
-#else
-        <property name="mappingLocations" ref="${beanNamePrefix}hibernateMappingLocations"/>
-#end
-        <property name="hibernateProperties" ref="${beanNamePrefix}hibernateProperties"/>
-        <!-- applicationContext sessionFactory merge-point -->
-    </bean>
-
-#if (!$hibernateUtils.version4)
-    <!-- The Hibernate interceptor -->
-    <bean id="${beanNamePrefix}hibernateInterceptor" class="${hibernateUtils.springHibernatePackage}.HibernateInterceptor">
-        <property name="sessionFactory" ref="${beanNamePrefix}sessionFactory"/>
-#if ($stringUtils.isNotBlank($hibernateInterceptorFlushMode))
-        <property name="flushMode" value="$hibernateInterceptorFlushMode"/>
-#end
-        <!-- applicationContext hibernateInterceptor merge-point -->
-    </bean>
-#end
+##    <!-- Hibernate SessionFactory -->
+##    <bean id="${beanNamePrefix}sessionFactory" class="$sessionFactory">
+##        <property name="dataSource" ref="${beanNamePrefix}dataSource"/>
+###if ($hibernateEntityAnnotations)
+###if (!$hibernateUtils.version4)
+##        <property name="configurationClass">
+##            <value>org.hibernate.cfg.AnnotationConfiguration</value>
+##        </property>
+###end
+##        <property name="annotatedClasses" ref="hibernateAnnotatedClasses"/>
+###else
+##        <property name="mappingLocations" ref="${beanNamePrefix}hibernateMappingLocations"/>
+###end
+##        <property name="hibernateProperties" ref="${beanNamePrefix}hibernateProperties"/>
+##        <!-- applicationContext sessionFactory merge-point -->
+##    </bean>
+##
+###if (!$hibernateUtils.version4)
+##    <!-- The Hibernate interceptor -->
+##    <bean id="${beanNamePrefix}hibernateInterceptor" class="${hibernateUtils.springHibernatePackage}.HibernateInterceptor">
+##        <property name="sessionFactory" ref="${beanNamePrefix}sessionFactory"/>
+###if ($stringUtils.isNotBlank($hibernateInterceptorFlushMode))
+##        <property name="flushMode" value="$hibernateInterceptorFlushMode"/>
+###end
+##        <!-- applicationContext hibernateInterceptor merge-point -->
+##    </bean>
+###end
+##
+    <!-- ========================= DATA ACCESS OBJECTS ========================= -->
 
 #foreach($entity in $entities)
 #if($implementationLanguage == "groovy" && $entity.daoImplementationRequired)
