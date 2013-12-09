@@ -65,8 +65,17 @@
 
     <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
-        <property name="mappingLocations" value="classpath*:**/*.hbm.xml"/>
+        <property name="mappingLocations" ref="hibernateMappingLocations"/>
         <property name="hibernateProperties" ref="hibernateProperties"/>
+    </bean>
+
+    <bean id="hibernateMappingLocations" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <value>classpath*:ch/**/*.hbm.xml</value>
+                <value>classpath*:com/**/*.hbm.xml</value>
+            </list>
+         </property>
     </bean>
 
     <bean id="hibernateProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
@@ -92,7 +101,7 @@
     </bean>
 
      <bean id="ehCacheManager" class="ch.algotrader.ehcache.EhCacheManagerFactoryBean">
-         <property name="configLocations" value="classpath*:ehcache*.xml"/>
+         <property name="configLocations" value="classpath*:/META-INF/ehcache*.xml"/>
      </bean>
 
     <bean id="genericDao" class="ch.algotrader.hibernate.GenericDao">
