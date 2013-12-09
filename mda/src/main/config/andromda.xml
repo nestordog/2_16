@@ -28,6 +28,10 @@
                     <!--  <location patterns="**/${andromda.version}/*.e*x">${settings.localRepository}/org/andromda/profiles/emf/rsm75</location> -->
                     <!--  <location patterns="**/${andromda.version}/*.uml">${settings.localRepository}/org/andromda/profiles/emf/uml22</location> -->
                     <!--</moduleSearchLocations> -->
+                    <!-- Can filter in/out specific model packages (in UML notation) to generate code from (default true=process all) -->
+                    <!--modelPackages>
+                        <modelPackage process="false">org::andromda::sample::notprocessed</modelPackage>
+                    </modelPackages-->
                     <!-- Can filter in/out specific andromda model validation constraints (default true=validate all) -->
                     <constraints enforceAll="true">
                         <!-- <constraint enforce="false">**::wrapped primitive attribute should not be required</constraint> -->
@@ -39,10 +43,6 @@
                         <!-- <constraint enforce="false">org::andromda::metafacades::uml::Entity::entities can only generalize other entities</constraint> -->
                         <!-- <constraint enforce="false">org::andromda::metafacades::uml::Entity::entity must have at least one primary key</constraint> -->
                     </constraints>
-                    <!-- Can filter in/out specific model packages (in UML notation) to generate code from (default true=process all) -->
-                    <!--modelPackages>
-                        <modelPackage process="false">org::andromda::sample::notprocessed</modelPackage>
-                    </modelPackages-->
                 </model>
             </models>
         </repository>
@@ -140,6 +140,7 @@
                 <property name="serviceRemotingType">rmi</property>
                 <property name="serviceRemotePort">1199</property>
                 <property name="serviceLocatorName">ServiceLocator</property>
+                <property name="derivedModule">false</property>
 
                 <property name="applicationContext">META-INF/applicationContext.xml</property>
                 <property name="applicationContextClient">META-INF/applicationContext-import-remoteServices.xml</property>

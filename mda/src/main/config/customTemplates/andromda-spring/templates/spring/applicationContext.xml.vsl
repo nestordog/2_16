@@ -1,7 +1,7 @@
 ## AlgoTrader: 15250
 ## line 16 - 20: update xmlns defintion
 ## line 28 - 33: outcomment GENERAL DEFINITIONS
-## line 40 - 42: only output hbm.xml if tag algoTrader_entity_transient is not set
+## line 40 - 72: outcomment hibernateMappingLocations
 ## line 64 - 168: outcomment hibernateProperties
 ## line 173 + 175 : only output EntityDao if tag algoTrader_entity_transient is not set
 ## line 157: set service name instead of fqdn className
@@ -25,44 +25,44 @@
 	   http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-${springVersion}.xsd
 	   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-${springVersion}.xsd">
 
-    <!-- ========================= GENERAL DEFINITIONS ========================= -->
-
+##    <!-- ========================= GENERAL DEFINITIONS ========================= -->
+##
 ##    <!-- Message source for this context, loaded from localized "${messageBundlePath}_xx" files -->
 ##    <bean id="$messageSourceBeanName" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
 ##        <property name="basename"><value>$messageBundlePath</value></property>
 ##    </bean>
 ##
-    <!-- applicationContext merge-point -->
+##    <!-- applicationContext merge-point --> 
 #set ($daosEnabled = $daosEnabled && !$entities.empty)
 ## only generate this stuff if 'daos' has been defined in a namespace
 #if ($daosEnabled)
-#if (!$hibernateEntityAnnotations)
-    <bean id="${beanNamePrefix}hibernateMappingLocations" class="org.springframework.beans.factory.config.ListFactoryBean">
-        <property name="sourceList">
-            <list>
-                <!-- applicationContext hibernateMappingLocations merge-point -->
-#foreach($entity in $entities)
-#if ($entity.requiresHibernateMapping && $stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_transient')))
-                <value>classpath:${entity.packagePath}/${entity.entityName}.hbm.xml</value>
-#end
-#end
-            </list>
-         </property>
-    </bean>
-
-#else
-    <bean id="hibernateAnnotatedClasses" class="org.springframework.beans.factory.config.ListFactoryBean">
-        <property name="sourceList">
-            <list>
-                <!-- applicationContext hibernateAnnotatedClasses merge-point -->
-#foreach($entity in $entities)
-                <value>${entity.packageName}.${entity.entityName}Impl</value>
-#end
-            </list>
-         </property>
-    </bean>
-
-#end
+###if (!$hibernateEntityAnnotations)
+##    <bean id="${beanNamePrefix}hibernateMappingLocations" class="org.springframework.beans.factory.config.ListFactoryBean">
+##        <property name="sourceList">
+##            <list>
+##                <!-- applicationContext hibernateMappingLocations merge-point -->
+###foreach($entity in $entities)
+###if ($entity.requiresHibernateMapping && $stringUtils.isBlank($entity.findTaggedValue('algoTrader_entity_transient')))
+##                <value>classpath:${entity.packagePath}/${entity.entityName}.hbm.xml</value>
+###end
+###end
+##            </list>
+##         </property>
+##    </bean>
+##
+###else
+##    <bean id="hibernateAnnotatedClasses" class="org.springframework.beans.factory.config.ListFactoryBean">
+##        <property name="sourceList">
+##            <list>
+##                <!-- applicationContext hibernateAnnotatedClasses merge-point -->
+###foreach($entity in $entities)
+##                <value>${entity.packageName}.${entity.entityName}Impl</value>
+###end
+##            </list>
+##         </property>
+##    </bean>
+##
+###end
 ##    <bean id="${beanNamePrefix}hibernateProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 ##        <property name="properties">
 ##            <props>
@@ -345,7 +345,7 @@
             <property name="target" ref="$service.fullyQualifiedImplementationName"/>
             <property name="proxyInterfaces" value="$service.fullyQualifiedName#if ($service.superClass.abstract),$service.superClass.fullyQualifiedName#if ($service.superClass.superClass.abstract),$service.superClass.superClass.fullyQualifiedName#end#end"/>
             <property name="interceptorNames">
-                <list>
+            <list>
 ###if ($serviceSecurity && !$service.private)
 ##                    <value>${beanNamePrefix}serviceSecurityInterceptor</value>
 ###end

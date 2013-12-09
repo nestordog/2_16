@@ -13,12 +13,6 @@
             <to><![CDATA[<property name="chartDefinition" ref="portfolioChartDefinition"/>]]></to>
         </mapping>
 
-        <!--  generate Hibernate.hbm.xml into applicationContext.xml -->
-        <mapping>
-            <from><![CDATA[<!-- applicationContext hibernateMappingLocations merge-point -->]]></from>
-            <to><![CDATA[<value>classpath:META-INF/Hibernate.hbm.xml</value>]]></to>
-        </mapping>
-
         <!--  generate SpringServiceLocator into outlet service-interfaces -->
         <mapping>
             <from><![CDATA[<template

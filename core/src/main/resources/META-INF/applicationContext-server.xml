@@ -35,17 +35,11 @@
         <property name="sessionFactory" ref="sessionFactory" />
     </bean>
 
-      <!--  EhCache JMX Beans -->
-    <bean id="cacheManagerMBean" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-        <property name="configLocation" value="classpath:ehcache.xml" />
-        <property name="shared" value="true" />
-    </bean>
-
-    <bean id="ehCacheMBeanRegistration" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <bean id="ehCacheMBean" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
         <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans" />
         <property name="arguments">
             <list>
-                <ref bean="cacheManagerMBean" />
+                <ref bean="ehCacheManager" />
                 <ref bean="mbeanServer" />
                 <value>true</value>
                 <value>true</value>
@@ -71,14 +65,8 @@
 
     <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
-        <property name="mappingLocations" ref="${hibernate.mappingLocations}"/>
+        <property name="mappingLocations" value="classpath*:**/*.hbm.xml"/>
         <property name="hibernateProperties" ref="hibernateProperties"/>
-        <!-- applicationContext sessionFactory merge-point -->
-    </bean>
-
-    <bean id="hibernateInterceptor" class="org.springframework.orm.hibernate3.HibernateInterceptor">
-        <property name="sessionFactory" ref="sessionFactory"/>
-        <!-- applicationContext hibernateInterceptor merge-point -->
     </bean>
 
     <bean id="hibernateProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
@@ -95,10 +83,17 @@
         </property>
     </bean>
 
-    <!-- (local) Transaction Manager -->
+    <bean id="hibernateInterceptor" class="org.springframework.orm.hibernate3.HibernateInterceptor">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
     <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
+
+     <bean id="ehCacheManager" class="ch.algotrader.ehcache.EhCacheManagerFactoryBean">
+         <property name="configLocations" value="classpath*:ehcache*.xml"/>
+     </bean>
 
     <bean id="genericDao" class="ch.algotrader.hibernate.GenericDao">
         <property name="sessionFactory" ref="sessionFactory"/>
