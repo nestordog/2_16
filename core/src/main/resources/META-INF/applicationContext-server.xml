@@ -63,7 +63,7 @@
 
     <!-- ============================= Data Source an Transaction Management ============================ -->
 
-    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean" depends-on="ehCacheManager">
         <property name="dataSource" ref="dataSource"/>
         <property name="mappingLocations" ref="hibernateMappingLocations"/>
         <property name="hibernateProperties" ref="hibernateProperties"/>
@@ -102,6 +102,7 @@
 
      <bean id="ehCacheManager" class="ch.algotrader.ehcache.EhCacheManagerFactoryBean">
          <property name="configLocations" value="classpath*:/META-INF/ehcache*.xml"/>
+         <property name="shared" value="true"/>
      </bean>
 
     <bean id="genericDao" class="ch.algotrader.hibernate.GenericDao">
