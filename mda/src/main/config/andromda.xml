@@ -117,7 +117,7 @@
                 <property name="localTransactionManager">org.springframework.orm.hibernate3.HibernateTransactionManager</property>
                 <property name="hibernateCacheProvider">net.sf.ehcache.hibernate.SingletonEhCacheProvider</property>
                 <property name="hibernateQueryCacheFactory">org.hibernate.cache.StandardQueryCacheFactory</property>
-                <property name="mergeLocation">${conf.dir}/customTemplates/andromda-spring</property>
+<!--                 <property name="mergeLocation">${conf.dir}/customTemplates/andromda-spring</property> -->
                 <property name="mergeMappingsUri">file:${conf.dir}/mappings/SpringMergeMappings.xml</property>
                 <property name="transactionManager">org.springframework.orm.hibernate3.HibernateTransactionManager</property>
                 <property name="hibernateInheritanceStrategy">${hibernate.inheritance.strategy}</property>
@@ -167,7 +167,7 @@
                 <property name="customTypesPackage">${application.package}</property>
                 <property name="compositionDefinesEagerLoading">true</property>
                 <property name="cache">${core.generated-config.dir}</property>
-                <property name="mergeLocation">${conf.dir}/customTemplates/andromda-hibernate</property>
+<!--                 <property name="mergeLocation">${conf.dir}/customTemplates/andromda-hibernate</property> -->
                 <property name="mergeMappingsUri">file:${conf.dir}/mappings/HibernateMergeMappings.xml</property>
                 <property name="ehCacheMaxElementsInMemory">100000</property>
                 <property name="ehCacheOverflowToDisk">false</property>
@@ -179,7 +179,7 @@
         <namespace name="java">
             <properties>
                 <property name="generateEqualPropertiesMethod">true</property>
-                <property name="mergeLocation">${conf.dir}/customTemplates/andromda-java</property>
+<!--                 <property name="mergeLocation">${conf.dir}/customTemplates/andromda-java</property> -->
                 <property name="mergeMappingsUri">file:${conf.dir}/mappings/JavaMergeMappings.xml</property>
                 <property name="enumerations">${common.generated.dir}</property>
                 <property name="exceptions">${common.generated.dir}</property>
