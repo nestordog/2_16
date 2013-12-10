@@ -74,6 +74,7 @@
             <list>
                 <value>classpath*:ch/**/*.hbm.xml</value>
                 <value>classpath*:com/**/*.hbm.xml</value>
+                <value>classpath*:META-INF/**/*.hbm.xml</value>
             </list>
          </property>
     </bean>

@@ -134,7 +134,7 @@
                 <property name="server">${core.generated.dir}</property>
                 <property name="server-impl">${core.manual.dir}</property>
                 <property name="client-config">${common.generated-config.dir}</property>
-                <property name="osgi">${common.generated-config.dir}</property>
+<!--                 <property name="osgi">${common.generated-config.dir}</property> -->
                 <property name="richClient">true</property>
                 <property name="serviceRemoteContext">algoTrader</property>
                 <property name="serviceRemotingType">rmi</property>
