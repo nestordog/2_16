@@ -122,7 +122,7 @@
                 <property name="transactionManager">org.springframework.orm.hibernate3.HibernateTransactionManager</property>
                 <property name="hibernateInheritanceStrategy">${hibernate.inheritance.strategy}</property>
                 <property name="springTypesPackage">${application.package}</property>
-                <property name="springCommonTypesPackage">${application.package}.util.spring</property>
+                <property name="springCommonTypesPackage">ch.algotrader.util.spring</property>
                 <property name="springVersion">3.1</property>
 
                 <property name="daos">${core.generated.dir}</property>
