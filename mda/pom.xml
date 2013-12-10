@@ -39,19 +39,19 @@
         <dependency>
             <groupId>org.andromda.cartridges</groupId>
             <artifactId>andromda-hibernate-cartridge</artifactId>
-            <version>${andromda.version}</version>
+            <version>${andromda.version}-at</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.andromda.cartridges</groupId>
             <artifactId>andromda-java-cartridge</artifactId>
-            <version>${andromda.version}</version>
+            <version>${andromda.version}-at</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.andromda.cartridges</groupId>
             <artifactId>andromda-spring-cartridge</artifactId>
-            <version>${andromda.version}</version>
+            <version>${andromda.version}-at</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
