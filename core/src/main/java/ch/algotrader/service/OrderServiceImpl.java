@@ -67,6 +67,10 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         Validate.isTrue(order.getQuantity() != 0, "quanity cannot be zero for order " + order);
         Validate.isTrue(order.getQuantity() > 0, "quantity has to be positive for order " + order);
 
+        if (!(order instanceof AlgoOrder)) {
+            Validate.notNull(order.getAccount(), "missing account for order " + order);
+        }
+
         // validate order specific properties
         order.validate();
 
@@ -88,7 +92,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         order.setStrategy(getStrategyDao().load(order.getStrategy().getId()));
         order.setSecurity(getSecurityDao().load(order.getSecurity().getId()));
 
-        // reload the if necessary to get potential changes
+        // reload the order if necessary to get potential changes
         if (order.getAccount() != null) {
             order.setAccount(getAccountDao().load(order.getAccount().getId()));
         }
