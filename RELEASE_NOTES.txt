@@ -1,14 +1,17 @@
 Version 2.1
-BrokerParameters
-AlgoTrader Reference Data Manager
+new Instruments: Bond, Fund & Commodity
+overhaul AlgoTrader Reference Data Manager (based on Grails)
+RealTick Fix interface
+AlgoTrader Maven Archetype to generate new projects
+embedded in-memory DataSource based on H2 database
+Bloomberg Historical data interface
 BreakOut Example Strategy
+allow broker specific parameters (e.g. commissions)
 More flexilility on market data file naming
 Switch from LIFO to average cost
 East-to-Borrow list for stocks
-RealTick Fix interface
-Integration Tests
-Maven Archetype
-Embedded in-memory DataSource based on H2 database
+overhaul Esper Engine management (EngineLocator, Engine, AbstractEngine and EngineImpl)
+enable client specific code generation based on UML
 
 Version 2.0
 Multi Account Handling
