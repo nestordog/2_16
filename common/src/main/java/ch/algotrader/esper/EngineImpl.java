@@ -125,7 +125,7 @@ public class EngineImpl extends AbstractEngine {
     private EPServiceProvider serviceProvider;
     private AdapterCoordinator coordinator;
 
-    private static ThreadLocal<AtomicBoolean> processing = new ThreadLocal<AtomicBoolean>() {
+    private ThreadLocal<AtomicBoolean> processing = new ThreadLocal<AtomicBoolean>() {
         @Override
         protected AtomicBoolean initialValue() {
             return new AtomicBoolean(false);
@@ -383,12 +383,12 @@ public class EngineImpl extends AbstractEngine {
         long startTime = System.nanoTime();
 
         // if the engine is currently processing and event route the new event
-        if (processing.get().get()) {
+        if (this.processing.get().get()) {
             this.serviceProvider.getEPRuntime().route(obj);
         } else {
-            processing.get().set(true);
+            this.processing.get().set(true);
             this.serviceProvider.getEPRuntime().sendEvent(obj);
-            processing.get().set(false);
+            this.processing.get().set(false);
         }
 
         MetricsUtil.accountEnd("EsperManager." + obj.getClass(), startTime);

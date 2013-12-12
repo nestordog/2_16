@@ -227,4 +227,10 @@ public abstract class AbstractEngine implements Engine {
     public void addClosePositionCallback(int securityId, ClosePositionCallback callback) {
 
     }
+
+    @Override
+    public String toString() {
+
+        return this.engineName;
+    }
 }
