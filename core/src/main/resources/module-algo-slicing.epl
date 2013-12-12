@@ -41,9 +41,12 @@ select
 from
     // every SlicingOrder -> every ((OrderStatusLimit -> timer:interval) and not OrderStatusSlicing)
     pattern [every slicingOrder=ch.algotrader.entity.trade.SlicingOrder
-            -> every ((OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, `order`.parentOrder.intId = slicingOrder.intId)
-            -> timer:interval(slicingOrder.minDelay + (slicingOrder.maxDelay - slicingOrder.minDelay) * Math.random()))
-            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, `order`.intId = slicingOrder.intId))] unidirectional,
+            -> every (OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, `order`.parentOrder.intId = slicingOrder.intId)
+            -> timer:interval(slicingOrder.minDelay + (slicingOrder.maxDelay - slicingOrder.minDelay) * Math.random()))] unidirectional,
     OpenOrderWindow() as openOrderWindow
 where
-    openOrderWindow.intId = slicingOrder.intId;
+    openOrderWindow.intId = slicingOrder.intId
+and
+    openOrderWindow.status != Status.EXECUTED
+and
+    openOrderWindow.status != Status.CANCELED;
