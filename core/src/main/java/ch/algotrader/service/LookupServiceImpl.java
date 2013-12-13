@@ -884,4 +884,17 @@ public class LookupServiceImpl extends LookupServiceBase {
         return nameValuePairsByDate;
     }
 
+    @Override
+    @SuppressWarnings("rawtypes")
+    protected List handleGet(String query) throws Exception {
+
+        return getGenericDao().find(query);
+    }
+
+    @Override
+    @SuppressWarnings("rawtypes")
+    protected List handleGet(String query, Map namedParameters) throws Exception {
+
+        return getGenericDao().find(query, namedParameters);
+    }
 }
