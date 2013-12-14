@@ -55,4 +55,6 @@ public class BBConstants {
 
     public static final Name HISTORICAL_DATA_RESPONSE = Name.getName("HistoricalDataResponse");
     public static final Name INTRADAY_BAR_RESPONSE = Name.getName("IntradayBarResponse");
+    public static final Name REFERENCE_DATA_RESPONSE = Name.getName("ReferenceDataResponse");
+
 }

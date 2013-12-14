@@ -227,6 +227,8 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
                     processIntradayBarResponse(msg);
                 } else if (msg.messageType() == BBConstants.HISTORICAL_DATA_RESPONSE) {
                     processHistoricalDataResponse(msg);
+                } else {
+                    throw new IllegalArgumentException("unknown reponse type: " + msg.messageType());
                 }
             }
         }
