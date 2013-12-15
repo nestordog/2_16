@@ -57,4 +57,10 @@ public class BBConstants {
     public static final Name INTRADAY_BAR_RESPONSE = Name.getName("IntradayBarResponse");
     public static final Name REFERENCE_DATA_RESPONSE = Name.getName("ReferenceDataResponse");
 
+    public static final Name ID_BB_GLOBAL = Name.getName("ID_BB_GLOBAL");
+    public static final Name TICKER = Name.getName("TICKER");
+    public static final Name FUT_CONTRACT_DT = Name.getName("FUT_CONTRACT_DT");
+    public static final Name OPT_EXPIRE_DT = Name.getName("OPT_EXPIRE_DT");
+    public static final Name OPT_STRIKE_PX = Name.getName("OPT_STRIKE_PX");
+    public static final Name OPT_PUT_CALL = Name.getName("OPT_PUT_CALL");
 }

@@ -17,6 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.service.bb;
 
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -30,11 +33,18 @@ import ch.algotrader.adapter.bb.BBConstants;
 import ch.algotrader.adapter.bb.BBMessageHandler;
 import ch.algotrader.adapter.bb.BBSession;
 import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.FutureImpl;
+import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.security.OptionFamily;
+import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.future.FutureSymbol;
+import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.RoundUtil;
 
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Event;
@@ -52,14 +62,17 @@ import com.bloomberglp.blpapi.Session;
 public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBase {
 
     private static final long serialVersionUID = 8938937374871069522L;
+    private static final SimpleDateFormat futFormat = new SimpleDateFormat("MM/yyyy");
+    private static final SimpleDateFormat optFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private static Logger logger = MyLogger.getLogger(BBHistoricalDataServiceImpl.class.getName());
     private static BBSession session;
 
+
     @Override
     protected void handleInit() throws Exception {
 
-        session = getBBSessionFactory().getMarketDataSession();
+        session = getBBSessionFactory().getReferenceDataSession();
     }
 
     @Override
@@ -79,7 +92,14 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
 
         // Add securities to request
         symbolRequest.append("securities", securityString);
-        symbolRequest.append("fields", "FUT_CHAIN");
+
+        if (securityFamily instanceof OptionFamily) {
+            symbolRequest.append("fields", "OPT_CHAIN");
+        } else if (securityFamily instanceof FutureFamily) {
+            symbolRequest.append("fields", "FUT_CHAIN");
+        } else {
+            throw new IllegalArgumentException("illegal securityFamily type");
+        }
 
         // send request
         session.sendRequest(symbolRequest, null);
@@ -103,7 +123,18 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
             securityRequest.append("securities", symbol);
         }
 
-        securityRequest.append("fields", "BB_ID_GLOBAL");
+        securityRequest.append("fields", "ID_BB_GLOBAL");
+        securityRequest.append("fields", "TICKER");
+
+        if (securityFamily instanceof OptionFamily) {
+            securityRequest.append("fields", "OPT_STRIKE_PX");
+            securityRequest.append("fields", "OPT_EXPIRE_DT");
+            securityRequest.append("fields", "OPT_PUT_CALL");
+        } else if (securityFamily instanceof FutureFamily) {
+            securityRequest.append("fields", "FUT_CONTRACT_DT");
+        } else {
+            throw new IllegalArgumentException("illegal securityFamily type");
+        }
 
         // send request
         session.sendRequest(securityRequest, null);
@@ -116,6 +147,9 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
         while (!done) {
             done = securityHandler.processEvent(session);
         }
+
+        // store all new securites in the database
+        securityHandler.store();
     }
 
     @Override
@@ -151,8 +185,19 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
 
         private void processReferenceDataResponse(Message msg) {
 
-            Element security = msg.getElement(BBConstants.SECURITY_DATA);
-            Element fields = security.getElement(BBConstants.FIELD_DATA);
+            Element securitiesData = msg.getElement(BBConstants.SECURITY_DATA);
+
+            if (securitiesData.numValues() == 0 || securitiesData.numValues() > 1) {
+                throw new IllegalStateException("expected one field");
+            }
+
+            Element securityData = securitiesData.getValueAsElement(0);
+
+            if (!securityData.hasElement(BBConstants.FIELD_DATA)) {
+                throw new IllegalStateException("need field data");
+            }
+
+            Element fields = securityData.getElement(BBConstants.FIELD_DATA);
 
             if (fields.numElements() == 0 || fields.numElements() > 1) {
                 throw new IllegalStateException("expected one field");
@@ -187,10 +232,33 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
     private class BBSecurityHandler extends BBMessageHandler {
 
         private final SecurityFamily securityFamily;
+        private final Set<Security> existingSecurities;
+        private final Set<Future> newFutures;
+        private final Set<Option> newOptions;
 
         public BBSecurityHandler(SecurityFamily securityFamily) {
 
             this.securityFamily = securityFamily;
+
+            Comparator<Security> comparator = new Comparator<Security>() {
+                @Override
+                public int compare(Security o1, Security o2) {
+                    return o1.getBbgid().compareTo(o2.getBbgid());
+                }
+            };
+
+            this.existingSecurities = new TreeSet<Security>(comparator);
+
+            if (securityFamily instanceof OptionFamily) {
+                this.existingSecurities.addAll(getOptionDao().findBySecurityFamily(this.securityFamily.getId()));
+            } else if (securityFamily instanceof FutureFamily) {
+                this.existingSecurities.addAll(getFutureDao().findFuturesBySecurityFamily(this.securityFamily.getId()));
+            } else {
+                throw new IllegalArgumentException("illegal securityFamily type");
+            }
+
+            this.newFutures = new TreeSet<Future>(comparator);
+            this.newOptions = new TreeSet<Option>(comparator);
         }
 
         @Override
@@ -207,67 +275,101 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
                 }
 
                 if (msg.messageType() == BBConstants.REFERENCE_DATA_RESPONSE) {
-                    processReferenceDataResponse(msg);
+                    try {
+                        processReferenceDataResponse(msg);
+                    } catch (ParseException e) {
+                        throw new BBSecurityRetrieverServiceException(e);
+                    }
                 } else {
                     throw new IllegalArgumentException("unknown reponse type: " + msg.messageType());
                 }
             }
         }
 
-        private void processReferenceDataResponse(Message msg) {
+        private void processReferenceDataResponse(Message msg) throws ParseException {
 
-            Element security = msg.getElement(BBConstants.SECURITY_DATA);
-            Element fields = security.getElement(BBConstants.FIELD_DATA);
+            Element securitiesData = msg.getElement(BBConstants.SECURITY_DATA);
+            for (int i = 0; i < securitiesData.numValues(); ++i) {
 
-            if (fields.numElements() == 0 || fields.numElements() > 1) {
-                throw new IllegalStateException("expected one field");
+                Element securityData = securitiesData.getValueAsElement(i);
+
+                Element fields = securityData.getElement(BBConstants.FIELD_DATA);
+
+                String symbol = fields.getElementAsString(BBConstants.TICKER);
+                String bbgid = fields.getElementAsString(BBConstants.ID_BB_GLOBAL);
+
+                if (this.securityFamily instanceof OptionFamily) {
+
+                    String expirationString = fields.getElementAsString(BBConstants.OPT_EXPIRE_DT);
+                    double strikeDouble = fields.getElementAsFloat64(BBConstants.OPT_STRIKE_PX);
+                    String typeString = fields.getElementAsString(BBConstants.OPT_PUT_CALL);
+
+                    Date expiration = optFormat.parse(expirationString);
+                    BigDecimal strike = RoundUtil.getBigDecimal(strikeDouble, this.securityFamily.getScale());
+                    OptionType type = OptionType.fromString(typeString.toUpperCase());
+
+                    Option option = new OptionImpl();
+
+                    String isin = OptionSymbol.getIsin(this.securityFamily, expiration, type, strike);
+                    String ric = OptionSymbol.getRic(this.securityFamily, expiration, type, strike);
+
+                    option.setSymbol(symbol);
+                    option.setBbgid(bbgid);
+                    option.setIsin(isin);
+                    option.setRic(ric);
+                    option.setSecurityFamily(this.securityFamily);
+                    option.setUnderlying(this.securityFamily.getUnderlying());
+
+                    option.setExpiration(expiration);
+                    option.setStrike(strike);
+                    option.setType(type);
+
+                    // ignore options that already exist
+                    if (!this.existingSecurities.contains(option)) {
+                        this.newOptions.add(option);
+                    }
+
+                } else if (this.securityFamily instanceof FutureFamily) {
+
+                    String expirationString = fields.getElementAsString(BBConstants.FUT_CONTRACT_DT);
+                    Date expiration = futFormat.parse(expirationString);
+
+                    Future future = new FutureImpl();
+
+                    String isin = FutureSymbol.getIsin(this.securityFamily, expiration);
+                    String ric = FutureSymbol.getRic(this.securityFamily, expiration);
+
+                    future.setSymbol(symbol);
+                    future.setBbgid(bbgid);
+                    future.setIsin(isin);
+                    future.setRic(ric);
+                    future.setSecurityFamily(this.securityFamily);
+                    future.setUnderlying(this.securityFamily.getUnderlying());
+
+                    future.setExpiration(expiration);
+
+                    // ignore futures that already exist
+                    if (!this.existingSecurities.contains(future)) {
+                        this.newFutures.add(future);
+                    }
+
+                } else {
+                    throw new IllegalArgumentException("illegal securityFamily type");
+                }
+            }
+        }
+
+        public void store() {
+
+            if (this.securityFamily instanceof OptionFamily) {
+                getOptionDao().create(this.newOptions);
+            } else if (this.securityFamily instanceof FutureFamily) {
+                getFutureDao().create(this.newFutures);
+            } else {
+                throw new IllegalArgumentException("illegal securityFamily type");
             }
 
-            Element field = fields.getElement(0);
-
-            Comparator<Security> comparator = new Comparator<Security>() {
-                @Override
-                public int compare(Security o1, Security o2) {
-                    return o1.getBbgid().compareTo(o2.getBbgid());
-                }
-            };
-
-            Set<Future> existingFutures = new TreeSet<Future>(comparator);
-            existingFutures.addAll(getFutureDao().findFuturesBySecurityFamily(this.securityFamily.getId()));
-            Set<Future> newFutures = new TreeSet<Future>();
-
-            // get all current futures
-            int numBars = field.numValues();
-            for (int i = 0; i < numBars; ++i) {
-
-                Element fields2 = field.getValueAsElement(i);
-
-                Future future = new FutureImpl();
-
-                Date expiration = null;// TODO
-                String symbol = null; // TODO
-                String isin = null; // TODO
-                String bbgid = null; // TODO
-
-                String ric = FutureSymbol.getRic(this.securityFamily, expiration);
-
-                future.setSymbol(symbol);
-                future.setIsin(isin);
-                future.setRic(ric);
-                future.setBbgid(bbgid);
-                future.setExpiration(expiration);
-                future.setSecurityFamily(this.securityFamily);
-                future.setUnderlying(this.securityFamily.getUnderlying());
-
-                // ignore futures that already exist
-                if (!existingFutures.contains(future)) {
-                    newFutures.add(future);
-                }
-            }
-
-            getFutureDao().create(newFutures);
-
-            logger.debug("retrieved futures for futurefamily: " + this.securityFamily.getName() + " " + newFutures);
+            logger.debug("retrieved securities for securityFamily: " + this.securityFamily.getName() + " " + this.newFutures);
         }
     }
 }
