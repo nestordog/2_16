@@ -20,7 +20,28 @@ package ch.algotrader.entity;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import ch.algotrader.entity.marketData.BarTest;
 import ch.algotrader.entity.marketData.TickTest;
+import ch.algotrader.entity.property.PropertyTest;
+import ch.algotrader.entity.security.CombinationTest;
+import ch.algotrader.entity.security.ComponentTest;
+import ch.algotrader.entity.security.EasyToBorrowTest;
+import ch.algotrader.entity.security.ForexTest;
+import ch.algotrader.entity.security.FutureFamilyTest;
+import ch.algotrader.entity.security.FutureTest;
+import ch.algotrader.entity.security.ImpliedVolatilityTest;
+import ch.algotrader.entity.security.IntrestRateTest;
+import ch.algotrader.entity.security.OptionFamilyTest;
+import ch.algotrader.entity.security.OptionTest;
+import ch.algotrader.entity.security.SecurityFamilyTest;
+import ch.algotrader.entity.security.SecurityTest;
+import ch.algotrader.entity.security.StockTest;
+import ch.algotrader.entity.strategy.CashBalanceTest;
+import ch.algotrader.entity.strategy.DefaultOrderPreferenceTest;
+import ch.algotrader.entity.strategy.MeasurementTest;
+import ch.algotrader.entity.strategy.OrderPreferenceTest;
+import ch.algotrader.entity.strategy.PortfolioValueTest;
+import ch.algotrader.entity.strategy.StrategyTest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -31,7 +52,32 @@ import ch.algotrader.entity.marketData.TickTest;
 @Suite.SuiteClasses({
     AccountTest.class,
     PositionTest.class,
-    TickTest.class
+    SubscriptionTest.class,
+    TransactionTest.class,
+    BarTest.class,
+    TickTest.class,
+    PropertyTest.class,
+    CombinationTest.class,
+    ComponentTest.class,
+    EasyToBorrowTest.class,
+    ForexTest.class,
+    FutureFamilyTest.class,
+    FutureTest.class,
+    ImpliedVolatilityTest.class,
+    IntrestRateTest.class,
+    OptionFamilyTest.class,
+    OptionTest.class,
+    SecurityFamilyTest.class,
+    SecurityTest.class,
+    StockTest.class,
+    CashBalanceTest.class,
+    DefaultOrderPreferenceTest.class,
+    MeasurementTest.class,
+    OrderPreferenceTest.class,
+    PortfolioValueTest.class,
+    StrategyTest.class,
+//    OrderStatusTest.class,
+//    OrderTest.class
  })
 public class EntityTestSuite {
 
