@@ -62,8 +62,8 @@ import com.bloomberglp.blpapi.Session;
 public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBase {
 
     private static final long serialVersionUID = 8938937374871069522L;
-    private static final SimpleDateFormat futFormat = new SimpleDateFormat("MM/yyyy");
-    private static final SimpleDateFormat optFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat monthDayFormat = new SimpleDateFormat("MM/yyyy");
 
     private static Logger logger = MyLogger.getLogger(BBHistoricalDataServiceImpl.class.getName());
     private static BBSession session;
@@ -132,6 +132,8 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
             securityRequest.append("fields", "OPT_PUT_CALL");
         } else if (securityFamily instanceof FutureFamily) {
             securityRequest.append("fields", "FUT_CONTRACT_DT");
+            securityRequest.append("fields", "LAST_TRADEABLE_DT");
+            securityRequest.append("fields", "FUT_NOTICE_FIRST");
         } else {
             throw new IllegalArgumentException("illegal securityFamily type");
         }
@@ -252,7 +254,7 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
             if (securityFamily instanceof OptionFamily) {
                 this.existingSecurities.addAll(getOptionDao().findBySecurityFamily(this.securityFamily.getId()));
             } else if (securityFamily instanceof FutureFamily) {
-                this.existingSecurities.addAll(getFutureDao().findFuturesBySecurityFamily(this.securityFamily.getId()));
+                this.existingSecurities.addAll(getFutureDao().findBySecurityFamily(this.securityFamily.getId()));
             } else {
                 throw new IllegalArgumentException("illegal securityFamily type");
             }
@@ -304,14 +306,14 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
                     double strikeDouble = fields.getElementAsFloat64(BBConstants.OPT_STRIKE_PX);
                     String typeString = fields.getElementAsString(BBConstants.OPT_PUT_CALL);
 
-                    Date expiration = optFormat.parse(expirationString);
+                    Date expiration = format.parse(expirationString);
                     BigDecimal strike = RoundUtil.getBigDecimal(strikeDouble, this.securityFamily.getScale());
                     OptionType type = OptionType.fromString(typeString.toUpperCase());
 
-                    Option option = new OptionImpl();
-
                     String isin = OptionSymbol.getIsin(this.securityFamily, expiration, type, strike);
                     String ric = OptionSymbol.getRic(this.securityFamily, expiration, type, strike);
+
+                    Option option = new OptionImpl();
 
                     option.setSymbol(symbol);
                     option.setBbgid(bbgid);
@@ -332,12 +334,17 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
                 } else if (this.securityFamily instanceof FutureFamily) {
 
                     String expirationString = fields.getElementAsString(BBConstants.FUT_CONTRACT_DT);
-                    Date expiration = futFormat.parse(expirationString);
+                    String lastTradingString = fields.getElementAsString(BBConstants.LAST_TRADEABLE_DT);
+                    String firstNoticeString = fields.getElementAsString(BBConstants.FUT_NOTICE_FIRST);
 
-                    Future future = new FutureImpl();
+                    Date expiration = monthDayFormat.parse(expirationString);
+                    Date lastTrading = format.parse(lastTradingString);
+                    Date firstNotice = format.parse(firstNoticeString);
 
                     String isin = FutureSymbol.getIsin(this.securityFamily, expiration);
                     String ric = FutureSymbol.getRic(this.securityFamily, expiration);
+
+                    Future future = new FutureImpl();
 
                     future.setSymbol(symbol);
                     future.setBbgid(bbgid);
@@ -347,6 +354,8 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
                     future.setUnderlying(this.securityFamily.getUnderlying());
 
                     future.setExpiration(expiration);
+                    future.setLastTrading(lastTrading);
+                    future.setFirstNotice(firstNotice);
 
                     // ignore futures that already exist
                     if (!this.existingSecurities.contains(future)) {

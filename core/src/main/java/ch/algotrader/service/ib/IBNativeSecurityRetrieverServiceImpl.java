@@ -219,7 +219,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
         // get all current futures
         Set<Future> existingFutures = new TreeSet<Future>(getComparator());
-        existingFutures.addAll(getFutureDao().findFuturesBySecurityFamily(securityFamily.getId()));
+        existingFutures.addAll(getFutureDao().findBySecurityFamily(securityFamily.getId()));
 
         Set<Future> newFutures = new TreeSet<Future>();
         for (ContractDetails contractDetails : this.contractDetailsList) {
