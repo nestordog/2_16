@@ -20,7 +20,8 @@ package ch.algotrader.starter;
 import java.text.ParseException;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.service.ib.IBNativeSecurityRetrieverService;
+import ch.algotrader.service.InitializingServiceI;
+import ch.algotrader.service.SecurityRetrieverService;
 
 /**
  * Starter Class for downloading {@link ch.algotrader.entity.security.Future Future} and {@link ch.algotrader.entity.security.Option Option} chains.
@@ -36,9 +37,11 @@ public class SecurityRetrievalStarter {
     public static void main(String[] args) throws ParseException {
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        IBNativeSecurityRetrieverService service = ServiceLocator.instance().getService("iBNativeSecurityRetrieverService", IBNativeSecurityRetrieverService.class);
+        SecurityRetrieverService service = ServiceLocator.instance().getService("securityRetrievalService", SecurityRetrieverService.class);
 
-        service.init();
+        if (service instanceof InitializingServiceI) {
+            ((InitializingServiceI) service).init();
+        }
 
         for (String arg : args) {
 
