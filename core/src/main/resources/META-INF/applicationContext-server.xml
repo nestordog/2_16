@@ -205,7 +205,7 @@
         <bean id="iBSessionFactory" class="ch.algotrader.adapter.ib.IBSessionFactory"/>
     </beans>
 
-    <beans profile="bBMarketData">
+    <beans profile="bBMarketData,bBSecurityRetrieval">
         <bean id="bBSessionFactory" class="ch.algotrader.adapter.bb.BBSessionFactory"/>
     </beans>
 
