@@ -37,7 +37,7 @@ public class SecurityRetrievalStarter {
     public static void main(String[] args) throws ParseException {
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        SecurityRetrieverService service = ServiceLocator.instance().getService("securityRetrievalService", SecurityRetrieverService.class);
+        SecurityRetrieverService service = ServiceLocator.instance().getService("securityRetrieverService", SecurityRetrieverService.class);
 
         if (service instanceof InitializingServiceI) {
             ((InitializingServiceI) service).init();
