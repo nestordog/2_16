@@ -62,16 +62,24 @@ public class SlicingOrderImpl extends SlicingOrder {
     @Override
     public void validate() throws OrderValidationException {
 
-        if (getMaxVolPct() == 0.0) {
-            throw new OrderValidationException("maxVolPct cannot be 0 for " + this);
-        } else if (getMaxQuantity() == 0) {
-            throw new OrderValidationException("maxQuantity cannot be 0 for " + this);
-        } else if (getMaxDuration() == 0.0) {
-            throw new OrderValidationException("maxDuration cannot be 0 for " + this);
-        } else if (getMinDelay() == 0.0) {
-            throw new OrderValidationException("minDelay cannot be 0 for " + this);
-        } else if (getMaxDelay() == 0.0) {
-            throw new OrderValidationException("maxDelay cannot be 0 for " + this);
+        // check greater than
+        if (getMinVolPct() > getMaxVolPct()) {
+            throw new OrderValidationException("minVolPct cannot be greater than maxVolPct for " + this);
+        } else if (getMinQuantity() > getMaxQuantity()) {
+            throw new OrderValidationException("minQuantity cannot be greater than maxQuantity for " + this);
+        } else if (getMinDuration() > getMaxDuration()) {
+            throw new OrderValidationException("minDuration cannot be greater than maxDuration for " + this);
+        } else if (getMinDelay() > getMaxDelay()) {
+            throw new OrderValidationException("minDelay cannot be greater than maxDelay for " + this);
+        }
+
+        // check zero
+        if (getMaxVolPct() == 0 && getMaxQuantity() == 0) {
+            throw new OrderValidationException("either maxVolPct or maxQuantity have to be defined for " + this);
+        } else if (getMaxDuration() == 0) {
+            throw new OrderValidationException("maxDuration cannot be zero for " + this);
+        } else if (getMaxDelay() == 0) {
+            throw new OrderValidationException("maxDelay cannot be zero for " + this);
         }
 
         MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
@@ -108,10 +116,10 @@ public class SlicingOrderImpl extends SlicingOrder {
 
         // limit (at least one tick above market but do not exceed the market)
         BigDecimal limit;
-        long marketQuantity;
+        long marketVolume;
         if (Side.BUY.equals(getSide())) {
 
-            marketQuantity = tick.getVolAsk();
+            marketVolume = tick.getVolAsk();
             limit = family.adjustPrice(tick.getAsk(), -this.currentOffsetTicks);
 
             if (limit.compareTo(tick.getBid()) <= 0.0) {
@@ -126,7 +134,7 @@ public class SlicingOrderImpl extends SlicingOrder {
 
         } else {
 
-            marketQuantity = tick.getVolBid();
+            marketVolume = tick.getVolBid();
             limit = family.adjustPrice(tick.getBid(), this.currentOffsetTicks);
 
             if (limit.compareTo(tick.getAsk()) >= 0.0) {
@@ -140,14 +148,21 @@ public class SlicingOrderImpl extends SlicingOrder {
             }
         }
 
-        // reduce the marketQuantity to a maximum of maxQuantity
-        long reducedMarketQuantity = Math.min(marketQuantity, getMaxQuantity());
+        // ignore maxVolPct / maxQuantity if they are zero
+        double maxVolPct = getMaxVolPct() == 0.0 ? Double.MAX_VALUE : getMaxVolPct();
+        long maxQuantity = getMaxQuantity() == 0 ? Long.MAX_VALUE : getMaxQuantity();
 
-        // volPct between minVolPct and maxVolPct of the market
-        double volPct = getMinVolPct() + Math.random() * (getMaxVolPct() - getMinVolPct());
+        // evaluate the order minimum and maximum qty
+        long orderMinQty = Math.max(Math.round(marketVolume * getMinVolPct()), getMinQuantity());
+        long orderMaxQty = Math.min(Math.round(marketVolume * maxVolPct), maxQuantity);
 
-        // multiply the reducedMarketQuantity by volPct
-        long quantity = Math.round(volPct * reducedMarketQuantity);
+        // orderMinQty cannot be greater than orderMaxQty
+        if (orderMinQty > orderMaxQty) {
+            orderMinQty = orderMaxQty;
+        }
+
+        // randomize the quantity between orderMinQty and orderMaxQty
+        long quantity = Math.round(orderMinQty + Math.random() * (orderMaxQty - orderMinQty));
 
         // qty should be at least one
         quantity = Math.max(quantity, 1);
