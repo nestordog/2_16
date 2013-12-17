@@ -131,7 +131,6 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
             securityRequest.append("fields", "OPT_EXPIRE_DT");
             securityRequest.append("fields", "OPT_PUT_CALL");
         } else if (securityFamily instanceof FutureFamily) {
-            securityRequest.append("fields", "FUT_CONTRACT_DT");
             securityRequest.append("fields", "LAST_TRADEABLE_DT");
             securityRequest.append("fields", "FUT_NOTICE_FIRST");
         } else {
@@ -333,16 +332,14 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
 
                 } else if (this.securityFamily instanceof FutureFamily) {
 
-                    String expirationString = fields.getElementAsString(BBConstants.FUT_CONTRACT_DT);
                     String lastTradingString = fields.getElementAsString(BBConstants.LAST_TRADEABLE_DT);
                     String firstNoticeString = fields.getElementAsString(BBConstants.FUT_NOTICE_FIRST);
 
-                    Date expiration = monthDayFormat.parse(expirationString);
                     Date lastTrading = format.parse(lastTradingString);
                     Date firstNotice = format.parse(firstNoticeString);
 
-                    String isin = FutureSymbol.getIsin(this.securityFamily, expiration);
-                    String ric = FutureSymbol.getRic(this.securityFamily, expiration);
+                    String isin = FutureSymbol.getIsin(this.securityFamily, lastTrading);
+                    String ric = FutureSymbol.getRic(this.securityFamily, lastTrading);
 
                     Future future = new FutureImpl();
 
@@ -353,7 +350,7 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
                     future.setSecurityFamily(this.securityFamily);
                     future.setUnderlying(this.securityFamily.getUnderlying());
 
-                    future.setExpiration(expiration);
+                    future.setExpiration(lastTrading);
                     future.setLastTrading(lastTrading);
                     future.setFirstNotice(firstNotice);
 
