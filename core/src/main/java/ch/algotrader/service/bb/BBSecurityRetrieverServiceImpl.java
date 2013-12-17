@@ -40,6 +40,7 @@ import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.option.OptionSymbol;
@@ -63,7 +64,6 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
 
     private static final long serialVersionUID = 8938937374871069522L;
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    private static final SimpleDateFormat monthDayFormat = new SimpleDateFormat("MM/yyyy");
 
     private static Logger logger = MyLogger.getLogger(BBHistoricalDataServiceImpl.class.getName());
     private static BBSession session;
@@ -125,14 +125,18 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
 
         securityRequest.append("fields", "ID_BB_GLOBAL");
         securityRequest.append("fields", "TICKER");
+        securityRequest.append("fields", "CRNCY");
 
         if (securityFamily instanceof OptionFamily) {
             securityRequest.append("fields", "OPT_STRIKE_PX");
             securityRequest.append("fields", "OPT_EXPIRE_DT");
             securityRequest.append("fields", "OPT_PUT_CALL");
+            securityRequest.append("fields", "OPT_CONT_SIZE");
+
         } else if (securityFamily instanceof FutureFamily) {
             securityRequest.append("fields", "LAST_TRADEABLE_DT");
             securityRequest.append("fields", "FUT_NOTICE_FIRST");
+            securityRequest.append("fields", "FUT_CONT_SIZE");
         } else {
             throw new IllegalArgumentException("illegal securityFamily type");
         }
@@ -298,8 +302,22 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
 
                 String symbol = fields.getElementAsString(BBConstants.TICKER);
                 String bbgid = fields.getElementAsString(BBConstants.ID_BB_GLOBAL);
+                String currencyString = fields.getElementAsString(BBConstants.CRNCY);
+                Currency currency = Currency.fromString(currencyString);
+
+                // ignore securities with different currencies than the securityFamily
+                if (!(currency.equals(this.securityFamily.getCurrency()))) {
+                    continue;
+                }
 
                 if (this.securityFamily instanceof OptionFamily) {
+
+                    int contractSize = fields.getElementAsInt32(BBConstants.OPT_CONT_SIZE);
+
+                    // ignore securities with different contractSize than the securityFamily
+                    if (this.securityFamily.getContractSize() != contractSize) {
+                        continue;
+                    }
 
                     String expirationString = fields.getElementAsString(BBConstants.OPT_EXPIRE_DT);
                     double strikeDouble = fields.getElementAsFloat64(BBConstants.OPT_STRIKE_PX);
@@ -331,6 +349,13 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
                     }
 
                 } else if (this.securityFamily instanceof FutureFamily) {
+
+                    int contractSize = fields.getElementAsInt32(BBConstants.FUT_CONT_SIZE);
+
+                    // ignore securities with different contractSize than the securityFamily
+                    if (this.securityFamily.getContractSize() != contractSize) {
+                        continue;
+                    }
 
                     String lastTradingString = fields.getElementAsString(BBConstants.LAST_TRADEABLE_DT);
                     String firstNoticeString = fields.getElementAsString(BBConstants.FUT_NOTICE_FIRST);
