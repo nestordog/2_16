@@ -133,8 +133,14 @@ public class FixUtil {
                 return new TimeInForce(TimeInForce.GOOD_TILL_CANCEL);
             case GTD:
                 return new TimeInForce(TimeInForce.GOOD_TILL_DATE);
-            case OPG:
+            case IOC:
+                return new TimeInForce(TimeInForce.IMMEDIATE_OR_CANCEL);
+            case FOK:
+                return new TimeInForce(TimeInForce.FILL_OR_KILL);
+            case ATO:
                 return new TimeInForce(TimeInForce.AT_THE_OPENING);
+            case ATC:
+                return new TimeInForce(TimeInForce.AT_THE_CLOSE);
             default:
                 throw new IllegalArgumentException("unknown timeInForce " + tif);
         }
