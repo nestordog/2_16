@@ -58,7 +58,7 @@ public class BBConstants {
     public static final Name REFERENCE_DATA_RESPONSE = Name.getName("ReferenceDataResponse");
 
     public static final Name ID_BB_GLOBAL = Name.getName("ID_BB_GLOBAL");
-    public static final Name TICKER = Name.getName("TICKER");
+    public static final Name ID_BB_SEC_NUM_DES = Name.getName("ID_BB_SEC_NUM_DES");
     public static final Name CRNCY = Name.getName("CRNCY");
 
     public static final Name FUT_CONTRACT_DT = Name.getName("FUT_CONTRACT_DT");

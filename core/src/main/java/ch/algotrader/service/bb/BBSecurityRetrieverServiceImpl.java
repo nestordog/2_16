@@ -83,7 +83,17 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
             throw new BBSecurityRetrieverServiceException("securityFamily was not found " + securityFamilyId);
         }
 
-        String securityString = "/bbgid/" + securityFamily.getUnderlying().getBbgid();
+        Security underlying = securityFamily.getUnderlying();
+        if (underlying == null) {
+            throw new BBSecurityRetrieverServiceException("no underlying defined for  " + securityFamily);
+        }
+
+        String bbgid = underlying.getBbgid();
+        if (bbgid == null) {
+            throw new BBSecurityRetrieverServiceException("no bbgid defined for  " + underlying);
+        }
+
+        String securityString = "/bbgid/" + bbgid;
 
         Service service = session.getService();
 
@@ -124,7 +134,7 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
         }
 
         securityRequest.append("fields", "ID_BB_GLOBAL");
-        securityRequest.append("fields", "TICKER");
+        securityRequest.append("fields", "ID_BB_SEC_NUM_DES");
         securityRequest.append("fields", "CRNCY");
 
         if (securityFamily instanceof OptionFamily) {
@@ -300,7 +310,7 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
 
                 Element fields = securityData.getElement(BBConstants.FIELD_DATA);
 
-                String symbol = fields.getElementAsString(BBConstants.TICKER);
+                String symbol = fields.getElementAsString(BBConstants.ID_BB_SEC_NUM_DES);
                 String bbgid = fields.getElementAsString(BBConstants.ID_BB_GLOBAL);
                 String currencyString = fields.getElementAsString(BBConstants.CRNCY);
                 Currency currency = Currency.fromString(currencyString);
@@ -393,14 +403,19 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
         public void store() {
 
             if (this.securityFamily instanceof OptionFamily) {
+
                 getOptionDao().create(this.newOptions);
+                logger.debug("retrieved options for optionFamily: " + this.securityFamily.getName() + " " + this.newOptions);
+
             } else if (this.securityFamily instanceof FutureFamily) {
+
                 getFutureDao().create(this.newFutures);
+                logger.debug("retrieved futures for futureFamily: " + this.securityFamily.getName() + " " + this.newFutures);
+
             } else {
                 throw new IllegalArgumentException("illegal securityFamily type");
             }
 
-            logger.debug("retrieved securities for securityFamily: " + this.securityFamily.getName() + " " + this.newFutures);
         }
     }
 }
