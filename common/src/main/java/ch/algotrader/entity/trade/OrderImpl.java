@@ -77,6 +77,11 @@ public abstract class OrderImpl extends Order {
         buffer.append(",");
         buffer.append(getStrategy());
 
+        if (getTif() != null) {
+            buffer.append(",tif=");
+            buffer.append(getTif());
+        }
+
         if (getIntId() != null) {
             buffer.append(",intId=");
             buffer.append(getIntId());

@@ -94,7 +94,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
         }
     }
 
-    private void internalSendOrder(SimpleOrder order) throws Exception {
+    private synchronized void internalSendOrder(SimpleOrder order) throws Exception {
 
         String intId = IBIdGenerator.getInstance().getNextOrderId();
         order.setIntId(intId);
