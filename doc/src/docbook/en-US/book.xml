@@ -3,9 +3,9 @@
 <book>
     <bookinfo>
         <title>AlgoTrader</title>
-        <subtitle>Algorithmic Trading Platform</subtitle>
+        <subtitle>Algorithmic Trading Software</subtitle>
         <productname>Reference Documentation</productname>
-        <releaseinfo>Version 2.0</releaseinfo>
+        <releaseinfo>Version 2.1</releaseinfo>
         <copyright>
             <year>2013</year>
             <holder>Flury Trading</holder>
@@ -190,34 +190,17 @@ public class ExClient {
     </preface>
     <chapter id="Introduction">
         <title>Introduction</title>
-        <para>AlgoTrader is a Java based Algorithmic Trading Platform that enables development, simulation
-            and execution of multiple strategies in parallel. The automated Trading Software can
-            trade Forex, Options, Futures, Stocks &amp; Commodities on multiple markets. The system
-            is based on Complex Event Processing (CEP) and Event Stream Processing (ESP). </para>
+        <para>AlgoTrader lets trading firms automate complex, quantitative trading strategies in forex,
+            options, futures, stocks, ETFs and commodities markets. Unlike other algorithmic trading
+            platforms, it has a robust, open-source architecture, allowing customization for
+            customer-specific needs. </para>
         <para>An overview of the system is available <ulink url="http://www.algotrader.ch/algotrader/overview/">here</ulink></para>
         <para>An overview of the features is available <ulink url="http://www.algotrader.ch/algotrader/product-features/">here</ulink></para>
         <para>A description of 3rd party libraries in use is available <ulink url="http://www.algotrader.ch/algotrader/3rd-party-libraries/">here</ulink></para>
     </chapter>
     <chapter id="Architecture">
         <title>Architecture</title>
-        <para> The Architecture of AlgoTrader is composed of the following components. </para>
-        <para>The Trading Framework called Base provides the infrastructure for all strategies running on
-            top of it. The Base holds the main Esper Complex Event Processing (CEP) Engine. It is
-            responsible for all Domain Model Objects and their persistence to the database.
-            Different Market Data Adapters and  are available to process live as well as historical
-            market data. On the other end Adapters for different Execution Brokers / Venues are
-            available which are responsible for placing orders and receiving executions. </para>
-        <para>In addition the Base provides Business Components for Portfolio Management,
-            Performance Measurement, Risk Management, Money Management, Option Pricing,
-            Reconciliation, FX Hedging and Parameter Optimization. </para>
-        <para>On top of the Base any number of Strategies can be deployed. Each Strategy contains its own
-            Esper CEP Engine. A Strategy can deploy any number of Esper EPL statements for temporal
-            analysis of market data &amp; signals generation. Procedural actions are deployed as
-            Java Code available to the Esper EPL statements. </para>
-        <para>For management and monitoring of the system three different GUI Clients exist. The
-            AlgoTrader JMX Client provides Trading related Functionality as well as general JVM
-            Management Functionality. The EsperHQ Client is responsible for Management of all Esper
-            CEP Engine. The Grails Client is a generic Client for Reference Data Management.</para>
+        <para>The architecture of AlgoTrader is composed of the following components.</para>
         <figure>
             <title>Architecture</title>
             <mediaobject>
@@ -226,6 +209,25 @@ public class ExClient {
                 </imageobject>
             </mediaobject>
         </figure>
+        <para>The trading framework, Base, provides the infrastructure for all strategies running on top
+            of it. Base holds the main Esper Complex Event Processing (CEP) engine. It is
+            responsible for all domain model objects and their persistence in the database.
+            Different market data adapters are available to process live and historical market data.
+            On the other end adapters for different execution brokers and venues are available,
+            which are responsible for placing orders and receiving executions.</para>
+        <para>Base also provides business components for portfolio management, performance
+            measurement, risk management, money management, option pricing, reconciliation, Forex
+            hedging and parameter optimization.</para>
+        <para>On top of Base any number of strategies can be deployed. AlgoTrader has an event
+            driven architecture utilizing one dedicated Esper CEP engine per strategy. A strategy
+            can deploy any number of SQL-like Esper statements for time-based market data analysis
+            and signals generation. Esper statements can invoke any number of procedural actions,
+            such as placing an order or closing a position, which are coded in Java. The combination
+            of Esper statements and Java Code provides a best-of-both-worlds approach.</para>
+        <para>For management and monitoring of the system three different GUI clients exist. The
+            AlgoTrader JMX client provides trading related functionality and general JVM management
+            functionality. The EsperHQ client manages the Esper CEP engine. The Grails client is a
+            generic client for reference data management.</para>
         <section>
             <title>Operating Systems</title>
             <para>The entire system is developed in Java. Therefor the system is portable to any
@@ -254,29 +256,26 @@ public class ExClient {
                         </row>
                         <row>
                             <entry>Strategies</entry>
-                            <entry>In Live Trading Mode each strategy runs in its own Java process. In simulation mode,
-                                the strategies run within the same process as the Base</entry>
+                            <entry>In Live Trading Mode each strategy an run in its own Java process or within the same
+                                process as the Base. In simulation mode, the strategies run within
+                                the same process as the Base</entry>
                         </row>
                         <row>
                             <entry>ActiveMQ</entry>
-                            <entry>this is the JMS (Java Messaging Service) Broker that is
-                                responsible for transfering messages between the Base and the
-                                Strategies</entry>
+                            <entry>this is the JMS (Java Messaging Service) Broker that is responsible for transferring
+                                messages between the Base and the Strategies. For simulations
+                                ActiveMQ is not needed.</entry>
                         </row>
                         <row>
-                            <entry>MySql</entry>
-                            <entry>Database process</entry>
+                            <entry>MySql / H2</entry>
+                            <entry>Database process. For simulations H2 can be run in embedded mode within the process of
+                                the Base</entry>
                         </row>
                     </tbody>
                 </tgroup>
             </table>
-            <para>Because the Base and the strategies are running within separate processes,
-                individual strategies can be stopped / altered / restarted independent of each other
-                and the Base.</para>
-            <para>Optionally the system can be deployed in an OSGi Container (like <ulink url="http://felix.apache.org/">Apache Felix</ulink>). This way the Base as well
-                as strategies can be deployed as OSGi Modules within the same JVM. Because of the
-                Class Loader Architecture of OSGi, strategies can still be stopped / altered /
-                restarted independent of each other and the Base.</para>
+            <para>If the Base and the strategies are running within separate processes, individual strategies
+                can be stopped / altered / restarted independent of each other and the Base.</para>
         </section>
     </chapter>
     <chapter id="UML_Model">
@@ -1188,10 +1187,11 @@ public class ExClient {
                 </para>
             </listitem>
         </itemizedlist>
-        <para>Much of the system is modeled in UML. It is recommended to use MagicDraw for modelling
-            (see <xref linkend="Platform_requirements"/>)</para>
+        <para>Much of the system is modeled in UML. It is recommended to use <ulink
+                url="http://www.nomagic.com/products/magicdraw.html">MagicDraw</ulink> for
+            modelling.</para>
         <para>The actual UML Model is defined in the following xmi file:
-                <classname>/algotrader-mda/src/main/uml/algotrader.xml</classname>
+                <classname>/algotrader/uml/src/main/uml/algotrader.xml</classname>
         </para>
         <para>The model is transferred into code by means of <ulink url="http://www.andromda.org">
                 AndroMDA</ulink> which uses <ulink url="http://maven.apache.org"> Maven</ulink>
@@ -1199,11 +1199,10 @@ public class ExClient {
             code generation.</para>
         <para>Generated code is placed under the directory <filename>/target/src/main/java</filename> and
                 <filename>/target/src/main/resources</filename>, whereas implementation classes are
-            generated into the directory <filename>/src</filename> with only the method
+            generated into the directory <filename>/src/main/java</filename> with only the method
             signatures.</para>
-        <para>Configuration of the code generator is placed into the <filename>/mda</filename>
-            directory. It is also this directory that contains template modifications as well as
-            mappings from UML artifacts to Java / Database objects.</para>
+        <para>Configuration of the code generator is placed into the
+                <filename>/mda/src/main/config</filename> directory.</para>
         <note>
             <itemizedlist>
                 <listitem>
@@ -1273,13 +1272,6 @@ public class ExClient {
                     <term>algoTrader_service_method_manageable_attribute</term>
                     <listitem>
                         <para>a service method that is displayed as an attribute via JMX</para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term>algoTrader_service_no_transaction_interceptor</term>
-                    <listitem>
-                        <para>a service that does not have a transaction interceptor associated (for
-                            services that do not contain any CRUD operations)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -1415,8 +1407,14 @@ public class ExClient {
                 <varlistentry>
                     <term>algotrader-mda</term>
                     <listitem>
-                        <para>UML Model and code generator see <xref linkend="Code_Generation"/>
+                        <para>Code generator see <xref linkend="Code_Generation"/>
                         </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>algotrader-uml</term>
+                    <listitem>
+                        <para>UML Model</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -1428,7 +1426,7 @@ public class ExClient {
                 <varlistentry>
                     <term>algotrader-crud</term>
                     <listitem>
-                        <para>DB management application for reference Data based on <ulink url="http://grails.org/"> Grails</ulink>
+                        <para>Reference Data Manager based on <ulink url="http://grails.org/"> Grails</ulink>
                         </para>
                     </listitem>
                 </varlistentry>
@@ -1439,6 +1437,18 @@ public class ExClient {
                                 DocBook</ulink>, <ulink url="http://sagehill.net/docbookxsl/index.html"> DocBook XSL</ulink>
                             and <ulink url="http://www.jboss.org/pressgang"> JBoss Pressgang</ulink>
                         </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>algotrader-archetype</term>
+                    <listitem>
+                        <para>Maven archetype for creating new AlgoTrader projects</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>algotrader-test</term>
+                    <listitem>
+                        <para>contains integration tests based on <ulink url="http://junit.org/">JUnit</ulink> and <ulink url="http://dbunit.sourceforge.net/">dbUnit</ulink></para>
                     </listitem>
                 </varlistentry>
             </variablelist>
@@ -1458,28 +1468,29 @@ public class ExClient {
                         </thead>
                         <tbody>
                             <row>
-                                <entry>
-                                    <filename>src/main/java</filename>
+                                <entry><filename>src/main/java</filename>
                                 </entry>
                                 <entry>manually created class files</entry>
                             </row>
                             <row>
-                                <entry>
-                                    <filename>target/src/main/java</filename>
+                                <entry><filename>target/src/main/java</filename>
                                 </entry>
                                 <entry>generated class files</entry>
                             </row>
                             <row>
-                                <entry>
-                                    <filename>src/main/resouces</filename>
+                                <entry><filename>src/main/resouces</filename>
                                 </entry>
                                 <entry>manually created configuration files</entry>
                             </row>
                             <row>
-                                <entry>
-                                    <filename>target/src/main/resources</filename>
+                                <entry><filename>target/src/main/resources</filename>
                                 </entry>
                                 <entry>generated configuration files</entry>
+                            </row>
+                            <row>
+                                <entry><filename>src/test/java</filename>
+                                </entry>
+                                <entry>JUnit test cases</entry>
                             </row>
                         </tbody>
                     </tgroup>
@@ -1501,57 +1512,53 @@ public class ExClient {
                         </thead>
                         <tbody>
                             <row>
-                                <entry>
-                                    <filename>src/main/java </filename>
+                                <entry><filename>src/main/java </filename>
                                 </entry>
                                 <entry>manually created class files</entry>
                             </row>
                             <row>
-                                <entry>
-                                    <filename>target/src/main/java</filename>
+                                <entry><filename>target/src/main/java</filename>
                                 </entry>
                                 <entry>generated class files</entry>
                             </row>
                             <row>
-                                <entry>
-                                    <filename>src/main/resouces</filename>
+                                <entry><filename>src/main/resouces</filename>
                                 </entry>
                                 <entry>manually created configuration files</entry>
                             </row>
                             <row>
-                                <entry>
-                                    <filename>target/src/main/resources</filename>
+                                <entry><filename>target/src/main/resources</filename>
                                 </entry>
                                 <entry>generated configuration files</entry>
                             </row>
                             <row>
-                                <entry>
-                                    <filename>bin</filename>
+                                <entry><filename>src/test/java</filename>
                                 </entry>
-                                <entry>Launch configuration and shell start scripts</entry>
+                                <entry>JUnit test cases</entry>
                             </row>
                             <row>
-                                <entry>
-                                    <filename>files</filename>
+                                <entry><filename>bin</filename>
+                                </entry>
+                                <entry>shell start scripts</entry>
+                            </row>
+                            <row>
+                                <entry><filename>files</filename>
                                 </entry>
                                 <entry>files which are created (i.e. copy of retrieved HTML code) or
                                     imported (i.e. Tick Data) into the system</entry>
                             </row>
                             <row>
-                                <entry>
-                                    <filename>lib</filename>
+                                <entry><filename>lib</filename>
                                 </entry>
                                 <entry>jar files not available through maven</entry>
                             </row>
                             <row>
-                                <entry>
-                                    <filename>log</filename>
+                                <entry><filename>log</filename>
                                 </entry>
                                 <entry>contains log files</entry>
                             </row>
                             <row>
-                                <entry>
-                                    <filename>sql</filename>
+                                <entry><filename>sql</filename>
                                 </entry>
                                 <entry>SQL scripts</entry>
                             </row>
@@ -1576,16 +1583,29 @@ public class ExClient {
                         <tbody>
                             <row>
                                 <entry>
-                                    <filename>bin</filename>
-                                </entry>
-                                <entry>Launch configuration and shell start scripts</entry>
-                            </row>
-                            <row>
-                                <entry>
                                     <filename>src/main/config</filename>
                                 </entry>
-                                <entry>AndroMDA config files, custom templates and mapping files </entry>
+                                <entry>AndroMDA config files </entry>
                             </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </section>
+            <section>
+                <title>uml project</title>
+                <para>the algotrader uml project has the following structure:</para>
+                <table frame="all" pgwide="1">
+                    <title>uml project</title>
+                    <tgroup cols="2">
+                        <colspec colwidth="1*"/>
+                        <colspec colwidth="2*"/>
+                        <thead>
+                            <row>
+                                <entry>Directory</entry>
+                                <entry>Description</entry>
+                            </row>
+                        </thead>
+                        <tbody>
                             <row>
                                 <entry>
                                     <filename>src/main/uml</filename>
@@ -1662,70 +1682,78 @@ public class ExClient {
                     </thead>
                     <tbody>
                         <row>
-                            <entry>
-                                <classname>ch.algotrader</classname>
+                            <entry><classname>ch.algotrader</classname>
                             </entry>
                             <entry>ServiceLocators</entry>
                         </row>
                         <row>
-                            <entry>
-                                <classname>ch.algotrader.client.*</classname>
+                            <entry><classname>ch.algotrader.adapter.*</classname>
+                            </entry>
+                            <entry>Adapter classes for market data and trading interfaces</entry>
+                        </row>
+                        <row>
+                            <entry><classname>ch.algotrader.cache</classname>
+                            </entry>
+                            <entry>Hibernate Level-Zero cache</entry>
+                        </row>
+                        <row>
+                            <entry><classname>ch.algotrader.client.*</classname>
                             </entry>
                             <entry>Jconsole client</entry>
                         </row>
                         <row>
-                            <entry>
-                                <classname>ch.algotrader.entity.*</classname>
+                            <entry><classname>ch.algotrader.entity.*</classname>
                             </entry>
                             <entry>Entities and corresponding Hibernate DataAccessObjects</entry>
                         </row>
                         <row>
-                            <entry>
-                                <classname>ch.algotrader.enumeration</classname>
+                            <entry><classname>ch.algotrader.ehcache</classname>
+                            </entry>
+                            <entry>Classes related to EhCache</entry>
+                        </row>
+                        <row>
+                            <entry><classname>ch.algotrader.enumeration</classname>
                             </entry>
                             <entry>Enumerations</entry>
                         </row>
                         <row>
-                            <entry>
-                                <classname>ch.algotrader.esper.*</classname>
+                            <entry><classname>ch.algotrader.esper.*</classname>
                             </entry>
-                            <entry>Files used for Esper (i.e. aggregation functions, listeners and
-                                subscribers)</entry>
+                            <entry>Classes used for Esper (i.e. aggregation functions, listeners and subscribers)</entry>
                         </row>
                         <row>
-                            <entry>
-                                <classname>ch.algotrader.future</classname>
+                            <entry><classname>ch.algotrader.future</classname>
                             </entry>
                             <entry>Contains classes specific to Futures</entry>
                         </row>
                         <row>
-                            <entry>
-                                <classname>ch.algotrader.service.*</classname>
+                            <entry><classname>ch.algotrader.hibernate</classname>
+                            </entry>
+                            <entry>Classes related to Hibernate</entry>
+                        </row>
+                        <row>
+                            <entry><classname>ch.algotrader.service.*</classname>
                             </entry>
                             <entry>Contains all Spring Services</entry>
                         </row>
                         <row>
-                            <entry>
-                                <classname>ch.algotrader.stockOption</classname>
+                            <entry><classname>ch.algotrader.option</classname>
                             </entry>
                             <entry>Contains classes specific to Options, Volatility &amp; SABR
                                 Volatility Model</entry>
                         </row>
                         <row>
-                            <entry>
-                                <classname>ch.algotrader.starter</classname>
+                            <entry><classname>ch.algotrader.starter</classname>
                             </entry>
                             <entry>Startup-Classes as well as a generic ServiceInvoker</entry>
                         </row>
                         <row>
-                            <entry>
-                                <classname>ch.algotrader.util.*</classname>
+                            <entry><classname>ch.algotrader.util.*</classname>
                             </entry>
                             <entry>General Utility methods</entry>
                         </row>
                         <row>
-                            <entry>
-                                <classname>ch.algotrader.vo</classname>
+                            <entry><classname>ch.algotrader.vo</classname>
                             </entry>
                             <entry>ValueObjects</entry>
                         </row>
@@ -2310,33 +2338,28 @@ public class ExClient {
                     </thead>
                     <tbody>
                         <row>
-                            <entry>
-                                <parameter>@Condition(key='xxx')</parameter>
+                            <entry><parameter>@Condition(key='xxx')</parameter>
                             </entry>
                             <entry>Statement is only deployed if defined configuration parameter is
                                 set to "true"</entry>
                         </row>
                         <row>
-                            <entry>
-                                <parameter>@SimulationOnly</parameter>
+                            <entry><parameter>@SimulationOnly</parameter>
                             </entry>
                             <entry>Statement is only deployed in simulation</entry>
                         </row>
                         <row>
-                            <entry>
-                                <parameter>@RunTimeOnly()</parameter>
+                            <entry><parameter>@RunTimeOnly()</parameter>
                             </entry>
                             <entry>Statement is only deployed in Live-Trading mode</entry>
                         </row>
                         <row>
-                            <entry>
-                                <parameter>@Listeners(classNames={'...'})</parameter>
+                            <entry><parameter>@Listeners(classNames={'...'})</parameter>
                             </entry>
                             <entry>attaches one or multiple listeners to the statement</entry>
                         </row>
                         <row>
-                            <entry>
-                                <parameter>@Subscriber(className='...')</parameter>
+                            <entry><parameter>@Subscriber(className='...')</parameter>
                             </entry>
                             <entry>attaches a subscriber to the statement</entry>
                         </row>
@@ -2399,11 +2422,11 @@ public class ExClient {
                 </varlistentry>
                 <varlistentry>
                     <term>RendererListener:</term>
-                    <listitem><para> Prints all values to the Log in XML format.</para></listitem>
+                    <listitem><para>Prints all values to the Log in XML format.</para></listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>TestListener</term>
-                    <listitem><para> Prints all values to the Log by using the <methodname>toString</methodname> method of the
+                    <listitem><para>Prints all values to the Log by using the <methodname>toString</methodname> method of the
                             event object.</para></listitem>
                 </varlistentry>
                 <varlistentry>
@@ -2426,7 +2449,7 @@ public class ExClient {
                     configuration is added to the esper configuration
                         <filename>esper-common.cfg.xml</filename>:</para>
                 <programlisting lang="XML">&lt;plugin-aggregation-function name="talib" factory-class="ch.algotrader.esper.aggregation.GenericTALibFunctionFactory"/></programlisting>
-                <para> The <classname>AggregationFunction</classname> can be used in an esper
+                <para>The <classname>AggregationFunction</classname> can be used in an esper
                     statement like this: </para>
                 <programlisting lang="Java">insert into StochF
 select talib("stochF", high, low, close, 3, 2, "Sma") as values
@@ -2617,30 +2640,40 @@ getOrderService().sendOrders(orders);</programlisting>
     </chapter>
     <chapter id="Database">
         <title>Database</title>
-        <para>By default the database <ulink url="http://www.mysql.com/">MySql</ulink> is used by
-            the system.</para>
-        <para>The directory <filename>algotrader/core/sql</filename> contains the following a
-            scripts:</para>
+        <para>By default the database <ulink url="http://www.mysql.com/">MySql</ulink> is used by the
+            system. In addtion an embedded in-memory <ulink url="http://www.h2database.com/">H2</ulink> database can be used for simulations</para>
+        <para>The directory <filename>algotrader/core/sql</filename> contains the following a scripts
+            relevant for MySql:</para>
         <itemizedlist>
             <listitem>
-                <para>db-structure.sql (create script for the structure of the database)</para>
+                <para><filename>db-structure.sql</filename> (create script for the structure of the
+                    database)</para>
             </listitem>
             <listitem>
-                <para>db-data.sql (default data for the database)</para>
+                <para><filename>db-data.sql</filename> (default data for the database)</para>
             </listitem>
             <listitem>
-                <para>schema-create.sql (create script generated by Hibernate)</para>
+                <para><filename>schema-create.sql</filename> (create script generated by Hibernate)</para>
             </listitem>
             <listitem>
-                <para>backup.sh (shell script for db backup)</para>
+                <para><filename>dump-db.bat</filename> (batch script to dump db structure and data)</para>
             </listitem>
             <listitem>
-                <para>dump-db.bat (batch script to dump db structure and data)</para>
+                <para><filename>find-security-type.sql</filename> finds the security type related to
+                    a particular security id</para>
             </listitem>
             <listitem>
-                <para>several analysis sql statements</para>
+                <para><filename>find-unmatched-security.sql</filename> finds a security that does
+                    not have a corresponding record in one of the child tables (e.g. stock, future,
+                    index, etc.)</para>
+            </listitem>
+            <listitem>
+                <para><filename>UNIX2DOS.EXE</filename> is needed by
+                        <filename>dump-db.bat</filename> to fix line endings.</para>
             </listitem>
         </itemizedlist>
+        <para>The fiel <filename>algotrader/src/main/resources/META-INF/h2.sql</filename> contains
+            the database script for H2:</para>
         <section>
             <title>Entity Relationship Model</title>
             <figure>
@@ -2793,8 +2826,8 @@ getOrderService().sendOrders(orders);</programlisting>
                                 </row>
                                 <row>
                                     <entry>Orders</entry>
-                                    <entry>currently open orders (might contain AlgoOrders and their
-                                        associated SimpleOrders)</entry>
+                                    <entry>currently open orders (including AlgoOrders and their associated
+                                        SimpleOrders)</entry>
                                 </row>
                                 <row>
                                     <entry>Positions</entry>
@@ -2802,8 +2835,8 @@ getOrderService().sendOrders(orders);</programlisting>
                                 </row>
                                 <row>
                                     <entry>MarketDataEvents</entry>
-                                    <entry>Latest ticks off all subscribed securities of the system
-                                        / of the strategy</entry>
+                                    <entry>Latest market data events off all subscribed securities of the system / of the
+                                        strategy</entry>
                                 </row>
                                 <row>
                                     <entry>Transactions</entry>
@@ -2986,10 +3019,6 @@ getOrderService().sendOrders(orders);</programlisting>
                     </figure>
                     <para>The Base Management Service is only available when connected to the
                         Base.</para>
-                    <para>The service currently only has the Attributes
-                            <emphasis>MarketChannels</emphasis> and
-                            <emphasis>DefaultMarketChannel</emphasis>
-                    </para>
                     <para>The Base Management Service has the following operations:</para>
                     <table frame="all" pgwide="1">
                         <title>Base Management Service operations</title>
@@ -3559,8 +3588,8 @@ public class MovChartService extends ChartProvidingServiceImpl {
             </section>
             <section>
                 <title>JConsole Modification</title>
-                <para>A separate Eclipse Project AlgoTraderClient contains the following
-                    modifications to JConsole:</para>
+                <para>The following JConsole modifications are released as a separate JConsole version which is
+                    used by the AlgoTrader Client:</para>
                 <section>
                     <title>Tabular Data</title>
                     <para>TabularData Enhancement to display TabularData using JTable instead of the
@@ -3642,7 +3671,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
             <title>EsperHQ Client</title>
             <para>The EsperHQ Client is comprised of a rich multi-window GUI, the Esper data
                 distribution service and real-time data displays (Eventlets).</para>
-            <para> The EsperHQ multi-window user interface allows to manage Esper CEP engines,
+            <para>The EsperHQ multi-window user interface allows to manage Esper CEP engines,
                 design and deploy Esper Statements as well as create and launch eventlets. In
                 addition it has built-in displays include chart, grid, gauge and timeline. </para>
             <para>EsperHQ connects to Esper CEP engine instances via an integrated web application
@@ -3979,13 +4008,13 @@ public class MovChartService extends ChartProvidingServiceImpl {
                 hibernate mapping files and Java Domain classes (= AndroMDA Entities).</para>
                 <para>To start the Reference Data Manager execute the following maven command:</para>
                 <screen>mvn -Ddisable.auto.recompile=true grails:run-app</screen>
-                <para>After started up, the Reference Data Manager can be accessed at the following URL: <ulink url="http://localhost:8080/algotrader-crud/">http://localhost:8080/crud/</ulink>
-                </para>
+                <para>After starting up, the Reference Data Manager can be accessed at the following URL: <ulink url="http://localhost:8080/algotrader-crud/">http://localhost:8080/crud/</ulink>
+            </para>
         </section>
     </chapter>
     <chapter id="Installation">
         <title>Installation</title>
-        <section>
+        <section id="Common_Installation_Tasks">
             <title>Common Installation Tasks</title>
             <variablelist>
                 <varlistentry>
@@ -4003,16 +4032,36 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>TortoiseSVN</term>
+                    <term>Maven</term>
                     <listitem>
-                        <para>Install the latest 1.6 version of <ulink url="http://tortoisesvn.tigris.org/">Subversion</ulink>. TortoiseSVN 1.7 and later have a different
-                            repository structure and will therefore not work with the current
-                            AlgoTrader repository.</para>
+                        <para>Install the latest version of <ulink url="http://maven.apache.org"
+                                >Maven</ulink>.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Subversion</term>
+                    <listitem>
+                        <note>
+                            <para>In development environments the SVN plugin of eclipse can be
+                                used</para>
+                        </note>
+                        <para>Install the latest 1.6 version of Subversion. </para>
+                        <para>On Windows use <ulink url="http://tortoisesvn.tigris.org/"
+                                >TortoiseSVN</ulink>. </para>
+                        <caution>
+                            <para>Subversion 1.7 and later have a different repository structure and
+                                will therefore not work with the current AlgoTrader
+                                repository.</para>
+                        </caution>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>MySql</term>
                     <listitem>
+                        <note>
+                            <para>MySql is not needed for simulations based on the embedded /
+                                in-memory database H2</para>
+                        </note>
                         <para>Install the latest <ulink url="http://www.mysql.com/downloads/mysql/">
                                 MySql Community Server</ulink>
                         </para>
@@ -4021,130 +4070,193 @@ public class MovChartService extends ChartProvidingServiceImpl {
                                 <para>Create a database named <literal>algotrader</literal></para>
                             </listitem>
                             <listitem>
-                                <para>run the script: <command>algotrader/core/sql/db-structure.sql</command>
+                                <para>run the script:
+                                        <command>algotrader/core/sql/db-structure.sql</command>
                                 </para>
                             </listitem>
                             <listitem>
-                                <para>run the script: <command>algotrader/core/sql/db-data.sql</command>
+                                <para>run the script:
+                                        <command>algotrader/core/sql/db-data.sql</command>
                                 </para>
                             </listitem>
                         </itemizedlist>
-                        <para>Per default the database password <literal>password</literal> is used. If a different
-                            password is chosen, the property
+                        <para>Per default the database password <literal>password</literal> is used.
+                            If a different password is chosen, the property
                                 <parameter>dataSource.password</parameter> needs to be updated
                             inside
                                 <command>algotrader/core/src/main/resources/META-INF/conf-core.properties</command>
                         </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term>Maven</term>
-                    <listitem>
-                        <para>Install the latest version of <ulink url="http://maven.apache.org">Maven</ulink>.</para>
+                        <para>To work with MySql a database client has to be installed also. There
+                            are many differten MySql clients available to choose from:</para>
+                        <itemizedlist>
+                            <listitem>
+                                <para><ulink url="http://www.mysql.com/products/workbench/">MySql
+                                        Workbench</ulink> (free)</para>
+                            </listitem>
+                            <listitem>
+                                <para><ulink url="http://www.quest.com/toad-for-mysql/">Toad for
+                                        MySql</ulink> (free)</para>
+                            </listitem>
+                            <listitem>
+                                <para><ulink url="https://www.webyog.com/">SQLyog MySql</ulink>
+                                    (commercial)</para>
+                            </listitem>
+                            <listitem>
+                                <para><ulink url="">EMS SQL Manager for MySql</ulink>
+                                    (commercial)</para>
+                            </listitem>
+                        </itemizedlist>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>ActiveMQ</term>
                     <listitem>
-                        <para>Install the latest version of Apache <ulink url="http://activemq.apache.org/">ActiveMQ</ulink></para>
+                        <note>
+                            <para>ActiveMQ is only needed for live trading</para>
+                        </note>
+                        <para>Install the latest version of Apache <ulink
+                                url="http://activemq.apache.org/">ActiveMQ</ulink></para>
                     </listitem>
                 </varlistentry>
             </variablelist>
         </section>
-        <section>
-        <title>Development Environment Installation</title>
-        <section id="Platform_requirements">
-            <title>Platform Requirements</title>
-            <para>For development of new Strategies the following Platform requirements
-                exist:</para>
-            <table frame="all" pgwide="1">
-                <title>Platform requirements</title>
-                <tgroup cols="3">
-                    <colspec colwidth="3.5*"/>
-                    <colspec colwidth="5.5*"/>
-                    <colspec colwidth="1*"/>
-                    <thead>
-                        <row>
-                            <entry>Software</entry>
-                            <entry>URL</entry>
-                            <entry>Tested Version</entry>
-                        </row>
-                    </thead>
-                    <tbody>
-                        <row>
-                            <entry>Eclipse IDE</entry>
-                            <entry><ulink url="http://www.eclipse.org">http://www.eclipse.org</ulink></entry>
-                            <entry>newest</entry>
-                        </row>
-                        <row>
-                            <entry>Subversive SVN Team Provider</entry>
-                            <entry><ulink url="http://download.eclipse.org/releases/...">http://download.eclipse.org/releases/...</ulink></entry>
-                            <entry>newest</entry>
-                        </row>
-                        <row>
-                            <entry>SVNKit &amp; Subversive SVN Connectors</entry>
-                            <entry>via Eclipse Preferences / Team / SVN / SVN Connector</entry>
-                            <entry>1.3.7</entry>
-                        </row>
-                        <row>
-                            <entry>m2e (if not included in Eclipse)</entry>
-                            <entry><ulink url="http://download.eclipse.org/releases/...">http://download.eclipse.org/releases/...</ulink></entry>
-                            <entry>newest</entry>
-                        </row>
-                        <row>
-                            <entry>m2e build-helper-maven-plugin</entry>
-                            <entry>via Eclipse Preferences / Maven / Discovery</entry>
-                            <entry>newest</entry>
-                        </row>
-                        <row>
-                            <entry>XML Tools (if not included in Eclipse)</entry>
-                            <entry><ulink url="http://download.eclipse.org/releases/...">http://download.eclipse.org/releases/...</ulink></entry>
-                            <entry>newest</entry>
-                        </row>
-                        <row>
-                            <entry>Hibernate Tools</entry>
-                            <entry><ulink url="http://download.jboss.org/jbosstools/updates/development/xxx">http://download.jboss.org/jbosstools/updates/development/...</ulink>
-                                </entry>
-                            <entry>newest</entry>
-                        </row>
-                        <row>
-                            <entry>Spring IDE Core</entry>
-                            <entry>via Eclipse Marketplace</entry>
-                            <entry>newest</entry>
-                        </row>
-                        <row>
-                            <entry>Spring IDE Autowire Extension</entry>
-                            <entry>via Eclipse Marketplace</entry>
-                            <entry>newest</entry>
-                        </row>
-                        <row>
-                            <entry>Veloeclipse</entry>
-                            <entry><ulink url="http://veloeclipse.googlecode.com/svn/trunk/update/">http://veloeclipse.googlecode.com/svn/trunk/update/</ulink></entry>
-                            <entry>newest</entry>
-                        </row>
-                            <row>
-                                <entry>Eclipse Colorer</entry>
-                                <entry><ulink url="http://colorer.sf.net/eclipsecolorer/">http://colorer.sf.net/eclipsecolorer/</ulink></entry>
-                                <entry>newest</entry>
-                            </row>
-                        <row>
-                            <entry>MagicDraw UML</entry>
-                            <entry><ulink url="http://www.magicdraw.com">http://www.magicdraw.com</ulink></entry>
-                            <entry>16.5</entry>
-                        </row>
-                        <row>
-                            <entry>TOAD for MySql</entry>
-                            <entry><ulink url="http://www.quest.com/toad-for-mysql">http://www.quest.com/toad-for-mysql</ulink></entry>
-                            <entry>newest</entry>
-                        </row>
-                    </tbody>
-                </tgroup>
-            </table>
+        <section id="Development_Environment_Installation">
+            <title>Development Environment Installation</title>
+            <para>To install a development environment the following three options exist:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>Command Line</para>
+                </listitem>
+                <listitem>
+                    <para>Eclipse IDE</para>
+                </listitem>
+                <listitem>
+                    <para>Eclipse Bundle</para>
+                </listitem>
+            </itemizedlist>
+            <section>
+                <title>Command Line</title>
+                <para>To build AlgoTrader on the command line please perform the following
+                    steps.</para>
                 <section>
-                    <title>Esper Colorer</title>
-                    <para>AlgoTrader provides a custom  Esper EPL Syntax Highlighter based on the <ulink url="http://colorer.sourceforge.net/">Colorer</ulink> Library.</para>
-                    <para>Together with the <ulink url="http://colorer.sourceforge.net/eclipsecolorer/index.html">Eclipse Colorer Plugin</ulink> it provides the following
-                        features:</para>
+                    <title>Subversion Checkout</title>
+                    <para>Create a directory named <filename>AlgoTrader</filename> at a
+                        discretionary location</para>
+                    <important>
+                        <para>Note: AndroMDA does not allow any special characters (i.e. spaces or
+                            exclamation marks) in the project path.</para>
+                    </important>
+                    <para>Inside the directory <filename>AlgoTrader</filename> perform an svn
+                        checkout from the command line:</para>
+                    <screen>svn checkout https://repo.algotrader.ch/svn/tags/AlgoTrader/2.1</screen>
+                </section>
+                <section>
+                    <title>Build</title>
+                    <para>Execute the following maven command to build all maven projects</para>
+                    <screen>mvn install</screen>
+                    <note>
+                        <para>When running the build process for the first time, this will take a
+                            few minutes since all maven dependencies have to be downloaded.</para>
+                    </note>
+                </section>
+            </section>
+            <section>
+                <title>Eclipse IDE</title>
+                <para>AlgoTrader has been developed on <ulink url="http://www.eclipse.org/"
+                        >Eclipse</ulink>. Other Java IDE's (e.g. IntelliJ) can be used also, but
+                    they are not supported. </para>
+                <para>The following sections describe the installation of an Eclipse based
+                    development environment from scratch. </para>
+                <section>
+                    <title>Required Eclipse Plug-ins</title>
+                    <para>After installing Eclipse please make sure, that the following Plug-ins are
+                        available</para>
+                    <table frame="all" pgwide="1">
+                        <title>Required Plug-ins</title>
+                        <tgroup cols="3">
+                            <colspec colwidth="3.5*"/>
+                            <colspec colwidth="5.5*"/>
+                            <colspec colwidth="1*"/>
+                            <thead>
+                                <row>
+                                    <entry>Software</entry>
+                                    <entry>URL</entry>
+                                    <entry>Tested Version</entry>
+                                </row>
+                            </thead>
+                            <tbody>
+                                <row>
+                                    <entry>Subversive SVN Team Provider</entry>
+                                    <entry><ulink url="http://download.eclipse.org/releases/..."
+                                            >http://download.eclipse.org/releases/...</ulink></entry>
+                                    <entry>newest</entry>
+                                </row>
+                                <row>
+                                    <entry>SVNKit &amp; Subversive SVN Connectors</entry>
+                                    <entry>via Eclipse Preferences / Team / SVN / SVN
+                                        Connector</entry>
+                                    <entry>1.3.8</entry>
+                                </row>
+                                <row>
+                                    <entry>m2e </entry>
+                                    <entry><ulink url="http://download.eclipse.org/releases/..."
+                                            >http://download.eclipse.org/releases/...</ulink></entry>
+                                    <entry>newest</entry>
+                                </row>
+                                <row>
+                                    <entry>m2e build-helper-maven-plugin</entry>
+                                    <entry>via Eclipse Preferences / Maven / Discovery</entry>
+                                    <entry>newest</entry>
+                                </row>
+                                <row>
+                                    <entry>XML Tools</entry>
+                                    <entry><ulink url="http://download.eclipse.org/releases/..."
+                                            >http://download.eclipse.org/releases/...</ulink></entry>
+                                    <entry>newest</entry>
+                                </row>
+                                <row>
+                                    <entry>Hibernate Tools (optional)</entry>
+                                    <entry><ulink
+                                            url="http://download.jboss.org/jbosstools/updates/development/xxx"
+                                            >http://download.jboss.org/jbosstools/updates/development/...</ulink>
+                                    </entry>
+                                    <entry>newest</entry>
+                                </row>
+                                <row>
+                                    <entry>Spring IDE Core</entry>
+                                    <entry>via Eclipse Marketplace</entry>
+                                    <entry>newest</entry>
+                                </row>
+                                <row>
+                                    <entry>Spring IDE Autowire Extension</entry>
+                                    <entry>via Eclipse Marketplace</entry>
+                                    <entry>newest</entry>
+                                </row>
+                                <row>
+                                    <entry>Veloeclipse (optional)</entry>
+                                    <entry><ulink
+                                            url="http://veloeclipse.googlecode.com/svn/trunk/update/"
+                                            >http://veloeclipse.googlecode.com/svn/trunk/update/</ulink></entry>
+                                    <entry>newest</entry>
+                                </row>
+                                <row>
+                                    <entry>Eclipse Colorer</entry>
+                                    <entry><ulink url="http://colorer.sf.net/eclipsecolorer/"
+                                            >http://colorer.sf.net/eclipsecolorer/</ulink></entry>
+                                    <entry>newest</entry>
+                                </row>
+                            </tbody>
+                        </tgroup>
+                    </table>
+                    <section>
+                        <title>Esper Colorer</title>
+                        <para>AlgoTrader provides a custom Esper EPL Syntax Highlighter based on the
+                                <ulink url="http://colorer.sourceforge.net/">Colorer</ulink>
+                            Library.</para>
+                        <para>Together with the <ulink
+                                url="http://colorer.sourceforge.net/eclipsecolorer/index.html"
+                                >Eclipse Colorer Plugin</ulink> it provides the following
+                            features:</para>
                         <itemizedlist>
                             <listitem>
                                 <para>Automatic Code Outlining</para>
@@ -4176,423 +4288,217 @@ public class MovChartService extends ChartProvidingServiceImpl {
                                 </itemizedlist>
                             </listitem>
                         </itemizedlist>
-                    <figure>
-                        <title>Syntax Highlighter</title>
-                        <mediaobject>
-                            <imageobject>
-                                <imagedata scalefit="1" fileref="images/SyntaxHighlighter.png"/>
-                            </imageobject>
-                        </mediaobject>
-                    </figure>
-                    <para>Please follow these steps to install the custom EPL Syntax
-                        Highlighter:</para>
-                    <orderedlist>
-
-                                <listitem>
-                                    <para>Install the <ulink url="http://colorer.sourceforge.net/eclipsecolorer/index.html">Eclipse Colorer Plugin</ulink></para>
-                                </listitem>
-                                <listitem>
-                                    <para>Copy the file <filename>/algotrader/core/src/main/resources/esper.hrc</filename> to
-                                    <filename>eclipse\plugins\net.sf.colorer_x.x.x\colorer\hrc\</filename></para>
-                                </listitem>
-                                <listitem>
-                                    <para>Add the following lines to
-                                    <filename>eclipse\plugins\net.sf.colorer_x.x.x\colorer\hrc\proto.hrc</filename></para>
-                                    <programlisting language="XML">&lt;prototype name="esper" group="database" description="Esper">
+                        <figure>
+                            <title>Syntax Highlighter</title>
+                            <mediaobject>
+                                <imageobject>
+                                    <imagedata scalefit="1" fileref="images/SyntaxHighlighter.png"/>
+                                </imageobject>
+                            </mediaobject>
+                        </figure>
+                        <para>Please follow these steps to install the custom EPL Syntax
+                            Highlighter:</para>
+                        <orderedlist>
+                            <listitem>
+                                <para>Install the <ulink
+                                        url="http://colorer.sourceforge.net/eclipsecolorer/index.html"
+                                        >Eclipse Colorer Plugin</ulink></para>
+                            </listitem>
+                            <listitem>
+                                <para>Copy the file
+                                        <filename>/algotrader/core/src/main/resources/esper.hrc</filename>
+                                    to
+                                        <filename>eclipse\plugins\net.sf.colorer_x.x.x\colorer\hrc\</filename></para>
+                            </listitem>
+                            <listitem>
+                                <para>Add the following lines to
+                                        <filename>eclipse\plugins\net.sf.colorer_x.x.x\colorer\hrc\proto.hrc</filename></para>
+                                <programlisting language="XML">&lt;prototype name="esper" group="database" description="Esper">
     &lt;location link="esper.hrc"/>
     &lt;filename>/\.epl$/i&lt;/filename>
 &lt;/prototype></programlisting>
-                                </listitem>
-                        <listitem>
-                            <para>In Windows / Preferences / General / Editor / File Associations
-                                add a new associate for <filename>*.epl</filename> to the
-                                    <literal>Colorer Editor</literal></para>
-                        </listitem>
-                    </orderedlist>
-
-                    <note>
-                        <para>The Syntax Highlighter does not provide Code Completion or Syntax
-                            Checking!</para>
-                    </note>
-
+                            </listitem>
+                            <listitem>
+                                <para>In Windows / Preferences / General / Editor / File
+                                    Associations add a new associate for <filename>*.epl</filename>
+                                    to the <literal>Colorer Editor</literal></para>
+                            </listitem>
+                        </orderedlist>
+                        <note>
+                            <para>The Syntax Highlighter does not provide Code Completion or Syntax
+                                Checking!</para>
+                        </note>
+                    </section>
                 </section>
-        </section>
-        <section id="Subversion_Checkout">
-                <title>Subversion Checkout</title>
-                <para>Create a directory named <filename>AlgoTrader</filename> at a discretionary
-                    location</para>
-                <important>
-                    <para>Note: AndroMDA does not allow any special characters (i.e. spaces or
-                        exclamation marks) in the project path.</para>
-                </important>
-                <para>Inside the directory <filename>AlgoTrader</filename> do an svn checkout from the command
-                    line:</para>
-                <screen>svn checkout https://repo.algotrader.ch/svn/tags/AlgoTrader/2.0</screen>
-                <para>Import the following projects from the directory <filename>AlgoTrader</filename> into
-                    Eclipse via File / Import / Maven / Existing Maven Projects:</para>
-                <itemizedlist>
-                    <listitem>
-                        <para><filename>/pom.xml</filename>
-                        </para>
-                    </listitem>
-                    <listitem>
-                        <para><filename> /client/pom.xml</filename>
-                        </para>
-                    </listitem>
-                    <listitem>
-                        <para><filename> /common/pom.xml</filename>
-                        </para>
-                    </listitem>
-                    <listitem>
-                        <para><filename> /core/pom.xml</filename>
-                        </para>
-                    </listitem>
-                    <listitem>
-                        <para><filename> /mda/pom.xml</filename>
-                        </para>
-                    </listitem>
-                </itemizedlist>
-                <note>
-                    <para>The following three projects do not need to be imported:<itemizedlist>
-                            <listitem>
-                                <para><filename> /client/bin/pom.xml</filename>
-                                </para>
-                            </listitem>
-                            <listitem>
-                                <para><filename> /core/bin/pom.xml</filename>
-                                </para>
-                            </listitem>
-                            <listitem>
-                                <para><filename> /doc/pom.xml</filename>
-                                </para>
-                            </listitem>
-                        </itemizedlist></para>
-                </note>
-                <para>This will result in the following Eclipse projects:</para>
-                <itemizedlist>
-                    <listitem>
-                        <para><filename>algotrader</filename></para>
-                    </listitem>
-                    <listitem>
-                        <para><filename>algotrader-client</filename></para>
-                    </listitem>
-                    <listitem>
-                        <para><filename>algotrader-common</filename></para>
-                    </listitem>
-                    <listitem>
-                        <para><filename>algotrader-core</filename></para>
-                    </listitem>
-                    <listitem>
-                        <para><filename>algotrader-mda</filename></para>
-                    </listitem>
-                </itemizedlist>
-            </section>
-            <section>
-                <title>Associate JConsole and Tools Variable</title>
-                <para>The eclipse project algotrader-client depends on the two classpath variables
-                    JConsole and Tools which have to point to the correct library inside the
-                    JDK.</para>
-                <variablelist>
-                    <varlistentry>
-                        <term>Windows</term>
+                <section>
+                    <title>Subversion Checkout</title>
+                    <itemizedlist>
                         <listitem>
-                            <para>jconsole.jar: <filename>&lt;JDK>\lib\jconsole.jar</filename></para>
-                            <para>tools.jar: <filename>&lt;JDK>\lib\tools.jar</filename></para>
+                            <para>Inside Eclipse click File / Import / SVN / Project from SVN</para>
                         </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>Linux / Mac</term>
                         <listitem>
-                            <para>jconsole.jar: <filename>&lt;JDK>/classes/jconsole.jar</filename></para>
-                            <para>tools.jar: <filename>&lt;JDK>/classes/classes.jar</filename></para>
+                            <para>Specify the repository <ulink url="https://repo.algotrader.ch/svn/"
+                                    >https://repo.algotrader.ch/svn/</ulink></para>
                         </listitem>
-                    </varlistentry>
-                </variablelist>
-                <para>To add those variables click project properties / Java Build Path / Libraries /
-                    Variable / New by following below screen shots.</para>
-                <figure>
-                    <title>JConsole and Tools Variable</title>
-                    <mediaobject>
-                        <imageobject>
-                            <imagedata scalefit="1" fileref="images/JConsole-Tools-Variables.gif"/>
-                        </imageobject>
-                    </mediaobject>
-                </figure>
-                <note>
-                    <para>The Maven m2e Eclipse Plugin currently does not accept classpath variables
-                        and prints the following error message:</para>
-                    <para>"An internal error occurred during: "Updating Maven Project". Unsupported
-                        IClasspathEntry kind=4"</para>
-                    <para>this message can be savely ignored.</para>
-                </note>
-            </section>
-        <section>
-            <title>Generate the code</title>
-                <para>Generation of the Code is based on <filename>.uml</filename> files, which can be retrieved
-                    via either of the following two methods:</para>
-                <itemizedlist>
-                    <listitem>
-                        <para>In Case MagicDraw is installed on the system, open the file:
-                                <filename>/algotrader-mda/src/main/uml/algotrader.xml</filename> and
-                            export the <filename>.uml</filename> files via: File / Export To / EMF
-                            UML2 (v2.x) XMI File.</para>
-                    </listitem>
-                    <listitem>
-                        <para>If MagicDraw is not installed on the system, the <filename>.uml</filename> files can be
-                            downloaded from the AlgoTrader Maven Repository (replacing x.y with the
-                            correct version):</para>
-                    </listitem>
-                </itemizedlist>
-                    <screen>https://repo.algotrader.ch/maven/algotrader/algotrader-mda/x.y/algoTrader.uml.zip</screen>
-                <para>After this, the following <filename>.uml</filename> files should be available
-                    in the directory  <filename>/algotrader-mda/src/main/uml/</filename>:</para>
-                <screen>algoTrader-profile.profile.uml
-algoTrader.uml
-andromda-common.profile.uml
-andromda-persistence.profile.uml
-andromda-presentation.profile.uml
-andromda-process.profile.uml
-andromda-service.profile.uml
-andromda-webservice.profile.uml
-andromda-xml.profile.uml
-UML_Standard_Profile.MagicDraw_Profile.DSL_Customization.profile.uml
-UML_Standard_Profile.MagicDraw_Profile.profile.uml
-UML_Standard_Profile.StandardProfileL3.profile.uml
-UML_Standard_Profile.UML_Standard_Profile.profile.uml
-UML_Standard_Profile.Validation_Profile.profile.uml</screen>
-            <para>Inside Eclipse right click on the project <filename>algotrader-mda</filename> / Run As /
-                    Maven install. This will generate all necessary code into
-                        <filename>algotrader/core/target</filename> and<filename>
-                        algotrader/common/target</filename> directories.</para>
-        </section>
-        <section>
-            <title>Compile</title>
-                <para>During the Maven Import process the m2e Eclipse Plugin will automatically make
-                    changes to some files. These changes are not needed and can be reverted by right
-                    clicking on the project  <filename>algotrader</filename> / Team / Revert.</para>
-            <para>Now refresh all projects. Eclipse will compile all java code automatically.</para>
-            <important>
-                <para>Before this is done, please check the Java Build Path of the
-                            <filename>algotrader-common</filename> and
-                            <filename>algotrader-core</filename>projects. There are two sources
-                        configured. The source folder<filename> target/src/main/java</filename>
-                        might have an Exclude defined (Star-Star), which needs to be removed.</para>
-            </important>
-        </section>
-        <section id="Starting_a_Strategy">
-            <title>Starting a Strategy</title>
-            <para>Before running a strategy check the database table
-                <parameter>strategy</parameter>. Only the records <literal>BASE</literal> and the
-                record <parameter>strategyName</parameter> should be set to
-                    <parameter>AUTO_ACTIVATE</parameter>. In addition the strategy should have an
-                allocation amount greater than 0.0 and the total of all allocations needs to be 1.0
-                (e.g. <literal>BASE</literal> = 0.0 and <parameter>strategyName</parameter> = 1.0).</para>
-            <section id="Simulation_Mode">
-                <title>Simulation Mode</title>
-                <para>To run a strategy in Simulation Mode the class
-                            <classname>ch.algotrader.starter.SimulationStarter</classname> inside
-                        the core project <filename>algotrader-core</filename> has to be
-                        invoked.</para>
-                <para>If using Eclipse specify the following in the Launch Configuration:</para>
-                <variablelist>
-                    <varlistentry>
-                        <term>Main-Tab</term>
                         <listitem>
-                            <itemizedlist>
+                            <para>Select the following directory <ulink
+                                    url="https://repo.algotrader.ch/svn/tags/AlgoTrader/2.1"
+                                        ><filename>https://repo.algotrader.ch/svn/tags/AlgoTrader/2.1</filename></ulink></para>
+                        </listitem>
+                        <listitem>
+                            <para>Click Finish</para>
+                        </listitem>
+                        <listitem>
+                            <para>Checkout as project with the name specified
+                                    <literal>algotrader</literal></para>
+                        </listitem>
+                        <listitem>
+                            <para>Click Finish</para>
+                        </listitem>
+                    </itemizedlist>
+                    <para>This will create one new project named <literal>algotrader</literal>
+                        inside Eclipse. </para>
+                    <para>Right click on the project algotrader and select File / Import / Maven /
+                        Existing Maven Projects and select the following items:</para>
+                    <itemizedlist>
+                        <listitem>
+                            <para><filename>/pom.xml</filename>
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para><filename>/client/pom.xml</filename>
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para><filename>/common/pom.xml</filename>
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para><filename>/core/pom.xml</filename>
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para><filename>/mda/pom.xml</filename>
+                            </para>
+                        </listitem>
+                    </itemizedlist>
+                    <note>
+                        <para>The following projects do not need to be imported:<itemizedlist>
                                 <listitem>
-                                    <para>Project: algotrader-core</para>
+                                    <para><filename>/archetype/pom.xml</filename></para>
                                 </listitem>
                                 <listitem>
-                                    <para>Main Class:
-                                            <classname>ch.algotrader.starter.SimulationStarter</classname>
+                                    <para><filename>/client/bin/pom.xml</filename>
                                     </para>
                                 </listitem>
-                            </itemizedlist>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>Arguments-Tab / Programm-Arguments</term>
-                        <listitem>
-                            <screen>simulateWithCurrentParams </screen>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>Arguments-Tab / VM-Arguments</term>
-                        <listitem>
-                            <screen>-Dsimulation=true
--DstrategyName=XXX
--DdataSource.dataSet=yyy
--Dspring.profiles.active=simulation</screen>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>Classpath / User Entries</term>
-                        <listitem>
-                            <itemizedlist>
                                 <listitem>
-                                    <para>add project algotrader-xxx (the strategy project)</para>
+                                    <para><filename>/core/bin/pom.xml</filename>
+                                    </para>
                                 </listitem>
-                            </itemizedlist>
+                                <listitem>
+                                    <para><filename>/crud/pom.xml</filename></para>
+                                </listitem>
+                                <listitem>
+                                    <para><filename>/doc/pom.xml</filename>
+                                    </para>
+                                </listitem>
+                                <listitem>
+                                    <para><filename>/test/pom.xml</filename></para>
+                                </listitem>
+                                <listitem>
+                                    <para><filename>/uml/pom.xml</filename></para>
+                                </listitem>
+                            </itemizedlist></para>
+                    </note>
+                    <para>This will result in the following Eclipse projects:</para>
+                    <itemizedlist>
+                        <listitem>
+                            <para><filename>algotrader</filename></para>
                         </listitem>
-                    </varlistentry>
-                </variablelist>
+                        <listitem>
+                            <para><filename>algotrader-client</filename></para>
+                        </listitem>
+                        <listitem>
+                            <para><filename>algotrader-common</filename></para>
+                        </listitem>
+                        <listitem>
+                            <para><filename>algotrader-core</filename></para>
+                        </listitem>
+                        <listitem>
+                            <para><filename>algotrader-mda</filename></para>
+                        </listitem>
+                    </itemizedlist>
+                </section>
+                <section>
+                    <title>Generate the code</title>
+                    <para>To generate the code right click on the project
+                            <filename>algotrader-mda</filename> Inside Eclipse and select / Run As /
+                        Maven install. This will generate all necessary code into
+                            <filename>algotrader/core/target</filename> and<filename>
+                            algotrader/common/target</filename> directories.</para>
+                    <para>Alternatively this can be done via the command line:</para>
+                    <screen>mvn install</screen>
+                </section>
+                <section>
+                    <title>Compile</title>
+                    <para>During the Maven Import process the m2e Eclipse Plugin will automatically
+                        make changes to some files. These changes are not needed and can be reverted
+                        by right clicking on the project <filename>algotrader</filename> / Team /
+                        Revert.</para>
+                    <para>Now refresh all projects. Eclipse will compile all java code
+                        automatically.</para>
+                    <important>
+                        <para>Before this is done, please check the Java Build Path of the
+                                <filename>algotrader-common</filename> and
+                                <filename>algotrader-core</filename>projects. There are two sources
+                            configured. The source folder<filename>target/src/main/java</filename>
+                            might have an Exclude defined (Star-Star), which needs to be
+                            removed.</para>
+                    </important>
+                </section>
             </section>
-            <section id="Live_Trading_Mode">
-                <title>Live Trading Mode</title>
-                <para>To run the Strategy in Live Trading Mode the corresponding Broker Interface
-                    (e.g. local Client, local Gateway or VPN Connection) needs to be up and
-                    running.</para>
-                <para>If using InteractiveBrokers the Trader Workstation or the IB Gateway have to
-                    be running with the following configurations under API/Settings:</para>
+            <section>
+                <title>Eclipse Bundle</title>
+                <para>To assist in setting up the AlgoTrader Development Environment, there is a
+                    fully configured Eclipse based AlgoTrader Bundle available which contains the
+                    following:</para>
                 <itemizedlist>
                     <listitem>
-                        <para>Enable ActiveX and Socket Clients</para>
+                        <para>Eclipse Kepler</para>
                     </listitem>
                     <listitem>
-                        <para>Socket Port: 4001</para>
+                        <para>All necessary Eclipse Plugins</para>
                     </listitem>
                     <listitem>
-                        <para>Trusted IP Addresses: 127.0.0.1</para>
+                        <para>AlgoTrader 2.0</para>
                     </listitem>
                 </itemizedlist>
-                    <section id="Multiple_JVMs">
-                        <title>Multiple JVM's</title>
-                        <para>In Live Trading Mode the Base and the Strategy / Strategies run in separate JVM's and
-                            have to be started separately. </para>
-                        <para>Propagation of Events from the Base to the Strategy / Strategies is
-                            done via JMS by using ActiveMQ. For this purpose ActiveMQ needs to
-                            installed as a service or started manually via:</para>
-                        <screen># Windows
-bin/activemq.bat
-
-# Linux / Unix / Mac
-bin/activemq</screen>
-                        <para>If using Eclipse specify the following in the Launch Configuration to
-                            start the Base:</para>
-                        <variablelist>
-                            <varlistentry>
-                                <term>Main-Tab</term>
-                                <listitem>
-                                    <itemizedlist>
-                                        <listitem>
-                                            <para>Project: algotrader-core</para>
-                                        </listitem>
-                                        <listitem>
-                                            <para>Main Class:
-                                                <classname>ch.algotrader.starter.MarketDataStarter</classname>
-                                            </para>
-                                        </listitem>
-                                    </itemizedlist>
-                                </listitem>
-                            </varlistentry>
-                            <varlistentry>
-                                <term>Arguments-Tab / VM-Arguments</term>
-                                <listitem>
-                                    <screen>-Dsimulation=false
--Dspring.profiles.active=server,&lt;marketDataProfile>,&lt;brokerProfile> </screen>
-                                    <para>
-                                        <parameter>marketDataProfile</parameter>: the SpringProfile
-                                        corresponding to the market data interface in use (e.g.
-                                        iBMarketData or bBMarketData)</para>
-                                    <para>
-                                        <parameter>brokerProfile</parameter>: the SpringProfile
-                                        corresponding to the broker interface in use (e.g. iBNative
-                                        or iBFix)</para>
-                                </listitem>
-                            </varlistentry>
-                        </variablelist>
-                        <para>If using Eclipse specify the following in the Launch Configuration to
-                            start the Strategy:</para>
-                        <variablelist>
-                            <varlistentry>
-                                <term>Main-Tab</term>
-                                <listitem>
-                                    <itemizedlist>
-                                        <listitem>
-                                            <para>Project: strategy project</para>
-                                        </listitem>
-                                        <listitem>
-                                            <para>Main Class:
-                                                <classname>ch.algotrader.starter.XXXStarter</classname>
-                                                (the starter class of the Strategy)</para>
-                                        </listitem>
-                                    </itemizedlist>
-                                </listitem>
-                            </varlistentry>
-                            <varlistentry>
-                                <term>Arguments-Tab / VM-Arguments</term>
-                                <listitem>
-                                    <screen>-Dsimulation=false</screen>
-                                </listitem>
-                            </varlistentry>
-                        </variablelist>
-                    </section>
-                    <section id="Single_JVM">
-                        <title>Single JVM</title>
-                        <para>When running one single Strategy in Live Trading Mode there is the
-                            option of starting both the Base and the Strategy within the same
-                            JVM.</para>
-                        <para>If using Eclipse specify the following in the Launch Configuration to
-                            start the Strategy:</para>
-                        <variablelist>
-                            <varlistentry>
-                                <term>Main-Tab</term>
-                                <listitem>
-                                    <itemizedlist>
-                                        <listitem>
-                                            <para>Project: algotrader-core</para>
-                                        </listitem>
-                                        <listitem>
-                                            <para>Main Class:
-                                                <classname>ch.algotrader.starter.XXXStarter</classname>
-                                                (the starter class of the Strategy)</para>
-                                        </listitem>
-                                    </itemizedlist>
-                                </listitem>
-                            </varlistentry>
-                            <varlistentry>
-                                <term>Arguments-Tab / VM-Arguments</term>
-                                <listitem>
-                                    <screen>-Dsimulation=false
--Dmisc.singleVM=true
--Dspring.profiles.active=server,&lt;marketDataProfile>,&lt;brokerProfile> </screen>
-                                    <para>
-                                        <parameter>marketDataProfile</parameter>: the SpringProfile
-                                        corresponding to the market data interface in use (e.g.
-                                        iBMarketData or bBMarketData)</para>
-                                    <para>
-                                        <parameter>brokerProfile</parameter>: the SpringProfile
-                                        corresponding to the broker interface in use (e.g. iBNative
-                                        or iBFix)</para>
-                                </listitem>
-                            </varlistentry>
-                            <varlistentry>
-                                <term>Classpath-Tab</term>
-                                <listitem>
-                                    <itemizedlist>
-                                        <listitem>
-                                            <para>Add Strategy Project</para>
-                                        </listitem>
-                                    </itemizedlist>
-                                </listitem>
-                            </varlistentry>
-                            <varlistentry>
-                                <term>Source-Tab</term>
-                                <listitem>
-                                    <itemizedlist>
-                                        <listitem>
-                                            <para>Add Strategy Project</para>
-                                        </listitem>
-                                    </itemizedlist>
-                                </listitem>
-                            </varlistentry>
-                        </variablelist>
-                    </section>
-
+                <para>The Bundle can be downloaded from: <ulink
+                        url="https://repo.algotrader.ch/bundle/eclipse/2.1/AlgoTrader.zip"
+                        >https://repo.algotrader.ch/bundle/eclipse/2.1/AlgoTrader.zip</ulink>   </para>
+                <para>Use the User name and Password as for the Subversion and Maven repository.   </para>
+                <para>Instructions: </para>
+                <itemizedlist>
+                    <listitem>
+                        <para>Download the above file</para>
+                    </listitem>
+                    <listitem>
+                        <para>unzip the file to <filename>C:\AlgoTrader</filename></para>
+                    </listitem>
+                    <listitem>
+                        <para>Start <filename>C:\AlgoTrader\eclipse\eclipse.exe</filename></para>
+                    </listitem>
+                </itemizedlist>
+                <para>
+                    <note>
+                        <para>Because Eclipse stores all project paths as absolute paths, it has to
+                            be this directory, if you use another directory, you will have to switch
+                            the workspace manually and afterwards reimport all projects.</para>
+                    </note>
+                </para>
             </section>
         </section>
-    </section>
-        <section>
+        <section id="Server_Environment_Installation">
             <title>Server Environment Installation</title>
             <para>Typically Server Installations are based on the latest Maven Release and not on
                 Source Code from Subversion. The file
@@ -4601,51 +4507,42 @@ bin/activemq</screen>
                 Maven Dependency Mechanism will make sure that all necessary Maven Modules
                 (algotrader-common, algotrader-core and 3rd party libraries) are downloaded
                 automatically.</para>
-            <para>The installation process in a Server Environment would typically involve the
+            <para>The installation process of a Server Environment will typically involve the
                 following steps</para>
-            <para>
-                <orderedlist>
-                    <listitem>
-                        <para> create a directory <filename>AlgoTrader</filename>
-                        </para>
-                    </listitem>
-                    <listitem>
-                        <para> checkout the following directory via SVN, which contains the
-                                <filename>pom.xml</filename> and different shell scripts:
-                                <literal>https://repo.algotrader.ch/svn/tags/AlgoTrader/2.0/core/bin</literal>
-                        </para>
-                    </listitem>
-                    <listitem>
-                        <para> create directories <filename>data</filename>, <filename>log</filename> and
-                                <filename>files</filename> underneath
-                                <filename>AlgoTrader</filename></para>
-                    </listitem>
-                    <listitem>
-                        <para> run <filename>AlgoTrader/bin/update.sh</filename> which will resolve
-                            all Maven Dependencies</para>
-                    </listitem>
-                    <listitem>
-                        <para> if necessary modify <filename>AlgoTrader/bin/run.sh</filename> (i.e. add custom
-                            VM-Arguments) </para>
-                    </listitem>
-                    <listitem>
-                        <para> copy files <filename>keystore</filename> and
-                                <filename>truststore</filename> to
-                                <filename>AlgoTrader/bin</filename> (see <xref linkend="JMX"/>)</para>
-                    </listitem>
-                </orderedlist>
-            </para>
-            <section>
-                <title>Starting the Base</title>
-                <para>The Base can now be started via by calling the following shell script:</para>
-                <screen><filename>AlgoTrader/bin/run.sh</filename></screen>
-                <para>Depending on the actual requirements for the Server Environment (Operation System,
-                    external Broker used, etc.) actual Configurations will vary substantially. </para>
-                <note>
-                    <para>It is recommended to work with AlgoTrader Professional Services to plan an
-                        roll-out Server Environments</para>
-                </note>
-            </section>
+            <orderedlist>
+                <listitem>
+                    <para>create a directory <filename>AlgoTrader</filename>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>checkout the following directory via SVN, which contains the
+                            <filename>pom.xml</filename> and different shell scripts:
+                            <literal>https://repo.algotrader.ch/svn/tags/AlgoTrader/2.1/core/bin</literal>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>create directories <filename>data</filename>, <filename>log</filename> and
+                            <filename>files</filename> underneath
+                        <filename>AlgoTrader</filename></para>
+                </listitem>
+                <listitem>
+                    <para>run <filename>AlgoTrader/bin/update.sh</filename> which will resolve all
+                        Maven Dependencies</para>
+                </listitem>
+                <listitem>
+                    <para>if necessary modify <filename>AlgoTrader/bin/run.sh</filename> (i.e. add
+                        custom VM-Arguments) </para>
+                </listitem>
+                <listitem>
+                    <para>copy files <filename>keystore</filename> and
+                            <filename>truststore</filename> to <filename>AlgoTrader/bin</filename>
+                        (see <xref linkend="JMX"/>)</para>
+                </listitem>
+            </orderedlist>
+            <note>
+                <para>It is recommended to work with AlgoTrader Professional Services to plan an
+                    roll-out Server Environments</para>
+            </note>
         </section>
         <section id="VM-Arguments">
             <title>VM-Arguments</title>
@@ -4769,6 +4666,250 @@ bin/activemq</screen>
             </variablelist>
         </section>
     </chapter>
+    <chapter id="Starting_AlgoTrader">
+        <title>Starting AlgoTrader</title>
+        <para>Before starting AlgoTrade check the database table <parameter>strategy</parameter>. Only the
+            records <literal>BASE</literal> and the record corresponding to the strategy should be
+            set to <parameter>AUTO_ACTIVATE</parameter>. In addition the strategy should have an
+            allocation amount greater than 0.0 and the total of all allocations needs to be 1.0
+            (e.g. <literal>BASE</literal> = 0.0 and <parameter>strategyName</parameter> =
+            1.0).</para>
+        <section id="Simulation_Mode">
+            <title>Simulation Mode</title>
+            <para>To run AlgoTrader in Simulation Mode and perform a back test of a strategy the class
+                    <classname>ch.algotrader.starter.SimulationStarter</classname> inside the core
+                project <filename>algotrader-core</filename> has to be invoked.</para>
+            <para>If using Eclipse specify the following in the Launch Configuration:</para>
+            <variablelist>
+                <varlistentry>
+                    <term>Main-Tab</term>
+                    <listitem>
+                        <itemizedlist>
+                            <listitem>
+                                <para>Project: algotrader-core</para>
+                            </listitem>
+                            <listitem>
+                                <para>Main Class:
+                                        <classname>ch.algotrader.starter.SimulationStarter</classname>
+                                </para>
+                            </listitem>
+                        </itemizedlist>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Arguments-Tab / Programm-Arguments</term>
+                    <listitem>
+                        <screen>simulateWithCurrentParams </screen>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Arguments-Tab / VM-Arguments</term>
+                    <listitem>
+                        <screen>-Dsimulation=true
+-DstrategyName=XXX
+-DdataSource.dataSet=yyy
+-Dspring.profiles.active=simulation,singleDataSource</screen>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Classpath / User Entries</term>
+                    <listitem>
+                        <itemizedlist>
+                            <listitem>
+                                <para>add project algotrader-xxx (the strategy project)</para>
+                            </listitem>
+                        </itemizedlist>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+        <section id="Live_Trading_Mode">
+            <title>Live Trading Mode</title>
+            <para>To run AlgoTrader in Live Trading Mode the corresponding Broker Interface (e.g. local
+                Client, local Gateway or VPN Connection) needs to be up and running.</para>
+            <para>If using InteractiveBrokers the Trader Workstation or the IB Gateway have to be
+                running with the following configurations under API/Settings:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>Enable ActiveX and Socket Clients</para>
+                </listitem>
+                <listitem>
+                    <para>Socket Port: 4001</para>
+                </listitem>
+                <listitem>
+                    <para>Trusted IP Addresses: 127.0.0.1</para>
+                </listitem>
+            </itemizedlist>
+            <para>When running AlgoTrader in Live Trading Mode the Based and the Strategies can
+                either be run in separate JVM's or the entire system can be run within one single
+                JVM.</para>
+            <section id="Multi_JVM_Mode">
+                <title>Multi JVM Mode</title>
+                <para>In Multi JVM Mode the Base and the Strategy / Strategies run in separate JVM's
+                    and have to be started separately. </para>
+                <para>Propagation of Events from the Base to the Strategy / Strategies is done via
+                    JMS by using ActiveMQ. For this purpose ActiveMQ needs to installed as a service
+                    or started manually via:</para>
+                <screen># Windows
+bin/activemq.bat
+
+# Linux / Unix / Mac
+bin/activemq</screen>
+                <para>If using Eclipse specify the following in the Launch Configuration to start
+                    the Base:</para>
+                <variablelist>
+                    <varlistentry>
+                        <term>Main-Tab</term>
+                        <listitem>
+                            <itemizedlist>
+                                <listitem>
+                                    <para>Project: algotrader-core</para>
+                                </listitem>
+                                <listitem>
+                                    <para>Main Class:
+                                            <classname>ch.algotrader.starter.MarketDataStarter</classname>
+                                    </para>
+                                </listitem>
+                            </itemizedlist>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Arguments-Tab / VM-Arguments</term>
+                        <listitem>
+                            <screen>-Dsimulation=false
+-Dspring.profiles.active=server,&lt;dataSource>,&lt;marketDataProfile>,&lt;brokerProfile> </screen>
+                            <itemizedlist>
+                                <listitem>
+                                    <para><parameter>dataSource</parameter>: the hibernate
+                                        datasource to use, either:
+                                            <literal>pooledDataSource</literal>,
+                                            <literal>singleDataSource</literal> or
+                                            <literal>embeddedDataSource</literal></para>
+                                </listitem>
+                                <listitem>
+                                    <para><parameter>marketDataProfile</parameter>: the
+                                        SpringProfile corresponding to the market data interface in
+                                        use (e.g. iBMarketData or bBMarketData)</para>
+                                </listitem>
+                                <listitem>
+                                    <para><parameter>brokerProfile</parameter>: the SpringProfile
+                                        corresponding to the broker interface in use (e.g. iBNative
+                                        or iBFix)</para>
+                                </listitem>
+                            </itemizedlist>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+                <para>If using Eclipse specify the following in the Launch Configuration to start
+                    the Strategy:</para>
+                <variablelist>
+                    <varlistentry>
+                        <term>Main-Tab</term>
+                        <listitem>
+                            <itemizedlist>
+                                <listitem>
+                                    <para>Project: strategy project</para>
+                                </listitem>
+                                <listitem>
+                                    <para>Main Class:
+                                            <classname>ch.algotrader.starter.XXXStarter</classname>
+                                        (the starter class of the Strategy)</para>
+                                </listitem>
+                            </itemizedlist>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Arguments-Tab / VM-Arguments</term>
+                        <listitem>
+                            <screen>-Dsimulation=false</screen>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </section>
+            <section id="Single_JVM_Mode">
+                <title>Single JVM Mode</title>
+                <para>In Single JVM Mode both the Base and the Strategy run within the same
+                    JVM.</para>
+                <note>
+                    <para>In Single JVM Mode only one Strategy can be run</para>
+                </note>
+                <para>If using Eclipse specify the following in the Launch Configuration to start
+                    the Strategy:</para>
+                <variablelist>
+                    <varlistentry>
+                        <term>Main-Tab</term>
+                        <listitem>
+                            <itemizedlist>
+                                <listitem>
+                                    <para>Project: algotrader-core</para>
+                                </listitem>
+                                <listitem>
+                                    <para>Main Class:
+                                            <classname>ch.algotrader.starter.XXXStarter</classname>
+                                        (the starter class of the Strategy)</para>
+                                </listitem>
+                            </itemizedlist>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Arguments-Tab / VM-Arguments</term>
+                        <listitem>
+                            <screen>-Dsimulation=false
+-Dmisc.singleVM=true
+-Dspring.profiles.active=server,&lt;dataSource>,&lt;marketDataProfile>,&lt;brokerProfile> </screen>
+                            <itemizedlist>
+                                <listitem>
+                                    <para><parameter>dataSource</parameter>: the hibernate
+                                        datasource to use, either:
+                                        <literal>pooledDataSource</literal>,
+                                        <literal>singleDataSource</literal> or
+                                        <literal>embeddedDataSource</literal></para>
+                                </listitem>
+                                <listitem>
+                                    <para><parameter>marketDataProfile</parameter>: the
+                                        SpringProfile corresponding to the market data interface in
+                                        use (e.g. iBMarketData or bBMarketData)</para>
+                                </listitem>
+                                <listitem>
+                                    <para><parameter>brokerProfile</parameter>: the SpringProfile
+                                        corresponding to the broker interface in use (e.g. iBNative
+                                        or iBFix)</para>
+                                </listitem>
+                            </itemizedlist>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Classpath-Tab</term>
+                        <listitem>
+                            <itemizedlist>
+                                <listitem>
+                                    <para>Add Strategy Project</para>
+                                </listitem>
+                            </itemizedlist>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Source-Tab</term>
+                        <listitem>
+                            <itemizedlist>
+                                <listitem>
+                                    <para>Add Strategy Project</para>
+                                </listitem>
+                            </itemizedlist>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </section>
+        </section>
+        <section>
+            <title>Server Environment</title>
+            <para>In the server environment the AlgoTrader Base can be started by calling the
+                following shell script:</para>
+            <screen><filename>AlgoTrader/bin/run.sh</filename></screen>
+            <para>Depending on the  requirements for the Server Environment (Operation System,
+                external Broker used, etc.) actual Configurations will vary substantially. </para>
+        </section>
+    </chapter>
     <chapter id="Strategy_Development">
         <title>Strategy Development</title>
         <para>It is recommended to do a thorough Back Testing of a newly developed strategy. After
@@ -4863,7 +5004,7 @@ bin/activemq</screen>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename> /log </filename>
+                        <filename>/log </filename>
                     </term>
                     <listitem>
                         <para>log files</para>
@@ -4871,7 +5012,7 @@ bin/activemq</screen>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename> /lib </filename>
+                        <filename>/lib </filename>
                     </term>
                     <listitem>
                         <para>Jar Files not available through maven</para>
@@ -5636,7 +5777,7 @@ create variable ch.algotrader.enumeration.State state =
         <section>
             <title>Single Run Simulation</title>
             <para>To run a strategy in Simulation Mode with the currently defined parameters use the
-                procedure defined in <xref linkend="Starting_a_Strategy"/>.</para>
+                procedure defined in <xref linkend="Starting_AlgoTrader"/>.</para>
         </section>
         <section id="Automated_Parameter_Optimization">
             <title>Automated Parameter Optimization</title>
@@ -6103,7 +6244,7 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 </varlistentry>
             </variablelist>
             <note>
-                <para> AlgoTrader uses the Delta-adjusted Option Leverage as Option Leverage.
+                <para>AlgoTrader uses the Delta-adjusted Option Leverage as Option Leverage.
                 </para>
             </note>
         </section>
@@ -7817,7 +7958,7 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                     <para>Http Parameters</para>
                 </listitem>
             </itemizedlist>
-            <para>In addition each Broker Interface has its own settings file. e.g.<filename> conf-ib.properties</filename> for IB.</para>
+            <para>In addition each Broker Interface has its own settings file. e.g.<filename>conf-ib.properties</filename> for IB.</para>
             <para>Configuration parameters can also be provided as a VM argument when starting up
                 the system, they will overwrite existing parameters.</para>
             <para>Most configuration parameters are prefixed with a namespace (i.e. dataSource,
@@ -8238,10 +8379,10 @@ where and s.name = 'BASE'</programlisting>
                             if there is a large number of those objects.</para>
                     </listitem>
                     <listitem>
-                        <para>Level-Zero Cache is only available to the JVM containing the Base. It
-                            can therefor only be used by Strategies in Simulation-Mode or if a
-                            Strategy is running inside the same JVM as the Base in Live-Trading (see
-                                <xref linkend="Single_JVM"/>).</para>
+                        <para>Level-Zero Cache is only available to the JVM containing the Base. It can therefor only
+                            be used by Strategies in Simulation-Mode or if a Strategy is running
+                            inside the same JVM as the Base in Live-Trading (see <xref
+                                linkend="Single_JVM_Mode"/>).</para>
                     </listitem>
                     <listitem>
                         <para>No Proxies, no Byte Code Instrumentation and no Annotations are needed
@@ -9000,7 +9141,7 @@ where and s.name = 'BASE'</programlisting>
                     </listitem>
                 </varlistentry>
             </variablelist>
-            <para> To start the Strategy please see the explanations in chapter <xref linkend="Starting_a_Strategy"/>.</para>
+            <para>To start the Strategy please see the explanations in chapter <xref linkend="Starting_AlgoTrader"/>.</para>
         </section>
         <section>
             <title>Installation</title>
