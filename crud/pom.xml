@@ -24,19 +24,6 @@
         </dependency>
         <dependency>
             <groupId>org.grails.plugins</groupId>
-            <artifactId>tomcat</artifactId>
-            <version>${grails.version}</version>
-            <scope>provided</scope>
-            <type>zip</type>
-            <exclusions>
-                <exclusion>
-                    <artifactId>slf4j-api</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.grails.plugins</groupId>
             <artifactId>cache</artifactId>
             <version>1.0.1</version>
             <scope>compile</scope>
