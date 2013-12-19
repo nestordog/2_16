@@ -722,6 +722,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected List<Bar> handleGetBarsBySecurityBarSizeAndMinDate(int securityId, Duration barSize, Date minDate) throws Exception {
+
+        return getBarDao().findBarsBySecurityBarSizeAndMinDate(securityId, barSize, minDate);
+    }
+
+    @Override
     protected double handleGetForexRateDouble(Currency baseCurrency, Currency transactionCurrency) throws Exception {
 
         return getForexDao().getRateDouble(baseCurrency, transactionCurrency);
