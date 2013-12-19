@@ -5,8 +5,6 @@ constraints= {
     ric(nullable : true)
     conid(nullable : true)
 
-    type()
-
     underlying(nullable : true)
     securityFamily()
 

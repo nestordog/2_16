@@ -3,6 +3,7 @@ constraints = {
     baseSymbol(nullable : true)
     isinRoot(nullable : true)
     ricRoot(nullable : true)
+    tradingClass(nullable : true)
     market()
     currency()
     contractSize()
