@@ -49,7 +49,7 @@ import ch.algotrader.util.io.CsvTickWriter;
 /**
  * Starter Class to download historical 1min tick data
  * <p>
- * Usage: {@code HistoricalDataStarter fromDate toDate barType(s) securityId(s)}
+ * Usage: {@code IBHistoricalDataStarter fromDate toDate barType(s) securityId(s)}
  * <p>
  * Examle: {@code 20120115 20120216 BID:ASK 29:103850:104586:104587:104588}
  *

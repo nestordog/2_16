@@ -27,7 +27,7 @@ import com.bloomberglp.blpapi.Message;
 import com.bloomberglp.blpapi.Session;
 
 /**
- * Bloomberg MessageHandler.
+ * Abstract Bloomberg MessageHandler.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *

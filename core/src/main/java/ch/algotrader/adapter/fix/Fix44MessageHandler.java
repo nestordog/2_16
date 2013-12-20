@@ -145,10 +145,16 @@ public class Fix44MessageHandler {
         }
     }
 
+    /**
+     * process an OrderStatus based on an {@link ExecutionReport} and {@link Order} before it is propagated
+     */
     protected void processOrderStatus(ExecutionReport executionReport, Order order, OrderStatus orderStatus) throws FieldNotFound {
         // do nothing (can be overwritten by subclasses)
     }
 
+    /**
+     * process a Fill based on an {@link ExecutionReport} and {@link Order} before it is propagated
+     */
     protected void processFill(ExecutionReport executionReport, Order order, Fill fill) throws FieldNotFound {
         // do nothing (can be overwritten by subclasses)
     }

@@ -41,6 +41,8 @@ import ch.algotrader.vo.GenericEventVO;
 import ch.algotrader.vo.StatementMetricVO;
 
 /**
+ * Singleton class to locate {@link Engine Engines}.
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$

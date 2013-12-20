@@ -29,7 +29,8 @@ import com.bloomberglp.blpapi.SessionOptions;
 
 /**
  * Factory class for Bloomberg Sessions.
- * This class an its public methods are available through JMX.
+ *
+ * This class adn its public methods are available through JMX.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -43,11 +44,17 @@ public class BBSessionFactory {
 
     private Map<String, BBSession> sessions = new HashMap<String, BBSession>();
 
+    /**
+     * Returns an asynchronous market data session using the {@link BBMarketDataMessageHandler}
+     */
     public BBSession getMarketDataSession() throws Exception {
 
         return getSession("mktdata", new BBMarketDataMessageHandler());
     }
 
+    /**
+     * Returns a synchronous reference data session
+     */
     public BBSession getReferenceDataSession() throws Exception {
 
         return getSession("refdata", null);

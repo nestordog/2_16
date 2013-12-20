@@ -47,6 +47,9 @@ public final class BBSession extends Session {
         this.serviceName = serviceName;
     }
 
+    /**
+     * Returns the service identified by {@code serviceName} associated with this BBSession.
+     */
     public Service getService() {
 
         if (this.service == null) {
@@ -56,17 +59,25 @@ public final class BBSession extends Session {
         return this.service;
     }
 
+    /**
+     * Returns the {@code sessionName} of the BBSession.
+     */
     public String getServiceName() {
 
         return this.serviceName;
     }
 
+    /**
+     * Returns the {@link BBMessageHandler} associated with this BBSession.
+     */
     public BBMessageHandler getMessageHandler() {
 
         return this.messageHandler;
     }
 
-    // returns true if the session has not received a SESSION_TERMINATED event (and there is a messageHandler)
+    /**
+     * returns true if the session has not received a SESSION_TERMINATED event (and there is a messageHandler)
+     */
     public boolean isRunning() {
 
         return this.messageHandler != null && this.messageHandler.isRunning();

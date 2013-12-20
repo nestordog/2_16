@@ -20,6 +20,8 @@ package ch.algotrader.adapter.bb;
 import com.bloomberglp.blpapi.Name;
 
 /**
+ * Contains Bloomberg constants.
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$

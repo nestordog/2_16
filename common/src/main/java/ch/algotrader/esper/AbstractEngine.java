@@ -27,6 +27,8 @@ import ch.algotrader.esper.callback.TradeCallback;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 /**
+ * Abstract implementation of an {@link Engine}
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
