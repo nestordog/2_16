@@ -47,7 +47,7 @@ public class BeanUtil {
     /**
      *  Populates an arbitrary object with values from the specified map. Only matching fields are populated.
      */
-    public static void populate(Object bean, Map<?, ?> properties) throws IllegalAccessException, InvocationTargetException {
+    public static void populate(Object bean, Map<String, ?> properties) throws IllegalAccessException, InvocationTargetException {
         beanUtilsBean.populate(bean, properties);
     }
 }
