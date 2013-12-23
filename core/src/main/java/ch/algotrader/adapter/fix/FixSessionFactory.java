@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
 
+import ch.algotrader.service.LookupService;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.quickfixj.jmx.JmxExporter;
@@ -56,7 +57,6 @@ import quickfix.SessionID;
 import quickfix.SessionNotFound;
 import quickfix.SessionSettings;
 import quickfix.SocketInitiator;
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.cache.EntityHandler;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
@@ -79,9 +79,15 @@ public class FixSessionFactory implements InitializingBean {
 
     private static Logger logger = MyLogger.getLogger(EntityHandler.class.getName());
 
+    private LookupService lookupService;
+
     private SocketInitiator initiator = null;
     private SessionSettings settings = null;
     private IntegerMap<String> orderIds = new IntegerMap<String>();
+
+    public void setLookupService(final LookupService lookupService) {
+        this.lookupService = lookupService;
+    }
 
     /**
      * sets up of the initiator
@@ -122,7 +128,7 @@ public class FixSessionFactory implements InitializingBean {
      */
     public void createSession(OrderServiceType orderServiceType) throws Exception {
 
-        Collection<String> sessionQualifiers = ServiceLocator.instance().getLookupService().getActiveSessionsByOrderServiceType(orderServiceType);
+        Collection<String> sessionQualifiers = lookupService.getActiveSessionsByOrderServiceType(orderServiceType);
         for (String sessionQualifier : sessionQualifiers) {
 
             // need to iterate over all sessions definitions in the settings because there is no lookup method
