@@ -164,6 +164,9 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
         fields.appendValue("VOLUME");
 
         request.set("periodicityAdjustment", "ACTUAL");
+        request.set("nonTradingDayFillOption", "NON_TRADING_WEEKDAYS");
+        request.set("nonTradingDayFillMethod", "PREVIOUS_VALUE");
+
         request.set("periodicitySelection", barSizeString);
         request.set("startDate", startDateString);
         request.set("endDate", endDateString);
