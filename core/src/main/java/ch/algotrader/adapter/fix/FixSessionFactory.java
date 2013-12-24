@@ -33,6 +33,8 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.quickfixj.jmx.JmxExporter;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
@@ -79,6 +81,7 @@ public class FixSessionFactory implements InitializingBean {
 
     private static Logger logger = MyLogger.getLogger(EntityHandler.class.getName());
 
+    private Resource configResource;
     private LookupService lookupService;
 
     private SocketInitiator initiator = null;
@@ -89,13 +92,18 @@ public class FixSessionFactory implements InitializingBean {
         this.lookupService = lookupService;
     }
 
+    public void setConfigResource(final Resource configResource) {
+        this.configResource = configResource;
+    }
+
     /**
      * sets up of the initiator
      */
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        InputStream inputStream = this.getClass().getResourceAsStream("/fix.cfg");
+        Resource resource = configResource != null ? configResource : new ClassPathResource("/fix.cfg");
+        InputStream inputStream = resource.getInputStream();
         try {
             this.settings = new SessionSettings(inputStream);
         } finally {
