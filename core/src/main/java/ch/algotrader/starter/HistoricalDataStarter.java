@@ -24,46 +24,55 @@ import ch.algotrader.ServiceLocator;
 import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
-import ch.algotrader.service.bb.BBHistoricalDataService;
+import ch.algotrader.service.HistoricalDataService;
+import ch.algotrader.service.InitializingServiceI;
 
 /**
- * Starter Class to download historical 1min tick data
+ * Starter Class to download historical bars and update/replace bars in the database
  * <p>
- * Usage: {@code BBHistoricalDataStarter endDate timePeriodLength timePeriod barType barSize securityId(s)}
+ * Usage: {@code HistoricalDataStarter updateBars endDate timePeriodLength timePeriod barType barSize securityId(s)}
  * <p>
- * Examle: {@code BBHistoricalDataStarter 20120101 4 WEEK TRADES DAY_1 10:11:12}
+ * Examle: {@code HistoricalDataStarter true 20120101 4 WEEK TRADES DAY_1 10:11:12}
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
  * @version $Revision: 6388 $ $Date: 2013-11-01 11:01:37 +0100 (Fr, 01 Nov 2013) $
  */
-public class BBHistoricalDataStarter {
+public class HistoricalDataStarter {
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
 
     public static void main(String[] args) throws Exception {
 
-        Date endDate = format.parse(args[0]);
+        boolean update = Boolean.parseBoolean(args[0]);
 
-        int timePeriodLength = Integer.parseInt(args[1]);
-        TimePeriod timePeriod = TimePeriod.fromString(args[2]);
+        Date endDate = format.parse(args[1]);
 
-        BarType barType = BarType.fromString(args[3]);
-        Duration barSize = Duration.fromString(args[4]);
+        int timePeriodLength = Integer.parseInt(args[2]);
+        TimePeriod timePeriod = TimePeriod.fromString(args[3]);
 
-        String[] securityIdStrings = args[5].split(":");
+        BarType barType = BarType.fromString(args[4]);
+        Duration barSize = Duration.fromString(args[5]);
+
+        String[] securityIdStrings = args[6].split(":");
         int[] securityIds = new int[securityIdStrings.length];
         for (int i = 0; i < securityIdStrings.length; i++) {
             securityIds[i] = Integer.valueOf(securityIdStrings[i]);
         }
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        BBHistoricalDataService service = ServiceLocator.instance().getService("historicalDataService", BBHistoricalDataService.class);
+        HistoricalDataService service = ServiceLocator.instance().getService("historicalDataService", HistoricalDataService.class);
 
-        service.init();
+        if (service instanceof InitializingServiceI) {
+            ((InitializingServiceI) service).init();
+        }
 
         for (int securityId : securityIds) {
-            service.updateHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
+            if (update) {
+                service.updateHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
+            } else {
+                service.replaceHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
+            }
         }
 
         ServiceLocator.instance().shutdown();

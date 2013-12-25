@@ -47,19 +47,19 @@ import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvTickWriter;
 
 /**
- * Starter Class to download historical 1min tick data
+ * Starter Class to download historical 1min tick data and save them to CSV files
  * <p>
- * Usage: {@code IBHistoricalDataStarter fromDate toDate barType(s) securityId(s)}
+ * Usage: {@code IBHistoricalTickDataStarter fromDate toDate barType(s) securityId(s)}
  * <p>
- * Examle: {@code 20120115 20120216 BID:ASK 29:103850:104586:104587:104588}
+ * Examle: {@code IBHistoricalTickDataStarter 20120115 20120216 BID:ASK 29:103850:104586:104587:104588}
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class IBHistoricalDataStarter {
+public class IBHistoricalTickDataStarter {
 
-    private static Logger logger = MyLogger.getLogger(IBHistoricalDataStarter.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBHistoricalTickDataStarter.class.getName());
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
 
