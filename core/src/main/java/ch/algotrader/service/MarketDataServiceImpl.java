@@ -69,13 +69,20 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
         // write the tick to file
         Security security = tick.getSecurity();
-        CsvTickWriter csvWriter = this.csvWriters.get(security);
-        if (csvWriter == null) {
-            String fileName = security.getIsin() != null ? security.getIsin() : String.valueOf(security.getId());
-            csvWriter = new CsvTickWriter(fileName);
-            this.csvWriters.put(security, csvWriter);
+
+        CsvTickWriter csvWriter;
+        synchronized (this.csvWriters) {
+            csvWriter = this.csvWriters.get(security);
+            if (csvWriter == null) {
+                String fileName = security.getIsin() != null ? security.getIsin() : String.valueOf(security.getId());
+                csvWriter = new CsvTickWriter(fileName);
+                this.csvWriters.put(security, csvWriter);
+            }
         }
-        csvWriter.write(tick);
+
+        synchronized (csvWriter) {
+            csvWriter.write(tick);
+        }
 
         // write the tick to the DB (even if not valid)
         getTickDao().create(tick);
