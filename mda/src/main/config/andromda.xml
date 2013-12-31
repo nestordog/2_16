@@ -29,8 +29,8 @@
                     <!--  <location patterns="**/${andromda.version}/*.uml">${settings.localRepository}/org/andromda/profiles/emf/uml22</location> -->
                     <!--</moduleSearchLocations> -->
                     <!-- Can filter in/out specific model packages (in UML notation) to generate code from (default true=process all) -->
-                    <!--modelPackages>
-                        <modelPackage process="false">org::andromda::sample::notprocessed</modelPackage>
+                    <!--modelPackages processAll="false">
+                        <modelPackage process="true">ch::algotrader::custom::*</modelPackage>
                     </modelPackages-->
                     <!-- Can filter in/out specific andromda model validation constraints (default true=validate all) -->
                     <constraints enforceAll="true">
@@ -76,7 +76,7 @@
                 <!-- Replaces default JavaMappings with customized mappings which extend Java, for PrimitiveTypes etc. -->
                 <property name="languageMappingsUri">Java</property>
                 <property name="wrapperMappingsUri">JavaWrapper</property>
-                <property name="sqlMappingsUri">file:${project.basedir}/src/main/config/mappings/MySQLMappings.xml</property>
+                <property name="sqlMappingsUri">file:${conf.dir}/mappings/MySQLMappings.xml</property>
                 <property name="jdbcMappingsUri">JDBC</property>
                 <property name="maxSqlNameLength">30</property>
                 <property name="foreignKeySuffix">_FK</property>

@@ -79,8 +79,6 @@
         <application.id>algotrader</application.id>
         <application.package>ch.algotrader</application.package>
         <application.name>AlgoTrader</application.name>
-        <dataSource.name>jdbc/${application.id}</dataSource.name>
-        <dataSource>java:comp/env/${dataSource.name}</dataSource>
         <!-- Avoid JDK6 XJC runtime error on wdsl2java from conflicting Jaxb2.2 -->
         <!-- Versioned independently from CXF core -->
         <cxf.xjc.version>2.3.0</cxf.xjc.version>
