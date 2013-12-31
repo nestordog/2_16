@@ -360,6 +360,49 @@ public class ExClient {
                     </tbody>
                 </tgroup>
             </table>
+            <para>These Main Entities can be categorized into the following three areas:</para>
+            <variablelist>
+                <varlistentry>
+                    <term>Reference Data (R)</term>
+                    <listitem>
+                        <para><classname>Strategy</classname>, <classname>Security</classname>,
+                                <classname>SecurityFamily</classname>,
+                                <classname>Account</classname>, <classname>Allocation</classname>,
+                                <classname>BrokerParameter</classname>,
+                                <classname>Property</classname>,
+                                <classname>OrderPreference</classname> and related Entities</para>
+                        <para>These Entities are typically immutable and represent the foundation
+                            for every trading strategy. The <xref linkend="Reference_Data_Manager"/>
+                            provides a GUI to manage reference data.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Market Data (M)</term>
+                    <listitem>
+                        <para><classname>MarketDataEvent</classname> and its subclasses
+                                <classname>Tick</classname> and <classname>Bar</classname> as well
+                            as any type of Generic Event</para>
+                        <para>These Entities represent external events (Tick and Bar) coming from
+                            market data providers or internal events (Generic Events) coming from
+                            another trading strategy and provide the basis for the decision logic
+                            within trading strategies. Market Data is typically immutable and of
+                            only momentary interest to the trading strategies.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Transaction Data (T)</term>
+                    <listitem>
+                        <para><classname>Order</classname>, <classname>Transaction</classname>,
+                                <classname>Position</classname>, <classname>Balance</classname>,
+                                <classname>Measurement</classname>,
+                                <classname>PortfolioValue</classname> and related Entities</para>
+                        <para>These Entities represent or influence the financial state of trading
+                            strategies. Some of them (e.g. Transactions and Measurements) are
+                            immutable whereas others (e.g. Positions and Balances) are immutable and
+                            change their values while Orders are getting executed. </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
             <section>
                 <title>Strategy</title>
                 <figure>
@@ -1365,6 +1408,91 @@ public class ExClient {
                 </listitem>
             </itemizedlist>
         </section>
+        <section>
+            <title>Custom UML artifacts</title>
+            <para>It is possible to extend the AlgoTrader UML Model with custom artifacts (e.g.
+                Entities, Services, Enumerations, etc.) on a client specific basis. </para>
+            <note>
+                <para>Relations between custom Entities and from a custom Entity to a standard
+                    AlgoTrader Entity is supported. However adding a relation from a standard
+                    AlgoTrader Entity to a custom Entity is not supported.</para>
+            </note>
+            <para>To do this the following steps are necessary:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>Create a Maven project structure containing <literal>uml</literal>,
+                            <literal>mda</literal>, <literal>common</literal> and
+                            <literal>core</literal> modules similar to the structure of the main
+                        AlgoTrader project</para>
+                </listitem>
+                <listitem>
+                    <para>Inside <filename>/xyz/uml/src/main/uml</filename> create the UML Model,
+                        eg. <filename>xyz.xml</filename></para>
+                </listitem>
+                <listitem>
+                    <para>Add a reference to the <filename>algoTrader.xml</filename> UML File using
+                        the <filename>&lt;algotrader.home></filename> path variable</para>
+                </listitem>
+                <listitem>
+                    <para>Add references to all AndroMDA profiles inside:
+                            <filename>&lt;maven2.repository>/org/andromda/profiles/uml2/</filename></para>
+                </listitem>
+                <listitem>
+                    <para>Add the custom UML Artifacts to a new Model Element</para>
+                </listitem>
+                <listitem>
+                    <para>Copy the file
+                            <filename>&lt;algotrader>/mda/src/main/config/andromda.xml</filename> to
+                            <filename>/xyz/mda/src/main/config/andromda.xml</filename> and modify it
+                        as follows:</para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>uncomment the <literal>modelPackages</literal> section and add the
+                                correct path to the filter (e.g.
+                                <package>com::xzy::*</package>)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Inside the <literal>sqlMappingsUri</literal> and the three
+                                    <literal>mergeMappingsUri</literal>  properties replace
+                                    <filename>file:${conf.dir}/mappings/</filename> with
+                                    <filename>file:${algotrader.mda.conf.dir}/mappings/</filename></para>
+                        </listitem>
+                    </itemizedlist>
+                </listitem>
+                <listitem>
+                    <para>Copy the file <filename>&lt;algotrader>/mda/pom.xml</filename> to
+                            <filename>/xyz/mda/pom.xml</filename> and modify it as follows:</para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>Update <literal>parent</literal>, <literal>artifactid</literal>
+                                and <literal>name</literal></para>
+                        </listitem>
+                        <listitem>
+                            <para>Replace all dependencies with one dependency to
+                                    <literal>algotrader:algotrader-mda:2.1:pom</literal></para>
+                        </listitem>
+                        <listitem>
+                            <para>Update <literal>application.id</literal>,<literal>
+                                    application.package</literal> and
+                                    <literal>application.name</literal> properties</para>
+                        </listitem>
+                        <listitem>
+                            <para>Update the <literal>model.uri</literal> property to
+                                    <filename>file:${project.basedir}/../uml/src/main/uml/xyz.uml</filename></para>
+                        </listitem>
+                        <listitem>
+                            <para>Add a <literal>algotrader.mda.conf.dir</literal> property
+                                containing
+                                    <literal>${env.ALGOTRADER_HOME}/mda/src/main/config/</literal></para>
+                        </listitem>
+                    </itemizedlist>
+                </listitem>
+                <listitem>
+                    <para>Add an environment variable named <literal>ALGOTRADER_HOME</literal> to
+                        the system pointing to the main AlgoTrader directory</para>
+                </listitem>
+            </itemizedlist>
+        </section>
     </chapter>
     <chapter id="Java_Environment">
         <title>Java Environment</title>
@@ -2137,425 +2265,782 @@ public class ExClient {
     </chapter>
     <chapter id="Esper_Engine">
         <title>Esper Engine</title>
-        <para>The system is built on CEP (Complex Event Processing) using the open source framework
-                <ulink url="http://esper.codehaus.org/">Esper</ulink>.</para>
-        <para>The following tutorials give a good overview of Esper:</para>
-        <itemizedlist>
-            <listitem>
-                <para><ulink url="http://esper.codehaus.org/tutorials/tutorial/tutorial.html">Esper
-                        Tutorial</ulink></para>
-            </listitem>
-            <listitem>
-                <para><ulink url="http://esper.codehaus.org/tutorials/tutorial/quickstart.html">Esper Quick Start</ulink></para>
-            </listitem>
-            <listitem>
-                <para><ulink url="http://coffeeonesugar.wordpress.com/2009/07/21/getting-started-with-esper-in-5-minutes/">Getting started with Esper in 5 minutes</ulink></para>
-            </listitem>
-            <listitem>
-                <para><ulink url="http://jnb.ociweb.com/jnb/jnbOct2008.html">Complex Event
-                        Processing with Esper</ulink></para>
-            </listitem>
-            <listitem>
-                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/examples.html">Esper Examples, Tutorials, Case Studies</ulink></para>
-            </listitem>
-        </itemizedlist>
-        <para>In addition the following chapters of the Esper Documentation are relevant for
-            developing trading strategies with AlgoTrader based on Esper:</para>
-        <itemizedlist>
-            <listitem>
-                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/event_representation.html">2. Event Representations</ulink> (2 - 2.5)</para>
-            </listitem>
-            <listitem>
-                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/processingmodel.html">3. Processing Model</ulink></para>
-            </listitem>
-            <listitem>
-                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl_clauses.html">5. EPL Reference: Clauses</ulink> (5 - 5.9, 5.12, 5.14, 5.15, 5.18)</para>
-            </listitem>
-            <listitem>
-                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/event_patterns.html">6. EPL Reference: Patterns</ulink></para>
-            </listitem>
-            <listitem>
-                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl-operator.html">8. EPL Reference: Operators</ulink></para>
-            </listitem>
-            <listitem>
-                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/functionreference.html">9. EPL Reference: Functions</ulink></para>
-            </listitem>
-            <listitem>
-                <para><ulink url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl-views.html">12. EPL Reference: Views</ulink></para>
-            </listitem>
-        </itemizedlist>
-        <para>Inside AlgoTrader individual Esper engines instances are used within the Base as well as
-            within the strategies.</para>
-        <para>Each of these engines can contain several modules. Modules specified within the column
-            INIT_MODULES and RUN_MODULES of the Table strategy, are loaded automatically on
-            start-up.</para>
-        <para>Each strategy will load all Esper configuration files named
-                <filename>esper-xxx.cfg.xml</filename> in the classpath. This configuration file
-            defines settings like:</para>
-        <itemizedlist>
-            <listitem>
-                <para>Event Types</para>
-            </listitem>
-            <listitem>
-                <para>Auto Import Classes &amp; Packages</para>
-            </listitem>
-            <listitem>
-                <para>Custom Aggregation Functions</para>
-            </listitem>
-            <listitem>
-                <para>Variables</para>
-            </listitem>
-            <listitem>
-                <para>General Engine Settings</para>
-            </listitem>
-        </itemizedlist>
+        <para>AlgoTrader is built on CEP (Complex Event Processing) using the open source framework <ulink
+                url="http://esper.codehaus.org/">Esper</ulink>.</para>
         <section>
-            <title>Base Modules</title>
-            <para>The Base contains the following modules:</para>
-            <table frame="all" pgwide="1">
-                <title>Base modules</title>
-                <tgroup cols="2">
-                    <colspec colwidth="1*"/>
-                    <colspec colwidth="2*"/>
-                    <thead>
-                        <row>
-                            <entry>Tag</entry>
-                            <entry>Description</entry>
-                        </row>
-                    </thead>
-                    <tbody>
-                        <row>
-                            <entry>module-algo-xxx.epl</entry>
-                            <entry>Each Execution Algo has its own module</entry>
-                        </row>
-                        <row>
-                            <entry>module-combination.epl</entry>
-                            <entry>Combination / Component related functionality (see <xref linkend="Synthetic_Instruments_and_Derivative_Spreads"/>)</entry>
-                        </row>
-                        <row>
-                            <entry>module-current-values.epl</entry>
-                            <entry>Store current market data values (last tick, last bid, last ask,
-                                last trade, etc.)</entry>
-                        </row>
-                        <row>
-                            <entry>module-market-data-bb.epl</entry>
-                            <entry>Bloomberg specific statements</entry>
-                        </row>
-                        <row>
-                            <entry>module-market-data-ib.epl</entry>
-                            <entry>IB specific statements</entry>
-                        </row>
-                        <row>
-                            <entry>module-market-data.epl</entry>
-                            <entry>statements related to market data retrieval</entry>
-                        </row>
-                        <row>
-                            <entry>module-market-data-simulation.epl</entry>
-                            <entry>simulation of market data</entry>
-                        </row>
-                        <row>
-                            <entry>module-performance.epl</entry>
-                            <entry>evaluation of performance indicators</entry>
-                        </row>
-                        <row>
-                            <entry>module-portfolio.epl</entry>
-                            <entry>portfolio management functions like setMargin, expirePosition,
-                                closePosition, rebalancePortfolio, etc.</entry>
-                        </row>
-                        <row>
-                            <entry>module-trades.epl</entry>
-                            <entry>statements related to orders and executions</entry>
-                        </row>
-                        <row>
-                            <entry>module-metrics.epl</entry>
-                            <entry>Statements needed for Engine Metrics</entry>
-                        </row>
-                        <row>
-                            <entry>module-prepared.epl</entry>
-                            <entry>Contains Prepared Statements available to strategies</entry>
-                        </row>
-                    </tbody>
-                </tgroup>
-            </table>
+            <title>Esper Introduction</title>
+            <para><footnote><para>Most of this section has been reproduced from the <ulink
+                url="http://esper.codehaus.org/tutorials/tutorial/tutorial.html">Esper
+                Tutorial</ulink></para></footnote>Esper is an Event Stream Processing (ESP) and event correlation engine (CEP,
+                Complex Event Processing). Targeted to real-time Event Driven Architectures (EDA),
+                Esper is capable of triggering custom actions written as Plain Old Java Objects
+                (POJO) when event conditions occur among event streams. It is designed for
+                high-volume event correlation where millions of events coming in would make it
+                impossible to store them all to later query them using classical database
+                architecture. </para>
+            <para>A tailored Event Processing Language (EPL) allows expressing rich event
+                conditions, correlation, possibly spanning time windows, thus minimizing the
+                development effort required to set up a system that can react to complex
+                situations.</para>
+            <para>Esper is a lightweight kernel written in Java which is fully embeddable into any Java
+                process. It enables rapid development of applications that process large volumes of
+                incoming messages or events.</para>
+            <section>
+                <title>Introduction to event streams and complex events using Esper</title>
+                <para>Information is critical to make wise decisions. This is true in real life but also in
+                    computing, and especially in the finance and trading area. Information flows in
+                    from different sources in the form of messages or events (e.g. market data
+                    events), giving a hint on the state at a given time such as stock price. That
+                    said, looking at those discrete events is most of the time meaningless. A trader
+                    needs to look at the stock trend over a period, possibly combined with other
+                    information to make the best deal at the right time.</para>
+                <para>While discrete events when looked one by one might be meaningless, event streams (i.e. an
+                    infinite set of events) considered over a sliding window and further correlated,
+                    are highly meaningful, and reacting to them with the minimal latency is critical
+                    for effective action and competitive advantage.</para>
+                <para>Relational databases or message-based systems such as JMS make it really hard
+                    to deal with temporal data and real-time queries. Indeed, databases require
+                    explicit querying to return meaningful data and are not suited to push data as
+                    it changes. JMS systems are stateless and require the developer to implement the
+                    temporal and aggregation logic himself. By contrast, the Esper engine provides a
+                    higher abstraction and intelligence and can be thought of as a database turned
+                    upside-down: instead of storing the data and running queries against stored
+                    data, Esper allows applications to store queries and run the data through.
+                    Response from the Esper engine is real-time when conditions occur that match
+                    user defined queries. The execution model is thus continuous rather than only
+                    when a query is submitted.</para>
+                <para>In Esper, a tailored EPL allows registering queries in the engine. A listener
+                    class, which is basically a POJO, will then be called by the engine when the EPL
+                    condition is matched as events flow in. The EPL enables to express complex
+                    matching conditions that include temporal windows, joining of different event
+                    streams, as well as filtering, aggregation, and sorting. Esper statements can
+                    also be combined together with "followed by" conditions thus deriving complex
+                    events from more simple events. Events can be represented as JavaBean classes,
+                    legacy Java classes, XML document or <classname>java.util.Map</classname>, which
+                    promotes reuse of existing systems acting as messages publishers.</para>
+                <para>A trivial yet meaningful example is as follow: assume a trader wants to buy
+                    Google stock as soon as the price goes below some floor value, not when looking
+                    at each tick but when the computation is done over a sliding time window, say of
+                    30 seconds. Given a Tick event bean with a last price field and a reference to a
+                    Security class containing a symbol property and the following EPL, a listener
+                    POJO would get notified as ticks come in to trigger the buy order:</para>
+                <programlisting>select
+    avg(last)
+from
+    Tick.win:time(30 sec)
+where
+    security.symbol='GOOG'</programlisting>
+            </section>
+            <section>
+                <title>Event representations</title>
+                <para>Java classes are a simple, rich and versatile way to represent events in Esper. Java
+                    classes offer inheritance and polymorphism via interfaces and super-classes, and
+                    can represent a complex business domain via an object graph. In AlgoTrader event
+                    class like <classname>Tick</classname>, <classname>Bar</classname>,
+                        <classname>Order</classname>, <classname>OrderStatus</classname> etc. are
+                    made available to Esper engines by default. In addition any arbitrary java class
+                    can be used inside Esper engines after declaring them.</para>
+                <para>In addition to Java classes, Maps and XML are an alternative way of
+                    representing events.</para>
+            </section>
+            <section>
+                <title>Event Stream Analysis</title>
+                <para>EPL statements derive and aggregate information from one or more streams of
+                    events, to join or merge event streams, and to feed results from one event
+                    stream to subsequent statements. </para>
+                <para>EPL is similar to SQL in it's use of the <literal>select</literal> clause and the
+                        <literal>where</literal> clause. However EPL statements instead of tables
+                    use event streams and a concept called <literal>views</literal>. Similar to
+                    tables in an SQL statement, views define the data available for querying and
+                    filtering. Views can represent windows over a stream of events. Views can also
+                    sort events, derive statistics from event properties, group events or handle
+                    unique event property values.</para>
+                <para>This is a sample EPL statement that computes the average of the last price for the last 30
+                    seconds of Tick events:</para>
+                <programlisting>select
+    avg(last)
+from
+    Tick.win:time(30 sec) </programlisting>
+                <para>A sample EPL that returns the average of the last price per symbol for the last 100
+                    Ticks.</para>
+                <programlisting>select
+    security
+    avg(last) as averagePrice
+from
+    Tick.win:length(100)
+group by
+    security</programlisting>
+                <para>This example joins 2 event streams. The first event stream consists of Bar events for
+                    which we keep the last 30 minutes (1800 seconds). The second stream is Tick
+                    events for which we consider the last 30 seconds. The streams are joined on
+                    securityId.</para>
+                <programlisting>select
+    bar.security.id as securityId,
+    max(bar.high) as maxHigh,
+    min(bar.low) as minLow,
+    last(tick.last) as lastPrice
+from
+    Bar.win:time(30 min) as bar,
+    Tick.win:time(30 sec) as tick
+where
+    bar.security.id = tick.security.id</programlisting>
+            </section>
+            <section>
+                <title>Combining Patterns Matching with Event Stream Analysis</title>
+                <para>Patterns match when a sequence (or absence) of events is detected. Pattern
+                    match results are available for further analysis and processing.</para>
+                <para>The pattern below detects a situation where an OrderStatus event is not followed by
+                    another OrderStatus event corresponding to the same internal order id within 10
+                    seconds. The statement further counts all such occurrences grouped per internal
+                    order id. </para>
+                <programlisting>select
+    a.intId,
+    count(*)
+from
+    pattern [every a=OrderStatus -&gt; (timer:interval(10 sec) and not OrderStatus(intId=a.intId)]
+group by
+    id</programlisting>
+            </section>
+            <section>
+                <title>Named windows</title>
+                <para>A named window is a global data window that can take part in many statement
+                    queries, and that can be selected-from, inserted- into and deleted-from by
+                    multiple statements. Named windows are similar to a table in a relational
+                    database system.</para>
+                <para>One can create a named window for example as follows:</para>
+                <programlisting>create window
+    SecurityWindow
+as
+    (symbol String, triggerPrice double)</programlisting>
+                <para>One can trigger a select, update or delete when an event arrives. Here we show
+                    a select that simply counts the number of rows:</para>
+                <programlisting>on
+    TriggerEvent
+select
+    count(*)
+from
+    SecurityWindow</programlisting>
+                <para>Named windows can as well be queried with fire-and-forget queries through
+                        <methodname>ch.algotrader.esper.Engine.executeQuery</methodname> and
+                        <methodname>ch.algotrader.esper.Engine.executeSingelObjectQuery</methodname>.</para>
+            </section>
+            <section>
+                <title>Variables</title>
+                <para>A variable is a scalar, object or event value that is available for use in all
+                    statements including patterns. Variables can be used in an expression anywhere
+                    in EPL.</para>
+            </section>
         </section>
         <section>
-            <title>Strategy Modules</title>
-            <para>Strategies are completely free in the definition of their Esper Statements.
-                Examples of Statements used by strategies are:</para>
+            <title>Esper Quick Start Guide</title>
+            <para><footnote><para>Most of this section has been reproduced from the <ulink
+                url="http://esper.codehaus.org/tutorials/tutorial/quickstart.html">Esper
+                Quick Start</ulink></para></footnote>This quick start guide provides step-by-step instructions for using Esper inside
+                AlgoTrader.</para>
+            <section>
+                <title>Installation</title>
+                <para>Since Esper is already integrated into AlgoTrader no additional installation
+                    is necessary. Inside AlgoTrader individual Esper engines instances are available
+                    within the Base as well as within the strategies.</para>
+            </section>
+            <section>
+                <title>Creating a Java Event Class</title>
+                <para>Java classes are a good choice for representing events, however Map-based or
+                    XML event representations can also be good choices depending on your
+                    architectural requirements.</para>
+                <para>The AlgoTrader Java class that represents an order event is shown below (for
+                    brevity many some optional fields are emitted) :</para>
+                <programlisting language="Java">package ch.algotrader.entity.trade;
+
+public class LimitOrder {
+
+    private Security security;
+    private BigDecimal limit;
+
+    public BigDecimal getLimit() {
+        return this.limit;
+    }
+
+    public void setLimit(BigDecimal limitIn) {
+        this.limit = limitIn;
+    }
+
+    public Security getSecurity() {
+        return this.security;
+    }
+
+    public void setSecurity(Security securityIn) {
+        this.security = securityIn;
+    }
+}</programlisting>
+            </section>
+            <section>
+                <title>Creating a Statement</title>
+                <para>A statement is a continuous query registered with an Esper engine instance
+                    that provides results to listeners as new data arrives, in real-time, or by
+                    demand via the iterator API (
+                        <methodname>ch.algotrader.esper.Engine.executeQuery</methodname> ).</para>
+                <para>The next code snippet contains an Esper module named
+                        <filename>module-limit-order.epl</filename> containing a continuous query.
+                    The query returns the average price over all OrderEvent events that arrived in
+                    the last 30 seconds:</para>
+                <programlisting>select
+    avg(price) as avgPrice
+from
+    LimitOrder.win:time(30 sec)</programlisting>
+                <para>Each of the Esper engines inside AlgoTrader can contain several modules.
+                    Modules specified within the column INIT_MODULES and RUN_MODULES of the Table
+                    strategy, are loaded automatically on start-up. Additional modules can be
+                    deployed at runtime using the method
+                        <methodname>EngineLocator.initEngine</methodname>.</para>
+            </section>
+            <section>
+                <title>Adding a Listener</title>
+                <para>Listeners are invoked by the engine in response to one or more events that
+                    change a statement's result set. Listeners implement the
+                        <literal>UpdateListener</literal> interface and act on
+                        <classname>EventBean</classname> instances as the next code snippet
+                    outlines:</para>
+                <programlisting language="Java">public class MyListener implements UpdateListener {
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+        EventBean event = newEvents[0];
+        System.out.println("avg=" + event.get("avgPrice"));
+    }
+}</programlisting>
+                <para>By attaching the listener to the statement via the following annotation the
+                    engine provides the statement's results to the listener:</para>
+                <programlisting>@Listeners(classNames={'ch.algotrader.listener.MyListener'})
+select
+    avg(price) as avgPrice
+from
+    LimitOrder.win:time(30 sec)</programlisting>
+            </section>
+            <section>
+                <title>Sending events</title>
+                <para>The runtime API accepts events for processing. As a statement's results
+                    change, the engine indicates the new results to listeners right when the events
+                    are processed by the engine.</para>
+                <para>Events like incoming market data events (e.g. Ticks), submitted Orders,
+                    OrderStatus events, received Fills, etc are automatically sent into the
+                    corresponding Esper engines.</para>
+                <para>In addition sending custom events into an Esper engine is straightforward as
+                    well. The following code snipped creates an arbitrary event and sends it into
+                    the Esper engine instead an AlgoTrader strategy named
+                    <literal>EXAMPLE</literal>.</para>
+                <programlisting>MyEvent event = new MyEvent();
+event.setValue(10);
+
+EngineLocator.sendEvent("EXAMPLE", event);</programlisting>
+            </section>
+            <section>
+                <title>Configuration</title>
+                <para>Esper Configuration helps make statements more readable and provides the
+                    opportunity to plug-in extensions.</para>
+                <para>Each strategy will load all Esper configuration files named
+                        <filename>esper-xxx.cfg.xml</filename> in the classpath. This configuration
+                    file defines settings like:</para>
+                <itemizedlist>
+                    <listitem>
+                        <para>Event Types</para>
+                    </listitem>
+                    <listitem>
+                        <para>Auto Import Classes &amp; Packages</para>
+                    </listitem>
+                    <listitem>
+                        <para>Custom Aggregation Functions</para>
+                    </listitem>
+                    <listitem>
+                        <para>Variables</para>
+                    </listitem>
+                    <listitem>
+                        <para>General Engine Settings</para>
+                    </listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section>
+            <title>Esper Documentation</title>
+            <para>Esper provides in depth <ulink
+                    url="http://esper.codehaus.org/esper/documentation/documentation.html"
+                    >documentation</ulink>.</para>
+            <para>The following chapters of the Esper Documentation are relevant for developing
+                trading strategies with AlgoTrader based on Esper:</para>
             <itemizedlist>
                 <listitem>
-                    <para>Creation of technical indicators (i.e. Moving Average, Stochastic, MACD,
-                        etc.)</para>
+                    <para><ulink
+                            url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/event_representation.html"
+                            >2. Event Representations</ulink> (2 - 2.5)</para>
                 </listitem>
                 <listitem>
-                    <para>Creation of trade signals</para>
+                    <para><ulink
+                            url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/processingmodel.html"
+                            >3. Processing Model</ulink></para>
                 </listitem>
                 <listitem>
-                    <para>Trend evaluation</para>
+                    <para><ulink
+                            url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl_clauses.html"
+                            >5. EPL Reference: Clauses</ulink> (5 - 5.9, 5.12, 5.14, 5.15,
+                        5.18)</para>
                 </listitem>
                 <listitem>
-                    <para>Open / Close / Increase / Reduce Positions</para>
+                    <para><ulink
+                            url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/event_patterns.html"
+                            >6. EPL Reference: Patterns</ulink></para>
                 </listitem>
                 <listitem>
-                    <para>Set Exit Values</para>
+                    <para><ulink
+                            url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl-operator.html"
+                            >8. EPL Reference: Operators</ulink></para>
                 </listitem>
                 <listitem>
-                    <para>Roll Positions (i.e. for Options and Futures)</para>
+                    <para><ulink
+                            url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/functionreference.html"
+                            >9. EPL Reference: Functions</ulink></para>
                 </listitem>
                 <listitem>
-                    <para>Pattern recognition</para>
-                </listitem>
-                <listitem>
-                    <para>Order book analysis</para>
+                    <para><ulink
+                            url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/epl-views.html"
+                            >12. EPL Reference: Views</ulink></para>
                 </listitem>
             </itemizedlist>
+            <para>In addition <ulink
+                    url="http://esper.codehaus.org/esper-4.9.0/doc/reference/en-US/html/examples.html"
+                    >Esper Examples, Tutorials, Case Studies</ulink> are available.</para>
         </section>
         <section>
-            <title>Tags</title>
-            <para>In addition to the standard tags provided by Esper the following tags are
-                available:</para>
-            <table frame="all" pgwide="1">
-                <title>Esper tags</title>
-                <tgroup cols="2">
-                    <colspec colwidth="1.2*"/>
-                    <colspec colwidth="2*"/>
-                    <thead>
-                        <row>
-                            <entry>Tag</entry>
-                            <entry>Description</entry>
-                        </row>
-                    </thead>
-                    <tbody>
-                        <row>
-                            <entry><parameter>@Condition(key='xxx')</parameter>
-                            </entry>
-                            <entry>Statement is only deployed if defined configuration parameter is
-                                set to "true"</entry>
-                        </row>
-                        <row>
-                            <entry><parameter>@SimulationOnly</parameter>
-                            </entry>
-                            <entry>Statement is only deployed in simulation</entry>
-                        </row>
-                        <row>
-                            <entry><parameter>@RunTimeOnly()</parameter>
-                            </entry>
-                            <entry>Statement is only deployed in Live-Trading mode</entry>
-                        </row>
-                        <row>
-                            <entry><parameter>@Listeners(classNames={'...'})</parameter>
-                            </entry>
-                            <entry>attaches one or multiple listeners to the statement</entry>
-                        </row>
-                        <row>
-                            <entry><parameter>@Subscriber(className='...')</parameter>
-                            </entry>
-                            <entry>attaches a subscriber to the statement</entry>
-                        </row>
-                    </tbody>
-                </tgroup>
-            </table>
-        </section>
-        <section>
-            <title>Subscribers</title>
-            <para>The system provides the following Subscribers out-of-the-box:</para>
-            <variablelist>
-                <varlistentry>
-                    <term>IndicatorSubscriber</term>
-                    <listitem>
-                        <para>Prints all values as a comma-separated-list (CSV) to Log. (Headers are
-                            not available)</para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term>LogPortfolioValueSubscriber</term>
-                    <listitem>
-                        <para>Prints porftolio values like CashBalance, SecuritiesCurrentValue,
-                            MaintenanceMargin and Leverage to the Log.</para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term>TestSubscriber</term>
-                    <listitem>
-                        <para>Prints all values to the Log by using the
-                                <methodname>toString</methodname> method of the event object.</para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term>VoidSubscriber</term>
-                    <listitem>
-                        <para>Do-nothing subscriber, useful when select clauses call static
-                            methods</para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term>ExceptionSubscriber</term>
-                    <listitem>
-                        <para>Prints a value as an Error to the Log.</para>
-                    </listitem>
-                </varlistentry>
-            </variablelist>
-            <para>The class <classname>ch.algotrader.esper.subscriber.SubscriberCreator</classname>
-                can generate Subscriber classes on the fly using <ulink url="http://www.csg.ci.i.u-tokyo.ac.jp/~chiba/javassist/">javassist</ulink>. Use
-                the following syntax to call a spring service method directly:</para>
-            <programlisting>@Subscriber(className='ch.algotrader.service.PositionService.setMargins')</programlisting>
-        </section>
-        <section>
-            <title>Listeners</title>
-            <para>The system provides the following Listeners out-of-the-box:</para>
-            <variablelist>
-                <varlistentry>
-                    <term>IndicatorListener</term>
-                    <listitem><para>Prints all values as a comma-separated-list (CSV) to Log. Headers will be extracted from the
-                            supplied Statement.</para></listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term>RendererListener:</term>
-                    <listitem><para>Prints all values to the Log in XML format.</para></listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term>TestListener</term>
-                    <listitem><para>Prints all values to the Log by using the <methodname>toString</methodname> method of the
-                            event object.</para></listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term>StatementAwareTestListener</term>
-                    <listitem>
-                        <para>Prints all values including the statement name to the Log by using the
-                                <methodname>toString</methodname> method of the event object.</para>
-                    </listitem>
-                </varlistentry>
-            </variablelist>
-        </section>
-        <section>
-            <title>Aggregation Functions</title>
-            <para>The system provides the following three custom aggregation functions:</para>
-            <section id="GenericTALibFunction">
-                <title>GenericTALibFunction</title>
-                <para>The <classname>GenericTALibFunction</classname> is a portation of <ulink url="http://ta-lib.org/">http://ta-lib.org/</ulink> to AlgoTrader. It
-                    supports all TA-Lib operations.</para>
-                <para>To use the <classname>AggregateFunction</classname> the following
-                    configuration is added to the esper configuration
-                        <filename>esper-common.cfg.xml</filename>:</para>
-                <programlisting lang="XML">&lt;plugin-aggregation-function name="talib" factory-class="ch.algotrader.esper.aggregation.GenericTALibFunctionFactory"/></programlisting>
-                <para>The <classname>AggregationFunction</classname> can be used in an esper
-                    statement like this: </para>
-                <programlisting lang="Java">insert into StochF
+            <title>AlgoTrader specific Esper Artifacts</title>
+            <section>
+                <title>Engine &amp; EngineLocator</title>
+                <para>Inside AlgoTrader Esper engine instances are wrapped by the
+                        <classname>EngineImpl</classname> class the implements the
+                        <classname>Engine</classname> interface. Individual Engine instances can be
+                    located through the <classname>EngineLocator</classname> singleton.</para>
+                <section>
+                    <title>Engine</title>
+                    <para>The Engine interface has methods available for the following tasks:</para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>deployment / undeployment of Esper statements and modules</para>
+                        </listitem>
+                        <listitem>
+                            <para>sending events</para>
+                        </listitem>
+                        <listitem>
+                            <para>execute fire-and-forget queries</para>
+                        </listitem>
+                        <listitem>
+                            <para>retrieve current statement state</para>
+                        </listitem>
+                        <listitem>
+                            <para>management of the Esper clock</para>
+                        </listitem>
+                        <listitem>
+                            <para>synchronized instertion (coordination) of events from different
+                                sources into the Esper engine</para>
+                        </listitem>
+                        <listitem>
+                            <para>management of Esper variables</para>
+                        </listitem>
+                        <listitem>
+                            <para>adding <xref linkend="Callbacks"/></para>
+                        </listitem>
+                    </itemizedlist>
+                    <para>For further information please visit the relevant JavaDoc.</para>
+                    <para>There is an abstract do-nothing implementation of the
+                            <classname>Engine</classname> interface available named
+                            <classname>AbstractEngine</classname>. In addition the class EngineImpl
+                        holds the actual implementation in relation to the Esper API. </para>
+                </section>
+                <section>
+                    <title>EngineLocator</title>
+                    <para>The <classname>EngineLocator</classname> is a Java singleton that
+                        represents the main entry point to different Engines running inside the JVM.
+                        The EngineLocator has methods available for the following tasks:</para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>Creation and destruciton of Engines</para>
+                        </listitem>
+                        <listitem>
+                            <para>Lookup of Engines</para>
+                        </listitem>
+                        <listitem>
+                            <para>Sending of Events to Engines (within the same JVM or via JMS to a
+                                remote JVM)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Management of statement metrics</para>
+                        </listitem>
+                    </itemizedlist>
+                    <para>For further information please visit the relevant JavaDoc.</para>
+                </section>
+            </section>
+            <section>
+                <title>Modules</title>
+                <section>
+                    <title>Base Modules</title>
+                    <para>The Base contains the following modules:</para>
+                    <table frame="all" pgwide="1">
+                        <title>Base modules</title>
+                        <tgroup cols="2">
+                            <colspec colwidth="1*"/>
+                            <colspec colwidth="2*"/>
+                            <thead>
+                                <row>
+                                    <entry>Tag</entry>
+                                    <entry>Description</entry>
+                                </row>
+                            </thead>
+                            <tbody>
+                                <row>
+                                    <entry>module-algo-xxx.epl</entry>
+                                    <entry>Each Execution Algo has its own module</entry>
+                                </row>
+                                <row>
+                                    <entry>module-combination.epl</entry>
+                                    <entry>Combination / Component related functionality (see <xref
+                                            linkend="Synthetic_Instruments_and_Derivative_Spreads"
+                                        />)</entry>
+                                </row>
+                                <row>
+                                    <entry>module-current-values.epl</entry>
+                                    <entry>Store current market data values (last tick, last bid,
+                                        last ask, last trade, etc.)</entry>
+                                </row>
+                                <row>
+                                    <entry>module-market-data-bb.epl</entry>
+                                    <entry>Bloomberg specific statements</entry>
+                                </row>
+                                <row>
+                                    <entry>module-market-data-ib.epl</entry>
+                                    <entry>IB specific statements</entry>
+                                </row>
+                                <row>
+                                    <entry>module-market-data.epl</entry>
+                                    <entry>statements related to market data retrieval</entry>
+                                </row>
+                                <row>
+                                    <entry>module-market-data-simulation.epl</entry>
+                                    <entry>simulation of market data</entry>
+                                </row>
+                                <row>
+                                    <entry>module-performance.epl</entry>
+                                    <entry>evaluation of performance indicators</entry>
+                                </row>
+                                <row>
+                                    <entry>module-portfolio.epl</entry>
+                                    <entry>portfolio management functions like setMargin,
+                                        expirePosition, closePosition, rebalancePortfolio,
+                                        etc.</entry>
+                                </row>
+                                <row>
+                                    <entry>module-trades.epl</entry>
+                                    <entry>statements related to orders and executions</entry>
+                                </row>
+                                <row>
+                                    <entry>module-metrics.epl</entry>
+                                    <entry>Statements needed for Engine Metrics</entry>
+                                </row>
+                                <row>
+                                    <entry>module-prepared.epl</entry>
+                                    <entry>Contains Prepared Statements available to
+                                        strategies</entry>
+                                </row>
+                            </tbody>
+                        </tgroup>
+                    </table>
+                </section>
+                <section>
+                    <title>Strategy Modules</title>
+                    <para>Strategies are completely free in the definition of their Esper
+                        Statements. Examples of Statements used by strategies are:</para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>Creation of technical indicators (i.e. Moving Average, Stochastic,
+                                MACD, etc.)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Creation of trade signals</para>
+                        </listitem>
+                        <listitem>
+                            <para>Trend evaluation</para>
+                        </listitem>
+                        <listitem>
+                            <para>Open / Close / Increase / Reduce Positions</para>
+                        </listitem>
+                        <listitem>
+                            <para>Set Exit Values</para>
+                        </listitem>
+                        <listitem>
+                            <para>Roll Positions (i.e. for Options and Futures)</para>
+                        </listitem>
+                        <listitem>
+                            <para>Pattern recognition</para>
+                        </listitem>
+                        <listitem>
+                            <para>Order book analysis</para>
+                        </listitem>
+                    </itemizedlist>
+                </section>
+            </section>
+            <section>
+                <title>Tags</title>
+                <para>In addition to the standard tags provided by Esper the following tags are
+                    available:</para>
+                <table frame="all" pgwide="1">
+                    <title>Esper tags</title>
+                    <tgroup cols="2">
+                        <colspec colwidth="1.2*"/>
+                        <colspec colwidth="2*"/>
+                        <thead>
+                            <row>
+                                <entry>Tag</entry>
+                                <entry>Description</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry><parameter>@Condition(key='xxx')</parameter>
+                                </entry>
+                                <entry>Statement is only deployed if defined configuration parameter
+                                    is set to "true"</entry>
+                            </row>
+                            <row>
+                                <entry><parameter>@SimulationOnly</parameter>
+                                </entry>
+                                <entry>Statement is only deployed in simulation</entry>
+                            </row>
+                            <row>
+                                <entry><parameter>@RunTimeOnly()</parameter>
+                                </entry>
+                                <entry>Statement is only deployed in Live-Trading mode</entry>
+                            </row>
+                            <row>
+                                <entry><parameter>@Listeners(classNames={'...'})</parameter>
+                                </entry>
+                                <entry>attaches one or multiple listeners to the statement</entry>
+                            </row>
+                            <row>
+                                <entry><parameter>@Subscriber(className='...')</parameter>
+                                </entry>
+                                <entry>attaches a subscriber to the statement</entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </section>
+            <section>
+                <title>Subscribers</title>
+                <para>The system provides the following Subscribers out-of-the-box:</para>
+                <variablelist>
+                    <varlistentry>
+                        <term>IndicatorSubscriber</term>
+                        <listitem>
+                            <para>Prints all values as a comma-separated-list (CSV) to Log. (Headers
+                                are not available)</para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>LogPortfolioValueSubscriber</term>
+                        <listitem>
+                            <para>Prints porftolio values like CashBalance, SecuritiesCurrentValue,
+                                MaintenanceMargin and Leverage to the Log.</para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>TestSubscriber</term>
+                        <listitem>
+                            <para>Prints all values to the Log by using the
+                                    <methodname>toString</methodname> method of the event
+                                object.</para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>VoidSubscriber</term>
+                        <listitem>
+                            <para>Do-nothing subscriber, useful when select clauses call static
+                                methods</para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>ExceptionSubscriber</term>
+                        <listitem>
+                            <para>Prints a value as an Error to the Log.</para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+                <para>The class
+                        <classname>ch.algotrader.esper.subscriber.SubscriberCreator</classname> can
+                    generate Subscriber classes on the fly using <ulink
+                        url="http://www.csg.ci.i.u-tokyo.ac.jp/~chiba/javassist/">javassist</ulink>.
+                    Use the following syntax to call a spring service method directly:</para>
+                <programlisting>@Subscriber(className='ch.algotrader.service.PositionService.setMargins')</programlisting>
+            </section>
+            <section>
+                <title>Listeners</title>
+                <para>The system provides the following Listeners out-of-the-box:</para>
+                <variablelist>
+                    <varlistentry>
+                        <term>IndicatorListener</term>
+                        <listitem>
+                            <para>Prints all values as a comma-separated-list (CSV) to Log. Headers
+                                will be extracted from the supplied Statement.</para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>RendererListener:</term>
+                        <listitem>
+                            <para>Prints all values to the Log in XML format.</para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>TestListener</term>
+                        <listitem>
+                            <para>Prints all values to the Log by using the
+                                    <methodname>toString</methodname> method of the event
+                                object.</para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>StatementAwareTestListener</term>
+                        <listitem>
+                            <para>Prints all values including the statement name to the Log by using
+                                the <methodname>toString</methodname> method of the event
+                                object.</para>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </section>
+            <section>
+                <title>Aggregation Functions</title>
+                <para>The system provides the following three custom aggregation functions:</para>
+                <section>
+                    <title>GenericTALibFunction</title>
+                    <para>The <classname>GenericTALibFunction</classname> is a portation of <ulink
+                            url="http://ta-lib.org/">http://ta-lib.org/</ulink> to AlgoTrader. It
+                        supports all TA-Lib operations.</para>
+                    <para>To use the <classname>AggregateFunction</classname> the following
+                        configuration is added to the esper configuration
+                            <filename>esper-common.cfg.xml</filename>:</para>
+                    <programlisting lang="XML">&lt;plugin-aggregation-function name="talib" factory-class="ch.algotrader.esper.aggregation.GenericTALibFunctionFactory"/></programlisting>
+                    <para>The <classname>AggregationFunction</classname> can be used in an esper
+                        statement like this: </para>
+                    <programlisting lang="Java">insert into StochF
 select talib("stochF", high, low, close, 3, 2, "Sma") as values
 from OHLCBar;
 
 select values.fastk, values.fastd
 from StochF(values != null);</programlisting>
-                <para>The following parameters from the
-                        <classname>com.tictactec.ta.lib.Core</classname> methods will be needed: </para>
-                <para>
-                    <itemizedlist>
-                        <listitem>
-                            <para><parameter>in...</parameter> (i.e. <parameter>inHigh</parameter>,
-                                    <parameter>inLow</parameter>, <parameter>inClose</parameter>)
-                            </para>
-                        </listitem>
-                        <listitem>
-                            <para><parameter>optIn..</parameter> (i.e.
-                                    <parameter>optInFastK_Period</parameter>,
-                                    <parameter>optInFastD_Period</parameter>,
-                                    <parameter>optInFastD_MAType</parameter>) </para>
-                        </listitem>
-                        <listitem>
-                            <para><parameter>startIdx</parameter>, <parameter>endIdx</parameter>,
-                                    <parameter>outBegIdx</parameter> &amp;
-                                    <parameter>outNBElement</parameter> can be ignored </para>
-                        </listitem>
-                    </itemizedlist>
-                </para>
-                <para>If the TA-Lib Function returns just one value, the value is directly exposed
-                    by the <classname>AggregationFunction</classname>. </para>
-                <para>If the TA-Lib Function returns multiple-values, a dynamic class will be
-                    generated on the fly, which gives access to properly typed return-values. All
-                    return value names are lower-case! </para>
-                <para>Example: the TA-Lib function <methodname>stochF</methodname> has return
-                    values: <parameter>outFastK</parameter> and <parameter>outFastD</parameter>. The
-                    returned dynamic class will have double typed properties by the name of:
-                        <parameter>fastk</parameter> and <parameter>fastd</parameter> (all
-                    lowercase).</para>
-            </section>
-            <section>
-                <title>ExponentialMovingAverageFunction</title>
-                <para>The <classname>ExponentialMovingAverageFunction</classname> provides an exponential moving
-                    average over a defined period of time.</para>
-                <para>To use the <classname>AggregateFunction</classname> the following
-                    configuration has to be added to the esper configuration :</para>
-                <programlisting lang="XML">&lt;plugin-aggregation-function name="ema" factory-class="ch.algotrader.esper.aggregation.ExponentialMovingAverageFunction"/></programlisting>
-                <para>The <classname>AggregationFunction</classname> can then be used in an esper
-                    statement like this:</para>
+                    <para>The following parameters from the
+                            <classname>com.tictactec.ta.lib.Core</classname> methods will be needed: </para>
+                    <para>
+                        <itemizedlist>
+                            <listitem>
+                                <para><parameter>in...</parameter> (i.e.
+                                        <parameter>inHigh</parameter>, <parameter>inLow</parameter>,
+                                        <parameter>inClose</parameter>) </para>
+                            </listitem>
+                            <listitem>
+                                <para><parameter>optIn..</parameter> (i.e.
+                                        <parameter>optInFastK_Period</parameter>,
+                                        <parameter>optInFastD_Period</parameter>,
+                                        <parameter>optInFastD_MAType</parameter>) </para>
+                            </listitem>
+                            <listitem>
+                                <para><parameter>startIdx</parameter>,
+                                    <parameter>endIdx</parameter>, <parameter>outBegIdx</parameter>
+                                    &amp; <parameter>outNBElement</parameter> can be ignored </para>
+                            </listitem>
+                        </itemizedlist>
+                    </para>
+                    <para>If the TA-Lib Function returns just one value, the value is directly
+                        exposed by the <classname>AggregationFunction</classname>. </para>
+                    <para>If the TA-Lib Function returns multiple-values, a dynamic class will be
+                        generated on the fly, which gives access to properly typed return-values.
+                        All return value names are lower-case! </para>
+                    <para>Example: the TA-Lib function <methodname>stochF</methodname> has return
+                        values: <parameter>outFastK</parameter> and <parameter>outFastD</parameter>.
+                        The returned dynamic class will have double typed properties by the name of:
+                            <parameter>fastk</parameter> and <parameter>fastd</parameter> (all
+                        lowercase).</para>
+                </section>
+                <section>
+                    <title>ExponentialMovingAverageFunction</title>
+                    <para>The <classname>ExponentialMovingAverageFunction</classname> provides an
+                        exponential moving average over a defined period of time.</para>
+                    <para>To use the <classname>AggregateFunction</classname> the following
+                        configuration has to be added to the esper configuration :</para>
+                    <programlisting lang="XML">&lt;plugin-aggregation-function name="ema" factory-class="ch.algotrader.esper.aggregation.ExponentialMovingAverageFunction"/></programlisting>
+                    <para>The <classname>AggregationFunction</classname> can then be used in an
+                        esper statement like this:</para>
                     <programlisting lang="Java">select ema(value, 10)
 from Event;</programlisting>
-                <note>
-                    <para><classname>ExponentialMovingAverage</classname> is also available through
-                        the <classname>GenericTALibFunction</classname></para>
-                </note>
+                    <note>
+                        <para><classname>ExponentialMovingAverage</classname> is also available
+                            through the <classname>GenericTALibFunction</classname></para>
+                    </note>
+                </section>
+                <section>
+                    <title>VariableLengthLinestFunction</title>
+                    <para>The <classname>VariableLengthLinestFunction</classname> calculates the
+                        slope of a linear interpolation of a time-series (based on x and y values)
+                        over a defined period of time.</para>
+                    <para>To use the <classname>AggregateFunction</classname> the following
+                        configuration has to be added to the esper configuration :</para>
+                    <programlisting lang="XML">&lt;plugin-aggregation-function name="varLinest" factory-class="ch.algotrader.esper.aggregation.VariableLengthLinestFunction"/></programlisting>
+                    <para>The <classname>AggregationFunction</classname> can then be used in an
+                        esper statement like this:</para>
+                    <programlisting lang="Java">select varLinest(x, y, 10)
+from Event;</programlisting>
+                </section>
             </section>
             <section>
-                <title>VariableLengthLinestFunction</title>
-                <para>The <classname>VariableLengthLinestFunction</classname> calculates the slope of a linear
-                    interpolation of a time-series (based on x and y values) over a defined period
-                    of time.</para>
-                <para>To use the <classname>AggregateFunction</classname> the following
-                    configuration has to be added to the esper configuration :</para>
-                <programlisting lang="XML">&lt;plugin-aggregation-function name="varLinest" factory-class="ch.algotrader.esper.aggregation.VariableLengthLinestFunction"/></programlisting>
-                <para>The <classname>AggregationFunction</classname> can then be used in an esper
-                    statement like this:</para>
-                <programlisting lang="Java">select varLinest(x, y, 10)
-from Event;</programlisting>
-            </section>
-        </section>
-        <section>
-            <title>Custom Views</title>
-            <section id="OHLCView">
-                <title>OHLCView</title>
-                <para>The OHLC View is a custom Esper data view that aggregates events in a stream
-                    to OHLC Bars and releases them at the end of every specified time interval. The
-                    view works similar to a time_batch_window. The view releases the OHLC Bar after
-                    the interval as new data to child views. The prior OHLC Bar if not empty is
-                    released as old data to child view. The view doesn't release intervals with no
-                    old or new data. It also does not collect old data published by a parent view. </para>
-                <para>The view accepts 2 parameter combinations: </para>
-                <itemizedlist>
-                    <listitem>
-                        <para>A time interval is supplied with a reference point - based on this
-                            point the intervals are set</para>
-                    </listitem>
-                    <listitem>
-                        <para>A time interval is supplied but no reference point - the reference
-                            point is set when the first event arrives</para>
-                    </listitem>
-                </itemizedlist>
-                <para>If there are no events in the current and prior batch, the view will not
-                    invoke the update method of child views. In that case also, no next callback is
-                    scheduled with the scheduling service until the next event arrives. </para>
-                <para>To use the Custom View add the following to the esper configuration: </para>
-                <programlisting>&lt;plugin-view namespace="custom" name="ohlcbar" factory-class="ch.algotrader.esper.ohlc.OHLCViewFactory"/></programlisting>
-                <para>In addition the <classname>OHLCBar</classname> event type needs to be added to
-                    the esper configuration:</para>
-                <programlisting>&lt;event-type name="OHLCTick" class="ch.algotrader.esper.ohlc.OHLCBar"/></programlisting>
-                <para>The Custom View can be used in an esper statement like this:</para>
-                <programlisting>select
+                <title>Custom Views</title>
+                <section id="OHLCView">
+                    <title>OHLCView</title>
+                    <para>The OHLC View is a custom Esper data view that aggregates events in a
+                        stream to OHLC Bars and releases them at the end of every specified time
+                        interval. The view works similar to a time_batch_window. The view releases
+                        the OHLC Bar after the interval as new data to child views. The prior OHLC
+                        Bar if not empty is released as old data to child view. The view doesn't
+                        release intervals with no old or new data. It also does not collect old data
+                        published by a parent view. </para>
+                    <para>The view accepts 2 parameter combinations: </para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>A time interval is supplied with a reference point - based on this
+                                point the intervals are set</para>
+                        </listitem>
+                        <listitem>
+                            <para>A time interval is supplied but no reference point - the reference
+                                point is set when the first event arrives</para>
+                        </listitem>
+                    </itemizedlist>
+                    <para>If there are no events in the current and prior batch, the view will not
+                        invoke the update method of child views. In that case also, no next callback
+                        is scheduled with the scheduling service until the next event arrives. </para>
+                    <para>To use the Custom View add the following to the esper configuration: </para>
+                    <programlisting>&lt;plugin-view namespace="custom" name="ohlcbar" factory-class="ch.algotrader.esper.ohlc.OHLCViewFactory"/></programlisting>
+                    <para>In addition the <classname>OHLCBar</classname> event type needs to be
+                        added to the esper configuration:</para>
+                    <programlisting>&lt;event-type name="OHLCTick" class="ch.algotrader.esper.ohlc.OHLCBar"/></programlisting>
+                    <para>The Custom View can be used in an esper statement like this:</para>
+                    <programlisting>select
     open, high, low, close
 from
     Tick.custom:ohlcbar(currentValueDouble, 1 days, 0L);</programlisting>
+                </section>
             </section>
-        </section>
-        <section>
-            <title>Callbacks</title>
-            <section id="FirstTickCallback">
-                <title>FirstTickCallback</title>
-                <para>Objects of the abstract class <classname>FirstTickCallback</classname> can be
-                    handed to the <classname>RuleService.addFirstTickCallback()</classname>.
-                    Whenever at least one Tick of each specified security has arrived the method
-                        <classname>FirstTickCallback.onFirstTick()</classname> will be
-                    executed.</para>
-                <para>A typical use case of a FirstTickCallback looks like this:</para>
-                <programlisting language="Java">EsperManager.addFirstTickCallback(strategyName, securities, new TickCallback() {
+            <section id="Callbacks">
+                <title>Callbacks</title>
+                <section id=" FirstTickCallback">
+                    <title>FirstTickCallback</title>
+                    <para>Objects of the abstract class <classname>FirstTickCallback</classname> can
+                        be handed to the <classname>RuleService.addFirstTickCallback()</classname>.
+                        Whenever at least one Tick of each specified security has arrived the method
+                            <classname>FirstTickCallback.onFirstTick()</classname> will be
+                        executed.</para>
+                    <para>A typical use case of a FirstTickCallback looks like this:</para>
+                    <programlisting language="Java">EngineLocator.getEngine(strategyName).addFirstTickCallback(securities, new TickCallback() {
   @Override
   public void onFirstTick(String strategyName, List&lt;Tick> ticks) {
     placeOrdersBasedOnTicks(ticks);
@@ -2565,19 +3050,20 @@ from
 for (Security security : securities) {
   getSubscriptionService().subscribeMarketDataEvent(strategyName, security.getId());
 }</programlisting>
-            </section>
-            <section id="TradeCallback">
-                <title>TradeCallback</title>
-                <para>Objects of the abstract class <classname>TradeCallback</classname> can be
-                    handed to the <classname>RuleService.addTradeCallback()</classname>. Whenever
-                    the corresponding trade has been fully executed or cancelled the method
-                        <classname>TradeCallback.onTradeCompleted()</classname> will be executed. If
-                    the parameter <parameter>expectFullExecution</parameter> is set onto the
-                    TradeCallback constructor, there will be an error logged if the order did not
-                    execute fully. In addition there is a concrete class FullExecutionTradeCallback
-                    that does nothing except check for full execution of the order.</para>
-                <para>A typical use case of a TradeCallback looks like this:</para>
-                <programlisting language="Java">EsperManager.addTradeCallback(strategyName, orders, new TradeCallback(true) {
+                </section>
+                <section id="TradeCallback">
+                    <title>TradeCallback</title>
+                    <para>Objects of the abstract class <classname>TradeCallback</classname> can be
+                        handed to the <classname>RuleService.addTradeCallback()</classname>.
+                        Whenever the corresponding trade has been fully executed or cancelled the
+                        method <classname>TradeCallback.onTradeCompleted()</classname> will be
+                        executed. If the parameter <parameter>expectFullExecution</parameter> is set
+                        onto the TradeCallback constructor, there will be an error logged if the
+                        order did not execute fully. In addition there is a concrete class
+                        FullExecutionTradeCallback that does nothing except check for full execution
+                        of the order.</para>
+                    <para>A typical use case of a TradeCallback looks like this:</para>
+                    <programlisting language="Java">EngineLocator.getEngine(strategyName).addTradeCallback(orders, new TradeCallback(true) {
   @Override
   public void onTradeCompleted(List&lt;OrderStatus> orderStati) {
     OrderUtil.checkOrderStati(orderStati);
@@ -2585,45 +3071,49 @@ for (Security security : securities) {
 });
 
 getOrderService().sendOrders(orders);</programlisting>
-            </section>
-            <section>
-                <title>OpenPositionCallback</title>
-                <para>Objects of the abstract class <classname>OpenPositionCallback</classname> can
-                    be handed to the <classname>RuleService.addOpenPositionCallback()</classname>.
-                    Whenever a corresponding transaction causes a new position to open method
-                        <classname>OpenPositionCallback.onOpenPosition()</classname> will be
-                    executed.</para>
-                <programlisting language="Java">EsperManager.addOpenPositionCallback(strategyName, securityId, new OpenPositionCallback() {
+                </section>
+                <section>
+                    <title>OpenPositionCallback</title>
+                    <para>Objects of the abstract class <classname>OpenPositionCallback</classname>
+                        can be handed to the
+                            <classname>RuleService.addOpenPositionCallback()</classname>. Whenever a
+                        corresponding transaction causes a new position to open method
+                            <classname>OpenPositionCallback.onOpenPosition()</classname> will be
+                        executed.</para>
+                    <programlisting language="Java">EngineLocator.getEngine(strategyName).addOpenPositionCallback(securityId, new OpenPositionCallback() {
   @Override
   public void onOpenPosition(OpenPositionVO positionVO) throws Exception {
     setExitValue(positionVO.getId());
   }
 });</programlisting>
-                <note>
-                    <para>It is guaranteed that the position is fully persistent to the database by the time the
-                        method <classname>OpenPositionCallback.onOpenPosition()</classname> is
-                        called.</para>
-                </note>
-            </section>
-            <section>
-                <title>ClosePositionCallback</title>
-                <para>Objects of the abstract class <classname>ClosePositionCallback</classname> can
-                    be handed to the <classname>RuleService.addClosePositionCallback()</classname>.
-                    Whenever a corresponding transaction causes a position to be closed, the method
-                        <classname>ClosePositionCallback.onClosePosition()</classname> will be
-                    executed.</para>
-                <programlisting language="Java">EsperManager.addClosePositionCallback(strategyName, securityId, new ClosePositionCallback() {
+                    <note>
+                        <para>It is guaranteed that the position is fully persistent to the database
+                            by the time the method
+                                <classname>OpenPositionCallback.onOpenPosition()</classname> is
+                            called.</para>
+                    </note>
+                </section>
+                <section>
+                    <title>ClosePositionCallback</title>
+                    <para>Objects of the abstract class <classname>ClosePositionCallback</classname>
+                        can be handed to the
+                            <classname>RuleService.addClosePositionCallback()</classname>. Whenever
+                        a corresponding transaction causes a position to be closed, the method
+                            <classname>ClosePositionCallback.onClosePosition()</classname> will be
+                        executed.</para>
+                    <programlisting language="Java">EngineLocator.getEngine(strategyName).addClosePositionCallback(securityId, new ClosePositionCallback() {
   @Override
   public void onClosePosition(ClosePositionVO positionVO) throws Exception {
     // do something
   }
 });  </programlisting>
-                <note>
-                    <para>It is guaranteed that the position is fully removed from the database by
-                        the time the method
-                            <classname>ClosePositionCallback.onClosePosition()</classname> is
-                        called.</para>
-                </note>
+                    <note>
+                        <para>It is guaranteed that the position is fully removed from the database
+                            by the time the method
+                                <classname>ClosePositionCallback.onClosePosition()</classname> is
+                            called.</para>
+                    </note>
+                </section>
             </section>
         </section>
     </chapter>
@@ -3414,7 +3904,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
   @Override
   public Collection&lt;IndicatorVO> getIndicators(long startDateTime) {
 
-    List&lt;MarketDataEventVO> marketDataEvents = EsperManager.executeQuery("MOV",
+    List&lt;MarketDataEventVO> marketDataEvents = EngineLocator.getEngine("MOV").executeQuery(
       "select * from CurrentValueWindow where dateTime.toMillisec() > " + startDateTime);
 
     Set&lt;IndicatorVO> set = new HashSet&lt;IndicatorVO>();
@@ -3429,7 +3919,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
   @Override
   public Collection&lt;MarkerVO> getMarkers() {
 
-    Double target = (Double) EsperManager.getVariableValue("MOV", "target");
+    Double target = (Double) EngineLocator.getEngine("MOV").getVariableValue("target");
 
     return Collections.singleton(new ValueMarkerVO("target", target))
   }
@@ -3437,7 +3927,7 @@ public class MovChartService extends ChartProvidingServiceImpl {
   @Override
   public String getDescription() {
 
-    Double stop = (Double) EsperManager.getVariableValue("MOV", "stop");
+    Double stop = (Double) EngineLocator.getEngine("MOV").getVariableValue("stop");
 
     return String.valueOf(stop);
   }
@@ -5148,15 +5638,15 @@ bin/activemq</screen>
 
     String strategyName = movService.getStrategyName();
 
-    EsperManager.initServiceProvider(strategyName); <co id="movStarter-initEsper"/>
+    EngineLocator.initEngine(strategyName); <co id="movStarter-initEsper"/>
 
-    EsperManager.deployInitModules(strategyName); <co id="movStarter-initModules"/>
+    EngineLocator.getEngine(strategyName).deployInitModules(); <co id="movStarter-initModules"/>
 
     movService.prefeedTicks(); <co id="movStarter-prefeed"/>
 
-    EsperManager.setInternalClock(strategyName, true); <co id="movStarter-internalClock"/>
+    EngineLocator.getEngine(strategyName).setInternalClock(true); <co id="movStarter-internalClock"/>
 
-    EsperManager.deployRunModules(strategyName); <co id="movStarter-runModules"/>
+    EngineLocator.getEngine(strategyName).deployRunModules(); <co id="movStarter-runModules"/>
 
     SubscriptionService subscriptionService = ServiceLocator.instance().getSubscriptionService();
     subscriptionService.initMarketDataEventSubscriptions(); <co id="movStarter-subscriptions"/>
@@ -5211,15 +5701,15 @@ bin/activemq</screen>
 
     String strategyName = movService.getStrategyName();
 
-    EsperManager.initServiceProvider(strategyName); <co id="movSingleVMStarter-initEsper"/>
+    EngineLocator.initEngine(strategyName); <co id="movSingleVMStarter-initEsper"/>
 
-    EsperManager.deployInitModules(strategyName); <co id="movSingleVMStarter-initModules"/>
+    EngineLocator.getEngine(strategyName).deployInitModules(); <co id="movSingleVMStarter-initModules"/>
 
     movService.prefeedTicks(); <co id="movSingleVMStarter-prefeed"/>
 
-    EsperManager.setInternalClock(strategyName, true); <co id="movSingleVMStarter-internalClock"/>
+    EngineLocator.getEngine(strategyName).setInternalClock(true); <co id="movSingleVMStarter-internalClock"/>
 
-    EsperManager.deployRunModules(strategyName); <co id="movSingleVMStarter-runModules"/>
+    EngineLocator.getEngine(strategyName).deployRunModules(); <co id="movSingleVMStarter-runModules"/>
   }
 }</programlisting>
                 <para>The Starter Class needs to extend the <classname>BaseStarter</classname> class. The main
@@ -5276,7 +5766,7 @@ from
                 <para>This Esper module contains the statement that calls the
                         <methodname>MovService.openPosition()</methodname> whenever there is a
                     moving average crossover on the indicators. The Tag
-                        <parameter>@Subscriber</parameter> is used to instruct the EsperManager to
+                        <parameter>@Subscriber</parameter> is used to instruct the EsperEngine to
                     attach the Subscriber to this statement.</para>
                 <programlisting>@Name('OPEN_POSITION')
 @Subscriber(className='ch.algotrader.strategy.MovService.openPosition')
@@ -5465,10 +5955,10 @@ from
                     possible to access those variables from the Java side through the following
                     methods:</para>
                 <programlisting language="Java">// set variable value
-EsperManager.setVariableValue(strategyName, "target", target);
+EngineLocator.getEngine(strategyName).setVariableValue("target", target);
 
 // retrieve variable value
-Double target = (Double) EsperManager.getVariableValue(strategyName, "target");    </programlisting>
+Double target = (Double) EngineLocator.getEngine(strategyName).getVariableValue("target");    </programlisting>
             </section>
             <section>
                 <title>Esper Utility classes</title>
@@ -5576,9 +6066,9 @@ select * from A;</programlisting>
   Date date = DateUtils.addHours(new Date(), -1);
   Collection&lt;Tick> ticks = getLookupService().getTicksByMinDate(securityId, date);
 
-  EsperManager.initCoordination(strategyName);
-  EsperManager.coordinate(strategyName, ticks, "dateTime");
-  EsperManager.startCoordination(strategyName);
+  EngineLocator.getEngine(strategyName).initCoordination();
+  EngineLocator.getEngine(strategyName).coordinate(ticks, "dateTime");
+  EngineLocator.getEngine(strategyName).startCoordination();
 }</programlisting>
                 <para>This method will load all ticks for the security (defined by securityId) for
                     the last two hours. It will then feed all of them sequentially to the local
@@ -6788,12 +7278,11 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 <para>The broker specific <classname>ExternalOrderService</classname> will assign an
                         <parameter>intId</parameter> (i.e. <parameter>orderNumber</parameter>),
                     create and place the broker specific Order.</para>
-                <para>After sending the Order to the broker, the order object is propagated (by the
-                        <classname>EsperManager</classname>) to the BASE Esper service instance
-                    (running inside the Base) as well as to the Esper service instance of the
-                    corresponding strategy (where potential actions like <emphasis>cancel
-                        order</emphasis> or <emphasis>modify order</emphasis> can be
-                    executed).</para>
+                <para>After sending the Order to the broker, the order object is propagated  to the BASE Esper
+                    service instance (running inside the Base) as well as to the Esper service
+                    instance of the corresponding strategy (where potential actions like
+                        <emphasis>cancel order</emphasis> or <emphasis>modify order</emphasis> can
+                    be executed).</para>
                 <para>In addition Open Orders are stored in the
                         <classname>OpenOrderWindow</classname> until their full execution or
                     cancellation.</para>
@@ -7350,7 +7839,7 @@ from
             <programlisting language="Java">Class&lt;?&gt;[] genericEvents = new Class[] { Signal.class };
 subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
             <para>To send a GenericEvent, use the following method:</para>
-            <programlisting language="Java">EsperManager.sendGenericEvent(signal);</programlisting>
+            <programlisting language="Java">EngineLocator.sendGenericEvent(signal);</programlisting>
             <para>It is also possible to feed Generic Events via CSV Files in Simulation Mode. To
                 enable this, the following VM argument has to be set:</para>
             <screen>-DdataSource.feedGenericEvents = true</screen>
@@ -7988,28 +8477,32 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
             <para>The following JMS Destinations are defined by the system</para>
             <itemizedlist>
                 <listitem>
-                    <para>one marketDataTopic (<literal>MARKETDATA.TOPIC</literal>): A Topic where all market data
-                        events are pushed into. On every event the <parameter>securityId</parameter>
-                        is set as a property, which can be used by the strategies to select market
-                        data events for securities subscribed to. Events are sent via
-                            <methodname>EsperManager.sendEvent()</methodname>
+                    <para>one marketDataTopic (<literal>MARKETDATA.TOPIC</literal>) defined inside
+                            <filename>applicationContext-server.xml</filename>: A Topic where all
+                        market data events are pushed into. On every event the
+                            <parameter>securityId</parameter> is set as a property, which can be
+                        used by the strategies to select market data events for securities
+                        subscribed to. Events are sent via
+                            <methodname>EngineLocator.sendEvent()</methodname>
                     </para>
                 </listitem>
                 <listitem>
-                    <para>one strategyQueue per strategy (<literal>XXX.QUEUE</literal>): A
-                            strategy specific Queue for messages like OrderStatus, Fills &amp;
-                            Transactions. As JMS queues are persistent, messages will be delivered,
-                            even if a strategy was down, at the time of message creation. Events are
-                            sent via <methodname>EsperManager.sendMarketDataEvent()</methodname>
+                    <para>one strategyQueue per strategy (<literal>XXX.QUEUE</literal>) defined inside
+                            <filename>applicationContext-client-xxx.xml</filename>: A strategy
+                        specific Queue for messages like OrderStatus, Fills &amp; Transactions. As
+                        JMS queues are persistent, messages will be delivered, even if a strategy
+                        was down, at the time of message creation. Events are sent via
+                            <methodname>EngineLocator.sendMarketDataEvent()</methodname>
                     </para>
                 </listitem>
                 <listitem>
-                    <para>one genericTopic (<literal>GENERIC.TOPIC</literal>): A Topic for Generic Messages. Any
-                        strategy can send messages into this Topic. On every event the
+                    <para>one genericTopic (<literal>GENERIC.TOPIC</literal>) defined inside
+                            <filename>applicationContext-server.xml</filename>: A Topic for Generic
+                        Messages. Any strategy can send messages into this Topic. On every event the
                             <parameter>className</parameter> of the event is set as a property,
                         which can be used by the strategy to select event types that it is
                         subscribed to. Events are sent via
-                            <methodname>EsperManager.sendGenericEvent()</methodname>
+                            <methodname>EngineLocator.sendGenericEvent()</methodname>
                     </para>
                 </listitem>
             </itemizedlist>
@@ -8048,8 +8541,8 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                         </para>
                 </listitem>
                 <listitem>
-                    <para>Esper based <classname>JMSTemplateInputAdapter</classname> that will
-                            forward received messages into the local Esper Engine</para>
+                    <para>Esper based <classname>SpringJMSTemplateInputAdapter</classname> that will forward
+                        received messages into the local Esper Engine</para>
                 </listitem>
                 <listitem>
                     <para>JMS Market Data and a JMS Generic Topic as well as corresponding
@@ -8064,6 +8557,14 @@ getPositionService().deleteNonTradeablePosition(positionId, unsubscribe);</progr
                     <para>JMS Strategy Queue</para>
                 </listitem>
             </itemizedlist>
+            <para><filename>esper-xxx.cfg.xml</filename>:<itemizedlist>
+                    <listitem>
+                        <para>Esper <literal>plugin-loader</literal> based on the class
+                                <classname>SpringContextLoader</classname> which loads the
+                                <classname>SpringJMSTemplateInputAdapter</classname> and connects it
+                            with the local Esper Engine.</para>
+                    </listitem>
+                </itemizedlist></para>
             <para>Since market data events and generic events are pushed into two
                 topics that are available to all strategies, strategies have to select appropriate
                 messages on their own. This is the job of the
@@ -8858,10 +9359,10 @@ where and s.name = 'BASE'</programlisting>
                             <para>CustomSender.sendMarketDataEvent</para>
                             <itemizedlist>
                                 <listitem>
-                                    <para>EsperManager.BASE.BarImpl</para>
+                                    <para>EngineLocator.BASE.BarImpl</para>
                                 </listitem>
                                 <listitem>
-                                    <para>EsperManager.BASE.CurrentTimeEvent</para>
+                                    <para>EngineLocator.BASE.CurrentTimeEvent</para>
                                     <itemizedlist>
                                         <listitem>
                                             <para>BASE.CLOSE_POSITION</para>
@@ -8888,29 +9389,25 @@ where and s.name = 'BASE'</programlisting>
                                             <para>PropagateMarketDataEventSubscriber.update</para>
                                             <itemizedlist>
                                                 <listitem>
-                                                    <para>EsperManager.STRATEGY1.CurrentTimeEvent
-                                                </para>
+                                                    <para>EngineLocator.STRATEGY1.CurrentTimeEvent </para>
                                                 </listitem>
                                                 <listitem>
-                                                    <para>EsperManager.STRATEGY1.BarImpl</para>
+                                                    <para>EngineLocator.STRATEGY1.BarImpl</para>
                                                 </listitem>
                                                 <listitem>
-                                                    <para>EsperManager.STRATEGY1.FillImpl</para>
+                                                    <para>EngineLocator.STRATEGY1.FillImpl</para>
                                                 </listitem>
                                                 <listitem>
-                                                    <para>EsperManager.STRATEGY1.TransactionImpl
-                                                </para>
+                                                    <para>EngineLocator.STRATEGY1.TransactionImpl </para>
                                                 </listitem>
                                                 <listitem>
-                                                    <para>EsperManager.STRATEGY1.OrderStatusImpl
-                                                </para>
+                                                    <para>EngineLocator.STRATEGY1.OrderStatusImpl </para>
                                                 </listitem>
                                                 <listitem>
-                                                    <para>EsperManager.STRATEGY1.OpenPositionVO
-                                                </para>
+                                                    <para>EngineLocator.STRATEGY1.OpenPositionVO </para>
                                                 </listitem>
                                                 <listitem>
-                                                    <para>EsperManager.STRATEGY1.ClosePositionVO</para>
+                                                    <para>EngineLocator.STRATEGY1.ClosePositionVO</para>
                                                     <itemizedlist>
                                                         <listitem>
                                                             <para>STRATEGY1.STATEMENT1</para>
