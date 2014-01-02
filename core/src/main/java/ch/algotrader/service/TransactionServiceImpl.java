@@ -137,6 +137,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         } else if (TransactionType.CREDIT.equals(transactionType) ||
                 TransactionType.INTREST_RECEIVED.equals(transactionType) ||
+                TransactionType.DIVIDEND.equals(transactionType) ||
                 TransactionType.REFUND.equals(transactionType)) {
 
             if (currency == null) {
@@ -145,7 +146,9 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
             quantity = 1;
 
-        } else if (TransactionType.DEBIT.equals(transactionType) || TransactionType.INTREST_PAID.equals(transactionType) || TransactionType.FEES.equals(transactionType)) {
+        } else if (TransactionType.DEBIT.equals(transactionType) ||
+                TransactionType.INTREST_PAID.equals(transactionType) ||
+                TransactionType.FEES.equals(transactionType)) {
 
             if (currency == null) {
                 throw new IllegalArgumentException("need to define a currency for " + transactionType);
