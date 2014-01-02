@@ -65,13 +65,15 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
             cashBalance = CashBalance.Factory.newInstance();
 
+            // associate currency, amount and strategy
             cashBalance.setCurrency(currencyAmount.getCurrency());
             cashBalance.setAmount(currencyAmount.getAmount());
-
-            // associate with strategy
-            strategy.addCashBalances(cashBalance);
+            cashBalance.setStrategy(strategy);
 
             getCashBalanceDao().create(cashBalance);
+
+            // reverse-associate strategy (after cashBalance has received an id)
+            strategy.getCashBalances().add(cashBalance);
 
         } else {
 
@@ -126,11 +128,12 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
                 cashBalance = CashBalance.Factory.newInstance();
                 cashBalance.setCurrency(currency);
                 cashBalance.setAmount(amount);
-
-                // associate with strategy
-                strategy.addCashBalances(cashBalance);
+                cashBalance.setStrategy(strategy);
 
                 getCashBalanceDao().create(cashBalance);
+
+                // reverse-associate with strategy (after cashBalance has received an id)
+                strategy.getCashBalances().add(cashBalance);
 
                 String info = "created cashBalance " + cashBalance;
                 logger.info(info);

@@ -183,13 +183,14 @@ public class PositionServiceImpl extends PositionServiceBase {
         position.setExitValue(null);
         position.setMaintenanceMargin(null);
 
-        // associate the security
-        security.addPositions(position);
-
-        // associate the strategy
+        // associate strategy and security
         position.setStrategy(strategy);
+        position.setSecurity(security);
 
         getPositionDao().create(position);
+
+        // reverse-associate the security (after position has received an id)
+        security.getPositions().add(position);
 
         logger.info("created non-tradeable position on " + security + " for strategy " + strategyName + " quantity " + quantity);
 

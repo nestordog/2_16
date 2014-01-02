@@ -219,12 +219,14 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
                 position = PositionUtil.processFirstTransaction(transaction);
 
-                // associate relations
-                transaction.setPosition(position);
-                transaction.getSecurity().addPositions(position);
+                // associate strategy
                 position.setStrategy(transaction.getStrategy());
 
                 getPositionDao().create(position);
+
+                // associate reverse-relations (after position has received an id)
+                transaction.setPosition(position);
+                transaction.getSecurity().addPositions(position);
 
             } else {
 

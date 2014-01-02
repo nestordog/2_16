@@ -70,10 +70,13 @@ public class CombinationServiceImpl extends CombinationServiceBase {
         SecurityFamily securityFamily = getSecurityFamilyDao().get(securityFamilyId);
 
         // associate the security family
-        securityFamily.addSecurities(combination);
+        combination.setSecurityFamily(securityFamily);
 
         // save to DB
         getCombinationDao().create(combination);
+
+        // reverse-associate security family (after combination has received an id)
+        securityFamily.getSecurities().add(combination);
 
         logger.debug("created combination " + combination);
 
@@ -337,10 +340,13 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             component.setSecurity(security);
             component.setQuantity(quantity);
 
-            // associate with combination
-            combination.addComponents(component);
+            // associate combination
+            component.setCombination(combination);
 
             getComponentDao().create(component);
+
+            // reverse associate combination (after component has received an id)
+            combination.getComponents().add(component);
         }
 
         // update the ComponentWindow
