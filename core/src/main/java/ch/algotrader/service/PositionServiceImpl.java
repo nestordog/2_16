@@ -30,7 +30,6 @@ import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Position;
-import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Combination;
@@ -177,7 +176,7 @@ public class PositionServiceImpl extends PositionServiceBase {
             throw new PositionServiceException(security + " is tradeable, can only creat non-tradeable positions");
         }
 
-        Position position = new PositionImpl();
+        Position position = Position.Factory.newInstance();
         position.setQuantity(quantity);
 
         position.setExitValue(null);

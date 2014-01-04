@@ -36,10 +36,8 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionFamily;
-import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.option.OptionSymbol;
@@ -189,7 +187,7 @@ public class ImportServiceImpl extends ImportServiceBase {
 
                     date = iVol.getDate();
 
-                    Tick tick = new TickImpl();
+                    Tick tick = Tick.Factory.newInstance();
                     tick.setDateTime(iVol.getDate());
                     tick.setLast(iVol.getAdjustedStockClosePrice());
                     tick.setBid(new BigDecimal(0));
@@ -212,7 +210,7 @@ public class ImportServiceImpl extends ImportServiceBase {
                 // otherwise create the option
                 if (option == null) {
 
-                    option = new OptionImpl();
+                    option = Option.Factory.newInstance();
                     option.setStrike(iVol.getStrike());
                     option.setExpiration(expiration); // adjusted expiration date
                     option.setType(type);
@@ -227,7 +225,7 @@ public class ImportServiceImpl extends ImportServiceBase {
                 }
 
                 // create the tick
-                Tick tick = new TickImpl();
+                Tick tick = Tick.Factory.newInstance();
                 tick.setDateTime(iVol.getDate());
                 tick.setBid(iVol.getBid());
                 tick.setAsk(iVol.getAsk());

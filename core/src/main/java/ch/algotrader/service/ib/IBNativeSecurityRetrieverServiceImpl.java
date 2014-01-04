@@ -36,14 +36,11 @@ import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
-import ch.algotrader.entity.security.FutureImpl;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionFamily;
-import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
-import ch.algotrader.entity.security.StockImpl;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.future.FutureSymbol;
@@ -182,7 +179,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         Set<Option> newOptions = new TreeSet<Option>();
         for (ContractDetails contractDetails : this.contractDetailsList) {
 
-            Option option = new OptionImpl();
+            Option option = Option.Factory.newInstance();
 
             Contract contract = contractDetails.m_summary;
             OptionType type = "C".equals(contract.m_right) ? OptionType.CALL : OptionType.PUT;
@@ -224,7 +221,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         Set<Future> newFutures = new TreeSet<Future>();
         for (ContractDetails contractDetails : this.contractDetailsList) {
 
-            Future future = new FutureImpl();
+            Future future = Future.Factory.newInstance();
 
             Contract contract = contractDetails.m_summary;
             Date expiration = format.parse(contract.m_expiry);
@@ -263,7 +260,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         Set<Stock> newStocks = new TreeSet<Stock>();
         for (ContractDetails contractDetails : this.contractDetailsList) {
 
-            Stock stock = new StockImpl();
+            Stock stock = Stock.Factory.newInstance();
 
             Contract contract = contractDetails.m_summary;
 

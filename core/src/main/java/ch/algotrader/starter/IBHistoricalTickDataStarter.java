@@ -35,7 +35,6 @@ import org.apache.log4j.Logger;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
@@ -161,7 +160,7 @@ public class IBHistoricalTickDataStarter {
 
                 if (tick == null) {
 
-                    tick = new TickImpl();
+                    tick = Tick.Factory.newInstance();
                     tick.setSecurity(security);
                     tick.setLast(new BigDecimal(0));
                     tick.setDateTime(bar.getDateTime());

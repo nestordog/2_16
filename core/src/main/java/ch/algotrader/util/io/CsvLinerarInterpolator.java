@@ -24,7 +24,6 @@ import java.text.ParseException;
 import java.util.Date;
 
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.util.ConfigurationUtil;
 import ch.algotrader.util.RoundUtil;
 
@@ -69,7 +68,7 @@ public class CsvLinerarInterpolator {
 
                 double lastOffset = (newTick.getLast().doubleValue() - oldTick.getLast().doubleValue()) / (recordsPerInput - 1.0);
 
-                Tick tick = new TickImpl();
+                Tick tick = Tick.Factory.newInstance();
 
                 tick.setDateTime(new Date(newTick.getDateTime().getTime() + (int) ((currentHour / recordsPerHour + offsetHour) * 60 * 60 * 1000)));
                 tick.setLast(RoundUtil.getBigDecimal(oldTick.getLast().doubleValue() + currentHour * lastOffset));

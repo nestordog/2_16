@@ -30,7 +30,6 @@ import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
@@ -87,7 +86,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         BigDecimal executionCommission = RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getExecutionCommission(broker).doubleValue()));
         BigDecimal clearingCommission = securityFamily.getClearingCommission(broker) != null ? RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getClearingCommission(broker).doubleValue())) : null;
 
-        Transaction transaction = new TransactionImpl();
+        Transaction transaction = Transaction.Factory.newInstance();
         transaction.setDateTime(fill.getExtDateTime());
         transaction.setExtId(fill.getExtId());
         transaction.setQuantity(quantity);
@@ -164,7 +163,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         Account account = getAccountDao().findByName(accountName);
 
         // create the transaction
-        Transaction transaction = new TransactionImpl();
+        Transaction transaction = Transaction.Factory.newInstance();
         transaction.setDateTime(dateTime);
         transaction.setExtId(extId);
         transaction.setQuantity(quantity);

@@ -34,7 +34,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.support.CronSequenceGenerator;
 
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
@@ -82,7 +81,7 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
 
                 totalRebalanceAmount += rebalanceAmount;
 
-                Transaction transaction = new TransactionImpl();
+                Transaction transaction = Transaction.Factory.newInstance();
                 transaction.setDateTime(DateUtil.getCurrentEPTime());
                 transaction.setQuantity(targetNetLiqValue > actualNetLiqValue ? +1 : -1);
                 transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(rebalanceAmount)));
@@ -102,7 +101,7 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
         // add BASE REBALANCE transaction to offset totalRebalanceAmount
         if (transactions.size() != 0) {
 
-            Transaction transaction = new TransactionImpl();
+            Transaction transaction = Transaction.Factory.newInstance();
             transaction.setDateTime(DateUtil.getCurrentEPTime());
             transaction.setQuantity((int) Math.signum(-1.0 * totalRebalanceAmount));
             transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(totalRebalanceAmount)));

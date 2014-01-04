@@ -29,15 +29,13 @@ import ch.algotrader.cache.CacheManager;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.marketData.BarImpl;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityImpl;
-import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
@@ -285,7 +283,7 @@ public class LookupUtil {
      */
     public static Tick rawTickVOToEntity(RawTickVO rawTickVO) {
 
-        Tick tick = new TickImpl();
+        Tick tick = Tick.Factory.newInstance();
 
         // copy all properties
         tick.setDateTime(rawTickVO.getDateTime());
@@ -309,7 +307,7 @@ public class LookupUtil {
      */
     public static Bar rawBarVOToEntity(RawBarVO rawBarVO) {
 
-        Bar bar = new BarImpl();
+        Bar bar = Bar.Factory.newInstance();
 
         // copy all properties
         bar.setDateTime(rawBarVO.getDateTime());

@@ -45,7 +45,6 @@ import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.ImpliedVolatility;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionFamily;
-import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
@@ -140,7 +139,7 @@ public class OptionServiceImpl extends OptionServiceBase {
         // symbol / isin
         String symbol = OptionSymbol.getSymbol(family, expirationDate, type, strike, true);
 
-        Option option = new OptionImpl();
+        Option option = Option.Factory.newInstance();
         option.setSymbol(symbol);
         option.setStrike(strike);
         option.setExpiration(expirationDate);
@@ -172,7 +171,7 @@ public class OptionServiceImpl extends OptionServiceBase {
         String isin = OptionSymbol.getIsin(family, expirationDate, type, strike);
         String ric = OptionSymbol.getRic(family, expirationDate, type, strike);
 
-        Option option = new OptionImpl();
+        Option option = Option.Factory.newInstance();
         option.setSymbol(symbol);
         option.setIsin(isin);
         option.setRic(ric);

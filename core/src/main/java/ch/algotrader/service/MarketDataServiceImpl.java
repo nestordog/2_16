@@ -33,7 +33,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
@@ -120,12 +119,7 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
             }
 
             // update links
-            Subscription subscription = new SubscriptionImpl();
-            subscription.setPersistent(false);
-
-            // associate strategy and security
-            subscription.setStrategy(strategy);
-            subscription.setSecurity(security);
+            Subscription subscription = Subscription.Factory.newInstance(false, strategy, security);
 
             getSubscriptionDao().create(subscription);
 

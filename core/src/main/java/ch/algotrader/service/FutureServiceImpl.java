@@ -22,16 +22,13 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.entity.security.FutureImpl;
-import ch.algotrader.future.FutureSymbol;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
-
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.Duration;
-import ch.algotrader.service.FutureServiceBase;
+import ch.algotrader.future.FutureSymbol;
+import ch.algotrader.util.DateUtil;
+import ch.algotrader.util.MyLogger;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -61,7 +58,7 @@ public class FutureServiceImpl extends FutureServiceBase {
             String isin = FutureSymbol.getIsin(family, expirationDate);
             String ric = FutureSymbol.getRic(family, expirationDate);
 
-            Future future = new FutureImpl();
+            Future future = Future.Factory.newInstance();
             future.setSymbol(symbol);
             future.setIsin(isin);
             future.setRic(ric);

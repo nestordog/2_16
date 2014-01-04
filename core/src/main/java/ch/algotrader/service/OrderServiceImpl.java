@@ -29,7 +29,6 @@ import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.FillImpl;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -139,7 +138,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         }
 
         // create one fill per order
-        Fill fill = new FillImpl();
+        Fill fill = Fill.Factory.newInstance();
         fill.setDateTime(DateUtil.getCurrentEPTime());
         fill.setExtDateTime(DateUtil.getCurrentEPTime());
         fill.setSide(order.getSide());

@@ -34,10 +34,8 @@ import ch.algotrader.adapter.bb.BBMessageHandler;
 import ch.algotrader.adapter.bb.BBSession;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
-import ch.algotrader.entity.security.FutureImpl;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionFamily;
-import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Currency;
@@ -340,7 +338,7 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
                     String isin = OptionSymbol.getIsin(this.securityFamily, expiration, type, strike);
                     String ric = OptionSymbol.getRic(this.securityFamily, expiration, type, strike);
 
-                    Option option = new OptionImpl();
+                    Option option = Option.Factory.newInstance();
 
                     option.setSymbol(symbol);
                     option.setBbgid(bbgid);
@@ -376,7 +374,7 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
                     String isin = FutureSymbol.getIsin(this.securityFamily, lastTrading);
                     String ric = FutureSymbol.getRic(this.securityFamily, lastTrading);
 
-                    Future future = new FutureImpl();
+                    Future future = Future.Factory.newInstance();
 
                     future.setSymbol(symbol);
                     future.setBbgid(bbgid);

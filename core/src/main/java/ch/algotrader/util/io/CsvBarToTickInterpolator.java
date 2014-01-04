@@ -25,7 +25,6 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.util.ConfigurationUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.BarVO;
@@ -141,7 +140,7 @@ public class CsvBarToTickInterpolator {
                     value = (nextValue - prevValue) * factor + prevValue;
                 }
 
-                Tick tick = new TickImpl();
+                Tick tick = Tick.Factory.newInstance();
                 tick.setDateTime(new Date(bar.getDateTime().getTime() + (int) ((currentHour / recordsPerHour + offsetHour) * 60 * 60 * 1000)));
                 tick.setLast(RoundUtil.getBigDecimal(value));
                 tick.setLastDateTime(null);
