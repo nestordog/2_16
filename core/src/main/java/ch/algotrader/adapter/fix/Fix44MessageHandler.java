@@ -26,7 +26,9 @@ import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
 import quickfix.field.ClOrdID;
+import quickfix.field.CumQty;
 import quickfix.field.ExecType;
+import quickfix.field.OrderQty;
 import quickfix.field.OrigClOrdID;
 import quickfix.field.Text;
 import quickfix.fix44.ExecutionReport;
@@ -82,7 +84,7 @@ public class Fix44MessageHandler {
             }
 
             // get the other fields
-            Status status = FixUtil.getStatus(execType, executionReport.getCumQty());
+            Status status = getStatus(execType, executionReport.getOrderQty(), executionReport.getCumQty());
             long filledQuantity = (long) executionReport.getCumQty().getValue();
             long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
 
@@ -102,8 +104,8 @@ public class Fix44MessageHandler {
 
             EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
 
-            // only create fills if status is PARTIALLY_FILLED or FILLED
-            if (execType.getValue() == ExecType.PARTIAL_FILL || execType.getValue() == ExecType.FILL) {
+            // only create fills if status is TRADE
+            if (execType.getValue() == ExecType.TRADE) {
 
                 // get the fields
                 Date extDateTime = executionReport.getTransactTime().getValue();
@@ -157,5 +159,29 @@ public class Fix44MessageHandler {
      */
     protected void processFill(ExecutionReport executionReport, Order order, Fill fill) throws FieldNotFound {
         // do nothing (can be overwritten by subclasses)
+    }
+
+    private Status getStatus(ExecType execType, OrderQty orderQty, CumQty cumQty) {
+
+        if (execType.getValue() == ExecType.NEW) {
+            return Status.SUBMITTED;
+        } else if (execType.getValue() == ExecType.TRADE) {
+            if (cumQty.getValue() == orderQty.getValue()) {
+                return Status.EXECUTED;
+            } else {
+                return Status.PARTIALLY_EXECUTED;
+            }
+        } else if (execType.getValue() == ExecType.CANCELED || execType.getValue() == ExecType.REJECTED
+                || execType.getValue() == ExecType.DONE_FOR_DAY || execType.getValue() == ExecType.EXPIRED) {
+            return Status.CANCELED;
+        } else if (execType.getValue() == ExecType.REPLACE) {
+            if (cumQty.getValue() == 0) {
+                return Status.SUBMITTED;
+            } else {
+                return Status.PARTIALLY_EXECUTED;
+            }
+        } else {
+            throw new IllegalArgumentException("unknown execType " + execType.getValue());
+        }
     }
 }

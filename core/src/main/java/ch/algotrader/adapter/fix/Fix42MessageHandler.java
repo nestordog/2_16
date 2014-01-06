@@ -26,6 +26,7 @@ import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
 import quickfix.field.ClOrdID;
+import quickfix.field.CumQty;
 import quickfix.field.ExecTransType;
 import quickfix.field.ExecType;
 import quickfix.field.OrigClOrdID;
@@ -87,7 +88,7 @@ public class Fix42MessageHandler {
             }
 
             // get the other fields
-            Status status = FixUtil.getStatus(execType, executionReport.getCumQty());
+            Status status = getStatus(execType, executionReport.getCumQty());
             long filledQuantity = (long) executionReport.getCumQty().getValue();
             long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
 
@@ -162,5 +163,27 @@ public class Fix42MessageHandler {
      */
     protected void processFill(ExecutionReport executionReport, Order order, Fill fill) throws FieldNotFound {
         // do nothing (can be overwritten by subclasses)
+    }
+
+    private Status getStatus(ExecType execType, CumQty cumQty) {
+
+        if (execType.getValue() == ExecType.NEW) {
+            return Status.SUBMITTED;
+        } else if (execType.getValue() == ExecType.PARTIAL_FILL) {
+            return Status.PARTIALLY_EXECUTED;
+        } else if (execType.getValue() == ExecType.FILL) {
+            return Status.EXECUTED;
+        } else if (execType.getValue() == ExecType.CANCELED || execType.getValue() == ExecType.REJECTED
+                || execType.getValue() == ExecType.DONE_FOR_DAY || execType.getValue() == ExecType.EXPIRED) {
+            return Status.CANCELED;
+        } else if (execType.getValue() == ExecType.REPLACE) {
+            if (cumQty.getValue() == 0) {
+                return Status.SUBMITTED;
+            } else {
+                return Status.PARTIALLY_EXECUTED;
+            }
+        } else {
+            throw new IllegalArgumentException("unknown execType " + execType.getValue());
+        }
     }
 }
