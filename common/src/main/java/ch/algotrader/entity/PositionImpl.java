@@ -25,6 +25,7 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Direction;
+import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.CurrencyAmountVO;
 
@@ -260,5 +261,30 @@ public class PositionImpl extends Position {
     public String toString() {
 
         return getQuantity() + "," + getSecurity();
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Position) {
+            Position that = (Position) obj;
+            return ObjectUtil.equalsNonNull(this.getSecurity(), that.getSecurity()) &&
+                    ObjectUtil.equalsNonNull(this.getStrategy(), that.getStrategy());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + ObjectUtil.hashCode(getSecurity());
+        hash = hash * 37 + ObjectUtil.hashCode(getStrategy());
+        return hash;
     }
 }

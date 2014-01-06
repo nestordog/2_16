@@ -23,6 +23,7 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
 
 import ch.algotrader.enumeration.Direction;
+import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.collection.LongMap;
 import ch.algotrader.util.metric.MetricsUtil;
 
@@ -126,5 +127,27 @@ public class CombinationImpl extends Combination {
             super.initialize();
 
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Combination) {
+            Combination that = (Combination) obj;
+            return ObjectUtil.equalsNonZero(this.getId(), that.getId());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + this.getId();
+        return hash;
     }
 }

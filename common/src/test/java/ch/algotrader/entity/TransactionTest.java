@@ -15,51 +15,37 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity.strategy;
+package ch.algotrader.entity;
 
-import ch.algotrader.util.ObjectUtil;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class StrategyImpl extends Strategy {
+public class TransactionTest {
 
-    public static final String BASE = "BASE";
+    @Test
+    public void testEquals() {
 
-    private static final long serialVersionUID = -2271735085273721632L;
+        Transaction order1 = new TransactionImpl();
+        Transaction order2 = new TransactionImpl();
 
-    @Override
-    public boolean isBase() {
-        return (BASE.equals(getName()));
-    }
+        Assert.assertNotEquals(order1, order2);
 
-    @Override
-    public String toString() {
+        order1.setId(1);
 
-        return getName();
-    }
+        Assert.assertNotEquals(order1, order2);
 
-    @Override
-    public boolean equals(Object obj) {
+        order2.setId(2);
 
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Strategy) {
-            Strategy that = (Strategy) obj;
-            return ObjectUtil.equalsNonNull(this.getName(), that.getName());
-        } else {
-            return false;
-        }
-    }
+        Assert.assertNotEquals(order1, order2);
 
-    @Override
-    public int hashCode() {
+        Transaction order3 = new TransactionImpl();
+        order3.setId(1);
 
-        int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getName());
-        return hash;
+        Assert.assertEquals(order1, order3);
     }
 }

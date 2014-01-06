@@ -162,6 +162,7 @@
                 <property name="hibernateAggregationCascade">delete</property>
                 <property name="hibernateDefaultCascade">none</property>
                 <property name="userTypesPackage">ch.algotrader.hibernate</property>
+                <property name="generateEntityEqualsAndHashCode">false</property>
 
                 <property name="entities">${common.generated.dir}</property>
                 <property name="entity-impls">${common.manual.dir}</property>

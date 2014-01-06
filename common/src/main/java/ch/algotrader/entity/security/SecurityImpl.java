@@ -30,6 +30,7 @@ import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
 import com.espertech.esper.event.WrapperEventBean;
@@ -196,5 +197,32 @@ public abstract class SecurityImpl extends Security {
 
             this.initialized = true;
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Stock) {
+            Stock that = (Stock) obj;
+            return ObjectUtil.equals(this.getIsin(), that.getIsin()) &&
+                    ObjectUtil.equals(this.getBbgid(), that.getBbgid()) &&
+                    ObjectUtil.equals(this.getRic(), that.getRic()) &&
+                    ObjectUtil.equals(this.getConid(), that.getConid());
+
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 17;
+        hash = hash * 37 + ObjectUtil.hashCode(this.getIsin());
+        hash = hash * 37 + ObjectUtil.hashCode(this.getBbgid());
+        hash = hash * 37 + ObjectUtil.hashCode(this.getRic());
+        hash = hash * 37 + ObjectUtil.hashCode(this.getConid());
+        return hash;
     }
 }

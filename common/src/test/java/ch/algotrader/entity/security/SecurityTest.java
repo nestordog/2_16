@@ -15,51 +15,38 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity.strategy;
+package ch.algotrader.entity.security;
 
-import ch.algotrader.util.ObjectUtil;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class StrategyImpl extends Strategy {
+public class SecurityTest {
 
-    public static final String BASE = "BASE";
+    @Test
+    public void testEqualsIsin() {
 
-    private static final long serialVersionUID = -2271735085273721632L;
+        Security security1 = new StockImpl();
+        Security security2 = new StockImpl();
 
-    @Override
-    public boolean isBase() {
-        return (BASE.equals(getName()));
-    }
+        Assert.assertEquals(security1, security2);
 
-    @Override
-    public String toString() {
+        security1.setIsin("AAA");
 
-        return getName();
-    }
+        Assert.assertNotEquals(security1, security2);
 
-    @Override
-    public boolean equals(Object obj) {
+        security2.setIsin("BBB");
 
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Strategy) {
-            Strategy that = (Strategy) obj;
-            return ObjectUtil.equalsNonNull(this.getName(), that.getName());
-        } else {
-            return false;
-        }
-    }
+        Assert.assertNotEquals(security1, security2);
 
-    @Override
-    public int hashCode() {
+        Security security3 = new StockImpl();
 
-        int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getName());
-        return hash;
+        security3.setIsin("AAA");
+
+        Assert.assertEquals(security1, security3);
     }
 }

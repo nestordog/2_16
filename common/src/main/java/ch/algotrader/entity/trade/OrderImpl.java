@@ -18,7 +18,8 @@
 package ch.algotrader.entity.trade;
 
 import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.ObjectUtils;
+
+import ch.algotrader.util.ObjectUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -96,24 +97,24 @@ public abstract class OrderImpl extends Order {
     }
 
     @Override
-    public boolean equals(final Object object) {
+    public boolean equals(final Object obj) {
 
-        if (this == object) {
+        if (this == obj) {
             return true;
         }
-        if (!(object instanceof Order)) {
+        if (obj instanceof Order) {
+            Order that = (Order) obj;
+            return ObjectUtil.equalsNonNull(this.getIntId(), that.getIntId());
+        } else {
             return false;
         }
-        final Order that = (Order) object;
-        if ((this.getIntId() == null) || (that.getIntId() == null) || !this.getIntId().equals(that.getIntId())) {
-            return false;
-        }
-        return true;
     }
 
     @Override
     public int hashCode() {
 
-        return ObjectUtils.hashCode(this.getIntId());
+        int hash = 17;
+        hash = hash * 37 + ObjectUtil.hashCode(getIntId());
+        return hash;
     }
 }

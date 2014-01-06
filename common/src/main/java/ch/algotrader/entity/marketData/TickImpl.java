@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Direction;
+import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
 
 /**
@@ -203,5 +204,29 @@ public class TickImpl extends Tick {
         buffer.append(getVol());
 
         return buffer.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Tick) {
+            Tick that = (Tick) obj;
+            return ObjectUtil.equalsNonNull(this.getSecurity(), that.getSecurity()) &&
+                    ObjectUtil.equalsNonNull(this.getDateTime(), that.getDateTime());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + ObjectUtil.hashCode(getSecurity());
+        hash = hash * 37 + ObjectUtil.hashCode(getDateTime());
+        return hash;
     }
 }

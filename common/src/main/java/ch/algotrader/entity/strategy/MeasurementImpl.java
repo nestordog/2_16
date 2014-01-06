@@ -19,7 +19,7 @@ package ch.algotrader.entity.strategy;
 
 import java.math.BigDecimal;
 
-import ch.algotrader.entity.strategy.Measurement;
+import ch.algotrader.util.ObjectUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -78,5 +78,31 @@ public class MeasurementImpl extends Measurement {
     public String toString() {
 
         return getName() + "," + getDate() + "," + getValue();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Measurement) {
+            Measurement that = (Measurement) obj;
+            return ObjectUtil.equalsNonNull(this.getStrategy(), that.getStrategy()) &&
+                    ObjectUtil.equalsNonNull(this.getName(), that.getName()) &&
+                    ObjectUtil.equalsNonNull(this.getDate(), that.getDate());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + ObjectUtil.hashCode(getStrategy());
+        hash = hash * 37 + ObjectUtil.hashCode(getName());
+        hash = hash * 37 + ObjectUtil.hashCode(getDate());
+        return hash;
     }
 }

@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Direction;
+import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
 
 /**
@@ -94,5 +95,31 @@ public class BarImpl extends Bar {
         buffer.append(getBarSize());
 
         return buffer.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Bar) {
+            Bar that = (Bar) obj;
+            return ObjectUtil.equalsNonNull(this.getSecurity(), that.getSecurity()) &&
+                    ObjectUtil.equalsNonNull(this.getDateTime(), that.getDateTime()) &&
+                    ObjectUtil.equalsNonNull(this.getBarSize(), that.getBarSize());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + ObjectUtil.hashCode(getSecurity());
+        hash = hash * 37 + ObjectUtil.hashCode(getDateTime());
+        hash = hash * 37 + ObjectUtil.hashCode(getBarSize());
+        return hash;
     }
 }

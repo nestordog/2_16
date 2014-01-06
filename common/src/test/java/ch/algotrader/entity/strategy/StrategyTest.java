@@ -17,49 +17,35 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import ch.algotrader.util.ObjectUtil;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class StrategyImpl extends Strategy {
+public class StrategyTest {
 
-    public static final String BASE = "BASE";
+    @Test
+    public void testEquals() {
 
-    private static final long serialVersionUID = -2271735085273721632L;
+        Strategy strategy1 = new StrategyImpl();
+        Strategy strategy2 = new StrategyImpl();
 
-    @Override
-    public boolean isBase() {
-        return (BASE.equals(getName()));
-    }
+        Assert.assertNotEquals(strategy1, strategy2);
 
-    @Override
-    public String toString() {
+        strategy1.setName("A");
 
-        return getName();
-    }
+        Assert.assertNotEquals(strategy1, strategy2);
 
-    @Override
-    public boolean equals(Object obj) {
+        strategy2.setName("B");
 
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Strategy) {
-            Strategy that = (Strategy) obj;
-            return ObjectUtil.equalsNonNull(this.getName(), that.getName());
-        } else {
-            return false;
-        }
-    }
+        Assert.assertNotEquals(strategy1, strategy2);
 
-    @Override
-    public int hashCode() {
+        Strategy strategy3 = new StrategyImpl();
+        strategy3.setName("A");
 
-        int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getName());
-        return hash;
+        Assert.assertEquals(strategy1, strategy3);
     }
 }

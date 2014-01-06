@@ -20,6 +20,7 @@ package ch.algotrader.entity.strategy;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.util.BeanUtil;
+import ch.algotrader.util.ObjectUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -77,5 +78,28 @@ public class OrderPreferenceImpl extends OrderPreference {
     public String toString() {
 
         return getName() + ":" + getOrderType();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof OrderPreference) {
+            OrderPreference that = (OrderPreference) obj;
+            return ObjectUtil.equalsNonNull(this.getName(), that.getName());
+
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + ObjectUtil.hashCode(getName());
+        return hash;
     }
 }

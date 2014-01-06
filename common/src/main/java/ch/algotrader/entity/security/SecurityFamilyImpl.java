@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.text.ChoiceFormat;
 
 import ch.algotrader.enumeration.Broker;
+import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
 
 /**
@@ -157,5 +158,28 @@ public class SecurityFamilyImpl extends SecurityFamily {
             }
         }
         return price;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof SecurityFamily) {
+            SecurityFamily that = (SecurityFamily) obj;
+            return ObjectUtil.equalsNonNull(this.getName(), that.getName());
+
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + ObjectUtil.hashCode(getName());
+        return hash;
     }
 }

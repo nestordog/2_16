@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
+import ch.algotrader.util.ObjectUtil;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -30,5 +32,29 @@ public class AllocationImpl extends Allocation {
     public String toString() {
 
         return getAccount() + ":" + getValue();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Allocation) {
+            Allocation that = (Allocation) obj;
+            return ObjectUtil.equalsNonNull(this.getOrderPreference(), that.getOrderPreference()) &&
+                    ObjectUtil.equalsNonNull(this.getAccount(), that.getAccount());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + ObjectUtil.hashCode(getOrderPreference());
+        hash = hash * 37 + ObjectUtil.hashCode(getAccount());
+        return hash;
     }
 }

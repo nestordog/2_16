@@ -20,7 +20,7 @@ package ch.algotrader.entity.property;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import ch.algotrader.entity.property.Property;
+import ch.algotrader.util.ObjectUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -30,12 +30,6 @@ import ch.algotrader.entity.property.Property;
 public class PropertyImpl extends Property {
 
     private static final long serialVersionUID = -3790829266158776151L;
-
-    @Override
-    public String toString() {
-
-        return getValue().toString();
-    }
 
     @Override
     public Object getValue() {
@@ -84,5 +78,36 @@ public class PropertyImpl extends Property {
         } else {
             throw new IllegalArgumentException("unsupport value type " + value.getClass());
         }
+    }
+
+
+    @Override
+    public String toString() {
+
+        return getValue().toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Property) {
+            Property that = (Property) obj;
+            return ObjectUtil.equalsNonNull(this.getPropertyHolder(), that.getPropertyHolder()) &&
+                    ObjectUtil.equalsNonNull(this.getName(), that.getName());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + ObjectUtil.hashCode(getPropertyHolder());
+        hash = hash * 37 + ObjectUtil.hashCode(getName());
+        return hash;
     }
 }

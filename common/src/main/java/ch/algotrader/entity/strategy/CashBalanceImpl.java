@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
 
 /**
@@ -60,5 +61,29 @@ public class CashBalanceImpl extends CashBalance {
     public String toString() {
 
         return getStrategy() + "," + getCurrency() + "," + getAmount();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof CashBalance) {
+            CashBalance that = (CashBalance) obj;
+            return ObjectUtil.equalsNonNull(this.getStrategy(), that.getStrategy()) &&
+                    ObjectUtil.equalsNonNull(this.getCurrency(), that.getCurrency());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + ObjectUtil.hashCode(getStrategy());
+        hash = hash * 37 + ObjectUtil.hashCode(getCurrency());
+        return hash;
     }
 }

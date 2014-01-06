@@ -17,7 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
-import ch.algotrader.entity.Subscription;
+import ch.algotrader.util.ObjectUtil;
+
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -32,5 +33,29 @@ public class SubscriptionImpl extends Subscription {
     public String toString() {
 
         return getStrategy() + "," + getSecurity();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Subscription) {
+            Subscription that = (Subscription) obj;
+            return ObjectUtil.equalsNonNull(this.getSecurity(), that.getSecurity()) &&
+                    ObjectUtil.equalsNonNull(this.getStrategy(), that.getStrategy());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + ObjectUtil.hashCode(getSecurity());
+        hash = hash * 37 + ObjectUtil.hashCode(getStrategy());
+        return hash;
     }
 }

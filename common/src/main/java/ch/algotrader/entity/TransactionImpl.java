@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.TransactionType;
+import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.CurrencyAmountVO;
 
@@ -200,5 +201,27 @@ public class TransactionImpl extends Transaction {
         }
 
         return buffer.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Transaction) {
+            Transaction that = (Transaction) obj;
+            return ObjectUtil.equalsNonZero(this.getId(), that.getId());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + this.getId();
+        return hash;
     }
 }

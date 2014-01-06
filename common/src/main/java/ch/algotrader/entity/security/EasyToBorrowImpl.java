@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import ch.algotrader.util.ObjectUtil;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -30,5 +32,31 @@ public class EasyToBorrowImpl extends EasyToBorrow {
     public String toString() {
 
         return getDate() + " " + getBroker() + " " + getStock() + " " + getQuantity();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof EasyToBorrow) {
+            EasyToBorrow that = (EasyToBorrow) obj;
+            return ObjectUtil.equalsNonNull(this.getStock(), that.getStock()) &&
+                    ObjectUtil.equalsNonNull(this.getDate(), that.getDate()) &&
+                    ObjectUtil.equalsNonNull(this.getBroker(), that.getBroker());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + ObjectUtil.hashCode(getStock());
+        hash = hash * 37 + ObjectUtil.hashCode(getDate());
+        hash = hash * 37 + ObjectUtil.hashCode(getBroker());
+        return hash;
     }
 }

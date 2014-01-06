@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
+import ch.algotrader.util.ObjectUtil;
+
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -31,5 +33,29 @@ public class DefaultOrderPreferenceImpl extends DefaultOrderPreference {
     public String toString() {
 
         return getStrategy() + ":" + getSecurityFamily() + ":" + getOrderPreference();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof DefaultOrderPreference) {
+            DefaultOrderPreference that = (DefaultOrderPreference) obj;
+            return ObjectUtil.equalsNonNull(this.getSecurityFamily(), that.getSecurityFamily()) &&
+                    ObjectUtil.equalsNonNull(this.getStrategy(), that.getStrategy());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + ObjectUtil.hashCode(getSecurityFamily());
+        hash = hash * 37 + ObjectUtil.hashCode(getStrategy());
+        return hash;
     }
 }
