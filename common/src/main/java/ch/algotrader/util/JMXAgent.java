@@ -44,7 +44,7 @@ import javax.rmi.ssl.SslRMIServerSocketFactory;
  * In order to use this Custom JMXAgent the following has to be specified on the commandline:
  * <pre>-javaagent:lib/agent.jar</pre>
  * In addition the following vm argument has to be specified, which defines the public external host name:
- * <pre>-Djava.rmi.server.hostname=algotrader.com</pre>
+ * <pre>-Djava.rmi.server.hostname=algotrader.ch</pre>
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
