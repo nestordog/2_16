@@ -3178,7 +3178,7 @@ getOrderService().sendOrders(orders);</programlisting>
                 <title>Security Family Tables</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata scalefit="1" fileref="images/SchemaSecurityFamily.gif"/>
+                        <imagedata fileref="images/SchemaSecurityFamily.gif" scalefit="1"/>
                     </imageobject>
                 </mediaobject>
             </figure>
@@ -9568,12 +9568,210 @@ where and s.name = 'BASE'</programlisting>
             </note>
         </section>
     </chapter>
+    <appendix id="BreakOut_Strategy">
+        <title>Example Strategy "BreakOut"</title>
+        <section>
+            <title>Trading Idea</title>
+            <warning>
+                <para>The purpose of this Strategy is to demonstrate many of the capabilities of AlgoTrader. Do
+                    not use it with a Live Trading Account and real Money! The strategy might lead
+                    to large losses. Even when modifying or extending the Strategy use extreme
+                    caution before trading it Live.</para>
+            </warning>
+            <para>The Strategy trades the EUR.USD FX Market and is based on a simple Breakout
+                Indicator.</para>
+            <para>The Strategy opens a long (short) position when the current price exceeds (falls below) the
+                maximum (minimum) of the last n bars. After a new position is opened a profit target
+                price is set as well as a stop loss. If either profit target or stop is reached, the
+                position is closed. If neither stop nor profit target is reached until the end of
+                n-bars, the position is closed.</para>
+            <para>Positions are sized based on a defined leverage and the current NetLiqValue. All Orders are
+                placed as Market Orders. The initial account size is EUR 1'000'000.</para>
+        </section>
+        <section>
+            <title>Example</title>
+            <para>The following 5-min bar chart gives an example of the BreakOut strategy. At 10:20 an
+                aggregation of the last 5 bars between 09:55 and 10:20 is created, based on which
+                the upper limit at 1113.85 and the lower limit at 1110.53 are calculated. At
+                10:22:37 the upper limit is crossed for the first time and a long position is
+                entered and both a profit target at 1116.40 and a stop loss at 1111.49 are set
+                automatically. At 10:31:52 the profit target is reached and the position is
+                automatically closed.</para>
+            <note>
+                <para>This example strategy is a good example of combining a bar based strategy with
+                    tick-by-tick based actions. The creation of the upper and lower limits are based
+                    on the five 5-min bars but the opening and closing of the position takes place
+                    as soon as the limits are reached without waiting for the current bar to finish.
+                    This is one of the unique features of AlgoTrader that distinguishes it form
+                    other trading platforms that operate exclusively based on bars.</para>
+            </note>
+            <figure>
+                    <title>BreakOut Strategy Example</title>
+                    <mediaobject>
+                        <imageobject>
+                        <imagedata scalefit="1" fileref="images/BreakOutExample.gif"/>
+                    </imageobject>
+                    </mediaobject>
+                </figure>
+        </section>
+        <section>
+            <title>Implementation</title>
+            <para>The main artifacts needed for the Implementation of a new Strategy are described
+                in chapter <xref linkend="Strategy_Development"/>.</para>
+            <para>The following list will give an overview of the specific artifacts implemented by the
+                BreakOut Strategy (Note: Most of the functionality is documented via JavaDoc or
+                Esper comments):</para>
+            <variablelist>
+                <varlistentry>
+                    <term>
+                        <filename>/src/main/java/ch/algoTrader/strategy/breakOut/BreakOutServiceImpl.java</filename>
+                    </term>
+                    <listitem>
+                        <para>The strategy service class providing the main <methodname>entry</methodname> method
+                            invoked by the Esper <literal>ENTRY_LONG</literal> and
+                                <literal>ENTRY_SHORT</literal> statements:</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <filename>/src/main/java/ch/algoTrader/strategy/breakOut/BreakOutSingleVMStarter.java</filename>
+                    </term>
+                    <listitem>
+                        <para>The class containing the main method to start the strategy in Live Trading Mode. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <filename>/src/main/resources/module-breakOut.epl</filename>
+                    </term>
+                    <listitem>
+                        <para>Esper Module containing all statements necessary for this strategy:</para>
+                        <itemizedlist>
+                            <listitem>
+                                <para><literal>INSERT_INTO_BAR</literal>: Creates High/Low
+                                    Bars</para>
+                            </listitem>
+                            <listitem>
+                                <para><literal>INSERT_INTO_BOUND</literal>: Calculates minimum and
+                                    maximum of last n bars</para>
+                            </listitem>
+                            <listitem>
+                                <para><literal>ON_BOUND_SET_TRIGGERS</literal>: sets the
+                                    upperTrigger and lowerTrigger based on the minimum and maximum
+                                    of the last n bars</para>
+                            </listitem>
+                            <listitem>
+                                <para><literal>ENTRY_LONG</literal> /
+                                    <literal>ENTRY_SHORT</literal>: open position if last tick is
+                                    higher (lower) than previous n bars.</para>
+                            </listitem>
+                            <listitem>
+                                <para><literal>CLOSE_LONG_POSITION</literal> /
+                                        <literal>CLOSE_SHORT_POSITION</literal>: Close position if
+                                    last tick is higher (lower) than target or lower (lower) than
+                                    stop</para>
+                            </listitem>
+                            <listitem>
+                                <para><literal>CLOSE_OPEN_POSITION</literal>: Close position if
+                                    neither target nor stop are reached before the end of
+                                    n-bars</para>
+                            </listitem>
+                        </itemizedlist>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <filename>/src/main/resources/META-INF/conf-breakOut.properties</filename>
+                    </term>
+                    <listitem>
+                        <para>Contains parameters used by the strategy (e.g. <parameter>lengthOfBar</parameter> and
+                                <parameter>numberOfBars</parameter>)</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <filename>/src/main/resources/META-INF/esper-breakOut.cfg.xml</filename>
+                    </term>
+                    <listitem>
+                        <para>Contains event-types definitions (i.e. <classname>CurrentValue</classname>), variables
+                            (e.g. <parameter>lengthOfBar</parameter> and
+                                <parameter>numberOfBars</parameter>) and the EsperJMS Plugin for
+                            receiving market data in Live Trading Mode.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>
+                        <filename>/src/main/resources/META-INF/applicationContext-client-breakOut.xml</filename>
+                    </term>
+                    <listitem>
+                        <para>Contains the declaration of the <classname>BreakOutService</classname> The file also
+                            contains the declaration of the JMS Queue (i.e.
+                                <classname>ActiveMQQueue</classname>).</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><filename>/src/main/resources/META-INF/h2-breakout.sql</filename>
+                    </term>
+                    <listitem>
+                        <para>Contains the H2 database records needed to back test the strategy with
+                            the embedded in-memory database H2.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><filename>/sql/db-data.sql</filename></term>
+                    <listitem>
+                        <para>Contains the MySql database records. Needs to be imported into the database before
+                            running the strategy with the MySql database.</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term><filename>/files/tickdata/eurusd-1min-20120101-20120630/EU0009652759.zip</filename></term>
+                    <listitem>
+                        <para>Contains a .CSV file with Tick Data for the simulation. </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>To start the Strategy please see the explanations in chapter <xref linkend="Starting_AlgoTrader"/>.</para>
+        </section>
+        <section>
+            <title>Installation</title>
+            <variablelist>
+                <varlistentry>
+                    <term>SVN Checkout</term>
+                    <listitem>
+                        <para>Do an svn checkout from the command line:</para>
+                        <screen>svn checkout https://repo.algotrader.ch/svn/trunk/AlgoTraderExamples/breakOut/</screen>
+                        <para>Import the project <filename>breakOut</filename> into eclipse via File / Import / Maven
+                            / Existing Maven Projects:</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Deploy Bar Data File</term>
+                    <listitem>
+                        <para>Unpack the file: </para>
+                        <para><filename>breakOut/files/tickdata/eurusd-1min-20120101-20120630/EU0009652759.zip</filename>
+                        </para>
+                        <para>to:</para>
+                        <para><filename>algotrader/core/files/eurusd-1min-20120101-20120630/EU0009652759.csv</filename></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Start the Back Test</term>
+                    <listitem>
+                        <para>launch the Eclipse Launch Configuration:
+                                <literal>SimulationStarter-simulateWCP-BreakOut</literal>
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+        </section>
+    </appendix>
     <appendix id="Box_Strategy">
         <title>Example Strategy "Box"</title>
         <section>
             <title>Trading Idea</title>
             <warning>
-                <para>The purpose of this Strategy is to demonstrates many of the capabilities of AlgoTrader. Do
+                <para>The purpose of this Strategy is to demonstrate many of the capabilities of AlgoTrader. Do
                     not use it with a Live Trading Account and real Money! Due to frequent Draw
                     Downs, it might lead to large losses. Even when modifying or extending the
                     Strategy use extreme caution before trading it Live.</para>
@@ -9666,7 +9864,7 @@ where and s.name = 'BASE'</programlisting>
             <variablelist>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/ch/algoTrader/strategy/forex/BoxServiceImpl.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/box/BoxServiceImpl.java</filename>
                     </term>
                     <listitem>
                         <para>The strategy service class providing the main methods invoked by
@@ -9675,7 +9873,7 @@ where and s.name = 'BASE'</programlisting>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/ch/algoTrader/strategy/forex/BoxChartServiceImpl.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/box/BoxChartServiceImpl.java</filename>
                     </term>
                     <listitem>
                         <para>This class provides input data for the Box Custom Chart (see <xref linkend="Custom_Chart"/>).</para>
@@ -9683,7 +9881,7 @@ where and s.name = 'BASE'</programlisting>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/ch/algoTrader/strategy/forex/BoxStarter.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/box/BoxStarter.java</filename>
                     </term>
                     <listitem>
                         <para>The class containing the main method to start the strategy in Live
@@ -9694,29 +9892,29 @@ where and s.name = 'BASE'</programlisting>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/ch/algoTrader/strategy/forex/Box.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/box/Box.java</filename>
                     </term>
                     <listitem>
                         <para>A POJO class representing all properties of a Box (e.g.
-                                <parameter>top</parameter>, <parameter>bottom</parameter>,
-                                <parameter>startDateTime</parameter> and
-                                <parameter>endDateTime</parameter>)</para>
+                            <parameter>top</parameter>, <parameter>bottom</parameter>,
+                            <parameter>startDateTime</parameter> and
+                            <parameter>endDateTime</parameter>)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/ch/algoTrader/strategy/forex/State.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/box/State.java</filename>
                     </term>
                     <listitem>
                         <para>A Java Enum representing the different States the Strategy can pass
                             through (<parameter>INIT</parameter>, <parameter>CREATED</parameter>,
-                                <parameter>LONG</parameter>, <parameter>SHORT</parameter>,
-                                <parameter>FLAT</parameter>)</para>
+                            <parameter>LONG</parameter>, <parameter>SHORT</parameter>,
+                            <parameter>FLAT</parameter>)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/java/ch/algoTrader/strategy/forex/VariableListener.java</filename>
+                        <filename>/src/main/java/ch/algoTrader/strategy/box/VariableListener.java</filename>
                     </term>
                     <listitem>
                         <para>Esper does not provide any persistence mechanisms between JVM
@@ -9742,33 +9940,33 @@ where and s.name = 'BASE'</programlisting>
                     <listitem>
                         <para>Esper Module containing statements that invoke the business actions on
                             the <classname>BoxService</classname> (<methodname>entry</methodname>,
-                                <methodname>takeProfit</methodname>,
-                                <methodname>closePosition</methodname>,
-                                <methodname>reverse</methodname> and
-                                <methodname>terminateSeries</methodname>). In Live Trading these
+                            <methodname>takeProfit</methodname>,
+                            <methodname>closePosition</methodname>,
+                            <methodname>reverse</methodname> and
+                            <methodname>terminateSeries</methodname>). In Live Trading these
                             statements will be deployed after prefeeding is finished.</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/resources/META-INF/conf-forex-box.properties</filename>
+                        <filename>/src/main/resources/META-INF/conf-box.properties</filename>
                     </term>
                     <listitem>
                         <para>Contains parameters used by the strategy (e.g.
-                                <parameter>boxLength</parameter> and
+                            <parameter>boxLength</parameter> and
                             <parameter>boxRange</parameter>)</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>
-                        <filename>/src/main/resources/META-INF/esper-forex-box.cfg.xml</filename>
+                        <filename>/src/main/resources/META-INF/esper-box.cfg.xml</filename>
                     </term>
                     <listitem>
                         <para>Contains event-types definitions (i.e.
-                                <classname>CurrentValue</classname>), imports (i.e.
-                                <classname>Box</classname> and <classname>State</classname>),
+                            <classname>CurrentValue</classname>), imports (i.e.
+                            <classname>Box</classname> and <classname>State</classname>),
                             variables (e.g. <parameter>boxLength</parameter> and
-                                <parameter>boxRange</parameter>) and the EsperJMS Plugin for
+                            <parameter>boxRange</parameter>) and the EsperJMS Plugin for
                             receiving market data in Live Trading Mode.</para>
                     </listitem>
                 </varlistentry>
@@ -9778,8 +9976,8 @@ where and s.name = 'BASE'</programlisting>
                     </term>
                     <listitem>
                         <para>Contains the declaration of the <classname>BoxService</classname> and
-                                <classname>BoxChartService</classname> Beans (using autowiring). The
-                                <classname>BoxChartService</classname> also contains the definition
+                            <classname>BoxChartService</classname> Beans (using autowiring). The
+                            <classname>BoxChartService</classname> also contains the definition
                             of the Chart including Axis, Dataset and Series (see <xref linkend="Custom_Chart"/>). The file also contains the declaration of
                             the JMS Queue (i.e. <classname>ActiveMQQueue</classname>).</para>
                     </listitem>
@@ -9808,8 +10006,8 @@ where and s.name = 'BASE'</programlisting>
                     <listitem>
                         <para>Do an svn checkout from the command line:</para>
                         <screen>svn checkout https://repo.algotrader.ch/svn/trunk/AlgoTraderExamples/box</screen>
-                        <para>Import the following the project <filename>box</filename> into eclipse
-                            via File / Import / Maven / Existing Maven Projects:</para>
+                        <para>Import the project <filename>box</filename> into eclipse via File / Import / Maven /
+                            Existing Maven Projects:</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -9830,26 +10028,10 @@ where and s.name = 'BASE'</programlisting>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Change Currency to USD</term>
-                    <listitem>
-                        <para>In the following two tables please set the column
-                                <literal>CURRENCY</literal> of row 1 to
-                            <literal>USD</literal>:</para>
-                        <itemizedlist>
-                            <listitem>
-                                <para>transaction</para>
-                            </listitem>
-                            <listitem>
-                                <para>cash_balance</para>
-                            </listitem>
-                        </itemizedlist>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
                     <term>Start the Back Test</term>
                     <listitem>
                         <para>launch the Eclipse Launch Configuration:
-                                <literal>SimulationStarter-simulateWCP-Box</literal>
+                            <literal>SimulationStarter-simulateWCP-Box</literal>
                         </para>
                     </listitem>
                 </varlistentry>
