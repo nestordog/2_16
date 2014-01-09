@@ -60,8 +60,6 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
     protected void handleValidateOrder(Order order) throws Exception {
 
         // validate general properties
-        Validate.notNull(order.getStrategy(), "missing strategy for order " + order);
-        Validate.notNull(order.getSecurity(), "missing security for order " + order);
         Validate.notNull(order.getSide(), "missing side for order " + order);
         Validate.isTrue(order.getQuantity() != 0, "quanity cannot be zero for order " + order);
         Validate.isTrue(order.getQuantity() > 0, "quantity has to be positive for order " + order);
@@ -86,6 +84,10 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
 
     @Override
     protected void handleSendOrder(Order order) throws Exception {
+
+        // validate strategy and security
+        Validate.notNull(order.getStrategy(), "missing strategy for order " + order);
+        Validate.notNull(order.getSecurity(), "missing security for order " + order);
 
         // reload the strategy and security to get potential changes
         order.setStrategy(getStrategyDao().load(order.getStrategy().getId()));
