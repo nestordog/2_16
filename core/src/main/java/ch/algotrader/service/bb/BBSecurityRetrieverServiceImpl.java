@@ -106,7 +106,7 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
         } else if (securityFamily instanceof FutureFamily) {
             symbolRequest.append("fields", "FUT_CHAIN");
         } else {
-            throw new IllegalArgumentException("illegal securityFamily type");
+            throw new IllegalArgumentException("illegal securityFamily type " + securityFamilyId);
         }
 
         // send request
@@ -122,6 +122,10 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
         }
 
         List<String> symbols = symbolHandler.getSymbols();
+
+        if(symbols.isEmpty()) {
+            throw new IllegalArgumentException("securityFamily does not contain a chain " + securityFamilyId);
+        }
 
         // security request
         Request securityRequest = service.createRequest("ReferenceDataRequest");
@@ -205,6 +209,13 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
             }
 
             Element securityData = securitiesData.getValueAsElement(0);
+
+            if (securityData.hasElement(BBConstants.FIELD_EXCEPTIONS)) {
+
+                Element fieldExceptions = securityData.getElement(BBConstants.FIELD_EXCEPTIONS);
+                Element fieldException = fieldExceptions.getValueAsElement(0);
+                throw new IllegalArgumentException(fieldException.getElement(BBConstants.ERROR_INFO).toString());
+            }
 
             if (!securityData.hasElement(BBConstants.FIELD_DATA)) {
                 throw new IllegalStateException("need field data");
@@ -305,6 +316,17 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
             for (int i = 0; i < securitiesData.numValues(); ++i) {
 
                 Element securityData = securitiesData.getValueAsElement(i);
+
+                if (securityData.hasElement(BBConstants.FIELD_EXCEPTIONS)) {
+
+                    Element fieldExceptions = securityData.getElement(BBConstants.FIELD_EXCEPTIONS);
+                    Element fieldException = fieldExceptions.getValueAsElement(0);
+                    throw new IllegalArgumentException(fieldException.getElement(BBConstants.ERROR_INFO).toString());
+                }
+
+                if (!securityData.hasElement(BBConstants.FIELD_DATA)) {
+                    throw new IllegalStateException("need field data");
+                }
 
                 Element fields = securityData.getElement(BBConstants.FIELD_DATA);
 
