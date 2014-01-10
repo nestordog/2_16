@@ -213,8 +213,10 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
             if (securityData.hasElement(BBConstants.FIELD_EXCEPTIONS)) {
 
                 Element fieldExceptions = securityData.getElement(BBConstants.FIELD_EXCEPTIONS);
-                Element fieldException = fieldExceptions.getValueAsElement(0);
-                throw new IllegalArgumentException(fieldException.getElement(BBConstants.ERROR_INFO).toString());
+                if (fieldExceptions.numValues()> 0) {
+                    Element fieldException = fieldExceptions.getValueAsElement(0);
+                    throw new IllegalArgumentException(fieldException.getElement(BBConstants.ERROR_INFO).toString());
+                }
             }
 
             if (!securityData.hasElement(BBConstants.FIELD_DATA)) {
@@ -320,8 +322,10 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
                 if (securityData.hasElement(BBConstants.FIELD_EXCEPTIONS)) {
 
                     Element fieldExceptions = securityData.getElement(BBConstants.FIELD_EXCEPTIONS);
-                    Element fieldException = fieldExceptions.getValueAsElement(0);
-                    throw new IllegalArgumentException(fieldException.getElement(BBConstants.ERROR_INFO).toString());
+                    if (fieldExceptions.numValues()> 0) {
+                        Element fieldException = fieldExceptions.getValueAsElement(0);
+                        throw new IllegalArgumentException(fieldException.getElement(BBConstants.ERROR_INFO).toString());
+                    }
                 }
 
                 if (!securityData.hasElement(BBConstants.FIELD_DATA)) {
