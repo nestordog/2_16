@@ -2149,12 +2149,15 @@
                             <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1339764113009_906939_3382' body='Send an order'>
                                 <annotatedElement xmi:idref='_16_5_4_8b60294_1339761422856_66784_3291'/>
                             </ownedComment>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1339761484742_501062_3295' name='securityId' visibility='public' direction='in'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1339761484742_501062_3295' name='security' visibility='public' direction='in'>
+                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
                                     <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
                                     </xmi:Extension>
                                 </type>
+                                <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1389367330537_110087_3330' body='&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    &lt;ul&gt;&#10;      &lt;li&gt;&#10;        securityId (e.g. 123)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        symbol (e.g. GOOG)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        isin, prefix with &amp;quot;isin:&amp;quot;, (e.g. &amp;quot;isin:EU0009654078&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        bbgid, prefix with &amp;quot;bbgid:&amp;quot;, (e.g. &amp;quot;bbgid:BBG005NHP5P9&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        ric, prefix with &amp;quot;ric:&amp;quot;, (e.g. &amp;quot;ric:.SPX&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        conid, prefix with &amp;quot;conid:&amp;quot;, (e.g. &amp;quot;conid:12087817&amp;quot;)&#10;      &lt;/li&gt;&#10;    &lt;/ul&gt;&#10;    &lt;p&gt;&#10;      &amp;#160;&#10;    &lt;/p&gt;&#10;    &lt;p&gt;&#10;      &#10;    &lt;/p&gt;&#10;    &lt;p&gt;&#10;      &amp;#160;&#10;    &lt;/p&gt;&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;'>
+                                    <annotatedElement xmi:idref='_16_5_4_8b60294_1339761484742_501062_3295'/>
+                                </ownedComment>
                             </ownedParameter>
                             <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1339761486037_833604_3296' name='quantity' visibility='public' direction='in'>
                                 <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_238790_9'>
@@ -2326,12 +2329,15 @@
                             <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1354706611756_488398_3136' body='Reduce the Component quantities and the associated Position by the specified ratio&#10;'>
                                 <annotatedElement xmi:idref='_16_5_4_8b60294_1354706611756_781320_3134'/>
                             </ownedComment>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1354706611756_267961_3137' name='combinationId' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1354706611756_267961_3137' name='combination' visibility='public'>
+                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
                                     <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
                                     </xmi:Extension>
                                 </type>
+                                <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1389367362829_321031_3332' body='&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    &lt;ul&gt;&#10;      &lt;li&gt;&#10;        securityId (e.g. 123)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        symbol (e.g. GOOG)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        isin, prefix with &amp;quot;isin:&amp;quot;, (e.g. &amp;quot;isin:EU0009654078&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        bbgid, prefix with &amp;quot;bbgid:&amp;quot;, (e.g. &amp;quot;bbgid:BBG005NHP5P9&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        ric, prefix with &amp;quot;ric:&amp;quot;, (e.g. &amp;quot;ric:.SPX&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        conid, prefix with &amp;quot;conid:&amp;quot;, (e.g. &amp;quot;conid:12087817&amp;quot;)&#10;      &lt;/li&gt;&#10;    &lt;/ul&gt;&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;'>
+                                    <annotatedElement xmi:idref='_16_5_4_8b60294_1354706611756_267961_3137'/>
+                                </ownedComment>
                             </ownedParameter>
                             <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1354706611756_310373_3138' name='ratio' visibility='public'>
                                 <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_794756_24'>
@@ -2420,15 +2426,18 @@
                             </ownedParameter>
                         </ownedOperation>
                         <ownedOperation xmi:type='uml:Operation' xmi:id='_9_5_1_8b60294_1321981784619_912629_562' name='subscribe' visibility='public'>
-                            <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1366967291341_117720_3187' body='Subscribe to the specified Security'>
+                            <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1366967291341_117720_3187' body='Subscribe to the specified Security.&#10;&#10; &#10;&#10; '>
                                 <annotatedElement xmi:idref='_9_5_1_8b60294_1321981784619_912629_562'/>
                             </ownedComment>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1321981784606_76517_560' name='securityId' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1321981784606_76517_560' name='security' visibility='public'>
+                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
                                     <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
                                     </xmi:Extension>
                                 </type>
+                                <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1389366797728_224621_3329' body='&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    &lt;ul&gt;&#10;      &lt;li&gt;&#10;        securityId (e.g. 123)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        symbol (e.g. GOOG)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        isin, prefix with &amp;quot;isin:&amp;quot;, (e.g. &amp;quot;isin:EU0009654078&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        bbgid, prefix with &amp;quot;bbgid:&amp;quot;, (e.g. &amp;quot;bbgid:BBG005NHP5P9&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        ric, prefix with &amp;quot;ric:&amp;quot;, (e.g. &amp;quot;ric:.SPX&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        conid, prefix with &amp;quot;conid:&amp;quot;, (e.g. &amp;quot;conid:12087817&amp;quot;)&#10;      &lt;/li&gt;&#10;    &lt;/ul&gt;&#10;    &lt;p&gt;&#10;      &amp;#160;&#10;    &lt;/p&gt;&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;'>
+                                    <annotatedElement xmi:idref='_9_5_1_8b60294_1321981784606_76517_560'/>
+                                </ownedComment>
                             </ownedParameter>
                             <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1321981784606_633632_561' visibility='public' direction='return'>
                                 <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
@@ -2442,12 +2451,15 @@
                             <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1366967306946_764550_3188' body='Unsubscribe the specified Security'>
                                 <annotatedElement xmi:idref='_9_5_1_8b60294_1321981784551_20524_558'/>
                             </ownedComment>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1321981784551_260630_556' name='securityId' visibility='public'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1321981784551_260630_556' name='security' visibility='public'>
+                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
                                     <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
                                     </xmi:Extension>
                                 </type>
+                                <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1389366776520_831369_3328' body='&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    &lt;ul&gt;&#10;      &lt;li&gt;&#10;        securityId (e.g. 123)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        symbol (e.g. GOOG)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        isin, prefix with &amp;quot;isin:&amp;quot;, (e.g. &amp;quot;isin:EU0009654078&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        bbgid, prefix with &amp;quot;bbgid:&amp;quot;, (e.g. &amp;quot;bbgid:BBG005NHP5P9&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        ric, prefix with &amp;quot;ric:&amp;quot;, (e.g. &amp;quot;ric:.SPX&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        conid, prefix with &amp;quot;conid:&amp;quot;, (e.g. &amp;quot;conid:12087817&amp;quot;)&#10;      &lt;/li&gt;&#10;    &lt;/ul&gt;&#10;    &lt;p&gt;&#10;      &amp;#160;&#10;    &lt;/p&gt;&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;'>
+                                    <annotatedElement xmi:idref='_9_5_1_8b60294_1321981784551_260630_556'/>
+                                </ownedComment>
                             </ownedParameter>
                             <ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1321981784551_330914_557' visibility='public' direction='return'>
                                 <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_324247_52'>
@@ -2554,23 +2566,23 @@
                             <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1366967379351_227419_3190' body='Set the quantity of the specified Component'>
                                 <annotatedElement xmi:idref='_16_5_4_8b60294_1349876249589_207846_2925'/>
                             </ownedComment>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1349876287618_736921_2928' name='combinationId' visibility='public' direction='in'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1349876287618_736921_2928' name='combination' visibility='public' direction='in'>
+                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
                                     <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
                                     </xmi:Extension>
                                 </type>
-                                <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1349876358127_192275_2935' body='Security Id of the Combination'>
+                                <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1349876358127_192275_2935' body='&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    &lt;p&gt;&#10;      Combination:&#10;    &lt;/p&gt;&#10;    &lt;ul&gt;&#10;      &lt;li&gt;&#10;        securityId (e.g. 123)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        symbol (e.g. GOOG)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        isin, prefix with &amp;quot;isin:&amp;quot;, (e.g. &amp;quot;isin:EU0009654078&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        bbgid, prefix with &amp;quot;bbgid:&amp;quot;, (e.g. &amp;quot;bbgid:BBG005NHP5P9&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        ric, prefix with &amp;quot;ric:&amp;quot;, (e.g. &amp;quot;ric:.SPX&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        conid, prefix with &amp;quot;conid:&amp;quot;, (e.g. &amp;quot;conid:12087817&amp;quot;)&#10;      &lt;/li&gt;&#10;    &lt;/ul&gt;&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;'>
                                     <annotatedElement xmi:idref='_16_5_4_8b60294_1349876287618_736921_2928'/>
                                 </ownedComment>
                             </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1349876289215_368167_2929' name='componentId' visibility='public' direction='in'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1349876289215_368167_2929' name='component' visibility='public' direction='in'>
+                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
                                     <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
                                     </xmi:Extension>
                                 </type>
-                                <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1349876365130_701038_2936' body='Security Id of the Component'>
+                                <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1349876365130_701038_2936' body='&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    &lt;p&gt;&#10;      Component:&#10;    &lt;/p&gt;&#10;    &lt;ul&gt;&#10;      &lt;li&gt;&#10;        securityId (e.g. 123)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        symbol (e.g. GOOG)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        isin, prefix with &amp;quot;isin:&amp;quot;, (e.g. &amp;quot;isin:EU0009654078&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        bbgid, prefix with &amp;quot;bbgid:&amp;quot;, (e.g. &amp;quot;bbgid:BBG005NHP5P9&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        ric, prefix with &amp;quot;ric:&amp;quot;, (e.g. &amp;quot;ric:.SPX&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        conid, prefix with &amp;quot;conid:&amp;quot;, (e.g. &amp;quot;conid:12087817&amp;quot;)&#10;      &lt;/li&gt;&#10;    &lt;/ul&gt;&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;'>
                                     <annotatedElement xmi:idref='_16_5_4_8b60294_1349876289215_368167_2929'/>
                                 </ownedComment>
                             </ownedParameter>
@@ -2593,23 +2605,23 @@
                             <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1366967395604_566855_3191' body='Remove the specified Component from the specified Combination'>
                                 <annotatedElement xmi:idref='_16_5_4_8b60294_1349876380029_800088_2937'/>
                             </ownedComment>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1349876380031_950779_2939' name='combinationId' visibility='public' direction='in'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1349876380031_950779_2939' name='combination' visibility='public' direction='in'>
+                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
                                     <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
                                     </xmi:Extension>
                                 </type>
-                                <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1349876380036_509308_2944' body='Security Id of the Combination'>
+                                <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1349876380036_509308_2944' body='&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    &lt;p&gt;&#10;      Combination:&#10;    &lt;/p&gt;&#10;    &lt;ul&gt;&#10;      &lt;li&gt;&#10;        securityId (e.g. 123)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        symbol (e.g. GOOG)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        isin, prefix with &amp;quot;isin:&amp;quot;, (e.g. &amp;quot;isin:EU0009654078&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        bbgid, prefix with &amp;quot;bbgid:&amp;quot;, (e.g. &amp;quot;bbgid:BBG005NHP5P9&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        ric, prefix with &amp;quot;ric:&amp;quot;, (e.g. &amp;quot;ric:.SPX&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        conid, prefix with &amp;quot;conid:&amp;quot;, (e.g. &amp;quot;conid:12087817&amp;quot;)&#10;      &lt;/li&gt;&#10;    &lt;/ul&gt;&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;'>
                                     <annotatedElement xmi:idref='_16_5_4_8b60294_1349876380031_950779_2939'/>
                                 </ownedComment>
                             </ownedParameter>
-                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1349876380033_78464_2940' name='componentId' visibility='public' direction='in'>
-                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_213222_11'>
+                            <ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1349876380033_78464_2940' name='component' visibility='public' direction='in'>
+                                <type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_364079_66'>
                                     <xmi:Extension extender='MagicDraw UML 16.5'>
-                                        <referenceExtension referentPath='datatype::int' referentType='DataType'/>
+                                        <referenceExtension referentPath='datatype::String' referentType='DataType'/>
                                     </xmi:Extension>
                                 </type>
-                                <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1349876380037_932682_2945' body='Security Id of the Component'>
+                                <ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1349876380037_932682_2945' body='&lt;html&gt;&#10;  &lt;head&gt;&#10;    &#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;    &lt;p&gt;&#10;      Component:&#10;    &lt;/p&gt;&#10;    &lt;ul&gt;&#10;      &lt;li&gt;&#10;        securityId (e.g. 123)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        symbol (e.g. GOOG)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        isin, prefix with &amp;quot;isin:&amp;quot;, (e.g. &amp;quot;isin:EU0009654078&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        bbgid, prefix with &amp;quot;bbgid:&amp;quot;, (e.g. &amp;quot;bbgid:BBG005NHP5P9&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        ric, prefix with &amp;quot;ric:&amp;quot;, (e.g. &amp;quot;ric:.SPX&amp;quot;)&#10;      &lt;/li&gt;&#10;      &lt;li&gt;&#10;        conid, prefix with &amp;quot;conid:&amp;quot;, (e.g. &amp;quot;conid:12087817&amp;quot;)&#10;      &lt;/li&gt;&#10;    &lt;/ul&gt;&#10;  &lt;/body&gt;&#10;&lt;/html&gt;&#10;'>
                                     <annotatedElement xmi:idref='_16_5_4_8b60294_1349876380033_78464_2940'/>
                                 </ownedComment>
                             </ownedParameter>
@@ -20173,7 +20185,7 @@
                     <diagramFrameInitialSizeSet xmi:value='false'/>
                     <diagramWindowBounds>2, 24, 1418, 919</diagramWindowBounds>
                     <diagramScrollPositionX xmi:value='0'/>
-                    <diagramScrollPositionY xmi:value='926'/>
+                    <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
                     <active xmi:value='false'/>
                     <mdOwnedViews>
@@ -28812,7 +28824,7 @@
                     <diagramScrollPositionX xmi:value='0'/>
                     <diagramScrollPositionY xmi:value='0'/>
                     <maximized xmi:value='false'/>
-                    <active xmi:value='false'/>
+                    <active xmi:value='true'/>
                     <mdOwnedViews>
                         <mdElement elementClass='DiagramFrame' xmi:id='_16_5_4_8b60294_1322591618371_273432_4606'>
                             <elementID xmi:idref='_9_5_1_8b60294_1322218667554_975883_453'/>
@@ -28821,7 +28833,7 @@
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_9_5_1_8b60294_1322218980600_622918_1584'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146213_357367_10283'/>
-                            <geometry>10, 20, 937, 654</geometry>
+                            <geometry>10, 20, 946, 654</geometry>
                         </mdElement>
                         <mdElement elementClass='Class' xmi:id='_16_5_4_8b60294_1325610356520_95076_5193'>
                             <elementID xmi:idref='_9_5_1_8b60294_1304021803677_700766_431'/>
@@ -29050,7 +29062,7 @@
                     <diagramScrollPositionX xmi:value='882'/>
                     <diagramScrollPositionY xmi:value='807'/>
                     <maximized xmi:value='false'/>
-                    <active xmi:value='true'/>
+                    <active xmi:value='false'/>
                     <mdOwnedViews>
                         <mdElement elementClass='DiagramFrame' xmi:id='_16_5_4_8b60294_1322591618366_609995_4604'>
                             <elementID xmi:idref='_9_5_1_8b60294_1302789146191_278544_9548'/>
@@ -31346,7 +31358,7 @@
                         <mdElement elementClass='StringProperty'>
                             <propertyID>DIAGRAMS_LAYOUT</propertyID>
                             <propertyDescriptionID>DIAGRAMS_LAYOUT_DESCRIPTION</propertyDescriptionID>
-                            <value>0 0 0 14 0 0 0 1 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 32 0 37 0 38 0 35 0 34 0 34 0 5f 0 39 0 35 0 34 0 38 0 0 0 1 0 0 0 cc 0 0 0 e2 0 0 0 7 0 0 0 14 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 31 0 31 0 33 0 38 0 38 0 36 0 5f 0 39 0 35 0 35 0 32 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 36 0 32 0 37 0 36 0 35 0 39 0 33 0 33 0 38 0 30 0 38 0 5f 0 33 0 34 0 38 0 31 0 37 0 30 0 5f 0 33 0 35 0 32 0 38 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 30 0 34 0 32 0 34 0 39 0 31 0 39 0 37 0 38 0 35 0 5f 0 33 0 31 0 36 0 37 0 30 0 38 0 5f 0 34 0 36 0 31 0 33 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 35 0 35 0 35 0 32 0 36 0 38 0 34 0 32 0 33 0 38 0 5f 0 34 0 33 0 36 0 37 0 37 0 39 0 5f 0 38 0 37 0 30 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 33 0 33 0 38 0 39 0 36 0 38 0 31 0 35 0 33 0 36 0 5f 0 33 0 39 0 32 0 33 0 31 0 35 0 5f 0 35 0 31 0 39 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 31 0 36 0 35 0 35 0 37 0 34 0 5f 0 34 0 37 0 38 0 33 0 31 0 30 0 5f 0 36 0 34 0 35 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 32 0 36 0 39 0 35 0 31 0 36 0 30 0 31 0 33 0 34 0 5f 0 36 0 33 0 35 0 36 0 32 0 34 0 5f 0 34 0 39 0 35 0 35 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 32 0 37 0 38 0 35 0 34 0 34 0 5f 0 39 0 35 0 34 0 38 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 37 0 35 0 36 0 31 0 31 0 37 0 5f 0 32 0 39 0 34 0 30 0 32 0 31 0 5f 0 34 0 39 0 30 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 36 0 36 0 37 0 35 0 35 0 34 0 5f 0 39 0 37 0 35 0 38 0 38 0 33 0 5f 0 34 0 35 0 33 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 36 0 31 0 35 0 35 0 37 0 30 0 37 0 37 0 32 0 31 0 35 0 5f 0 35 0 39 0 32 0 30 0 31 0 34 0 5f 0 35 0 33 0 32 0 35 0 0 0 28 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 37 0 31 0 38 0 31 0 39 0 35 0 37 0 38 0 35 0 30 0 36 0 5f 0 35 0 32 0 34 0 38 0 39 0 5f 0 33 0 31 0 35 0 35 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 34 0 32 0 37 0 30 0 37 0 33 0 35 0 35 0 31 0 35 0 39 0 5f 0 39 0 33 0 35 0 31 0 35 0 38 0 5f 0 32 0 38 0 35 0 33 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 34 0 38 0 38 0 32 0 38 0 30 0 38 0 36 0 38 0 31 0 37 0 5f 0 33 0 36 0 32 0 35 0 31 0 32 0 5f 0 33 0 31 0 33 0 39 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 35 0 38 0 38 0 38 0 32 0 31 0 5f 0 31 0 37 0 31 0 31 0 31 0 36 0 5f 0 31 0 37 0 38 0 34 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 32 0 31 0 37 0 37 0 37 0 39 0 5f 0 39 0 35 0 34 0 39 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 35 0 36 0 30 0 39 0 30 0 32 0 30 0 36 0 33 0 31 0 5f 0 33 0 33 0 38 0 34 0 32 0 39 0 5f 0 34 0 36 0 30 0 30 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 31 0 34 0 36 0 38 0 30 0 39 0 5f 0 39 0 35 0 34 0 37 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 39 0 36 0 30 0 39 0 34 0 35 0 31 0 32 0 31 0 39 0 5f 0 39 0 31 0 34 0 36 0 33 0 36 0 5f 0 32 0 39 0 30 0 38 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 37 0 33 0 37 0 33 0 38 0 30 0 5f 0 39 0 35 0 35 0 31 0 0 0 0 </value>
+                            <value>0 0 0 14 0 0 0 1 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 36 0 36 0 37 0 35 0 35 0 34 0 5f 0 39 0 37 0 35 0 38 0 38 0 33 0 5f 0 34 0 35 0 33 0 0 0 1 0 0 0 cc 0 0 0 e2 0 0 0 9 0 0 0 14 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 31 0 31 0 33 0 38 0 38 0 36 0 5f 0 39 0 35 0 35 0 32 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 36 0 32 0 37 0 36 0 35 0 39 0 33 0 33 0 38 0 30 0 38 0 5f 0 33 0 34 0 38 0 31 0 37 0 30 0 5f 0 33 0 35 0 32 0 38 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 30 0 34 0 32 0 34 0 39 0 31 0 39 0 37 0 38 0 35 0 5f 0 33 0 31 0 36 0 37 0 30 0 38 0 5f 0 34 0 36 0 31 0 33 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 35 0 35 0 35 0 32 0 36 0 38 0 34 0 32 0 33 0 38 0 5f 0 34 0 33 0 36 0 37 0 37 0 39 0 5f 0 38 0 37 0 30 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 33 0 33 0 38 0 39 0 36 0 38 0 31 0 35 0 33 0 36 0 5f 0 33 0 39 0 32 0 33 0 31 0 35 0 5f 0 35 0 31 0 39 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 31 0 36 0 35 0 35 0 37 0 34 0 5f 0 34 0 37 0 38 0 33 0 31 0 30 0 5f 0 36 0 34 0 35 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 32 0 36 0 39 0 35 0 31 0 36 0 30 0 31 0 33 0 34 0 5f 0 36 0 33 0 35 0 36 0 32 0 34 0 5f 0 34 0 39 0 35 0 35 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 32 0 37 0 38 0 35 0 34 0 34 0 5f 0 39 0 35 0 34 0 38 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 37 0 35 0 36 0 31 0 31 0 37 0 5f 0 32 0 39 0 34 0 30 0 32 0 31 0 5f 0 34 0 39 0 30 0 0 0 27 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 32 0 32 0 31 0 38 0 36 0 36 0 37 0 35 0 35 0 34 0 5f 0 39 0 37 0 35 0 38 0 38 0 33 0 5f 0 34 0 35 0 33 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 36 0 31 0 35 0 35 0 37 0 30 0 37 0 37 0 32 0 31 0 35 0 5f 0 35 0 39 0 32 0 30 0 31 0 34 0 5f 0 35 0 33 0 32 0 35 0 0 0 28 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 37 0 31 0 38 0 31 0 39 0 35 0 37 0 38 0 35 0 30 0 36 0 5f 0 35 0 32 0 34 0 38 0 39 0 5f 0 33 0 31 0 35 0 35 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 34 0 32 0 37 0 30 0 37 0 33 0 35 0 35 0 31 0 35 0 39 0 5f 0 39 0 33 0 35 0 31 0 35 0 38 0 5f 0 32 0 38 0 35 0 33 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 34 0 38 0 38 0 32 0 38 0 30 0 38 0 36 0 38 0 31 0 37 0 5f 0 33 0 36 0 32 0 35 0 31 0 32 0 5f 0 33 0 31 0 33 0 39 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 31 0 34 0 38 0 31 0 36 0 35 0 38 0 38 0 38 0 32 0 31 0 5f 0 31 0 37 0 31 0 31 0 31 0 36 0 5f 0 31 0 37 0 38 0 34 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 32 0 31 0 37 0 37 0 37 0 39 0 5f 0 39 0 35 0 34 0 39 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 32 0 35 0 36 0 30 0 39 0 30 0 32 0 30 0 36 0 33 0 31 0 5f 0 33 0 33 0 38 0 34 0 32 0 39 0 5f 0 34 0 36 0 30 0 30 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 31 0 5f 0 31 0 34 0 36 0 38 0 30 0 39 0 5f 0 39 0 35 0 34 0 37 0 0 0 29 0 5f 0 31 0 36 0 5f 0 35 0 5f 0 34 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 33 0 39 0 36 0 30 0 39 0 34 0 35 0 31 0 32 0 31 0 39 0 5f 0 39 0 31 0 34 0 36 0 33 0 36 0 5f 0 32 0 39 0 30 0 38 0 0 0 28 0 5f 0 39 0 5f 0 35 0 5f 0 31 0 5f 0 38 0 62 0 36 0 30 0 32 0 39 0 34 0 5f 0 31 0 33 0 30 0 32 0 37 0 38 0 39 0 31 0 34 0 36 0 31 0 39 0 32 0 5f 0 37 0 33 0 37 0 33 0 38 0 30 0 5f 0 39 0 35 0 35 0 31 0 0 0 0 </value>
                         </mdElement>
                         <mdElement elementClass='StringProperty'>
                             <propertyID>MT_LAST_SELECTED_TRANSFORMATION</propertyID>
@@ -31422,7 +31434,7 @@
                         <mdElement elementClass='StringProperty'>
                             <propertyID>INFO_PROPERTY</propertyID>
                             <propertyDescriptionID>INFO_PROPERTY_DESCRIPTION</propertyDescriptionID>
-                            <value>4a 10 4a 68 59 2b 55 62 7 30 86 e4 e9 f7 f1 ab 63 b5 17 6f 7b 6d 0 fa f7 89 37 2 23 d9 d6 11 32 69 cb 3a 2a 7b 1e a7 f 9 a2 d5 88 70 d7 7 11 f1 1d 3f 49 94 6c 7e e4 8f 79 a9 9b a3 27 bd 94 6b e1 e8 6f 77 6f </value>
+                            <value>4a 10 4a 68 59 2b 55 62 7 30 86 e4 e9 f7 f1 ab 63 b5 17 6f 7b 6d 0 fe f7 8b 33 2 24 d4 d6 11 32 69 cb 3a 2a 7b 1e a7 f 9 a2 d5 88 70 d7 7 11 f1 1d 3f 49 94 6c 7e e4 8f 79 a9 9b a3 27 bd 94 6b e1 e8 6f 77 6f </value>
                         </mdElement>
                         <mdElement elementClass='LIST_PROPERTY'>
                             <propertyID>ADDITIONAL_CONTAINMENT_TREES</propertyID>

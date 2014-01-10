@@ -29,6 +29,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.ServiceLocator;
@@ -263,13 +264,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected void handleSendOrder(int securityId, long quantity, String sideString, String type, String accountName, String propertiesString) throws Exception {
+    protected void handleSendOrder(String securityString, long quantity, String sideString, String type, String accountName, String propertiesString) throws Exception {
 
         Side side = Side.fromValue(sideString);
         String strategyName = getConfiguration().getStartedStrategyName();
 
         Strategy strategy = getLookupService().getStrategyByName(strategyName);
-        Security security = getLookupService().getSecurity(securityId);
+        Security security = getLookupService().getSecurity(getSecurityId(securityString));
 
         // instantiate the order
         Order order;
@@ -353,9 +354,9 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected void handleReduceCombination(int combinationId, double ratio) throws Exception {
+    protected void handleReduceCombination(String combination, double ratio) throws Exception {
 
-        getCombinationService().reduceCombination(combinationId, getConfiguration().getStartedStrategyName(), ratio);
+        getCombinationService().reduceCombination(getSecurityId(combination), getConfiguration().getStartedStrategyName(), ratio);
     }
 
     @Override
@@ -377,15 +378,15 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected void handleSubscribe(int securityid) throws Exception {
+    protected void handleSubscribe(String security) throws Exception {
 
-        getSubscriptionService().subscribeMarketDataEvent(getConfiguration().getStartedStrategyName(), securityid);
+        getSubscriptionService().subscribeMarketDataEvent(getConfiguration().getStartedStrategyName(), getSecurityId(security));
     }
 
     @Override
-    protected void handleUnsubscribe(int securityid) throws Exception {
+    protected void handleUnsubscribe(String securityString) throws Exception {
 
-        getSubscriptionService().unsubscribeMarketDataEvent(getConfiguration().getStartedStrategyName(), securityid);
+        getSubscriptionService().unsubscribeMarketDataEvent(getConfiguration().getStartedStrategyName(), getSecurityId(securityString));
     }
 
     @Override
@@ -424,15 +425,15 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected void handleSetComponentQuantity(int combinationId, int securityId, long quantity) throws Exception {
+    protected void handleSetComponentQuantity(String combination, String component, long quantity) throws Exception {
 
-        getCombinationService().setComponentQuantity(combinationId, securityId, quantity);
+        getCombinationService().setComponentQuantity(getSecurityId(combination), getSecurityId(component), quantity);
     }
 
     @Override
-    protected void handleRemoveComponent(int combinationId, final int securityId) {
+    protected void handleRemoveComponent(String combination, String component) {
 
-        getCombinationService().removeComponent(combinationId, securityId);
+        getCombinationService().removeComponent(getSecurityId(combination), getSecurityId(component));
     }
 
     @Override
@@ -453,6 +454,34 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
         // need to force exit because grafefull shutdown of esper-service (and esper-jmx) does not work
         System.exit(0);
+    }
+
+    private int getSecurityId(String securityString) {
+
+        if (NumberUtils.isDigits(securityString)) {
+            return Integer.parseInt(securityString);
+
+        } else {
+
+            Security security;
+            if (securityString.startsWith("isin:")) {
+                security = getLookupService().getSecurityByIsin(securityString.substring(5));
+            } else if (securityString.startsWith("bbgid:")) {
+                security = getLookupService().getSecurityByBbgid(securityString.substring(6));
+            } else if (securityString.startsWith("ric:")) {
+                security = getLookupService().getSecurityByRic(securityString.substring(4));
+            } else if (securityString.startsWith("conid:")) {
+                security = getLookupService().getSecurityByConid(securityString.substring(6));
+            } else {
+                security = getLookupService().getSecurityBySymbol(securityString);
+            }
+
+            if (security == null) {
+                throw new IllegalArgumentException("security was not found " + securityString);
+            }
+
+            return security.getId();
+        }
     }
 
     private List<MarketDataEventVO> getMarketDataEventVOs(List<MarketDataEvent> marketDataEvents) {
