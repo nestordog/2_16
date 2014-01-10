@@ -3291,6 +3291,93 @@ getOrderService().sendOrders(orders);</programlisting>
                     </imageobject>
                 </mediaobject>
             </figure>
+            <section>
+                <title>Starting the AlgoTraderClient</title>
+                <para>To run AlgoTraderClient the class
+                        <classname>sun.tools.jconsole.JConsole</classname> has to be invoked inside
+                    the project <filename>algotrader-client</filename> .</para>
+                <para>If using Eclipse specify the following in the Launch Configuration:</para>
+                <variablelist>
+                    <varlistentry>
+                        <term>Main-Tab</term>
+                        <listitem>
+                            <itemizedlist>
+                                <listitem>
+                                    <para>Project: algotrader-client</para>
+                                </listitem>
+                                <listitem>
+                                    <para>Main Class:
+                                            <classname>sun.tools.jconsole.JConsole</classname>
+                                    </para>
+                                </listitem>
+                            </itemizedlist>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Arguments-Tab / Programm-Arguments</term>
+                        <listitem>
+                            <screen>localhost:1099
+localhost:1097</screen>
+                            <para>specify the JVM's to connect to in the format
+                                    <literal>host:port</literal>, see <xref linkend="JMX_Access"/>
+                                for further details.</para>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Classpath / User Entries</term>
+                        <listitem>
+                            <itemizedlist>
+                                <listitem>
+                                    <para>add project algotrader-core</para>
+                                </listitem>
+                            </itemizedlist>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+                <note>
+                    <para>In case you receive the following error message, make sure that the
+                        project algotrader-client is using a Java JRE 1.7:</para>
+                    <screen>Unsupported major.minor version 51.0</screen>
+                </note>
+                <section>
+                    <title>Read Only JConsole</title>
+                    <para>By specifying the following VM Argument JConsole can be started in
+                        Read-Only Mode where all Operations are disabled:</para>
+                    <screen>-DreadOnly=true</screen>
+                </section>
+                <section>
+                    <title>Expert Mode</title>
+                    <para>If the Client Expert Mode is enabled the following additional JConsole
+                        Tabs will be displayed: </para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>Overview</para>
+                        </listitem>
+                        <listitem>
+                            <para>Memory</para>
+                        </listitem>
+                        <listitem>
+                            <para>VM Summary</para>
+                        </listitem>
+                        <listitem>
+                            <para>Threads</para>
+                        </listitem>
+                        <listitem>
+                            <para>Classes</para>
+                        </listitem>
+                    </itemizedlist>
+                    <figure>
+                        <title>Expert Mode</title>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scalefit="1" fileref="images/ExpertMode.gif"/>
+                            </imageobject>
+                        </mediaobject>
+                    </figure>
+                    <para>To enable Expert Mode add the following vm argument:</para>
+                    <screen>-DexpertMode=true</screen>
+                </section>
+            </section>
             <section id="Managed_Beans">
                 <title>AlgoTrader Managed Beans</title>
                 <para>Services tagged with <parameter>@algoTrader.service.manageable</parameter> are
@@ -4134,44 +4221,6 @@ public class MovChartService extends ChartProvidingServiceImpl {
                             </imageobject>
                         </mediaobject>
                     </figure>
-                </section>
-                <section>
-                    <title>Read Only JConsole</title>
-                    <para>By specifying the following VM Argument JConsole can be started in
-                        Read-Only Mode where all Operations are disabled:</para>
-                    <screen>-DreadOnly=true</screen>
-                </section>
-                <section>
-                    <title>Expert Mode</title>
-                    <para>If the Client Expert Mode is enabled the following additional JConsole
-                        Tabs will be displayed: </para>
-                    <itemizedlist>
-                        <listitem>
-                            <para>Overview</para>
-                        </listitem>
-                        <listitem>
-                            <para>Memory</para>
-                        </listitem>
-                        <listitem>
-                            <para>VM Summary</para>
-                        </listitem>
-                        <listitem>
-                            <para>Threads</para>
-                        </listitem>
-                        <listitem>
-                            <para>Classes</para>
-                        </listitem>
-                    </itemizedlist>
-                    <figure>
-                        <title>Expert Mode</title>
-                        <mediaobject>
-                            <imageobject>
-                                <imagedata scalefit="1" fileref="images/ExpertMode.gif"/>
-                            </imageobject>
-                        </mediaobject>
-                    </figure>
-                    <para>To enable Expert Mode add the following vm argument:</para>
-                    <screen>-DexpertMode=true</screen>
                 </section>
             </section>
         </section>
