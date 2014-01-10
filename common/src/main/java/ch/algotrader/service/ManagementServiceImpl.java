@@ -241,7 +241,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected Collection<OrderStatusVO> handleGetDataOrders() throws Exception {
 
-        return getLookupService().getOpenOrdersVO(getConfiguration().getStartedStrategyName());
+        return getLookupService().getOpenOrdersVOByStrategy(getConfiguration().getStartedStrategyName());
     }
 
     @Override

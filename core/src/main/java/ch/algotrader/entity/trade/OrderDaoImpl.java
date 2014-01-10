@@ -43,6 +43,13 @@ public class OrderDaoImpl extends OrderDaoBase {
 
     @SuppressWarnings("unchecked")
     @Override
+    protected Collection<Order> handleFindOpenOrdersByStrategy(String strategyName) throws Exception {
+
+        return convertPairCollectionToOrderCollection(EngineLocator.instance().getBaseEngine().executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
     protected Order handleFindOpenOrderByIntId(String intId) throws Exception {
 
         Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) EngineLocator.instance().getBaseEngine().executeSingelObjectQuery("select * from OpenOrderWindow where intId = '" + intId + "'"));

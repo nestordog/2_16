@@ -52,7 +52,7 @@ public class SlicingOrderImpl extends SlicingOrder {
 
         //@formatter:off
             return "vol=" + getMinVolPct() + "-" + getMaxVolPct() +
-            ",qty=" + getMinQuantity() + "_" + getMaxQuantity() +
+            ",qty=" + getMinQuantity() + "-" + getMaxQuantity() +
             ",duration=" + getMinDuration() + "-" + getMaxDuration() +
             ",delay=" + getMinDelay() + "-" + getMaxDelay() +
             ",currentOffsetTicks=" + this.currentOffsetTicks;

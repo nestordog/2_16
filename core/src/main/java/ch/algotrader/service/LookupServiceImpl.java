@@ -566,6 +566,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected Collection<Order> handleGetOpenOrdersByStrategy(String strategyName) throws Exception {
+
+        return getOrderDao().findOpenOrdersByStrategy(strategyName);
+    }
+
+    @Override
     protected Order handleGetOpenOrderByIntId(String intId) throws Exception {
 
         return getOrderDao().findOpenOrderByIntId(intId);
@@ -584,7 +590,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
-    protected Collection<OrderStatusVO> handleGetOpenOrdersVO(String strategyName) throws Exception {
+    protected Collection<OrderStatusVO> handleGetOpenOrdersVOByStrategy(String strategyName) throws Exception {
 
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getOrderStatusDao().findAllOrderStati();
