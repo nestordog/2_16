@@ -43,8 +43,13 @@ public class RTFixOrderServiceImpl extends RTFixOrderServiceBase {
     protected void handleSendOrder(final SimpleOrder order, final NewOrderSingle newOrder) throws Exception {
 
         newOrder.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC));
-        newOrder.set(new ExecInst(String.valueOf(ExecInst.HELD)));
         newOrder.set(new LocateReqd(true));
+
+        if (order.isDirect()) {
+            newOrder.set(new ExecInst(String.valueOf(ExecInst.HELD)));
+        } else {
+            newOrder.set(new ExecInst(String.valueOf(ExecInst.NOT_HELD)));
+        }
 
         // handling for accounts
         if (order.getAccount().getExtAccount() != null) {
@@ -56,8 +61,13 @@ public class RTFixOrderServiceImpl extends RTFixOrderServiceBase {
     protected void handleModifyOrder(final SimpleOrder order, final OrderCancelReplaceRequest replaceRequest) throws Exception {
 
         replaceRequest.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC));
-        replaceRequest.set(new ExecInst(String.valueOf(ExecInst.HELD)));
         replaceRequest.set(new LocateReqd(true));
+
+        if (order.isDirect()) {
+            replaceRequest.set(new ExecInst(String.valueOf(ExecInst.HELD)));
+        } else {
+            replaceRequest.set(new ExecInst(String.valueOf(ExecInst.NOT_HELD)));
+        }
 
         // handling for accounts
         if (order.getAccount().getExtAccount() != null) {
