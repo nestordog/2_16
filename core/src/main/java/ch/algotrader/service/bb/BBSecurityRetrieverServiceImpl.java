@@ -341,6 +341,7 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
 
                 // ignore securities with different currencies than the securityFamily
                 if (!(currency.equals(this.securityFamily.getCurrency()))) {
+                    logger.debug("ignoring " + symbol + " with currency " + currency);
                     continue;
                 }
 
@@ -350,6 +351,7 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
 
                     // ignore securities with different contractSize than the securityFamily
                     if (this.securityFamily.getContractSize() != contractSize) {
+                        logger.debug("ignoring " + symbol + " with contract size " + contractSize);
                         continue;
                     }
 
@@ -388,6 +390,7 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
 
                     // ignore securities with different contractSize than the securityFamily
                     if (this.securityFamily.getContractSize() != contractSize) {
+                        logger.debug("ignoring " + symbol + " with contract size " + contractSize);
                         continue;
                     }
 
