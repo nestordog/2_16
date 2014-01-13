@@ -33,8 +33,8 @@ set
     openOrderWindow.status = orderStatus.status,
     openOrderWindow.filledQuantity = orderStatus.filledQuantity,
     openOrderWindow.remainingQuantity = orderStatus.remainingQuantity,
-    openOrderWindow.intId = case when orderStatus.intId is not null then orderStatus.intId else orderStatus.`order`.intId end,
-    openOrderWindow.extId = case when orderStatus.extId is not null then orderStatus.extId else orderStatus.`order`.extId end
+    openOrderWindow.intId = (case when orderStatus.intId is not null then orderStatus.intId else orderStatus.`order`.intId end),
+    openOrderWindow.extId = (case when orderStatus.extId is not null then orderStatus.extId else orderStatus.`order`.extId end)
 where
     openOrderWindow.intId = orderStatus.`order`.intId;
 
@@ -57,7 +57,7 @@ or
 select
     "missing reply on order: " || currentOrder.toString() as reason
 from
-    pattern[every currentOrder=`Order` -> (timer:interval(misc_orderAckSeconds) and not OrderStatus(`order`.intId = currentOrder.intId))];
+    pattern[every currentOrder = `Order`(direct) -> (timer:interval(misc_orderAckSeconds) and not OrderStatus(`order`.intId = currentOrder.intId))];
 
 // ------------------------------ALGO ORDERS--------------------------------
 
