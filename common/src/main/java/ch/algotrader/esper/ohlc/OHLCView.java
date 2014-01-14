@@ -40,6 +40,7 @@ import com.espertech.esper.view.CloneableView;
 import com.espertech.esper.view.DataWindowView;
 import com.espertech.esper.view.StoppableView;
 import com.espertech.esper.view.View;
+import com.espertech.esper.view.ViewDataVisitor;
 import com.espertech.esper.view.ViewSupport;
 
 /**
@@ -441,4 +442,8 @@ public final class OHLCView extends ViewSupport implements CloneableView, Stoppa
         return solution;
     }
 
+    @Override
+    public void visitView(ViewDataVisitor viewDataVisitor) {
+        // do nothing
+    }
 }

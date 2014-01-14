@@ -175,4 +175,10 @@ public class OHLCViewFactory extends TimeBatchViewFactoryParams implements DataW
 
         return myView.isEmpty();
     }
+
+    @Override
+    public String getViewName()
+    {
+        return "OHLC View";
+    }
 }
