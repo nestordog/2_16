@@ -3601,6 +3601,40 @@ localhost:1097</screen>
                             </tbody>
                         </tgroup>
                     </table>
+                    <para>
+                    </para>
+                    <para>All methods that have a security parameter accept the following choices to
+                        define a security:</para>
+                    <itemizedlist>
+                            <listitem>
+                                <para>
+                                <literal>securityId</literal> (e.g. <literal>123</literal>) </para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                <literal>symbol</literal> (e.g. <literal>GOOG</literal>) </para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                <literal>isin</literal>, prefix with "<literal>isin:</literal>",
+                                (e.g. "<literal>isin:EU0009654078</literal>") </para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                <literal>bbgid</literal>, prefix with "<literal>bbgid:</literal>",
+                                (e.g. "<literal>bbgid:BBG005NHP5P9</literal>") </para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                <literal>ric</literal>, prefix with "<literal>ric:</literal>", (e.g.
+                                    "<literal>ric:.SPX</literal>") </para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                <literal>conid</literal>, prefix with "<literal>conid:</literal>",
+                                (e.g. "<literal>conid:12087817</literal>") </para>
+                            </listitem>
+                        </itemizedlist>
                 </section>
                 <section>
                     <title>Base Management Service</title>
