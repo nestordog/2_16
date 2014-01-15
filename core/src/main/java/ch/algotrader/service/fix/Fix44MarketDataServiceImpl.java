@@ -1,0 +1,42 @@
+/***********************************************************************************
+ * AlgoTrader Enterprise Trading Framework
+ *
+ * Copyright (C) 2013 Flury Trading - All rights reserved
+ *
+ * All information contained herein is, and remains the property of Flury Trading.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * Flury Trading. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from Flury Trading
+ *
+ * Fur detailed terms and conditions consult the file LICENSE.txt or contact
+ *
+ * Flury Trading
+ * Badenerstrasse 16
+ * 8004 Zurich
+ ***********************************************************************************/
+package ch.algotrader.service.fix;
+
+import ch.algotrader.entity.security.Security;
+
+/**
+ * Generic FIX 4.4 market data service
+ *
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$ $Date$
+ */
+public abstract class Fix44MarketDataServiceImpl extends Fix44MarketDataServiceBase {
+
+    private static final long serialVersionUID = 3043686661971232423L;
+
+    @Override
+    protected void handleSendSubscribeRequest(Security security) throws Exception {
+
+    }
+
+    @Override
+    protected void handleSendUnsubscribeRequest(Security security) throws Exception {
+
+    }
+}
