@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.fix;
+package ch.algotrader.service.fix.fix44;
 
 /**
  * Generic FIX 4.4 market data service

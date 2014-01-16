@@ -15,39 +15,17 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.dc;
-
-import ch.algotrader.entity.security.Security;
+package ch.algotrader.service.fix.fix42;
 
 /**
- * DukasCopy market data service implementation.
+ * Generic FIX 4.2 market data service
  *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class DCFixMarketDataServiceImpl extends DCFixMarketDataServiceBase {
+public abstract class Fix42MarketDataServiceImpl extends Fix42MarketDataServiceBase {
 
-    private static final long serialVersionUID = 7765025849172510539L;
+    private static final long serialVersionUID = -660389755007202727L;
 
-    @Override
-    protected void handleSendSubscribeRequest(Security security) throws Exception {
-
-    }
-
-    @Override
-    protected void handleSendUnsubscribeRequest(Security security) throws Exception {
-
-    }
-
-    @Override
-    protected int handleGetTickerId(Security security) throws Exception {
-        return 0;
-    }
-
-    @Override
-    protected String handleGetSessionQualifier() throws Exception {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }

@@ -15,17 +15,33 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.fix;
+package ch.algotrader.service.dc;
+
+import java.util.Date;
+import java.util.List;
+
+import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.enumeration.BarType;
+import ch.algotrader.enumeration.Duration;
+import ch.algotrader.enumeration.TimePeriod;
 
 /**
- * Generic FIX 4.2 market data service
- *
- * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public abstract class Fix42MarketDataServiceImpl extends Fix42MarketDataServiceBase {
+public class DCHistoricalDataServiceImpl extends DCHistoricalDataServiceBase {
 
-    private static final long serialVersionUID = -660389755007202727L;
+    private static final long serialVersionUID = -8246870605659050512L;
+
+    @Override
+    protected void handleInit() throws Exception {
+
+    }
+
+    @Override
+    protected List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType) throws Exception {
+        return null;
+    }
 
 }
