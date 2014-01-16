@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service.fix;
 
-import ch.algotrader.entity.security.Security;
-
 /**
  * Generic FIX 4.4 market data service
  *
@@ -30,13 +28,4 @@ public abstract class Fix44MarketDataServiceImpl extends Fix44MarketDataServiceB
 
     private static final long serialVersionUID = 3043686661971232423L;
 
-    @Override
-    protected void handleSendSubscribeRequest(Security security) throws Exception {
-
-    }
-
-    @Override
-    protected void handleSendUnsubscribeRequest(Security security) throws Exception {
-
-    }
 }

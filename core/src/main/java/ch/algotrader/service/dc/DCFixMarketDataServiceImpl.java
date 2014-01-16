@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service.dc;
 
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.entity.security.Security;
 
 /**
@@ -32,11 +31,22 @@ public class DCFixMarketDataServiceImpl extends DCFixMarketDataServiceBase {
     private static final long serialVersionUID = 7765025849172510539L;
 
     @Override
-    protected void handleSendSubscribeRequest(Security security, MarketDataRequest request) throws Exception {
+    protected void handleSendSubscribeRequest(Security security) throws Exception {
+
     }
 
     @Override
-    protected void handleSendUnsubscribeRequest(Security security, MarketDataRequest request) throws Exception {
+    protected void handleSendUnsubscribeRequest(Security security) throws Exception {
 
+    }
+
+    @Override
+    protected String handleGetServiceId() throws Exception {
+        return null;
+    }
+
+    @Override
+    protected int handleGetTickerId(Security security) throws Exception {
+        return 0;
     }
 }
