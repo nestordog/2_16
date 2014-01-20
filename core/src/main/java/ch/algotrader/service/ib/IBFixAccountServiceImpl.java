@@ -188,7 +188,7 @@ public class IBFixAccountServiceImpl extends IBFixAccountServiceBase {
 
         this.groups = null;
 
-        getFixSessionFactory().sendMessage(faModification, account);
+        getFixAdapter().sendMessage(faModification, account);
 
         this.lock.lock();
         try {
@@ -222,7 +222,7 @@ public class IBFixAccountServiceImpl extends IBFixAccountServiceBase {
             throw new IllegalArgumentException("account does not exist " + accountName);
         }
 
-        getFixSessionFactory().sendMessage(faModification, account);
+        getFixAdapter().sendMessage(faModification, account);
     }
 
     @XmlRootElement(name = "ListOfGroups")

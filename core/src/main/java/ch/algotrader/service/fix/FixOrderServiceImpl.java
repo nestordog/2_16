@@ -39,14 +39,14 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
     @Override
     protected void handleInit() throws Exception {
 
-        getFixSessionFactory().createSession(getOrderServiceType());
+        getFixAdapter().createSession(getOrderServiceType());
     }
 
     @Override
     protected void handleSendAndPropagateOrder(Order order, Message message) throws Exception {
 
         // send the message to the FixClient
-        getFixSessionFactory().sendMessage(message, order.getAccount());
+        getFixAdapter().sendMessage(message, order.getAccount());
 
         StringField msgType = message.getHeader().getField(new MsgType());
         if (msgType.getValue().equals(MsgType.ORDER_SINGLE)) {

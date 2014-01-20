@@ -74,7 +74,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
         Broker broker = order.getAccount().getBroker();
 
         // assign a new clOrdID
-        String clOrdID = getFixSessionFactory().getNextOrderId(order.getAccount());
+        String clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
         order.setIntId(clOrdID);
 
         NewOrderSingle newOrder = new NewOrderSingle();
@@ -156,7 +156,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
 
         // get origClOrdID and assign a new clOrdID
         String origClOrdID = order.getIntId();
-        String clOrdID = getFixSessionFactory().getNextOrderIdVersion(order);
+        String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
 
         OrderCancelReplaceRequest replaceRequest = new OrderCancelReplaceRequest();
 
@@ -227,7 +227,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
 
         // get origClOrdID and assign a new clOrdID
         String origClOrdID = order.getIntId();
-        String clOrdID = getFixSessionFactory().getNextOrderIdVersion(order);
+        String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
 
         OrderCancelRequest cancelRequest = new OrderCancelRequest();
 

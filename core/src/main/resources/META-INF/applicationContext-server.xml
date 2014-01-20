@@ -210,7 +210,7 @@
     </beans>
 
     <beans profile="jPMFix,iBFix,dCFix,rTFix">
-        <bean id="fixSessionFactory" class="ch.algotrader.adapter.fix.FixSessionFactory">
+        <bean id="fixSessionFactory" class="ch.algotrader.adapter.fix.FixAdapter">
             <property name="lookupService" ref="lookupService"/>
         </bean>
     </beans>
