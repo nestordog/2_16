@@ -263,6 +263,9 @@ public class EngineImpl extends AbstractEngine {
     public void deployInitModules() {
 
         Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(this.engineName);
+        if (strategy == null) {
+            throw new IllegalStateException("strategy " + this.engineName + " was not found in database");
+        }
         String initModules = strategy.getInitModules();
         if (initModules != null) {
             String[] modules = initModules.split(",");
@@ -276,6 +279,9 @@ public class EngineImpl extends AbstractEngine {
     public void deployRunModules() {
 
         Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(this.engineName);
+        if (strategy == null) {
+            throw new IllegalStateException("strategy " + this.engineName + " was not found in database");
+        }
         String runModules = strategy.getRunModules();
         if (runModules != null) {
             String[] modules = runModules.split(",");
