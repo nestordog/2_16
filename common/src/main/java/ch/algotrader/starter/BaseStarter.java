@@ -20,7 +20,6 @@ package ch.algotrader.starter;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.service.MarketDataService;
 
 /**
  * Abstract Base Class for starting the Base in Live Trading Mode
@@ -42,9 +41,5 @@ public abstract class BaseStarter {
         for (InitializingServiceI service : ServiceLocator.instance().getServices(InitializingServiceI.class)) {
             service.init();
         }
-
-        // init market data subscriptions (needs to be invoked after all Spring Services have been properly initialized)
-        MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
-        marketDataService.initSubscriptions();
     }
 }

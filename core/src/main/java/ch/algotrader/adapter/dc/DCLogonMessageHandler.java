@@ -15,19 +15,41 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.rt;
+package ch.algotrader.adapter.dc;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import quickfix.ConfigError;
+import quickfix.FieldConvertError;
+import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.field.Password;
+import quickfix.field.Username;
+import quickfix.fix44.Logon;
 
 /**
- * RealTick Test Suite
+ * DukasCopy outgoing message handler.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({RTOrderTest.class})
-public class RTTestSuite {
+public class DCLogonMessageHandler {
+
+    private SessionSettings settings;
+
+    public void setSettings(SessionSettings settings) {
+        this.settings = settings;
+    }
+
+    public void onMessage(Logon logon, SessionID sessionID) throws ConfigError, FieldConvertError {
+
+        String username = this.settings.getString(sessionID, "Username");
+        if (username != null) {
+            logon.set(new Username(username));
+
+            String password = this.settings.getString(sessionID, "Password");
+            if (password != null) {
+                logon.set(new Password(password));
+            }
+        }
+    }
 }

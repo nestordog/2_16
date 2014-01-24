@@ -29,6 +29,7 @@ import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.Broker;
+import ch.algotrader.enumeration.OrderServiceType;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -71,5 +72,11 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
 
         String exchange = order.getSecurity().getSecurityFamily().getMarket(Broker.JPM);
         cancelRequest.set(new SecurityExchange(exchange));
+    }
+
+    @Override
+    protected OrderServiceType handleGetOrderServiceType() throws Exception {
+
+        return OrderServiceType.JPM_FIX;
     }
 }

@@ -31,6 +31,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.util.MyLogger;
 
 import com.ib.client.Contract;
@@ -224,5 +225,10 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
         session.placeOrder(Integer.parseInt(order.getIntId()), contract, ibOrder);
 
         logger.info("placed or modified order: " + order);
+    }
+
+    @Override
+    protected OrderServiceType handleGetOrderServiceType() throws Exception {
+        return OrderServiceType.IB_NATIVE;
     }
 }

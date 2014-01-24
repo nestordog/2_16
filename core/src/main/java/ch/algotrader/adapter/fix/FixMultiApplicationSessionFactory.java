@@ -17,6 +17,13 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
+import java.util.Collection;
+
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Predicate;
+import org.apache.commons.lang.Validate;
+import org.springframework.context.ApplicationContext;
+
 import quickfix.Application;
 import quickfix.ConfigError;
 import quickfix.DefaultSessionFactory;
@@ -37,14 +44,21 @@ import quickfix.SessionSettings;
  */
 public class FixMultiApplicationSessionFactory implements SessionFactory {
 
-    private final FixApplicationFactory applicationFactory;
+    private static final String APPLICATION_FACTORY = "ApplicationFactory";
+
+    private final ApplicationContext applicationContext;
     private final MessageStoreFactory messageStoreFactory;
     private final LogFactory logFactory;
     private final MessageFactory messageFactory;
 
-    public FixMultiApplicationSessionFactory(FixApplicationFactory applicationFactory, MessageStoreFactory messageStoreFactory, LogFactory logFactory, MessageFactory messageFactory) {
+    public FixMultiApplicationSessionFactory(ApplicationContext applicationContext, MessageStoreFactory messageStoreFactory, LogFactory logFactory, MessageFactory messageFactory) {
 
-        this.applicationFactory = applicationFactory;
+        Validate.notNull(applicationContext, "ApplicationContext may not be null");
+        Validate.notNull(messageStoreFactory, "MessageStoreFactory may not be null");
+        Validate.notNull(logFactory, "LogFactory may not be null");
+        Validate.notNull(messageFactory, "MessageFactory may not be null");
+
+        this.applicationContext = applicationContext;
         this.messageStoreFactory = messageStoreFactory;
         this.logFactory = logFactory;
         this.messageFactory = messageFactory;
@@ -53,8 +67,28 @@ public class FixMultiApplicationSessionFactory implements SessionFactory {
     @Override
     public Session create(SessionID sessionID, SessionSettings settings) throws ConfigError {
 
-        Application application = this.applicationFactory.create(sessionID);
-        return new DefaultSessionFactory(application, this.messageStoreFactory, this.logFactory, this.messageFactory).create(sessionID, settings);
+        // get all FixApplicationFactories
+        Collection<FixApplicationFactory> applicationFactories = applicationContext.getBeansOfType(FixApplicationFactory.class).values();
+
+        final String applicationFactoryName;
+        if (settings.isSetting(sessionID, APPLICATION_FACTORY)) {
+            applicationFactoryName = settings.getSessionProperties(sessionID).getProperty(APPLICATION_FACTORY);
+        } else {
+            throw new IllegalStateException(APPLICATION_FACTORY + " setting not defined in fix config file");
+        }
+
+        // find the application factory by its name
+        FixApplicationFactory applicationFactory = CollectionUtils.find(applicationFactories, new Predicate<FixApplicationFactory>(){
+            @Override
+            public boolean evaluate(FixApplicationFactory applicationFactory) {
+                return applicationFactoryName.equals(applicationFactory.getName());
+            }});
+
+        Validate.notNull(applicationFactory, "no FixApplicationFactory found for name " + applicationFactoryName);
+
+        Application application = applicationFactory.create(sessionID, settings);
+        DefaultSessionFactory sessionFactory = new DefaultSessionFactory(application, this.messageStoreFactory, this.logFactory, this.messageFactory);
+        return sessionFactory.create(sessionID, settings);
     }
 }
 

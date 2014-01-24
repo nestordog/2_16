@@ -4,7 +4,7 @@ select
     marketDataEvent.security.id as securityId,
     marketDataEvent.* as marketDataEvent
 from
-    MarketDataEvent.std:groupwin(security.id).win:length(1) as marketDataEvent
+    MarketDataEvent.std:groupwin(security.id,feedType).win:length(1) as marketDataEvent
 where
     marketDataEvent.security is not null
 and

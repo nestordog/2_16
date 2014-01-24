@@ -21,40 +21,29 @@ import quickfix.Application;
 import quickfix.ConfigError;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
+import ch.algotrader.enumeration.ConnectionState;
 
 /**
- * Creates a {@link FixApplication} for the specified {@code sessionId}.
- * The associated {@code messageHandler} is created based on the session specific class specified in the fix.cfg
+ * FIX {@link Application} factory.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class FixApplicationFactory {
+public interface FixApplicationFactory {
 
-    private static final String SETTING_HANDLER_CLASS_NAME = "HandlerClassName";
+    /**
+     * Creates single session FIX {@link Application} for the given {@code sessionID}
+     */
+    Application create(SessionID sessionID, SessionSettings settings) throws ConfigError;
 
-    private final SessionSettings settings;
+    /**
+     * Gets the name of this application factory
+     */
+    String getName();
 
-    public FixApplicationFactory(SessionSettings settings) {
-        this.settings = settings;
-    }
-
-    public Application create(SessionID sessionID) throws ConfigError {
-
-        String className = null;
-        try {
-            if (this.settings.isSetting(sessionID, SETTING_HANDLER_CLASS_NAME)) {
-                className = this.settings.getString(sessionID, SETTING_HANDLER_CLASS_NAME);
-            } else {
-                throw new IllegalStateException(SETTING_HANDLER_CLASS_NAME + " not defined");
-            }
-            Object messageHandler = Class.forName(className).getConstructor(SessionSettings.class).newInstance(this.settings);
-            return new FixApplication(messageHandler);
-        } catch (ClassNotFoundException e) {
-            throw new ConfigError(SETTING_HANDLER_CLASS_NAME + "=" + className + " class not found");
-        } catch (Exception ex) {
-            throw new ConfigError(SETTING_HANDLER_CLASS_NAME + " failed", ex);
-        }
-    }
+    /**
+     * Gets the current connection state
+     */
+    ConnectionState getConnectionState();
 }

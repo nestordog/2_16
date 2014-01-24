@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import ch.algotrader.entity.Subscription;
-import ch.algotrader.service.SubscriptionServiceBase;
+import ch.algotrader.enumeration.FeedType;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -53,6 +53,22 @@ public class SubscriptionServiceImpl extends SubscriptionServiceBase {
     }
 
     @Override
+    protected void handleSubscribeMarketDataEvent(String strategyName, int securityId) throws Exception {
+
+        getMarketDataService().subscribe(strategyName, securityId);
+
+        initMarketDataEventSubscriptions();
+    }
+
+    @Override
+    protected void handleSubscribeMarketDataEvent(String strategyName, int securityId, FeedType feedType) throws Exception {
+
+        getMarketDataService().subscribe(strategyName, securityId, feedType);
+
+        initMarketDataEventSubscriptions();
+    }
+
+    @Override
     protected void handleUnsubscribeMarketDataEvent(String strategyName, int securityId) throws Exception {
 
         getMarketDataService().unsubscribe(strategyName, securityId);
@@ -61,9 +77,9 @@ public class SubscriptionServiceImpl extends SubscriptionServiceBase {
     }
 
     @Override
-    protected void handleSubscribeMarketDataEvent(String strategyName, int securityId) throws Exception {
+    protected void handleUnsubscribeMarketDataEvent(String strategyName, int securityId, FeedType feedType) throws Exception {
 
-        getMarketDataService().subscribe(strategyName, securityId);
+        getMarketDataService().unsubscribe(strategyName, securityId, feedType);
 
         initMarketDataEventSubscriptions();
     }

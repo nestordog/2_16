@@ -1,4 +1,4 @@
-@Name('UPDATE_TICK_WINDOW_TRADE')
+@Name('UPDATE_TICK_WINDOW_BB_TRADE')
 @RunTimeOnly()
 on
     Trade as trade
@@ -11,9 +11,11 @@ set
     tickWindow.vol = trade.vol,
     tickWindow.refresh = true
 where
+    tickWindow.feedType = FeedType.BB
+and
     tickWindow.tickerId = trade.tickerId;
 
-@Name('UPDATE_TICK_WINDOW_BID')
+@Name('UPDATE_TICK_WINDOW_BB_BID')
 @RunTimeOnly()
 on
     Bid as bid
@@ -25,9 +27,11 @@ set
     tickWindow.volBid = bid.volBid,
     tickWindow.refresh = true
 where
+    tickWindow.feedType = FeedType.BB
+and
     tickWindow.tickerId = bid.tickerId;
 
-@Name('UPDATE_TICK_WINDOW_ASK')
+@Name('UPDATE_TICK_WINDOW_BB_ASK')
 @RunTimeOnly()
 on
     Ask as ask
@@ -39,4 +43,6 @@ set
     tickWindow.volAsk = ask.volAsk,
     tickWindow.refresh = true
 where
+    tickWindow.feedType = FeedType.BB
+and
     tickWindow.tickerId = ask.tickerId;

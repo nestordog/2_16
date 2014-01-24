@@ -102,7 +102,7 @@ public class SecurityTest extends EntityTest {
     @Test
     public void testFindSubscribedForAutoActivateStrategiesInclFamily() {
 
-        this.securityDao.findSubscribedForAutoActivateStrategiesInclFamily();
+        this.securityDao.findSubscribedForAutoActivateStrategies();
     }
 
 }

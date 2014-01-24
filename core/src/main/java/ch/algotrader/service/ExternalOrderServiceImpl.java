@@ -41,8 +41,5 @@ public abstract class ExternalOrderServiceImpl extends ExternalOrderServiceBase 
     protected abstract void handleModifyOrder(SimpleOrder order) throws Exception;
 
     @Override
-    protected OrderServiceType handleGetOrderServiceType() throws Exception {
-
-        return OrderServiceType.fromValue(this.getClass().getName().split("Impl")[0]);
-    }
+    protected abstract OrderServiceType handleGetOrderServiceType() throws Exception;
 }

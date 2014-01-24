@@ -26,6 +26,8 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.util.MyLogger;
 
 /**
+ * Generic FIX order service
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$

@@ -29,6 +29,7 @@ import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.OrderServiceType;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -85,5 +86,11 @@ public class RTFixOrderServiceImpl extends RTFixOrderServiceBase {
 
         cancelRequest.set(new OrderID(order.getExtId()));
         cancelRequest.set(new TransactTime(new Date()));
+    }
+
+    @Override
+    protected OrderServiceType handleGetOrderServiceType() throws Exception {
+
+        return OrderServiceType.RT_FIX;
     }
 }

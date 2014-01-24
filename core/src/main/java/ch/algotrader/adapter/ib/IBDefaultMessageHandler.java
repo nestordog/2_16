@@ -24,8 +24,7 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.enumeration.ConnectionState;
-import ch.algotrader.service.MarketDataService;
-import ch.algotrader.service.ib.IBNativeMarketDataService;
+import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.util.MyLogger;
 
 import com.ib.client.CommissionReport;
@@ -154,7 +153,10 @@ public class IBDefaultMessageHandler implements EWrapper {
                 // Connectivity between IB and TWS has been restored data lost.
                 setRequested(false);
                 setState(ConnectionState.LOGGED_ON);
-                ServiceLocator.instance().getMarketDataService().initSubscriptions();
+                // initSubscriptions if there is a marketDataService
+                if (ServiceLocator.instance().containsService("marketDataService")) {
+                    ServiceLocator.instance().getMarketDataService().initSubscriptions(FeedType.IB);
+                }
                 logger.debug(message);
                 break;
 
@@ -165,7 +167,10 @@ public class IBDefaultMessageHandler implements EWrapper {
                     setState(ConnectionState.SUBSCRIBED);
                 } else {
                     setState(ConnectionState.LOGGED_ON);
-                    ServiceLocator.instance().getMarketDataService().initSubscriptions();
+                    // initSubscriptions if there is a marketDataService
+                    if (ServiceLocator.instance().containsService("marketDataService")) {
+                        ServiceLocator.instance().getMarketDataService().initSubscriptions(FeedType.IB);
+                    }
                 }
                 logger.debug(message);
                 break;
@@ -187,11 +192,9 @@ public class IBDefaultMessageHandler implements EWrapper {
 
                     // initSubscriptions if there is a marketDataService
                     if (ServiceLocator.instance().containsService("marketDataService")) {
-                        MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
-                        if (marketDataService instanceof IBNativeMarketDataService) {
-                            marketDataService.initSubscriptions();
-                        }
+                        ServiceLocator.instance().getMarketDataService().initSubscriptions(FeedType.IB);
                     }
+
                 }
                 logger.debug(message);
                 break;

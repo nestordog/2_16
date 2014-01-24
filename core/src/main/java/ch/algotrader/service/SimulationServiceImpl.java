@@ -206,7 +206,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             }
         }
 
-        Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategiesInclFamily();
+        Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategies();
         for (Security security : securities) {
 
             MarketDataType marketDataType = getConfiguration().getDataSetType();

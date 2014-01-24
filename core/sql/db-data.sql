@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.21, for Win64 (x86)
+-- MySQL dump 10.13  Distrib 5.6.15, for Win64 (x86_64)
 --
 -- Host: localhost    Database: algotrader
 -- ------------------------------------------------------
--- Server version    5.5.21-log
+-- Server version    5.6.15-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -566,7 +566,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `strategy` WRITE;
 /*!40000 ALTER TABLE `strategy` DISABLE KEYS */;
-INSERT INTO `strategy` (`ID`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (1,'BASE','',0,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,algo-slicing,market-data-ib',NULL,0);
+INSERT INTO `strategy` (`ID`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (1,'BASE','',0,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,algo-slicing,market-data-ib,market-data-dc',NULL,0);
 /*!40000 ALTER TABLE `strategy` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -577,7 +577,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `subscription` WRITE;
 /*!40000 ALTER TABLE `subscription` DISABLE KEYS */;
-INSERT INTO `subscription` (`ID`, `PERSISTENT`, `SECURITY_FK`, `STRATEGY_FK`, `VERSION`) VALUES (101,'',10,1,0);
+INSERT INTO `subscription` (`ID`, `SECURITY_FK`, `STRATEGY_FK`, `FEED_TYPE`, `PERSISTENT`, `VERSION`) VALUES (100,10,1,'IB','',0);
 /*!40000 ALTER TABLE `subscription` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -614,4 +614,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-11-25 15:47:01
+-- Dump completed on 2014-01-23 15:42:15

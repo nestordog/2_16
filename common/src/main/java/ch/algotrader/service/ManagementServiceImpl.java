@@ -50,6 +50,7 @@ import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.TickwiseIncrementalOrder;
 import ch.algotrader.entity.trade.VariableIncrementalOrder;
+import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.esper.EngineLocator;
@@ -177,31 +178,32 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents);
 
         // get all subscribed securities
-
+        List<MarketDataEventVO> processedMarketDataEventVOs = new ArrayList<MarketDataEventVO>();
         if (getConfiguration().isStartedStrategyBASE()) {
 
-            // for base iterate over all subscribed securities
-            Map<Integer, MarketDataEventVO> processedMarketDataEventVOs = new TreeMap<Integer, MarketDataEventVO>();
-            for (Subscription subscription : getLookupService().getSubscriptionsForAutoActivateStrategiesInclComponents()) {
+            // for base iterate over a distinct list of subscribed securities and feedType
+            List<Map<String, Object>> subscriptions = getLookupService().getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
+            for (Map<String, Object> subscription : subscriptions) {
 
-                Security security = subscription.getSecurity();
+                Security security = (Security) subscription.get("security");
+                FeedType feedType = (FeedType) subscription.get("feedType");
 
                 // try to get the processedMarketDataEvent
-                MarketDataEventVO marketDataEventVO = processedMarketDataEventVOs.get(security.getId());
-                if (marketDataEventVO == null) {
-                    marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, security);
-                    processedMarketDataEventVOs.put(security.getId(), marketDataEventVO);
-                }
+                MarketDataEventVO marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, security, feedType);
+
+                processedMarketDataEventVOs.add(marketDataEventVO);
             }
-            return new ArrayList<MarketDataEventVO>(processedMarketDataEventVOs.values());
 
         } else {
 
             // for strategies iterate over all subscriptions
-            List<MarketDataEventVO> processedMarketDataEventVOs = new ArrayList<MarketDataEventVO>();
-            for (Subscription subscription : getLookupService().getSubscriptionsByStrategyInclComponents(strategyName)) {
+            List<Subscription> subscriptions = getLookupService().getSubscriptionsByStrategyInclComponents(strategyName);
+            for (Subscription subscription : subscriptions) {
 
-                MarketDataEventVO marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, subscription.getSecurity());
+                Security security = subscription.getSecurity();
+                FeedType feedType = subscription.getFeedType();
+
+                MarketDataEventVO marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, security, feedType);
 
                 // add properties from this strategies subscription
                 Map<String, Property> properties = subscription.getPropsInitialized();
@@ -211,8 +213,8 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
                 processedMarketDataEventVOs.add(marketDataEventVO);
             }
-            return processedMarketDataEventVOs;
         }
+        return processedMarketDataEventVOs;
 
     }
 
@@ -378,15 +380,25 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected void handleSubscribe(String security) throws Exception {
+    protected void handleSubscribe(String securityString, String feedTypeString) throws Exception {
 
-        getSubscriptionService().subscribeMarketDataEvent(getConfiguration().getStartedStrategyName(), getSecurityId(security));
+        String startedStrategyName = getConfiguration().getStartedStrategyName();
+        if (!"".equals(feedTypeString)) {
+            getSubscriptionService().subscribeMarketDataEvent(startedStrategyName, getSecurityId(securityString), FeedType.fromString(feedTypeString));
+        } else {
+            getSubscriptionService().subscribeMarketDataEvent(startedStrategyName, getSecurityId(securityString));
+        }
     }
 
     @Override
-    protected void handleUnsubscribe(String securityString) throws Exception {
+    protected void handleUnsubscribe(String securityString, String feedTypeString) throws Exception {
 
-        getSubscriptionService().unsubscribeMarketDataEvent(getConfiguration().getStartedStrategyName(), getSecurityId(securityString));
+        String startedStrategyName = getConfiguration().getStartedStrategyName();
+        if (!"".equals(feedTypeString)) {
+            getSubscriptionService().unsubscribeMarketDataEvent(startedStrategyName, getSecurityId(securityString), FeedType.fromString(feedTypeString));
+        } else {
+            getSubscriptionService().unsubscribeMarketDataEvent(startedStrategyName, getSecurityId(securityString));
+        }
     }
 
     @Override
@@ -523,6 +535,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
             marketDataEventVO.setVol(marketDataEvent.getVol());
             marketDataEventVO.setSecurityId(marketDataEvent.getSecurity().getId());
             marketDataEventVO.setCurrentValue(marketDataEvent.getCurrentValue());
+            marketDataEventVO.setFeedType(marketDataEvent.getFeedType());
 
             marketDataEventVOs.add(marketDataEventVO);
         }
@@ -530,13 +543,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
         return marketDataEventVOs;
     }
 
-    private MarketDataEventVO getMarketDataEventVO(List<MarketDataEventVO> marketDataEventVOs, final Security security) {
+    private MarketDataEventVO getMarketDataEventVO(List<MarketDataEventVO> marketDataEventVOs, final Security security, final FeedType feedType) {
 
         // get the marketDataEventVO matching the securityId
         MarketDataEventVO marketDataEventVO = CollectionUtils.find(marketDataEventVOs, new Predicate<MarketDataEventVO>() {
             @Override
-            public boolean evaluate(MarketDataEventVO MarketDataEventVO) {
-                return MarketDataEventVO.getSecurityId() == security.getId();
+            public boolean evaluate(MarketDataEventVO marketDataEventVO) {
+                return marketDataEventVO.getSecurityId() == security.getId() && marketDataEventVO.getFeedType().equals(feedType);
             }
         });
 

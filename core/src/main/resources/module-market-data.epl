@@ -9,7 +9,7 @@
 @Name('TICK_WINDOW')
 @RunTimeOnly()
 create window
-    TickWindow.std:groupwin(security.id).std:lastevent()
+    TickWindow.std:groupwin(security.id, feedType).std:lastevent()
 as select
     *,
     0 as tickerId,
@@ -22,8 +22,8 @@ from
 insert into
     TickWindow
 select
-    tickerId,
     tick.*,
+    tickerId,
     true as refresh
 from
     SubscribeTickEvent;

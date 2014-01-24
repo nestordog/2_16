@@ -135,7 +135,9 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
     @Override
     public void tickPrice(final int tickerId, final int field, final double price, final int canAutoExecute) {
 
-        logger.trace(EWrapperMsgGenerator.tickPrice(tickerId, field, price, canAutoExecute));
+        if(logger.isTraceEnabled()) {
+            logger.trace(EWrapperMsgGenerator.tickPrice(tickerId, field, price, canAutoExecute));
+        }
 
         TickPrice o = new TickPrice(tickerId, field, price, canAutoExecute);
         EngineLocator.instance().getBaseEngine().sendEvent(o);
@@ -143,7 +145,10 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
 
     @Override
     public void tickSize(final int tickerId, final int field, final int size) {
-        logger.trace(EWrapperMsgGenerator.tickSize(tickerId, field, size));
+
+        if(logger.isTraceEnabled()) {
+            logger.trace(EWrapperMsgGenerator.tickSize(tickerId, field, size));
+        }
 
         TickSize o = new TickSize(tickerId, field, size);
         EngineLocator.instance().getBaseEngine().sendEvent(o);
@@ -152,7 +157,9 @@ public final class IBEsperMessageHandler extends IBDefaultMessageHandler {
     @Override
     public void tickString(final int tickerId, final int tickType, final String value) {
 
-        logger.trace(EWrapperMsgGenerator.tickString(tickerId, tickType, value));
+        if(logger.isTraceEnabled()) {
+            logger.trace(EWrapperMsgGenerator.tickString(tickerId, tickType, value));
+        }
 
         TickString o = new TickString(tickerId, tickType, value);
         EngineLocator.instance().getBaseEngine().sendEvent(o);

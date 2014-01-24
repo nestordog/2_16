@@ -17,11 +17,26 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
+import quickfix.SessionID;
+import ch.algotrader.enumeration.ConnectionState;
+
 /**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * FIX session life cycle handler.
+ *
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class FixSessionLifecycle {
+public interface FixSessionLifecycle {
+
+    void created(SessionID sessionID);
+
+    void loggedOn(SessionID sessionID);
+
+    void loggedOff(SessionID sessionID);
+
+    boolean triggerSubscribe();
+
+    ConnectionState getConnState();
 
 }

@@ -7,8 +7,7 @@
     </parent>
     <artifactId>algotrader-test</artifactId>
     <packaging>jar</packaging>
-    <name>AlgoTrader Test</name>
-
+    <name>AlgoTrader Integration Tests</name>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -29,6 +28,19 @@
             <groupId>org.dbunit</groupId>
             <artifactId>dbunit</artifactId>
             <version>2.4.9</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.9.5</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

@@ -27,16 +27,18 @@ import quickfix.field.TimeInForce;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
-
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.StopOrderI;
+import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.service.dc.DCFixOrderServiceBase;
 
 /**
+ * DukasCopy order service implementation.
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -106,5 +108,11 @@ public class DCFixOrderServiceImpl extends DCFixOrderServiceBase {
 
         // dc does not support Securitytype
         cancelRequest.removeField(SecurityType.FIELD);
+    }
+
+    @Override
+    protected OrderServiceType handleGetOrderServiceType() throws Exception {
+
+        return OrderServiceType.DC_FIX;
     }
 }

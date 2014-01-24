@@ -15,26 +15,24 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.dc;
+package ch.algotrader.adapter.fix.fix42;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import quickfix.ConfigError;
-import quickfix.FieldConvertError;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
+import quickfix.field.ClOrdID;
 import quickfix.field.CumQty;
-import quickfix.field.OrdStatus;
-import quickfix.field.Password;
-import quickfix.field.Username;
-import quickfix.fix44.ExecutionReport;
-import quickfix.fix44.Logon;
-import quickfix.fix44.OrderCancelReject;
-import quickfix.fix44.Reject;
+import quickfix.field.ExecTransType;
+import quickfix.field.ExecType;
+import quickfix.field.OrigClOrdID;
+import quickfix.field.Text;
+import quickfix.fix42.ExecutionReport;
+import quickfix.fix42.OrderCancelReject;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.trade.Fill;
@@ -47,32 +45,35 @@ import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
 /**
- * DC specific FixMessageHandler.
- * Since the DC Fix interface does not comply with the Fix Standard, this class does not extend a generic FixMessageHandler.
+ * Generic Fix42OrderMessageHandler. Needs to be overwritten by specific broker interfaces.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class DCFixMessageHandler {
+public class Fix42OrderMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(DCFixMessageHandler.class.getName());
-
-    private final SessionSettings settings;
-
-    public DCFixMessageHandler(SessionSettings settings) {
-
-        this.settings = settings;
-    }
+    private static Logger logger = MyLogger.getLogger(Fix42OrderMessageHandler.class.getName());
 
     public void onMessage(ExecutionReport executionReport, SessionID sessionID) {
 
         try {
 
+            // ignore PENDING_NEW, PENDING_CANCEL and PENDING_REPLACE
+            ExecType execType = executionReport.getExecType();
+            if (execType.getValue() == ExecType.PENDING_NEW || execType.getValue() == ExecType.PENDING_REPLACE
+                    || execType.getValue() == ExecType.PENDING_CANCEL) {
+                return;
+            }
+
             String intId = executionReport.getClOrdID().getValue();
 
-            // NOTE: DukasCopy does not use ExecType instead it uses only OrdStatus
-            if (executionReport.getOrdStatus().getValue() == OrdStatus.REJECTED) {
+            // check ExecTransType
+            if (executionReport.isSetExecTransType() && executionReport.getExecTransType().getValue() != ExecTransType.NEW) {
+                throw new UnsupportedOperationException("order " + intId + " has received an ussupported ExecTransType of: " + executionReport.getExecTransType().getValue());
+            }
+
+            if (execType.getValue() == ExecType.REJECTED) {
                 logger.error("order " + intId + " has been rejected, reason: " + executionReport.getText().getValue());
             }
 
@@ -84,7 +85,7 @@ public class DCFixMessageHandler {
             }
 
             // get the other fields
-            Status status = getStatus(executionReport.getOrdStatus(), executionReport.getCumQty());
+            Status status = getStatus(execType, executionReport.getCumQty());
             long filledQuantity = (long) executionReport.getCumQty().getValue();
             long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
 
@@ -100,23 +101,18 @@ public class DCFixMessageHandler {
                 orderStatus.setIntId(intId);
             }
 
-            // Note: store OrderID sind DukasCopy requires it for cancels and replaces
-            if (order.getExtId() == null) {
-                orderStatus.setExtId(executionReport.getOrderID().getValue());
-            }
+            processOrderStatus(executionReport, order, orderStatus);
 
             EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
 
-            // only create fills if status is FILLED (Note: DukasCopy does nut use PARTIALLY_FILLED)
-            if (executionReport.getOrdStatus().getValue() == OrdStatus.FILLED) {
+            // only create fills if status is PARTIALLY_FILLED or FILLED
+            if (execType.getValue() == ExecType.PARTIAL_FILL || execType.getValue() == ExecType.FILL) {
 
                 // get the fields
                 Date extDateTime = executionReport.getTransactTime().getValue();
                 Side side = FixUtil.getSide(executionReport.getSide());
-                long quantity = (long) executionReport.getCumQty().getValue();
-
-                // Note: DukasCopy does not use LastPx it only uses AvgPx
-                BigDecimal price = RoundUtil.getBigDecimal(executionReport.getAvgPx().getValue(), order.getSecurity().getSecurityFamily().getScale());
+                long quantity = (long) executionReport.getLastShares().getValue();
+                BigDecimal price = RoundUtil.getBigDecimal(executionReport.getLastPx().getValue(), order.getSecurity().getSecurityFamily().getScale());
                 String extId = executionReport.getExecID().getValue();
 
                 // assemble the fill
@@ -127,6 +123,8 @@ public class DCFixMessageHandler {
                 fill.setQuantity(quantity);
                 fill.setPrice(price);
                 fill.setExtId(extId);
+
+                processFill(executionReport, order, fill);
 
                 // associate the fill with the order
                 order.addFills(fill);
@@ -141,46 +139,48 @@ public class DCFixMessageHandler {
     public void onMessage(OrderCancelReject orderCancelReject, SessionID sessionID)  {
 
         try {
-            logger.error("order cancel/replace has been rejected, clOrdID: " + orderCancelReject.getClOrdID().getValue() +
-                    " origOrdID: " + orderCancelReject.getOrigClOrdID().getValue() +
-                    " reason: " + orderCancelReject.getText().getValue());
+            Text text = orderCancelReject.getText();
+            ClOrdID clOrdID = orderCancelReject.getClOrdID();
+            OrigClOrdID origClOrdID = orderCancelReject.getOrigClOrdID();
+            logger.error("order cancel/replace has been rejected, clOrdID: " + clOrdID.getValue() + " origOrdID: " + origClOrdID.getValue() + " reason: " + text.getValue());
         } catch (FieldNotFound e) {
             logger.error(e);
         }
     }
 
-    public void onMessage(Reject reject, SessionID sessionID) {
-
-        try {
-            logger.error("message number: " + reject.getRefSeqNum() +
-                    " type: " + reject.getRefMsgType() +
-                    " has been rejected, tag: " + reject.getRefTagID() + " " + reject.getText());
-        } catch (FieldNotFound e) {
-            logger.error(e);
-        }
+    /**
+     * process an OrderStatus based on an {@link ExecutionReport} and {@link Order} before it is propagated
+     */
+    protected void processOrderStatus(ExecutionReport executionReport, Order order, OrderStatus orderStatus) throws FieldNotFound {
+        // do nothing (can be overwritten by subclasses)
     }
 
-    public void onMessage(Logon logon, SessionID sessionID) throws ConfigError, FieldConvertError {
-
-        logon.set(new Username(this.settings.getString(sessionID, "Username")));
-        logon.set(new Password(this.settings.getString(sessionID, "Password")));
+    /**
+     * process a Fill based on an {@link ExecutionReport} and {@link Order} before it is propagated
+     */
+    protected void processFill(ExecutionReport executionReport, Order order, Fill fill) throws FieldNotFound {
+        // do nothing (can be overwritten by subclasses)
     }
 
-    public static Status getStatus(OrdStatus ordStatus, CumQty cumQty) {
+    private Status getStatus(ExecType execType, CumQty cumQty) {
 
-        // Note: DukasCopy uses CALCULATED instead of NEW
-        if (ordStatus.getValue() == OrdStatus.CALCULATED || ordStatus.getValue() == OrdStatus.PENDING_NEW) {
+        if (execType.getValue() == ExecType.NEW) {
+            return Status.SUBMITTED;
+        } else if (execType.getValue() == ExecType.PARTIAL_FILL) {
+            return Status.PARTIALLY_EXECUTED;
+        } else if (execType.getValue() == ExecType.FILL) {
+            return Status.EXECUTED;
+        } else if (execType.getValue() == ExecType.CANCELED || execType.getValue() == ExecType.REJECTED
+                || execType.getValue() == ExecType.DONE_FOR_DAY || execType.getValue() == ExecType.EXPIRED) {
+            return Status.CANCELED;
+        } else if (execType.getValue() == ExecType.REPLACE) {
             if (cumQty.getValue() == 0) {
                 return Status.SUBMITTED;
             } else {
                 return Status.PARTIALLY_EXECUTED;
             }
-        } else if (ordStatus.getValue() == OrdStatus.FILLED) {
-            return Status.EXECUTED;
-        } else if (ordStatus.getValue() == OrdStatus.CANCELED || ordStatus.getValue() == OrdStatus.REJECTED) {
-            return Status.CANCELED;
         } else {
-            throw new IllegalArgumentException("unknown orderStatus " + ordStatus.getValue());
+            throw new IllegalArgumentException("unknown execType " + execType.getValue());
         }
     }
 }

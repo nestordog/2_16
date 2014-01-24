@@ -93,6 +93,8 @@ public class BarImpl extends Bar {
         buffer.append(getVol());
         buffer.append(",barSize=");
         buffer.append(getBarSize());
+        buffer.append(",feedType=");
+        buffer.append(getFeedType());
 
         return buffer.toString();
     }
@@ -107,6 +109,7 @@ public class BarImpl extends Bar {
             Bar that = (Bar) obj;
             return ObjectUtil.equalsNonNull(this.getSecurity(), that.getSecurity()) &&
                     ObjectUtil.equalsNonNull(this.getDateTime(), that.getDateTime()) &&
+                    ObjectUtil.equalsNonNull(this.getFeedType(), that.getFeedType()) &&
                     ObjectUtil.equalsNonNull(this.getBarSize(), that.getBarSize());
         } else {
             return false;
@@ -119,6 +122,7 @@ public class BarImpl extends Bar {
         int hash = 17;
         hash = hash * 37 + ObjectUtil.hashCode(getSecurity());
         hash = hash * 37 + ObjectUtil.hashCode(getDateTime());
+        hash = hash * 37 + ObjectUtil.hashCode(getFeedType());
         hash = hash * 37 + ObjectUtil.hashCode(getBarSize());
         return hash;
     }

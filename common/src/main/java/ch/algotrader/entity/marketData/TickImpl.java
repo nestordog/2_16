@@ -202,6 +202,8 @@ public class TickImpl extends Tick {
         buffer.append(getVolAsk());
         buffer.append(",vol=");
         buffer.append(getVol());
+        buffer.append(",feedType=");
+        buffer.append(getFeedType());
 
         return buffer.toString();
     }
@@ -215,7 +217,8 @@ public class TickImpl extends Tick {
         if (obj instanceof Tick) {
             Tick that = (Tick) obj;
             return ObjectUtil.equalsNonNull(this.getSecurity(), that.getSecurity()) &&
-                    ObjectUtil.equalsNonNull(this.getDateTime(), that.getDateTime());
+                    ObjectUtil.equalsNonNull(this.getDateTime(), that.getDateTime())  &&
+                    ObjectUtil.equalsNonNull(this.getFeedType(), that.getFeedType());
         } else {
             return false;
         }
@@ -227,6 +230,7 @@ public class TickImpl extends Tick {
         int hash = 17;
         hash = hash * 37 + ObjectUtil.hashCode(getSecurity());
         hash = hash * 37 + ObjectUtil.hashCode(getDateTime());
+        hash = hash * 37 + ObjectUtil.hashCode(getFeedType());
         return hash;
     }
 }

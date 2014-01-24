@@ -26,6 +26,8 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
 
 /**
+ * DukasCopy historical data service implementation.
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -41,7 +43,8 @@ public class DCHistoricalDataServiceImpl extends DCHistoricalDataServiceBase {
 
     @Override
     protected List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType) throws Exception {
-        return null;
+
+        throw new UnsupportedOperationException("historical data not available with DukasCopy");
     }
 
 }

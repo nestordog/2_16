@@ -33,6 +33,7 @@ import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.service.InitializingServiceI;
 
 /**
@@ -123,5 +124,11 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
         } else if (order.getAccount().getExtAllocationProfile() != null) {
             cancelRequest.set(new AllocationProfile(order.getAccount().getExtAllocationProfile()));
         }
+    }
+
+    @Override
+    protected OrderServiceType handleGetOrderServiceType() throws Exception {
+
+        return OrderServiceType.IB_FIX;
     }
 }

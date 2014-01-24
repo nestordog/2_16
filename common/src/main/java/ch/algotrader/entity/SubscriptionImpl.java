@@ -32,7 +32,7 @@ public class SubscriptionImpl extends Subscription {
     @Override
     public String toString() {
 
-        return getStrategy() + "," + getSecurity();
+        return getStrategy() + "," + getSecurity() + "," + getFeedType();
     }
 
     @Override
@@ -44,7 +44,8 @@ public class SubscriptionImpl extends Subscription {
         if (obj instanceof Subscription) {
             Subscription that = (Subscription) obj;
             return ObjectUtil.equalsNonNull(this.getSecurity(), that.getSecurity()) &&
-                    ObjectUtil.equalsNonNull(this.getStrategy(), that.getStrategy());
+                    ObjectUtil.equalsNonNull(this.getStrategy(), that.getStrategy()) &&
+                    ObjectUtil.equalsNonNull(this.getFeedType(), that.getFeedType());
         } else {
             return false;
         }
@@ -56,6 +57,7 @@ public class SubscriptionImpl extends Subscription {
         int hash = 17;
         hash = hash * 37 + ObjectUtil.hashCode(getSecurity());
         hash = hash * 37 + ObjectUtil.hashCode(getStrategy());
+        hash = hash * 37 + ObjectUtil.hashCode(getFeedType());
         return hash;
     }
 }

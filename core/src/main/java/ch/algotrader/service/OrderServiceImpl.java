@@ -21,11 +21,15 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Fill;
@@ -41,7 +45,6 @@ import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.vo.OrderStatusVO;
 
 /**
@@ -49,12 +52,19 @@ import ch.algotrader.vo.OrderStatusVO;
  *
  * @version $Revision$ $Date$
  */
-public abstract class OrderServiceImpl extends OrderServiceBase {
+public class OrderServiceImpl extends OrderServiceBase implements ApplicationContextAware {
 
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
     private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private @Value("${simulation}") boolean simulation;
+
+    private ApplicationContext applicationContext;
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 
     @Override
     protected void handleValidateOrder(Order order) throws Exception {
@@ -240,7 +250,7 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         logger.info("cancelled algo order: " + order);
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     protected void handleModifyOrder(String intId, Map properties) throws Exception {
 
@@ -318,7 +328,17 @@ public abstract class OrderServiceImpl extends OrderServiceBase {
         OrderServiceType orderServiceType = order.getAccount().getOrderServiceType();
         Class<ExternalOrderService> orderServiceClass = (Class<ExternalOrderService>) Class.forName(orderServiceType.getValue());
 
-        ExternalOrderService externalOrderService = CollectionUtil.getSingleElementOrNull(ServiceLocator.instance().getServices(orderServiceClass));
+        Map<String, ExternalOrderService> externalOrderServices = this.applicationContext.getBeansOfType(orderServiceClass);
+
+        // select the proxy
+        String name = CollectionUtils.find(externalOrderServices.keySet(), new Predicate<String>() {
+            @Override
+            public boolean evaluate(String name) {
+                return !name.startsWith("ch.algotrader.service");
+            }
+        });
+
+        ExternalOrderService externalOrderService = externalOrderServices.get(name);
 
         Validate.notNull(externalOrderService, "externalOrderService was not found: " + orderServiceType);
 

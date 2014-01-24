@@ -119,6 +119,10 @@
         <level value="warn" />
     </logger>
 
+    <logger name="quickfixj">
+        <level value="warn" />
+    </logger>
+
     <logger name="ch.algotrader.util.spring">
         <level value="warn" />
     </logger>

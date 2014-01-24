@@ -25,6 +25,7 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.StockImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.enumeration.FeedType;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -42,27 +43,30 @@ public class SubscriptionTest {
         Assert.assertNotEquals(subscription1, subscription2);
 
         Strategy strategy = new StrategyImpl();
-        strategy.setId(1);
-
+        strategy.setName("TEST");
         subscription1.setStrategy(strategy);
 
         Assert.assertNotEquals(subscription1, subscription2);
 
         Security security1 = new StockImpl();
-        security1.setId(2);
-
+        security1.setIsin("1234");
         subscription1.setSecurity(security1);
+
+        Assert.assertNotEquals(subscription1, subscription2);
+
+        FeedType feedType = FeedType.IB;
+        subscription1.setFeedType(feedType);
 
         Assert.assertNotEquals(subscription1, subscription2);
 
         subscription2.setStrategy(strategy);
         subscription2.setSecurity(security1);
+        subscription2.setFeedType(feedType);
 
         Assert.assertEquals(subscription1, subscription2);
 
         Security security2 = new OptionImpl();
-        security2.setId(2);
-
+        security2.setIsin("5678");
         subscription2.setSecurity(security2);
 
         Assert.assertNotEquals(subscription1, subscription2);

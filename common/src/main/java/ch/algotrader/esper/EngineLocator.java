@@ -37,6 +37,7 @@ import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.spring.Configuration;
 import ch.algotrader.vo.GenericEventVO;
 import ch.algotrader.vo.StatementMetricVO;
 
@@ -52,15 +53,24 @@ public class EngineLocator {
     private static final Logger logger = MyLogger.getLogger(EngineLocator.class.getName());
     private static final EngineLocator instance = new EngineLocator();
 
-    private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
-    private static String startedStrategyName = ServiceLocator.instance().getConfiguration().getStartedStrategyName();
-    private static boolean singleVM = ServiceLocator.instance().getConfiguration().getBoolean("misc.singleVM");
+    private static boolean simulation = false;
+    private static String startedStrategyName = StrategyImpl.BASE;
+    private static boolean singleVM = true;
 
     private Map<String, Engine> engines = new HashMap<String, Engine>();
 
     private Map<String, JmsTemplate> templates = new HashMap<String, JmsTemplate>();
 
     public static final EngineLocator instance() {
+
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        if (serviceLocator.isInitialized()) {
+            Configuration configuration = serviceLocator.getConfiguration();
+            simulation = configuration.getSimulation();
+            startedStrategyName = configuration.getStartedStrategyName();
+            singleVM = configuration.getBoolean("misc.singleVM");
+        }
+
         return instance;
     }
 

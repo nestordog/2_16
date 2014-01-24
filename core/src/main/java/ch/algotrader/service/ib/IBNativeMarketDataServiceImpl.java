@@ -27,6 +27,7 @@ import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
@@ -65,7 +66,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
     }
 
     @Override
-    protected void handleExternalSubscribe(Security security) throws Exception {
+    protected void handleSubscribe(Security security) throws Exception {
 
         if (session.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
             throw new IBNativeMarketDataServiceException("IB is not logged on to subscribe " + security);
@@ -75,6 +76,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
         int tickerId = IBIdGenerator.getInstance().getNextRequestId();
         Tick tick = Tick.Factory.newInstance();
         tick.setSecurity(security);
+        tick.setFeedType(FeedType.IB);
 
         SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
         subscribeTickEvent.setTick(tick);
@@ -87,11 +89,11 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
 
         session.reqMktData(tickerId, contract, this.genericTickList, false);
 
-        logger.debug("request " + tickerId + " for : " + security);
+        logger.debug("requested market data for: " + security + " tickerId: " + tickerId);
     }
 
     @Override
-    protected void handleExternalUnsubscribe(Security security) throws Exception {
+    protected void handleUnsubscribe(Security security) throws Exception {
 
         if (!session.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED)) {
             throw new IBNativeMarketDataServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
@@ -108,6 +110,11 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
         EngineLocator.instance().getBaseEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
 
         logger.debug("cancelled market data for : " + security);
+    }
+
+    @Override
+    protected FeedType handleGetFeedType() throws Exception {
+        return FeedType.IB;
     }
 
     @Override

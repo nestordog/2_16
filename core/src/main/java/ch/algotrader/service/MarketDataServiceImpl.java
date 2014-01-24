@@ -25,10 +25,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Predicate;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.algotrader.ServiceLocator;
@@ -37,6 +42,7 @@ import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.MyLogger;
@@ -51,13 +57,20 @@ import com.espertech.esper.collection.Pair;
  *
  * @version $Revision$ $Date$
  */
-public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
+public class MarketDataServiceImpl extends MarketDataServiceBase implements ApplicationContextAware {
 
     private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
 
     private @Value("${simulation}") boolean simulation;
+    private @Value("#{T(ch.algotrader.enumeration.FeedType).fromString('${misc.defaultFeedType}')}") FeedType feedType;
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
+    private ApplicationContext applicationContext;
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 
     @Override
     protected void handlePersistTick(Tick tick) throws IOException {
@@ -66,78 +79,65 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         Date date = DateUtils.round(new Date(), Calendar.MINUTE);
         tick.setDateTime(date);
 
-        // write the tick to file
-        Security security = tick.getSecurity();
-
-        CsvTickWriter csvWriter;
-        synchronized (this.csvWriters) {
-            csvWriter = this.csvWriters.get(security);
-            if (csvWriter == null) {
-                String fileName = security.getIsin() != null ? security.getIsin() : String.valueOf(security.getId());
-                csvWriter = new CsvTickWriter(fileName);
-                this.csvWriters.put(security, csvWriter);
-            }
-        }
-
-        synchronized (csvWriter) {
-            csvWriter.write(tick);
-        }
+        saveCvs(tick);
 
         // write the tick to the DB (even if not valid)
         getTickDao().create(tick);
     }
 
     @Override
-    protected void handleInitSubscriptions() {
+    protected void handleInitSubscriptions(FeedType feedType) throws Exception  {
 
-        if (!this.simulation) {
-
-            List<Security> securities = getSecurityDao().findSubscribedForAutoActivateStrategiesInclFamily();
-
-            for (Security security : securities) {
-                if (!security.getSecurityFamily().isSynthetic()) {
-                    externalSubscribe(security);
-                }
-            }
-        }
+        getExternalMarketDataService(feedType).initSubscriptions();
     }
 
     @Override
     protected void handleSubscribe(String strategyName, int securityId) throws Exception {
 
-        Strategy strategy = getStrategyDao().findByName(strategyName);
-        Security security = getSecurityDao().get(securityId);
+        subscribe(strategyName, securityId, this.feedType);
+    }
 
-        if (getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId) == null) {
+    @Override
+    protected void handleSubscribe(String strategyName, int securityId, FeedType feedType) throws Exception {
 
-            // only external subscribe if nobody was watching this security so far
-            List<Subscription> subscriptions = getSubscriptionDao().findBySecurityForAutoActivateStrategies(security.getId());
+        if (getSubscriptionDao().findByStrategySecurityAndFeedType(strategyName, securityId, feedType) == null) {
+
+            Strategy strategy = getStrategyDao().findByName(strategyName);
+            Security security = getSecurityDao().findByIdInclFamilyAndUnderlying(securityId);
+
+            // only external subscribe if nobody was watching the specified security with the specified feedType so far
+            List<Subscription> subscriptions = getSubscriptionDao().findBySecurityAndFeedTypeForAutoActivateStrategies(securityId, feedType);
             if (subscriptions.size() == 0) {
-                if (!this.simulation && !security.getSecurityFamily().isSynthetic()) {
-                    externalSubscribe(security);
+                if (!security.getSecurityFamily().isSynthetic()) {
+                    getExternalMarketDataService(feedType).subscribe(security);
                 }
             }
 
             // update links
-            Subscription subscription = Subscription.Factory.newInstance(false, strategy, security);
+            Subscription subscription = Subscription.Factory.newInstance(feedType, false, strategy, security);
 
             getSubscriptionDao().create(subscription);
 
             // reverse-associate security (after subscription has received an id)
             security.getSubscriptions().add(subscription);
 
-            logger.info("subscribed security " + security);
+            logger.info("subscribed security " + security + " with " + feedType);
         }
     }
 
     @Override
     protected void handleUnsubscribe(String strategyName, int securityId) throws Exception {
 
-        Security security = getSecurityDao().get(securityId);
+        unsubscribe(strategyName, securityId, this.feedType);
+    }
 
-        Subscription subscription = getSubscriptionDao().findByStrategyAndSecurity(strategyName, securityId);
+    @Override
+    protected void handleUnsubscribe(String strategyName, int securityId, FeedType feedType) throws Exception {
 
+        Subscription subscription = getSubscriptionDao().findByStrategySecurityAndFeedType(strategyName, securityId, feedType);
         if (subscription != null && !subscription.isPersistent()) {
+
+            Security security = getSecurityDao().get(securityId);
 
             // update links
             security.getSubscriptions().remove(subscription);
@@ -146,12 +146,12 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
             // only external unsubscribe if nobody is watching this security anymore
             if (security.getSubscriptions().size() == 0) {
-                if (!this.simulation && !security.getSecurityFamily().isSynthetic()) {
-                    externalUnsubscribe(security);
+                if (!security.getSecurityFamily().isSynthetic()) {
+                    getExternalMarketDataService(feedType).unsubscribe(security);
                 }
             }
 
-            logger.info("unsubscribed security " + security);
+            logger.info("unsubscribed security " + security + " with " + feedType);
         }
     }
 
@@ -195,12 +195,58 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
         logger.error(security + " has not received any ticks for " + security.getSecurityFamily().getMaxGap() + " minutes");
     }
 
+    private void saveCvs(Tick tick) throws IOException {
+
+        Security security = tick.getSecurity();
+
+        CsvTickWriter csvWriter;
+        synchronized (this.csvWriters) {
+            csvWriter = this.csvWriters.get(security);
+            if (csvWriter == null) {
+                String fileName = security.getIsin() != null ? security.getIsin() : String.valueOf(security.getId());
+                csvWriter = new CsvTickWriter(fileName);
+                this.csvWriters.put(security, csvWriter);
+            }
+        }
+
+        synchronized (csvWriter) {
+            csvWriter.write(tick);
+        }
+    }
+
+    /**
+     * get the externalMarketDataService defined by MarketDataServiceType
+     */
+    @SuppressWarnings({ "unchecked" })
+    private ExternalMarketDataService getExternalMarketDataService(final FeedType feedType) throws Exception {
+
+        Validate.notNull(feedType, "feedType must not be null");
+
+        Class<ExternalMarketDataService> marketDataServiceClass = (Class<ExternalMarketDataService>) Class.forName(feedType.getValue());
+
+        Map<String, ExternalMarketDataService> externalMarketDataServices = this.applicationContext.getBeansOfType(marketDataServiceClass);
+
+        // select the proxy
+        String name = CollectionUtils.find(externalMarketDataServices.keySet(), new Predicate<String>() {
+            @Override
+            public boolean evaluate(String name) {
+                return !name.startsWith("ch.algotrader.service");
+            }
+        });
+
+        ExternalMarketDataService externalMarketDataService = externalMarketDataServices.get(name);
+
+        Validate.notNull(externalMarketDataService, "externalMarketDataService was not found: " + feedType);
+
+        return externalMarketDataService;
+    }
+
     public static class PropagateMarketDataEventSubscriber {
 
         public void update(final MarketDataEvent marketDataEvent) {
 
-            // security.toString & marketDataEvent.toString is expensive, so only log if debug is anabled
-            if (!logger.getParent().getLevel().isGreaterOrEqual(Level.DEBUG)) {
+            // security.toString & marketDataEvent.toString is expensive, so only log if debug is enabled
+            if (logger.isTraceEnabled()) {
                 logger.trace(marketDataEvent.getSecurityInitialized() + " " + marketDataEvent);
             }
 
@@ -216,8 +262,8 @@ public abstract class MarketDataServiceImpl extends MarketDataServiceBase {
 
         public void update(final GenericEventVO genericEvent) {
 
-            // security.toString & marketDataEvent.toString is expensive, so only log if debug is anabled
-            if (!logger.getParent().getLevel().isGreaterOrEqual(Level.DEBUG)) {
+            // security.toString & marketDataEvent.toString is expensive, so only log if debug is enabled
+            if (logger.isTraceEnabled()) {
                 logger.trace(genericEvent);
             }
 

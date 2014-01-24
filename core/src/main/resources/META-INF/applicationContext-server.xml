@@ -210,9 +210,103 @@
     </beans>
 
     <beans profile="jPMFix,iBFix,dCFix,rTFix">
-        <bean id="fixSessionFactory" class="ch.algotrader.adapter.fix.FixAdapter">
-            <property name="lookupService" ref="lookupService"/>
+
+        <bean id="fixSessionSettings" class="ch.algotrader.adapter.fix.FixSessionSettingsFactoryBean"/>
+
+        <bean id="fixSocketInitiator" class="ch.algotrader.adapter.fix.FixSocketInitiatorFactoryBean">
+            <property name="sessionSettings" ref="fixSessionSettings"/>
         </bean>
+
+        <bean id="fixAdapter" class="ch.algotrader.adapter.fix.ManagedFixAdapter">
+            <property name="lookupService" ref="lookupService"/>
+            <property name="socketInitiator" ref="fixSocketInitiator"/>
+            <property name="eventScheduler">
+                <bean class="ch.algotrader.adapter.fix.DefaultFixEventScheduler"/>
+            </property>
+            <property name="orderIdGenerator">
+                <bean class="ch.algotrader.adapter.fix.DefaultFixOrderIdGenerator"/>
+            </property>
+        </bean>
+
+    </beans>
+
+    <beans profile="jPMFix">
+
+        <bean id="jPMOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+
+        <bean id="jPMOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
+            <property name="incomingMessageHandler">
+                <bean class="ch.algotrader.adapter.fix.fix42.Fix42OrderMessageHandler"/>
+            </property>
+            <property name="lifecycleHandler" ref="jPMOrderSessionLifeCycle"/>
+            <property name="name" value="JPMO"/>
+        </bean>
+
+    </beans>
+
+    <beans profile="iBFix">
+
+        <bean id="iBOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+
+        <bean id="iBOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
+            <property name="incomingMessageHandler">
+                <bean class="ch.algotrader.adapter.ib.IBFixOrderMessageHandler">
+                    <property name="accountService" ref="iBFixAccountService"/>
+                </bean>
+            </property>
+            <property name="lifecycleHandler" ref="iBOrderSessionLifeCycle"/>
+            <property name="name" value="IBO"/>
+        </bean>
+
+    </beans>
+
+    <beans profile="rTFix">
+
+        <bean id="rTOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+
+        <bean id="rTOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
+            <property name="incomingMessageHandler">
+                <bean class="ch.algotrader.adapter.rt.RTFixOrderMessageHandler"/>
+            </property>
+            <property name="lifecycleHandler" ref="rTOrderSessionLifeCycle"/>
+            <property name="name" value="RTO"/>
+        </bean>
+
+    </beans>
+
+    <beans profile="dCFix">
+
+        <bean id="dCLogonMessageHandler" class="ch.algotrader.adapter.dc.DCLogonMessageHandler">
+            <property name="settings" ref="fixSessionSettings"/>
+        </bean>
+
+        <bean id="dCMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.FixMarketDataSessionLifecycle">
+            <property name="marketDataService" ref="marketDataService"/>
+            <property name="feedType" value="DC"/>
+        </bean>
+
+        <bean id="dCMarketDataApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
+            <property name="incomingMessageHandler">
+                   <bean class="ch.algotrader.adapter.dc.DCFixMarketDataMessageHandler"/>
+            </property>
+            <property name="outgoingMessageHandler" ref="dCLogonMessageHandler"/>
+            <property name="lifecycleHandler" ref="dCMarketDataSessionLifeCycle"/>
+            <property name="name" value="DCMD"/>
+        </bean>
+
+        <bean id="dCOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+
+        <bean id="dCOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
+            <property name="incomingMessageHandler">
+                <bean class="ch.algotrader.adapter.dc.DCFixOrderMessageHandler">
+                    <property name="lookupService" ref="lookupService"/>
+                </bean>
+            </property>
+            <property name="outgoingMessageHandler" ref="dCLogonMessageHandler"/>
+            <property name="lifecycleHandler" ref="dCOrderSessionLifeCycle"/>
+            <property name="name" value="DCO"/>
+        </bean>
+
     </beans>
 
     <!-- =========================================== RECONCILIATION ================================================ -->

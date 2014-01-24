@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.fix;
+package ch.algotrader.adapter.fix.fix44;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -24,7 +24,6 @@ import org.apache.log4j.Logger;
 
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
-import quickfix.SessionSettings;
 import quickfix.field.ClOrdID;
 import quickfix.field.CumQty;
 import quickfix.field.ExecType;
@@ -34,6 +33,7 @@ import quickfix.field.Text;
 import quickfix.fix44.ExecutionReport;
 import quickfix.fix44.OrderCancelReject;
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -44,19 +44,15 @@ import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
 /**
- * Generic Fix44MessageHandler. Needs to be overwritten by specific broker interfaces.
+ * Generic Fix44OrderMessageHandler. Needs to be overwritten by specific broker interfaces.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class Fix44MessageHandler {
+public class Fix44OrderMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(Fix44MessageHandler.class.getName());
-
-    public Fix44MessageHandler(SessionSettings settings) {
-        // do nothing
-    }
+    private static Logger logger = MyLogger.getLogger(Fix44OrderMessageHandler.class.getName());
 
     public void onMessage(final ExecutionReport executionReport, final SessionID sessionID) {
 

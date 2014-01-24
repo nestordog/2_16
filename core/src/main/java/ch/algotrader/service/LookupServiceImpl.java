@@ -144,6 +144,30 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected List<Security> handleGetSubscribedSecuritiesForAutoActivateStrategies() throws Exception {
+
+        return getSecurityDao().findSubscribedForAutoActivateStrategies();
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    protected List<Map> handleGetSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents() throws Exception {
+
+        List<Map> subscriptions = getSecurityDao().findSubscribedAndFeedTypeForAutoActivateStrategies();
+
+        // initialize components
+        for (Map<String, Object> subscription : subscriptions) {
+
+            Security security = (Security) subscription.get("security");
+            if (security instanceof Combination) {
+                ((Combination) security).getComponentsInitialized();
+            }
+        }
+
+        return subscriptions;
+    }
+
+    @Override
     protected List<Security> handleGetSecuritiesByIds(Collection<Integer> ids) throws Exception {
 
         return getSecurityDao().findByIds(ids);
@@ -193,12 +217,6 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
         return getCombinationDao().findSubscribedByStrategyAndComponentTypeWithZeroQty(strategyName, discriminator);
-    }
-
-    @Override
-    protected List<Security> handleGetSubscribedSecuritiesForAutoActivateStrategiesInclFamily() throws Exception {
-
-        return getSecurityDao().findSubscribedForAutoActivateStrategiesInclFamily();
     }
 
     @Override
@@ -354,22 +372,6 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Subscription> handleGetSubscriptionsByStrategyInclComponents(String strategyName) throws Exception {
 
         List<Subscription> subscriptions = getSubscriptionDao().findByStrategy(strategyName);
-
-        // initialize components
-        for (Subscription subscription : subscriptions) {
-
-            if (subscription.getSecurityInitialized() instanceof Combination) {
-                ((Combination)subscription.getSecurity()).getComponentsInitialized();
-            }
-        }
-
-        return subscriptions;
-    }
-
-    @Override
-    protected List<Subscription> handleGetSubscriptionsForAutoActivateStrategiesInclComponents() throws Exception {
-
-        List<Subscription> subscriptions = getSubscriptionDao().findForAutoActivateStrategies();
 
         // initialize components
         for (Subscription subscription : subscriptions) {

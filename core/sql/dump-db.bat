@@ -1,7 +1,7 @@
 set db=algotradertest
 
-mysqldump.exe --skip-triggers --no-data -u @localhost -r ^
-D:\AlgoTrader\core\sql\db-structure.sql ^
+mysqldump.exe --skip-triggers --no-data -u root -ppassword -r ^
+db-structure.sql ^
 %db%
 
 mysqldump.exe ^
@@ -19,8 +19,8 @@ mysqldump.exe ^
 --ignore-table=%db%.synthetic_index ^
 --ignore-table=%db%.tick ^
 --where="id<1000" ^
---complete-insert --no-create-info -u @localhost ^
--r D:\AlgoTrader\core\sql\db-data.sql ^
+--complete-insert --no-create-info -u root -ppassword ^
+-r db-data.sql ^
 %db%
 
 "D:\AlgoTrader\core\sql\unix2dos.exe" D:\AlgoTrader\core\sql\db-structure.sql

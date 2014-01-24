@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
-import quickfix.SessionSettings;
 import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
 import quickfix.field.FAConfigurationAction;
@@ -33,8 +32,7 @@ import quickfix.field.XMLContent;
 import quickfix.fix42.ExecutionReport;
 import quickfix.fix42.IBFAModification;
 import quickfix.fix42.OrderCancelReject;
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.adapter.fix.Fix42MessageHandler;
+import ch.algotrader.adapter.fix.fix42.Fix42OrderMessageHandler;
 import ch.algotrader.service.ib.IBFixAccountService;
 import ch.algotrader.util.MyLogger;
 
@@ -45,12 +43,14 @@ import ch.algotrader.util.MyLogger;
  *
  * @version $Revision$ $Date$
  */
-public class IBFixMessageHandler extends Fix42MessageHandler {
+public class IBFixOrderMessageHandler extends Fix42OrderMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(IBFixMessageHandler.class.getName());
+    private static Logger logger = MyLogger.getLogger(IBFixOrderMessageHandler.class.getName());
 
-    public IBFixMessageHandler(SessionSettings settings) {
-        super(settings);
+    private IBFixAccountService accountService;
+
+    public void setAccountService(IBFixAccountService accountService) {
+        this.accountService = accountService;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class IBFixMessageHandler extends Fix42MessageHandler {
 
         try {
 
-            // ignore FA transfer execution reporst
+            // ignore FA transfer execution reports
             if (executionReport.getExecID().getValue().startsWith("F-") || executionReport.getExecID().getValue().startsWith("U+")) {
                 return;
             }
@@ -81,14 +81,13 @@ public class IBFixMessageHandler extends Fix42MessageHandler {
     public void onMessage(IBFAModification faModification, SessionID sessionID) {
 
         try {
-            IBFixAccountService accountService = ServiceLocator.instance().getService("iBFixAccountService", IBFixAccountService.class);
 
             String fARequestID = faModification.get(new FARequestID()).getValue();
             String xmlContent = faModification.get(new XMLContent()).getValue();
             FAConfigurationAction fAConfigurationAction = faModification.get(new FAConfigurationAction());
 
             if (fAConfigurationAction.valueEquals(FAConfigurationAction.GET_GROUPS)) {
-                accountService.updateGroups(fARequestID, xmlContent);
+                this.accountService.updateGroups(fARequestID, xmlContent);
             } else {
                 throw new UnsupportedOperationException();
             }

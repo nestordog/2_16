@@ -51,6 +51,8 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.TIF;
 
 /**
+ * Generic FIX 4.2 order service
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$

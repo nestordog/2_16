@@ -18,7 +18,7 @@
 package ch.algotrader.service.sim;
 
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.service.sim.SimMarketDataServiceBase;
+import ch.algotrader.enumeration.FeedType;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -28,12 +28,17 @@ import ch.algotrader.service.sim.SimMarketDataServiceBase;
 public class SimMarketDataServiceImpl extends SimMarketDataServiceBase {
 
     @Override
-    protected void handleExternalSubscribe(Security security) throws Exception {
-        throw new UnsupportedOperationException("ExternalSubscribe not allowed in simulation");
+    protected void handleSubscribe(Security security) throws Exception {
+        // do nothing
     }
 
     @Override
-    protected void handleExternalUnsubscribe(Security security) throws Exception {
-        throw new UnsupportedOperationException("ExternalUnsubscribe not allowed in simulation");
+    protected void handleUnsubscribe(Security security) throws Exception {
+        // do nothing
+    }
+
+    @Override
+    protected FeedType handleGetFeedType() throws Exception {
+        return FeedType.SIM;
     }
 }

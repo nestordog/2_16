@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <mappings name="SpringMerge">
 
-        <!--  portfolioChartDefinition into applicationContext.xml -->
+        <!--  add portfolioChartDefinition to PortfolioChartService (in applicationContext.xml) -->
         <mapping>
             <from><![CDATA[<!-- PortfolioChartService service property merge-point -->]]></from>
             <to><![CDATA[<property name="chartDefinition" ref="portfolioChartDefinition"/>]]></to>
         </mapping>
 
-        <!--  portfolioChartDefinition into applicationContext-import-remoteServices.xml -->
+        <!--  add portfolioChartDefinition to PortfolioChartService (in applicationContext-import-remoteServices.xml) -->
         <mapping>
             <from><![CDATA[<!-- PortfolioChartService service client property merge-point -->]]></from>
             <to><![CDATA[<property name="chartDefinition" ref="portfolioChartDefinition"/>]]></to>
         </mapping>
 
-        <!-- add  marketDataMessageListenerContainer ref -->
+        <!-- add marketDataMessageListenerContainer to SubscriptionService -->
         <mapping>
             <from><![CDATA[<!-- SubscriptionService service client property merge-point -->]]></from>
             <to><![CDATA[<property name="marketDataMessageListenerContainer" ref="marketDataMessageListenerContainer"/>
         <property name="genericMessageListenerContainer" ref="genericMessageListenerContainer"/>]]></to>
+        </mapping>
+
+        <!-- add fixSessionLifecycle to DCFixMarketDataService -->
+        <mapping>
+            <from><![CDATA[<!-- DCFixMarketDataService service property merge-point -->]]></from>
+            <to><![CDATA[<property name="fixSessionLifecycle" ref="dCMarketDataSessionLifeCycle"/>]]></to>
         </mapping>
 
 </mappings>

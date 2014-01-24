@@ -39,6 +39,7 @@
     <auto-import import-name="ch.algotrader.enumeration.TransactionType"/>
     <auto-import import-name="ch.algotrader.enumeration.ExpirationType"/>
     <auto-import import-name="ch.algotrader.enumeration.OptionType"/>
+    <auto-import import-name="ch.algotrader.enumeration.FeedType"/>
 
     <!-- Utils -->
     <auto-import import-name="ch.algotrader.option.OptionUtil"/>

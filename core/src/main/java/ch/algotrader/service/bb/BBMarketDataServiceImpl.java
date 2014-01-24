@@ -27,6 +27,7 @@ import ch.algotrader.adapter.bb.BBIdGenerator;
 import ch.algotrader.adapter.bb.BBSession;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.ib.IBNativeMarketDataServiceException;
 import ch.algotrader.util.MyLogger;
@@ -55,7 +56,7 @@ public class BBMarketDataServiceImpl extends BBMarketDataServiceBase implements 
     }
 
     @Override
-    protected void handleExternalSubscribe(Security security) throws Exception {
+    protected void handleSubscribe(Security security) throws Exception {
 
         if (!session.isRunning()) {
             throw new IBNativeMarketDataServiceException("Bloomberg session is not running to subscribe " + security);
@@ -68,6 +69,7 @@ public class BBMarketDataServiceImpl extends BBMarketDataServiceBase implements 
         int tickerId = BBIdGenerator.getInstance().getNextRequestId();
         Tick tick = Tick.Factory.newInstance();
         tick.setSecurity(security);
+        tick.setFeedType(FeedType.BB);
 
         // create the SubscribeTickEvent and propagate it
         SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
@@ -80,11 +82,11 @@ public class BBMarketDataServiceImpl extends BBMarketDataServiceBase implements 
 
         session.subscribe(subscriptions);
 
-        logger.debug("request " + tickerId + " for : " + security);
+        logger.debug("requested market data for: " + security + " tickerId: " + tickerId);
     }
 
     @Override
-    protected void handleExternalUnsubscribe(Security security) throws Exception {
+    protected void handleUnsubscribe(Security security) throws Exception {
 
         if (!session.isRunning()) {
             throw new IBNativeMarketDataServiceException("Bloomberg session is not running to unsubscribe " + security);
@@ -126,6 +128,11 @@ public class BBMarketDataServiceImpl extends BBMarketDataServiceBase implements 
         SubscriptionList subscriptions = new SubscriptionList();
         subscriptions.add(new Subscription(topic, fields, new CorrelationID(tickerId)));
         return subscriptions;
+    }
+
+    @Override
+    protected FeedType handleGetFeedType() throws Exception {
+        return FeedType.BB;
     }
 
     @Override
