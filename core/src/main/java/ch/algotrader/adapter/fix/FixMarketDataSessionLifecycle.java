@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import quickfix.SessionID;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.service.MarketDataService;
 
@@ -42,9 +41,9 @@ public class FixMarketDataSessionLifecycle extends DefaultFixSessionLifecycle {
     }
 
     @Override
-    public void loggedOn(SessionID sessionID) {
+    public void loggedOn() {
 
-        super.loggedOn(sessionID);
+        super.loggedOn();
 
         marketDataService.initSubscriptions(feedType);
     }

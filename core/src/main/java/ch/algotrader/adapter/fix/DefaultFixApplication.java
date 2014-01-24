@@ -79,7 +79,7 @@ public class DefaultFixApplication implements Application {
     public void onCreate(SessionID sessionID) {
 
         validateSessionID(sessionID);
-        lifecycleHandler.created(sessionID);
+        lifecycleHandler.created();
     }
 
     @Override
@@ -89,7 +89,7 @@ public class DefaultFixApplication implements Application {
         if (logger.isInfoEnabled()) {
             logger.info("logon: " + sessionID);
         }
-        lifecycleHandler.loggedOn(sessionID);
+        lifecycleHandler.loggedOn();
     }
 
     @Override
@@ -99,7 +99,7 @@ public class DefaultFixApplication implements Application {
         if (logger.isInfoEnabled()) {
             logger.info("logout: " + sessionID);
         }
-        lifecycleHandler.loggedOff(sessionID);
+        lifecycleHandler.loggedOff();
     }
 
     @Override

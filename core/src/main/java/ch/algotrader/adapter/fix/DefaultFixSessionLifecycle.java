@@ -19,7 +19,6 @@ package ch.algotrader.adapter.fix;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import quickfix.SessionID;
 import ch.algotrader.enumeration.ConnectionState;
 
 /**
@@ -40,19 +39,19 @@ public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
     }
 
     @Override
-    public void created(SessionID sessionID) {
+    public void created() {
 
         this.connState.compareAndSet(ConnectionState.DISCONNECTED, ConnectionState.CONNECTED);
     }
 
     @Override
-    public void loggedOn(SessionID sessionID) {
+    public void loggedOn() {
 
           this.connState.compareAndSet(ConnectionState.CONNECTED, ConnectionState.LOGGED_ON);
     }
 
     @Override
-    public void loggedOff(SessionID sessionID) {
+    public void loggedOff() {
 
         this.connState.set(ConnectionState.CONNECTED);
     }

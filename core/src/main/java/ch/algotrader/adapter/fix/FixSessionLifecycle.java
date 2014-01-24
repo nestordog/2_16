@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import quickfix.SessionID;
 import ch.algotrader.enumeration.ConnectionState;
 
 /**
@@ -29,11 +28,11 @@ import ch.algotrader.enumeration.ConnectionState;
  */
 public interface FixSessionLifecycle {
 
-    void created(SessionID sessionID);
+    void created();
 
-    void loggedOn(SessionID sessionID);
+    void loggedOn();
 
-    void loggedOff(SessionID sessionID);
+    void loggedOff();
 
     boolean triggerSubscribe();
 
