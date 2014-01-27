@@ -204,8 +204,8 @@ public abstract class SecurityImpl extends Security {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof Stock) {
-            Stock that = (Stock) obj;
+        if (obj instanceof Security) {
+            Security that = (Security) obj;
             return ObjectUtil.equals(this.getIsin(), that.getIsin()) &&
                     ObjectUtil.equals(this.getBbgid(), that.getBbgid()) &&
                     ObjectUtil.equals(this.getRic(), that.getRic()) &&
