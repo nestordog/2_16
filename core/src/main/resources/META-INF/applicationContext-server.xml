@@ -313,7 +313,15 @@
 
     <beans profile="reconciliation">
 
-        <task:scheduler id="taskScheduler" pool-size="1"/>
+        <task:scheduler id="taskScheduler" pool-size="2"/>
+
+        <util:properties id="javaMailProperties">
+            <prop key="mail.imap.socketFactory.class">${mail.imap.socketFactory.class}</prop>
+            <prop key="mail.imap.socketFactory.fallback">false</prop>
+            <prop key="mail.store.protocol">${mail.store.protocol}</prop>
+            <prop key="mail.imap.timeout">180000</prop>
+<!--             <prop key="mail.debug">true</prop> -->
+        </util:properties>
 
         <int-mail:imap-idle-channel-adapter
             store-uri="${mail.imap.uri}"
@@ -337,11 +345,12 @@
             </int:splitter>
         </int:chain>
 
-        <int:publish-subscribe-channel id="outputChannel"/>
+        <int:channel id="outputChannel"/>
 
-        <int-file:outbound-channel-adapter
+        <int-file:outbound-gateway
+            request-channel="outputChannel"
+            reply-channel="serviceChannel"
             auto-create-directory="true"
-            channel="outputChannel"
             directory="files/"
             filename-generator="fileNameGenerator"/>
 
@@ -349,17 +358,11 @@
             class="org.springframework.integration.file.DefaultFileNameGenerator"
             p:expression="headers.directory + '/' + headers.file_name"/>
 
-        <int:service-activator
-            input-channel="outputChannel"
-            expression="headers.reconciliationService.reconcile(headers.file_name, payload)"/>
+        <int:channel id="serviceChannel"/>
 
-        <util:properties id="javaMailProperties">
-            <prop key="mail.imap.socketFactory.class">${mail.imap.socketFactory.class}</prop>
-            <prop key="mail.imap.socketFactory.fallback">false</prop>
-            <prop key="mail.store.protocol">${mail.store.protocol}</prop>
-            <prop key="mail.imap.timeout">180000</prop>
-<!--             <prop key="mail.debug">true</prop> -->
-        </util:properties>
+        <int:service-activator
+            input-channel="serviceChannel"
+            expression="headers.reconciliationService.reconcile(payload)"/>
 
     </beans>
 

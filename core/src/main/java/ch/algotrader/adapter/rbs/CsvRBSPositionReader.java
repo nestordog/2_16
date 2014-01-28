@@ -17,7 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.rbs;
 
-import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -62,9 +63,9 @@ public class CsvRBSPositionReader {
     };
     //@formatter:on
 
-    public static List<Map<String, ? super Object>> readPositions(byte[] data) throws IOException {
+    public static List<Map<String, ? super Object>> readPositions(File file) throws IOException {
 
-        InputStreamReader inputStreamReader = new InputStreamReader(new ByteArrayInputStream(data));
+        InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file));
         CsvMapReader mapReader = new CsvMapReader(inputStreamReader, CsvPreference.EXCEL_PREFERENCE);
 
         List<Map<String, ? super Object>> list;

@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import ch.algotrader.service.ReconciliationServiceBase;
+import java.io.File;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -27,5 +27,5 @@ import ch.algotrader.service.ReconciliationServiceBase;
 public abstract class ReconciliationServiceImpl extends ReconciliationServiceBase {
 
     @Override
-    protected abstract void handleReconcile(String fileName, byte[] data) throws Exception;
+    protected abstract void handleReconcile(File file) throws Exception;
 }

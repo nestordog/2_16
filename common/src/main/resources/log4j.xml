@@ -127,6 +127,10 @@
         <level value="warn" />
     </logger>
 
+    <logger name="com.jcraft.jsch">
+        <level value="warn"/>
+    </logger>
+
     <logger name="ch.algotrader.esper.subscriber.LogPortfolioValueSubscriber" additivity="false">
         <level value="info" />
         <appender-ref ref="PORTFOLIO" />

@@ -17,17 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.starter;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.io.IOUtils;
-import org.xml.sax.SAXException;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.service.ReconciliationService;
@@ -51,19 +41,8 @@ public class ReconciliationStarter {
         for (int i = 1; i < args.length; i++) {
 
             File file = new File(args[i]);
-            InputStream inputStream = new BufferedInputStream(new FileInputStream(new File(args[i])));
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-            byte[] bytes = null;
-            try {
-                IOUtils.copy(inputStream, outputStream);
-                bytes = outputStream.toByteArray();
-            } catch (Exception e) {
-                inputStream.close();
-                outputStream.close();
-            }
-
-            service.reconcile(file.getName(), bytes);
+            service.reconcile(file);
         }
 
         ServiceLocator.instance().shutdown();
