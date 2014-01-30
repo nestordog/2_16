@@ -95,10 +95,10 @@ public class DCMarketDataServiceTest {
         EngineLocator.instance().setEngine("BASE", engine);
         FixSessionLifecycle lifeCycle = new DefaultFixSessionLifecycle();
 
-        lifeCycle.created();
-        lifeCycle.loggedOn();
+        lifeCycle.create();
+        lifeCycle.logon();
 
-        Assert.assertEquals(ConnectionState.LOGGED_ON, lifeCycle.getConnState());
+        Assert.assertEquals(ConnectionState.LOGGED_ON, lifeCycle.getConnectionState());
 
         // create externalMarketDataServiceImpl
         DCFixMarketDataServiceImpl impl = new DCFixMarketDataServiceImpl();
@@ -186,11 +186,11 @@ public class DCMarketDataServiceTest {
         EngineLocator.instance().setEngine("BASE", engine);
         FixSessionLifecycle lifeCycle = new DefaultFixSessionLifecycle();
 
-        lifeCycle.created();
-        lifeCycle.loggedOn();
-        lifeCycle.triggerSubscribe();
+        lifeCycle.create();
+        lifeCycle.logon();
+        lifeCycle.subscribe();
 
-        Assert.assertEquals(ConnectionState.SUBSCRIBED, lifeCycle.getConnState());
+        Assert.assertEquals(ConnectionState.SUBSCRIBED, lifeCycle.getConnectionState());
 
         // create externalMarketDataServiceImpl
         DCFixMarketDataServiceImpl externalMarketDataServiceImpl = new DCFixMarketDataServiceImpl();
