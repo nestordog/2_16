@@ -29,7 +29,6 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.spring.Configuration;
 
 import com.ib.client.EClientSocket;
 
@@ -46,21 +45,26 @@ public final class IBSession extends EClientSocket implements InitializingServic
 
     private static final Logger logger = MyLogger.getLogger(IBSession.class.getName());
 
-    private int clientId;
-    private final Configuration configuration;
+    private final int clientId;
+    private final String host;
+    private final int port;
     private final IBSessionLifecycle sessionLifecycle;
     private MarketDataService marketDataService;
 
-    public IBSession(int clientId, Configuration configuration, IBSessionLifecycle sessionLifecycle, AbstractIBMessageHandler messageHandler, MarketDataService marketDataService) {
+    public IBSession(int clientId, String host, int port, IBSessionLifecycle sessionLifecycle, AbstractIBMessageHandler messageHandler, MarketDataService marketDataService) {
 
         super(messageHandler);
 
-        Validate.notNull(configuration, "Configuration may not be null");
+        Validate.notNull(clientId, "host may not be 0");
+        Validate.notNull(host, "host may not be null");
+        Validate.notNull(port, "host may not be 0");
         Validate.notNull(sessionLifecycle, "IBSessionLifecycle may not be null");
 
         this.clientId = clientId;
-        this.configuration = configuration;
+        this.host = host;
+        this.port = port;
         this.sessionLifecycle = sessionLifecycle;
+
         this.marketDataService = marketDataService;
     }
 
@@ -71,7 +75,10 @@ public final class IBSession extends EClientSocket implements InitializingServic
 
     @Override
     public void destroy() {
-        disconnect();
+
+        if (isConnected()) {
+            eDisconnect();
+        }
     }
 
     public int getClientId() {
@@ -97,10 +104,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
             sleep();
         }
 
-        int port = this.configuration.getInt("ib.port"); //4001
-        String host = this.configuration.getString("ib.host"); // "127.0.0.1
-
-        eConnect(host, port, this.clientId);
+        eConnect(this.host, this.port, this.clientId);
 
         if (isConnected()) {
             this.sessionLifecycle.connect();
@@ -129,14 +133,12 @@ public final class IBSession extends EClientSocket implements InitializingServic
 
     private void sleep() {
 
-        long connectionTimeout = this.configuration.getInt("ib.connectionTimeout"); //10000;//
-
         try {
-            Thread.sleep(connectionTimeout);
+            Thread.sleep(10000);
         } catch (InterruptedException e1) {
             try {
                 // during eDisconnect this thread get's interrupted so sleep again
-                Thread.sleep(connectionTimeout);
+                Thread.sleep(10000);
             } catch (InterruptedException e2) {
                 logger.error("problem sleeping", e2);
             }
@@ -147,10 +149,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
 
         try {
 
-            int port = this.configuration.getInt("ib.port"); //7496;//
-            String host = this.configuration.getString("ib.host"); // "127.0.0.1";
-
-            Socket socket = new Socket(host, port);
+            Socket socket = new Socket(this.host, this.port);
             socket.close();
             return true;
         } catch (ConnectException e) {

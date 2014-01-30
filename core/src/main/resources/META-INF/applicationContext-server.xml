@@ -219,7 +219,8 @@
 
         <bean id="iBSession" class="ch.algotrader.adapter.ib.IBSession">
             <constructor-arg index="0" value="0"/>
-            <constructor-arg ref="configuration"/>
+            <constructor-arg index="1" value="localhost"/>
+            <constructor-arg index="2" value="4001"/>
             <constructor-arg ref="iBSessionLifecycle"/>
             <constructor-arg ref="iBMessageHandler"/>
             <constructor-arg ref="marketDataService"/>

@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.dc;
+package ch.algotrader.service.noop;
 
 import java.util.Date;
 import java.util.List;
@@ -26,18 +26,18 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
 
 /**
- * DukasCopy historical data service implementation.
+ * no-operation historical data service implementation.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class DCHistoricalDataServiceImpl extends DCHistoricalDataServiceBase {
+public class NoopHistoricalDataServiceImpl extends NoopHistoricalDataServiceBase {
 
     @Override
     protected List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType) throws Exception {
 
-        throw new UnsupportedOperationException("historical data not available with DukasCopy");
+        throw new UnsupportedOperationException("historical data not available");
     }
 
 }
