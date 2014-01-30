@@ -15,30 +15,41 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.sim;
-
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.FeedType;
+package ch.algotrader.adapter.ib;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class SimMarketDataServiceImpl extends SimMarketDataServiceBase {
+public class AccountUpdate {
 
-    @Override
-    protected void handleSubscribe(Security security) throws Exception {
-        // do nothing
+    final private String key;
+    final private String value;
+    final private String currency;
+    final private String accountName;
+
+    public AccountUpdate(String key, String value, String currency, String accountName) {
+        super();
+        this.key = key;
+        this.value = value;
+        this.currency = currency;
+        this.accountName = accountName;
     }
 
-    @Override
-    protected void handleUnsubscribe(Security security) throws Exception {
-        // do nothing
+    public String getKey() {
+        return this.key;
     }
 
-    @Override
-    protected FeedType handleGetFeedType() throws Exception {
-        return FeedType.SIM;
+    public String getValue() {
+        return this.value;
+    }
+
+    public String getCurrency() {
+        return this.currency;
+    }
+
+    public String getAccountName() {
+        return this.accountName;
     }
 }

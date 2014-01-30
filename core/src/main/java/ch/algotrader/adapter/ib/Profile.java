@@ -15,29 +15,38 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.dc;
+package ch.algotrader.adapter.ib;
 
-import java.util.Date;
-import java.util.List;
-
-import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.enumeration.BarType;
-import ch.algotrader.enumeration.Duration;
-import ch.algotrader.enumeration.TimePeriod;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * DukasCopy historical data service implementation.
- *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class DCHistoricalDataServiceImpl extends DCHistoricalDataServiceBase {
+public class Profile {
 
-    @Override
-    protected List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType) throws Exception {
+    private final String name;
+    Map<String, Double> allocations;
 
-        throw new UnsupportedOperationException("historical data not available with DukasCopy");
+    public Profile(String name) {
+        super();
+        this.name = name;
+        this.allocations = new HashMap<String, Double>();
+    }
+
+    public void putAllocation(String account, Double value) {
+
+        this.allocations.put(account, value);
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public Map<String, Double> getAllocations() {
+        return this.allocations;
     }
 
 }

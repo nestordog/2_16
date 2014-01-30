@@ -38,7 +38,7 @@ public class StockRetrievalStarter {
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
         IBNativeSecurityRetrieverService service = ServiceLocator.instance().getService("iBNativeSecurityRetrieverService", IBNativeSecurityRetrieverService.class);
 
-        service.init();
+        ServiceLocator.instance().initInitializingServices();
 
         for (int i = 1; i < args.length; i++) {
 

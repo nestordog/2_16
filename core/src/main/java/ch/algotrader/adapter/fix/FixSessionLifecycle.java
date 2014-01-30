@@ -20,7 +20,7 @@ package ch.algotrader.adapter.fix;
 import ch.algotrader.enumeration.ConnectionState;
 
 /**
- * FIX session life cycle handler.
+ * FIX session life cycle
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
@@ -28,14 +28,18 @@ import ch.algotrader.enumeration.ConnectionState;
  */
 public interface FixSessionLifecycle {
 
-    void created();
+    void create();
 
-    void loggedOn();
+    void logon();
 
-    void loggedOff();
+    void logoff();
 
-    boolean triggerSubscribe();
+    boolean subscribe();
 
-    ConnectionState getConnState();
+    boolean isLoggedOn();
+
+    boolean isSubscribed();
+
+    ConnectionState getConnectionState();
 
 }

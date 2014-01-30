@@ -60,7 +60,7 @@ public class DefaultFixApplicationFactory implements FixApplicationFactory {
 
     @Override
     public ConnectionState getConnectionState() {
-        return lifecycleHandler.getConnState();
+        return lifecycleHandler.getConnectionState();
     }
 
     @Override

@@ -23,14 +23,11 @@ import java.text.SimpleDateFormat;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.adapter.ib.IBIdGenerator;
-import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopOrderI;
-import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.util.MyLogger;
 
@@ -43,21 +40,12 @@ import com.ib.client.Contract;
  */
 public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
 
-    private static final long serialVersionUID = -7426452967133280762L;
-
     private static Logger logger = MyLogger.getLogger(IBNativeOrderServiceImpl.class.getName());
     private static DateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 
-    private static IBSession session;
-    private static boolean firstOrder = true;
-
     private @Value("${ib.faMethod}") String faMethod;
 
-    @Override
-    protected void handleInit() throws Exception {
-
-        session = getIBSessionFactory().getDefaultSession();
-    }
+    private static boolean firstOrder = true;
 
     @Override
     protected void handleValidateOrder(SimpleOrder order) throws Exception {
@@ -97,7 +85,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
 
     private synchronized void internalSendOrder(SimpleOrder order) throws Exception {
 
-        String intId = IBIdGenerator.getInstance().getNextOrderId();
+        String intId = getIBIdGenerator().getNextOrderId();
         order.setIntId(intId);
         sendOrModifyOrder(order);
     }
@@ -111,7 +99,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
     @Override
     protected void handleCancelOrder(SimpleOrder order) throws Exception {
 
-        if (session == null || session.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
+        if (!getIBSession().getLifecycle().isLoggedOn()) {
             logger.error("order cannot be cancelled, because IB is not logged on");
             return;
         }
@@ -119,7 +107,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
         // progapate the order (even though nothing actually changed) to be able to identify missing replies
         getOrderService().propagateOrder(order);
 
-        session.cancelOrder(Integer.parseInt(order.getIntId()));
+        getIBSession().cancelOrder(Integer.parseInt(order.getIntId()));
 
         logger.info("requested order cancellation for order: " + order);
     }
@@ -130,7 +118,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
      */
     private void sendOrModifyOrder(Order order) throws Exception {
 
-        if (session == null || session.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
+        if (!getIBSession().getLifecycle().isLoggedOn()) {
             logger.error("order cannot be sent / modified, because IB is not logged on");
             return;
         }
@@ -222,7 +210,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
         getOrderService().propagateOrder(order);
 
         // place the order through IBSession
-        session.placeOrder(Integer.parseInt(order.getIntId()), contract, ibOrder);
+        getIBSession().placeOrder(Integer.parseInt(order.getIntId()), contract, ibOrder);
 
         logger.info("placed or modified order: " + order);
     }

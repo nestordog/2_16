@@ -199,17 +199,56 @@
 
     </beans>
 
-    <!-- =================================== Broker Interfaces  ========================================= -->
+    <!-- =================================== Interactive Brokers  ========================================= -->
 
-    <beans profile="iBMarketData,iBNative,iBSecurityRetrieval">
-        <bean id="iBSessionFactory" class="ch.algotrader.adapter.ib.IBSessionFactory"/>
+    <beans profile="iBNative,iBMarketData,iBSecurityRetrieval,iBHistoricalData">
+
+        <bean id="iBSessionAdapter" class="ch.algotrader.adapter.ib.IBSessionAdapter"/>
+
+        <bean id="iBSessionLifecycle" class="ch.algotrader.adapter.ib.DefaultIBSessionLifecycle">
+            <property name="iBSession" ref="iBSession"/>
+        </bean>
+
+        <bean id="iBIdGenerator" class="ch.algotrader.adapter.ib.DefaultIBIdGenerator"/>
+
+        <!--  optional properties like marketDataService and queues are autowired -->
+        <bean id="iBMessageHandler" class="ch.algotrader.adapter.ib.DefaultIBMessageHandler" autowire="byName">
+            <property name="clientId" value="0"/>
+            <property name="sessionLifecycle" ref="iBSessionLifecycle"/>
+        </bean>
+
+        <bean id="iBSession" class="ch.algotrader.adapter.ib.IBSession">
+            <constructor-arg index="0" value="0"/>
+            <constructor-arg ref="configuration"/>
+            <constructor-arg ref="iBSessionLifecycle"/>
+            <constructor-arg ref="iBMessageHandler"/>
+            <constructor-arg ref="marketDataService"/>
+        </bean>
     </beans>
+
+    <beans profile="iBHistoricalData">
+        <bean id="historicalDataQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
+    </beans>
+
+    <beans profile="iBNative">
+        <bean id="accountUpdateQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
+        <bean id="accountsQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
+        <bean id="profilesQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
+    </beans>
+
+    <beans profile="iBSecurityRetrieval">
+        <bean id="contractDetailsQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
+    </beans>
+
+    <!-- =================================== Bloomberg  ========================================= -->
 
     <beans profile="bBMarketData,bBSecurityRetrieval">
         <bean id="bBSessionFactory" class="ch.algotrader.adapter.bb.BBSessionFactory"/>
     </beans>
 
-    <beans profile="jPMFix,iBFix,dCFix,rTFix">
+    <!-- =================================== Fix  ========================================= -->
+
+    <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData">
 
         <bean id="fixSessionSettings" class="ch.algotrader.adapter.fix.FixSessionSettingsFactoryBean"/>
 
@@ -230,6 +269,8 @@
 
     </beans>
 
+    <!-- =================================== JP Morgan  ========================================= -->
+
     <beans profile="jPMFix">
 
         <bean id="jPMOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
@@ -243,6 +284,9 @@
         </bean>
 
     </beans>
+
+    <!-- =================================== Interactive Brokers  ========================================= -->
+
 
     <beans profile="iBFix">
 
@@ -260,6 +304,8 @@
 
     </beans>
 
+    <!-- =================================== Real Tick  ========================================= -->
+
     <beans profile="rTFix">
 
         <bean id="rTOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
@@ -274,7 +320,17 @@
 
     </beans>
 
-    <beans profile="dCFix">
+    <!-- =================================== DukasCopy  ========================================= -->
+
+    <beans profile="dCMarketData,dCFix">
+
+        <bean id="dCLogonMessageHandler" class="ch.algotrader.adapter.dc.DCLogonMessageHandler">
+            <property name="settings" ref="fixSessionSettings"/>
+        </bean>
+
+    </beans>
+
+    <beans profile="dCMarketData">
 
         <bean id="dCLogonMessageHandler" class="ch.algotrader.adapter.dc.DCLogonMessageHandler">
             <property name="settings" ref="fixSessionSettings"/>
@@ -293,6 +349,10 @@
             <property name="lifecycleHandler" ref="dCMarketDataSessionLifeCycle"/>
             <property name="name" value="DCMD"/>
         </bean>
+
+    </beans>
+
+    <beans profile="dCFix">
 
         <bean id="dCOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
 

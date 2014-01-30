@@ -21,12 +21,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.adapter.ib.IBIdGenerator;
-import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
@@ -41,26 +38,14 @@ import com.ib.client.Contract;
  */
 public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase implements DisposableBean {
 
-    private static final long serialVersionUID = -4704799803078842628L;
     private static Logger logger = MyLogger.getLogger(IBNativeMarketDataServiceImpl.class.getName());
-    private static IBSession session;
 
     private @Value("${ib.genericTickList}") String genericTickList;
 
     @Override
-    protected void handleInit() throws Exception {
-
-        session = getIBSessionFactory().getDefaultSession();
-    }
-
-    @Override
     protected void handleInitSubscriptions() {
 
-        if (session != null && (session.getMessageHandler().getState().getValue() >= ConnectionState.LOGGED_ON.getValue()) && !session.getMessageHandler().isRequested()) {
-
-            session.getMessageHandler().setRequested(true);
-            session.getMessageHandler().setState(ConnectionState.SUBSCRIBED);
-
+        if (getIBSession().getLifecycle().subscribe()) {
             super.handleInitSubscriptions();
         }
     }
@@ -68,12 +53,12 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
     @Override
     protected void handleSubscribe(Security security) throws Exception {
 
-        if (session.getMessageHandler().getState().getValue() < ConnectionState.LOGGED_ON.getValue()) {
+        if (!getIBSession().getLifecycle().isLoggedOn()) {
             throw new IBNativeMarketDataServiceException("IB is not logged on to subscribe " + security);
         }
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
-        int tickerId = IBIdGenerator.getInstance().getNextRequestId();
+        int tickerId = getIBIdGenerator().getNextRequestId();
         Tick tick = Tick.Factory.newInstance();
         tick.setSecurity(security);
         tick.setFeedType(FeedType.IB);
@@ -87,7 +72,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
         // requestMarketData from IB
         Contract contract = IBUtil.getContract(security);
 
-        session.reqMktData(tickerId, contract, this.genericTickList, false);
+        getIBSession().reqMktData(tickerId, contract, this.genericTickList, false);
 
         logger.debug("requested market data for: " + security + " tickerId: " + tickerId);
     }
@@ -95,7 +80,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
     @Override
     protected void handleUnsubscribe(Security security) throws Exception {
 
-        if (!session.getMessageHandler().getState().equals(ConnectionState.SUBSCRIBED)) {
+        if (!getIBSession().getLifecycle().isSubscribed()) {
             throw new IBNativeMarketDataServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
         }
 
@@ -105,7 +90,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
             throw new IBNativeMarketDataServiceException("tickerId for security " + security + " was not found");
         }
 
-        session.cancelMktData(tickerId);
+        getIBSession().cancelMktData(tickerId);
 
         EngineLocator.instance().getBaseEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
 
@@ -120,8 +105,6 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
     @Override
     public void destroy() throws Exception {
 
-        if (session != null && session.isConnected()) {
-            session.disconnect();
-        }
+        getIBSession().disconnect();
     }
 }

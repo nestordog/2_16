@@ -21,12 +21,15 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
 
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.DisposableBean;
 
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.service.InitializingServiceI;
+import ch.algotrader.service.MarketDataService;
 import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.spring.Configuration;
 
 import com.ib.client.EClientSocket;
 
@@ -37,32 +40,46 @@ import com.ib.client.EClientSocket;
  *
  * @version $Revision$ $Date$
  */
-public final class IBSession extends EClientSocket {
+public final class IBSession extends EClientSocket implements InitializingServiceI, DisposableBean {
 
-    private static Logger logger = MyLogger.getLogger(IBSession.class.getName());
+    private static final long serialVersionUID = 6821739991866153788L;
 
-    private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
-    private static int port = ServiceLocator.instance().getConfiguration().getInt("ib.port"); //7496;//
-    private static String host = ServiceLocator.instance().getConfiguration().getString("ib.host"); // "127.0.0.1";
-    private static long connectionTimeout = ServiceLocator.instance().getConfiguration().getInt("ib.connectionTimeout"); //10000;//
+    private static final Logger logger = MyLogger.getLogger(IBSession.class.getName());
 
     private int clientId;
+    private final Configuration configuration;
+    private final IBSessionLifecycle sessionLifecycle;
+    private MarketDataService marketDataService;
 
-    /**
-     * Constructor based on a {@code clientId} and a {@code IBDefaultMessageHandler MessageHandler}
-     */
-    public IBSession(int clientId, IBDefaultMessageHandler messageHandler) {
+    public IBSession(int clientId, Configuration configuration, IBSessionLifecycle sessionLifecycle, AbstractIBMessageHandler messageHandler, MarketDataService marketDataService) {
 
         super(messageHandler);
+
+        Validate.notNull(configuration, "Configuration may not be null");
+        Validate.notNull(sessionLifecycle, "IBSessionLifecycle may not be null");
+
         this.clientId = clientId;
+        this.configuration = configuration;
+        this.sessionLifecycle = sessionLifecycle;
+        this.marketDataService = marketDataService;
     }
 
-    /**
-     * Returns the associated {@code IBDefaultMessageHandler MessageHandler}
-     */
-    public IBDefaultMessageHandler getMessageHandler() {
+    @Override
+    public void init() {
+        connect();
+    }
 
-        return (IBDefaultMessageHandler) super.wrapper();
+    @Override
+    public void destroy() {
+        disconnect();
+    }
+
+    public int getClientId() {
+        return this.clientId;
+    }
+
+    public IBSessionLifecycle getLifecycle() {
+        return this.sessionLifecycle;
     }
 
     /**
@@ -70,32 +87,31 @@ public final class IBSession extends EClientSocket {
      */
     public void connect() {
 
-        if (simulation) {
-            return;
-        }
-
         if (isConnected()) {
             eDisconnect();
 
             sleep();
         }
 
-        this.getMessageHandler().setRequested(false);
-
         while (!connectionAvailable()) {
             sleep();
         }
 
+        int port = this.configuration.getInt("ib.port"); //4001
+        String host = this.configuration.getString("ib.host"); // "127.0.0.1
+
         eConnect(host, port, this.clientId);
 
         if (isConnected()) {
-            this.getMessageHandler().setState(ConnectionState.LOGGED_ON);
+            this.sessionLifecycle.connect();
 
             // in case there is no 2104 message from the IB Gateway (Market data farm connection is OK)
             // manually invoke initSubscriptions after some time if there is marketDataService
-            if (ServiceLocator.instance().containsService("marketDataService")) {
-                sleep();
-                ServiceLocator.instance().getMarketDataService().initSubscriptions(FeedType.IB);
+            sleep();
+            if (this.sessionLifecycle.logon(true)) {
+                if (this.marketDataService != null) {
+                    this.marketDataService.initSubscriptions(FeedType.IB);
+                }
             }
         }
     }
@@ -107,11 +123,13 @@ public final class IBSession extends EClientSocket {
 
         if (isConnected()) {
             eDisconnect();
-            getMessageHandler().setState(ConnectionState.DISCONNECTED);
+            this.sessionLifecycle.disconnect();
         }
     }
 
     private void sleep() {
+
+        long connectionTimeout = this.configuration.getInt("ib.connectionTimeout"); //10000;//
 
         try {
             Thread.sleep(connectionTimeout);
@@ -128,6 +146,10 @@ public final class IBSession extends EClientSocket {
     private synchronized boolean connectionAvailable() {
 
         try {
+
+            int port = this.configuration.getInt("ib.port"); //7496;//
+            String host = this.configuration.getString("ib.host"); // "127.0.0.1";
+
             Socket socket = new Socket(host, port);
             socket.close();
             return true;

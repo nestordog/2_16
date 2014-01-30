@@ -25,7 +25,6 @@ import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataService;
-import ch.algotrader.service.InitializingServiceI;
 
 /**
  * Starter Class to download historical bars and update/replace bars in the database
@@ -61,12 +60,10 @@ public class HistoricalDataStarter {
         }
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+
+        ServiceLocator.instance().initInitializingServices();
+
         HistoricalDataService service = ServiceLocator.instance().getService("historicalDataService", HistoricalDataService.class);
-
-        if (service instanceof InitializingServiceI) {
-            ((InitializingServiceI) service).init();
-        }
-
         for (int securityId : securityIds) {
             if (update) {
                 service.updateHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);

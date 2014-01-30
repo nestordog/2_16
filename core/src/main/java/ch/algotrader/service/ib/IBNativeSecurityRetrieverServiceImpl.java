@@ -19,21 +19,15 @@ package ch.algotrader.service.ib;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.BlockingQueue;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.adapter.ib.IBDefaultMessageHandler;
-import ch.algotrader.adapter.ib.IBIdGenerator;
-import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.Option;
@@ -58,29 +52,13 @@ import com.ib.client.ContractDetails;
  */
 public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrieverServiceBase {
 
-    private static final long serialVersionUID = 6446509772400405052L;
+    private static final Logger logger = MyLogger.getLogger(IBNativeSecurityRetrieverServiceImpl.class.getName());
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
 
-    private static Logger logger = MyLogger.getLogger(IBNativeSecurityRetrieverServiceImpl.class.getName());
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+    private BlockingQueue<ContractDetails> contractDetailsQueue;
 
-    private IBSession session;
-    private IBDefaultMessageHandler messageHandler;
-
-    private Lock lock = new ReentrantLock();
-    private Condition condition = this.lock.newCondition();
-
-    private List<ContractDetails> contractDetailsList;
-
-    private static int sessionId = 3;
-
-    @Override
-    protected void handleInit() throws java.lang.Exception {
-
-        this.messageHandler = new IBSecurityRetrieverMessageHandler(sessionId);
-
-        this.session = getIBSessionFactory().getSession(sessionId, this.messageHandler);
-
-        this.session.connect();
+    public void setContractDetailsQueue(BlockingQueue<ContractDetails> contractDetailsQueue) {
+        this.contractDetailsQueue = contractDetailsQueue;
     }
 
     @Override
@@ -88,49 +66,38 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
         SecurityFamily securityFamily = getSecurityFamilyDao().get(securityFamilyId);
 
-        this.contractDetailsList = new ArrayList<ContractDetails>();
+        int requestId = getIBIdGenerator().getNextRequestId();
+        Contract contract = new Contract();
 
-        IBNativeSecurityRetrieverServiceImpl.this.lock.lock();
+        contract.m_symbol = securityFamily.getBaseSymbol(Broker.IB);
 
-        try {
+        contract.m_currency = securityFamily.getCurrency().toString();
 
-            int requestId = IBIdGenerator.getInstance().getNextRequestId();
-            Contract contract = new Contract();
+        contract.m_exchange = securityFamily.getMarket(Broker.IB);
 
-            contract.m_symbol = securityFamily.getBaseSymbol(Broker.IB);
+        contract.m_multiplier = String.valueOf(securityFamily.getContractSize());
 
-            contract.m_currency = securityFamily.getCurrency().toString();
-
-            contract.m_exchange = securityFamily.getMarket(Broker.IB);
-
-            contract.m_multiplier = String.valueOf(securityFamily.getContractSize());
-
-            if (securityFamily instanceof OptionFamily) {
-                contract.m_secType = "OPT";
-            } else if (securityFamily instanceof FutureFamily) {
-                contract.m_secType = "FUT";
-            } else {
-                throw new IllegalArgumentException("illegal securityFamily type");
-            }
-
-            if (securityFamily.getTradingClass() != null) {
-                contract.m_tradingClass = securityFamily.getTradingClass();
-            }
-
-            this.session.reqContractDetails(requestId, contract);
-
-            // await retrieval of contractDetails
-            this.condition.await();
-
-        } finally {
-            IBNativeSecurityRetrieverServiceImpl.this.lock.unlock();
+        if (securityFamily instanceof OptionFamily) {
+            contract.m_secType = "OPT";
+        } else if (securityFamily instanceof FutureFamily) {
+            contract.m_secType = "FUT";
+        } else {
+            throw new IllegalArgumentException("illegal securityFamily type");
         }
 
-        // process retrieved contractDetails
+        if (securityFamily.getTradingClass() != null) {
+            contract.m_tradingClass = securityFamily.getTradingClass();
+        }
+
+        // send request
+        getIBSession().reqContractDetails(requestId, contract);
+
+        Set<ContractDetails> contractDetailsSet = retrieveContractDetails();
+
         if (securityFamily instanceof OptionFamily) {
-            retrieveOptions((OptionFamily) securityFamily);
+            retrieveOptions((OptionFamily) securityFamily, contractDetailsSet);
         } else if (securityFamily instanceof FutureFamily) {
-            retrieveFutures((FutureFamily) securityFamily);
+            retrieveFutures((FutureFamily) securityFamily, contractDetailsSet);
         } else {
             throw new IllegalArgumentException("illegal securityFamily type");
         }
@@ -141,43 +108,44 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
         SecurityFamily securityFamily = getSecurityFamilyDao().get(securityFamilyId);
 
-        this.contractDetailsList = new ArrayList<ContractDetails>();
+        int requestId = getIBIdGenerator().getNextRequestId();
+        Contract contract = new Contract();
 
-        IBNativeSecurityRetrieverServiceImpl.this.lock.lock();
+        contract.m_symbol = symbol;
 
-        try {
+        contract.m_currency = securityFamily.getCurrency().toString();
 
-            int requestId = IBIdGenerator.getInstance().getNextRequestId();
-            Contract contract = new Contract();
+        contract.m_exchange = securityFamily.getMarket(Broker.IB);
 
-            contract.m_symbol = symbol;
+        contract.m_secType = "STK";
 
-            contract.m_currency = securityFamily.getCurrency().toString();
+        getIBSession().reqContractDetails(requestId, contract);
 
-            contract.m_exchange = securityFamily.getMarket(Broker.IB);
+        Set<ContractDetails> contractDetailsSet = retrieveContractDetails();
 
-            contract.m_secType = "STK";
-
-            this.session.reqContractDetails(requestId, contract);
-
-            // await retrieval of contractDetails
-            this.condition.await();
-
-        } finally {
-            IBNativeSecurityRetrieverServiceImpl.this.lock.unlock();
-        }
-
-        retrieveStocks(securityFamily);
+        retrieveStocks(securityFamily, contractDetailsSet);
     }
 
-    private void retrieveOptions(OptionFamily securityFamily) throws Exception {
+    private Set<ContractDetails> retrieveContractDetails() throws InterruptedException {
+
+        Set<ContractDetails> contractDetailsSet = new HashSet<ContractDetails>();
+
+        ContractDetails contractDetails;
+        while (!((contractDetails = this.contractDetailsQueue.take()).m_summary.m_symbol == null)) {
+            contractDetailsSet.add(contractDetails);
+        }
+
+        return contractDetailsSet;
+    }
+
+    private void retrieveOptions(OptionFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws Exception {
 
         // get all current options
         Set<Security> existingOptions = new TreeSet<Security>(getComparator());
         existingOptions.addAll(getOptionDao().findBySecurityFamily(securityFamily.getId()));
 
         Set<Option> newOptions = new TreeSet<Option>();
-        for (ContractDetails contractDetails : this.contractDetailsList) {
+        for (ContractDetails contractDetails : contractDetailsSet) {
 
             Option option = Option.Factory.newInstance();
 
@@ -212,14 +180,14 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         logger.debug("retrieved options for optionfamily: " + securityFamily.getName() + " " + newOptions);
     }
 
-    private void retrieveFutures(FutureFamily securityFamily) throws Exception {
+    private void retrieveFutures(FutureFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws Exception {
 
         // get all current futures
         Set<Future> existingFutures = new TreeSet<Future>(getComparator());
         existingFutures.addAll(getFutureDao().findBySecurityFamily(securityFamily.getId()));
 
         Set<Future> newFutures = new TreeSet<Future>();
-        for (ContractDetails contractDetails : this.contractDetailsList) {
+        for (ContractDetails contractDetails : contractDetailsSet) {
 
             Future future = Future.Factory.newInstance();
 
@@ -250,7 +218,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         logger.debug("retrieved futures for futurefamily: " + securityFamily.getName() + " " + newFutures);
     }
 
-    private void retrieveStocks(SecurityFamily securityFamily) throws Exception {
+    private void retrieveStocks(SecurityFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws Exception {
 
         // get all current stocks
         Set<Stock> existingStocks = new TreeSet<Stock>(getComparator());
@@ -258,7 +226,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
         // contractDetailsList most likely only contains one entry
         Set<Stock> newStocks = new TreeSet<Stock>();
-        for (ContractDetails contractDetails : this.contractDetailsList) {
+        for (ContractDetails contractDetails : contractDetailsSet) {
 
             Stock stock = Stock.Factory.newInstance();
 
@@ -293,57 +261,5 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             }
         };
         return comparator;
-    }
-
-    private class IBSecurityRetrieverMessageHandler extends IBDefaultMessageHandler {
-
-        private IBSecurityRetrieverMessageHandler(int clientId) {
-            super(clientId);
-        }
-
-        @Override
-        public void contractDetails(int reqId, ContractDetails contractDetails) {
-
-            IBNativeSecurityRetrieverServiceImpl.this.contractDetailsList.add(contractDetails);
-        }
-
-        @Override
-        public void contractDetailsEnd(int reqId) {
-
-            IBNativeSecurityRetrieverServiceImpl.this.lock.lock();
-
-            try {
-                IBNativeSecurityRetrieverServiceImpl.this.condition.signalAll();
-            } finally {
-                IBNativeSecurityRetrieverServiceImpl.this.lock.unlock();
-            }
-        }
-
-        @Override
-        public void connectionClosed() {
-
-            super.connectionClosed();
-
-            IBNativeSecurityRetrieverServiceImpl.this.session.connect();
-        }
-
-        @Override
-        public void error(int id, int code, String errorMsg) {
-
-            if (code == 200) {
-
-                logger.warn("No security definition has been found for the request");
-
-                IBNativeSecurityRetrieverServiceImpl.this.lock.lock();
-
-                try {
-                    IBNativeSecurityRetrieverServiceImpl.this.condition.signalAll();
-                } finally {
-                    IBNativeSecurityRetrieverServiceImpl.this.lock.unlock();
-                }
-            } else {
-                super.error(id, code, errorMsg);
-            }
-        }
     }
 }

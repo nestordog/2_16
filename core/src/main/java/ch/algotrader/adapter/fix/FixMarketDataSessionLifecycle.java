@@ -41,9 +41,9 @@ public class FixMarketDataSessionLifecycle extends DefaultFixSessionLifecycle {
     }
 
     @Override
-    public void loggedOn() {
+    public void logon() {
 
-        super.loggedOn();
+        super.logon();
 
         marketDataService.initSubscriptions(feedType);
     }

@@ -19,7 +19,6 @@ package ch.algotrader.starter;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.service.InitializingServiceI;
 
 /**
  * Abstract Base Class for starting the Base in Live Trading Mode
@@ -38,8 +37,6 @@ public abstract class BaseStarter {
         EngineLocator.instance().getBaseEngine().deployAllModules();
 
         // initialize services
-        for (InitializingServiceI service : ServiceLocator.instance().getServices(InitializingServiceI.class)) {
-            service.init();
-        }
+        ServiceLocator.instance().initInitializingServices();
     }
 }

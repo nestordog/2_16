@@ -26,4 +26,24 @@
             <to><![CDATA[<property name="fixSessionLifecycle" ref="dCMarketDataSessionLifeCycle"/>]]></to>
         </mapping>
 
+        <!-- add historicalDataQueue IBNativeHistoricalDataService -->
+        <mapping>
+            <from><![CDATA[<!-- IBNativeHistoricalDataService service property merge-point -->]]></from>
+            <to><![CDATA[    <property name="historicalDataQueue" ref="historicalDataQueue"/>]]></to>
+        </mapping>
+
+        <!-- add contractDetailsQueue to IBNativeSecurityRetrieverService -->
+        <mapping>
+            <from><![CDATA[<!-- IBNativeSecurityRetrieverService service property merge-point -->]]></from>
+            <to><![CDATA[    <property name="contractDetailsQueue" ref="contractDetailsQueue"/>]]></to>
+        </mapping>
+
+        <!-- add queues to IBNativeAccountService -->
+        <mapping>
+            <from><![CDATA[<!-- IBNativeAccountService service property merge-point -->]]></from>
+            <to><![CDATA[    <property name="accountUpdateQueue" ref="accountUpdateQueue"/>
+            <property name="accountsQueue" ref="accountsQueue"/>
+            <property name="profilesQueue" ref="profilesQueue"/>]]></to>
+        </mapping>
+
 </mappings>

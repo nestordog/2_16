@@ -18,40 +18,16 @@
 package ch.algotrader.adapter.ib;
 
 /**
- * IB Request and Order Id Generator.
- *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public final class IBIdGenerator {
+public interface IBIdGenerator {
 
-    private static IBIdGenerator instance;
-    private int requestId = 1;
-    private int orderId = 1;
+    String getNextOrderId();
 
-    public static synchronized IBIdGenerator getInstance() {
+    int getNextRequestId();
 
-        if (instance == null) {
-            instance = new IBIdGenerator();
-        }
-        return instance;
-    }
+    void initializeOrderId(int orderId);
 
-    public synchronized String getNextOrderId() {
-        return String.valueOf(this.orderId++);
-    }
-
-    public synchronized int getNextRequestId() {
-        return this.requestId++;
-    }
-
-    public void initializeOrderId(int orderId) {
-        this.orderId = orderId;
-    }
-
-    public boolean isOrderIdInitialized() {
-
-        return this.orderId != -1;
-    }
 }

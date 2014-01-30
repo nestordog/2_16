@@ -17,30 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.util.concurrent.BlockingQueue;
 
 import org.apache.log4j.Logger;
-import org.apache.xpath.XPathAPI;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.annotation.Value;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.traversal.NodeIterator;
-import org.xml.sax.InputSource;
 
-import ch.algotrader.adapter.ib.IBDefaultMessageHandler;
-import ch.algotrader.adapter.ib.IBSession;
+import ch.algotrader.adapter.ib.AccountUpdate;
+import ch.algotrader.adapter.ib.Profile;
 import ch.algotrader.util.MyLogger;
 
 /**
@@ -48,39 +32,24 @@ import ch.algotrader.util.MyLogger;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase implements DisposableBean {
+public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase {
 
-    private static final long serialVersionUID = -9010045320078819079L;
+    private static final Logger logger = MyLogger.getLogger(IBNativeAccountServiceImpl.class.getName());
 
-    private static Logger logger = MyLogger.getLogger(IBNativeAccountServiceImpl.class.getName());
+    private BlockingQueue<AccountUpdate> accountUpdateQueue;
+    private BlockingQueue<Set<String>> accountsQueue;
+    private BlockingQueue<Profile> profilesQueue;
 
-    private @Value("${ib.faEnabled}") boolean faEnabled;
-    private @Value("${ib.retrievalTimeout}") int retrievalTimeout;
+    public void setAccountUpdateQueue(BlockingQueue<AccountUpdate> accountUpdateQueue) {
+        this.accountUpdateQueue = accountUpdateQueue;
+    }
 
-    private IBSession session;
-    private IBDefaultMessageHandler messageHandler;
+    public void setAccountsQueue(BlockingQueue<Set<String>> accountsQueue) {
+        this.accountsQueue = accountsQueue;
+    }
 
-    private Lock lock = new ReentrantLock();
-    private Condition condition = this.lock.newCondition();
-
-    private Map<String, Map<String, String>> allAccountValues;
-    private Set<String> accounts;
-    private Map<String, Map<String, Double>> profiles;
-
-    private static int sessionId = 1;
-
-    @Override
-    protected void handleInit() throws java.lang.Exception {
-
-        this.messageHandler = new IBAccountMessageHandler(sessionId);
-
-        this.session = getIBSessionFactory().getSession(sessionId, this.messageHandler);
-
-        this.allAccountValues = new HashMap<String, Map<String, String>>();
-        this.accounts = new HashSet<String>();
-        this.profiles = new HashMap<String, Map<String, Double>>();
-
-        this.session.connect();
+    public void setProfilesQueue(BlockingQueue<Profile> profilesQueue) {
+        this.profilesQueue = profilesQueue;
     }
 
     @Override
@@ -118,165 +87,34 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase imple
 
     private String retrieveAccountValue(String accountName, String currency, String key) throws InterruptedException {
 
-        IBNativeAccountServiceImpl.this.lock.lock();
+        getIBSession().reqAccountUpdates(true, accountName);
 
-        try {
+        while (true) {
 
-            IBNativeAccountServiceImpl.this.allAccountValues.put(accountName, new HashMap<String, String>());
-
-            this.session.reqAccountUpdates(true, accountName);
-
-            while (this.allAccountValues.get(accountName) == null || this.allAccountValues.get(accountName).get(key) == null) {
-
-                if (!this.condition.await(this.retrievalTimeout, TimeUnit.SECONDS)) {
-                    throw new IBNativeAccountServiceException("could not get EquityWithLoanValue for account: " + accountName);
-                }
+            AccountUpdate accountUpdate = this.accountUpdateQueue.take();
+            if (accountName.equals(accountUpdate.getAccountName()) && key.equals(accountUpdate.getKey())) {
+                return accountUpdate.getValue();
             }
-        } finally {
-            IBNativeAccountServiceImpl.this.lock.unlock();
         }
-        return this.allAccountValues.get(accountName).get(key);
     }
 
     private Set<String> getAccounts() throws Exception {
 
-        if (this.accounts.size() == 0) {
+        getIBSession().requestFA(1);
 
-            IBNativeAccountServiceImpl.this.lock.lock();
-
-            try {
-
-                this.session.requestFA(1);
-
-                while (this.accounts.size() == 0) {
-
-                    if (!this.condition.await(this.retrievalTimeout, TimeUnit.SECONDS)) {
-                        throw new IBNativeAccountServiceException("could not get FA ");
-                    }
-                }
-            } finally {
-                IBNativeAccountServiceImpl.this.lock.unlock();
-            }
-        }
-        return this.accounts;
+        return this.accountsQueue.take();
     }
 
     private Map<String, Double> getAllocations(String strategyName) throws Exception {
 
-        if (this.profiles.size() == 0) {
+        getIBSession().requestFA(2);
 
-            IBNativeAccountServiceImpl.this.lock.lock();
+        while (true) {
 
-            try {
-
-                this.session.requestFA(2);
-
-                while (this.profiles.size() == 0) {
-
-                    if (!this.condition.await(this.retrievalTimeout, TimeUnit.SECONDS)) {
-                        throw new IBNativeAccountServiceException("could not get FA ");
-                    }
-                }
-            } finally {
-                IBNativeAccountServiceImpl.this.lock.unlock();
+            Profile profile = this.profilesQueue.take();
+            if (strategyName.toUpperCase().equals(profile.getName())) {
+                return profile.getAllocations();
             }
-        }
-
-        return this.profiles.get(strategyName.toUpperCase());
-    }
-
-    @Override
-    public void destroy() throws Exception {
-
-        if (this.session != null) {
-            this.session.disconnect();
-        }
-    }
-
-    private class IBAccountMessageHandler extends IBDefaultMessageHandler {
-
-        public IBAccountMessageHandler(int clientId) {
-            super(clientId);
-        }
-
-        @Override
-        public void updateAccountValue(String key, String value, String currency, String accountName) {
-
-            IBNativeAccountServiceImpl.this.lock.lock();
-
-            try {
-
-                Map<String, String> values = IBNativeAccountServiceImpl.this.allAccountValues.get(accountName);
-                values.put(key, value);
-
-                IBNativeAccountServiceImpl.this.condition.signalAll();
-
-            } finally {
-                IBNativeAccountServiceImpl.this.lock.unlock();
-            }
-        }
-
-        @Override
-        public void receiveFA(int faDataType, String xml) {
-
-            IBNativeAccountServiceImpl.this.lock.lock();
-
-            try {
-
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                Document document = builder.parse(new InputSource(new StringReader(xml)));
-
-                if (faDataType == 1) {
-
-                    // parse the document using XPath
-                    NodeIterator iterator = XPathAPI.selectNodeIterator(document, "//Group[name='AllClients']/ListOfAccts/String");
-
-                    // get accounts
-                    Node node;
-                    IBNativeAccountServiceImpl.this.accounts = new HashSet<String>();
-                    while ((node = iterator.nextNode()) != null) {
-                        IBNativeAccountServiceImpl.this.accounts.add(node.getFirstChild().getNodeValue());
-                    }
-
-                } else if (faDataType == 2) {
-
-                    // parse the document using XPath
-                    NodeIterator profileIterator = XPathAPI.selectNodeIterator(document, "//AllocationProfile");
-
-                    Node profileNode;
-                    IBNativeAccountServiceImpl.this.profiles = new HashMap<String, Map<String, Double>>();
-                    while ((profileNode = profileIterator.nextNode()) != null) {
-                        String name = XPathAPI.selectSingleNode(profileNode, "name/text()").getNodeValue();
-
-                        // get allocations
-                        NodeIterator allocationIterator = XPathAPI.selectNodeIterator(profileNode, "ListOfAllocations/Allocation");
-                        Map<String, Double> allocations = new HashMap<String, Double>();
-                        Node allocationNode;
-                        while ((allocationNode = allocationIterator.nextNode()) != null) {
-                            String account = XPathAPI.selectSingleNode(allocationNode, "acct/text()").getNodeValue();
-                            String amount = XPathAPI.selectSingleNode(allocationNode, "amount/text()").getNodeValue();
-                            allocations.put(account, Double.valueOf(amount));
-                        }
-                        IBNativeAccountServiceImpl.this.profiles.put(name, allocations);
-                    }
-                }
-
-                IBNativeAccountServiceImpl.this.condition.signalAll();
-
-            } catch (Exception e) {
-                IBNativeAccountServiceImpl.logger.error("error parsing fa document", e);
-            } finally {
-                IBNativeAccountServiceImpl.this.lock.unlock();
-            }
-        }
-
-        @Override
-        public void connectionClosed() {
-
-            super.connectionClosed();
-
-            IBNativeAccountServiceImpl.this.session.connect();
         }
     }
 }

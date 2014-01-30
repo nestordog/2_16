@@ -20,7 +20,6 @@ package ch.algotrader.starter;
 import java.text.ParseException;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.SecurityRetrieverService;
 
 /**
@@ -37,12 +36,10 @@ public class SecurityRetrievalStarter {
     public static void main(String[] args) throws ParseException {
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+
+        ServiceLocator.instance().initInitializingServices();
+
         SecurityRetrieverService service = ServiceLocator.instance().getService("securityRetrieverService", SecurityRetrieverService.class);
-
-        if (service instanceof InitializingServiceI) {
-            ((InitializingServiceI) service).init();
-        }
-
         for (String arg : args) {
 
             int securityFamilyId = Integer.parseInt(arg);

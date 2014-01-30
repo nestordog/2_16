@@ -40,7 +40,6 @@ import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataService;
-import ch.algotrader.service.ib.IBNativeHistoricalDataService;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvTickWriter;
@@ -80,9 +79,8 @@ public class IBHistoricalTickDataStarter {
         }
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        IBNativeHistoricalDataService service = ServiceLocator.instance().getService("historicalDataService", IBNativeHistoricalDataService.class);
 
-        service.init();
+        ServiceLocator.instance().initInitializingServices();
 
         download1MinTicks(securityIds, barTypes, startDate, endDate);
 

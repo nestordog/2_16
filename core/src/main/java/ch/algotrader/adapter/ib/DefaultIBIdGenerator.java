@@ -15,29 +15,35 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.dc;
-
-import java.util.Date;
-import java.util.List;
-
-import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.enumeration.BarType;
-import ch.algotrader.enumeration.Duration;
-import ch.algotrader.enumeration.TimePeriod;
+package ch.algotrader.adapter.ib;
 
 /**
- * DukasCopy historical data service implementation.
+ * IB Request and Order Id Generator.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class DCHistoricalDataServiceImpl extends DCHistoricalDataServiceBase {
+public final class DefaultIBIdGenerator implements IBIdGenerator {
+
+    private int requestId = 1;
+    private int orderId = -1;
 
     @Override
-    protected List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType) throws Exception {
-
-        throw new UnsupportedOperationException("historical data not available with DukasCopy");
+    public synchronized String getNextOrderId() {
+        return String.valueOf(this.orderId++);
     }
 
+    @Override
+    public synchronized int getNextRequestId() {
+        return this.requestId++;
+    }
+
+    public void initializeOrderId(int orderId) {
+        this.orderId = orderId;
+    }
+
+    public boolean isOrderIdInitialized() {
+        return this.orderId != -1;
+    }
 }

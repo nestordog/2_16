@@ -39,32 +39,44 @@ public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
     }
 
     @Override
-    public void created() {
+    public void create() {
 
         this.connState.compareAndSet(ConnectionState.DISCONNECTED, ConnectionState.CONNECTED);
     }
 
     @Override
-    public void loggedOn() {
+    public void logon() {
 
           this.connState.compareAndSet(ConnectionState.CONNECTED, ConnectionState.LOGGED_ON);
     }
 
     @Override
-    public void loggedOff() {
+    public void logoff() {
 
         this.connState.set(ConnectionState.CONNECTED);
     }
 
     @Override
-    public ConnectionState getConnState() {
+    public boolean subscribe() {
 
-        return connState.get();
+        return this.connState.compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.SUBSCRIBED);
     }
 
     @Override
-    public boolean triggerSubscribe() {
+    public boolean isLoggedOn() {
 
-        return this.connState.compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.SUBSCRIBED);
+        return this.connState.get().getValue() >= ConnectionState.LOGGED_ON.getValue();
+    }
+
+    @Override
+    public boolean isSubscribed() {
+
+        return this.connState.get().getValue() >= ConnectionState.SUBSCRIBED.getValue();
+    }
+
+    @Override
+    public ConnectionState getConnectionState() {
+
+        return this.connState.get();
     }
 }

@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import ch.algotrader.adapter.fix.FixSessionLifecycle;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.ib.IBNativeMarketDataServiceException;
@@ -65,7 +64,7 @@ public abstract class FixMarketDataServiceImpl extends FixMarketDataServiceBase 
     @Override
     protected void handleInitSubscriptions() {
 
-        if (getFixSessionLifecycle().triggerSubscribe()) {
+        if (getFixSessionLifecycle().subscribe()) {
             super.handleInitSubscriptions();
         }
     }
@@ -73,7 +72,7 @@ public abstract class FixMarketDataServiceImpl extends FixMarketDataServiceBase 
     @Override
     protected void handleSubscribe(Security security) throws Exception {
 
-        if (getFixSessionLifecycle().getConnState().compareTo(ConnectionState.LOGGED_ON) < 0) {
+        if (!getFixSessionLifecycle().isLoggedOn()) {
             throw new FixMarketDataServiceException("Fix session is not logged on to subscribe " + security);
         }
 
@@ -102,7 +101,7 @@ public abstract class FixMarketDataServiceImpl extends FixMarketDataServiceBase 
     @Override
     protected void handleUnsubscribe(Security security) throws Exception {
 
-        if (!ConnectionState.SUBSCRIBED.equals(getFixSessionLifecycle().getConnState())) {
+        if (!getFixSessionLifecycle().isSubscribed()) {
             throw new IBNativeMarketDataServiceException("Fix session ist not subscribed, security cannot be unsubscribed " + security);
         }
 

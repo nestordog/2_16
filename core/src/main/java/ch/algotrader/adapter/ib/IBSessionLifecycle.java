@@ -15,29 +15,35 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.dc;
+package ch.algotrader.adapter.ib;
 
-import java.util.Date;
-import java.util.List;
-
-import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.enumeration.BarType;
-import ch.algotrader.enumeration.Duration;
-import ch.algotrader.enumeration.TimePeriod;
+import ch.algotrader.enumeration.ConnectionState;
 
 /**
- * DukasCopy historical data service implementation.
+ * IB session life cycle
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class DCHistoricalDataServiceImpl extends DCHistoricalDataServiceBase {
+public interface IBSessionLifecycle {
 
-    @Override
-    protected List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType) throws Exception {
+    void connect();
 
-        throw new UnsupportedOperationException("historical data not available with DukasCopy");
-    }
+    void disconnect();
+
+    boolean logon(boolean maintained);
+
+    void logoff();
+
+    boolean subscribe();
+
+    boolean isConnected();
+
+    boolean isLoggedOn();
+
+    boolean isSubscribed();
+
+    ConnectionState getConnectionState();
 
 }
