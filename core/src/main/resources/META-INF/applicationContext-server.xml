@@ -97,6 +97,12 @@
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+
+    <bean id="hibernateSessionAnnotationAdvisor" class="ch.algotrader.util.spring.HibernateSessionAnnotationAdvisor">
+      <property name="hibernateInterceptor" ref="hibernateInterceptor"/>
+    </bean>
+
     <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>

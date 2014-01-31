@@ -18,8 +18,6 @@
 package ch.algotrader;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
 
 import org.springframework.beans.factory.access.BeanFactoryLocator;
 import org.springframework.beans.factory.access.BeanFactoryReference;
@@ -159,16 +157,7 @@ public abstract class AbstractServiceLocator {
      */
     public final <T> Collection<T> getServices(Class<T> clazz) {
 
-        Map<String, T> serviceMap = getContext().getBeansOfType(clazz);
-        Collection<T> services = new HashSet<T>();
-        for (String serviceName : serviceMap.keySet()) {
-
-            // wo only want the proxys from applicationContext.xml
-            if (!serviceName.startsWith("ch.algotrader.service")) {
-                services.add(serviceMap.get(serviceName));
-            }
-        }
-        return services;
+        return getContext().getBeansOfType(clazz).values();
     }
 
     /**
