@@ -54,7 +54,7 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
         Currency currency = !"".equals(currencyString) ? Currency.fromValue(currencyString) : null;
         TransactionType transactionType = TransactionType.fromValue(transactionTypeString);
 
-        getTransactionService().createTransaction(securityId, strategyName, extId, dateTime, quantity, price, executionCommission, clearingCommission, currency, transactionType, accountName);
+        getTransactionService().createTransaction(securityId, strategyName, extId, dateTime, quantity, price, executionCommission, clearingCommission, currency, transactionType, accountName, null);
     }
 
     @Override

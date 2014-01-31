@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.EntityTest;
-import ch.algotrader.entity.strategy.PortfolioValueDao;
 
 /**
  * @author <a href="mailto:amasood@algotrader.ch">Ahmad Masood</a>
@@ -43,12 +42,6 @@ public class PortfolioValueTest extends EntityTest {
     public void testFindByStrategyAndMinDate() {
 
         this.portfolioValueDao.findByStrategyAndMinDate(null, null);
-    }
-
-    @Test
-    public void testFindByStrategyOrBaseAndMinDate() {
-
-        this.portfolioValueDao.findByStrategyOrBaseAndMinDate(null, null);
     }
 
 }

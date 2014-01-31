@@ -147,28 +147,21 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
         // only process performanceRelevant transactions
         if (transaction.isPerformanceRelevant()) {
 
-            // create and save the portfolio value
-            PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(transaction.getStrategy().getName());
+            // check if there is an existing portfolio value
+            Collection<PortfolioValue> portfolioValues = getPortfolioValueDao().findByStrategyAndMinDate(transaction.getStrategy().getName(), transaction.getDateTime());
 
-            portfolioValue.setCashFlow(transaction.getGrossValue());
-            portfolioValue.setDateTime(transaction.getDateTime());
+            if (portfolioValues.size() > 0) {
 
-            getPortfolioValueDao().create(portfolioValue);
-        }
+                logger.warn("transaction date is in the past, please restore portfolio values");
 
-        // if there have been PortfolioValues created since this transaction, they will need to be recreated (including PortfolioValues of Base)
-        List<PortfolioValue> portfolioValues = getPortfolioValueDao().findByStrategyOrBaseAndMinDate(transaction.getStrategy().getName(), transaction.getDateTime());
+            } else {
 
-        if (portfolioValues.size() > 0) {
+                // create and save the portfolio value
+                PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(transaction.getStrategy().getName());
 
-            getPortfolioValueDao().remove(portfolioValues);
+                portfolioValue.setCashFlow(transaction.getGrossValue());
 
-            restorePortfolioValues(transaction.getStrategy(), transaction.getDateTime(), new Date());
-
-            if (!transaction.getStrategy().isBase()) {
-
-                Strategy strategy = getStrategyDao().findBase();
-                restorePortfolioValues(strategy, transaction.getDateTime(), new Date());
+                getPortfolioValueDao().create(portfolioValue);
             }
         }
     }
@@ -176,25 +169,30 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
     @Override
     protected void handleRestorePortfolioValues(Strategy strategy, Date fromDate, Date toDate) throws Exception {
 
-        // same cron as SAVE_PORTFOLIO_VALUE (but one hour behind to get 14 - 24)
-        CronSequenceGenerator cron = new CronSequenceGenerator("0 0 13-23 * * 1-5", TimeZone.getDefault());
+        // delete existing portfolio values;
+        List<PortfolioValue> portfolioValues = getPortfolioValueDao().findByStrategyAndMinDate(strategy.getName(), fromDate);
 
-        // adjust fromDate and toDate by one one or to be inline with above
-        Date adjustedFromDate = DateUtils.addHours(fromDate, -1);
-        Date adjustedToDate = DateUtils.addHours(toDate, -1);
+        if (portfolioValues.size() > 0) {
+
+            getPortfolioValueDao().remove(portfolioValues);
+
+            // need to flush since new portfoliovalues will be created with same date and strategy
+            getSessionFactory().getCurrentSession().flush();
+        }
+
+        // init cron
+        CronSequenceGenerator cron = new CronSequenceGenerator("0 0 * * * 1-5", TimeZone.getDefault());
 
         // group PortfolioValues by strategyId and date
         Map<MultiKey<Long>, PortfolioValue> portfolioValueMap = new HashMap<MultiKey<Long>, PortfolioValue>();
 
         // create portfolioValues for all cron time slots
-        Date adjustedDate = cron.next(adjustedFromDate);
-        while (adjustedDate.compareTo(adjustedToDate) <= 0) {
-
-            Date date = DateUtils.addHours(adjustedDate, 1); // to get 14 - 24
+        Date date = cron.next(DateUtils.addHours(fromDate, -1));
+        while (date.compareTo(toDate) <= 0) {
 
             PortfolioValue portfolioValue = getPortfolioService().getPortfolioValue(strategy.getName(), date);
             if (portfolioValue.getNetLiqValueDouble() == 0) {
-                adjustedDate = cron.next(adjustedDate);
+                date = cron.next(date);
                 continue;
             } else {
                 MultiKey<Long> key = new MultiKey<Long>((long) strategy.getId(), date.getTime());
@@ -202,7 +200,7 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
 
                 logger.info("processed portfolioValue for " + strategy.getName() + " " + date);
 
-                adjustedDate = cron.next(adjustedDate);
+                date = cron.next(date);
             }
         }
 
