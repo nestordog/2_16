@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.service.dc;
 
+import org.apache.commons.lang.Validate;
+
 import quickfix.field.OrdType;
 import quickfix.field.OrderID;
 import quickfix.field.Price;
@@ -34,7 +36,6 @@ import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.dc.DCFixOrderServiceBase;
 
 /**
  * DukasCopy order service implementation.
@@ -79,6 +80,8 @@ public class DCFixOrderServiceImpl extends DCFixOrderServiceBase {
     @Override
     protected void handleModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) throws Exception {
 
+        Validate.notNull(order.getExtId(), "missing ExtId on order");
+
         // Note: DukasCopy uses StopLimit for Limit orders
         if (order instanceof LimitOrder) {
             replaceRequest.set(new OrdType(OrdType.STOP_LIMIT));
@@ -102,6 +105,8 @@ public class DCFixOrderServiceImpl extends DCFixOrderServiceBase {
 
     @Override
     protected void handleCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) throws Exception {
+
+        Validate.notNull(order.getExtId(), "missing ExtId on order");
 
         // set the extId
         cancelRequest.set(new OrderID(order.getExtId()));

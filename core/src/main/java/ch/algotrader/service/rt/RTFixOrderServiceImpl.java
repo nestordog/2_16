@@ -19,6 +19,8 @@ package ch.algotrader.service.rt;
 
 import java.util.Date;
 
+import org.apache.commons.lang.Validate;
+
 import quickfix.field.Account;
 import quickfix.field.ExecInst;
 import quickfix.field.HandlInst;
@@ -78,6 +80,8 @@ public class RTFixOrderServiceImpl extends RTFixOrderServiceBase {
 
     @Override
     protected void handleCancelOrder(final SimpleOrder order, final OrderCancelRequest cancelRequest) throws Exception {
+
+        Validate.notNull(order.getExtId(), "missing ExtId on order");
 
         // handling for accounts
         if (order.getAccount().getExtAccount() != null) {
