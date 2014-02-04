@@ -7292,10 +7292,10 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
         </section>
     </chapter>
     <chapter id="Broker_Interfaces">
-        <title>Broker Interfaces</title>
-        <para>The System provides generic interface functions to connect AlgoTrader to different
-            broker systems.</para>
-        <para>The following broker specific interfaces are currently available:</para>
+        <title>Broker/Venue Interfaces</title>
+        <para>The System provides generic interface functions to connect AlgoTrader to different brokers /
+            venues.</para>
+        <para>The following broker / venue specific interfaces are currently available:</para>
         <itemizedlist>
             <listitem>
                 <para>InteractiveBrokers via Native API</para>
@@ -7316,276 +7316,129 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
         </itemizedlist>
         <para>AlgoTrader uses <ulink url="http://www.quickfixj.org/"> QuickFix/J</ulink> for all fix
             interfaces.</para>
-        <para>The generic broker interface consists of the two abstract services
-            ExternalOrderService and MarketDataService. Every broker specific implementation has to
-            subclass these services e.g. IBNativeOrderService or FixOrderService (with corresponding
-            subclasses like Fix42OrderService or IBFixOrderService).</para>
+        <para>The generic broker / venue interface consists of the abstract service ExternalOrderService .
+            Every broker / venue specific implementation has to subclass these services e.g.
+            IBNativeOrderService or FixOrderService (with corresponding subclasses like
+            Fix42OrderService or IBFixOrderService).</para>
+        <para>The diagram below shows all currently implemented Order Services, for details please see
+                <xref linkend="Adapters"/>:</para>
+        <figure>
+            <title>Order Services</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata scalefit="1" fileref="images/OrderServices.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <section>
-            <title>Orders &amp; Fills</title>
-            <para>The UML Activity Diagram on the right explains a typical order/execution
-                process.</para>
-            <figure>
-                <title>Order Execution Process</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata scalefit="1" fileref="images/OrderExecutionProcess.gif"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
-            <para>The diagram below shows all currently implemented Order Services:</para>
-            <figure>
-                <title>Order Services</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata scalefit="1" fileref="images/OrderServices.png"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
+            <title>Place Order</title>
+            <para>Before sending an Order, it is advised to call the
+                    <methodname>validate</methodname> method on the order. This will validate the
+                order regarding limits, amount, quantity, etc. In case validation fails, the order
+                can be modified. Note: the validate method will be called (again) inside the
+                sendOrder method, in case the validation fails, this time an Exception will be
+                thrown.</para>
+            <para>The method <methodname>sendOrder</methodname> of the
+                    <classname>OrderService</classname> is responsible for placing Orders. This
+                method takes an <classname>Order</classname> object as parameter. </para>
+            <para>The <methodname>sendOrder</methodname> method is responsible for invoking the
+                broker / venue specific method <methodname>sendOrder</methodname> of the
+                    <classname>ExternalOrderService</classname>. The method
+                    <methodname>sendOrder</methodname> is contained within the generic
+                    <classname>ExternalOrderService</classname>, where it is marked abstract, so it
+                will have to be implemented by every broker / venue specific subclass.</para>
+            <para>The broker / venue specific <classname>ExternalOrderService</classname> will
+                create the broker / venue specific order, assign an <parameter>intId</parameter>
+                (i.e. <parameter>orderNumber</parameter>) and send the order to the broker /
+                venue.</para>
+            <para>After sending the Order to the broker / venue, the order object is propagated to
+                the BASE Esper service instance (running inside the Base) as well as to the Esper
+                service instance of the corresponding strategy (where potential actions like
+                    <emphasis>cancel order</emphasis> or <emphasis>modify order</emphasis> can be
+                executed).</para>
+            <para>In addition Open Orders are stored in the <classname>OpenOrderWindow</classname>
+                until their full execution or cancellation.</para>
             <section>
-                <title>Place Order</title>
-                <para>Before sending an Order, it is advised to call the
-                        <methodname>validate</methodname> method on the order. This will validate
-                    the order regarding limits, amount, quantity, etc. In case validation fails, the
-                    order can be modified. Note: the validate method will be called (again) inside
-                    the sendOrder method, in case the validation fails, this time an Exception will
-                    be thrown.</para>
-                <para>The method <methodname>sendOrder</methodname> of the <classname>OrderService</classname>
-                    is responsible for placing Orders. This method takes an
-                        <classname>Order</classname> object as parameter. </para>
-                <para>The <methodname>sendOrder</methodname> method is responsible for invoking the
-                    broker specific method <methodname>sendOrder</methodname> of the
-                        <classname>ExternalOrderService</classname>. The method
-                        <methodname>sendOrder</methodname> is contained within the generic
-                        <classname>ExternalOrderService</classname>, where it is marked abstract, so
-                    it will have to be implemented by every broker specific subclass.</para>
-                <para>The broker specific <classname>ExternalOrderService</classname> will assign an
-                        <parameter>intId</parameter> (i.e. <parameter>orderNumber</parameter>),
-                    create and place the broker specific Order.</para>
-                <para>After sending the Order to the broker, the order object is propagated  to the BASE Esper
-                    service instance (running inside the Base) as well as to the Esper service
-                    instance of the corresponding strategy (where potential actions like
-                        <emphasis>cancel order</emphasis> or <emphasis>modify order</emphasis> can
-                    be executed).</para>
-                <para>In addition Open Orders are stored in the
-                        <classname>OpenOrderWindow</classname> until their full execution or
-                    cancellation.</para>
-                <section id="Trade_Suggestions">
-                    <title>Trade Suggestions</title>
-                    <para>If the second parameter of the The method
-                            <methodname>OrderService.sendOrder</methodname> named
-                            <parameter>suggest</parameter> is set to true, there will not be an
-                        actual Order going to the Broker but instead an Email with a Trade
-                        Suggestion is sent to the registered Email addresses. This allows for manual
-                        confirmation of automatically generated Signals.</para>
-                </section>
-            </section>
-            <section>
-                <title>Receive Fills</title>
-                <para>Whenever order status events and fills are received back from the broker,
-                        <classname>OrderStatus</classname> and <classname>Fill</classname> objects /
-                    events are created and propagated to the BASE Esper service Instance.</para>
-                <para>The Fill events trigger the <methodname>createTransaction</methodname> method
-                    of the <classname>TransactionService</classname> which will create a
-                        <classname>Transaction</classname> object (a persistent Record in the
-                    database) based on the Fill. In addition the Fill and corresponding Transactions
-                    are also propagated to the strategy, where actions can be taken upon.</para>
-                <note>
-                    <para>Fills and Transactions are separated from each other for the following
-                        reason. A Fill contains all the information received from the broker (and a
-                        reference to the Order). Whereas a Transaction contains all the information
-                        related to accounting (i.e. references to position and strategy). In
-                        addition to Transactions related to Fills, there are Transactions that are
-                        independent of Fills (i.e. Deposits, Withdrawls, Intrest, etc.).</para>
-                </note>
-                <para>Like Fills and Transactions the generic <classname>OrderStatus</classname>
-                    will also be propagated to the corresponding strategy.</para>
-                <para>The statement LOG_TRANSACTION_SUMMARY of the <filename>module-trades.epl</filename> is
-                    responsible for collecting all OrderStatus events for an order and produce one
-                    combined log statement.</para>
-                <para>The <classname>OpenOrderWindow</classname> is updated based on every
-                    OrderStatus event (e.g. increase filledQuantity &amp; reduce remainingQuantity).
-                    Once the Order is fully executed, it will be removed from the
-                        <classname>OpenOrderWindow</classname> (after a delay of 1 sec).</para>
-                <para>If an order does not receive either an Acknowledgment or Fill 1 sec after
-                    sending the Order, an Exception is thrown, as there might be a problem with the
-                    broker connection.</para>
-            </section>
-            <section>
-                <title>Fix Interface</title>
-                <para>AlgoTrader uses <ulink url="http://www.quickfixj.org/"> QuickFix/J</ulink> for it's Fix
-                    connections and currently supports FIX 4.2 and 4.4. Because FIX messages are not
-                    compatible between different version, the two distinct services
-                        <classname>Fix42OrderService</classname> and
-                        <classname>Fix44OrderService</classname> exist. Incoming messages are
-                    handled by their corresponding <classname>Fix42MessageHandler</classname> and
-                        <classname>Fix44MessageHandler</classname>, which are responsible for
-                    creating <classname>OrderStatus</classname> and <classname>Fill</classname>
-                    events.</para>
-                <para>The Fix infrastructure consists of the following classes:</para>
-                <table frame="all" pgwide="1">
-                    <title>Fix Infrastructure</title>
-                    <tgroup cols="2">
-                        <colspec colwidth="1.2*"/>
-                        <colspec colwidth="2*"/>
-                        <thead>
-                            <row>
-                                <entry>Class</entry>
-                                <entry>Description</entry>
-                            </row>
-                        </thead>
-                        <tbody>
-                            <row>
-                                <entry>
-                                    <classname>FixClient</classname>
-                                </entry>
-                                <entry>the main entry point into the Fix environment. It is
-                                    responsible for starting up the QuickFix/J engine, creating
-                                    dynamic sessions, sending Messages and managing
-                                    OrderIds.</entry>
-                            </row>
-                            <row>
-                                <entry>
-                                    <classname>FixApplication</classname>
-                                </entry>
-                                <entry>for each session a <classname>FixApplication</classname>
-                                    object is created. It will forward incoming messages to the
-                                    corresponding <classname>MessageHandler</classname>
-                                </entry>
-                            </row>
-                            <row>
-                                <entry>
-                                    <classname>FixApplicationFactory</classname>
-                                </entry>
-                                <entry>custom <classname>FixApplicationFactory</classname> needed to
-                                    create one <classname>FixApplication</classname> per
-                                    session</entry>
-                            </row>
-                            <row>
-                                <entry>
-                                    <classname>FixMultiApplicationSessionFactory</classname>
-                                </entry>
-                                <entry>custom <classname>SessionFactory</classname> needed to
-                                    created one <classname>FixApplication</classname> per
-                                    session</entry>
-                            </row>
-                            <row>
-                                <entry>
-                                    <classname>FixCodeGenerator</classname>
-                                </entry>
-                                <entry>Used to generate Custom Fix Messages and Fields based on XML
-                                    QuickFix/J definition files.</entry>
-                            </row>
-                            <row>
-                                <entry>
-                                    <classname>FixUtil</classname>
-                                </entry>
-                                <entry>Contains utility methods for parsing incoming Fix messages
-                                    (e.g. getStatus)</entry>
-                            </row>
-                        </tbody>
-                    </tgroup>
-                </table>
-                <note>
-                    <para>QuickFix/J currently supports daily sessions (with a daily session 7 times
-                        a week) and weekly sessions (with one weekly session). However some brokers
-                        (e.g. JP Morgan) use daily sessions but only during workdays. To accomplish
-                        this scenario, the FixClient allows creation of a weekly logon/logoff event
-                        (e.g. Mo 08:00:00 and Fr 18:00:00) using two Esper Statements per Fix
-                        Session</para>
-                </note>
-            </section>
-            <section>
-                <title>OrderId Format</title>
-                <para>The Order Entity is marked as <emphasis>transient</emphasis>, therefore its
-                    local id property is always 0. However the order has two additional properties
-                    intId and extId. intId is the internally (by the Base) assigned OrderId whereas
-                    extId is the externally (by the broker) assigned OrderId.</para>
-                <para>In general the intId has the following format:</para>
-                <literallayout>&lt;session_qualifier&gt;&lt;id&gt;.&lt;version&gt;</literallayout>
-                <itemizedlist>
-                    <listitem>
-                        <para>session_qualifier: each session (i.e. FIX session) has a unique
-                            session qualifier</para>
-                    </listitem>
-                    <listitem>
-                        <para>id: an integer which is auto-incremented per session. For Fix, the
-                            last id is retrieved from the Fix-Log during start up</para>
-                    </listitem>
-                    <listitem>
-                        <para>version: The number of modifications that took place on the Order,
-                            starting with 0 when the order is first submitted.</para>
-                    </listitem>
-                </itemizedlist>
+                <title>Trade Suggestions</title>
+                <para>In addition to the <methodname>OrderService.sendOrder</methodname> method
+                    there is a <methodname>OrderService.suggestOrder</methodname> method, which will
+                    not send out an order to the broker / venue but instead create an Email with a
+                    Trade Suggestion sent to the registered Email addresses. This allows for manual
+                    confirmation of automatically generated Signals.</para>
             </section>
         </section>
         <section>
-            <title>Broker specific implementations</title>
-            <section>
-                <title>IB Native Interface</title>
-                <para>The native IB Interface connects to the local TWS or IB Gateway instance and
-                    uses methods supplied by the IB client. The interface is fully capable of
-                    handling IB's Financial Advisor functionality like Sub Accounts, Account Groups
-                    and Allocation Profiles.</para>
-                <para>Currently the IB interface is the only option for receiving incoming Market
-                    Data.</para>
-            </section>
-            <section>
-                <title>IB Fix Interface</title>
-                <para>The IB Fix Interface provides the same Order Management features as the IB
-                    Native Interface. However Market Data is not available through this
-                    interface.</para>
-                <para>The interface is fully capable of handling IB's Financial Advisor
-                    functionality like Sub Accounts, Account Groups and Allocation Profiles.</para>
-            </section>
-            <section>
-                <title>Real Tick</title>
-                <para>RealTick provides connectivity to about 30 institutional and 10 retail
-                    brokers. The Fix Implementation of RealTick is well conforming with the Fix
-                    Standard no customizations had to be made</para>
-            </section>
-            <section>
-                <title>JP Morgan Fix Interface</title>
-                <para>As the JP Morgan Fix Implementation is well conforming with the Fix Standard no
-                    customizations had to be made</para>
-            </section>
-            <section>
-                <title>DukasCopy Fix Interface</title>
-                <para>The DukasCopy Fix Implementation does not follow the Fix Standard very well,
-                    so quite a few customizations had to be made including a fully independent
-                        <classname>MessageHandler</classname> (not subclassing any of the existing
-                        <classname>FixMessageHandler</classname> classes)</para>
-                <itemizedlist>
-                    <listitem>
-                        <para>usage of StopLimit for Limit orders</para>
-                    </listitem>
-                    <listitem>
-                        <para>usage of Price for Stop orders instead of StopPx</para>
-                    </listitem>
-                    <listitem>
-                        <para>does not support Securitytype</para>
-                    </listitem>
-                    <listitem>
-                        <para>does not use ExecType instead it uses only OrdStatus</para>
-                    </listitem>
-                    <listitem>
-                        <para>requires OrderID (tag 37) for order modifications</para>
-                    </listitem>
-                    <listitem>
-                        <para>does not return OrigClOrdID</para>
-                    </listitem>
-                    <listitem>
-                        <para>does not use OrderStatus PARTIALLY_FILLED</para>
-                    </listitem>
-                    <listitem>
-                        <para>does not use LastPx but only AvgPx</para>
-                    </listitem>
-                </itemizedlist>
-            </section>
+            <title>Receive Fills</title>
+            <para>Whenever order status events and fills are received back from the broker / venue,
+                    <classname>OrderStatus</classname> and <classname>Fill</classname> objects /
+                events are created and propagated to the BASE Esper service Instance.</para>
+            <para>The Fill events trigger the <methodname>createTransaction</methodname> method of
+                the <classname>TransactionService</classname> which will create a
+                    <classname>Transaction</classname> object (a persistent Record in the database)
+                based on the Fill. In addition the Fill and corresponding Transactions are also
+                propagated to the strategy, where actions can be taken upon.</para>
+            <note>
+                <para>Fills and Transactions are separated from each other for the following reason.
+                    A Fill contains all the information received from the broker / venue (and a
+                    reference to the Order). Whereas a Transaction contains all the information
+                    related to accounting (i.e. references to position and strategy). In addition to
+                    Transactions related to Fills, there are Transactions that are independent of
+                    Fills (i.e. Deposits, Withdrawls, Intrest, etc.).</para>
+            </note>
+            <para>Like Fills and Transactions the generic <classname>OrderStatus</classname> will
+                also be propagated to the corresponding strategy.</para>
+            <para>The statement LOG_TRANSACTION_SUMMARY of the
+                    <filename>module-trades.epl</filename> is responsible for collecting all
+                OrderStatus events for an order and produce one combined log statement.</para>
+            <para>The <classname>OpenOrderWindow</classname> is updated based on every OrderStatus
+                event (e.g. increase filledQuantity &amp; reduce remainingQuantity). Once the Order
+                is fully executed, it will be removed from the
+                    <classname>OpenOrderWindow</classname> (after a delay of 1 sec).</para>
+            <para>If an order does not receive either an Acknowledgment or Fill within a
+                configurable time period (default: 1 sec) after sending the Order, an Exception is
+                thrown, as there might be a problem with the broker / venue connection.</para>
+        </section>
+        <section>
+            <title>OrderId Format</title>
+            <para>The Order Entity is marked as <emphasis>transient</emphasis>, therefore its local id
+                property (set by Hibernate) is always 0. However the order has two additional
+                properties intId and extId. intId is the internallyassigned OrderId whereas extId is
+                the id assigned by the external broker / venue.</para>
+            <para>In general the intId has the following format:</para>
+            <literallayout>&lt;session_qualifier&gt;&lt;id&gt;.&lt;version&gt;</literallayout>
+            <itemizedlist>
+                <listitem>
+                    <para>session_qualifier: each session (i.e. FIX session) has a unique session
+                        qualifier</para>
+                </listitem>
+                <listitem>
+                    <para>id: an integer which is auto-incremented per session. For Fix, the last id
+                        is retrieved from the Fix-Log during start up</para>
+                </listitem>
+                <listitem>
+                    <para>version: The number of modifications that took place on the Order,
+                        starting with 0 when the order is first submitted.</para>
+                </listitem>
+            </itemizedlist>
         </section>
     </chapter>
     <chapter id="Market_Data">
         <title>Market Data</title>
-        <para>AlgoTrader provides Market Data Interfaces for both Bloomberg and Interactive Brokers. </para>
+        <para>AlgoTrader provides Market Data Interfaces with the following market data providers: </para>
+        <itemizedlist>
+            <listitem>
+                <para>Bloomberg via Native API</para>
+            </listitem>
+            <listitem>
+                <para>Interactive Brokers via Native API</para>
+            </listitem>
+            <listitem>
+                <para>DukasCopy via Fix</para>
+            </listitem>
+        </itemizedlist>
+        <para>AlgoTrader allows to have multiple market data interfaces active at the same time so
+            market data received from different market data providers can be compared in
+            real-time.</para>
         <para>To enable either of those Market Data Interfaces the following two steps have to be
             executed: </para>
         <orderedlist>
@@ -7593,29 +7446,29 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                 <para>The correct Spring Profile has to be activated according to <xref linkend="Spring-Profiles"/></para>
             </listitem>
             <listitem>
-                <para>Either <literal>market-data-ib</literal> or <literal>market-data-bb</literal>
-                    has to be added to the column <literal>INIT_MODULES</literal> of the
-                        <literal>strategy</literal> table</para>
+                <para>Either <literal>market-data-ib</literal>, <literal>market-data-bb</literal> or
+                        <literal>market-data-dc</literal> has to be added to the column
+                        <literal>INIT_MODULES</literal> of the <literal>strategy</literal>
+                    table</para>
             </listitem>
         </orderedlist>
-        <para>Both Market Data Interfaces have a set of unique artifacts:</para>
+        <para>All Market Data Interfaces have a set of unique artifacts:</para>
         <itemizedlist>
             <listitem>
                 <para>Configuration Files (<filename>conf-ib.properties</filename> and
                         <filename>conf-bb.properties</filename>)</para>
             </listitem>
             <listitem>
-                <para>SessionFactory Classes (e.g. <classname>IBSessionFactory</classname>)
-                    responsible for creating Sessions. SessionFactories are available over
-                    JMX</para>
+                <para>Adapter Classes (e.g. <classname>IBAdapter</classname>) responsible for management of
+                    Sessions. Adapters are available over JMX</para>
             </listitem>
             <listitem>
                 <para>Session Classes (e.g. <classname>IBSession</classname>). Representing an
                     individual Market Data Connection</para>
             </listitem>
             <listitem>
-                <para>MessageHandler Classes (e.g. <classname>BBMessageHandler</classname>)
-                    responsible for receiving MarketDataEvents an propagating them into Esper</para>
+                <para>MessageHandler Classes (e.g. <classname>BBMessageHandler</classname>) responsible for
+                    receiving MarketDataEvents and propagating them into Esper</para>
             </listitem>
             <listitem>
                 <para>Esper Modules (e.g. <literal>market-data-ib</literal>) responsible for
@@ -7636,9 +7489,9 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
                     market)</para>
             </listitem>
         </itemizedlist>
-        <para>As the following diagram shows, Broker Interfaces can provide Price Events (Trade, Bid &amp;
-            Ask) or individual Tick Fields. In Simulation Ticks or Bars can be provided through
-            CSV-Files.</para>
+        <para>As the following diagram shows, market data providers can provide Price Events (Trade, Bid
+            &amp; Ask) or individual Tick Fields. In Simulation Ticks or Bars can be provided
+            through CSV-Files.</para>
         <figure>
             <title>Market Data Event Types</title>
             <mediaobject>
@@ -7648,19 +7501,22 @@ a=105 avgY=34.60% stdY=20.33% sharpe=1.69 maxDDM=11.56% bestMP=8.39% ... </scree
             </mediaobject>
         </figure>
         <para>Processing of MarketData is handled through the <classname>MarketDataService</classname>,
-            which is marked abstract and will have to be subclassed by broker specific
-            implementations (e.g. <classname>IBMarketDataService</classname> or
+            which calls the the market data provider specific
+                <classname>ExternalMarketDataService</classname>. The class
+                <classname>ExternalMarketDataService</classname> is marked abstract and will have to
+            be subclassed by market data provider specific implementations (e.g.
+                <classname>IBMarketDataService</classname> or
                 <classname>BBMarketDataService</classname>).</para>
-        <para>The most important methods provided by the <classname>MarketDataService</classname>
-            are <methodname>subscribe</methodname> and <methodname>unsubscribe</methodname>. Through
+        <para>The most important methods provided by the <classname>MarketDataService</classname> are
+                <methodname>subscribe</methodname> and <methodname>unsubscribe</methodname>. Through
             the use of these methods new MarketData can be subscribed and unsubscribed. Subscribed
             securities are persisted within the DB-table <parameter>subscription</parameter>. The
-            actual subscription of securities to the external broker is done through the broker
-            specific MarketDataService.</para>
-        <para>Broker Interfaces are responsible for receiving Broker specific Market Data and
-            sending them into the Esper Service Instance Base. The Esper Service Instance Base will
-            then convert these Events into generic MarketDataEvents (i.e. Ticks or Bars) which will
-            be propagated to subscribed Strategies.</para>
+            actual subscription of securities to the external broker is done through the market data
+            provider specific MarketDataService.</para>
+        <para>market data provider interfaces are responsible for receiving market data provider specific
+            Market Data and sending them into the Esper Service Instance Base. The Esper Service
+            Instance Base will then convert these Events into generic MarketDataEvents (i.e. Ticks
+            or Bars) which will be propagated to subscribed Strategies.</para>
         <figure>
             <title>Market Data Propagation</title>
             <mediaobject>
@@ -7966,9 +7822,12 @@ subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
                 interface the corresponding <parameter>marketData</parameter> profile has to be
                 specified on the command line.</para>
             <para>InteractiveBrokers:</para>
-            <screen>-Dspring.profiles.active=iBMarketData</screen>
+            <screen>-Dspring.profiles.active=iBHistoricalData</screen>
             <para>Bloomberg:</para>
-            <screen>-Dspring.profiles.active=bBMarketData</screen>
+            <screen>-Dspring.profiles.active=bBHistoricalData</screen>
+            <para>In case a historical data service is not required the followin no-op Historical
+                Data Service has to be configured</para>
+            <screen>-Dspring.profiles.active=noopHistoricalData</screen>
             <para>In addition to the <classname>HistoricalDataStarter</classname> there is a class
                 called <classname>IBHistoricalTickDataStarter</classname> which can be used to
                 download historical one minute Ticks from InteractiveBrokers and save them into CSV
@@ -8007,6 +7866,371 @@ subscriptionService.subscribeGenericEvents(genericEvents);</programlisting>
                     <classname>SecurityFamily</classname> has a property
                     <parameter>maxGap</parameter>, that defines the maximum number of minutes
                 allowed without any market data updates.</para>
+        </section>
+    </chapter>
+    <chapter id="Adapters">
+        <title>Adapters</title>
+        <para>The following sections give a detailed overview of the different adapters available
+            for AlgoTrader.</para>
+        <section>
+            <title>Fix Interface</title>
+            <para>AlgoTrader uses <ulink url="http://www.quickfixj.org/"> QuickFix/J</ulink> for it's Fix
+                connections and currently supports FIX 4.2 and 4.4. Because FIX messages are not
+                compatible between different version, the two distinct services
+                    <classname>Fix42OrderService</classname> and
+                    <classname>Fix44OrderService</classname> exist. Incoming messages are handled by
+                their corresponding <classname>Fix42MessageHandler</classname> and
+                    <classname>Fix44MessageHandler</classname>.</para>
+            <para>The Fix infrastructure consists of the following classes:<figure>
+                    <title>Fix Classes</title>
+                    <mediaobject>
+                        <imageobject>
+                            <imagedata scalefit="1" fileref="images/FixClasses.png"/>
+                        </imageobject>
+                    </mediaobject>
+                </figure></para>
+            <table frame="all" pgwide="1">
+                <title>Fix Infrastructure</title>
+                <tgroup cols="2">
+                    <colspec colwidth="1.5*"/>
+                    <colspec colwidth="2*"/>
+                    <thead>
+                        <row>
+                            <entry>Class / Interface</entry>
+                            <entry>Description</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry><interface>Session</interface></entry>
+                            <entry>A <interface>Session</interface> represents a connection to a
+                                broker / venue / market data provider</entry>
+                        </row>
+                        <row>
+                            <entry><interface>Application</interface></entry>
+                            <entry morerows="1">For each <interface>Session</interface> an
+                                    <interface>Application</interface> object is created. It will
+                                forward incoming messages to the corresponding
+                                    <classname>MessageHandlers</classname>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry><classname>DefaultFixApplication</classname></entry>
+                        </row>
+                        <row>
+                            <entry><interface>FixApplicationFactory</interface></entry>
+                            <entry morerows="1">Is responsible for the creation of
+                                    <interface>Applications</interface></entry>
+                        </row>
+                        <row>
+                            <entry><classname>DefaultFixApplicationFactory</classname></entry>
+                        </row>
+                        <row>
+                            <entry><classname>FixMultiApplicationSessionFactory</classname></entry>
+                            <entry>
+                                <para>Creates a <interface>Session</interface> and
+                                        <interface>Application</interface> using the specified
+                                        <interface>FixApplicationFactory</interface> according to
+                                    the following steps: <itemizedlist>
+                                        <listitem>
+                                            <para>lookup the
+                                                <interface>FixApplicationFactory</interface> by
+                                                its name </para>
+                                        </listitem>
+                                        <listitem>
+                                            <para>create an <interface>Application</interface>
+                                            </para>
+                                        </listitem>
+                                        <listitem>
+                                            <para>create a
+                                                <classname>DefaultSessionFactory</classname>
+                                            </para>
+                                        </listitem>
+                                        <listitem>
+                                            <para>create a <interface>Session</interface>
+                                            </para>
+                                        </listitem>
+                                    </itemizedlist></para>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry><interface>FixSessionLifecycle</interface>
+                            </entry>
+                            <entry morerows="1">Represents the current state of a
+                                    <interface>Session</interface> (i.e.
+                                    <literal>DISCONNECTED</literal>, <literal>CONNECTED</literal>,
+                                    <literal>LOGGED_ON</literal> and
+                                <literal>SUBSCRIBED</literal>)</entry>
+                        </row>
+                        <row>
+                            <entry><classname>DefaultFixSessionLifecycle</classname></entry>
+                        </row>
+                        <row>
+                            <entry><classname>MarketDataFixSessionLifecycle</classname></entry>
+                            <entry>A <interface>FixSessionLifecycle</interface> for market data
+                                sessions that will subscribe to instruments as soon as the session
+                                is logged on.</entry>
+                        </row>
+                        <row>
+                            <entry><interface>FixOrderIdGenerator</interface></entry>
+                            <entry morerows="1">Generator for Fix Order Ids. The default
+                                implementation reads the last Order Ids from the Fix log on
+                                start-up.</entry>
+                        </row>
+                        <row>
+                            <entry><classname>DefaultFixOrderIdGenerator</classname></entry>
+                        </row>
+                        <row>
+                            <entry><interface>FixAdapter</interface>
+                            </entry>
+                            <entry morerows="1">Management Adapter for the Fix environment. Allows
+                                the creation of dynamic sessions, sending Messages and managing
+                                OrderIds.</entry>
+                        </row>
+                        <row>
+                            <entry><classname>DefaultFixAdapter</classname></entry>
+                        </row>
+                        <row>
+                            <entry><classname>ManagedFixAdapter</classname></entry>
+                            <entry>Manageable implementation of a <interface>FixAdapter</interface>
+                                (based on JMX)</entry>
+                        </row>
+                        <row>
+                            <entry><interface>FixEventScheduler</interface></entry>
+                            <entry morerows="2">QuickFix/J currently supports daily sessions (with a
+                                daily session 7 times a week) and weekly sessions (with one weekly
+                                session). However some brokers (e.g. JP Morgan) use daily sessions
+                                during workdays. To accomplish this scenario, AlgoTrader allows
+                                creation of a weekly logon/logoff event (e.g. Mo 08:00:00 and Fr
+                                18:00:00) using Esper Statements</entry>
+                        </row>
+                        <row>
+                            <entry><classname>DefaultFixEventScheduler</classname></entry>
+                        </row>
+                        <row>
+                            <entry><classname>EventPattern</classname></entry>
+                        </row>
+                        <row>
+                            <entry><classname>FixSocketInitiatorFactoryBean</classname></entry>
+                            <entry>A Spring Factory Bean that creates the
+                                    <classname>SocketInitiator</classname> necessary for all Fix
+                                Sessions.</entry>
+                        </row>
+                        <row>
+                            <entry><classname>Fix42MarketDataMessageHandler</classname></entry>
+                            <entry morerows="1">Message Handler for incoming Fix market data
+                                messages. These classes need to be subclassed by the corresponding
+                                market data interface. Messages are propagated into the Esper
+                                Engine.</entry>
+                        </row>
+                        <row>
+                            <entry><classname>Fix44MarketDataMessageHandler</classname></entry>
+                        </row>
+                        <row>
+                            <entry><classname>Fix42OrderMessageHandler</classname></entry>
+                            <entry morerows="1">Message Handler for incoming Fix ExecutionReports. These classes need to
+                                be subclassed by the corresponding order interface. Messages are
+                                propagated into the Esper Engine.</entry>
+                        </row>
+                        <row>
+                            <entry><classname>Fix44OrderMessageHandler</classname></entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </section>
+        <section>
+            <title>IB Native Interface</title>
+            <para>The native IB Interface connects to the local Trader Workstation (TWS) or IB
+                Gateway instance and uses methods supplied by the IB client. The interface is fully
+                capable of handling IB's Financial Advisor functionality like Sub Accounts, Account
+                Groups and Allocation Profiles.</para>
+            <para>The IB interface supports Market Data, Historical Data, Order Processing,
+                Retrieval of account information as well as Security Retrieval.</para>
+            <para>The IB infrastructure consists of the following classes:<figure>
+                    <title>IB Classes</title>
+                    <mediaobject>
+                        <imageobject>
+                            <imagedata scalefit="1" fileref="images/IBClasses.png"/>
+                        </imageobject>
+                    </mediaobject>
+                </figure><table frame="all" pgwide="1">
+                    <title>IB Infrastructure</title>
+                    <tgroup cols="2">
+                        <colspec colwidth="1.5*"/>
+                        <colspec colwidth="2*"/>
+                        <thead>
+                            <row>
+                                <entry>Class / Interface</entry>
+                                <entry>Description</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry><interface>IBSession</interface></entry>
+                                <entry>An <interface>IBSession</interface> represents a connection
+                                    to the TWS or IB Gateway</entry>
+                            </row>
+                            <row>
+                                <entry><interface>IBSessionLifecycle</interface>
+                                </entry>
+                                <entry morerows="1">Represents the current state of a
+                                        <interface>Session</interface> (i.e.
+                                        <literal>DISCONNECTED</literal>,
+                                        <literal>CONNECTED</literal>, <literal>IDLE</literal>,
+                                        <literal>LOGGED_ON</literal> and
+                                        <literal>SUBSCRIBED</literal>)</entry>
+                            </row>
+                            <row>
+                                <entry><classname>DefaultIBSessionLifecycle</classname></entry>
+                            </row>
+                            <row>
+                                <entry><interface>IBIdGenerator</interface></entry>
+                                <entry morerows="1">Generator for IB Request and Order Id's</entry>
+                            </row>
+                            <row>
+                                <entry><classname>DefaultIBIdGenerator</classname></entry>
+                            </row>
+                            <row>
+                                <entry><interface>IBAdapter</interface>
+                                </entry>
+                                <entry morerows="1">Management Adapter for the IB environment.
+                                    Allows to connect and disconnect IB Sessions as well as
+                                    retrieval of the current
+                                    <classname>ConnectionState</classname></entry>
+                            </row>
+                            <row>
+                                <entry><classname>DefaultIBAdapter</classname></entry>
+                            </row>
+                            <row>
+                                <entry><classname>AbstractIBMessageHandler</classname></entry>
+                                <entry morerows="1">Message Handler for incoming IB messages.
+                                    Messages are either propagated into the Esper Engine or
+                                    delegated back to the corresponding Service.</entry>
+                            </row>
+                            <row>
+                                <entry><classname>DefaultIBMessageHandler</classname></entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table></para>
+            <para>For further details on the IB native interface please visit the <ulink
+                    url="https://www.interactivebrokers.com/en/software/api/api.htm">IB API
+                    Reference Guide</ulink></para>
+        </section>
+        <section>
+            <title>IB Fix Interface</title>
+            <para>The IB Fix Interface provides the same Order Management features as the IB Native
+                Interface. However Market Data is not available through this interface.</para>
+            <para>The interface is fully capable of handling IB's Financial Advisor functionality
+                like Sub Accounts, Account Groups and Allocation Profiles.</para>
+            <para>For further details on the IB Fix interface please visit the <ulink
+                    url="https://www.interactivebrokers.com/en/software/fixctci_guides.php">IB
+                    FIX/CTCI Users' Guide</ulink></para>
+        </section>
+        <section>
+            <title>Bloomberg</title>
+            <para>The Bloomberg interface supports Market Data, Historical Data as well as Security
+                Retrieval. </para>
+            <para>In contrast to the IB interface the Bloomberg interface provides both  synchronous
+                connections and asynchronous connections. Asynchronous connections are generally
+                used for live market data whereas synchronous connections are used for retrieval of
+                historical data as well as retrieval of security information.</para>
+            <para>The Bloomberg infrastructure consists of the following classes:</para>
+            <para>
+                <table frame="all" pgwide="1">
+                    <title>Bloomberg Infrastructure</title>
+                    <tgroup cols="2">
+                        <colspec colwidth="1.5*"/>
+                        <colspec colwidth="2*"/>
+                        <thead>
+                            <row>
+                                <entry>Class / Interface</entry>
+                                <entry>Description</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry><interface>BBSession</interface></entry>
+                                <entry>A <interface>BBSession</interface> represents a connection to
+                                    the Bloomberg service</entry>
+                            </row>
+                            <row>
+                                <entry><classname>BBIdGenerator</classname></entry>
+                                <entry>Generator for Bloomberg Request Id's</entry>
+                            </row>
+                            <row>
+                                <entry><classname>BBAdapter</classname></entry>
+                                <entry>Management Adapter for the Bloomberg environment. Allows to
+                                    start and stop Bloomberg Sessions</entry>
+                            </row>
+                            <row>
+                                <entry><interface>EventHandler</interface></entry>
+                                <entry morerows="1">Message Handler for incoming Bloomberg messages.
+                                    Messages are either propagated into the Esper Engine or
+                                    delegated back to the corresponding Service.</entry>
+                            </row>
+                            <row>
+                                <entry><classname>BBMessageHandler</classname></entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </para>
+            <para>For further details on the Bloomberg interface please visit the <ulink
+                    url="http://www.openbloomberg.com/open-api/">Bloomberg Open API</ulink></para>
+        </section>
+        <section>
+            <title>Real Tick</title>
+            <para>RealTick provides connectivity to about 30 institutional and 10 retail brokers. </para>
+            <para>The RealTick Fix interface currently supports only Order Processing.</para>
+            <para>The Fix Implementation of RealTick is well conforming with the Fix Standard no
+                customizations had to be made</para>
+        </section>
+        <section>
+            <title>JP Morgan Fix Interface</title>
+            <para>The JP Morgan Fix interface currently supports only Order Processing.</para>
+            <para>As the JP Morgan Fix Implementation is well conforming with the Fix Standard no
+                customizations had to be made</para>
+        </section>
+        <section>
+            <title>DukasCopy Fix Interface</title>
+            <para>The DukasCopy interface supports Market Data as well as Order Processing.</para>
+            <para>Since the DukasCopy Fix Implementation does not follow the Fix Standard very closely, quite
+                a few customizations had to be made including a fully independent
+                    <classname>MessageHandler</classname> (not subclassing any of the existing
+                    <classname>FixMessageHandler</classname> classes)</para>
+            <itemizedlist>
+                <listitem>
+                    <para>usage of StopLimit for Limit orders</para>
+                </listitem>
+                <listitem>
+                    <para>usage of Price for Stop orders instead of StopPx</para>
+                </listitem>
+                <listitem>
+                    <para>does not support Securitytype</para>
+                </listitem>
+                <listitem>
+                    <para>does not use ExecType instead it uses only OrdStatus</para>
+                </listitem>
+                <listitem>
+                    <para>requires OrderID (tag 37) for order modifications</para>
+                </listitem>
+                <listitem>
+                    <para>does not return OrigClOrdID</para>
+                </listitem>
+                <listitem>
+                    <para>does not use OrderStatus PARTIALLY_FILLED</para>
+                </listitem>
+                <listitem>
+                    <para>does not use LastPx but only AvgPx</para>
+                </listitem>
+            </itemizedlist>
+            <para>The DukasCopy Fix interface uses an SSL encrypted connection which is supported by
+                QuickFix/J using Mina. In addition the DukasCopy interface requires username and
+                password to be send with the Logon message. For this purpose the class
+                    <classname>DCLogonMessageHandler</classname> is used as an outgoing
+                MessageHandler.</para>
         </section>
     </chapter>
     <chapter id="Execution_Algos">
