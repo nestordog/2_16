@@ -2,16 +2,21 @@ Version 2.1
 new Instruments: Bond, Fund & Commodity
 overhaul AlgoTrader Reference Data Manager (based on Grails)
 RealTick Fix interface
+Fix market data interface
+Enable multiple concurrent market data streams
 AlgoTrader Maven Archetype to generate new projects
 embedded in-memory DataSource based on H2 database
-Bloomberg Historical data interface
+Bloomberg Historical data and security retriever interface
 BreakOut Example Strategy
 allow broker specific parameters (e.g. commissions)
-More flexilility on market data file naming
+More flexibility on market data file naming
+ManagementService: allow securityId, symbol, isin, bbgid, ric and conid for security definition
 Switch from LIFO to average cost
 East-to-Borrow list for stocks
 overhaul Esper Engine management (EngineLocator, Engine, AbstractEngine and EngineImpl)
+overhaul Spring Proxy generation
 enable client specific code generation based on UML
+3rd Party Library updates (Esper 4.11.0)
 
 Version 2.0
 Multi Account Handling
