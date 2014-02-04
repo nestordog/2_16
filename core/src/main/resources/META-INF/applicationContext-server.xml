@@ -209,7 +209,7 @@
 
     <beans profile="iBNative,iBMarketData,iBSecurityRetrieval,iBHistoricalData">
 
-        <bean id="iBSessionAdapter" class="ch.algotrader.adapter.ib.IBSessionAdapter"/>
+        <bean id="iBSessionAdapter" class="ch.algotrader.adapter.ib.DefaultIBAdapter"/>
 
         <bean id="iBSessionLifecycle" class="ch.algotrader.adapter.ib.DefaultIBSessionLifecycle">
             <property name="iBSession" ref="iBSession"/>
@@ -250,7 +250,7 @@
     <!-- =================================== Bloomberg  ========================================= -->
 
     <beans profile="bBMarketData,bBSecurityRetrieval">
-        <bean id="bBSessionFactory" class="ch.algotrader.adapter.bb.BBSessionFactory"/>
+        <bean id="bBSessionFactory" class="ch.algotrader.adapter.bb.BBAdapter"/>
     </beans>
 
     <!-- =================================== Fix  ========================================= -->
@@ -343,7 +343,7 @@
             <property name="settings" ref="fixSessionSettings"/>
         </bean>
 
-        <bean id="dCMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.FixMarketDataSessionLifecycle">
+        <bean id="dCMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
             <property name="marketDataService" ref="marketDataService"/>
             <property name="feedType" value="DC"/>
         </bean>

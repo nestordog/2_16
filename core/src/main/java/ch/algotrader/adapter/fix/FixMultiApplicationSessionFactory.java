@@ -36,7 +36,13 @@ import quickfix.SessionID;
 import quickfix.SessionSettings;
 
 /**
- * Creates a new {@link quickfix.Application} for each session using the specified ApplicationFactory.
+ * Creates a {@link Session} and {@link Application} using the specified {@link FixApplicationFactory} according to the following steps:
+ * <ul>
+ * <li>lookup the {@link FixApplicationFactory} by its name</li>
+ * <li>create an {@link Application}</li>
+ * <li>create a {@link DefaultSessionFactory}</li>
+ * <li>create a {@link Session}</li>
+ * </ul>
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -68,7 +74,7 @@ public class FixMultiApplicationSessionFactory implements SessionFactory {
     public Session create(SessionID sessionID, SessionSettings settings) throws ConfigError {
 
         // get all FixApplicationFactories
-        Collection<FixApplicationFactory> applicationFactories = applicationContext.getBeansOfType(FixApplicationFactory.class).values();
+        Collection<FixApplicationFactory> applicationFactories = this.applicationContext.getBeansOfType(FixApplicationFactory.class).values();
 
         final String applicationFactoryName;
         if (settings.isSetting(sessionID, APPLICATION_FACTORY)) {

@@ -36,7 +36,7 @@ import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.util.collection.IntegerMap;
 
 /**
- * Managed implementation of {@link FixAdapter}.
+ * Manageable implementation of {@link FixAdapter}.
  * This class an its public methods are available through JMX.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -59,7 +59,7 @@ public class ManagedFixAdapter extends DefaultFixAdapter implements ApplicationC
     @ManagedAttribute
     public Map<String, ConnectionState> getApplicationFactoryConnectionStates() {
 
-        Collection<FixApplicationFactory> applicationFactories = applicationContext.getBeansOfType(FixApplicationFactory.class).values();
+        Collection<FixApplicationFactory> applicationFactories = this.applicationContext.getBeansOfType(FixApplicationFactory.class).values();
 
         Map<String, ConnectionState> connectionStates = new HashMap<String, ConnectionState>();
         for (FixApplicationFactory applicationFactory : applicationFactories) {

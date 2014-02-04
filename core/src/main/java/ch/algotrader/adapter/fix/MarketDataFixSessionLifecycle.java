@@ -27,7 +27,7 @@ import ch.algotrader.service.MarketDataService;
  *
  * @version $Revision: 6424 $ $Date: 2013-11-06 14:29:48 +0100 (Mi, 06 Nov 2013) $
  */
-public class FixMarketDataSessionLifecycle extends DefaultFixSessionLifecycle {
+public class MarketDataFixSessionLifecycle extends DefaultFixSessionLifecycle {
 
     private MarketDataService marketDataService;
     private FeedType feedType;

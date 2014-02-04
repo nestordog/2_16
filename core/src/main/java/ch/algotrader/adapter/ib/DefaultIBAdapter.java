@@ -40,8 +40,8 @@ import ch.algotrader.enumeration.ConnectionState;
  *
  * @version $Revision$ $Date$
  */
-@ManagedResource(objectName = "ch.algotrader.adapter.ib:name=IBSessionFactory")
-public class IBSessionAdapter implements ApplicationContextAware {
+@ManagedResource(objectName = "ch.algotrader.adapter.ib:name=IBAdapter")
+public class DefaultIBAdapter implements ApplicationContextAware, IBAdapter {
 
     private ApplicationContext applicationContext;
 
@@ -53,6 +53,7 @@ public class IBSessionAdapter implements ApplicationContextAware {
     /**
      * (re)connects all IBSessions
      */
+    @Override
     @ManagedOperation
     @ManagedOperationParameters({})
     public void connect() {
@@ -65,6 +66,7 @@ public class IBSessionAdapter implements ApplicationContextAware {
     /**
      * disconnects all IBSessions
      */
+    @Override
     @ManagedOperation
     @ManagedOperationParameters({})
     public void disconnect() {
@@ -89,6 +91,7 @@ public class IBSessionAdapter implements ApplicationContextAware {
     /**
      * Returns a Map with {@code sessionId} and {@code connectionState} of all IBSessions
      */
+    @Override
     @ManagedAttribute
     public Map<Integer, ConnectionState> getConnectionStates() {
 

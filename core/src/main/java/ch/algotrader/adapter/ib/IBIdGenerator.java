@@ -18,6 +18,8 @@
 package ch.algotrader.adapter.ib;
 
 /**
+ * IB Request and Order Id Generator.
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
