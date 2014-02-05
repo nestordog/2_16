@@ -18,6 +18,7 @@
 package ch.algotrader.starter;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 
 /**
@@ -31,10 +32,11 @@ public abstract class BaseStarter {
 
     public static void startBase() throws Exception {
 
-        // start all BASE rules
-        EngineLocator.instance().initBaseEngine();
-        EngineLocator.instance().getBaseEngine().setInternalClock(true);
-        EngineLocator.instance().getBaseEngine().deployAllModules();
+        // deploy all BASE modules
+        Engine engine = EngineLocator.instance().initBaseEngine();
+
+        engine.setInternalClock(true);
+        engine.deployAllModules();
 
         // initialize services
         ServiceLocator.instance().initInitializingServices();

@@ -74,15 +74,16 @@ public class EngineLocator {
         return instance;
     }
 
-    public void initEngine(String engineName) {
+    public Engine initEngine(String engineName) {
 
         Engine engine = new EngineImpl(engineName);
         this.engines.put(engineName, engine);
+        return engine;
     }
 
-    public void initBaseEngine() {
+    public Engine initBaseEngine() {
 
-        initEngine(StrategyImpl.BASE);
+        return initEngine(StrategyImpl.BASE);
     }
 
     public Collection<Engine> getEngines() {
