@@ -99,6 +99,10 @@
 
     <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
 
+    <bean class="ch.algotrader.util.spring.InfrastructureRoleBeanDefinitionConfigurer">
+        <property name="beanNames" value="hibernateSessionAnnotationAdvisor"/>
+    </bean>
+
     <bean id="hibernateSessionAnnotationAdvisor" class="ch.algotrader.util.spring.HibernateSessionAnnotationAdvisor">
       <property name="hibernateInterceptor" ref="hibernateInterceptor"/>
     </bean>
