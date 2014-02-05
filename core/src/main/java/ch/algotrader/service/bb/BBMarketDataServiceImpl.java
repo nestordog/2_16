@@ -52,7 +52,7 @@ public class BBMarketDataServiceImpl extends BBMarketDataServiceBase implements 
     @Override
     protected void handleInit() throws Exception {
 
-        session = getBBSessionFactory().getMarketDataSession();
+        session = getBBAdapter().getMarketDataSession();
     }
 
     @Override

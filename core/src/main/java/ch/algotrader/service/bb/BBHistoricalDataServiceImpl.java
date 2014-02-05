@@ -41,7 +41,7 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
     @Override
     protected void handleInit() throws Exception {
 
-        session = getBBSessionFactory().getReferenceDataSession();
+        session = getBBAdapter().getReferenceDataSession();
     }
 
     @Override

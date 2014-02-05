@@ -70,7 +70,7 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
     @Override
     protected void handleInit() throws Exception {
 
-        session = getBBSessionFactory().getReferenceDataSession();
+        session = getBBAdapter().getReferenceDataSession();
     }
 
     @Override
