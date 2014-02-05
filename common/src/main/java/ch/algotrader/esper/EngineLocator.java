@@ -165,8 +165,10 @@ public class EngineLocator {
         if (simulation || singleVM) {
             for (Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
                 if (!subscription.getStrategyInitialized().getName().equals(StrategyImpl.BASE)) {
-                    Engine engine = getEngine(subscription.getStrategy().getName());
-                    engine.sendEvent(marketDataEvent);
+                    String strategyName = subscription.getStrategy().getName();
+                    if (hasEngine(strategyName)) {
+                        getEngine(strategyName).sendEvent(marketDataEvent);
+                    }
                 }
             }
 
