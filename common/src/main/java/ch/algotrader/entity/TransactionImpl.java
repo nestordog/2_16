@@ -84,20 +84,33 @@ public class TransactionImpl extends Transaction {
     @Override
     public double getNetValueDouble() {
 
-        return getGrossValueDouble() - getTotalCommissionDouble();
+        return getGrossValueDouble() - getTotalChargesDouble();
     }
 
     @Override
-    public BigDecimal getTotalCommission() {
+    public BigDecimal getTotalCharges() {
 
-        return RoundUtil.getBigDecimal(getTotalCommissionDouble(), portfolioDigits);
+        return RoundUtil.getBigDecimal(getTotalChargesDouble(), portfolioDigits);
     }
 
     @Override
-    public double getTotalCommissionDouble() {
+    public double getTotalChargesDouble() {
 
-        return (getExecutionCommission() != null ? getExecutionCommission().doubleValue() : 0.0) +
-                (getClearingCommission() != null ? getClearingCommission().doubleValue() : 0.0);
+        double totalCharges = 0.0;
+
+        if (getExecutionCommission() != null) {
+            totalCharges += getExecutionCommission().doubleValue();
+        }
+
+        if (getClearingCommission() != null) {
+            totalCharges += getExecutionCommission().doubleValue();
+        }
+
+        if (getFee() != null) {
+            totalCharges += getFee().doubleValue();
+        }
+
+        return totalCharges;
     }
 
     @Override
@@ -174,8 +187,8 @@ public class TransactionImpl extends Transaction {
             buffer.append(getPrice());
             buffer.append(",");
             buffer.append(getCurrency());
-            buffer.append(",commission=");
-            buffer.append(getTotalCommission());
+            buffer.append(",totalCharges=");
+            buffer.append(getTotalCharges());
             buffer.append(",strategy=");
             buffer.append(getStrategy());
 

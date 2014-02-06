@@ -55,17 +55,23 @@ public class SecurityFamilyImpl extends SecurityFamily {
 
 
     @Override
-    public BigDecimal getTotalCommission() {
+    public BigDecimal getTotalCharges() {
 
-        if (getExecutionCommission() != null && getClearingCommission() != null) {
-            return getExecutionCommission().add(getClearingCommission());
-        } else if (getExecutionCommission() == null) {
-            return getClearingCommission();
-        } else if (getClearingCommission() == null) {
-            return getExecutionCommission();
-        } else {
-            return null;
+        BigDecimal totalCharges = new BigDecimal(0.0);
+
+        if (getExecutionCommission() != null) {
+            totalCharges.add(getExecutionCommission());
         }
+
+        if (getClearingCommission() != null) {
+            totalCharges.add(getExecutionCommission());
+        }
+
+        if (getFee() != null) {
+            totalCharges.add(getFee());
+        }
+
+        return totalCharges;
     }
 
     @Override
@@ -113,17 +119,34 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public BigDecimal getTotalCommission(Broker broker) {
+    public BigDecimal getFee(Broker broker) {
 
-        if (getExecutionCommission(broker) != null && getClearingCommission(broker) != null) {
-            return getExecutionCommission(broker).add(getClearingCommission(broker));
-        } else if (getExecutionCommission(broker) == null) {
-            return getClearingCommission(broker);
-        } else if (getClearingCommission(broker) == null) {
-            return getExecutionCommission(broker);
+        BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
+        if (brokerParams != null && brokerParams.getFee() != null) {
+            return brokerParams.getFee();
         } else {
-            return null;
+            return getFee();
         }
+    }
+
+    @Override
+    public BigDecimal getTotalCharges(Broker broker) {
+
+        BigDecimal totalCharges = new BigDecimal(0.0);
+
+        if (getExecutionCommission(broker) != null) {
+            totalCharges.add(getExecutionCommission(broker));
+        }
+
+        if (getClearingCommission(broker) != null) {
+            totalCharges.add(getExecutionCommission(broker));
+        }
+
+        if (getFee(broker) != null) {
+            totalCharges.add(getFee(broker));
+        }
+
+        return totalCharges;
     }
 
     @Override

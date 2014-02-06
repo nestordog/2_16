@@ -104,7 +104,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
     @Override
     protected void handleCreateTransaction(int securityId, String strategyName, String extId, Date dateTime, long quantity, BigDecimal price, BigDecimal executionCommission,
-            BigDecimal clearingCommission, Currency currency, TransactionType transactionType, String accountName, String description) {
+            BigDecimal clearingCommission, BigDecimal fee, Currency currency, TransactionType transactionType, String accountName, String description) {
 
         // validations
         Strategy strategy = getStrategyDao().findByName(strategyName);
@@ -174,6 +174,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setCurrency(currency);
         transaction.setExecutionCommission(executionCommission);
         transaction.setClearingCommission(clearingCommission);
+        transaction.setFee(fee);
         transaction.setAccount(account);
         transaction.setDescription(description);
 

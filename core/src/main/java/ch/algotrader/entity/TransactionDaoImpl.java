@@ -68,7 +68,7 @@ public class TransactionDaoImpl extends TransactionDaoBase {
 
         transactionVO.setStrategy(transaction.getStrategy().toString());
         transactionVO.setValue(transaction.getNetValue());
-        transactionVO.setCommission(transaction.getTotalCommission());
+        transactionVO.setTotalCharges(transaction.getTotalCharges());
 
         Account account = transaction.getAccount();
         if (account != null) {

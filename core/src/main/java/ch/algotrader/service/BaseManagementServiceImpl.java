@@ -44,17 +44,18 @@ public class BaseManagementServiceImpl extends BaseManagementServiceBase {
 
     @Override
     protected void handleRecordTransaction(int securityId, String strategyName, String extIdString, String dateTimeString, long quantity, double priceDouble, double executionCommissionDouble,
-            double clearingCommissionDouble, String currencyString, String transactionTypeString, String accountName) throws Exception {
+            double clearingCommissionDouble, double feeDouble, String currencyString, String transactionTypeString, String accountName) throws Exception {
 
         String extId = !"".equals(extIdString) ? extIdString : null;
         Date dateTime = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(dateTimeString);
         BigDecimal price = RoundUtil.getBigDecimal(priceDouble);
         BigDecimal executionCommission = (executionCommissionDouble != 0) ? RoundUtil.getBigDecimal(executionCommissionDouble) : null;
         BigDecimal clearingCommission = (clearingCommissionDouble != 0) ? RoundUtil.getBigDecimal(clearingCommissionDouble) : null;
+        BigDecimal fee = (feeDouble != 0) ? RoundUtil.getBigDecimal(feeDouble) : null;
         Currency currency = !"".equals(currencyString) ? Currency.fromValue(currencyString) : null;
         TransactionType transactionType = TransactionType.fromValue(transactionTypeString);
 
-        getTransactionService().createTransaction(securityId, strategyName, extId, dateTime, quantity, price, executionCommission, clearingCommission, currency, transactionType, accountName, null);
+        getTransactionService().createTransaction(securityId, strategyName, extId, dateTime, quantity, price, executionCommission, clearingCommission, fee, currency, transactionType, accountName, null);
     }
 
     @Override

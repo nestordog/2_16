@@ -67,7 +67,7 @@ public class PositionUtil {
         // get transaction values
         long qty = transaction.getQuantity();
         double price = transaction.getPrice().doubleValue();
-        double commission = transaction.getTotalCommissionDouble();
+        double totalCharges = transaction.getTotalChargesDouble();
         int contractSize = transaction.getSecurity().getSecurityFamily().getContractSize();
 
         // calculate opening and closing quantity
@@ -87,11 +87,11 @@ public class PositionUtil {
 
         // handle commissions
         if (openingQty != 0) {
-            newCost += commission * openingQty / qty;
+            newCost += totalCharges * openingQty / qty;
         }
 
         if (closingQty != 0) {
-            newRealizedPL -= commission * closingQty / qty;
+            newRealizedPL -= totalCharges * closingQty / qty;
         }
 
         // calculate profit and profitPct
