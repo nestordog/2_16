@@ -59,58 +59,60 @@ class CollectionHandler extends AbstractHandler {
             return null;
         }
 
-        // process Maps
-        if (obj instanceof Map) {
+        synchronized (obj) {
 
-            Map map = (Map) obj;
-            for (Iterator i = map.entrySet().iterator(); i.hasNext();) {
+            // process Maps
+            if (obj instanceof Map) {
 
-                Map.Entry entry = (Map.Entry) i.next();
-                Object existingValue = this.cacheManager.put(entry.getValue());
-                if (existingValue != null && existingValue != entry.getValue()) {
+                Map map = (Map) obj;
+                for (Iterator i = map.entrySet().iterator(); i.hasNext();) {
 
-                    // replace the value with the existingValue
-                    entry.setValue(existingValue);
+                    Map.Entry entry = (Map.Entry) i.next();
+                    Object existingValue = this.cacheManager.put(entry.getValue());
+                    if (existingValue != null && existingValue != entry.getValue()) {
+
+                        // replace the value with the existingValue
+                        entry.setValue(existingValue);
+                    }
                 }
-            }
 
-            // process Lists
-        } else if (obj instanceof List) {
+                // process Lists
+            } else if (obj instanceof List) {
 
-            List list = (List) obj;
-            for (ListIterator it = list.listIterator(); it.hasNext();) {
+                List list = (List) obj;
+                for (ListIterator it = list.listIterator(); it.hasNext();) {
 
-                Object value = it.next();
-                Object existingValue = this.cacheManager.put(value);
-                if (existingValue != null && existingValue != value) {
+                    Object value = it.next();
+                    Object existingValue = this.cacheManager.put(value);
+                    if (existingValue != null && existingValue != value) {
 
-                    // replace the value with the existingValue
-                    it.set(existingValue);
+                        // replace the value with the existingValue
+                        it.set(existingValue);
+                    }
                 }
-            }
 
-            // process Sets
-        } else if (obj instanceof Set) {
+                // process Sets
+            } else if (obj instanceof Set) {
 
-            Set set = (Set) obj;
-            Set replacements = new HashSet();
-            for (Iterator it = set.iterator(); it.hasNext();) {
+                Set set = (Set) obj;
+                Set replacements = new HashSet();
+                for (Iterator it = set.iterator(); it.hasNext();) {
 
-                Object value = it.next();
-                Object existingValue = this.cacheManager.put(value);
-                if (existingValue != null && existingValue != value) {
-                    replacements.add(value);
+                    Object value = it.next();
+                    Object existingValue = this.cacheManager.put(value);
+                    if (existingValue != null && existingValue != value) {
+                        replacements.add(value);
+                    }
                 }
+
+                // need to replace the values outside the loop to prevent java.util.ConcurrentModificationException
+                set.removeAll(replacements);
+                set.addAll(replacements);
+
+            } else {
+                throw new IllegalArgumentException("unsupported collection type " + obj.getClass());
             }
-
-            // need to replace the values outside the loop to prevent java.util.ConcurrentModificationException
-            set.removeAll(replacements);
-            set.addAll(replacements);
-
-        } else {
-            throw new IllegalArgumentException("unsupported collection type " + obj.getClass());
         }
-
         return null;
     }
 
@@ -121,55 +123,59 @@ class CollectionHandler extends AbstractHandler {
             throw new IllegalArgumentException("PersistentCollection needed");
         }
 
-        PersistentCollection origCollection = (PersistentCollection) obj;
+        synchronized (obj) {
 
-        Object updatedCollection = this.cacheManager.getGenericDao().getInitializedCollection(origCollection.getRole(), origCollection.getKey());
+            PersistentCollection origCollection = (PersistentCollection) obj;
+            Object updatedCollection = this.cacheManager.getGenericDao().getInitializedCollection(origCollection.getRole(), origCollection.getKey());
+            // owner does not exist anymore so remove it
+            if (updatedCollection == null) {
 
-        // owner does not exist anymore so remove it
-        if (updatedCollection == null) {
+                Object owner = origCollection.getOwner();
+                EntityCacheKey cacheKey = new EntityCacheKey((BaseEntityI) owner);
+                this.cacheManager.getEntityCache().detach(cacheKey);
 
-            Object owner = origCollection.getOwner();
-            EntityCacheKey cacheKey = new EntityCacheKey((BaseEntityI) owner);
-            this.cacheManager.getEntityCache().detach(cacheKey);
-
-        } else {
-
-            // getInitializedCollection should normally return a PersistentCollection
-            if (updatedCollection instanceof PersistentCollection) {
-
-                PersistentCollection updatedCol = (PersistentCollection) updatedCollection;
-                FieldUtil.copyAllFields(origCollection, updatedCol);
-
-                // make sure everything is in the cache
-                this.cacheManager.put(origCollection);
-
-                // log if PersistentCollection returns a Collection or Map to furhter investigate
             } else {
 
-                if (updatedCollection instanceof Collection) {
-                    Collection<?> col = (Collection<?>) updatedCollection;
-                    if (col.size() != 0) {
-                        logger.error("non empty collection returned instead of PersistentCollection");
-                    }
-                } else if (updatedCollection instanceof Map) {
-                    Map<?, ?> map = (Map<?, ?>) updatedCollection;
-                    if (map.size() != 0) {
-                        logger.error("non empty map returned instead of PersistentCollection");
+                // getInitializedCollection should normally return a PersistentCollection
+                if (updatedCollection instanceof PersistentCollection) {
+
+                    PersistentCollection updatedCol = (PersistentCollection) updatedCollection;
+                    FieldUtil.copyAllFields(origCollection, updatedCol);
+
+                    // make sure everything is in the cache
+                    this.cacheManager.put(origCollection);
+
+                    // log if PersistentCollection returns a Collection or Map to furhter investigate
+                } else {
+
+                    if (updatedCollection instanceof Collection) {
+                        Collection<?> col = (Collection<?>) updatedCollection;
+                        if (col.size() != 0) {
+                            logger.error("non empty collection returned instead of PersistentCollection");
+                        }
+                    } else if (updatedCollection instanceof Map) {
+                        Map<?, ?> map = (Map<?, ?>) updatedCollection;
+                        if (map.size() != 0) {
+                            logger.error("non empty map returned instead of PersistentCollection");
+                        }
                     }
                 }
             }
+            return updatedCollection;
         }
-
-        return updatedCollection;
     }
 
     @Override
     protected Object initialize(Object obj) {
 
-        if (obj instanceof AbstractPersistentCollection) {
+        if (!(obj instanceof AbstractPersistentCollection)) {
+            return null;
+        }
+
+        synchronized (obj) {
 
             AbstractPersistentCollection col = (AbstractPersistentCollection) obj;
-            if (!col.wasInitialized()) {
+            if (col.wasInitialized()) {
 
                 Object initializedObj = this.cacheManager.getGenericDao().getInitializedCollection(col.getRole(), col.getKey());
 
@@ -177,11 +183,10 @@ class CollectionHandler extends AbstractHandler {
 
                 // return the exstingObj if it was already in the cache otherwise the newly initialized obj
                 return existingObj != null ? existingObj : initializedObj;
+            } else {
+                return null;
             }
         }
-
-        // return null if this is not a uninitialized PersistentCollection
-        return null;
     }
 
     @Override

@@ -52,118 +52,121 @@ public class EntityHandler extends AbstractHandler {
             return null;
         }
 
-        // check if the IdentifiableI already exists in the cache
-        BaseEntityI entity = (BaseEntityI) obj;
-        EntityCacheKey rootCacheKey = new EntityCacheKey(entity);
-        Object existingObj = null;
-        if (this.cacheManager.getEntityCache().exists(rootCacheKey, CacheManagerImpl.ROOT)) {
+        synchronized (obj) {
 
-            existingObj = this.cacheManager.getEntityCache().find(rootCacheKey, CacheManagerImpl.ROOT);
+            // check if the IdentifiableI already exists in the cache
+            BaseEntityI entity = (BaseEntityI) obj;
+            EntityCacheKey rootCacheKey = new EntityCacheKey(entity);
+            Object existingObj = null;
+            if (this.cacheManager.getEntityCache().exists(rootCacheKey, CacheManagerImpl.ROOT)) {
 
-        // IndentifiableI is not in the cache already
-        } else {
+                existingObj = this.cacheManager.getEntityCache().find(rootCacheKey, CacheManagerImpl.ROOT);
 
-            // attach the object itself
-            this.cacheManager.getEntityCache().attach(rootCacheKey, CacheManagerImpl.ROOT, obj);
+                // IndentifiableI is not in the cache already
+            } else {
 
-            // process all fields
-            for (Field field : FieldUtil.getAllFields(obj.getClass())) {
+                // attach the object itself
+                this.cacheManager.getEntityCache().attach(rootCacheKey, CacheManagerImpl.ROOT, obj);
 
-                Object value = null;
-                try {
-                    value = field.get(obj);
-                } catch (Exception e) {
-                    logger.error("problem getting field", e);
-                }
+                // process all fields
+                for (Field field : FieldUtil.getAllFields(obj.getClass())) {
 
-                // nothing to do on simplate attributes
-                if (FieldUtil.isSimpleAttribute(field) || value == null) {
-                    continue;
-                }
-
-                // if the object already existed but does not have the same reference replace it
-                Object existingValue = this.cacheManager.put(value);
-                if (existingValue != null && existingValue != value) {
-
+                    Object value = null;
                     try {
-                        field.set(obj, existingValue);
+                        value = field.get(obj);
                     } catch (Exception e) {
-                        logger.error("problem setting field", e);
+                        logger.error("problem getting field", e);
                     }
+
+                    // nothing to do on simplate attributes
+                    if (FieldUtil.isSimpleAttribute(field) || value == null) {
+                        continue;
+                    }
+
+                    // if the object already existed but does not have the same reference replace it
+                    Object existingValue = this.cacheManager.put(value);
+                    if (existingValue != null && existingValue != value) {
+
+                        try {
+                            field.set(obj, existingValue);
+                        } catch (Exception e) {
+                            logger.error("problem setting field", e);
+                        }
+                    }
+
+                    EntityCacheKey cacheKey = new EntityCacheKey(field.getDeclaringClass(), entity.getId());
+                    this.cacheManager.getEntityCache().attach(cacheKey, field.getName(), value);
                 }
 
-                EntityCacheKey cacheKey = new EntityCacheKey(field.getDeclaringClass(), entity.getId());
-                this.cacheManager.getEntityCache().attach(cacheKey, field.getName(), value);
+                // set the CacheManager reference
+                entity.setCacheManager(this.cacheManager);
             }
-
-            // set the CacheManager reference
-            entity.setCacheManager(this.cacheManager);
+            return existingObj;
         }
-
-        return existingObj;
     }
 
     @Override
     protected Object update(Object obj) {
 
-        // get the updatedObj
-        BaseEntityI origEntity = (BaseEntityI) obj;
-        BaseEntityI updatedEntity = (BaseEntityI) this.cacheManager.getGenericDao().get(obj.getClass(), origEntity.getId());
+        synchronized (obj) {
 
-        // updatedObj does not exist anymore so remove it from the cache
-        if (updatedEntity == null) {
+            // get the updatedObj
+            BaseEntityI origEntity = (BaseEntityI) obj;
+            BaseEntityI updatedEntity = (BaseEntityI) this.cacheManager.getGenericDao().get(obj.getClass(), origEntity.getId());
+            // updatedObj does not exist anymore so remove it from the cache
+            if (updatedEntity == null) {
 
-            EntityCacheKey cacheKey = new EntityCacheKey(origEntity);
-            this.cacheManager.getEntityCache().detach(cacheKey);
+                EntityCacheKey cacheKey = new EntityCacheKey(origEntity);
+                this.cacheManager.getEntityCache().detach(cacheKey);
 
-        } else {
+            } else {
 
-            // replace all simple Attributes
-            for (Field field : FieldUtil.getAllFields(obj.getClass())) {
+                // replace all simple Attributes
+                for (Field field : FieldUtil.getAllFields(obj.getClass())) {
 
-                if (FieldUtil.isSimpleAttribute(field)) {
+                    if (FieldUtil.isSimpleAttribute(field)) {
 
-                    try {
-                        Object updatedValue = field.get(updatedEntity);
-                        Object origValue = field.get(origEntity);
+                        try {
+                            Object updatedValue = field.get(updatedEntity);
+                            Object origValue = field.get(origEntity);
 
-                        if (updatedValue == null) {
-                            if (origValue != null) {
-                                field.set(origEntity, null);
+                            if (updatedValue == null) {
+                                if (origValue != null) {
+                                    field.set(origEntity, null);
+                                }
+                            } else {
+                                if (!updatedValue.equals(origValue)) {
+                                    field.set(origEntity, updatedValue);
+                                }
                             }
-                        } else {
-                            if (!updatedValue.equals(origValue)) {
-                                field.set(origEntity, updatedValue);
-                            }
+                        } catch (Exception e) {
+                            logger.error("problem accessing field", e);
                         }
-                    } catch (Exception e) {
-                        logger.error("problem accessing field", e);
                     }
                 }
             }
+            return updatedEntity;
         }
-
-        return updatedEntity;
     }
 
     @Override
     protected Object initialize(Object obj) {
 
-        if (obj instanceof HibernateProxy) {
+        if (!(obj instanceof HibernateProxy)) {
+
+            return null;
+        }
+
+        synchronized (obj) {
 
             HibernateProxy proxy = (HibernateProxy) obj;
             LazyInitializer initializer = proxy.getHibernateLazyInitializer();
-
             Object initializedObj = this.cacheManager.getGenericDao().get(initializer.getPersistentClass(), initializer.getIdentifier());
-
             Object existingObj = put(initializedObj);
 
             // return the exstingObj if it was already in the cache otherwise the newly initialized obj
             return existingObj != null ? existingObj : initializedObj;
         }
-
-        // return null if this is not a Proxy
-        return null;
     }
 
     @Override

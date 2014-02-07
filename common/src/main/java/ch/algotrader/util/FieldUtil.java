@@ -80,7 +80,7 @@ public class FieldUtil {
     }
 
     /**
-     * Returns all Fields including Fields defined by superclasses of the defined {@code type}
+     * Returns all non-static / non-transient Fields including Fields defined by superclasses of the defined {@code type}
      */
     public static List<Field> getAllFields(Class<?> type) {
 
@@ -89,7 +89,7 @@ public class FieldUtil {
         while (true) {
 
             for (Field field : type.getDeclaredFields()) {
-                if (!Modifier.isStatic(field.getModifiers())) {
+                if (!Modifier.isStatic(field.getModifiers()) && !Modifier.isTransient(field.getModifiers())) {
                     setAccessible(field);
                     fields.add(field);
                 }
