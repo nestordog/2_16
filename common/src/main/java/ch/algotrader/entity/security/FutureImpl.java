@@ -58,14 +58,6 @@ public class FutureImpl extends Future {
         return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double)family.getExpirationDistance().value()));
     }
 
-    /**
-     * make sure expiration is a java.util.Date and not a java.sql.TimeStamp
-     */
-    @Override
-    public Date getExpiration() {
-        return new Date(super.getExpiration().getTime());
-    }
-
     @Override
     public boolean validateTick(Tick tick) {
 
