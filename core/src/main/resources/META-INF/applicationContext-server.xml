@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
     xmlns:int="http://www.springframework.org/schema/integration"
     xmlns:int-file="http://www.springframework.org/schema/integration/file"
     xmlns:int-mail="http://www.springframework.org/schema/integration/mail"
-    xmlns:task="http://www.springframework.org/schema/task" xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
     xmlns:jdbc="http://www.springframework.org/schema/jdbc"
     xsi:schemaLocation="http://www.springframework.org/schema/integration/mail http://www.springframework.org/schema/integration/mail/spring-integration-mail-2.1.xsd
         http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-2.2.xsd
@@ -13,24 +15,28 @@
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
         http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd">
+
     <!-- =========================================== Cache ================================================ -->
+
     <bean id="cacheManager" class="ch.algotrader.cache.CacheManagerImpl">
-        <property name="genericDao" ref="genericDao" />
+        <property name="genericDao" ref="genericDao"/>
     </bean>
+
     <!-- =========================================== JMX ================================================ -->
-    <!-- MBean Server -->
+
+    <!--  MBean Server -->
     <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
-        <property name="locateExistingServerIfPossible" value="true" />
+        <property name="locateExistingServerIfPossible" value="true"/>
     </bean>
-    <!-- Hibernate JMX Beans -->
+
+    <!--  Hibernate JMX Beans -->
     <bean id="hibernateStatisticsMBean" class="org.hibernate.jmx.StatisticsService">
         <property name="statisticsEnabled" value="true" />
         <property name="sessionFactory" ref="sessionFactory" />
     </bean>
-    <bean id="ehCacheMBean"
-        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="staticMethod"
-            value="net.sf.ehcache.management.ManagementService.registerMBeans" />
+
+    <bean id="ehCacheMBean" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans" />
         <property name="arguments">
             <list>
                 <ref bean="ehCacheManager" />
@@ -42,338 +48,393 @@
             </list>
         </property>
     </bean>
+
     <!-- Log4J JMX Beans -->
     <bean id="log4JExporter" class="org.springframework.jmx.export.MBeanExporter">
         <property name="beans">
             <map>
                 <entry key="log4j:hiearchy=default">
-                    <bean class="org.apache.log4j.jmx.HierarchyDynamicMBean" />
+                    <bean class="org.apache.log4j.jmx.HierarchyDynamicMBean"/>
                 </entry>
             </map>
         </property>
-        <property name="server" ref="mbeanServer" />
+        <property name="server" ref="mbeanServer"/>
     </bean>
-    <!-- ============================= Data Source an Transaction Management
-        ============================ -->
-    <bean id="sessionFactory"
-        class="org.springframework.orm.hibernate3.LocalSessionFactoryBean"
-        depends-on="ehCacheManager">
-        <property name="dataSource" ref="dataSource" />
-        <property name="mappingLocations" ref="hibernateMappingLocations" />
-        <property name="hibernateProperties" ref="hibernateProperties" />
+
+    <!-- ============================= Data Source an Transaction Management ============================ -->
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean" depends-on="ehCacheManager">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mappingLocations" ref="hibernateMappingLocations"/>
+        <property name="hibernateProperties" ref="hibernateProperties"/>
     </bean>
-    <bean id="hibernateMappingLocations"
-        class="org.springframework.beans.factory.config.ListFactoryBean">
+
+    <bean id="hibernateMappingLocations" class="org.springframework.beans.factory.config.ListFactoryBean">
         <property name="sourceList">
             <list>
                 <value>classpath*:ch/**/*.hbm.xml</value>
                 <value>classpath*:com/**/*.hbm.xml</value>
                 <value>classpath*:META-INF/**/*.hbm.xml</value>
             </list>
-        </property>
+         </property>
     </bean>
-    <bean id="hibernateProperties"
-        class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+
+    <bean id="hibernateProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="properties">
             <props>
                 <prop key="hibernate.default_batch_fetch_size">16</prop>
                 <prop key="hibernate.cache.use_second_level_cache">true</prop>
                 <prop key="hibernate.cache.use_query_cache">true</prop>
-                <prop key="hibernate.cache.provider_class">net.sf.ehcache.hibernate.SingletonEhCacheProvider
-                </prop>
+                <prop key="hibernate.cache.provider_class">net.sf.ehcache.hibernate.SingletonEhCacheProvider</prop>
                 <prop key="hibernate.cache.query_cache_factory">org.hibernate.cache.StandardQueryCacheFactory</prop>
                 <!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
                 <!-- <prop key="hibernate.show_sql">true</prop> -->
             </props>
         </property>
     </bean>
+
     <bean id="hibernateInterceptor" class="org.springframework.orm.hibernate3.HibernateInterceptor">
-        <property name="sessionFactory" ref="sessionFactory" />
+        <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
-    <bean
-        class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
-    <bean
-        class="ch.algotrader.util.spring.InfrastructureRoleBeanDefinitionConfigurer">
-        <property name="beanNames" value="hibernateSessionAnnotationAdvisor" />
+
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+
+    <bean class="ch.algotrader.util.spring.InfrastructureRoleBeanDefinitionConfigurer">
+        <property name="beanNames" value="hibernateSessionAnnotationAdvisor"/>
     </bean>
-    <bean id="hibernateSessionAnnotationAdvisor"
-        class="ch.algotrader.util.spring.HibernateSessionAnnotationAdvisor">
-        <property name="hibernateInterceptor" ref="hibernateInterceptor" />
+
+    <bean id="hibernateSessionAnnotationAdvisor" class="ch.algotrader.util.spring.HibernateSessionAnnotationAdvisor">
+      <property name="hibernateInterceptor" ref="hibernateInterceptor"/>
     </bean>
-    <bean id="transactionManager"
-        class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-        <property name="sessionFactory" ref="sessionFactory" />
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
-    <bean id="ehCacheManager" class="ch.algotrader.ehcache.EhCacheManagerFactoryBean">
-        <property name="configLocations" value="classpath*:/META-INF/ehcache*.xml" />
-        <property name="shared" value="true" />
-    </bean>
+
+     <bean id="ehCacheManager" class="ch.algotrader.ehcache.EhCacheManagerFactoryBean">
+         <property name="configLocations" value="classpath*:/META-INF/ehcache*.xml"/>
+         <property name="shared" value="true"/>
+     </bean>
+
     <bean id="genericDao" class="ch.algotrader.hibernate.GenericDao">
-        <property name="sessionFactory" ref="sessionFactory" />
+        <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
+
     <!-- Pooled DataSource (for production use) -->
     <beans profile="pooledDataSource">
         <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
-            <property name="driverClass">
-                <value>${dataSource.driver}</value>
-            </property>
-            <property name="user">
-                <value>${dataSource.user}</value>
-            </property>
-            <property name="password">
-                <value>${dataSource.password}</value>
-            </property>
-            <property name="jdbcUrl">
-                <value>${dataSource.url}</value>
-            </property>
-            <!-- <property name="minPoolSize"><value>5</value></property> -->
-            <!-- <property name="maxPoolSize"><value>10</value></property> -->
-            <property name="idleConnectionTestPeriod">
-                <value>300</value>
-            </property>
-            <property name="maxIdleTime">
-                <value>1800</value>
-            </property>
+            <property name="driverClass"><value>${dataSource.driver}</value></property>
+            <property name="user"><value>${dataSource.user}</value></property>
+            <property name="password"><value>${dataSource.password}</value></property>
+            <property name="jdbcUrl"><value>${dataSource.url}</value></property>
+    <!--         <property name="minPoolSize"><value>5</value></property> -->
+    <!--         <property name="maxPoolSize"><value>10</value></property> -->
+              <property name="idleConnectionTestPeriod"><value>300</value></property>
+              <property name="maxIdleTime"><value>1800</value></property>
         </bean>
     </beans>
+
     <!-- Single Connection DataSource (for development / testing) -->
     <beans profile="singleDataSource">
-        <bean id="dataSource"
-            class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-            <property name="driverClassName">
-                <value>${dataSource.driver}</value>
-            </property>
-            <property name="username">
-                <value>${dataSource.user}</value>
-            </property>
-            <property name="password">
-                <value>${dataSource.password}</value>
-            </property>
-            <property name="url">
-                <value>${dataSource.url}</value>
-            </property>
+        <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+            <property name="driverClassName"><value>${dataSource.driver}</value></property>
+            <property name="username"><value>${dataSource.user}</value></property>
+            <property name="password"><value>${dataSource.password}</value></property>
+            <property name="url"><value>${dataSource.url}</value></property>
         </bean>
     </beans>
+
     <!-- Embedded H2 DataSource (for development / testing) -->
     <beans profile="embeddedDataSource">
         <jdbc:embedded-database id="dataSource" type="H2">
-            <jdbc:script location="classpath:/META-INF/h2.sql" />
-            <jdbc:script location="classpath*:/META-INF/h2-*.sql" />
+            <jdbc:script location="classpath:/META-INF/h2.sql"/>
+            <jdbc:script location="classpath*:/META-INF/h2-*.sql"/>
         </jdbc:embedded-database>
     </beans>
-    <!-- =================================== JMS ========================================= -->
+
+    <!-- =================================== JMS  ========================================= -->
+
     <beans profile="server">
+
         <!-- JMS ActiveMQ Connection Factory -->
-        <bean id="jmsActiveMQFactory"
-            class="org.springframework.jms.connection.SingleConnectionFactory">
+        <bean id="jmsActiveMQFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
             <property name="targetConnectionFactory">
                 <bean class="org.apache.activemq.ActiveMQConnectionFactory">
                     <property name="brokerURL" value="failover:tcp://localhost:61616" />
                 </bean>
             </property>
         </bean>
-        <bean id="javax.jms.Session.DUPS_OK_ACKNOWLEDGE"
-            class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+
+        <bean id="javax.jms.Session.DUPS_OK_ACKNOWLEDGE" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+
         <!-- ActiveMQ topic used for marketData -->
         <bean id="marketDataTopic" class="org.apache.activemq.command.ActiveMQTopic">
             <constructor-arg value="MARKETDATA.TOPIC" />
         </bean>
+
         <!-- Spring JMS Template used for marketData -->
         <bean id="marketDataTemplate" class="org.springframework.jms.core.JmsTemplate">
             <property name="connectionFactory" ref="jmsActiveMQFactory" />
             <property name="defaultDestination" ref="marketDataTopic" />
-            <property name="timeToLive" value="10000" />
-            <property name="deliveryPersistent" value="false" />
-            <property name="messageIdEnabled" value="false" />
-            <property name="explicitQosEnabled" value="true" />
-            <property name="sessionAcknowledgeMode" ref="javax.jms.Session.DUPS_OK_ACKNOWLEDGE" />
+            <property name="timeToLive" value="10000"/>
+              <property name="deliveryPersistent" value="false"/>
+              <property name="messageIdEnabled" value="false"/>
+              <property name="explicitQosEnabled" value="true" />
+            <property name="sessionAcknowledgeMode" ref="javax.jms.Session.DUPS_OK_ACKNOWLEDGE"/>
         </bean>
+
         <!-- ActiveMQ topic used for generic events -->
         <bean id="genericTopic" class="org.apache.activemq.command.ActiveMQTopic">
             <constructor-arg value="GENERIC.TOPIC" />
         </bean>
+
         <!-- Spring JMS Template used for marketData -->
         <bean id="genericTemplate" class="org.springframework.jms.core.JmsTemplate">
             <property name="connectionFactory" ref="jmsActiveMQFactory" />
             <property name="defaultDestination" ref="genericTopic" />
-            <property name="timeToLive" value="10000" />
-            <property name="deliveryPersistent" value="false" />
-            <property name="messageIdEnabled" value="false" />
-            <property name="explicitQosEnabled" value="true" />
-            <property name="sessionAcknowledgeMode" ref="javax.jms.Session.DUPS_OK_ACKNOWLEDGE" />
+            <property name="timeToLive" value="10000"/>
+              <property name="deliveryPersistent" value="false"/>
+              <property name="messageIdEnabled" value="false"/>
+              <property name="explicitQosEnabled" value="true" />
+            <property name="sessionAcknowledgeMode" ref="javax.jms.Session.DUPS_OK_ACKNOWLEDGE"/>
         </bean>
+
         <!-- Spring JMS Template used for strategy specific messages -->
         <bean id="strategyTemplate" class="org.springframework.jms.core.JmsTemplate">
             <property name="connectionFactory" ref="jmsActiveMQFactory" />
             <property name="messageConverter" ref="messageConverter" />
         </bean>
-        <bean id="messageConverter"
-            class="ch.algotrader.util.io.CollectionIgnoringMessageConverter" />
+
+        <bean id="messageConverter" class="ch.algotrader.util.io.CollectionIgnoringMessageConverter"/>
+
     </beans>
-    <!-- =================================== Interactive Brokers ========================================= -->
+
+    <!-- =================================== Interactive Brokers  ========================================= -->
+
     <beans profile="iBNative,iBMarketData,iBSecurityRetrieval,iBHistoricalData">
-        <bean id="iBSessionAdapter" class="ch.algotrader.adapter.ib.DefaultIBAdapter" />
+
+        <bean id="iBSessionAdapter" class="ch.algotrader.adapter.ib.DefaultIBAdapter"/>
+
         <bean id="iBSessionLifecycle" class="ch.algotrader.adapter.ib.DefaultIBSessionLifecycle">
-            <property name="iBSession" ref="iBSession" />
+            <property name="iBSession" ref="iBSession"/>
         </bean>
-        <bean id="iBIdGenerator" class="ch.algotrader.adapter.ib.DefaultIBIdGenerator" />
-        <!-- optional properties like marketDataService and queues are autowired -->
-        <bean id="iBMessageHandler" class="ch.algotrader.adapter.ib.DefaultIBMessageHandler"
-            autowire="byName">
-            <property name="clientId" value="0" />
-            <property name="sessionLifecycle" ref="iBSessionLifecycle" />
+
+        <bean id="iBIdGenerator" class="ch.algotrader.adapter.ib.DefaultIBIdGenerator"/>
+
+        <!--  optional properties like marketDataService and queues are autowired -->
+        <bean id="iBMessageHandler" class="ch.algotrader.adapter.ib.DefaultIBMessageHandler" autowire="byName">
+            <property name="clientId" value="0"/>
+            <property name="sessionLifecycle" ref="iBSessionLifecycle"/>
         </bean>
+
         <bean id="iBSession" class="ch.algotrader.adapter.ib.IBSession">
-            <constructor-arg index="0" value="0" />
-            <constructor-arg index="1" value="localhost" />
-            <constructor-arg index="2" value="4001" />
-            <constructor-arg ref="iBSessionLifecycle" />
-            <constructor-arg ref="iBMessageHandler" />
-            <constructor-arg ref="marketDataService" />
+            <constructor-arg index="0" value="0"/>
+            <constructor-arg index="1" value="localhost"/>
+            <constructor-arg index="2" value="4001"/>
+            <constructor-arg ref="iBSessionLifecycle"/>
+            <constructor-arg ref="iBMessageHandler"/>
+            <constructor-arg ref="marketDataService"/>
         </bean>
     </beans>
+
     <beans profile="iBHistoricalData">
-        <bean id="historicalDataQueue" class="java.util.concurrent.LinkedBlockingDeque" />
+        <bean id="historicalDataQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
     </beans>
+
     <beans profile="iBNative">
-        <bean id="accountUpdateQueue" class="java.util.concurrent.LinkedBlockingDeque" />
-        <bean id="accountsQueue" class="java.util.concurrent.LinkedBlockingDeque" />
-        <bean id="profilesQueue" class="java.util.concurrent.LinkedBlockingDeque" />
+        <bean id="accountUpdateQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
+        <bean id="accountsQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
+        <bean id="profilesQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
     </beans>
+
     <beans profile="iBSecurityRetrieval">
-        <bean id="contractDetailsQueue" class="java.util.concurrent.LinkedBlockingDeque" />
+        <bean id="contractDetailsQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
     </beans>
-    <!-- =================================== Bloomberg ========================================= -->
+
+    <!-- =================================== Bloomberg  ========================================= -->
+
     <beans profile="bBMarketData,bBSecurityRetrieval">
-        <bean id="bBAdapter" class="ch.algotrader.adapter.bb.BBAdapter" />
+        <bean id="bBAdapter" class="ch.algotrader.adapter.bb.BBAdapter"/>
     </beans>
-    <!-- =================================== Fix ========================================= -->
+
+    <!-- =================================== Fix  ========================================= -->
+
     <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData">
-        <bean id="fixSessionSettings"
-            class="ch.algotrader.adapter.fix.FixSessionSettingsFactoryBean" />
-        <bean id="fixSocketInitiator"
-            class="ch.algotrader.adapter.fix.FixSocketInitiatorFactoryBean">
-            <property name="sessionSettings" ref="fixSessionSettings" />
+
+        <bean id="fixSessionSettings" class="ch.algotrader.adapter.fix.FixSessionSettingsFactoryBean"/>
+
+        <bean id="fixSocketInitiator" class="ch.algotrader.adapter.fix.FixSocketInitiatorFactoryBean">
+            <property name="sessionSettings" ref="fixSessionSettings"/>
         </bean>
+
         <bean id="fixAdapter" class="ch.algotrader.adapter.fix.ManagedFixAdapter">
-            <property name="lookupService" ref="lookupService" />
-            <property name="socketInitiator" ref="fixSocketInitiator" />
+            <property name="lookupService" ref="lookupService"/>
+            <property name="socketInitiator" ref="fixSocketInitiator"/>
             <property name="eventScheduler">
-                <bean class="ch.algotrader.adapter.fix.DefaultFixEventScheduler" />
+                <bean class="ch.algotrader.adapter.fix.DefaultFixEventScheduler"/>
             </property>
             <property name="orderIdGenerator">
-                <bean class="ch.algotrader.adapter.fix.DefaultFixOrderIdGenerator" />
+                <bean class="ch.algotrader.adapter.fix.DefaultFixOrderIdGenerator"/>
             </property>
         </bean>
+
     </beans>
-    <!-- =================================== JP Morgan ========================================= -->
+
+    <!-- =================================== JP Morgan  ========================================= -->
+
     <beans profile="jPMFix">
-        <bean id="jPMOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle" />
+
+        <bean id="jPMOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+
         <bean id="jPMOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <property name="incomingMessageHandler">
-                <bean class="ch.algotrader.adapter.fix.fix42.Fix42OrderMessageHandler" />
+                <bean class="ch.algotrader.adapter.fix.fix42.Fix42OrderMessageHandler"/>
             </property>
-            <property name="lifecycleHandler" ref="jPMOrderSessionLifeCycle" />
-            <property name="name" value="JPMO" />
+            <property name="lifecycleHandler" ref="jPMOrderSessionLifeCycle"/>
+            <property name="name" value="JPMO"/>
         </bean>
+
     </beans>
-    <!-- =================================== Interactive Brokers ========================================= -->
+
+    <!-- =================================== Interactive Brokers  ========================================= -->
+
+
     <beans profile="iBFix">
-        <bean id="iBOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle" />
+
+        <bean id="iBOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+
         <bean id="iBOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <property name="incomingMessageHandler">
                 <bean class="ch.algotrader.adapter.ib.IBFixOrderMessageHandler">
-                    <property name="accountService" ref="iBFixAccountService" />
+                    <property name="accountService" ref="iBFixAccountService"/>
                 </bean>
             </property>
-            <property name="lifecycleHandler" ref="iBOrderSessionLifeCycle" />
-            <property name="name" value="IBO" />
+            <property name="lifecycleHandler" ref="iBOrderSessionLifeCycle"/>
+            <property name="name" value="IBO"/>
         </bean>
+
     </beans>
-    <!-- =================================== Real Tick ========================================= -->
+
+    <!-- =================================== Real Tick  ========================================= -->
+
     <beans profile="rTFix">
-        <bean id="rTOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle" />
+
+        <bean id="rTOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+
         <bean id="rTOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <property name="incomingMessageHandler">
-                <bean class="ch.algotrader.adapter.rt.RTFixOrderMessageHandler" />
+                <bean class="ch.algotrader.adapter.rt.RTFixOrderMessageHandler"/>
             </property>
-            <property name="lifecycleHandler" ref="rTOrderSessionLifeCycle" />
-            <property name="name" value="RTO" />
+            <property name="lifecycleHandler" ref="rTOrderSessionLifeCycle"/>
+            <property name="name" value="RTO"/>
         </bean>
+
     </beans>
-    <!-- =================================== DukasCopy ========================================= -->
+
+    <!-- =================================== DukasCopy  ========================================= -->
+
     <beans profile="dCMarketData,dCFix">
+
         <bean id="dCLogonMessageHandler" class="ch.algotrader.adapter.dc.DCLogonMessageHandler">
-            <property name="settings" ref="fixSessionSettings" />
+            <property name="settings" ref="fixSessionSettings"/>
         </bean>
+
     </beans>
+
     <beans profile="dCMarketData">
+
         <bean id="dCLogonMessageHandler" class="ch.algotrader.adapter.dc.DCLogonMessageHandler">
-            <property name="settings" ref="fixSessionSettings" />
+            <property name="settings" ref="fixSessionSettings"/>
         </bean>
-        <bean id="dCMarketDataSessionLifeCycle"
-            class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
-            <property name="marketDataService" ref="marketDataService" />
-            <property name="feedType" value="DC" />
+
+        <bean id="dCMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
+            <property name="marketDataService" ref="marketDataService"/>
+            <property name="feedType" value="DC"/>
         </bean>
+
         <bean id="dCMarketDataApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <property name="incomingMessageHandler">
-                <bean class="ch.algotrader.adapter.dc.DCFixMarketDataMessageHandler" />
+                   <bean class="ch.algotrader.adapter.dc.DCFixMarketDataMessageHandler"/>
             </property>
-            <property name="outgoingMessageHandler" ref="dCLogonMessageHandler" />
-            <property name="lifecycleHandler" ref="dCMarketDataSessionLifeCycle" />
-            <property name="name" value="DCMD" />
+            <property name="outgoingMessageHandler" ref="dCLogonMessageHandler"/>
+            <property name="lifecycleHandler" ref="dCMarketDataSessionLifeCycle"/>
+            <property name="name" value="DCMD"/>
         </bean>
+
     </beans>
+
     <beans profile="dCFix">
-        <bean id="dCOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle" />
+
+        <bean id="dCOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+
         <bean id="dCOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <property name="incomingMessageHandler">
                 <bean class="ch.algotrader.adapter.dc.DCFixOrderMessageHandler">
-                    <property name="lookupService" ref="lookupService" />
+                    <property name="lookupService" ref="lookupService"/>
                 </bean>
             </property>
-            <property name="outgoingMessageHandler" ref="dCLogonMessageHandler" />
-            <property name="lifecycleHandler" ref="dCOrderSessionLifeCycle" />
-            <property name="name" value="DCO" />
+            <property name="outgoingMessageHandler" ref="dCLogonMessageHandler"/>
+            <property name="lifecycleHandler" ref="dCOrderSessionLifeCycle"/>
+            <property name="name" value="DCO"/>
         </bean>
+
     </beans>
+
     <!-- =========================================== RECONCILIATION ================================================ -->
+
     <beans profile="reconciliation">
-        <task:scheduler id="taskScheduler" pool-size="2" />
+
+        <task:scheduler id="taskScheduler" pool-size="2"/>
+
         <util:properties id="javaMailProperties">
             <prop key="mail.imap.socketFactory.class">${mail.imap.socketFactory.class}</prop>
             <prop key="mail.imap.socketFactory.fallback">false</prop>
             <prop key="mail.store.protocol">${mail.store.protocol}</prop>
             <prop key="mail.imap.timeout">180000</prop>
-            <!-- <prop key="mail.debug">true</prop> -->
+<!--             <prop key="mail.debug">true</prop> -->
         </util:properties>
+
         <int-mail:imap-idle-channel-adapter
-            store-uri="${mail.imap.uri}" channel="inputChannel" auto-startup="true"
-            should-delete-messages="true" java-mail-properties="javaMailProperties" />
-        <int:channel id="inputChannel" />
+            store-uri="${mail.imap.uri}"
+            channel="inputChannel"
+            auto-startup="true"
+            should-delete-messages="true"
+            java-mail-properties="javaMailProperties"/>
+
+        <int:channel id="inputChannel"/>
+
         <int:chain input-channel="inputChannel" output-channel="outputChannel">
             <int:transformer>
-                <bean class="ch.algotrader.util.mail.EmailDispatcher"
-                    p:dispositions-ref="dispositions" />
+                <bean class="ch.algotrader.util.mail.EmailDispatcher" p:dispositions-ref="dispositions"/>
             </int:transformer>
-            <int:filter expression="headers.containsKey('directory')" />
+            <int:filter expression="headers.containsKey('directory')"/>
             <int:transformer>
-                <bean class="ch.algotrader.util.mail.EmailTransformer" />
+                <bean class="ch.algotrader.util.mail.EmailTransformer"/>
             </int:transformer>
             <int:splitter>
-                <bean class="ch.algotrader.util.mail.EmailSplitter" />
+                <bean class="ch.algotrader.util.mail.EmailSplitter"/>
             </int:splitter>
         </int:chain>
-        <int:channel id="outputChannel" />
-        <int-file:outbound-gateway request-channel="outputChannel"
-            reply-channel="serviceChannel" auto-create-directory="true"
-            directory="files/" filename-generator="fileNameGenerator" />
+
+        <int:channel id="outputChannel"/>
+
+        <int-file:outbound-gateway
+            request-channel="outputChannel"
+            reply-channel="serviceChannel"
+            auto-create-directory="true"
+            directory="files/"
+            filename-generator="fileNameGenerator"/>
+
         <bean id="fileNameGenerator"
             class="org.springframework.integration.file.DefaultFileNameGenerator"
-            p:expression="headers.directory + '/' + headers.file_name" />
-        <int:channel id="serviceChannel" />
-        <int:service-activator input-channel="serviceChannel"
-            expression="headers.reconciliationService.reconcile(payload)" />
+            p:expression="headers.directory + '/' + headers.file_name"/>
+
+        <int:channel id="serviceChannel"/>
+
+        <int:service-activator
+            input-channel="serviceChannel"
+            expression="headers.reconciliationService.reconcile(payload)"/>
+
     </beans>
+
 </beans>
