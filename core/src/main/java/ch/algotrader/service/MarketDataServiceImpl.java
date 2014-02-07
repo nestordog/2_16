@@ -97,8 +97,12 @@ public class MarketDataServiceImpl extends MarketDataServiceBase implements Appl
         subscribe(strategyName, securityId, this.feedType);
     }
 
+    /**
+     * synchronized due to potential mysql innodb deadlocks on concurrent inserts
+     * see http://thushw.blogspot.ch/2010/11/mysql-deadlocks-with-concurrent-inserts.html
+     */
     @Override
-    protected void handleSubscribe(String strategyName, int securityId, FeedType feedType) throws Exception {
+    protected synchronized void handleSubscribe(String strategyName, int securityId, FeedType feedType) throws Exception {
 
         if (getSubscriptionDao().findByStrategySecurityAndFeedType(strategyName, securityId, feedType) == null) {
 
@@ -132,7 +136,7 @@ public class MarketDataServiceImpl extends MarketDataServiceBase implements Appl
     }
 
     @Override
-    protected void handleUnsubscribe(String strategyName, int securityId, FeedType feedType) throws Exception {
+    protected synchronized void handleUnsubscribe(String strategyName, int securityId, FeedType feedType) throws Exception {
 
         Subscription subscription = getSubscriptionDao().findByStrategySecurityAndFeedType(strategyName, securityId, feedType);
         if (subscription != null && !subscription.isPersistent()) {
