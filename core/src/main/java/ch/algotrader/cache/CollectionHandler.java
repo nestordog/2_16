@@ -176,16 +176,15 @@ class CollectionHandler extends AbstractHandler {
 
             AbstractPersistentCollection col = (AbstractPersistentCollection) obj;
             if (col.wasInitialized()) {
-
-                Object initializedObj = this.cacheManager.getGenericDao().getInitializedCollection(col.getRole(), col.getKey());
-
-                Object existingObj = put(initializedObj);
-
-                // return the exstingObj if it was already in the cache otherwise the newly initialized obj
-                return existingObj != null ? existingObj : initializedObj;
-            } else {
                 return null;
             }
+
+            Object initializedObj = this.cacheManager.getGenericDao().getInitializedCollection(col.getRole(), col.getKey());
+
+            Object existingObj = put(initializedObj);
+
+            // return the exstingObj if it was already in the cache otherwise the newly initialized obj
+            return existingObj != null ? existingObj : initializedObj;
         }
     }
 

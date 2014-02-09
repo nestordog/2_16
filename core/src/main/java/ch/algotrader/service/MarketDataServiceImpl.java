@@ -110,10 +110,12 @@ public class MarketDataServiceImpl extends MarketDataServiceBase implements Appl
             Security security = getSecurityDao().findByIdInclFamilyAndUnderlying(securityId);
 
             // only external subscribe if nobody was watching the specified security with the specified feedType so far
-            List<Subscription> subscriptions = getSubscriptionDao().findBySecurityAndFeedTypeForAutoActivateStrategies(securityId, feedType);
-            if (subscriptions.size() == 0) {
-                if (!security.getSecurityFamily().isSynthetic()) {
-                    getExternalMarketDataService(feedType).subscribe(security);
+            if (!this.simulation) {
+                List<Subscription> subscriptions = getSubscriptionDao().findBySecurityAndFeedTypeForAutoActivateStrategies(securityId, feedType);
+                if (subscriptions.size() == 0) {
+                    if (!security.getSecurityFamily().isSynthetic()) {
+                        getExternalMarketDataService(feedType).subscribe(security);
+                    }
                 }
             }
 
@@ -149,9 +151,11 @@ public class MarketDataServiceImpl extends MarketDataServiceBase implements Appl
             getSubscriptionDao().remove(subscription);
 
             // only external unsubscribe if nobody is watching this security anymore
-            if (security.getSubscriptions().size() == 0) {
-                if (!security.getSecurityFamily().isSynthetic()) {
-                    getExternalMarketDataService(feedType).unsubscribe(security);
+            if (!this.simulation) {
+                if (security.getSubscriptions().size() == 0) {
+                    if (!security.getSecurityFamily().isSynthetic()) {
+                        getExternalMarketDataService(feedType).unsubscribe(security);
+                    }
                 }
             }
 
