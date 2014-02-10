@@ -126,7 +126,14 @@ class CollectionHandler extends AbstractHandler {
         synchronized (obj) {
 
             PersistentCollection origCollection = (PersistentCollection) obj;
+
+            // sometimes there is no role so collection initialization will not work
+            if (origCollection.getRole() == null) {
+                return null;
+            }
+
             Object updatedCollection = this.cacheManager.getGenericDao().getInitializedCollection(origCollection.getRole(), origCollection.getKey());
+
             // owner does not exist anymore so remove it
             if (updatedCollection == null) {
 
