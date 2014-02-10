@@ -7697,6 +7697,10 @@ from
                         </tbody>
                     </tgroup>
                 </table>
+                <para>In earlier versions of AlgoTrader the Tick Data Format also included the
+                    columns <literal>openIntrest</literal> and <literal>settlement</literal>. The
+                    unix sed command can be used to remove these extra columns automatically:</para>
+                <screen>sed -ib -e "s/,[0-9\.]*,[0-9\.]*$//" -e "s/,openIntrest,settlement//" *.csv</screen>
             </section>
             <section>
                 <title>Bar Data Files</title>
@@ -9131,9 +9135,39 @@ private @Value("#{T(ch.algotrader.enumeration.Currency)
             </para>
         </section>
         <section>
-            <title>Database Isolation Level</title>
-            <para>Mysql operates at Repeatable read isolation level (only Phantom reads are
-                possible)</para>
+            <title>Transaction Isolation Level</title>
+            <para>MySql operates at Repeatable read isolation level (only Phantom reads are possible). the
+                current isolation level can be retrieved via:</para>
+            <screen>show variables like '%isolation%';  </screen>
+            <para>The database isolation level can be set via:
+                <programlisting>SET [GLOBAL | SESSION] TRANSACTION ISOLATION LEVEL
+  {
+       REPEATABLE READ
+     | READ COMMITTED
+     | READ UNCOMMITTED
+     | SERIALIZABLE
+   }</programlisting>
+                The transaction isolation level can also be set via Hibernate using the following
+                configuration parameter:</para>
+            <programlisting language="XML">&lt;property name="connection.isolation">1&lt;/property></programlisting>
+            <para>Valid values are: </para>
+            <itemizedlist>
+                <listitem>
+                    <para>  TRANSACTION_READ_UNCOMMITTED = 1</para>
+                </listitem>
+                <listitem>
+                    <para>  TRANSACTION_READ_COMMITTED = 2</para>
+                </listitem>
+                <listitem>
+                    <para>  TRANSACTION_REPEATABLE_READ = 4</para>
+                </listitem>
+                <listitem>
+                    <para>  TRANSACTION_SERIALIZABLE = 8</para>
+                </listitem>
+            </itemizedlist>
+            <para>In addition the isolation level can also be set per Hibernate session using the
+                following parameter with the <classname>@Transaction</classname> annotation:</para>
+            <programlisting language="Java">@Transactional(isolation = Isolation.READ_COMMITTED)</programlisting>
         </section>
         <section id="Hibernate_Locking">
             <title>Hibernate Locking</title>
