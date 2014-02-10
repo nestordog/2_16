@@ -17,6 +17,7 @@ import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
+import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
@@ -262,6 +263,7 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
                 bar.setClose(RoundUtil.getBigDecimal(close, scale));
                 bar.setVol((int) volume);
                 bar.setBarSize(this.barSize);
+                bar.setFeedType(FeedType.BB);
                 bar.setSecurity(this.security);
 
                 this.barList.add(bar);
@@ -316,6 +318,7 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
                 bar.setClose(RoundUtil.getBigDecimal(close, scale));
                 bar.setVol((int) volume);
                 bar.setBarSize(this.barSize);
+                bar.setFeedType(FeedType.BB);
                 bar.setSecurity(this.security);
 
                 this.barList.add(bar);
