@@ -132,7 +132,9 @@ public class LookupServiceImpl extends LookupServiceBase {
         Security security = getSecurityDao().get(id);
 
         // initialize the security
-        security.initialize();
+        if (security != null) {
+            security.initialize();
+        }
 
         return security;
     }
