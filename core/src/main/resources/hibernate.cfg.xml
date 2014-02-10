@@ -4,9 +4,10 @@
         "http://www.jboss.org/dtd/hibernate/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
 <session-factory>
+    <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+
     <property name="hibernate.connection.driver_class">org.gjt.mm.mysql.Driver</property>
     <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/algoTrader</property>
-    <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
     <property name="hibernate.connection.username">root</property>
     <property name="hibernate.connection.password">password</property>
 
@@ -17,9 +18,8 @@
 <!--     <property name="cache.provider_class">net.sf.ehcache.hibernate.SingletonEhCacheProvider</property> -->
 <!--     <property name="hibernate.cache.query_cache_factory">org.hibernate.cache.StandardQueryCacheFactory</property> -->
 
-    <property name="current_session_context_class">thread</property>
-    <property name="hibernate.jdbc.batch_size">50</property>
-<!--     <property name="hibernate.show_sql">true</property> -->
+    <property name="hibernate.show_sql">true</property>
+<!--     <property name="hibernate.connection.isolation">4</property> -->
 
     <mapping resource="META-INF/Hibernate.hbm.xml" />
     <mapping resource="ch/algotrader/entity/Account.hbm.xml" />
