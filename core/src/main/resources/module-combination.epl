@@ -11,7 +11,8 @@ as
     volBid int,
     volAsk int,
     bid java.math.BigDecimal,
-    ask java.math.BigDecimal);
+    ask java.math.BigDecimal,
+    feedType ch.algotrader.enumeration.FeedType);
 
 @Name('INSERT_INTO_COMPONENT_WINDOW')
 insert into
@@ -23,6 +24,7 @@ select
     combinationId,
     componentCount,
     null as dateTime,
+    null as feedType,
     0 as volBid,
     0 as volAsk,
     null as bid,
@@ -41,7 +43,8 @@ set
     componentWindow.volBid = tick.volBid,
     componentWindow.volAsk = tick.volAsk,
     componentWindow.bid = tick.bid,
-    componentWindow.ask = tick.ask
+    componentWindow.ask = tick.ask,
+    componentWindow.feedType = tick.feedType
 where
     componentWindow.securityId = tick.security.id;
 
@@ -54,6 +57,7 @@ select
     MathUtil.nullSafeAbs(cast(min((case when win.quantity > 0 then win.volAsk else win.volBid end) / Math.abs(win.quantity)) * sum(win.quantity), int)) as volAsk,
     RoundUtil.getBigDecimalNullSafe(sum((case when win.quantity > 0 then win.bid.doubleValue() else win.ask.doubleValue() end) * win.quantity) / sum(win.quantity)) as bid,
     RoundUtil.getBigDecimalNullSafe(sum((case when win.quantity > 0 then win.ask.doubleValue() else win.bid.doubleValue() end) * win.quantity) / sum(win.quantity)) as ask,
+    last(win.feedType) as feedType,
     last(win.combinationId) as combinationId,
     last(componentCount) - count(win.componentId) as countDiff,
     max(win.dateTime.time) - min(win.dateTime.time) as timeDiff
@@ -78,6 +82,7 @@ select
     volAsk,
     bid,
     ask,
+    feedType,
     security
 from
     CombinationTick(not combinationId is null),
