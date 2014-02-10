@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -134,10 +135,10 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
             // set & update fields
             bar.setSecurity(security);
             bar.setFeedType(FeedType.IB);
-            bar.getOpen().setScale(scale);
-            bar.getHigh().setScale(scale);
-            bar.getLow().setScale(scale);
-            bar.getClose().setScale(scale);
+            bar.getOpen().setScale(scale, RoundingMode.HALF_UP);
+            bar.getHigh().setScale(scale, RoundingMode.HALF_UP);
+            bar.getLow().setScale(scale, RoundingMode.HALF_UP);
+            bar.getClose().setScale(scale, RoundingMode.HALF_UP);
             bar.setBarSize(barSize);
 
             barList.add(bar);
