@@ -306,7 +306,7 @@ public class DateUtil {
         cal.setMinimalDaysInFirstWeek(2);
         cal.set(Calendar.WEEK_OF_MONTH, 3);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
-        cal.set(Calendar.HOUR_OF_DAY, 13);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
@@ -351,7 +351,7 @@ public class DateUtil {
         cal.set(Calendar.MONTH, month);
         cal.set(Calendar.WEEK_OF_MONTH, 3);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
-        cal.set(Calendar.HOUR_OF_DAY, 13);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
@@ -378,7 +378,7 @@ public class DateUtil {
         cal.set(Calendar.MONTH, month);
         cal.set(Calendar.WEEK_OF_MONTH, 3);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
-        cal.set(Calendar.HOUR_OF_DAY, 13);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
