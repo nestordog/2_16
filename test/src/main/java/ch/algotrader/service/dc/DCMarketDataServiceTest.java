@@ -37,9 +37,10 @@ import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.hibernate.GenericDao;
+import ch.algotrader.service.LocalServiceTest;
 import ch.algotrader.vo.SubscribeTickVO;
 
-public class DCMarketDataServiceTest {
+public class DCMarketDataServiceTest extends LocalServiceTest {
 
     private static HibernateTransactionManager transactionManager;
     private TransactionStatus transaction;
@@ -48,7 +49,6 @@ public class DCMarketDataServiceTest {
     @BeforeClass
     public static void setupClass() {
 
-        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
         transactionManager = ServiceLocator.instance().getService("transactionManager",HibernateTransactionManager.class);
     }
 

@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.rt;
+package ch.algotrader.service.rt;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -52,7 +52,7 @@ import ch.algotrader.service.OrderService;
  *
  * @version $Revision$ $Date$
  */
-public class RTOrderTest {
+public class RTOrderServiceTest {
 
     private static final String ACCOUNT_NAME = "RT_TEST";
     private static final String SYMBOL = "GOOG";

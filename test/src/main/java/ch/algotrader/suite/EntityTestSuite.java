@@ -15,11 +15,15 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity;
+package ch.algotrader.suite;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import ch.algotrader.entity.AccountTest;
+import ch.algotrader.entity.PositionTest;
+import ch.algotrader.entity.SubscriptionTest;
+import ch.algotrader.entity.TransactionTest;
 import ch.algotrader.entity.marketData.BarTest;
 import ch.algotrader.entity.marketData.TickTest;
 import ch.algotrader.entity.property.PropertyTest;
