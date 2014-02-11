@@ -5,6 +5,34 @@
     <version>2.1-SNAPSHOT</version>
     <name>AlgoTrader UML Model</name>
 
+    <organization>
+        <name>Flury Trading</name>
+        <url>http://www.algotrader.ch</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id />
+            <name>Andy Flury</name>
+            <email>aflury@algotrader.ch</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>UTC+1</timezone>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>AlgoTrader License Agreement</name>
+            <url>LICENSE.txt</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <developerConnection>scm:svn:svn+ssh://repo.algotrader.ch/var/svn/repository/trunk/AlgoTrader/uml</developerConnection>
+    </scm>
+
     <build>
         <resources>
             <resource>
@@ -17,4 +45,18 @@
             </resource>
         </resources>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>algotrader-deploy</id>
+            <name>AlgoTrader Repositiory</name>
+            <url>scp://repo.algotrader.ch/home/web/maven</url>
+        </repository>
+        <snapshotRepository>
+            <id>algotrader-deploy</id>
+            <name>AlgoTrader Repositiory</name>
+            <url>scp://repo.algotrader.ch/home/web/maven</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 </project>
