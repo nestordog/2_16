@@ -53,6 +53,9 @@ public class BBMarketDataServiceImpl extends BBMarketDataServiceBase implements 
     protected void handleInit() throws Exception {
 
         session = getBBAdapter().getMarketDataSession();
+
+        // by this time the session is up and running, so no need to do this inside the messageHandler
+        initSubscriptions();
     }
 
     @Override
