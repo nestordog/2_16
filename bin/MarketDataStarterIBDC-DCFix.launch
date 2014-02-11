@@ -19,6 +19,6 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.algotrader.starter.MarketDataStarter"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="algotrader-core"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dsimulation=false&#13;&#10;-DdataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTraderTest&#13;&#10;-Dcom.sun.management.jmxremote.port=1099&#13;&#10;-Dcom.sun.management.jmxremote.authenticate=false&#13;&#10;-Dcom.sun.management.jmxremote.ssl=false&#13;&#10;-Dspring.profiles.active=server,pooledDataSource,iBMarketData,dCMarketData,dCFix,iBHistoricalData&#13;&#10;-Xmx2048M&#13;&#10;-XX:MaxPermSize=1024M"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dsimulation=false&#13;&#10;-DdataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTrader&#13;&#10;-Dcom.sun.management.jmxremote.port=1099&#13;&#10;-Dcom.sun.management.jmxremote.authenticate=false&#13;&#10;-Dcom.sun.management.jmxremote.ssl=false&#13;&#10;-Dspring.profiles.active=server,pooledDataSource,iBMarketData,dCMarketData,dCFix,iBHistoricalData&#13;&#10;-Xmx2048M&#13;&#10;-XX:MaxPermSize=1024M"/>
 <stringAttribute key="org.eclipse.tptp.platform.jvmti.client.ATTR_FILTERSET_ID" value="auto_generated_filter_set"/>
 </launchConfiguration>
