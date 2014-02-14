@@ -4627,6 +4627,47 @@ public class MovChartService extends ChartProvidingServiceImpl {
                     <listitem>
                         <para>Install the latest version of <ulink url="http://maven.apache.org"
                                 >Maven</ulink>.</para>
+                        <para>Create the file <filename>&lt;user-home>\.m2\settings.xml</filename> and add the
+                            following content to it:</para>
+                        <programlisting language="XML">&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  &lt;servers>
+    &lt;server>
+      &lt;id>algotraderrepo&lt;/id>
+      &lt;username>&lt;/username>
+      &lt;password>&lt;/password>
+    &lt;/server>
+  &lt;/servers>
+
+  &lt;profiles>
+    &lt;profile>
+         &lt;id>algotrader&lt;/id>
+      &lt;repositories>
+        &lt;repository>
+            &lt;id>algotraderrepo&lt;/id>
+            &lt;url>https://repo.algotrader.ch/maven&lt;/url>
+        &lt;/repository>
+      &lt;/repositories>
+      &lt;pluginRepositories>
+        &lt;pluginRepository>
+            &lt;id>algotraderrepo&lt;/id>
+            &lt;url>https://repo.algotrader.ch/maven&lt;/url>
+        &lt;/pluginRepository>
+      &lt;/pluginRepositories>
+    &lt;/profile>
+  &lt;/profiles>
+
+  &lt;activeProfiles>
+    &lt;activeProfile>algotrader&lt;/activeProfile>
+  &lt;/activeProfiles>
+
+&lt;/settings></programlisting>
+                        <note>
+                            <para>Username and Password will be provided when licensing
+                                AlgoTrader</para>
+                        </note>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -10094,6 +10135,13 @@ where and s.name = 'BASE'</programlisting>
                         </para>
                         <para>to:</para>
                         <para><filename>algotrader/core/files/eurusd-1min-20120101-20120630/EU0009652759.csv</filename></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>MySql Data</term>
+                    <listitem>
+                        <para>run the MySql Script: <command>breakOut/sql/db-data.sql</command>
+                        </para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
