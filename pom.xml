@@ -223,17 +223,25 @@
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>core/bin</module>
+                <module>client/bin</module>
+                <module>doc</module>
+                <module>crud</module>
+                <module>test</module>
+                <module>archetype</module>
+            </modules>
+        </profile>
+    </profiles>
+
     <modules>
         <module>mda</module>
         <module>common</module>
         <module>core</module>
         <module>client</module>
-        <module>core/bin</module>
-        <module>client/bin</module>
-        <module>doc</module>
-        <module>crud</module>
-        <module>test</module>
-        <module>archetype</module>
     </modules>
 
     <dependencyManagement>
