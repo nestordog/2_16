@@ -47,6 +47,12 @@ import ch.algotrader.service.OrderService;
 
 /**
  * RealTick MarketOrderTest
+ * <p>
+ * Prerequisites:
+ * <ul>
+ * <li>strategy "TESTING" in the database</li>
+ * <li>Base running with the spring profile: rTFix</li>
+ * </ul>
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
@@ -97,8 +103,6 @@ public class RTOrderServiceTest {
                 break;
             }
         }
-
-        Assert.assertEquals("Unexpected number of messages", 5, session.size());
 
         Serializable obj1 = session.get(0);
         Assert.assertTrue("Market order expected", obj1 instanceof MarketOrder);
@@ -158,8 +162,6 @@ public class RTOrderServiceTest {
                 break;
             }
         }
-
-        Assert.assertEquals("Unexpected number of messages", 2, session.size());
 
         Serializable obj1 = session.get(0);
         Assert.assertTrue("Limit order expected", obj1 instanceof LimitOrder);

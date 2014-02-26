@@ -17,11 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.rt;
 
-import quickfix.FieldNotFound;
-import quickfix.fix44.ExecutionReport;
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageHandler;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderStatus;
 
 /**
  * RealTick specific Fix44MessageHandler.
@@ -32,12 +28,4 @@ import ch.algotrader.entity.trade.OrderStatus;
  */
 public class RTFixOrderMessageHandler extends Fix44OrderMessageHandler {
 
-    @Override
-    protected void processOrderStatus(ExecutionReport executionReport, Order order, OrderStatus orderStatus) throws FieldNotFound {
-
-        // Note: store OrderID since RealTick requires it for cancels and replaces
-        if (executionReport.getOrderID() != null && (order.getExtId() == null || !order.getExtId().equals(executionReport.getOrderID()))) {
-            orderStatus.setExtId(executionReport.getOrderID().getValue());
-        }
-    }
 }

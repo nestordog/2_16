@@ -6,7 +6,7 @@
 
     <bean id="queue" class="java.util.concurrent.LinkedBlockingQueue"/>
 
-    <bean id="messageListener" class="ch.algotrader.test.realtick.RTMessageListener" autowire="constructor" />
+    <bean id="messageListener" class="ch.algotrader.adapter.rt.RTMessageListener" autowire="constructor" />
 
     <bean id="strategyQueue" class="org.apache.activemq.command.ActiveMQQueue">
         <constructor-arg value="TESTING.QUEUE" />
