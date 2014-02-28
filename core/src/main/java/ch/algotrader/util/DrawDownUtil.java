@@ -25,6 +25,7 @@ package ch.algotrader.util;
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
+ *
  */
 public class DrawDownUtil {
 
