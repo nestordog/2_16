@@ -46,6 +46,12 @@ public class DCFixMarketDataServiceImpl extends DCFixMarketDataServiceBase {
     }
 
     @Override
+    protected String handleGetSessionQualifier() {
+
+        return "DCMD";
+    }
+
+    @Override
     protected void handleSendSubscribeRequest(Security security) throws Exception {
 
         MarketDataRequest request = createMarketDataRequest(security, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
@@ -62,12 +68,8 @@ public class DCFixMarketDataServiceImpl extends DCFixMarketDataServiceBase {
     }
 
     @Override
-    protected String handleGetSessionQualifier() {
-        return "DCMD";
-    }
-
-    @Override
     protected int handleGetTickerId(Security security) throws Exception {
+
         return DCUtil.getTickerId(security);
     }
 
