@@ -28,6 +28,7 @@ import javax.swing.table.TableModel;
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
+ *
  */
 public class CsvExporter {
 
