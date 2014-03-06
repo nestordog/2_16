@@ -253,7 +253,7 @@
 
     <!-- =================================== Bloomberg  ========================================= -->
 
-    <beans profile="bBMarketData,bBSecurityRetrieval">
+    <beans profile="bBMarketData,bBHistoricalData,bBSecurityRetrieval">
         <bean id="bBAdapter" class="ch.algotrader.adapter.bb.BBAdapter"/>
     </beans>
 
