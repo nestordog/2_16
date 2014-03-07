@@ -49,13 +49,11 @@
     <distributionManagement>
         <repository>
             <id>algotrader-deploy</id>
-            <name>AlgoTrader Repositiory</name>
-            <url>scp://repo.algotrader.ch/home/web/maven</url>
+            <url>https://repo.algotrader.ch/nexus/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
             <id>algotrader-deploy</id>
-            <name>AlgoTrader Repositiory</name>
-            <url>scp://repo.algotrader.ch/home/web/maven</url>
+            <url>https://repo.algotrader.ch/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
