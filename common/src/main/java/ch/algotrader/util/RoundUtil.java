@@ -32,7 +32,13 @@ import ch.algotrader.ServiceLocator;
  */
 public class RoundUtil {
 
-    private static final int portfolioDigits = ServiceLocator.instance().getConfiguration().getInt("misc.portfolioDigits");
+    private static int portfolioDigits = 2;
+
+    static {
+        if (ServiceLocator.instance().isInitialized()) {
+            portfolioDigits = ServiceLocator.instance().getConfiguration().getInt("misc.portfolioDigits");
+        }
+    }
 
     public static double roundToNextN(double value, double n) {
 
