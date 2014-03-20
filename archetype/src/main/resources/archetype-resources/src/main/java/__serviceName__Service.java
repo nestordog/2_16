@@ -1,15 +1,13 @@
 package ${package};
 
 import java.math.BigDecimal;
-import org.springframework.jmx.export.annotation.ManagedResource;
 import ch.algotrader.service.StrategyServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
- * The main service class of the ${nameOfService} Strategy
+ * The main service class of the ${serviceName} Strategy
  */
-@ManagedResource(objectName = "${package}:name=${nameOfService}Service")
-public class ${nameOfService}Service extends StrategyServiceImpl {
+public class ${serviceName}Service extends StrategyServiceImpl {
 
     // configuration variables
     private @Value("${strategyName}") String strategyName;

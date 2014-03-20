@@ -1,0 +1,22 @@
+// create a simple moving average indicator
+@Name('MOVING_AVERAGE')
+insert into
+    Indicator
+select
+    talib("movingAverage", currentValueDouble, 10, "Sma") - talib("movingAverage", currentValueDouble, 20, "Sma") as value
+from
+    Tick;
+
+// open a new position
+@Name('OPEN_POSITION')
+@Subscriber(className='test.${serviceName}Service.openPosition')
+select
+    engineStrategy.name as strategyName,
+    tick.security.id as securityId,
+    tick.currentValue as price
+from
+    pattern [every (tick=Tick -> indicator=Indicator)]
+where
+    indicator.value > 0
+and
+    prior(1, indicator.value) <= 0;
