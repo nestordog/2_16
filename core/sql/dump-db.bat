@@ -1,4 +1,4 @@
-set db=algotradertest
+set db=algotrader
 
 mysqldump.exe --skip-triggers --no-data -u root -ppassword -r ^
 db-structure.sql ^

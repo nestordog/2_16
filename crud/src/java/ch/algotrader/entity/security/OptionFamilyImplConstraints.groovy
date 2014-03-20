@@ -30,6 +30,7 @@ constraints = {
     expirationType()
     expirationDistance()
     strikeDistance()
+    weekly()
 
     underlying(nullable : true)
     brokerParameters()

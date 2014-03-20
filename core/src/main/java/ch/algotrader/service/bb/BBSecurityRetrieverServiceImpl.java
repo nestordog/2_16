@@ -363,8 +363,8 @@ public class BBSecurityRetrieverServiceImpl extends BBSecurityRetrieverServiceBa
                     BigDecimal strike = RoundUtil.getBigDecimal(strikeDouble, this.securityFamily.getScale());
                     OptionType type = OptionType.fromString(typeString.toUpperCase());
 
-                    String isin = OptionSymbol.getIsin(this.securityFamily, expiration, type, strike);
-                    String ric = OptionSymbol.getRic(this.securityFamily, expiration, type, strike);
+                    String isin = OptionSymbol.getIsin((OptionFamily) this.securityFamily, expiration, type, strike);
+                    String ric = OptionSymbol.getRic((OptionFamily) this.securityFamily, expiration, type, strike);
 
                     Option option = Option.Factory.newInstance();
 

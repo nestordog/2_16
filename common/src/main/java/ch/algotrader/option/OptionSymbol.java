@@ -26,7 +26,7 @@ import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.util.BaseConverterUtil;
 
@@ -45,17 +45,24 @@ public class OptionSymbol {
     private static SimpleDateFormat dayMonthYearFormat = new SimpleDateFormat("dd/MMM/yy");
     private static SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMM/yy");
     private static SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
+    private static SimpleDateFormat weekFormat = new SimpleDateFormat("W");
 
     /**
      * Generates the symbole for the specified {@link ch.algotrader.entity.security.OptionFamily}.
      */
-    public static String getSymbol(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike, boolean includeDay) {
+    public static String getSymbol(OptionFamily family, Date expiration, OptionType type, BigDecimal strike, boolean includeDay) {
 
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(expiration);
 
+        String week = "";
+        if (family.isWeekly()) {
+            week = weekFormat.format(cal.getTime());
+        }
+
         StringBuffer buffer = new StringBuffer();
         buffer.append(family.getBaseSymbol());
+        buffer.append(week);
         buffer.append(" ");
         buffer.append(includeDay ? dayMonthYearFormat.format(cal.getTime()) : monthYearFormat.format(cal.getTime()).toUpperCase());
         buffer.append("-");
@@ -69,13 +76,17 @@ public class OptionSymbol {
     /**
      * Generates the ISIN for the specified {@link ch.algotrader.entity.security.OptionFamily}.
      */
-    public static String getIsin(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike) {
+    public static String getIsin(OptionFamily family, Date expiration, OptionType type, BigDecimal strike) {
 
-        int week = 1;
-
-        String month;
         Calendar cal = new GregorianCalendar();
         cal.setTime(expiration);
+
+        String week = "";
+        if (family.isWeekly()) {
+            week = weekFormat.format(cal.getTime());
+        }
+
+        String month;
         if (OptionType.CALL.equals(type)) {
             month = monthCallEnc[cal.get(Calendar.MONTH)];
         } else {
@@ -89,9 +100,9 @@ public class OptionSymbol {
             String strikeVal = strike.scale() + StringUtils.leftPad(strike36, 4, "0");
 
         StringBuffer buffer = new StringBuffer();
-        buffer.append(week);
-        buffer.append("O");
+        buffer.append("1O");
         buffer.append(family.getIsinRoot() != null ? family.getIsinRoot() : family.getBaseSymbol());
+        buffer.append(week);
         buffer.append(month);
         buffer.append(year);
         buffer.append(strikeVal);
@@ -102,7 +113,7 @@ public class OptionSymbol {
     /**
      * Generates the RIC for the specified {@link ch.algotrader.entity.security.OptionFamily}.
      */
-    public static String getRic(SecurityFamily family, Date expiration, OptionType type, BigDecimal strike) {
+    public static String getRic(OptionFamily family, Date expiration, OptionType type, BigDecimal strike) {
 
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(expiration);
