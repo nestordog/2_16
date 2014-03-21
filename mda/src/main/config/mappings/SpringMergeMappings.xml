@@ -26,6 +26,18 @@
             <to><![CDATA[<property name="fixSessionLifecycle" ref="dCMarketDataSessionLifeCycle"/>]]></to>
         </mapping>
 
+        <!-- add fixSessionLifecycle to LMAXFixMarketDataService -->
+        <mapping>
+            <from><![CDATA[<!-- LMAXFixMarketDataService service property merge-point -->]]></from>
+            <to><![CDATA[<property name="fixSessionLifecycle" ref="lMAXMarketDataSessionLifeCycle"/>]]></to>
+        </mapping>
+
+        <!-- add fixSessionLifecycle to FXCMFixMarketDataService -->
+        <mapping>
+            <from><![CDATA[<!-- FXCMFixMarketDataService service property merge-point -->]]></from>
+            <to><![CDATA[<property name="fixSessionLifecycle" ref="fXCMMarketDataSessionLifeCycle"/>]]></to>
+        </mapping>
+
         <!-- add historicalDataQueue IBNativeHistoricalDataService -->
         <mapping>
             <from><![CDATA[<!-- IBNativeHistoricalDataService service property merge-point -->]]></from>
