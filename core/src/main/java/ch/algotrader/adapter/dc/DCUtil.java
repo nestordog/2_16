@@ -30,17 +30,7 @@ import ch.algotrader.entity.security.Security;
  */
 public class DCUtil {
 
-    public static int getTickerId(Security security) {
-
-        return getSymbol(security).hashCode();
-    }
-
-    public static int getTickerId(String symbol) {
-
-        return symbol.hashCode();
-    }
-
-    public static String getSymbol(Security security) {
+    public static String getDCSymbol(Security security) {
 
         if (!(security instanceof Forex)) {
             throw new FixApplicationException("DukasCopy can only handle forex");

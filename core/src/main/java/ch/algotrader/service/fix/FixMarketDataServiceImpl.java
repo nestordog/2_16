@@ -80,7 +80,7 @@ public abstract class FixMarketDataServiceImpl extends FixMarketDataServiceBase 
         tick.setSecurity(security);
         tick.setFeedType(getFeedType());
 
-        int tickerId = getTickerId(security);
+        String tickerId = getTickerId(security);
 
         // create the SubscribeTickEvent and propagate it
         SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();

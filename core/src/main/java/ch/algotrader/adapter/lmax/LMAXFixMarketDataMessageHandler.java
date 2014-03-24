@@ -22,11 +22,6 @@ import java.util.Date;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ch.algotrader.adapter.fix.fix44.Fix44MarketDataMessageHandler;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
 import quickfix.FieldNotFound;
 import quickfix.Group;
 import quickfix.SessionID;
@@ -41,6 +36,11 @@ import quickfix.field.NoMDEntries;
 import quickfix.field.SecurityID;
 import quickfix.fix44.MarketDataRequestReject;
 import quickfix.fix44.MarketDataSnapshotFullRefresh;
+import ch.algotrader.adapter.fix.fix44.Fix44MarketDataMessageHandler;
+import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.vo.AskVO;
+import ch.algotrader.vo.BidVO;
 
 /**
  * LMAX specific FIX market data handler.
@@ -63,7 +63,7 @@ public class LMAXFixMarketDataMessageHandler extends Fix44MarketDataMessageHandl
 
         SecurityID secId = marketData.getSecurityID();
         String code = secId.getValue();
-        String symbol = mapper.mapToSymbol(code);
+        String symbol = this.mapper.mapToSymbol(code);
         if (symbol == null) {
             return;
         }
@@ -86,7 +86,6 @@ public class LMAXFixMarketDataMessageHandler extends Fix44MarketDataMessageHandl
                 double price = group.getDouble(MDEntryPx.FIELD);
                 double size = group.getDouble(MDEntrySize.FIELD);
 
-                int tickerId = LMAXUtil.createTickerId(symbol);
                 switch (entryType) {
                     case MDEntryType.BID:
 
@@ -94,7 +93,7 @@ public class LMAXFixMarketDataMessageHandler extends Fix44MarketDataMessageHandl
                             logger.trace(symbol + " BID " + size + "@" + price);
                         }
 
-                        BidVO bidVO = new BidVO(tickerId, date, price, (int) size);
+                        BidVO bidVO = new BidVO(symbol, date, price, (int) size);
                         EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
@@ -103,7 +102,7 @@ public class LMAXFixMarketDataMessageHandler extends Fix44MarketDataMessageHandl
                             logger.trace(symbol + " ASK " + size + "@" + price);
                         }
 
-                        AskVO askVO = new AskVO(tickerId, date, price, (int) size);
+                        AskVO askVO = new AskVO(symbol, date, price, (int) size);
 
                         EngineLocator.instance().getBaseEngine().sendEvent(askVO);
                         break;
@@ -112,6 +111,7 @@ public class LMAXFixMarketDataMessageHandler extends Fix44MarketDataMessageHandl
         }
     }
 
+    @Override
     public void onMessage(final MarketDataRequestReject reject, final SessionID sessionID) throws FieldNotFound {
         if (logger.isEnabledFor(Level.WARN) && reject.isSetField(MDReqRejReason.FIELD)) {
             MDReqID mdReqID = reject.getMDReqID();

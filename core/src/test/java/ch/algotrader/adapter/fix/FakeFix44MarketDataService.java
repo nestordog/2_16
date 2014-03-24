@@ -17,12 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceBase;
 import quickfix.field.MDReqID;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceBase;
 
 /**
  * Mock FIX 4.4 market data service
@@ -59,10 +59,9 @@ class FakeFix44MarketDataService extends Fix44MarketDataServiceBase {
     }
 
     @Override
-    protected int handleGetTickerId(final Security security) throws Exception {
+    protected String handleGetTickerId(final Security security) throws Exception {
 
-        String symbol = security.getSymbol();
-        return symbol.hashCode();
+        return security.getSymbol();
     }
 
     @Override

@@ -71,7 +71,7 @@ public class DCFixMarketDataMessageHandler extends Fix44MarketDataMessageHandler
                 calendar = DateUtils.truncate(calendar, Calendar.DATE);
                 Date date = new Date(calendar.getTimeInMillis() + time.getTime());
 
-                int tickerId = DCUtil.getTickerId(symbol.getValue());
+                String tickerId = symbol.getValue();
                 switch (entryType) {
                     case MDEntryType.BID:
 
@@ -79,7 +79,7 @@ public class DCFixMarketDataMessageHandler extends Fix44MarketDataMessageHandler
                             logger.trace(symbol.getValue() + " BID " + size + "@" + price);
                         }
 
-                        BidVO bidVO = new BidVO((int) tickerId, date, price, (int) size);
+                        BidVO bidVO = new BidVO(tickerId, date, price, (int) size);
                         EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
@@ -88,7 +88,7 @@ public class DCFixMarketDataMessageHandler extends Fix44MarketDataMessageHandler
                             logger.trace(symbol.getValue() + " ASK " + size + "@" + price);
                         }
 
-                        AskVO askVO = new AskVO((int) tickerId, date, price, (int) size);
+                        AskVO askVO = new AskVO(tickerId, date, price, (int) size);
 
                         EngineLocator.instance().getBaseEngine().sendEvent(askVO);
                         break;

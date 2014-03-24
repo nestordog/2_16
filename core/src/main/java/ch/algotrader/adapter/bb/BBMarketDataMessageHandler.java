@@ -67,7 +67,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
 
         for (Message msg : event) {
 
-            int cid = (int) msg.correlationID().value();
+            String cid = Long.toString(msg.correlationID().value());
 
             Element fields = msg.asElement();
 

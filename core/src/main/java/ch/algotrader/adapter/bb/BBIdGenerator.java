@@ -37,7 +37,7 @@ public final class BBIdGenerator {
         return instance;
     }
 
-    public int getNextRequestId() {
-        return this.requestId++;
+    public String getNextRequestId() {
+        return Integer.toString(this.requestId++);
     }
 }

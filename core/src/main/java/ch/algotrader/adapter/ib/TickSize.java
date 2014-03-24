@@ -30,7 +30,7 @@ public class TickSize implements Serializable {
 
     private static final long serialVersionUID = 7514087845300720397L;
 
-    protected int tickerId;
+    protected String tickerId;
     protected int field;
     protected int size;
 
@@ -40,7 +40,7 @@ public class TickSize implements Serializable {
      * @param fieldIn int
      * @param sizeIn int
      */
-    public TickSize(final int tickerIdIn, final int fieldIn, final int sizeIn) {
+    public TickSize(final String tickerIdIn, final int fieldIn, final int sizeIn) {
         this.tickerId = tickerIdIn;
         this.field = fieldIn;
         this.size = sizeIn;
@@ -50,7 +50,7 @@ public class TickSize implements Serializable {
      * Get the tickerId Attribute
      * @return tickerId int
      */
-    public int getTickerId() {
+    public String getTickerId() {
         return this.tickerId;
     }
 
@@ -58,7 +58,7 @@ public class TickSize implements Serializable {
      *
      * @param value int
      */
-    public void setTickerId(final int value) {
+    public void setTickerId(final String value) {
         this.tickerId = value;
     }
 

@@ -12,7 +12,7 @@ create window
     TickWindow.std:groupwin(security.id, feedType).std:lastevent()
 as select
     *,
-    0 as tickerId,
+    "" as tickerId,
     true as refresh
 from
     Tick;

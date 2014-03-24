@@ -29,18 +29,13 @@ import ch.algotrader.entity.security.Security;
  */
 public class LMAXUtil {
 
-    public static String createSymbol(final Security security) {
+    public static String getLMAXSymbol(final Security security) {
         if (security instanceof Forex) {
             Forex forex = (Forex) security;
             return forex.getBaseCurrency() + "/" + forex.getTransactionCurrency();
         } else {
             return security.getSymbol();
         }
-    }
-
-    public static int createTickerId(String symbol) {
-
-        return symbol.hashCode();
     }
 
 }

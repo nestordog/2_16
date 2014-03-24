@@ -200,7 +200,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             logger.trace(EWrapperMsgGenerator.tickPrice(tickerId, field, price, canAutoExecute));
         }
 
-        TickPrice o = new TickPrice(tickerId, field, price, canAutoExecute);
+        TickPrice o = new TickPrice(Integer.toString(tickerId), field, price, canAutoExecute);
         EngineLocator.instance().getBaseEngine().sendEvent(o);
     }
 
@@ -211,7 +211,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             logger.trace(EWrapperMsgGenerator.tickSize(tickerId, field, size));
         }
 
-        TickSize o = new TickSize(tickerId, field, size);
+        TickSize o = new TickSize(Integer.toString(tickerId), field, size);
         EngineLocator.instance().getBaseEngine().sendEvent(o);
     }
 
@@ -222,7 +222,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             logger.trace(EWrapperMsgGenerator.tickString(tickerId, tickType, value));
         }
 
-        TickString o = new TickString(tickerId, tickType, value);
+        TickString o = new TickString(Integer.toString(tickerId), tickType, value);
         EngineLocator.instance().getBaseEngine().sendEvent(o);
     }
 

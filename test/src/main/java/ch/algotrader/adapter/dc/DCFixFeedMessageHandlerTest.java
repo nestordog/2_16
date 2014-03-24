@@ -11,6 +11,17 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import quickfix.CompositeLogFactory;
+import quickfix.DefaultSessionFactory;
+import quickfix.LogFactory;
+import quickfix.MemoryStoreFactory;
+import quickfix.SLF4JLogFactory;
+import quickfix.Session;
+import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.SocketInitiator;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
@@ -24,17 +35,6 @@ import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
-import quickfix.CompositeLogFactory;
-import quickfix.DefaultSessionFactory;
-import quickfix.LogFactory;
-import quickfix.MemoryStoreFactory;
-import quickfix.SLF4JLogFactory;
-import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 
 public class DCFixFeedMessageHandlerTest {
 
@@ -153,7 +153,7 @@ public class DCFixFeedMessageHandlerTest {
 
         this.session.send(request);
 
-        int tickerId = DCUtil.getTickerId(forex);
+        String tickerId = DCUtil.getDCSymbol(forex);
 
         for (int i = 0; i < 10; i++) {
 

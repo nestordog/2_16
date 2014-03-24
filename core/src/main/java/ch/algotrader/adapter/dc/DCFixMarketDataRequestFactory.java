@@ -39,7 +39,7 @@ public class DCFixMarketDataRequestFactory {
 
         MarketDataRequest request = new MarketDataRequest();
         request.set(type);
-        request.set(new MDReqID(DCUtil.getSymbol(security)));
+        request.set(new MDReqID(DCUtil.getDCSymbol(security)));
 
         MarketDataRequest.NoMDEntryTypes bid = new MarketDataRequest.NoMDEntryTypes();
         bid.set(new MDEntryType(MDEntryType.BID));
@@ -50,7 +50,7 @@ public class DCFixMarketDataRequestFactory {
         request.addGroup(offer);
 
         MarketDataRequest.NoRelatedSym symbol = new MarketDataRequest.NoRelatedSym();
-        symbol.set(new Symbol(DCUtil.getSymbol(security)));
+        symbol.set(new Symbol(DCUtil.getDCSymbol(security)));
         request.addGroup(symbol);
 
         request.set(new MarketDepth(1));

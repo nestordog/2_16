@@ -69,7 +69,7 @@ public class BBMarketDataServiceImpl extends BBMarketDataServiceBase implements 
         security.getSecurityFamilyInitialized();
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
-        int tickerId = BBIdGenerator.getInstance().getNextRequestId();
+        String tickerId = BBIdGenerator.getInstance().getNextRequestId();
         Tick tick = Tick.Factory.newInstance();
         tick.setSecurity(security);
         tick.setFeedType(FeedType.BB);
@@ -96,7 +96,7 @@ public class BBMarketDataServiceImpl extends BBMarketDataServiceBase implements 
         }
 
         // get the tickerId by querying the TickWindow
-        Integer tickerId = getTickDao().findTickerIdBySecurity(security.getId());
+        String tickerId = getTickDao().findTickerIdBySecurity(security.getId());
         if (tickerId == null) {
             throw new IBNativeMarketDataServiceException("tickerId for security " + security + " was not found");
         }
@@ -110,7 +110,7 @@ public class BBMarketDataServiceImpl extends BBMarketDataServiceBase implements 
         logger.debug("cancelled market data for : " + security);
     }
 
-    private SubscriptionList getSubscriptionList(Security security, int tickerId) {
+    private SubscriptionList getSubscriptionList(Security security, String tickerId) {
 
         // get the topic
         String topic = "/bbgid/" + security.getBbgid();

@@ -30,7 +30,7 @@ public class TickString implements Serializable {
 
     private static final long serialVersionUID = -5497096398709248042L;
 
-    protected int tickerId;
+    protected String tickerId;
     protected int field;
     protected String value;
 
@@ -40,7 +40,7 @@ public class TickString implements Serializable {
      * @param fieldIn int
      * @param valueIn String
      */
-    public TickString(final int tickerIdIn, final int fieldIn, final String valueIn) {
+    public TickString(final String tickerIdIn, final int fieldIn, final String valueIn) {
         this.tickerId = tickerIdIn;
         this.field = fieldIn;
         this.value = valueIn;
@@ -50,7 +50,7 @@ public class TickString implements Serializable {
      * Get the tickerId Attribute
      * @return tickerId int
      */
-    public int getTickerId() {
+    public String getTickerId() {
         return this.tickerId;
     }
 
@@ -58,7 +58,7 @@ public class TickString implements Serializable {
      *
      * @param value int
      */
-    public void setTickerId(final int value) {
+    public void setTickerId(final String value) {
         this.tickerId = value;
     }
 

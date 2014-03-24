@@ -81,7 +81,7 @@ public class TestLMAXFixMarketDataMessageHandler {
         Object event1 = events.get(0);
         Assert.assertTrue(event1 instanceof BidVO);
         BidVO bid = (BidVO) event1;
-        Assert.assertEquals("EUR/USD".hashCode(), bid.getTickerId());
+        Assert.assertEquals("EUR/USD", bid.getTickerId());
         Assert.assertEquals(new BigDecimal("1.39043"), new BigDecimal(bid.getBid()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(45, bid.getVolBid());
         Assert.assertEquals(dateTimeParser.parse("20140313-16:59:27.683"), bid.getDateTime());
@@ -90,7 +90,7 @@ public class TestLMAXFixMarketDataMessageHandler {
         Assert.assertTrue(event2 instanceof AskVO);
 
         AskVO ask = (AskVO) event2;
-        Assert.assertEquals("EUR/USD".hashCode(), ask.getTickerId());
+        Assert.assertEquals("EUR/USD", ask.getTickerId());
         Assert.assertEquals(new BigDecimal("1.39049"), new BigDecimal(ask.getAsk()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(245, ask.getVolAsk());
         Assert.assertEquals(dateTimeParser.parse("20140313-16:59:27.683"), ask.getDateTime());

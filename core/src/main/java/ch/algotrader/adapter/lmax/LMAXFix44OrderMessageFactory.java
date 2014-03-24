@@ -89,7 +89,7 @@ public class LMAXFix44OrderMessageFactory implements Fix44OrderMessageFactory {
 
     protected SecurityID resolveSecurityID(final Security security) throws FixApplicationException {
 
-        String symbol = LMAXUtil.createSymbol(security);
+        String symbol = LMAXUtil.getLMAXSymbol(security);
         String code = mapper.mapToCode(symbol);
         if (code == null) {
             throw new FixApplicationException(symbol + " is not supported by LMAX");

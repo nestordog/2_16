@@ -17,12 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.service.dc;
 
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.dc.DCFixMarketDataRequestFactory;
 import ch.algotrader.adapter.dc.DCUtil;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 
 /**
  * DukasCopy market data service implementation.
@@ -57,7 +57,7 @@ public class DCFixMarketDataServiceImpl extends DCFixMarketDataServiceBase {
     @Override
     protected void handleSendSubscribeRequest(Security security) throws Exception {
 
-        MarketDataRequest request = requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
 
         getFixAdapter().sendMessage(request, getSessionQualifier());
     }
@@ -65,15 +65,15 @@ public class DCFixMarketDataServiceImpl extends DCFixMarketDataServiceBase {
     @Override
     protected void handleSendUnsubscribeRequest(Security security) throws Exception {
 
-        MarketDataRequest request = requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
 
         getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
     @Override
-    protected int handleGetTickerId(Security security) throws Exception {
+    protected String handleGetTickerId(Security security) throws Exception {
 
-        return DCUtil.getTickerId(security);
+        return DCUtil.getDCSymbol(security);
     }
 
 }

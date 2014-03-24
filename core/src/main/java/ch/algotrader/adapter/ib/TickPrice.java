@@ -30,7 +30,7 @@ public class TickPrice implements Serializable {
 
     private static final long serialVersionUID = -4096826680075105503L;
 
-    protected int tickerId;
+    protected String tickerId;
     protected int field;
     protected double price;
     protected int canAutoExecute;
@@ -42,7 +42,7 @@ public class TickPrice implements Serializable {
      * @param priceIn double
      * @param canAutoExecuteIn int
      */
-    public TickPrice(final int tickerIdIn, final int fieldIn, final double priceIn, final int canAutoExecuteIn) {
+    public TickPrice(final String tickerIdIn, final int fieldIn, final double priceIn, final int canAutoExecuteIn) {
         this.tickerId = tickerIdIn;
         this.field = fieldIn;
         this.price = priceIn;
@@ -53,7 +53,7 @@ public class TickPrice implements Serializable {
      * Get the tickerId Attribute
      * @return tickerId int
      */
-    public int getTickerId() {
+    public String getTickerId() {
         return this.tickerId;
     }
 
@@ -61,7 +61,7 @@ public class TickPrice implements Serializable {
      *
      * @param value int
      */
-    public void setTickerId(final int value) {
+    public void setTickerId(final String value) {
         this.tickerId = value;
     }
 

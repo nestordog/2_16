@@ -65,7 +65,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
 
         SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
         subscribeTickEvent.setTick(tick);
-        subscribeTickEvent.setTickerId(tickerId);
+        subscribeTickEvent.setTickerId(Integer.toString(tickerId));
 
         EngineLocator.instance().getBaseEngine().sendEvent(subscribeTickEvent);
 
@@ -85,12 +85,12 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
         }
 
         // get the tickerId by querying the TickWindow
-        Integer tickerId = getTickDao().findTickerIdBySecurity(security.getId());
+        String tickerId = getTickDao().findTickerIdBySecurity(security.getId());
         if (tickerId == null) {
             throw new IBNativeMarketDataServiceException("tickerId for security " + security + " was not found");
         }
 
-        getIBSession().cancelMktData(tickerId);
+        getIBSession().cancelMktData(Integer.parseInt(tickerId));
 
         EngineLocator.instance().getBaseEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
 

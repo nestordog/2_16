@@ -54,8 +54,8 @@ public class FXCMFixMarketDataServiceImpl extends FXCMFixMarketDataServiceBase {
     }
 
     @Override
-    protected int handleGetTickerId(Security security) throws Exception {
+    protected String handleGetTickerId(Security security) throws Exception {
         // TODO Auto-generated method stub
-        return 0;
+        return null;
     }
 }

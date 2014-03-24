@@ -19,13 +19,13 @@ package ch.algotrader.service.lmax;
 
 import java.io.IOException;
 
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.lmax.LMAXFixMarketDataRequestFactory;
 import ch.algotrader.adapter.lmax.LMAXInstrumentCodeMapper;
 import ch.algotrader.adapter.lmax.LMAXUtil;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -68,7 +68,7 @@ public class LMAXFixMarketDataServiceImpl extends LMAXFixMarketDataServiceBase {
     @Override
     protected void handleSendSubscribeRequest(Security security) throws Exception {
 
-        MarketDataRequest request = requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
 
         getFixAdapter().sendMessage(request, getSessionQualifier());
     }
@@ -76,15 +76,15 @@ public class LMAXFixMarketDataServiceImpl extends LMAXFixMarketDataServiceBase {
     @Override
     protected void handleSendUnsubscribeRequest(Security security) throws Exception {
 
-        MarketDataRequest request = requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
 
         getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
     @Override
-    protected int handleGetTickerId(Security security) throws Exception {
+    protected String handleGetTickerId(Security security) throws Exception {
 
-        return LMAXUtil.createTickerId(LMAXUtil.createSymbol(security));
+        return LMAXUtil.getLMAXSymbol(security);
     }
 
 }

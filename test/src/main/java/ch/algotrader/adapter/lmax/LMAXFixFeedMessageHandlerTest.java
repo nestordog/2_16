@@ -161,8 +161,7 @@ public class LMAXFixFeedMessageHandlerTest {
 
         session.send(request);
 
-        String symbol = LMAXUtil.createSymbol(forex);
-        int tickerId = LMAXUtil.createTickerId(symbol);
+        String symbol = LMAXUtil.getLMAXSymbol(forex);
 
         for (int i = 0; i < 10; i++) {
 
@@ -173,10 +172,10 @@ public class LMAXFixFeedMessageHandlerTest {
 
             if (event instanceof BidVO) {
                 BidVO bid = (BidVO) event;
-                Assert.assertEquals(tickerId, bid.getTickerId());
+                Assert.assertEquals(symbol, bid.getTickerId());
             } else if (event instanceof AskVO) {
                 AskVO ask = (AskVO) event;
-                Assert.assertEquals(tickerId, ask.getTickerId());
+                Assert.assertEquals(symbol, ask.getTickerId());
             } else {
                 Assert.fail("Unexpected event type: " + event.getClass());
             }

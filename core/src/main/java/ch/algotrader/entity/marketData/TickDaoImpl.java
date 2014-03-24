@@ -119,15 +119,15 @@ public class TickDaoImpl extends TickDaoBase {
     }
 
     @Override
-    protected Integer handleFindTickerIdBySecurity(int securityId) throws Exception {
+    protected String handleFindTickerIdBySecurity(int securityId) throws Exception {
 
         // sometimes Esper returns a Map instead of scalar
         String query = "select tickerId from TickWindow where security.id = " + securityId;
         Object obj = EngineLocator.instance().getBaseEngine().executeSingelObjectQuery(query);
         if (obj instanceof Map) {
-            return ((Map<String, Integer>) obj).get("tickerId");
+            return ((Map<String, String>) obj).get("tickerId");
         } else {
-            return (Integer) obj;
+            return (String) obj;
         }
     }
 
