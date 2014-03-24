@@ -90,7 +90,7 @@ public class LMAXIntegrationTest extends LocalServiceTest {
         serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
         lookupService = serviceLocator.getService("lookupService", LookupService.class);
         socketInitiator = serviceLocator.getContext().getBean(SocketInitiator.class);
-        marketDataService = serviceLocator.getService("lMAXFixMarketDataService2", FixMarketDataService.class);
+        marketDataService = serviceLocator.getService("lMAXFixMarketDataService", FixMarketDataService.class);
         orderService = serviceLocator.getService("lMAXFixOrderService", FixOrderService.class);
 
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
