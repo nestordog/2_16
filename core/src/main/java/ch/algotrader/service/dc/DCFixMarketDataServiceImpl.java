@@ -17,16 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.service.dc;
 
-import quickfix.field.MDEntryType;
-import quickfix.field.MDReqID;
-import quickfix.field.MDUpdateType;
-import quickfix.field.MarketDepth;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.field.Symbol;
-import quickfix.fix44.MarketDataRequest;
+import ch.algotrader.adapter.dc.DCFixMarketDataRequestFactory;
 import ch.algotrader.adapter.dc.DCUtil;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * DukasCopy market data service implementation.
@@ -38,6 +34,13 @@ import ch.algotrader.enumeration.FeedType;
 public class DCFixMarketDataServiceImpl extends DCFixMarketDataServiceBase {
 
     private static final long serialVersionUID = 7765025849172510539L;
+
+    private final DCFixMarketDataRequestFactory requestFactory;
+
+    public DCFixMarketDataServiceImpl() {
+
+        this.requestFactory = new DCFixMarketDataRequestFactory();
+    }
 
     @Override
     protected FeedType handleGetFeedType() throws Exception {
@@ -54,7 +57,7 @@ public class DCFixMarketDataServiceImpl extends DCFixMarketDataServiceBase {
     @Override
     protected void handleSendSubscribeRequest(Security security) throws Exception {
 
-        MarketDataRequest request = createMarketDataRequest(security, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
+        MarketDataRequest request = requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
 
         getFixAdapter().sendMessage(request, getSessionQualifier());
     }
@@ -62,7 +65,7 @@ public class DCFixMarketDataServiceImpl extends DCFixMarketDataServiceBase {
     @Override
     protected void handleSendUnsubscribeRequest(Security security) throws Exception {
 
-        MarketDataRequest request = createMarketDataRequest(security, SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST);
+        MarketDataRequest request = requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
 
         getFixAdapter().sendMessage(request, getSessionQualifier());
     }
@@ -73,27 +76,4 @@ public class DCFixMarketDataServiceImpl extends DCFixMarketDataServiceBase {
         return DCUtil.getTickerId(security);
     }
 
-    private MarketDataRequest createMarketDataRequest(Security security, char type) {
-
-        MarketDataRequest request = new MarketDataRequest();
-        request.set(new SubscriptionRequestType(type));
-        request.set(new MDReqID(DCUtil.getSymbol(security)));
-
-        MarketDataRequest.NoMDEntryTypes bid = new MarketDataRequest.NoMDEntryTypes();
-        bid.set(new MDEntryType(MDEntryType.BID));
-        request.addGroup(bid);
-
-        MarketDataRequest.NoMDEntryTypes offer = new MarketDataRequest.NoMDEntryTypes();
-        offer.set(new MDEntryType(MDEntryType.OFFER));
-        request.addGroup(offer);
-
-        MarketDataRequest.NoRelatedSym symbol = new MarketDataRequest.NoRelatedSym();
-        symbol.set(new Symbol(DCUtil.getSymbol(security)));
-        request.addGroup(symbol);
-
-        request.set(new MarketDepth(1));
-        request.set(new MDUpdateType(0));
-
-        return request;
-    }
 }

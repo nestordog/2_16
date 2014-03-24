@@ -1,0 +1,10 @@
+*.iml
+.idea
+target
+bin
+log
+*.log
+core/files/
+core/lib/
+crud/plugins/
+

@@ -52,12 +52,6 @@ public class DCFixOrderMessageHandler extends Fix44OrderMessageHandler {
 
     private static Logger logger = MyLogger.getLogger(DCFixOrderMessageHandler.class.getName());
 
-    private LookupService lookupService;
-
-    public void setLookupService(LookupService lookupService) {
-        this.lookupService = lookupService;
-    }
-
     public void onMessage(ExecutionReport executionReport, SessionID sessionID) {
 
         try {
@@ -70,7 +64,7 @@ public class DCFixOrderMessageHandler extends Fix44OrderMessageHandler {
             }
 
             // get the order from the OpenOrderWindow
-            Order order = lookupService.getOpenOrderByRootIntId(intId);
+            Order order = getLookupService().getOpenOrderByRootIntId(intId);
             if (order == null) {
                 logger.error("order with intId " + intId + " could not be found for execution " + executionReport);
                 return;

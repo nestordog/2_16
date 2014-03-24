@@ -54,11 +54,7 @@ public abstract class FixMarketDataServiceImpl extends FixMarketDataServiceBase 
     @Override
     protected void handleInit() throws Exception {
 
-        try {
-            getFixAdapter().createSession(getSessionQualifier());
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
+        getFixAdapter().createSession(getSessionQualifier());
     }
 
     @Override

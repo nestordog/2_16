@@ -17,11 +17,16 @@
  ***********************************************************************************/
 package ch.algotrader.service.lmax;
 
+import java.io.IOException;
+
+import ch.algotrader.adapter.lmax.LMAXFix44OrderMessageFactory;
+import ch.algotrader.adapter.lmax.LMAXInstrumentCodeMapper;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.OrderServiceType;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -32,22 +37,27 @@ public class LMAXFixOrderServiceImpl extends LMAXFixOrderServiceBase {
 
     private static final long serialVersionUID = 5822672325566918821L;
 
+    // TODO: this is a work-around required due to the existing class hierarchy
+    // TODO: Implementation class should be injectable through constructor
+    @Override
+    protected Fix44OrderMessageFactory createMessageFactory() {
+        try {
+            return new LMAXFix44OrderMessageFactory(LMAXInstrumentCodeMapper.load());
+        } catch (IOException ex) {
+            throw new Error(ex);
+        }
+    }
+
     @Override
     protected void handleSendOrder(SimpleOrder order, NewOrderSingle newOrder) throws Exception {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     protected void handleModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) throws Exception {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     protected void handleCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) throws Exception {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -55,4 +65,5 @@ public class LMAXFixOrderServiceImpl extends LMAXFixOrderServiceBase {
 
         return OrderServiceType.LMAX_FIX;
     }
+
 }

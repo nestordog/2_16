@@ -1,4 +1,4 @@
-package ch.algotrader.adapter.dc;
+package ch.algotrader.adapter.lmax;
 
 import java.io.InputStream;
 import java.util.List;
@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
@@ -24,21 +25,29 @@ import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
-import quickfix.CompositeLogFactory;
 import quickfix.DefaultSessionFactory;
 import quickfix.LogFactory;
 import quickfix.MemoryStoreFactory;
-import quickfix.SLF4JLogFactory;
+import quickfix.ScreenLogFactory;
 import quickfix.Session;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
 import quickfix.SocketInitiator;
+import quickfix.field.MDEntryType;
+import quickfix.field.MDReqID;
+import quickfix.field.MDUpdateType;
+import quickfix.field.MarketDepth;
+import quickfix.field.SecurityID;
+import quickfix.field.SecurityIDSource;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
+import quickfix.fix44.MarketDataSnapshotFullRefresh;
 
-public class DCFixFeedMessageHandlerTest {
+public class LMAXFixFeedMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
+    private LMAXInstrumentCodeMapper mapper;
+    private LMAXFixMarketDataMessageHandler messageHandler;
     private Session session;
     private SocketInitiator socketInitiator;
 
@@ -66,8 +75,8 @@ public class DCFixFeedMessageHandlerTest {
         });
 
         SessionSettings settings;
-        ClassLoader cl = DCFixFeedMessageHandlerTest.class.getClassLoader();
-        InputStream instream = cl.getResourceAsStream("dcf-test.cfg");
+        ClassLoader cl = LMAXFixFeedMessageHandlerTest.class.getClassLoader();
+        InputStream instream = cl.getResourceAsStream("lmf-test.cfg");
         Assert.assertNotNull(instream);
         try {
             settings = new SessionSettings(instream);
@@ -76,16 +85,15 @@ public class DCFixFeedMessageHandlerTest {
         }
         SessionID sessionId = settings.sectionIterator().next();
 
-        DCLogonMessageHandler dcLogonHandler = new DCLogonMessageHandler();
-        dcLogonHandler.setSettings(settings);
+        LMAXLogonMessageHandler logonHandler = new LMAXLogonMessageHandler();
+        logonHandler.setSettings(settings);
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, new DCFixMarketDataMessageHandler(), dcLogonHandler, new DefaultFixSessionLifecycle());
+        this.mapper = LMAXInstrumentCodeMapper.load();
+        this.messageHandler = Mockito.spy(new LMAXFixMarketDataMessageHandler(mapper));
 
-//        Log4FIX log4Fix = Log4FIX.createForLiveUpdates(settings);
-//        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings), log4Fix.getLogFactory() });
-//        log4Fix.show();
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonHandler, new DefaultFixSessionLifecycle());
 
-        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings) });
+        LogFactory logFactory = new ScreenLogFactory(true, true, true);
 
         DefaultSessionFactory sessionFactory = new DefaultSessionFactory(fixApplication, new MemoryStoreFactory(), logFactory);
 
@@ -148,16 +156,17 @@ public class DCFixFeedMessageHandlerTest {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        DCFixMarketDataRequestFactory requestFactory = new DCFixMarketDataRequestFactory();
+        LMAXFixMarketDataRequestFactory requestFactory = new LMAXFixMarketDataRequestFactory(mapper);
         MarketDataRequest request = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
 
-        this.session.send(request);
+        session.send(request);
 
-        int tickerId = DCUtil.getTickerId(forex);
+        String symbol = LMAXUtil.createSymbol(forex);
+        int tickerId = LMAXUtil.createTickerId(symbol);
 
         for (int i = 0; i < 10; i++) {
 
-            Object event = this.eventQueue.poll(30, TimeUnit.SECONDS);
+            Object event = eventQueue.poll(30, TimeUnit.SECONDS);
             if (event == null) {
                 Assert.fail("No event received within specific time limit");
             }
@@ -172,6 +181,38 @@ public class DCFixFeedMessageHandlerTest {
                 Assert.fail("Unexpected event type: " + event.getClass());
             }
         }
+
+        Mockito.verify(messageHandler, Mockito.times(5)).onMessage(Mockito.<MarketDataSnapshotFullRefresh>any(), Mockito.eq(session.getSessionID()));
+    }
+
+    @Test
+    public void testMarketDataInvalidRequest() throws Exception {
+
+        MarketDataRequest request = new MarketDataRequest();
+        request.set(new MDReqID("stuff"));
+        request.set(new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        request.set(new MarketDepth(1));
+        request.set(new MDUpdateType(MDUpdateType.FULL_REFRESH));
+
+        MarketDataRequest.NoMDEntryTypes bid = new MarketDataRequest.NoMDEntryTypes();
+        bid.set(new MDEntryType(MDEntryType.BID));
+        request.addGroup(bid);
+
+        MarketDataRequest.NoMDEntryTypes offer = new MarketDataRequest.NoMDEntryTypes();
+        offer.set(new MDEntryType(MDEntryType.OFFER));
+        request.addGroup(offer);
+
+        MarketDataRequest.NoRelatedSym symGroup = new MarketDataRequest.NoRelatedSym();
+        symGroup.set(new SecurityID("1234567890"));
+        symGroup.set(new SecurityIDSource("8"));
+        request.addGroup(symGroup);
+
+        session.send(request);
+
+        Object event = eventQueue.poll(5, TimeUnit.SECONDS);
+        Assert.assertNull(event);
+
+        Mockito.verify(messageHandler, Mockito.never()).onMessage(Mockito.<MarketDataSnapshotFullRefresh>any(), Mockito.eq(session.getSessionID()));
     }
 
 }

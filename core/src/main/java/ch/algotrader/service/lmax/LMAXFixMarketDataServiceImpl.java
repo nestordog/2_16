@@ -17,8 +17,15 @@
  ***********************************************************************************/
 package ch.algotrader.service.lmax;
 
+import java.io.IOException;
+
+import ch.algotrader.adapter.lmax.LMAXFixMarketDataRequestFactory;
+import ch.algotrader.adapter.lmax.LMAXInstrumentCodeMapper;
+import ch.algotrader.adapter.lmax.LMAXUtil;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -28,6 +35,23 @@ import ch.algotrader.enumeration.FeedType;
 public class LMAXFixMarketDataServiceImpl extends LMAXFixMarketDataServiceBase {
 
     private static final long serialVersionUID = 1144501885597028244L;
+
+    private final LMAXFixMarketDataRequestFactory requestFactory;
+
+    public LMAXFixMarketDataServiceImpl(final LMAXInstrumentCodeMapper mapper) {
+
+        this.requestFactory = new LMAXFixMarketDataRequestFactory(mapper);
+    }
+
+    public LMAXFixMarketDataServiceImpl() {
+
+        try {
+            this.requestFactory = new LMAXFixMarketDataRequestFactory(LMAXInstrumentCodeMapper.load());
+        } catch (IOException ex) {
+            throw new IllegalStateException("Unexpected I/O error loading LMAX instrument list");
+        }
+    }
+
 
     @Override
     protected FeedType handleGetFeedType() throws Exception {
@@ -43,19 +67,24 @@ public class LMAXFixMarketDataServiceImpl extends LMAXFixMarketDataServiceBase {
 
     @Override
     protected void handleSendSubscribeRequest(Security security) throws Exception {
-        // TODO Auto-generated method stub
 
+        MarketDataRequest request = requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+
+        getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
     @Override
     protected void handleSendUnsubscribeRequest(Security security) throws Exception {
-        // TODO Auto-generated method stub
 
+        MarketDataRequest request = requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+
+        getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
     @Override
     protected int handleGetTickerId(Security security) throws Exception {
-        // TODO Auto-generated method stub
-        return 0;
+
+        return LMAXUtil.createTickerId(LMAXUtil.createSymbol(security));
     }
+
 }

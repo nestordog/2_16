@@ -15,38 +15,32 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.dc;
+package ch.algotrader.adapter.lmax;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 
 /**
- * DukasCopy utilities
+ * LMAX utilities
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
- * @version $Revision: 6424 $ $Date: 2013-11-06 14:29:48 +0100 (Mi, 06 Nov 2013) $
+ * @version $Revision$ $Date$
  */
-public class DCUtil {
+public class LMAXUtil {
 
-    public static int getTickerId(Security security) {
-
-        return getSymbol(security).hashCode();
+    public static String createSymbol(final Security security) {
+        if (security instanceof Forex) {
+            Forex forex = (Forex) security;
+            return forex.getBaseCurrency() + "/" + forex.getTransactionCurrency();
+        } else {
+            return security.getSymbol();
+        }
     }
 
-    public static int getTickerId(String symbol) {
+    public static int createTickerId(String symbol) {
 
         return symbol.hashCode();
     }
 
-    public static String getSymbol(Security security) {
-
-        if (!(security instanceof Forex)) {
-            throw new FixApplicationException("DukasCopy can only handle forex");
-        }
-
-        Forex forex = (Forex)security;
-        return forex.getBaseCurrency() + "/" + forex.getTransactionCurrency();
-    }
 }

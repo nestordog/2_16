@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algoTrader.entity;
+package ch.algotrader.entity;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -27,8 +27,6 @@ import org.apache.commons.math.util.MathUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import ch.algotrader.entity.Position;
-import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;

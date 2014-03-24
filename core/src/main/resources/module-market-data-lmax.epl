@@ -1,0 +1,31 @@
+@Name('UPDATE_TICK_WINDOW_LMAX_BID')
+@RunTimeOnly()
+on
+    Bid as bid
+update
+    TickWindow as tickWindow
+set
+    tickWindow.dateTime = bid.dateTime,
+    tickWindow.bid = (case when bid.bid = 0 then null else RoundUtil.getBigDecimal(bid.bid, tickWindow.security.securityFamily.scale) end),
+    tickWindow.volBid = bid.volBid,
+    tickWindow.refresh = true
+where
+    tickWindow.feedType = FeedType.LMAX
+and
+    tickWindow.tickerId = bid.tickerId;
+
+@Name('UPDATE_TICK_WINDOW_LMAX_ASK')
+@RunTimeOnly()
+on
+    Ask as ask
+update
+    TickWindow as tickWindow
+set
+    tickWindow.dateTime = ask.dateTime,
+    tickWindow.ask = (case when ask.ask = 0 then null else RoundUtil.getBigDecimal(ask.ask, tickWindow.security.securityFamily.scale) end),
+    tickWindow.volAsk = ask.volAsk,
+    tickWindow.refresh = true
+where
+    tickWindow.feedType = FeedType.LMAX
+and
+    tickWindow.tickerId = ask.tickerId;

@@ -259,7 +259,7 @@
 
     <!-- =================================== Fix  ========================================= -->
 
-    <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData">
+    <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData,lMAXFix,lMAXMarketData">
 
         <bean id="fixSessionSettings" class="ch.algotrader.adapter.fix.FixSessionSettingsFactoryBean"/>
 
@@ -323,7 +323,9 @@
 
         <bean id="rTOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <property name="incomingMessageHandler">
-                <bean class="ch.algotrader.adapter.rt.RTFixOrderMessageHandler"/>
+                <bean class="ch.algotrader.adapter.rt.RTFixOrderMessageHandler">
+                    <property name="lookupService" ref="lookupService"/>
+                </bean>
             </property>
             <property name="lifecycleHandler" ref="rTOrderSessionLifeCycle"/>
             <property name="name" value="RTO"/>
@@ -376,6 +378,59 @@
             <property name="outgoingMessageHandler" ref="dCLogonMessageHandler"/>
             <property name="lifecycleHandler" ref="dCOrderSessionLifeCycle"/>
             <property name="name" value="DCO"/>
+        </bean>
+
+    </beans>
+
+    <!-- =================================== LMAX  ========================================= -->
+
+    <beans profile="lMAXMarketData,lMAXFix">
+
+        <bean id="lMAXLogonMessageHandler" class="ch.algotrader.adapter.lmax.LMAXLogonMessageHandler">
+            <property name="settings" ref="fixSessionSettings"/>
+        </bean>
+
+        <bean id="lMAXInstrumentCodeMapper" class="ch.algotrader.adapter.lmax.LMAXInstrumentCodeMapper" factory-method="load"/>
+
+    </beans>
+
+    <beans profile="lMAXMarketData">
+
+        <bean id="lMAXLogonMessageHandler" class="ch.algotrader.adapter.lmax.LMAXLogonMessageHandler">
+            <property name="settings" ref="fixSessionSettings"/>
+        </bean>
+
+        <bean id="lMAXMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
+            <property name="marketDataService" ref="marketDataService"/>
+            <property name="feedType" value="LMAX"/>
+        </bean>
+
+        <bean id="lMAXMarketDataApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
+            <property name="incomingMessageHandler">
+                <bean class="ch.algotrader.adapter.lmax.LMAXFixMarketDataMessageHandler">
+                    <constructor-arg ref="lMAXInstrumentCodeMapper"/>
+                </bean>
+            </property>
+            <property name="outgoingMessageHandler" ref="lMAXLogonMessageHandler"/>
+            <property name="lifecycleHandler" ref="lMAXMarketDataSessionLifeCycle"/>
+            <property name="name" value="lMAXMD"/>
+        </bean>
+
+    </beans>
+
+    <beans profile="lMAXFix">
+
+        <bean id="lMAXOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+
+        <bean id="lMAXOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
+            <property name="incomingMessageHandler">
+                <bean class="ch.algotrader.adapter.lmax.LMAXFixOrderMessageHandler">
+                    <property name="lookupService" ref="lookupService"/>
+                </bean>
+            </property>
+            <property name="outgoingMessageHandler" ref="lMAXLogonMessageHandler"/>
+            <property name="lifecycleHandler" ref="lMAXOrderSessionLifeCycle"/>
+            <property name="name" value="lMAXO"/>
         </bean>
 
     </beans>
