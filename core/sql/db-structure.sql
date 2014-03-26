@@ -256,7 +256,7 @@ DROP TABLE IF EXISTS `easy_to_borrow`;
 CREATE TABLE `easy_to_borrow` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `DATE` datetime NOT NULL,
-  `BROKER`enum('IB','JPM','DC','RBS','RT','LMAX','FXCM') NOT NULL,
+  `BROKER` enum('IB','JPM','DC','RBS','RT','LMAX','FXCM') NOT NULL,
   `QUANTITY` bigint(20) NOT NULL,
   `STOCK_FK` int(11) NOT NULL,
   PRIMARY KEY (`ID`),
@@ -601,6 +601,7 @@ CREATE TABLE `security` (
   `BBGID` varchar(12) DEFAULT NULL,
   `RIC` varchar(20) DEFAULT NULL,
   `CONID` varchar(30) DEFAULT NULL,
+  `LMAXID` varchar(30) DEFAULT NULL,
   `UNDERLYING_FK` int(11) DEFAULT NULL,
   `SECURITY_FAMILY_FK` int(11) NOT NULL,
   PRIMARY KEY (`ID`),
@@ -795,4 +796,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-03-24 17:10:15
+-- Dump completed on 2014-03-26 14:16:37
