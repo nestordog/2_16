@@ -12,5 +12,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="simulateWithCurrentParams"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="algotrader-core"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dsimulation=true &#13;&#10;-DstrategyName=${artifactId.toUpperCase()}&#13;&#10;-DdataSource.dataSetType=${dataSetType.toUpperCase()}&#13;&#10;-DdataSource.dataSet=${dataSet}&#13;&#10;-Dspring.profiles.active=simulation,embeddedDataSource"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dsimulation=true &#13;&#10;-DstrategyName=${serviceName.toUpperCase()}&#13;&#10;-DdataSource.dataSetType=${dataSetType.toUpperCase()}&#13;&#10;-DdataSource.dataSet=${dataSet}&#13;&#10;-Dspring.profiles.active=simulation,embeddedDataSource"/>
 </launchConfiguration>

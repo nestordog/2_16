@@ -15,8 +15,8 @@ public class ${serviceName}SingleVMStarter extends BaseStarter  {
 
         startBase();
 
-        ${serviceName}Service ${artifactId}Service = ServiceLocator.instance().getService("${artifactId}Service", ${serviceName}Service.class);
-        String strategyName = ${artifactId}Service.getStrategyName();
+        ${serviceName}Service ${serviceName.toLowerCase()}Service = ServiceLocator.instance().getService("${serviceName.toLowerCase()}Service", ${serviceName}Service.class);
+        String strategyName = ${serviceName.toLowerCase()}Service.getStrategyName();
 
         EngineLocator.instance().initEngine(strategyName);
 

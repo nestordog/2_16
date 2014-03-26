@@ -6,11 +6,11 @@
     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
     <!-- Creating Bean of Service Class -->
-    <bean id="${artifactId}Service" class="${package}.${serviceName}Service" autowire="byName" />
+    <bean id="${serviceName.toLowerCase()}Service" class="${package}.${serviceName}Service" autowire="byName" />
 
     <!-- ActiveMQ queue for startegy specific messages -->
     <bean id="strategyQueue" class="org.apache.activemq.command.ActiveMQQueue">
-        <constructor-arg value="${artifactId.toUpperCase()}.QUEUE" />
+        <constructor-arg value="${serviceName.toUpperCase()}.QUEUE" />
     </bean>
 
 </beans>
