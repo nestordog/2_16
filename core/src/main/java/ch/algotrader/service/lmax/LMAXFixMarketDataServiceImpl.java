@@ -17,13 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.service.lmax;
 
-import java.io.IOException;
-
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.lmax.LMAXFixMarketDataRequestFactory;
-import ch.algotrader.adapter.lmax.LMAXInstrumentCodeMapper;
-import ch.algotrader.adapter.lmax.LMAXUtil;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 
@@ -38,20 +34,10 @@ public class LMAXFixMarketDataServiceImpl extends LMAXFixMarketDataServiceBase {
 
     private final LMAXFixMarketDataRequestFactory requestFactory;
 
-    public LMAXFixMarketDataServiceImpl(final LMAXInstrumentCodeMapper mapper) {
-
-        this.requestFactory = new LMAXFixMarketDataRequestFactory(mapper);
-    }
-
     public LMAXFixMarketDataServiceImpl() {
 
-        try {
-            this.requestFactory = new LMAXFixMarketDataRequestFactory(LMAXInstrumentCodeMapper.load());
-        } catch (IOException ex) {
-            throw new IllegalStateException("Unexpected I/O error loading LMAX instrument list");
-        }
+        this.requestFactory = new LMAXFixMarketDataRequestFactory();
     }
-
 
     @Override
     protected FeedType handleGetFeedType() throws Exception {
@@ -84,7 +70,7 @@ public class LMAXFixMarketDataServiceImpl extends LMAXFixMarketDataServiceBase {
     @Override
     protected String handleGetTickerId(Security security) throws Exception {
 
-        return LMAXUtil.getLMAXSymbol(security);
+        return security.getLmaxid();
     }
 
 }

@@ -12,6 +12,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import quickfix.DefaultSessionFactory;
+import quickfix.LogFactory;
+import quickfix.MemoryStoreFactory;
+import quickfix.ScreenLogFactory;
+import quickfix.Session;
+import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.SocketInitiator;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
+import quickfix.fix44.MarketDataSnapshotFullRefresh;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
@@ -25,28 +36,10 @@ import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
-import quickfix.DefaultSessionFactory;
-import quickfix.LogFactory;
-import quickfix.MemoryStoreFactory;
-import quickfix.ScreenLogFactory;
-import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
-import quickfix.field.MDEntryType;
-import quickfix.field.MDReqID;
-import quickfix.field.MDUpdateType;
-import quickfix.field.MarketDepth;
-import quickfix.field.SecurityID;
-import quickfix.field.SecurityIDSource;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
-import quickfix.fix44.MarketDataSnapshotFullRefresh;
 
 public class LMAXFixFeedMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
-    private LMAXInstrumentCodeMapper mapper;
     private LMAXFixMarketDataMessageHandler messageHandler;
     private Session session;
     private SocketInitiator socketInitiator;
@@ -88,10 +81,9 @@ public class LMAXFixFeedMessageHandlerTest {
         LMAXLogonMessageHandler logonHandler = new LMAXLogonMessageHandler();
         logonHandler.setSettings(settings);
 
-        this.mapper = LMAXInstrumentCodeMapper.load();
-        this.messageHandler = Mockito.spy(new LMAXFixMarketDataMessageHandler(mapper));
+        this.messageHandler = Mockito.spy(new LMAXFixMarketDataMessageHandler());
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonHandler, new DefaultFixSessionLifecycle());
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler, new DefaultFixSessionLifecycle());
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 
@@ -153,65 +145,36 @@ public class LMAXFixFeedMessageHandlerTest {
 
         Forex forex = new ForexImpl();
         forex.setSymbol("EUR.USD");
+        forex.setLmaxid("4001");
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        LMAXFixMarketDataRequestFactory requestFactory = new LMAXFixMarketDataRequestFactory(mapper);
+        LMAXFixMarketDataRequestFactory requestFactory = new LMAXFixMarketDataRequestFactory();
         MarketDataRequest request = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
 
-        session.send(request);
+        this.session.send(request);
 
-        String symbol = LMAXUtil.getLMAXSymbol(forex);
+        String lmaxId = forex.getLmaxid();
 
         for (int i = 0; i < 10; i++) {
 
-            Object event = eventQueue.poll(30, TimeUnit.SECONDS);
+            Object event = this.eventQueue.poll(30, TimeUnit.SECONDS);
             if (event == null) {
                 Assert.fail("No event received within specific time limit");
             }
 
             if (event instanceof BidVO) {
                 BidVO bid = (BidVO) event;
-                Assert.assertEquals(symbol, bid.getTickerId());
+                Assert.assertEquals(lmaxId, bid.getTickerId());
             } else if (event instanceof AskVO) {
                 AskVO ask = (AskVO) event;
-                Assert.assertEquals(symbol, ask.getTickerId());
+                Assert.assertEquals(lmaxId, ask.getTickerId());
             } else {
                 Assert.fail("Unexpected event type: " + event.getClass());
             }
         }
 
-        Mockito.verify(messageHandler, Mockito.times(5)).onMessage(Mockito.<MarketDataSnapshotFullRefresh>any(), Mockito.eq(session.getSessionID()));
-    }
-
-    @Test
-    public void testMarketDataInvalidRequest() throws Exception {
-
-        MarketDataRequest request = new MarketDataRequest();
-        request.set(new MDReqID("stuff"));
-        request.set(new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
-        request.set(new MarketDepth(1));
-        request.set(new MDUpdateType(MDUpdateType.FULL_REFRESH));
-
-        MarketDataRequest.NoMDEntryTypes bid = new MarketDataRequest.NoMDEntryTypes();
-        bid.set(new MDEntryType(MDEntryType.BID));
-        request.addGroup(bid);
-
-        MarketDataRequest.NoMDEntryTypes offer = new MarketDataRequest.NoMDEntryTypes();
-        offer.set(new MDEntryType(MDEntryType.OFFER));
-        request.addGroup(offer);
-
-        MarketDataRequest.NoRelatedSym symGroup = new MarketDataRequest.NoRelatedSym();
-        symGroup.set(new SecurityID("1234567890"));
-        symGroup.set(new SecurityIDSource("8"));
-        request.addGroup(symGroup);
-
-        session.send(request);
-
-        Object event = eventQueue.poll(5, TimeUnit.SECONDS);
-        Assert.assertNull(event);
-
-        Mockito.verify(messageHandler, Mockito.never()).onMessage(Mockito.<MarketDataSnapshotFullRefresh>any(), Mockito.eq(session.getSessionID()));
+        Mockito.verify(this.messageHandler, Mockito.times(5)).onMessage(Mockito.<MarketDataSnapshotFullRefresh>any(), Mockito.eq(this.session.getSessionID()));
     }
 
 }

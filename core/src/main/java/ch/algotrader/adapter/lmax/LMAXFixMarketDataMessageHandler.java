@@ -53,20 +53,10 @@ public class LMAXFixMarketDataMessageHandler extends Fix44MarketDataMessageHandl
 
     private static Logger logger = MyLogger.getLogger(LMAXFixMarketDataMessageHandler.class.getName());
 
-    private final LMAXInstrumentCodeMapper mapper;
-
-    public LMAXFixMarketDataMessageHandler(final LMAXInstrumentCodeMapper mapper) {
-        this.mapper = mapper;
-    }
-
     public void onMessage(final MarketDataSnapshotFullRefresh marketData, final SessionID sessionID) throws FieldNotFound {
 
         SecurityID secId = marketData.getSecurityID();
-        String code = secId.getValue();
-        String symbol = this.mapper.mapToSymbol(code);
-        if (symbol == null) {
-            return;
-        }
+        String lmaxId = secId.getValue();
 
         Date date = null;
         int count = marketData.getGroupCount(NoMDEntries.FIELD);
@@ -90,19 +80,19 @@ public class LMAXFixMarketDataMessageHandler extends Fix44MarketDataMessageHandl
                     case MDEntryType.BID:
 
                         if (logger.isTraceEnabled()) {
-                            logger.trace(symbol + " BID " + size + "@" + price);
+                            logger.trace(lmaxId + " BID " + size + "@" + price);
                         }
 
-                        BidVO bidVO = new BidVO(symbol, date, price, (int) size);
+                        BidVO bidVO = new BidVO(lmaxId, date, price, (int) size);
                         EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
 
                         if (logger.isTraceEnabled()) {
-                            logger.trace(symbol + " ASK " + size + "@" + price);
+                            logger.trace(lmaxId + " ASK " + size + "@" + price);
                         }
 
-                        AskVO askVO = new AskVO(symbol, date, price, (int) size);
+                        AskVO askVO = new AskVO(lmaxId, date, price, (int) size);
 
                         EngineLocator.instance().getBaseEngine().sendEvent(askVO);
                         break;

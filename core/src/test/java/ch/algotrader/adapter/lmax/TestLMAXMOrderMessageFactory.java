@@ -6,6 +6,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import quickfix.field.ClOrdID;
+import quickfix.field.OrdType;
+import quickfix.field.OrderQty;
+import quickfix.field.OrigClOrdID;
+import quickfix.field.Price;
+import quickfix.field.SecurityID;
+import quickfix.field.SecurityIDSource;
+import quickfix.field.StopPx;
+import quickfix.field.TimeInForce;
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelReplaceRequest;
+import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
@@ -24,29 +36,15 @@ import ch.algotrader.entity.trade.StopOrderImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
-import quickfix.field.ClOrdID;
-import quickfix.field.OrdType;
-import quickfix.field.OrderQty;
-import quickfix.field.OrigClOrdID;
-import quickfix.field.Price;
-import quickfix.field.SecurityID;
-import quickfix.field.SecurityIDSource;
-import quickfix.field.StopPx;
-import quickfix.field.TimeInForce;
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelReplaceRequest;
-import quickfix.fix44.OrderCancelRequest;
 
 public class TestLMAXMOrderMessageFactory {
 
-    private LMAXInstrumentCodeMapper mapper;
     private LMAXFix44OrderMessageFactory requestFactory;
 
     @Before
     public void setup() throws Exception {
 
-        mapper = LMAXInstrumentCodeMapper.load();
-        requestFactory = new LMAXFix44OrderMessageFactory(mapper);
+        this.requestFactory = new LMAXFix44OrderMessageFactory();
     }
 
     @Test
@@ -57,6 +55,7 @@ public class TestLMAXMOrderMessageFactory {
 
         Forex forex = new ForexImpl();
         forex.setSymbol("EUR.USD");
+        forex.setLmaxid("4001");
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
@@ -65,10 +64,10 @@ public class TestLMAXMOrderMessageFactory {
         order.setSide(Side.BUY);
         order.setQuantity(123);
 
-        NewOrderSingle message = requestFactory.createNewOrderMessage(order, "test-id");
+        NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
 
         Assert.assertNotNull(message);
-        Assert.assertEquals(new SecurityID(mapper.mapToCode("EUR/USD")), message.getSecurityID());
+        Assert.assertEquals(new SecurityID("4001"), message.getSecurityID());
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new SecurityIDSource("8"), message.getSecurityIDSource());
@@ -90,7 +89,7 @@ public class TestLMAXMOrderMessageFactory {
         order.setSide(Side.BUY);
         order.setQuantity(123);
 
-        requestFactory.createNewOrderMessage(order, "test-id");
+        this.requestFactory.createNewOrderMessage(order, "test-id");
     }
 
     @Test(expected = FixApplicationException.class)
@@ -109,7 +108,7 @@ public class TestLMAXMOrderMessageFactory {
         order.setSide(Side.BUY);
         order.setQuantity(123);
 
-        requestFactory.createNewOrderMessage(order, "test-id");
+        this.requestFactory.createNewOrderMessage(order, "test-id");
     }
 
     @Test
@@ -120,6 +119,7 @@ public class TestLMAXMOrderMessageFactory {
 
         Forex forex = new ForexImpl();
         forex.setSymbol("EUR.USD");
+        forex.setLmaxid("4001");
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
@@ -129,10 +129,10 @@ public class TestLMAXMOrderMessageFactory {
         order.setQuantity(123);
         order.setLimit(new BigDecimal("1.345"));
 
-        NewOrderSingle message = requestFactory.createNewOrderMessage(order, "test-id");
+        NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
 
         Assert.assertNotNull(message);
-        Assert.assertEquals(new SecurityID(mapper.mapToCode("EUR/USD")), message.getSecurityID());
+        Assert.assertEquals(new SecurityID("4001"), message.getSecurityID());
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new SecurityIDSource("8"), message.getSecurityIDSource());
@@ -151,6 +151,7 @@ public class TestLMAXMOrderMessageFactory {
 
         Forex forex = new ForexImpl();
         forex.setSymbol("EUR.USD");
+        forex.setLmaxid("4001");
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
@@ -160,10 +161,10 @@ public class TestLMAXMOrderMessageFactory {
         order.setQuantity(123);
         order.setStop(new BigDecimal("1.345"));
 
-        NewOrderSingle message = requestFactory.createNewOrderMessage(order, "test-id");
+        NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
 
         Assert.assertNotNull(message);
-        Assert.assertEquals(new SecurityID(mapper.mapToCode("EUR/USD")), message.getSecurityID());
+        Assert.assertEquals(new SecurityID("4001"), message.getSecurityID());
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new SecurityIDSource("8"), message.getSecurityIDSource());
@@ -192,7 +193,7 @@ public class TestLMAXMOrderMessageFactory {
         order.setLimit(new BigDecimal("1.355"));
         order.setStop(new BigDecimal("1.345"));
 
-        requestFactory.createNewOrderMessage(order, "test-id");
+        this.requestFactory.createNewOrderMessage(order, "test-id");
     }
 
     @Test
@@ -203,6 +204,7 @@ public class TestLMAXMOrderMessageFactory {
 
         Forex forex = new ForexImpl();
         forex.setSymbol("EUR.USD");
+        forex.setLmaxid("4001");
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
@@ -213,10 +215,10 @@ public class TestLMAXMOrderMessageFactory {
         order.setQuantity(123);
         order.setLimit(new BigDecimal("1.345"));
 
-        OrderCancelReplaceRequest message = requestFactory.createModifyOrderMessage(order, "test-id-2");
+        OrderCancelReplaceRequest message = this.requestFactory.createModifyOrderMessage(order, "test-id-2");
 
         Assert.assertNotNull(message);
-        Assert.assertEquals(new SecurityID(mapper.mapToCode("EUR/USD")), message.getSecurityID());
+        Assert.assertEquals(new SecurityID("4001"), message.getSecurityID());
         Assert.assertEquals(new OrigClOrdID("test-id"), message.getOrigClOrdID());
         Assert.assertEquals(new ClOrdID("test-id-2"), message.getClOrdID());
         Assert.assertNotNull(message.getTransactTime());
@@ -245,7 +247,7 @@ public class TestLMAXMOrderMessageFactory {
         order.setSide(Side.BUY);
         order.setQuantity(123);
 
-        requestFactory.createModifyOrderMessage(order, "test-id-2");
+        this.requestFactory.createModifyOrderMessage(order, "test-id-2");
     }
 
     @Test
@@ -256,6 +258,7 @@ public class TestLMAXMOrderMessageFactory {
 
         Forex forex = new ForexImpl();
         forex.setSymbol("EUR.USD");
+        forex.setLmaxid("4001");
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
@@ -266,10 +269,10 @@ public class TestLMAXMOrderMessageFactory {
         order.setQuantity(123);
         order.setLimit(new BigDecimal("1.345"));
 
-        OrderCancelRequest message = requestFactory.createOrderCancelMessage(order, "test-id-3");
+        OrderCancelRequest message = this.requestFactory.createOrderCancelMessage(order, "test-id-3");
 
         Assert.assertNotNull(message);
-        Assert.assertEquals(new SecurityID(mapper.mapToCode("EUR/USD")), message.getSecurityID());
+        Assert.assertEquals(new SecurityID("4001"), message.getSecurityID());
         Assert.assertEquals(new OrigClOrdID("test-id"), message.getOrigClOrdID());
         Assert.assertEquals(new ClOrdID("test-id-3"), message.getClOrdID());
         Assert.assertNotNull(message.getTransactTime());
@@ -282,7 +285,7 @@ public class TestLMAXMOrderMessageFactory {
 
         MarketOrder order = new MarketOrderImpl();
         order.setTif(TIF.DAY);
-        requestFactory.resolveTimeInForce(order);
+        this.requestFactory.resolveTimeInForce(order);
     }
 
     @Test(expected = FixApplicationException.class)
@@ -290,7 +293,7 @@ public class TestLMAXMOrderMessageFactory {
 
         MarketOrder order = new MarketOrderImpl();
         order.setTif(TIF.GTC);
-        requestFactory.resolveTimeInForce(order);
+        this.requestFactory.resolveTimeInForce(order);
     }
 
     @Test(expected = FixApplicationException.class)
@@ -298,7 +301,7 @@ public class TestLMAXMOrderMessageFactory {
 
         MarketOrder order = new MarketOrderImpl();
         order.setTif(TIF.GTD);
-        requestFactory.resolveTimeInForce(order);
+        this.requestFactory.resolveTimeInForce(order);
     }
 
     @Test
@@ -306,7 +309,7 @@ public class TestLMAXMOrderMessageFactory {
 
         MarketOrder order = new MarketOrderImpl();
         order.setTif(TIF.IOC);
-        Assert.assertEquals(new TimeInForce(TimeInForce.IMMEDIATE_OR_CANCEL), requestFactory.resolveTimeInForce(order));
+        Assert.assertEquals(new TimeInForce(TimeInForce.IMMEDIATE_OR_CANCEL), this.requestFactory.resolveTimeInForce(order));
     }
 
     @Test
@@ -314,7 +317,7 @@ public class TestLMAXMOrderMessageFactory {
 
         MarketOrder order = new MarketOrderImpl();
         order.setTif(TIF.FOK);
-        Assert.assertEquals(new TimeInForce(TimeInForce.FILL_OR_KILL), requestFactory.resolveTimeInForce(order));
+        Assert.assertEquals(new TimeInForce(TimeInForce.FILL_OR_KILL), this.requestFactory.resolveTimeInForce(order));
     }
 
     @Test
@@ -322,7 +325,7 @@ public class TestLMAXMOrderMessageFactory {
 
         LimitOrder order = new LimitOrderImpl();
         order.setTif(TIF.DAY);
-        Assert.assertEquals(new TimeInForce(TimeInForce.DAY), requestFactory.resolveTimeInForce(order));
+        Assert.assertEquals(new TimeInForce(TimeInForce.DAY), this.requestFactory.resolveTimeInForce(order));
     }
 
     @Test
@@ -330,7 +333,7 @@ public class TestLMAXMOrderMessageFactory {
 
         LimitOrder order = new LimitOrderImpl();
         order.setTif(TIF.GTC);
-        Assert.assertEquals(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL), requestFactory.resolveTimeInForce(order));
+        Assert.assertEquals(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL), this.requestFactory.resolveTimeInForce(order));
     }
 
     @Test(expected = FixApplicationException.class)
@@ -338,7 +341,7 @@ public class TestLMAXMOrderMessageFactory {
 
         LimitOrder order = new LimitOrderImpl();
         order.setTif(TIF.GTD);
-        requestFactory.resolveTimeInForce(order);
+        this.requestFactory.resolveTimeInForce(order);
     }
 
     @Test
@@ -346,7 +349,7 @@ public class TestLMAXMOrderMessageFactory {
 
         LimitOrder order = new LimitOrderImpl();
         order.setTif(TIF.IOC);
-        Assert.assertEquals(new TimeInForce(TimeInForce.IMMEDIATE_OR_CANCEL), requestFactory.resolveTimeInForce(order));
+        Assert.assertEquals(new TimeInForce(TimeInForce.IMMEDIATE_OR_CANCEL), this.requestFactory.resolveTimeInForce(order));
     }
 
     @Test
@@ -354,7 +357,7 @@ public class TestLMAXMOrderMessageFactory {
 
         LimitOrder order = new LimitOrderImpl();
         order.setTif(TIF.FOK);
-        Assert.assertEquals(new TimeInForce(TimeInForce.FILL_OR_KILL), requestFactory.resolveTimeInForce(order));
+        Assert.assertEquals(new TimeInForce(TimeInForce.FILL_OR_KILL), this.requestFactory.resolveTimeInForce(order));
     }
 
     @Test
@@ -362,7 +365,7 @@ public class TestLMAXMOrderMessageFactory {
 
         StopOrder order = new StopOrderImpl();
         order.setTif(TIF.DAY);
-        Assert.assertEquals(new TimeInForce(TimeInForce.DAY), requestFactory.resolveTimeInForce(order));
+        Assert.assertEquals(new TimeInForce(TimeInForce.DAY), this.requestFactory.resolveTimeInForce(order));
     }
 
     @Test
@@ -370,7 +373,7 @@ public class TestLMAXMOrderMessageFactory {
 
         StopOrder order = new StopOrderImpl();
         order.setTif(TIF.GTC);
-        Assert.assertEquals(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL), requestFactory.resolveTimeInForce(order));
+        Assert.assertEquals(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL), this.requestFactory.resolveTimeInForce(order));
     }
 
     @Test(expected = FixApplicationException.class)
@@ -378,7 +381,7 @@ public class TestLMAXMOrderMessageFactory {
 
         StopOrder order = new StopOrderImpl();
         order.setTif(TIF.GTD);
-        requestFactory.resolveTimeInForce(order);
+        this.requestFactory.resolveTimeInForce(order);
     }
 
     @Test(expected = FixApplicationException.class)
@@ -386,7 +389,7 @@ public class TestLMAXMOrderMessageFactory {
 
         StopOrder order = new StopOrderImpl();
         order.setTif(TIF.IOC);
-        requestFactory.resolveTimeInForce(order);
+        this.requestFactory.resolveTimeInForce(order);
     }
 
     @Test(expected = FixApplicationException.class)
@@ -394,7 +397,7 @@ public class TestLMAXMOrderMessageFactory {
 
         StopOrder order = new StopOrderImpl();
         order.setTif(TIF.FOK);
-        requestFactory.resolveTimeInForce(order);
+        this.requestFactory.resolveTimeInForce(order);
     }
 
 }

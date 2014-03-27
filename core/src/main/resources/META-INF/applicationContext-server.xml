@@ -390,8 +390,6 @@
             <property name="settings" ref="fixSessionSettings"/>
         </bean>
 
-        <bean id="lMAXInstrumentCodeMapper" class="ch.algotrader.adapter.lmax.LMAXInstrumentCodeMapper" factory-method="load"/>
-
     </beans>
 
     <beans profile="lMAXMarketData">
@@ -407,9 +405,7 @@
 
         <bean id="lMAXMarketDataApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <property name="incomingMessageHandler">
-                <bean class="ch.algotrader.adapter.lmax.LMAXFixMarketDataMessageHandler">
-                    <constructor-arg ref="lMAXInstrumentCodeMapper"/>
-                </bean>
+                <bean class="ch.algotrader.adapter.lmax.LMAXFixMarketDataMessageHandler"/>
             </property>
             <property name="outgoingMessageHandler" ref="lMAXLogonMessageHandler"/>
             <property name="lifecycleHandler" ref="lMAXMarketDataSessionLifeCycle"/>

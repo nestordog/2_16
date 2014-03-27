@@ -17,16 +17,13 @@
  ***********************************************************************************/
 package ch.algotrader.service.lmax;
 
-import java.io.IOException;
-
-import ch.algotrader.adapter.lmax.LMAXFix44OrderMessageFactory;
-import ch.algotrader.adapter.lmax.LMAXInstrumentCodeMapper;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
+import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
+import ch.algotrader.adapter.lmax.LMAXFix44OrderMessageFactory;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.OrderServiceType;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -41,11 +38,7 @@ public class LMAXFixOrderServiceImpl extends LMAXFixOrderServiceBase {
     // TODO: Implementation class should be injectable through constructor
     @Override
     protected Fix44OrderMessageFactory createMessageFactory() {
-        try {
-            return new LMAXFix44OrderMessageFactory(LMAXInstrumentCodeMapper.load());
-        } catch (IOException ex) {
-            throw new Error(ex);
-        }
+        return new LMAXFix44OrderMessageFactory();
     }
 
     @Override

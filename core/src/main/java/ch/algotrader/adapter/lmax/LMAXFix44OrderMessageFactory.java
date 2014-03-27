@@ -19,15 +19,6 @@ package ch.algotrader.adapter.lmax;
 
 import java.util.Date;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
-import ch.algotrader.adapter.fix.FixUtil;
-import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.trade.LimitOrder;
-import ch.algotrader.entity.trade.MarketOrder;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.StopOrder;
-import ch.algotrader.enumeration.TIF;
 import quickfix.field.ClOrdID;
 import quickfix.field.OrdType;
 import quickfix.field.OrderQty;
@@ -41,6 +32,15 @@ import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
+import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.MarketOrder;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.StopOrder;
+import ch.algotrader.enumeration.TIF;
 
 /**
  *  LMAX order message factory.
@@ -50,12 +50,6 @@ import quickfix.fix44.OrderCancelRequest;
  * @version $Revision$ $Date$
  */
 public class LMAXFix44OrderMessageFactory implements Fix44OrderMessageFactory {
-
-    private final LMAXInstrumentCodeMapper mapper;
-
-    public LMAXFix44OrderMessageFactory(final LMAXInstrumentCodeMapper mapper) {
-        this.mapper = mapper;
-    }
 
     protected TimeInForce resolveTimeInForce(final SimpleOrder order) throws FixApplicationException {
 
@@ -89,12 +83,11 @@ public class LMAXFix44OrderMessageFactory implements Fix44OrderMessageFactory {
 
     protected SecurityID resolveSecurityID(final Security security) throws FixApplicationException {
 
-        String symbol = LMAXUtil.getLMAXSymbol(security);
-        String code = mapper.mapToCode(symbol);
-        if (code == null) {
-            throw new FixApplicationException(symbol + " is not supported by LMAX");
+        String lmaxid = security.getLmaxid();
+        if (lmaxid == null) {
+            throw new FixApplicationException(security + " is not supported by LMAX");
         }
-        return new SecurityID(code);
+        return new SecurityID(lmaxid);
     }
 
     @Override
