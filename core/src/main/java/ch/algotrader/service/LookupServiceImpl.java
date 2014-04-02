@@ -423,6 +423,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected SecurityFamily handleGetSecurityFamilyByName(String name) throws Exception {
+
+        return getSecurityFamilyDao().findByName(name);
+    }
+
+    @Override
     protected OptionFamily handleGetOptionFamilyByUnderlying(int id) throws Exception {
 
         return getOptionFamilyDao().findByUnderlying(id);

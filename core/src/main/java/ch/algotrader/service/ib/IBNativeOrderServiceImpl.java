@@ -29,6 +29,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.util.MyLogger;
 
 import com.ib.client.Contract;
@@ -196,8 +197,8 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
             ibOrder.m_auxPrice = ((StopOrderI) order).getStop().doubleValue();
         }
 
-        // set Time-In-Force
-        if (order.getTif() != null) {
+        // set Time-In-Force (ATC are set as order types LOC and MOC)
+        if (order.getTif() != null && !TIF.ATC.equals(order.getTif())) {
             ibOrder.m_tif = order.getTif().getValue();
 
             // set the TIF-Date

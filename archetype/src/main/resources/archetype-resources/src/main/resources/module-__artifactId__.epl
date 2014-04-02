@@ -9,7 +9,7 @@ from
 
 // open a new position
 @Name('OPEN_POSITION')
-@Subscriber(className='test.${serviceName}Service.openPosition')
+@Subscriber(className='${package}.${serviceName}Service.openPosition')
 select
     engineStrategy.name as strategyName,
     tick.security.id as securityId,

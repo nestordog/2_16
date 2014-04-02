@@ -36,6 +36,7 @@ import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.enumeration.TIF;
 
 import com.ib.client.Contract;
 import com.ib.client.Execution;
@@ -127,9 +128,17 @@ public class IBUtil {
     public static String getIBOrderType(Order order) {
 
         if (order instanceof MarketOrder) {
-            return "MKT";
+            if (order.getTif() != null && TIF.ATC.equals(order.getTif())) {
+                return "MOC";
+            } else {
+                return "MKT";
+            }
         } else if (order instanceof LimitOrder) {
-            return "LMT";
+            if (order.getTif() != null && TIF.ATC.equals(order.getTif())) {
+                return "LOC";
+            } else {
+                return "LMT";
+            }
         } else if (order instanceof StopOrder) {
             return "STP";
         } else {
