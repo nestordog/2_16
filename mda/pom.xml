@@ -51,7 +51,7 @@
         <dependency>
             <groupId>org.andromda.cartridges</groupId>
             <artifactId>andromda-spring-cartridge</artifactId>
-            <version>${andromda.version}-at2</version>
+            <version>${andromda.version}-at3</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
