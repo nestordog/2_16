@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+  <extension-point id="ch.algotrader.wizard.NewProjectWizardImpl" name="ch.algotrader.wizard.NewProjectWizardImpl" schema="schema/ch.algotrader.wizard.NewProjectWizardImpl.exsd"/>
+
+  <extension point="org.eclipse.ui.newWizards">
+    <category id="ch.algotrader.newWizardsCategory" name="AlgoTrader"/>
+  </extension>
+
+  <extension point="org.eclipse.ui.newWizards">
+    <wizard
+      canFinishEarly="false"
+      category="ch.algotrader.newWizardsCategory"
+      class="ch.algotrader.wizard.NewProjectWizard"
+      icon="images/new_project.png"
+      id="testapp.NewProjectWizard"
+      name="Trading Strategy"
+      project="true"/>
+  </extension>
+</plugin>
