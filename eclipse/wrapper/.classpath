@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/activation-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/activemq-core-5.7.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/activemq-protobuf-1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/lib/algotrader-common-2.2-SNAPSHOT.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/lib/algotrader-core-2.2-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="target/lib/algotrader-common-2.2.0-SNAPSHOT.jar"/>
+	<classpathentry exported="true" kind="lib" path="target/lib/algotrader-core-2.2.0-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/antlr-2.7.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/antlr-runtime-3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/lib/aopalliance-1.0.jar"/>
