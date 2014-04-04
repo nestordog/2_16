@@ -295,8 +295,9 @@ public class LookupUtil {
         tick.setVolBid(rawTickVO.getVolBid());
         tick.setVolAsk(rawTickVO.getVolAsk());
 
-        String fileName = rawTickVO.getFileName();
-        Security security = getSecurity(fileName);
+        // cache securities, as queries by isin, symbol etc. get evicted from cache whenever any change to security table happens
+        String securityString = rawTickVO.getSecurity();
+        Security security = getSecurity(securityString);
         tick.setSecurity(security);
 
         return tick;
@@ -319,32 +320,32 @@ public class LookupUtil {
         bar.setClose(rawBarVO.getClose());
 
         // cache securities, as queries by isin, symbol etc. get evicted from cache whenever any change to security table happens
-        String fileName = rawBarVO.getFileName();
-        Security security = getSecurity(fileName);
+        String securityString = rawBarVO.getSecurity();
+        Security security = getSecurity(securityString);
         bar.setSecurity(security);
 
         return bar;
     }
 
-    private static Security getSecurity(String fileName) {
+    private static Security getSecurity(String securityString) {
 
         // check if the security is cached
-        Integer securityId = securityIds.get(fileName);
+        Integer securityId = securityIds.get(securityString);
 
         // try to find the security by isin, symbol, bbgid, ric conid or id
         Security security;
         if (securityId == null) {
-            security = lookupService.getSecurityByIsin(fileName);
+            security = lookupService.getSecurityByIsin(securityString);
             if (security == null) {
-                security = lookupService.getSecurityBySymbol(fileName);
+                security = lookupService.getSecurityBySymbol(securityString);
                 if (security == null) {
-                    security = lookupService.getSecurityByBbgid(fileName);
+                    security = lookupService.getSecurityByBbgid(securityString);
                     if (security == null) {
-                        security = lookupService.getSecurityByRic(fileName);
+                        security = lookupService.getSecurityByRic(securityString);
                         if (security == null) {
-                            security = lookupService.getSecurityByConid(fileName);
-                            if (security == null && NumberUtils.isDigits(fileName)) {
-                                security = lookupService.getSecurity(Integer.parseInt(fileName));
+                            security = lookupService.getSecurityByConid(securityString);
+                            if (security == null && NumberUtils.isDigits(securityString)) {
+                                security = lookupService.getSecurity(Integer.parseInt(securityString));
                             }
                         }
                     }
@@ -353,9 +354,9 @@ public class LookupUtil {
 
             if (security != null) {
                 securityId = security.getId();
-                securityIds.put(fileName, securityId);
+                securityIds.put(securityString, securityId);
             } else {
-                throw new IllegalStateException("Security could not be found by fileName " + fileName);
+                throw new IllegalStateException("Security could not be found: " + securityString);
             }
         }
 

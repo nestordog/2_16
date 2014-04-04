@@ -92,17 +92,17 @@ public class TickDaoImpl extends TickDaoBase {
 
         Security security = tick.getSecurity();
         if (security.getIsin() != null) {
-            rawTickVO.setFileName(security.getIsin());
+            rawTickVO.setSecurity(security.getIsin());
         } else if (security.getSymbol() != null) {
-            rawTickVO.setFileName(security.getSymbol());
+            rawTickVO.setSecurity(security.getSymbol());
         } else if (security.getBbgid() != null) {
-            rawTickVO.setFileName(security.getBbgid());
+            rawTickVO.setSecurity(security.getBbgid());
         } else if (security.getRic() != null) {
-            rawTickVO.setFileName(security.getRic());
+            rawTickVO.setSecurity(security.getRic());
         } else if (security.getConid() != null) {
-            rawTickVO.setFileName(security.getConid());
+            rawTickVO.setSecurity(security.getConid());
         } else {
-            rawTickVO.setFileName(String.valueOf(security.getId()));
+            rawTickVO.setSecurity(String.valueOf(security.getId()));
         }
     }
 

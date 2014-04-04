@@ -54,8 +54,13 @@ public class CsvBarInputAdapter extends CSVInputAdapter {
 
             RawBarVO bar = (RawBarVO) event.getBeanToSend();
 
-            String fileName = this.spec.getFile().getName().split("\\.")[0];
-            bar.setFileName(fileName);
+            if (bar.getSecurity() == null) {
+
+                String fileName = this.spec.getFile().getName();
+                int idx = fileName.lastIndexOf(".");
+                String security = fileName.substring(0, idx);
+                bar.setSecurity(security);
+            }
 
             Duration barSize = this.spec.getBarSize();
             bar.setBarSize(barSize);

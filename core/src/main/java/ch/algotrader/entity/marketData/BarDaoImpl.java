@@ -59,17 +59,17 @@ public class BarDaoImpl extends BarDaoBase {
 
         Security security = bar.getSecurity();
         if (security.getIsin() != null) {
-            barVO.setFileName(security.getIsin());
+            barVO.setSecurity(security.getIsin());
         } else if (security.getSymbol() != null) {
-            barVO.setFileName(security.getSymbol());
+            barVO.setSecurity(security.getSymbol());
         } else if (security.getBbgid() != null) {
-            barVO.setFileName(security.getBbgid());
+            barVO.setSecurity(security.getBbgid());
         } else if (security.getRic() != null) {
-            barVO.setFileName(security.getRic());
+            barVO.setSecurity(security.getRic());
         } else if (security.getConid() != null) {
-            barVO.setFileName(security.getConid());
+            barVO.setSecurity(security.getConid());
         } else {
-            barVO.setFileName(String.valueOf(security.getId()));
+            barVO.setSecurity(String.valueOf(security.getId()));
         }
     }
 

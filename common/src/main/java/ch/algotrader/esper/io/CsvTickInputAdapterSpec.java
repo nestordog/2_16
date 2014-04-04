@@ -54,7 +54,8 @@ public class CsvTickInputAdapterSpec extends CSVInputAdapterSpec {
                 "volAsk",
                 "bid",
                 "ask",
-                "vol" };
+                "vol",
+                "security"};
         //@formatter:on
 
         setPropertyOrder(tickPropertyOrder);
@@ -69,6 +70,7 @@ public class CsvTickInputAdapterSpec extends CSVInputAdapterSpec {
         tickPropertyTypes.put("bid", BigDecimal.class);
         tickPropertyTypes.put("ask", BigDecimal.class);
         tickPropertyTypes.put("vol", int.class);
+        tickPropertyTypes.put("security", String.class);
 
         setPropertyTypes(tickPropertyTypes);
 

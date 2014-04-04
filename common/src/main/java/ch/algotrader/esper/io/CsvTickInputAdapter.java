@@ -52,8 +52,14 @@ public class CsvTickInputAdapter extends CSVInputAdapter {
         if (event != null && event.getBeanToSend() instanceof RawTickVO) {
 
             RawTickVO tick = (RawTickVO) event.getBeanToSend();
-            String fileName = StringUtils.substringBeforeLast(this.spec.getFile().getName(), ".");
-            tick.setFileName(fileName);
+
+            if (tick.getSecurity() == null) {
+
+                String fileName = this.spec.getFile().getName();
+                int idx = fileName.lastIndexOf(".");
+                String security = fileName.substring(0, idx);
+                tick.setSecurity(security);
+            }
         }
         return event;
     }
