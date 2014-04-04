@@ -15,17 +15,27 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.lmax;
+package ch.algotrader.adapter.fxcm;
 
-import ch.algotrader.adapter.fix.fix44.DefaultFix44OrderMessageHandler;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.Security;
 
 /**
- * LMFX specific Fix44MessageHandler.
+ * LMAX utilities
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
- * @version $Revision$ $Date$
+ * @version $Revision: 6424 $ $Date: 2013-11-06 14:29:48 +0100 (Mi, 06 Nov 2013) $
  */
-public class LMAXFixOrderMessageHandler extends DefaultFix44OrderMessageHandler {
+public class FXCMUtil {
+
+    public static String getFXCMSymbol(final Security security) {
+        if (security instanceof Forex) {
+            Forex forex = (Forex) security;
+            return forex.getBaseCurrency() + "/" + forex.getTransactionCurrency();
+        } else {
+            return security.getSymbol();
+        }
+    }
 
 }

@@ -15,10 +15,9 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.integration.lmax;
+package ch.algotrader.integration.fxcm;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -34,6 +33,7 @@ import org.mockito.Mockito;
 import com.espertech.esper.collection.Pair;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.adapter.fix.FixSessionLifecycle;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.security.Security;
@@ -62,8 +62,9 @@ import quickfix.SocketInitiator;
  *
  * @version $Revision$ $Date$
  */
-public class LMAXIntegrationTest extends LocalServiceTest {
+public class FXCMIntegrationTest extends LocalServiceTest {
 
+    private FixSessionLifecycle fixSessionLifecycle;
     private LookupService lookupService;
     private SocketInitiator socketInitiator;
     private FixMarketDataService marketDataService;
@@ -84,14 +85,15 @@ public class LMAXIntegrationTest extends LocalServiceTest {
     @Before
     public void setup() throws Exception {
 
-        System.setProperty("spring.profiles.active", "pooledDataSource, server, noopHistoricalData, lMAXMarketData, lMAXFix");
+        System.setProperty("spring.profiles.active", "pooledDataSource, server, noopHistoricalData, fXCMMarketData, fXCMFix");
 
         ServiceLocator serviceLocator = ServiceLocator.instance();
         serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        fixSessionLifecycle = serviceLocator.getContext().getBean("fXCMSessionLifeCycle", FixSessionLifecycle.class);
         lookupService = serviceLocator.getService("lookupService", LookupService.class);
         socketInitiator = serviceLocator.getContext().getBean(SocketInitiator.class);
-        marketDataService = serviceLocator.getService("lMAXFixMarketDataService", FixMarketDataService.class);
-        orderService = serviceLocator.getService("lMAXFixOrderService", FixOrderService.class);
+        marketDataService = serviceLocator.getService("fXCMFixMarketDataService", FixMarketDataService.class);
+        orderService = serviceLocator.getService("fXCMFixOrderService", FixOrderService.class);
 
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
         this.eventQueue = queue;
@@ -146,33 +148,10 @@ public class LMAXIntegrationTest extends LocalServiceTest {
             Assert.fail("Market data session logon failed");
         }
 
-        Collection<String> tradingSessionQualifiiers = lookupService.getActiveSessionsByOrderServiceType(orderService.getOrderServiceType());
-        Assert.assertEquals(1, tradingSessionQualifiiers.size());
+        if (!fixSessionLifecycle.isLoggedOn()) {
 
-        Session tradingSession = Session.lookupSession(getSessionID(tradingSessionQualifiiers.iterator().next()));
-
-        final CountDownLatch latch2 = new CountDownLatch(1);
-
-        tradingSession.addStateListener(new NoopSessionStateListener() {
-
-            @Override
-            public void onDisconnect() {
-                latch2.countDown();
-            }
-
-            @Override
-            public void onLogon() {
-                latch2.countDown();
-            }
-
-        });
-
-        if (!tradingSession.isLoggedOn()) {
-            latch2.await(30, TimeUnit.SECONDS);
-        }
-
-        if (!tradingSession.isLoggedOn()) {
-            Assert.fail("Trading session logon failed");
+            // Allow UserRequest message to get through
+            Thread.sleep(1000);
         }
     }
 
@@ -192,7 +171,7 @@ public class LMAXIntegrationTest extends LocalServiceTest {
 
         Security eurusd = lookupService.getSecurityBySymbol("EUR.USD");
         Assert.assertNotNull(eurusd);
-        Account account = lookupService.getAccountByName("LMAX_TEST");
+        Account account = lookupService.getAccountByName("FXCM_TEST");
         Assert.assertNotNull(account);
         Strategy base = lookupService.getStrategyByName("BASE");
         Assert.assertNotNull(base);
@@ -225,7 +204,7 @@ public class LMAXIntegrationTest extends LocalServiceTest {
         order.setSecurity(eurusd);
         order.setAccount(account);
         order.setStrategy(base);
-        order.setQuantity(10);
+        order.setQuantity(1000);
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal(bestBid));
 

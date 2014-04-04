@@ -15,19 +15,21 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.dc;
+package ch.algotrader.adapter.fxcm;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
+import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.vo.AskVO;
+import ch.algotrader.vo.BidVO;
 import quickfix.FieldNotFound;
 import quickfix.Group;
 import quickfix.SessionID;
+import quickfix.field.MDEntryDate;
 import quickfix.field.MDEntryPx;
 import quickfix.field.MDEntrySize;
 import quickfix.field.MDEntryTime;
@@ -35,21 +37,17 @@ import quickfix.field.MDEntryType;
 import quickfix.field.NoMDEntries;
 import quickfix.field.Symbol;
 import quickfix.fix44.MarketDataSnapshotFullRefresh;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
 
 /**
- * DukasCopy specific FIX market data handler.
+ * FXCM specific FIX market data handler.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class DCFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
+public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(DCFixMarketDataMessageHandler.class.getName());
+    private static Logger logger = MyLogger.getLogger(FXCMFixMarketDataMessageHandler.class.getName());
 
     public void onMessage(MarketDataSnapshotFullRefresh marketData, SessionID sessionID) throws FieldNotFound {
 
@@ -60,18 +58,20 @@ public class DCFixMarketDataMessageHandler extends AbstractFix44MarketDataMessag
 
             Group group = marketData.getGroup(i, NoMDEntries.FIELD);
             char entryType = group.getChar(MDEntryType.FIELD);
+
+            Date date = null;
+            if (group.isSetField(MDEntryDate.FIELD) && group.isSetField(MDEntryTime.FIELD)) {
+                Date dateOnly = group.getUtcDateOnly(MDEntryDate.FIELD);
+                Date timeTOnly = group.getUtcTimeOnly(MDEntryTime.FIELD);
+                date = new Date(dateOnly.getTime() + timeTOnly.getTime());
+            }
+
             if (entryType == MDEntryType.BID || entryType == MDEntryType.OFFER) {
 
                 double price = group.getDouble(MDEntryPx.FIELD);
                 double size = group.getDouble(MDEntrySize.FIELD);
                 Date time = group.getUtcTimeOnly(MDEntryTime.FIELD);
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-                calendar = DateUtils.truncate(calendar, Calendar.DATE);
-                Date date = new Date(calendar.getTimeInMillis() + time.getTime());
-
-                String tickerId = symbol.getValue();
                 switch (entryType) {
                     case MDEntryType.BID:
 
@@ -79,7 +79,7 @@ public class DCFixMarketDataMessageHandler extends AbstractFix44MarketDataMessag
                             logger.trace(symbol.getValue() + " BID " + size + "@" + price);
                         }
 
-                        BidVO bidVO = new BidVO(tickerId, date, price, (int) size);
+                        BidVO bidVO = new BidVO(symbol.getValue(), date != null ? date : new Date(), price, (int) size);
                         EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
@@ -88,7 +88,7 @@ public class DCFixMarketDataMessageHandler extends AbstractFix44MarketDataMessag
                             logger.trace(symbol.getValue() + " ASK " + size + "@" + price);
                         }
 
-                        AskVO askVO = new AskVO(tickerId, date, price, (int) size);
+                        AskVO askVO = new AskVO(symbol.getValue(), date != null ? date : new Date(), price, (int) size);
 
                         EngineLocator.instance().getBaseEngine().sendEvent(askVO);
                         break;

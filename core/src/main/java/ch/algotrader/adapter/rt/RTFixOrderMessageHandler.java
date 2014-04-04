@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.rt;
 
-import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageHandler;
+import ch.algotrader.adapter.fix.fix44.DefaultFix44OrderMessageHandler;
 
 /**
  * RealTick specific Fix44MessageHandler.
@@ -26,6 +26,6 @@ import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageHandler;
  *
  * @version $Revision$ $Date$
  */
-public class RTFixOrderMessageHandler extends Fix44OrderMessageHandler {
+public class RTFixOrderMessageHandler extends DefaultFix44OrderMessageHandler {
 
 }

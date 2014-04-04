@@ -38,9 +38,21 @@ public interface FixAdapter {
     void createSession(OrderServiceType orderServiceType) throws Exception;
 
     /**
+     * Makes sure there is an existing session with the given qualifier. New session will be created
+     * if there is no session with the given qualifier.
+     */
+    void openSession(OrderServiceType orderServiceType) throws Exception;
+
+    /**
      * creates an individual session with the given qualifier
      */
     void createSession(String sessionQualifier) throws Exception;
+
+    /**
+     * Makes sure there is an existing session with the given qualifier. New session will be created
+     * if there is no session with the given qualifier.
+     */
+    void openSession(String sessionQualifier) throws Exception;
 
     /**
      * sends a message to the designated session for the given account

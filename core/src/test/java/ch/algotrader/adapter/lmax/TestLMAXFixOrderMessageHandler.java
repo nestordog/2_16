@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.fix.fix44;
+package ch.algotrader.adapter.lmax;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -45,6 +46,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
+import quickfix.DataDictionary;
 import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
 import quickfix.fix44.ExecutionReport;
@@ -55,14 +57,22 @@ import quickfix.fix44.Reject;
  *
  * @version $Revision$ $Date$
  */
-public class TestFix44OrderMessageHandler {
+public class TestLMAXFixOrderMessageHandler {
+
+    private static DataDictionary DATA_DICT;
 
     @Mock
     private LookupService lookupService;
     @Mock
     private Engine engine;
 
-    private Fix44OrderMessageHandler impl;
+    private LMAXFixOrderMessageHandler impl;
+
+    @BeforeClass
+    public static void setupClass() throws Exception {
+
+        DATA_DICT = new DataDictionary("lmax/LMAX-FIX-Trading.xml");
+    }
 
     @Before
     public void setup() throws Exception {
@@ -70,7 +80,7 @@ public class TestFix44OrderMessageHandler {
         MockitoAnnotations.initMocks(this);
         EngineLocator.instance().setEngine("BASE", engine);
 
-        impl = new Fix44OrderMessageHandler();
+        impl = new LMAXFixOrderMessageHandler();
         impl.setLookupService(lookupService);
     }
 
@@ -80,7 +90,7 @@ public class TestFix44OrderMessageHandler {
         String s = "8=FIX.4.4|9=213|35=8|49=LMXBD|56=SMdemo|34=2|52=20140317-19:48:33.856|1=566809101|11=144d196a0cf" +
                 "|48=4001|22=8|54=1|37=AAIm0gAAAAAVcFaM|59=3|40=1|60=20140317-19:48:33.854|6=0|17=IcjSDQAAAAJoCIaf|527=0|39=0|150=0" +
                 "|14=0|151=10|38=10|10=037|";
-        ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, ExecutionReport.class);
+        ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, DATA_DICT, ExecutionReport.class);
         Assert.assertNotNull(executionReport);
 
         MarketOrder order = new MarketOrderImpl();
@@ -107,7 +117,7 @@ public class TestFix44OrderMessageHandler {
         String s = "8=FIX.4.4|9=249|35=8|49=LMXBD|56=SMdemo|34=3|52=20140317-19:48:33.856|1=566809101|11=144d196a0cf" +
                 "|48=4001|22=8|54=1|37=AAIm0gAAAAAVcFaM|59=3|40=1|60=20140317-19:48:33.854|6=1.3925|17=IcjSDQAAAAJoCIag|527=QITNEAAAAAVCJRA5" +
                 "|38=10|39=2|150=F|14=10|151=0|32=10|31=1.3925|10=099|";
-        ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, ExecutionReport.class);
+        ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, DATA_DICT, ExecutionReport.class);
         Assert.assertNotNull(executionReport);
 
         SecurityFamily family = new SecurityFamilyImpl();
@@ -214,7 +224,7 @@ public class TestFix44OrderMessageHandler {
         String s = "8=FIX.4.4|9=217|35=8|49=LMXBD|56=SMdemo|34=2|52=20140319-11:23:37.280|1=566809101|11=144da150f4b" +
                 "|17=IcjSDQAAAAAAAAAA|527=0|48=99999|22=8|103=1|58=INSTRUMENT_DOES_NOT_EXIST|150=8|14=0|151=0|6=0|54=7" +
                 "|60=20140319-11:23:37.280|39=8|37=0|10=247|";
-        ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, ExecutionReport.class);
+        ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, DATA_DICT, ExecutionReport.class);
         Assert.assertNotNull(executionReport);
 
         impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
@@ -228,7 +238,7 @@ public class TestFix44OrderMessageHandler {
 
         String s = "8=FIX.4.4|9=121|35=3|49=LMXBD|56=SMdemo|34=2|52=20140319-11:22:26.896|45=2|371=48|372=D|373=6" +
                 "|58=Required: Base10-encoded 64-bit integer|10=059|";
-        Reject reject = FixTestUtils.parseFix44Message(s, Reject.class);
+        Reject reject = FixTestUtils.parseFix44Message(s, DATA_DICT, Reject.class);
         Assert.assertNotNull(reject);
 
         impl.onMessage(reject, FixTestUtils.fakeFix44Session());
@@ -241,7 +251,7 @@ public class TestFix44OrderMessageHandler {
 
         String s = "8=FIX.4.4|9=121|35=3|49=LMXBD|56=SMdemo|34=2|52=20140319-11:22:26.896|45=2|371=48" +
                 "|58=Required: Base10-encoded 64-bit integer|10=12|";
-        Reject reject = FixTestUtils.parseFix44Message(s, Reject.class);
+        Reject reject = FixTestUtils.parseFix44Message(s, DATA_DICT, Reject.class);
         Assert.assertNotNull(reject);
 
         impl.onMessage(reject, FixTestUtils.fakeFix44Session());

@@ -20,6 +20,8 @@ package ch.algotrader.adapter.fix;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.TimeZone;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.Validate;
 
@@ -44,6 +46,7 @@ import quickfix.SocketInitiator;
  */
 public class DefaultFixAdapter implements FixAdapter {
 
+    private final Lock lock;
     private SocketInitiator socketInitiator;
     private LookupService lookupService;
     private FixEventScheduler eventScheduler;
@@ -73,6 +76,10 @@ public class DefaultFixAdapter implements FixAdapter {
         return orderIdGenerator;
     }
 
+    public DefaultFixAdapter() {
+        this.lock = new ReentrantLock();
+    }
+
     /**
      * creates an individual session
      */
@@ -85,30 +92,56 @@ public class DefaultFixAdapter implements FixAdapter {
         }
     }
 
-    /**
-     * creates an individual session
-     */
     @Override
-    public void createSession(String sessionQualifier) throws Exception {
+    public void openSession(OrderServiceType orderServiceType) throws Exception {
 
-        // need to iterate over all sessions definitions in the settings because there is no lookup method
-        for (Iterator<SessionID> i = this.socketInitiator.getSettings().sectionIterator(); i.hasNext();) {
-            SessionID sessionId = i.next();
-            if (sessionId.getSessionQualifier().equals(sessionQualifier)) {
-                Session session = Session.lookupSession(sessionId);
-                if (session != null) {
-                    throw new IllegalStateException("existing session with qualifier " + sessionQualifier + " please add 'Inactive=Y' to session config");
-                } else {
-                    this.socketInitiator.createDynamicSession(sessionId);
-                    if (this.eventScheduler != null) {
-                        createLogonLogoutStatement(sessionId);
+        Collection<String> sessionQualifiers = this.lookupService.getActiveSessionsByOrderServiceType(orderServiceType);
+        for (String sessionQualifier : sessionQualifiers) {
+            openSession(sessionQualifier);
+        }
+    }
+
+    private void createSessionInternal(String sessionQualifier, boolean createNew) throws Exception {
+
+        this.lock.lock();
+        try {
+            // need to iterate over all sessions definitions in the settings because there is no lookup method
+            for (Iterator<SessionID> i = this.socketInitiator.getSettings().sectionIterator(); i.hasNext();) {
+                SessionID sessionId = i.next();
+                if (sessionId.getSessionQualifier().equals(sessionQualifier)) {
+                    Session session = Session.lookupSession(sessionId);
+                    if (session != null && createNew) {
+
+                        throw new IllegalStateException("existing session with qualifier " + sessionQualifier + " please add 'Inactive=Y' to session config");
+                    } else {
+
+                        this.socketInitiator.createDynamicSession(sessionId);
+                        if (this.eventScheduler != null) {
+
+                            createLogonLogoutStatement(sessionId);
+                        }
                     }
                     return;
                 }
             }
-        }
 
-        throw new IllegalStateException("SessionID missing in settings " + sessionQualifier);
+            throw new IllegalStateException("SessionID missing in settings " + sessionQualifier);
+
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    @Override
+    public void createSession(String sessionQualifier) throws Exception {
+
+        createSessionInternal(sessionQualifier, true);
+    }
+
+    @Override
+    public void openSession(String sessionQualifier) throws Exception {
+
+        createSessionInternal(sessionQualifier, false);
     }
 
     /**

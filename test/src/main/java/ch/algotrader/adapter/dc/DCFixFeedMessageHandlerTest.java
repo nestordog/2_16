@@ -1,6 +1,5 @@
 package ch.algotrader.adapter.dc;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -11,19 +10,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import quickfix.CompositeLogFactory;
-import quickfix.DefaultSessionFactory;
-import quickfix.LogFactory;
-import quickfix.MemoryStoreFactory;
-import quickfix.SLF4JLogFactory;
-import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
@@ -35,6 +24,17 @@ import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
+import quickfix.CompositeLogFactory;
+import quickfix.DefaultSessionFactory;
+import quickfix.LogFactory;
+import quickfix.MemoryStoreFactory;
+import quickfix.SLF4JLogFactory;
+import quickfix.Session;
+import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.SocketInitiator;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 public class DCFixFeedMessageHandlerTest {
 
@@ -65,16 +65,8 @@ public class DCFixFeedMessageHandlerTest {
             }
         });
 
-        SessionSettings settings;
-        ClassLoader cl = DCFixFeedMessageHandlerTest.class.getClassLoader();
-        InputStream instream = cl.getResourceAsStream("dcf-test.cfg");
-        Assert.assertNotNull(instream);
-        try {
-            settings = new SessionSettings(instream);
-        } finally {
-            instream.close();
-        }
-        SessionID sessionId = settings.sectionIterator().next();
+        SessionSettings settings = FixConfigUtils.loadSettings();
+        SessionID sessionId = FixConfigUtils.getSessionID(settings, "DCMD");
 
         DCLogonMessageHandler dcLogonHandler = new DCLogonMessageHandler();
         dcLogonHandler.setSettings(settings);

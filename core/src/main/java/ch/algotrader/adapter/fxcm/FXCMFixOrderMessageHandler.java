@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.dc;
+package ch.algotrader.adapter.fxcm;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -30,22 +30,34 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.CumQty;
+import quickfix.field.ExecType;
 import quickfix.field.OrdStatus;
 import quickfix.fix44.ExecutionReport;
 
 /**
- * DukasCopy specific FIX order message handler.
+ * FXCM specific FIX order message handler.
  *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
+public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
     @Override
     protected boolean discardReport(final ExecutionReport executionReport) throws FieldNotFound {
 
-        return false;
+        // ignore PENDING_NEW, PENDING_CANCEL and PENDING_REPLACE
+        ExecType execType = executionReport.getExecType();
+
+        if (execType.getValue() == ExecType.PENDING_NEW
+                || execType.getValue() == ExecType.PENDING_REPLACE
+                || execType.getValue() == ExecType.PENDING_CANCEL) {
+
+            return true;
+        } else {
+
+            return false;
+        }
     }
 
     @Override
@@ -72,14 +84,12 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
         String intId = executionReport.getClOrdID().getValue();
         // update intId in case it has changed
-        if (!order.getIntId().equals(intId)) {
+        if (!intId.equals(order.getIntId())) {
             orderStatus.setIntId(intId);
         }
 
-        // Note: store OrderID sind DukasCopy requires it for cancels and replaces
-        if (order.getExtId() == null) {
-            orderStatus.setExtId(executionReport.getOrderID().getValue());
-        }
+        String extId = executionReport.getOrderID().getValue();
+        orderStatus.setExtId(extId);
 
         return orderStatus;
     }
@@ -87,8 +97,9 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
     @Override
     protected Fill createFill(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
 
-        // only create fills if status is FILLED (Note: DukasCopy does nut use PARTIALLY_FILLED)
-        if (executionReport.getOrdStatus().getValue() == OrdStatus.FILLED) {
+        // only create fills if status is FILLED (Note: FXCM advises to use STOPPED as the order execution confirmation)
+        OrdStatus ordStatus = executionReport.getOrdStatus();
+        if (ordStatus.getValue() == OrdStatus.PARTIALLY_FILLED || ordStatus.getValue() == OrdStatus.STOPPED) {
 
             // get the fields
             Date extDateTime = executionReport.getTransactTime().getValue();
@@ -97,7 +108,7 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
             // Note: DukasCopy does not use LastPx it only uses AvgPx
             BigDecimal price = RoundUtil.getBigDecimal(executionReport.getAvgPx().getValue(), order.getSecurity().getSecurityFamily().getScale());
-            String extId = executionReport.getExecID().getValue();
+            String extId = executionReport.getOrderID().getValue();
 
             // assemble the fill
             Fill fill = Fill.Factory.newInstance();
@@ -117,14 +128,13 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
     private static Status getStatus(OrdStatus ordStatus, CumQty cumQty) {
 
-        // Note: DukasCopy uses CALCULATED instead of NEW
-        if (ordStatus.getValue() == OrdStatus.CALCULATED || ordStatus.getValue() == OrdStatus.PENDING_NEW) {
+        if (ordStatus.getValue() == OrdStatus.NEW || ordStatus.getValue() == OrdStatus.PENDING_NEW || ordStatus.getValue() == OrdStatus.REPLACED) {
             if (cumQty.getValue() == 0) {
                 return Status.SUBMITTED;
             } else {
                 return Status.PARTIALLY_EXECUTED;
             }
-        } else if (ordStatus.getValue() == OrdStatus.FILLED) {
+        } else if (ordStatus.getValue() == OrdStatus.STOPPED || ordStatus.getValue() == OrdStatus.FILLED) {
             return Status.EXECUTED;
         } else if (ordStatus.getValue() == OrdStatus.CANCELED || ordStatus.getValue() == OrdStatus.REJECTED) {
             return Status.CANCELED;

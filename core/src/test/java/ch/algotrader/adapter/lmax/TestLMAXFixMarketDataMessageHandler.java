@@ -24,19 +24,21 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import quickfix.FieldNotFound;
-import quickfix.fix44.MarketDataSnapshotFullRefresh;
 import ch.algotrader.adapter.fix.FixTestUtils;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
+import quickfix.DataDictionary;
+import quickfix.FieldNotFound;
+import quickfix.fix44.MarketDataSnapshotFullRefresh;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -45,10 +47,18 @@ import ch.algotrader.vo.BidVO;
  */
 public class TestLMAXFixMarketDataMessageHandler {
 
+    private static DataDictionary DATA_DICT;
+
     @Mock
     private Engine engine;
 
     private LMAXFixMarketDataMessageHandler impl;
+
+    @BeforeClass
+    public static void setupClass() throws Exception {
+
+        DATA_DICT = new DataDictionary("lmax/LMAX-FIX-MarketData.xml");
+    }
 
     @Before
     public void setup() throws Exception {
@@ -64,7 +74,7 @@ public class TestLMAXFixMarketDataMessageHandler {
 
         String s = "8=FIX.4.4|9=167|35=W|49=LMXBDM|56=SMdemo|34=8|52=20140313-16:59:27.747|262=EUR/USD|48=4001|22=8|" +
                 "268=2|269=0|270=1.39043|271=45|272=20140313|273=16:59:27.683|269=1|270=1.39049|271=245|10=148|";
-        MarketDataSnapshotFullRefresh fullRefresh = FixTestUtils.parseFix44Message(s, MarketDataSnapshotFullRefresh.class);
+        MarketDataSnapshotFullRefresh fullRefresh = FixTestUtils.parseFix44Message(s, DATA_DICT, MarketDataSnapshotFullRefresh.class);
         Assert.assertNotNull(fullRefresh);
 
         this.impl.onMessage(fullRefresh, FixTestUtils.fakeFix44Session());
@@ -101,7 +111,7 @@ public class TestLMAXFixMarketDataMessageHandler {
 
         String s = "8=FIX.4.4|9=167|35=W|49=LMXBDM|56=SMdemo|34=8|52=20140313-16:59:27.747|262=EUR/USD|48=4001|22=8|" +
                 "268=2|269=0|270=1.39043|271=45|269=1|270=1.39049|271=245|272=20140313|273=16:59:27.683|10=148|";
-        MarketDataSnapshotFullRefresh fullRefresh = FixTestUtils.parseFix44Message(s, MarketDataSnapshotFullRefresh.class);
+        MarketDataSnapshotFullRefresh fullRefresh = FixTestUtils.parseFix44Message(s, DATA_DICT, MarketDataSnapshotFullRefresh.class);
         Assert.assertNotNull(fullRefresh);
 
         this.impl.onMessage(fullRefresh, FixTestUtils.fakeFix44Session());
@@ -132,7 +142,7 @@ public class TestLMAXFixMarketDataMessageHandler {
 
         String s = "8=FIX.4.4|9=167|35=W|49=LMXBDM|56=SMdemo|34=8|52=20140313-16:59:27.747|262=EUR/USD|22=8|" +
                 "268=2|269=0|270=1.39043|271=45|269=1|270=1.39049|271=245|272=20140313|273=16:59:27.683|10=37|";
-        MarketDataSnapshotFullRefresh fullRefresh = FixTestUtils.parseFix44Message(s, MarketDataSnapshotFullRefresh.class);
+        MarketDataSnapshotFullRefresh fullRefresh = FixTestUtils.parseFix44Message(s, DATA_DICT, MarketDataSnapshotFullRefresh.class);
         Assert.assertNotNull(fullRefresh);
 
         this.impl.onMessage(fullRefresh, FixTestUtils.fakeFix44Session());

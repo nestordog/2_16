@@ -17,8 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.service.fxcm;
 
+import ch.algotrader.adapter.fxcm.FXCMFixMarketDataRequestFactory;
+import ch.algotrader.adapter.fxcm.FXCMUtil;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -29,6 +33,18 @@ public class FXCMFixMarketDataServiceImpl extends FXCMFixMarketDataServiceBase {
 
     private static final long serialVersionUID = 4881654181517654955L;
 
+    private final FXCMFixMarketDataRequestFactory requestFactory;
+
+    public FXCMFixMarketDataServiceImpl() {
+        this.requestFactory = new FXCMFixMarketDataRequestFactory();
+    }
+
+    @Override
+    protected void handleInit() throws Exception {
+
+        getFixAdapter().openSession(getSessionQualifier());
+    }
+
     @Override
     protected FeedType handleGetFeedType() throws Exception {
 
@@ -38,24 +54,29 @@ public class FXCMFixMarketDataServiceImpl extends FXCMFixMarketDataServiceBase {
     @Override
     protected String handleGetSessionQualifier() throws Exception {
 
-        return "FXCMMD";
+        return "FXCMT";
     }
 
     @Override
     protected void handleSendSubscribeRequest(Security security) throws Exception {
-        // TODO Auto-generated method stub
 
+        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+
+        getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
     @Override
     protected void handleSendUnsubscribeRequest(Security security) throws Exception {
-        // TODO Auto-generated method stub
 
+        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+
+        getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
     @Override
     protected String handleGetTickerId(Security security) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+
+        return FXCMUtil.getFXCMSymbol(security);
     }
+
 }

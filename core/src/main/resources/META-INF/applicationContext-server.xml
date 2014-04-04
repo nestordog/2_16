@@ -259,7 +259,7 @@
 
     <!-- =================================== Fix  ========================================= -->
 
-    <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData,lMAXFix,lMAXMarketData">
+    <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData,lMAXFix,lMAXMarketData, fXCMFix,fXCMMarketData">
 
         <bean id="fixSessionSettings" class="ch.algotrader.adapter.fix.FixSessionSettingsFactoryBean"/>
 
@@ -427,6 +427,33 @@
             <property name="outgoingMessageHandler" ref="lMAXLogonMessageHandler"/>
             <property name="lifecycleHandler" ref="lMAXOrderSessionLifeCycle"/>
             <property name="name" value="lMAXO"/>
+        </bean>
+
+    </beans>
+
+    <!-- =================================== FXCM  ========================================= -->
+
+    <beans profile="fXCMMarketData, fXCMFix">
+
+        <bean id="fXCMSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+        <alias name="fXCMSessionLifeCycle" alias="fXCMMarketDataSessionLifeCycle"/>
+        <alias name="fXCMSessionLifeCycle" alias="fXCMOrderSessionLifeCycle"/>
+
+        <bean id="fXCMApplicationFactory" class="ch.algotrader.adapter.fxcm.FXCMFixApplicationFactory">
+            <property name="incomingMessageHandler">
+                <bean class="ch.algotrader.adapter.fxcm.FXCMFixMessageHandler">
+                    <constructor-arg>
+                        <bean class="ch.algotrader.adapter.fxcm.FXCMFixMarketDataMessageHandler"/>
+                    </constructor-arg>
+                    <constructor-arg >
+                        <bean class="ch.algotrader.adapter.fxcm.FXCMFixOrderMessageHandler">
+                            <property name="lookupService" ref="lookupService"/>
+                        </bean>
+                    </constructor-arg>
+                </bean>
+            </property>
+            <property name="lifecycleHandler" ref="fXCMSessionLifeCycle"/>
+            <property name="name" value="fXCM"/>
         </bean>
 
     </beans>

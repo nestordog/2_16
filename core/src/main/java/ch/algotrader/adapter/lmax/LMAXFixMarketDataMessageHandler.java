@@ -22,6 +22,7 @@ import java.util.Date;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
 import quickfix.FieldNotFound;
 import quickfix.Group;
 import quickfix.SessionID;
@@ -36,7 +37,6 @@ import quickfix.field.NoMDEntries;
 import quickfix.field.SecurityID;
 import quickfix.fix44.MarketDataRequestReject;
 import quickfix.fix44.MarketDataSnapshotFullRefresh;
-import ch.algotrader.adapter.fix.fix44.Fix44MarketDataMessageHandler;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.AskVO;
@@ -49,7 +49,7 @@ import ch.algotrader.vo.BidVO;
  *
  * @version $Revision$ $Date$
  */
-public class LMAXFixMarketDataMessageHandler extends Fix44MarketDataMessageHandler {
+public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
     private static Logger logger = MyLogger.getLogger(LMAXFixMarketDataMessageHandler.class.getName());
 

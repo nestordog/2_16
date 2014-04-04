@@ -1,4 +1,4 @@
-package ch.algotrader.adapter.lmax;
+package ch.algotrader.adapter.fxcm;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -11,18 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import quickfix.DefaultSessionFactory;
-import quickfix.LogFactory;
-import quickfix.MemoryStoreFactory;
-import quickfix.ScreenLogFactory;
-import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
-import quickfix.fix44.MarketDataSnapshotFullRefresh;
-import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
@@ -36,11 +24,27 @@ import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
+import quickfix.DefaultSessionFactory;
+import quickfix.LogFactory;
+import quickfix.MemoryStoreFactory;
+import quickfix.ScreenLogFactory;
+import quickfix.Session;
+import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.SocketInitiator;
+import quickfix.field.MDEntryType;
+import quickfix.field.MDReqID;
+import quickfix.field.MDUpdateType;
+import quickfix.field.MarketDepth;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.field.Symbol;
+import quickfix.fix44.MarketDataRequest;
+import quickfix.fix44.MarketDataSnapshotFullRefresh;
 
-public class LMAXFixFeedMessageHandlerTest {
+public class FXCMFixFeedMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
-    private LMAXFixMarketDataMessageHandler messageHandler;
+    private FXCMFixMarketDataMessageHandler messageHandler;
     private Session session;
     private SocketInitiator socketInitiator;
 
@@ -68,14 +72,12 @@ public class LMAXFixFeedMessageHandlerTest {
         });
 
         SessionSettings settings = FixConfigUtils.loadSettings();
-        SessionID sessionId = FixConfigUtils.getSessionID(settings, "LMAXMD");
+        SessionID sessionId = FixConfigUtils.getSessionID(settings, "FXCMT");
 
-        LMAXLogonMessageHandler logonHandler = new LMAXLogonMessageHandler();
-        logonHandler.setSettings(settings);
+        this.messageHandler = Mockito.spy(new FXCMFixMarketDataMessageHandler());
 
-        this.messageHandler = Mockito.spy(new LMAXFixMarketDataMessageHandler());
-
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler, new DefaultFixSessionLifecycle());
+        DefaultFixSessionLifecycle fixSessionLifecycle = new DefaultFixSessionLifecycle();
+        FXCMFixApplication fixApplication = new FXCMFixApplication(sessionId, messageHandler, settings, fixSessionLifecycle);
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 
@@ -105,11 +107,18 @@ public class LMAXFixFeedMessageHandlerTest {
         });
 
         if (!this.session.isLoggedOn()) {
+
             latch.await(30, TimeUnit.SECONDS);
         }
 
         if (!this.session.isLoggedOn()) {
+
             Assert.fail("Session logon failed");
+        }
+        if (!fixSessionLifecycle.isLoggedOn()) {
+
+            // Allow UserRequest message to get through
+            Thread.sleep(1000);
         }
     }
 
@@ -137,36 +146,66 @@ public class LMAXFixFeedMessageHandlerTest {
 
         Forex forex = new ForexImpl();
         forex.setSymbol("EUR.USD");
-        forex.setLmaxid("4001");
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        LMAXFixMarketDataRequestFactory requestFactory = new LMAXFixMarketDataRequestFactory();
-        MarketDataRequest request = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        FXCMFixMarketDataRequestFactory requestFactory = new FXCMFixMarketDataRequestFactory();
+        MarketDataRequest subscribeRequest = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
 
-        this.session.send(request);
+        session.send(subscribeRequest);
 
-        String lmaxId = forex.getLmaxid();
+        String symbol = FXCMUtil.getFXCMSymbol(forex);
 
         for (int i = 0; i < 10; i++) {
 
-            Object event = this.eventQueue.poll(30, TimeUnit.SECONDS);
+            Object event = eventQueue.poll(30, TimeUnit.SECONDS);
             if (event == null) {
                 Assert.fail("No event received within specific time limit");
             }
 
             if (event instanceof BidVO) {
                 BidVO bid = (BidVO) event;
-                Assert.assertEquals(lmaxId, bid.getTickerId());
+                Assert.assertEquals(symbol, bid.getTickerId());
             } else if (event instanceof AskVO) {
                 AskVO ask = (AskVO) event;
-                Assert.assertEquals(lmaxId, ask.getTickerId());
+                Assert.assertEquals(symbol, ask.getTickerId());
             } else {
                 Assert.fail("Unexpected event type: " + event.getClass());
             }
         }
 
-        Mockito.verify(this.messageHandler, Mockito.times(5)).onMessage(Mockito.<MarketDataSnapshotFullRefresh>any(), Mockito.eq(this.session.getSessionID()));
+        MarketDataRequest unsubscribeRequest = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+
+        session.send(unsubscribeRequest);
+    }
+
+    @Test
+    public void testMarketDataInvalidRequest() throws Exception {
+
+        MarketDataRequest request = new MarketDataRequest();
+        request.set(new MDReqID("stuff"));
+        request.set(new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        request.set(new MarketDepth(1));
+        request.set(new MDUpdateType(MDUpdateType.FULL_REFRESH));
+
+        MarketDataRequest.NoMDEntryTypes bid = new MarketDataRequest.NoMDEntryTypes();
+        bid.set(new MDEntryType(MDEntryType.BID));
+        request.addGroup(bid);
+
+        MarketDataRequest.NoMDEntryTypes offer = new MarketDataRequest.NoMDEntryTypes();
+        offer.set(new MDEntryType(MDEntryType.OFFER));
+        request.addGroup(offer);
+
+        MarketDataRequest.NoRelatedSym symGroup = new MarketDataRequest.NoRelatedSym();
+        symGroup.set(new Symbol("STUFF"));
+        request.addGroup(symGroup);
+
+        session.send(request);
+
+        Object event = eventQueue.poll(5, TimeUnit.SECONDS);
+        Assert.assertNull(event);
+
+        Mockito.verify(messageHandler, Mockito.never()).onMessage(Mockito.<MarketDataSnapshotFullRefresh>any(), Mockito.eq(session.getSessionID()));
     }
 
 }

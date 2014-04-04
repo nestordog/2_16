@@ -57,22 +57,30 @@ public class FixTestUtils {
         }
     }
 
-    public static Message parseFix44Message(final String str) throws InvalidMessage {
+    public static Message parseFix44Message(final String str, final DataDictionary dataDictionary) throws InvalidMessage {
         String raw;
         if (!str.contains(FIELD_SEPARATOR)) {
             raw = str.replaceAll("\\|", FIELD_SEPARATOR);
         } else {
             raw = str;
         }
-        return (Message) MessageUtils.parse(MSG_FACTORY, DATA_DICTIONARY, raw);
+        return (Message) MessageUtils.parse(MSG_FACTORY, dataDictionary != null ? dataDictionary : DATA_DICTIONARY, raw);
     }
 
-    public static <T extends Message> T parseFix44Message(final String str, Class<T> clazz) throws InvalidMessage {
-        Message message = parseFix44Message(str);
+    public static <T extends Message> T parseFix44Message(final String str, final DataDictionary dataDictionary, final Class<T> clazz) throws InvalidMessage {
+        Message message = parseFix44Message(str, dataDictionary);
         if (!clazz.isInstance(message)) {
             throw new InvalidMessage("Expected message type: " + clazz.getName() + "; actual type: " + message.getClass().getName());
         }
         return clazz.cast(message);
+    }
+
+    public static <T extends Message> T parseFix44Message(final String str, final Class<T> clazz) throws InvalidMessage {
+        return parseFix44Message(str, null, clazz);
+    }
+
+    public static Message parseFix44Message(final String str) throws InvalidMessage {
+        return parseFix44Message(str, (DataDictionary) null);
     }
 
     public static SessionID fakeFix44Session() {

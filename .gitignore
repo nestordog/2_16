@@ -7,4 +7,5 @@ log
 core/files/
 core/lib/
 crud/plugins/
+files
 
