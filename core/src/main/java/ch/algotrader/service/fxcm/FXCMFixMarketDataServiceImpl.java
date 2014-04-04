@@ -17,12 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.service.fxcm;
 
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.fxcm.FXCMFixMarketDataRequestFactory;
 import ch.algotrader.adapter.fxcm.FXCMUtil;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -54,7 +54,7 @@ public class FXCMFixMarketDataServiceImpl extends FXCMFixMarketDataServiceBase {
     @Override
     protected String handleGetSessionQualifier() throws Exception {
 
-        return "FXCMT";
+        return "FXCM";
     }
 
     @Override

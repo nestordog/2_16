@@ -328,7 +328,7 @@
                 </bean>
             </property>
             <property name="lifecycleHandler" ref="rTOrderSessionLifeCycle"/>
-            <property name="name" value="RTO"/>
+            <property name="name" value="RTT"/>
         </bean>
 
     </beans>
@@ -377,7 +377,7 @@
             </property>
             <property name="outgoingMessageHandler" ref="dCLogonMessageHandler"/>
             <property name="lifecycleHandler" ref="dCOrderSessionLifeCycle"/>
-            <property name="name" value="DCO"/>
+            <property name="name" value="DCT"/>
         </bean>
 
     </beans>
@@ -409,7 +409,7 @@
             </property>
             <property name="outgoingMessageHandler" ref="lMAXLogonMessageHandler"/>
             <property name="lifecycleHandler" ref="lMAXMarketDataSessionLifeCycle"/>
-            <property name="name" value="lMAXMD"/>
+            <property name="name" value="LMAXMD"/>
         </bean>
 
     </beans>
@@ -426,7 +426,7 @@
             </property>
             <property name="outgoingMessageHandler" ref="lMAXLogonMessageHandler"/>
             <property name="lifecycleHandler" ref="lMAXOrderSessionLifeCycle"/>
-            <property name="name" value="lMAXO"/>
+            <property name="name" value="LMAXT"/>
         </bean>
 
     </beans>
@@ -436,8 +436,6 @@
     <beans profile="fXCMMarketData, fXCMFix">
 
         <bean id="fXCMSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
-        <alias name="fXCMSessionLifeCycle" alias="fXCMMarketDataSessionLifeCycle"/>
-        <alias name="fXCMSessionLifeCycle" alias="fXCMOrderSessionLifeCycle"/>
 
         <bean id="fXCMApplicationFactory" class="ch.algotrader.adapter.fxcm.FXCMFixApplicationFactory">
             <property name="incomingMessageHandler">
@@ -453,7 +451,7 @@
                 </bean>
             </property>
             <property name="lifecycleHandler" ref="fXCMSessionLifeCycle"/>
-            <property name="name" value="fXCM"/>
+            <property name="name" value="FXCM"/>
         </bean>
 
     </beans>

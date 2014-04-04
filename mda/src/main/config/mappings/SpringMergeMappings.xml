@@ -35,7 +35,7 @@
         <!-- add fixSessionLifecycle to FXCMFixMarketDataService -->
         <mapping>
             <from><![CDATA[<!-- FXCMFixMarketDataService service property merge-point -->]]></from>
-            <to><![CDATA[<property name="fixSessionLifecycle" ref="fXCMMarketDataSessionLifeCycle"/>]]></to>
+            <to><![CDATA[<property name="fixSessionLifecycle" ref="fXCMSessionLifeCycle"/>]]></to>
         </mapping>
 
         <!-- add historicalDataQueue IBNativeHistoricalDataService -->

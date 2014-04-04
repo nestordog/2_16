@@ -12,25 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import ch.algotrader.adapter.fix.DefaultFixApplication;
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
-import ch.algotrader.adapter.fix.FixConfigUtils;
-import ch.algotrader.adapter.fix.NoopSessionStateListener;
-import ch.algotrader.adapter.lmax.LMAXLogonMessageHandler;
-import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.ForexImpl;
-import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.security.SecurityFamilyImpl;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.MarketOrder;
-import ch.algotrader.entity.trade.MarketOrderImpl;
-import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.service.LookupService;
 import quickfix.DefaultSessionFactory;
 import quickfix.LogFactory;
 import quickfix.MemoryStoreFactory;
@@ -52,6 +33,25 @@ import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
+import ch.algotrader.adapter.fix.DefaultFixApplication;
+import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.FixConfigUtils;
+import ch.algotrader.adapter.fix.NoopSessionStateListener;
+import ch.algotrader.adapter.lmax.LMAXLogonMessageHandler;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.ForexImpl;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.SecurityFamilyImpl;
+import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.MarketOrder;
+import ch.algotrader.entity.trade.MarketOrderImpl;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.AbstractEngine;
+import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.service.LookupService;
 
 public class FXCMFixOrderMessageHandlerTest {
 
@@ -87,18 +87,18 @@ public class FXCMFixOrderMessageHandlerTest {
 
 
         SessionSettings settings = FixConfigUtils.loadSettings();
-        SessionID sessionId = FixConfigUtils.getSessionID(settings, "FXCMT");
-        account = "01727399";
+        SessionID sessionId = FixConfigUtils.getSessionID(settings, "FXCM");
+        this.account = "01727399";
 
         LMAXLogonMessageHandler logonHandler = new LMAXLogonMessageHandler();
         logonHandler.setSettings(settings);
 
         this.lookupService = Mockito.mock(LookupService.class);
         FXCMFixOrderMessageHandler messageHandlerImpl = new FXCMFixOrderMessageHandler();
-        messageHandlerImpl.setLookupService(lookupService);
+        messageHandlerImpl.setLookupService(this.lookupService);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonHandler, new DefaultFixSessionLifecycle());
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler, new DefaultFixSessionLifecycle());
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 
@@ -159,7 +159,7 @@ public class FXCMFixOrderMessageHandlerTest {
 
         NewOrderSingle orderSingle = new NewOrderSingle();
         orderSingle.set(new ClOrdID(orderId));
-        orderSingle.set(new Account(account));
+        orderSingle.set(new Account(this.account));
         orderSingle.set(new Symbol("EUR/USD"));
         orderSingle.set(new Side(Side.BUY));
         orderSingle.set(new TransactTime(new Date()));
@@ -178,11 +178,11 @@ public class FXCMFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId)).thenReturn(order);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId(orderId)).thenReturn(order);
 
-        session.send(orderSingle);
+        this.session.send(orderSingle);
 
-        Object event1 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals(orderId, orderStatus1.getIntId());
@@ -192,7 +192,7 @@ public class FXCMFixOrderMessageHandlerTest {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
 
-        Object event2 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event2 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event2 instanceof OrderStatus);
         OrderStatus orderStatus2 = (OrderStatus) event2;
         Assert.assertEquals(orderId, orderStatus2.getIntId());
@@ -202,7 +202,7 @@ public class FXCMFixOrderMessageHandlerTest {
         Assert.assertSame(order, orderStatus2.getOrder());
         Assert.assertEquals(1000L, orderStatus2.getFilledQuantity());
 
-        Object event3 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event3 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event3 instanceof Fill);
         Fill fill1 = (Fill) event3;
         Assert.assertEquals(orderStatus2.getExtId(), fill1.getExtId());
@@ -212,7 +212,7 @@ public class FXCMFixOrderMessageHandlerTest {
         Assert.assertEquals(1000L, fill1.getQuantity());
         Assert.assertNotNull(fill1.getPrice());
 
-        Object event4 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event4 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event4 instanceof OrderStatus);
         OrderStatus orderStatus3 = (OrderStatus) event4;
         Assert.assertEquals(orderId, orderStatus3.getIntId());
@@ -222,7 +222,7 @@ public class FXCMFixOrderMessageHandlerTest {
         Assert.assertSame(order, orderStatus3.getOrder());
         Assert.assertEquals(1000L, orderStatus3.getFilledQuantity());
 
-        Object event5 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event5 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event5);
     }
 
@@ -233,16 +233,16 @@ public class FXCMFixOrderMessageHandlerTest {
 
         NewOrderSingle orderSingle = new NewOrderSingle();
         orderSingle.set(new ClOrdID(orderId));
-        orderSingle.set(new Account(account));
+        orderSingle.set(new Account(this.account));
         orderSingle.set(new Symbol("STUFF"));
         orderSingle.set(new Side(Side.BUY));
         orderSingle.set(new TransactTime(new Date()));
         orderSingle.set(new OrderQty(1000.0d));
         orderSingle.set(new OrdType(OrdType.MARKET));
 
-        session.send(orderSingle);
+        this.session.send(orderSingle);
 
-        Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event4 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event4);
     }
 
@@ -253,16 +253,16 @@ public class FXCMFixOrderMessageHandlerTest {
 
         NewOrderSingle orderSingle = new NewOrderSingle();
         orderSingle.set(new ClOrdID(orderId));
-        orderSingle.set(new Account(account));
+        orderSingle.set(new Account(this.account));
         orderSingle.set(new Symbol("RUB/UAH"));
         orderSingle.set(new Side(Side.BUY));
         orderSingle.set(new TransactTime(new Date()));
         orderSingle.set(new OrderQty(1000.0d));
         orderSingle.set(new OrdType(OrdType.MARKET));
 
-        session.send(orderSingle);
+        this.session.send(orderSingle);
 
-        Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event4 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event4);
     }
 
@@ -274,7 +274,7 @@ public class FXCMFixOrderMessageHandlerTest {
 
         NewOrderSingle orderSingle = new NewOrderSingle();
         orderSingle.set(new ClOrdID(orderId1));
-        orderSingle.set(new Account(account));
+        orderSingle.set(new Account(this.account));
         orderSingle.set(new Symbol("EUR/USD"));
         orderSingle.set(new Side(Side.BUY));
         orderSingle.set(new TransactTime(new Date()));
@@ -294,11 +294,11 @@ public class FXCMFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
 
-        session.send(orderSingle);
+        this.session.send(orderSingle);
 
-        Object event1 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals(orderId1, orderStatus1.getIntId());
@@ -313,17 +313,17 @@ public class FXCMFixOrderMessageHandlerTest {
         cancelRequest.set(new OrderID(orderStatus1.getExtId()));
         cancelRequest.set(new OrigClOrdID(orderId1));
         cancelRequest.set(new ClOrdID(orderId2));
-        cancelRequest.set(new Account(account));
+        cancelRequest.set(new Account(this.account));
         cancelRequest.set(new Symbol("EUR/USD"));
         cancelRequest.set(new Side(Side.BUY));
         cancelRequest.set(new TransactTime(new Date()));
         cancelRequest.set(new OrderQty(1000.0d));
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
 
-        session.send(cancelRequest);
+        this.session.send(cancelRequest);
 
-        Object event2 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event2 = this.eventQueue.poll(20, TimeUnit.SECONDS);
 
         Assert.assertTrue(event2 instanceof OrderStatus);
         OrderStatus orderStatus2 = (OrderStatus) event2;
@@ -334,7 +334,7 @@ public class FXCMFixOrderMessageHandlerTest {
         Assert.assertEquals(0, orderStatus2.getFilledQuantity());
         Assert.assertEquals(1000L, orderStatus2.getRemainingQuantity());
 
-        Object event3 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event3 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event3);
     }
 
@@ -345,7 +345,7 @@ public class FXCMFixOrderMessageHandlerTest {
 
         NewOrderSingle orderSingle = new NewOrderSingle();
         orderSingle.set(new ClOrdID(orderId1));
-        orderSingle.set(new Account(account));
+        orderSingle.set(new Account(this.account));
         orderSingle.set(new Symbol("EUR/USD"));
         orderSingle.set(new Side(Side.BUY));
         orderSingle.set(new TransactTime(new Date()));
@@ -365,11 +365,11 @@ public class FXCMFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
 
-        session.send(orderSingle);
+        this.session.send(orderSingle);
 
-        Object event1 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals(orderId1, orderStatus1.getIntId());
@@ -384,7 +384,7 @@ public class FXCMFixOrderMessageHandlerTest {
         replaceRequest.set(new OrderID(orderStatus1.getExtId()));
         replaceRequest.set(new OrigClOrdID(orderId1));
         replaceRequest.set(new ClOrdID(orderId2));
-        replaceRequest.set(new Account(account));
+        replaceRequest.set(new Account(this.account));
         replaceRequest.set(new Symbol("EUR/USD"));
         replaceRequest.set(new Side(Side.BUY));
         replaceRequest.set(new TransactTime(new Date()));
@@ -392,11 +392,11 @@ public class FXCMFixOrderMessageHandlerTest {
         replaceRequest.set(new OrdType(OrdType.STOP));
         replaceRequest.set(new StopPx(1.9d));
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
 
-        session.send(replaceRequest);
+        this.session.send(replaceRequest);
 
-        Object event2 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event2 = this.eventQueue.poll(20, TimeUnit.SECONDS);
 
         Assert.assertTrue(event2 instanceof OrderStatus);
         OrderStatus orderStatus2 = (OrderStatus) event2;
@@ -407,7 +407,7 @@ public class FXCMFixOrderMessageHandlerTest {
         Assert.assertEquals(0, orderStatus2.getFilledQuantity());
         Assert.assertEquals(1000L, orderStatus2.getRemainingQuantity());
 
-        Object event3 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event3 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event3);
     }
 

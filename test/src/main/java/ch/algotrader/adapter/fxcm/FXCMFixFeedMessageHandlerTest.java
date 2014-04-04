@@ -11,19 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
-import ch.algotrader.adapter.fix.FixConfigUtils;
-import ch.algotrader.adapter.fix.NoopSessionStateListener;
-import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.ForexImpl;
-import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.security.SecurityFamilyImpl;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.enumeration.Currency;
-import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
 import quickfix.DefaultSessionFactory;
 import quickfix.LogFactory;
 import quickfix.MemoryStoreFactory;
@@ -40,6 +27,19 @@ import quickfix.field.SubscriptionRequestType;
 import quickfix.field.Symbol;
 import quickfix.fix44.MarketDataRequest;
 import quickfix.fix44.MarketDataSnapshotFullRefresh;
+import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.FixConfigUtils;
+import ch.algotrader.adapter.fix.NoopSessionStateListener;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.ForexImpl;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.SecurityFamilyImpl;
+import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.enumeration.Currency;
+import ch.algotrader.esper.AbstractEngine;
+import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.vo.AskVO;
+import ch.algotrader.vo.BidVO;
 
 public class FXCMFixFeedMessageHandlerTest {
 
@@ -72,12 +72,12 @@ public class FXCMFixFeedMessageHandlerTest {
         });
 
         SessionSettings settings = FixConfigUtils.loadSettings();
-        SessionID sessionId = FixConfigUtils.getSessionID(settings, "FXCMT");
+        SessionID sessionId = FixConfigUtils.getSessionID(settings, "FXCM");
 
         this.messageHandler = Mockito.spy(new FXCMFixMarketDataMessageHandler());
 
         DefaultFixSessionLifecycle fixSessionLifecycle = new DefaultFixSessionLifecycle();
-        FXCMFixApplication fixApplication = new FXCMFixApplication(sessionId, messageHandler, settings, fixSessionLifecycle);
+        FXCMFixApplication fixApplication = new FXCMFixApplication(sessionId, this.messageHandler, settings, fixSessionLifecycle);
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 
@@ -152,13 +152,13 @@ public class FXCMFixFeedMessageHandlerTest {
         FXCMFixMarketDataRequestFactory requestFactory = new FXCMFixMarketDataRequestFactory();
         MarketDataRequest subscribeRequest = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
 
-        session.send(subscribeRequest);
+        this.session.send(subscribeRequest);
 
         String symbol = FXCMUtil.getFXCMSymbol(forex);
 
         for (int i = 0; i < 10; i++) {
 
-            Object event = eventQueue.poll(30, TimeUnit.SECONDS);
+            Object event = this.eventQueue.poll(30, TimeUnit.SECONDS);
             if (event == null) {
                 Assert.fail("No event received within specific time limit");
             }
@@ -176,7 +176,7 @@ public class FXCMFixFeedMessageHandlerTest {
 
         MarketDataRequest unsubscribeRequest = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
 
-        session.send(unsubscribeRequest);
+        this.session.send(unsubscribeRequest);
     }
 
     @Test
@@ -200,12 +200,12 @@ public class FXCMFixFeedMessageHandlerTest {
         symGroup.set(new Symbol("STUFF"));
         request.addGroup(symGroup);
 
-        session.send(request);
+        this.session.send(request);
 
-        Object event = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event);
 
-        Mockito.verify(messageHandler, Mockito.never()).onMessage(Mockito.<MarketDataSnapshotFullRefresh>any(), Mockito.eq(session.getSessionID()));
+        Mockito.verify(this.messageHandler, Mockito.never()).onMessage(Mockito.<MarketDataSnapshotFullRefresh>any(), Mockito.eq(this.session.getSessionID()));
     }
 
 }
