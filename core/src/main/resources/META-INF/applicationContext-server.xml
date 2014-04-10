@@ -435,7 +435,10 @@
 
     <beans profile="fXCMMarketData, fXCMFix">
 
-        <bean id="fXCMSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+        <bean id="fXCMSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
+            <property name="marketDataService" ref="marketDataService"/>
+            <property name="feedType" value="FXCM"/>
+        </bean>
 
         <bean id="fXCMApplicationFactory" class="ch.algotrader.adapter.fxcm.FXCMFixApplicationFactory">
             <property name="incomingMessageHandler">
