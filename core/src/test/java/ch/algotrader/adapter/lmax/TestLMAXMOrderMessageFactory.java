@@ -39,12 +39,12 @@ import ch.algotrader.enumeration.TIF;
 
 public class TestLMAXMOrderMessageFactory {
 
-    private LMAXFix44OrderMessageFactory requestFactory;
+    private LMAXFixOrderMessageFactory requestFactory;
 
     @Before
     public void setup() throws Exception {
 
-        this.requestFactory = new LMAXFix44OrderMessageFactory();
+        this.requestFactory = new LMAXFixOrderMessageFactory();
     }
 
     @Test

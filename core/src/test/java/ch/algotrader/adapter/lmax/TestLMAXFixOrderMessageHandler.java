@@ -31,6 +31,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import quickfix.DataDictionary;
+import quickfix.field.ClOrdID;
+import quickfix.field.ExecType;
+import quickfix.fix44.ExecutionReport;
+import quickfix.fix44.Reject;
 import ch.algotrader.adapter.fix.FixTestUtils;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
@@ -46,11 +51,6 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
-import quickfix.DataDictionary;
-import quickfix.field.ClOrdID;
-import quickfix.field.ExecType;
-import quickfix.fix44.ExecutionReport;
-import quickfix.fix44.Reject;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -78,10 +78,10 @@ public class TestLMAXFixOrderMessageHandler {
     public void setup() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        EngineLocator.instance().setEngine("BASE", engine);
+        EngineLocator.instance().setEngine("BASE", this.engine);
 
-        impl = new LMAXFixOrderMessageHandler();
-        impl.setLookupService(lookupService);
+        this.impl = new LMAXFixOrderMessageHandler();
+        this.impl.setLookupService(this.lookupService);
     }
 
     @Test
@@ -94,12 +94,12 @@ public class TestLMAXFixOrderMessageHandler {
         Assert.assertNotNull(executionReport);
 
         MarketOrder order = new MarketOrderImpl();
-        Mockito.when(lookupService.getOpenOrderByRootIntId("144d196a0cf")).thenReturn(order);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId("144d196a0cf")).thenReturn(order);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
 
         Object event1 = argumentCaptor.getValue();
         Assert.assertTrue(event1 instanceof OrderStatus);
@@ -131,12 +131,12 @@ public class TestLMAXFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(lookupService.getOpenOrderByRootIntId("144d196a0cf")).thenReturn(order);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId("144d196a0cf")).thenReturn(order);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(engine, Mockito.times(2)).sendEvent(argumentCaptor.capture());
+        Mockito.verify(this.engine, Mockito.times(2)).sendEvent(argumentCaptor.capture());
 
         List<Object> events = argumentCaptor.getAllValues();
         Assert.assertEquals(2, events.size());
@@ -156,7 +156,7 @@ public class TestLMAXFixOrderMessageHandler {
         Assert.assertSame(order, fill1.getOrder());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140317-19:48:33.854"), fill1.getExtDateTime());
         Assert.assertEquals(Side.BUY, fill1.getSide());
-        Assert.assertEquals(10000L, fill1.getQuantity());
+        Assert.assertEquals(100000L, fill1.getQuantity());
         Assert.assertEquals(new BigDecimal("1.393"), fill1.getPrice());
 
         Set<Fill> fills = new HashSet<Fill>(order.getFills());
@@ -171,12 +171,12 @@ public class TestLMAXFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.NEW));
         executionReport.set(new ClOrdID("123"));
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId(Mockito.anyString())).thenReturn(null);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(lookupService, Mockito.times(1)).getOpenOrderByRootIntId("123");
-        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.lookupService, Mockito.times(1)).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
     @Test
@@ -186,10 +186,10 @@ public class TestLMAXFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.PENDING_NEW));
         executionReport.set(new ClOrdID("123"));
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(lookupService, Mockito.never()).getOpenOrderByRootIntId("123");
-        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.lookupService, Mockito.never()).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
     @Test
@@ -199,10 +199,10 @@ public class TestLMAXFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.PENDING_REPLACE));
         executionReport.set(new ClOrdID("123"));
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(lookupService, Mockito.never()).getOpenOrderByRootIntId("123");
-        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.lookupService, Mockito.never()).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
     @Test
@@ -212,10 +212,10 @@ public class TestLMAXFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.PENDING_CANCEL));
         executionReport.set(new ClOrdID("123"));
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(lookupService, Mockito.never()).getOpenOrderByRootIntId("123");
-        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.lookupService, Mockito.never()).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
     @Test
@@ -227,10 +227,10 @@ public class TestLMAXFixOrderMessageHandler {
         ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, DATA_DICT, ExecutionReport.class);
         Assert.assertNotNull(executionReport);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(lookupService, Mockito.never()).getOpenOrderByRootIntId(Mockito.anyString());
-        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.lookupService, Mockito.never()).getOpenOrderByRootIntId(Mockito.anyString());
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
     @Test
@@ -241,9 +241,9 @@ public class TestLMAXFixOrderMessageHandler {
         Reject reject = FixTestUtils.parseFix44Message(s, DATA_DICT, Reject.class);
         Assert.assertNotNull(reject);
 
-        impl.onMessage(reject, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(reject, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
     @Test
@@ -254,9 +254,9 @@ public class TestLMAXFixOrderMessageHandler {
         Reject reject = FixTestUtils.parseFix44Message(s, DATA_DICT, Reject.class);
         Assert.assertNotNull(reject);
 
-        impl.onMessage(reject, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(reject, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
 }

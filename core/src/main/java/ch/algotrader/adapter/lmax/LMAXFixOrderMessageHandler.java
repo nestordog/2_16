@@ -72,7 +72,7 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         ExecType execType = executionReport.getExecType();
         Status status = getStatus(execType, executionReport.getOrderQty(), executionReport.getCumQty());
         long filledQuantity = (long) executionReport.getCumQty().getValue() * MULTPLIER;
-        long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue()) * 1000;
+        long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue()) * MULTPLIER;
         String extId = executionReport.getExecID().getValue();
 
         // assemble the orderStatus
@@ -104,7 +104,7 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             // get the fields
             Date extDateTime = executionReport.getTransactTime().getValue();
             Side side = FixUtil.getSide(executionReport.getSide());
-            long quantity = (long) executionReport.getLastQty().getValue() * 1000;
+            long quantity = (long) executionReport.getLastQty().getValue() * MULTPLIER;
             double price = executionReport.getLastPx().getValue();
             String extId = executionReport.getExecID().getValue();
 

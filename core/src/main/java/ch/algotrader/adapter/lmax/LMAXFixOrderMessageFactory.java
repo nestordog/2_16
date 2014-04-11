@@ -50,7 +50,9 @@ import ch.algotrader.enumeration.TIF;
  *
  * @version $Revision$ $Date$
  */
-public class LMAXFix44OrderMessageFactory implements Fix44OrderMessageFactory {
+public class LMAXFixOrderMessageFactory implements Fix44OrderMessageFactory {
+
+    private static final double MULTPLIER = 10000.0;
 
     protected TimeInForce resolveTimeInForce(final SimpleOrder order) throws FixApplicationException {
 
@@ -98,7 +100,7 @@ public class LMAXFix44OrderMessageFactory implements Fix44OrderMessageFactory {
             if ((quantity % 1000) != 0) {
                 throw new FixApplicationException("FX orders on LMAX need to be multiples of 1000");
             } else {
-                return new OrderQty(quantity / 10000.0);
+                return new OrderQty(quantity / MULTPLIER);
             }
         } else {
             throw new FixApplicationException("LMAX interface currently only supports FX orders");

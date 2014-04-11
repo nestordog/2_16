@@ -21,7 +21,7 @@ import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
-import ch.algotrader.adapter.lmax.LMAXFix44OrderMessageFactory;
+import ch.algotrader.adapter.lmax.LMAXFixOrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 
@@ -38,7 +38,7 @@ public class LMAXFixOrderServiceImpl extends LMAXFixOrderServiceBase {
     // TODO: Implementation class should be injectable through constructor
     @Override
     protected Fix44OrderMessageFactory createMessageFactory() {
-        return new LMAXFix44OrderMessageFactory();
+        return new LMAXFixOrderMessageFactory();
     }
 
     @Override
