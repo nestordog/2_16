@@ -193,7 +193,7 @@ public class LMAXFixOrderMessageHandlerTest {
         Assert.assertNotNull(orderStatus2.getExtId());
         Assert.assertEquals(Status.EXECUTED, orderStatus2.getStatus());
         Assert.assertSame(order, orderStatus2.getOrder());
-        Assert.assertEquals(10, orderStatus2.getFilledQuantity());
+        Assert.assertEquals(100000, orderStatus2.getFilledQuantity());
 
         Object event3 = eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event3 instanceof Fill);
@@ -202,7 +202,7 @@ public class LMAXFixOrderMessageHandlerTest {
         Assert.assertSame(order, fill1.getOrder());
         Assert.assertNotNull(fill1.getExtDateTime());
         Assert.assertEquals(ch.algotrader.enumeration.Side.BUY, fill1.getSide());
-        Assert.assertEquals(10L, fill1.getQuantity());
+        Assert.assertEquals(100000L, fill1.getQuantity());
         Assert.assertNotNull(fill1.getPrice());
 
         Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
@@ -293,7 +293,7 @@ public class LMAXFixOrderMessageHandlerTest {
         Assert.assertEquals(Status.CANCELED, orderStatus2.getStatus());
         Assert.assertSame(order, orderStatus2.getOrder());
         Assert.assertEquals(0, orderStatus2.getFilledQuantity());
-        Assert.assertEquals(10, orderStatus2.getRemainingQuantity());
+        Assert.assertEquals(100000, orderStatus2.getRemainingQuantity());
 
         Object event3 = eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event3);

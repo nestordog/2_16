@@ -225,7 +225,7 @@ public class LMAXIntegrationTest extends LocalServiceTest {
         order.setSecurity(eurusd);
         order.setAccount(account);
         order.setStrategy(base);
-        order.setQuantity(10);
+        order.setQuantity(2000);
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal(bestBid));
 
