@@ -84,7 +84,8 @@ CREATE TABLE `bar` (
   UNIQUE KEY `DATE_TIME_SECURITY_BAR_SIZE_UNIQUE` (`DATE_TIME`,`SECURITY_FK`,`BAR_SIZE`),
   KEY `DATE_TIME` (`DATE_TIME`),
   KEY `SECURITY_FK` (`SECURITY_FK`),
-  KEY `BAR_SIZE` (`BAR_SIZE`)
+  KEY `BAR_SIZE` (`BAR_SIZE`),
+  KEY `BAR_SECURITY` (`SECURITY_FK`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -371,6 +372,28 @@ CREATE TABLE `generic_future_family` (
   KEY `GENERIC_FUTURE_FAMILYIFKC` (`ID`),
   CONSTRAINT `GENERIC_FUTURE_FAMILYIFKC` FOREIGN KEY (`ID`) REFERENCES `security_family` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `generic_tick`
+--
+
+DROP TABLE IF EXISTS `generic_tick`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `generic_tick` (
+  `ID` int(11) NOT NULL,
+  `DATE_TIME` datetime NOT NULL,
+  `FEED_TYPE` enum('IB','BB','DC','LMAX','FXCM') NOT NULL,
+  `SECURITY_FK` int(11) NOT NULL,
+  `TICK_TYPE` enum('OPEN','HIGH','LOW','CLOSE','OPEN_INTEREST','IMBALANCE') NOT NULL,
+  `MONEY_VALUE` decimal(13,6) DEFAULT NULL,
+  `DOUBLE_VALUE` double DEFAULT NULL,
+  `INT_VALUE` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `GENERIC_TICK_SECURITY_FKC` (`SECURITY_FK`),
+  CONSTRAINT `GENERIC_TICK_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -743,7 +766,8 @@ CREATE TABLE `tick` (
   UNIQUE KEY `DATE_TIME_SECURITY_FEED_TYPE_UNIQUE` (`DATE_TIME`,`SECURITY_FK`,`FEED_TYPE`),
   KEY `DATE_TIME` (`DATE_TIME`),
   KEY `SECURITY_FK` (`SECURITY_FK`),
-  KEY `FEED_TYPE` (`FEED_TYPE`)
+  KEY `FEED_TYPE` (`FEED_TYPE`),
+  KEY `TICK_SECURITY` (`SECURITY_FK`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -757,6 +781,8 @@ DROP TABLE IF EXISTS `transaction`;
 CREATE TABLE `transaction` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `EXT_ID` varchar(30) DEFAULT NULL,
+  `INT_ORDER_ID` varchar(30) DEFAULT NULL,
+  `EXT_ORDER_ID` varchar(30) DEFAULT NULL,
   `DATE_TIME` datetime NOT NULL,
   `SETTLEMENT_DATE` datetime DEFAULT NULL,
   `QUANTITY` bigint(20) NOT NULL,
@@ -796,4 +822,4 @@ CREATE TABLE `transaction` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-03-26 14:16:37
+-- Dump completed on 2014-04-11 12:59:32

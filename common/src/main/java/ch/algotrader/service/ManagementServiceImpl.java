@@ -513,6 +513,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
                 tickVO.setVolAsk(tick.getVolAsk());
                 tickVO.setBid(tick.getBid());
                 tickVO.setAsk(tick.getAsk());
+                tickVO.setVol(tick.getVol());
 
                 marketDataEventVO = tickVO;
 
@@ -524,6 +525,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
                 barVO.setHigh(bar.getHigh());
                 barVO.setLow(bar.getLow());
                 barVO.setClose(bar.getClose());
+                barVO.setVol(bar.getVol());
 
                 marketDataEventVO = barVO;
 
@@ -532,7 +534,6 @@ public class ManagementServiceImpl extends ManagementServiceBase {
             }
 
             marketDataEventVO.setDateTime(marketDataEvent.getDateTime());
-            marketDataEventVO.setVol(marketDataEvent.getVol());
             marketDataEventVO.setSecurityId(marketDataEvent.getSecurity().getId());
             marketDataEventVO.setCurrentValue(marketDataEvent.getCurrentValue());
             marketDataEventVO.setFeedType(marketDataEvent.getFeedType());

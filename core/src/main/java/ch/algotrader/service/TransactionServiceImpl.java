@@ -33,6 +33,7 @@ import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Broker;
@@ -89,6 +90,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         Transaction transaction = Transaction.Factory.newInstance();
         transaction.setDateTime(fill.getExtDateTime());
         transaction.setExtId(fill.getExtId());
+        transaction.setIntOrderId(fill.getOrder().getIntId());
+        transaction.setExtOrderId(fill.getOrder().getExtId());
         transaction.setQuantity(quantity);
         transaction.setPrice(fill.getPrice());
         transaction.setType(transactionType);
@@ -196,10 +199,11 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
                 EngineLocator.instance().sendEvent(positionMutationEvent.getStrategy(), positionMutationEvent);
             }
 
-            // propagate the transaction to the corresponding strategy
+            // propagate the transaction to the corresponding strategy and Base
             if (!transaction.getStrategy().isBase()) {
                 EngineLocator.instance().sendEvent(transaction.getStrategy().getName(), transaction);
             }
+            EngineLocator.instance().sendEvent(StrategyImpl.BASE, transaction);
         }
     }
 

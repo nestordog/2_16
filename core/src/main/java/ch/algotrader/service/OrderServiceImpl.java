@@ -35,6 +35,7 @@ import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderCompletion;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.Direction;
@@ -314,6 +315,20 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
 
         if (!this.simulation) {
             logger.debug("propagated orderStatus: " + orderStatus);
+        }
+    }
+
+
+    @Override
+    protected void handlePropagateOrderCompletion(OrderCompletion orderCompletion) throws Exception {
+
+        // send the fill to the strategy that placed the corresponding order
+        if (orderCompletion.getOrder() != null && !orderCompletion.getOrder().getStrategy().isBase()) {
+            EngineLocator.instance().sendEvent(orderCompletion.getOrder().getStrategy().getName(), orderCompletion);
+        }
+
+        if (!this.simulation) {
+            logger.debug("propagated orderCompletion: " + orderCompletion);
         }
     }
 

@@ -116,3 +116,40 @@ and
     tickWindow.feedType = FeedType.IB
 and
     tickWindow.tickerId = tickSize.tickerId;
+
+// ------------------------------GENERIC TICKS--------------------------------
+
+@Name('INSERT_INTO_GENERIC_TICK_IB_OPEN')
+@RunTimeOnly()
+on
+    ch.algotrader.adapter.ib.TickPrice(field = com.ib.client.TickType.OPEN) as tickPrice
+insert into
+    GenericTick
+select
+    current_timestamp.toDate() as dateTime,
+    FeedType.IB as feedType,
+    TickType.OPEN as tickType,
+    tickPrice.price as doubleValue,
+    LookupUtil.getSecurityInitialized(last(tickWindow.security.id)) as security
+from
+    TickWindow as tickWindow
+where
+    tickWindow.tickerId = tickPrice.tickerId;
+
+@Name('INSERT_INTO_GENERIC_TICK_IB_CLOSE')
+@RunTimeOnly()
+on
+    ch.algotrader.adapter.ib.TickPrice(field = com.ib.client.TickType.CLOSE) as tickPrice
+insert into
+    GenericTick
+select
+    current_timestamp.toDate() as dateTime,
+    FeedType.IB as feedType,
+    TickType.CLOSE as tickType,
+    tickPrice.price as doubleValue,
+    LookupUtil.getSecurityInitialized(last(tickWindow.security.id)) as security
+from
+    TickWindow as tickWindow
+where
+    tickWindow.tickerId = tickPrice.tickerId;
+

@@ -1,0 +1,72 @@
+/***********************************************************************************
+ * AlgoTrader Enterprise Trading Framework
+ *
+ * Copyright (C) 2013 Flury Trading - All rights reserved
+ *
+ * All information contained herein is, and remains the property of Flury Trading.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * Flury Trading. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from Flury Trading
+ *
+ * Fur detailed terms and conditions consult the file LICENSE.txt or contact
+ *
+ * Flury Trading
+ * Badenerstrasse 16
+ * 8004 Zurich
+ ***********************************************************************************/
+package ch.algotrader.entity.marketData;
+
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+
+import ch.algotrader.enumeration.Direction;
+
+/**
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
+public class GenericTickImpl extends GenericTick {
+
+    private static final long serialVersionUID = 6171811094429421819L;
+
+    private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss SSS");
+
+    @Override
+    public BigDecimal getCurrentValue() {
+        return null;
+    }
+
+    @Override
+    public BigDecimal getMarketValue(Direction direction) {
+        return null;
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append(getSecurity());
+        buffer.append(",");
+        buffer.append(getDateTime() != null ? format.format(getDateTime()) : null);
+        buffer.append(",");
+        buffer.append(getTickType());
+        buffer.append("=");
+
+        if (getMoneyValue() != null) {
+            buffer.append(getMoneyValue());
+        } else if (getDoubleValue() != null) {
+            buffer.append(getDoubleValue());
+        } else if (getIntValue() != null) {
+            buffer.append(getIntValue());
+        }
+
+        buffer.append(",feedType=");
+        buffer.append(getFeedType());
+
+        return buffer.toString();
+    }
+
+}

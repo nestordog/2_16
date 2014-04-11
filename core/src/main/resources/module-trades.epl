@@ -51,6 +51,32 @@ or
 or
     orderStatus.intId = openOrderWindow.intId;
 
+@Name('INSERT_INTO_ORDER_COMPLETION')
+@RunTimeOnly()
+insert into
+    OrderCompletion
+select
+    current_timestamp.toDate() as dateTime,
+    orderStatus.status as status,
+    orderStatus.filledQuantity as filledQuantity,
+    orderStatus.remainingQuantity as remainingQuantity,
+    orderStatus.`order` as `order`,
+    sum(transaction.price * transaction.quantity) / sum(transaction.quantity) as avgPrice,
+    sum(transaction.grossValue) as grossValue,
+    sum(transaction.netValue) as netValue,
+    sum(transaction.totalCharges) as totalCharges,
+    cast(count(transaction),int) as fills,
+    (current_timestamp - orderStatus.`order`.dateTime.toMillisec()) / 1000.0 as executionTime
+from
+    pattern[every currentOrder=`Order` ->
+        (every transaction=Transaction(intOrderId = currentOrder.intId)
+        and orderStatus=OrderStatus(`order`.intId = currentOrder.intId, status = Status.EXECUTED or status = Status.CANCELED)
+        and not timer:interval(1 min))]
+group by
+    currentOrder.intId, orderStatus.filledQuantity
+having
+    sum(Math.abs(transaction.quantity)) = orderStatus.filledQuantity;
+
 @Name('NOTIFY_MISSING_ORDER_REPLY')
 @Subscriber(className='ch.algotrader.esper.subscriber.ExceptionSubscriber')
 @RunTimeOnly()
@@ -128,6 +154,14 @@ select
     *
 from
     OrderStatus;
+
+@Name('PROPAGATE_ORDER_COMPLETION')
+@RunTimeOnly()
+@Subscriber(className='ch.algotrader.service.OrderService.propagateOrderCompletion')
+select
+    *
+from
+    OrderCompletion;
 
 @Name('PROPAGATE_FILL')
 @Priority(1)
