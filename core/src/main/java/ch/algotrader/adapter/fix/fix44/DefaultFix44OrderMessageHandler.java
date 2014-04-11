@@ -19,15 +19,12 @@ package ch.algotrader.adapter.fix.fix44;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
-
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.CumQty;
@@ -43,8 +40,6 @@ import quickfix.fix44.ExecutionReport;
  * @version $Revision$ $Date$
  */
 public class DefaultFix44OrderMessageHandler extends AbstractFix44OrderMessageHandler {
-
-    private static Logger LOGGER = MyLogger.getLogger(DefaultFix44OrderMessageHandler.class.getName());
 
     @Override
     protected boolean discardReport(final ExecutionReport executionReport) throws FieldNotFound {

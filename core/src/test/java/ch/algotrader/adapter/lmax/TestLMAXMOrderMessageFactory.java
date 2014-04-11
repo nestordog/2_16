@@ -62,7 +62,7 @@ public class TestLMAXMOrderMessageFactory {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
         order.setSide(Side.BUY);
-        order.setQuantity(123);
+        order.setQuantity(2000);
 
         NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
 
@@ -71,7 +71,7 @@ public class TestLMAXMOrderMessageFactory {
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new SecurityIDSource("8"), message.getSecurityIDSource());
-        Assert.assertEquals(new OrderQty(123), message.getOrderQty());
+        Assert.assertEquals(new OrderQty(0.2), message.getOrderQty());
         Assert.assertEquals(new OrdType(OrdType.MARKET), message.getOrdType());
         Assert.assertFalse(message.isSetField(Price.FIELD));
         Assert.assertFalse(message.isSetField(StopPx.FIELD));
@@ -87,7 +87,7 @@ public class TestLMAXMOrderMessageFactory {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(stock);
         order.setSide(Side.BUY);
-        order.setQuantity(123);
+        order.setQuantity(2000);
 
         this.requestFactory.createNewOrderMessage(order, "test-id");
     }
@@ -106,7 +106,7 @@ public class TestLMAXMOrderMessageFactory {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
         order.setSide(Side.BUY);
-        order.setQuantity(123);
+        order.setQuantity(2000);
 
         this.requestFactory.createNewOrderMessage(order, "test-id");
     }
@@ -126,7 +126,7 @@ public class TestLMAXMOrderMessageFactory {
         LimitOrder order = new LimitOrderImpl();
         order.setSecurity(forex);
         order.setSide(Side.BUY);
-        order.setQuantity(123);
+        order.setQuantity(2000);
         order.setLimit(new BigDecimal("1.345"));
 
         NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
@@ -136,7 +136,7 @@ public class TestLMAXMOrderMessageFactory {
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new SecurityIDSource("8"), message.getSecurityIDSource());
-        Assert.assertEquals(new OrderQty(123), message.getOrderQty());
+        Assert.assertEquals(new OrderQty(0.2), message.getOrderQty());
         Assert.assertEquals(new OrdType(OrdType.LIMIT), message.getOrdType());
         Assert.assertEquals(new Price(1.345), message.getPrice());
         Assert.assertFalse(message.isSetField(StopPx.FIELD));
@@ -158,7 +158,7 @@ public class TestLMAXMOrderMessageFactory {
         StopOrder order = new StopOrderImpl();
         order.setSecurity(forex);
         order.setSide(Side.BUY);
-        order.setQuantity(123);
+        order.setQuantity(2000);
         order.setStop(new BigDecimal("1.345"));
 
         NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
@@ -168,7 +168,7 @@ public class TestLMAXMOrderMessageFactory {
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new SecurityIDSource("8"), message.getSecurityIDSource());
-        Assert.assertEquals(new OrderQty(123), message.getOrderQty());
+        Assert.assertEquals(new OrderQty(0.2), message.getOrderQty());
         Assert.assertEquals(new OrdType(OrdType.STOP), message.getOrdType());
         Assert.assertEquals(new StopPx(1.345), message.getStopPx());
         Assert.assertFalse(message.isSetField(Price.FIELD));
@@ -189,7 +189,7 @@ public class TestLMAXMOrderMessageFactory {
         StopLimitOrder order = new StopLimitOrderImpl();
         order.setSecurity(forex);
         order.setSide(Side.BUY);
-        order.setQuantity(123);
+        order.setQuantity(2000);
         order.setLimit(new BigDecimal("1.355"));
         order.setStop(new BigDecimal("1.345"));
 
@@ -212,7 +212,7 @@ public class TestLMAXMOrderMessageFactory {
         order.setIntId("test-id");
         order.setSecurity(forex);
         order.setSide(Side.BUY);
-        order.setQuantity(123);
+        order.setQuantity(2000);
         order.setLimit(new BigDecimal("1.345"));
 
         OrderCancelReplaceRequest message = this.requestFactory.createModifyOrderMessage(order, "test-id-2");
@@ -223,7 +223,7 @@ public class TestLMAXMOrderMessageFactory {
         Assert.assertEquals(new ClOrdID("test-id-2"), message.getClOrdID());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new SecurityIDSource("8"), message.getSecurityIDSource());
-        Assert.assertEquals(new OrderQty(123), message.getOrderQty());
+        Assert.assertEquals(new OrderQty(0.2), message.getOrderQty());
         Assert.assertEquals(new OrdType(OrdType.LIMIT), message.getOrdType());
         Assert.assertEquals(new Price(1.345), message.getPrice());
         Assert.assertFalse(message.isSetField(StopPx.FIELD));
@@ -245,7 +245,7 @@ public class TestLMAXMOrderMessageFactory {
         order.setIntId("test-id");
         order.setSecurity(forex);
         order.setSide(Side.BUY);
-        order.setQuantity(123);
+        order.setQuantity(2000);
 
         this.requestFactory.createModifyOrderMessage(order, "test-id-2");
     }
@@ -266,7 +266,7 @@ public class TestLMAXMOrderMessageFactory {
         order.setIntId("test-id");
         order.setSecurity(forex);
         order.setSide(Side.BUY);
-        order.setQuantity(123);
+        order.setQuantity(2000);
         order.setLimit(new BigDecimal("1.345"));
 
         OrderCancelRequest message = this.requestFactory.createOrderCancelMessage(order, "test-id-3");
@@ -277,7 +277,7 @@ public class TestLMAXMOrderMessageFactory {
         Assert.assertEquals(new ClOrdID("test-id-3"), message.getClOrdID());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new SecurityIDSource("8"), message.getSecurityIDSource());
-        Assert.assertEquals(new OrderQty(123), message.getOrderQty());
+        Assert.assertEquals(new OrderQty(0.2), message.getOrderQty());
     }
 
     @Test(expected = FixApplicationException.class)

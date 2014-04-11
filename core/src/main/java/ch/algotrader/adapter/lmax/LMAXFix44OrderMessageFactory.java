@@ -96,12 +96,12 @@ public class LMAXFix44OrderMessageFactory implements Fix44OrderMessageFactory {
         long quantity = order.getQuantity();
         if (order.getSecurity() instanceof Forex) {
             if ((quantity % 1000) != 0) {
-                throw new IllegalStateException("FX orders on LMAX need to be multiples of 1000");
+                throw new FixApplicationException("FX orders on LMAX need to be multiples of 1000");
             } else {
                 return new OrderQty(quantity / 10000.0);
             }
         } else {
-            return new OrderQty(quantity);
+            throw new FixApplicationException("LMAX interface currently only supports FX orders");
         }
     }
 

@@ -147,7 +147,7 @@ public class TestLMAXFixOrderMessageHandler {
         Assert.assertEquals("IcjSDQAAAAJoCIag", orderStatus1.getExtId());
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
-        Assert.assertEquals(10, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(100000, orderStatus1.getFilledQuantity());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof Fill);
@@ -156,7 +156,7 @@ public class TestLMAXFixOrderMessageHandler {
         Assert.assertSame(order, fill1.getOrder());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140317-19:48:33.854"), fill1.getExtDateTime());
         Assert.assertEquals(Side.BUY, fill1.getSide());
-        Assert.assertEquals(10L, fill1.getQuantity());
+        Assert.assertEquals(10000L, fill1.getQuantity());
         Assert.assertEquals(new BigDecimal("1.393"), fill1.getPrice());
 
         Set<Fill> fills = new HashSet<Fill>(order.getFills());
