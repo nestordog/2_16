@@ -35,6 +35,7 @@ import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
+import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
@@ -90,6 +91,20 @@ public class LMAXFix44OrderMessageFactory implements Fix44OrderMessageFactory {
         return new SecurityID(lmaxid);
     }
 
+    protected OrderQty resolveOrderQty(final SimpleOrder order) {
+
+        long quantity = order.getQuantity();
+        if (order.getSecurity() instanceof Forex) {
+            if ((quantity % 1000) != 0) {
+                throw new IllegalStateException("FX orders on LMAX need to be multiples of 1000");
+            } else {
+                return new OrderQty(quantity / 10000.0);
+            }
+        } else {
+            return new OrderQty(quantity);
+        }
+    }
+
     @Override
     public NewOrderSingle createNewOrderMessage(final SimpleOrder order, final String clOrdID) throws FixApplicationException {
 
@@ -101,7 +116,7 @@ public class LMAXFix44OrderMessageFactory implements Fix44OrderMessageFactory {
         message.set(new SecurityIDSource("8"));
 
         message.set(FixUtil.getFixSide(order.getSide()));
-        message.set(new OrderQty(order.getQuantity()));
+        message.set(resolveOrderQty(order));
 
         if (order instanceof MarketOrder) {
 
@@ -151,7 +166,7 @@ public class LMAXFix44OrderMessageFactory implements Fix44OrderMessageFactory {
         message.set(new SecurityIDSource("8"));
 
         message.set(FixUtil.getFixSide(order.getSide()));
-        message.set(new OrderQty(order.getQuantity()));
+        message.set(resolveOrderQty(order));
 
         message.set(new OrdType(OrdType.LIMIT));
         message.set(new Price(((LimitOrder) order).getLimit().doubleValue()));
@@ -180,7 +195,7 @@ public class LMAXFix44OrderMessageFactory implements Fix44OrderMessageFactory {
         message.set(new SecurityIDSource("8"));
 
         message.set(FixUtil.getFixSide(order.getSide()));
-        message.set(new OrderQty(order.getQuantity()));
+        message.set(resolveOrderQty(order));
 
         return message;
     }
