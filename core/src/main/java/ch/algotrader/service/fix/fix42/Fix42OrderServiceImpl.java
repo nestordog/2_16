@@ -147,7 +147,10 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
         sendOrder(order, newOrder);
 
         // send the message
-        sendAndPropagateOrder(order, newOrder);
+        sendOrder(order, newOrder);
+
+        //propagate the order
+        getOrderService().propagateOrder(order);
     }
 
     @Override
@@ -218,7 +221,10 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
         modifyOrder(order, replaceRequest);
 
         // send the message
-        sendAndPropagateOrder(order, replaceRequest);
+        sendOrder(order, replaceRequest);
+
+        // propagate the order
+        getOrderService().propagateOrder(order);
     }
 
     @Override
@@ -270,6 +276,6 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
         cancelOrder(order, cancelRequest);
 
         // send the message
-        sendAndPropagateOrder(order, cancelRequest);
+        sendOrder(order, cancelRequest);
     }
 }

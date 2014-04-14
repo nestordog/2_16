@@ -105,9 +105,6 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
             return;
         }
 
-        // progapate the order (even though nothing actually changed) to be able to identify missing replies
-        getOrderService().propagateOrder(order);
-
         getIBSession().cancelOrder(Integer.parseInt(order.getIntId()));
 
         logger.info("requested order cancellation for order: " + order);

@@ -45,7 +45,7 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
     }
 
     @Override
-    protected void handleSendAndPropagateOrder(Order order, Message message) throws Exception {
+    protected void handleSendOrder(Order order, Message message) throws Exception {
 
         // send the message to the FixClient
         getFixAdapter().sendMessage(message, order.getAccount());
@@ -60,9 +60,5 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
         } else {
             throw new IllegalArgumentException("unsupported messagetype: " + msgType);
         }
-
-        // propagateOrder even for cancels (where nothing actually changed) to be able to identify missing replies
-        getOrderService().propagateOrder(order);
-
     }
 }

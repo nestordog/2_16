@@ -17,12 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.service.fix.fix44;
 
-import ch.algotrader.adapter.fix.fix44.DefaultFix44OrderMessageFactory;
-import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
-import ch.algotrader.entity.trade.SimpleOrder;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
+import ch.algotrader.adapter.fix.fix44.DefaultFix44OrderMessageFactory;
+import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
+import ch.algotrader.entity.trade.SimpleOrder;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -58,13 +58,16 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
         String clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
 
         order.setIntId(clOrdID);
-        NewOrderSingle message = messageFactory.createNewOrderMessage(order, clOrdID);
+        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, clOrdID);
 
         // broker-specific settings
         sendOrder(order, message);
 
         // send the message
-        sendAndPropagateOrder(order, message);
+        sendOrder(order, message);
+
+        // propagate the order
+        getOrderService().propagateOrder(order);
     }
 
     @Override
@@ -73,13 +76,16 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
         // assign a new clOrdID
         String clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
 
-        OrderCancelReplaceRequest message = messageFactory.createModifyOrderMessage(order, clOrdID);
+        OrderCancelReplaceRequest message = this.messageFactory.createModifyOrderMessage(order, clOrdID);
 
         // broker-specific settings
         modifyOrder(order, message);
 
         // send the message
-        sendAndPropagateOrder(order, message);
+        sendOrder(order, message);
+
+        // propagate the order
+        getOrderService().propagateOrder(order);
     }
 
     @Override
@@ -89,12 +95,12 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
         String origClOrdID = order.getIntId();
         String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
 
-        OrderCancelRequest message = messageFactory.createOrderCancelMessage(order, clOrdID);
+        OrderCancelRequest message = this.messageFactory.createOrderCancelMessage(order, clOrdID);
 
         // broker-specific settings
         cancelOrder(order, message);
 
         // send the message
-        sendAndPropagateOrder(order, message);
+        sendOrder(order, message);
     }
 }
