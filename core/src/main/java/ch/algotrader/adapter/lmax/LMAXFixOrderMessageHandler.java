@@ -42,7 +42,7 @@ import ch.algotrader.util.RoundUtil;
  */
 public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
-    private static final int MULTPLIER = 10000;
+    private static final double MULTPLIER = 10000.0;
 
     @Override
     protected boolean discardReport(final ExecutionReport executionReport) throws FieldNotFound {
@@ -71,8 +71,8 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
 
         ExecType execType = executionReport.getExecType();
         Status status = getStatus(execType, executionReport.getOrderQty(), executionReport.getCumQty());
-        long filledQuantity = (long) executionReport.getCumQty().getValue() * MULTPLIER;
-        long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue()) * MULTPLIER;
+        long filledQuantity = Math.round(executionReport.getCumQty().getValue() * MULTPLIER);
+        long remainingQuantity = Math.round((executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue()) * MULTPLIER);
         String extId = executionReport.getExecID().getValue();
 
         // assemble the orderStatus
@@ -104,7 +104,7 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             // get the fields
             Date extDateTime = executionReport.getTransactTime().getValue();
             Side side = FixUtil.getSide(executionReport.getSide());
-            long quantity = (long) executionReport.getLastQty().getValue() * MULTPLIER;
+            long quantity = Math.round(executionReport.getLastQty().getValue() * MULTPLIER);
             double price = executionReport.getLastPx().getValue();
             String extId = executionReport.getExecID().getValue();
 
