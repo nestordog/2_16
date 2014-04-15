@@ -1,17 +1,17 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2013 Flury Trading - All rights reserved
+ * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
  *
- * All information contained herein is, and remains the property of Flury Trading.
+ * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
- * Flury Trading. Modification, translation, reverse engineering, decompilation,
+ * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation,
  * disassembly or reproduction of this material is strictly forbidden unless prior
- * written permission is obtained from Flury Trading
+ * written permission is obtained from AlgoTrader GmbH
  *
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
- * Flury Trading
+ * AlgoTrader GmbH
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
@@ -34,7 +34,7 @@ import quickfix.fix44.QuoteStatusReport;
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
- * @version $Revision: 6665 $ $Date: 2014-01-11 18:17:51 +0100 (Sa, 11 Jan 2014) $
+ * @version $Revision$ $Date$
  */
 public abstract class AbstractFix44MarketDataMessageHandler extends AbstractFix44MessageHandler {
 
