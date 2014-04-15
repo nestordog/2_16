@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.entity.strategy.StrategyImpl;
-
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.MarketDataType;
 
@@ -69,6 +68,11 @@ public class Configuration {
     private @Value("${simulation}") boolean simulation;
     public boolean getSimulation() {
         return this.simulation;
+    }
+
+    private @Value("${misc.singleVM}") boolean singleVM;
+    public boolean isSingleVM() {
+        return this.singleVM;
     }
 
     public String getStartedStrategyName() {

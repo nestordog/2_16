@@ -87,7 +87,7 @@ public class SubscriptionServiceImpl extends SubscriptionServiceBase {
     @Override
     protected void handleInitMarketDataEventSubscriptions() throws Exception {
 
-        if (this.simulation || getConfiguration().isStartedStrategyBASE())
+        if (this.simulation || getConfiguration().isStartedStrategyBASE() || getConfiguration().isSingleVM())
             return;
 
         // assemble the message selector
@@ -120,7 +120,7 @@ public class SubscriptionServiceImpl extends SubscriptionServiceBase {
     @SuppressWarnings("rawtypes")
     protected void handleSubscribeGenericEvents(Class[] classes) throws Exception {
 
-        if (this.simulation || getConfiguration().isStartedStrategyBASE())
+        if (this.simulation || getConfiguration().isStartedStrategyBASE() || getConfiguration().isSingleVM())
             return;
 
         // assemble the message selector

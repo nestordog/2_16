@@ -20,3 +20,17 @@ where
     indicator.value > 0
 and
     prior(1, indicator.value) <= 0;
+
+// keep the last market data event for each security
+@Name('CURRENT_MARKET_DATA_EVENT')
+select
+    marketDataEvent.security.id as securityId,
+    marketDataEvent.* as marketDataEvent
+from
+    MarketDataEvent.std:groupwin(security.id).win:length(1) as marketDataEvent
+where
+    marketDataEvent.security is not null
+and
+    instanceof(marketDataEvent, ch.algotrader.entity.marketData.Tick)
+and
+    marketDataEvent.dateTime.time > (current_timestamp - DateUtil.getDuration('WEEK_1'));
