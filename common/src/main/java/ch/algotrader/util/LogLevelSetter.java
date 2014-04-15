@@ -17,20 +17,26 @@
  ***********************************************************************************/
 package ch.algotrader.util;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggerFactory;
 
 /**
- * Factory for {@link MyLogger}.
+ * Sets the log-level based on the commandline argument "logLevel"
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class MyLoggerFactory implements LoggerFactory {
+public class LogLevelSetter {
 
-    @Override
-    public Logger makeNewLoggerInstance(String name) {
-        return new MyLogger(name);
+    public void init() {
+
+        String levelName = System.getProperty("logLevel");
+        Level level = Level.toLevel(levelName); // defaults to DEBUG
+        if (!"".equals(levelName) && !levelName.toUpperCase().equals(level.toString())) {
+            throw new IllegalStateException("unrecognized log4j log level " + levelName);
+        } else {
+            Logger.getRootLogger().setLevel(level);
+        }
     }
 }

@@ -31,6 +31,8 @@
 
     <bean class="ch.algotrader.util.spring.EntityAnnotationSetter" init-method="init"/>
 
+    <bean class="ch.algotrader.util.LogLevelSetter" init-method="init"/>
+
     <!-- =========================================== JMX ================================================ -->
 
     <bean id="exporter" class="org.springframework.jmx.export.annotation.AnnotationMBeanExporter"/>
