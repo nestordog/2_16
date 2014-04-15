@@ -161,6 +161,14 @@ public abstract class AbstractServiceLocator {
     }
 
     /**
+     * gets all service names
+     */
+    public final String[] getServiceNames() {
+
+        return getContext().getBeanDefinitionNames();
+    }
+
+    /**
      * calls the init method of all services that implement the {@link InitializingServiceI} interface
      */
     public final void initInitializingServices() {

@@ -32,11 +32,13 @@ public class LogLevelSetter {
     public void init() {
 
         String levelName = System.getProperty("logLevel");
-        Level level = Level.toLevel(levelName); // defaults to DEBUG
-        if (!"".equals(levelName) && !levelName.toUpperCase().equals(level.toString())) {
-            throw new IllegalStateException("unrecognized log4j log level " + levelName);
-        } else {
-            Logger.getRootLogger().setLevel(level);
+        if (levelName != null && "".equals(levelName)) {
+            Level level = Level.toLevel(levelName); // defaults to DEBUG
+            if (levelName.toUpperCase().equals(level.toString())) {
+                Logger.getRootLogger().setLevel(level);
+            } else {
+                throw new IllegalStateException("unrecognized log4j log level " + levelName);
+            }
         }
     }
 }
