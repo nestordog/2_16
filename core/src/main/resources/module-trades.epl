@@ -83,7 +83,7 @@ having
 select
     "missing reply on order: " || currentOrder.toString() as reason
 from
-    pattern[every currentOrder = `Order`(direct) -> (timer:interval(misc_orderAckSeconds) and not OrderStatus(`order`.intId = currentOrder.intId))];
+    pattern[every currentOrder = `Order`(direct, not (tif=TIF.ATC or tif=TIF.ATO)) -> (timer:interval(misc_orderAckSeconds) and not OrderStatus(`order`.intId = currentOrder.intId))];
 
 // ------------------------------ALGO ORDERS--------------------------------
 

@@ -47,6 +47,7 @@
     <auto-import import-name="ch.algotrader.enumeration.OptionType"/>
     <auto-import import-name="ch.algotrader.enumeration.FeedType"/>
     <auto-import import-name="ch.algotrader.enumeration.TickType"/>
+    <auto-import import-name="ch.algotrader.enumeration.TIF"/>
 
     <!-- Utils -->
     <auto-import import-name="ch.algotrader.option.OptionUtil"/>
