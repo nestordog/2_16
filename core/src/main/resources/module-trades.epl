@@ -71,7 +71,7 @@ from
     pattern[every currentOrder=`Order` ->
         (every transaction=Transaction(intOrderId = currentOrder.intId)
         and orderStatus=OrderStatus(`order`.intId = currentOrder.intId, status = Status.EXECUTED or status = Status.CANCELED)
-        and not timer:interval(1 min))]
+        and not timer:interval(1 day))]
 group by
     currentOrder.intId, orderStatus.filledQuantity
 having
