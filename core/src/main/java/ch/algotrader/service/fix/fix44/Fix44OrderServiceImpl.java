@@ -64,10 +64,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
         sendOrder(order, message);
 
         // send the message
-        sendOrder(order, message);
-
-        // propagate the order
-        getOrderService().propagateOrder(order);
+        sendOrder(order, message, true);
     }
 
     @Override
@@ -82,17 +79,13 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
         modifyOrder(order, message);
 
         // send the message
-        sendOrder(order, message);
-
-        // propagate the order
-        getOrderService().propagateOrder(order);
+        sendOrder(order, message, true);
     }
 
     @Override
     protected void handleCancelOrder(SimpleOrder order) throws Exception {
 
         // get origClOrdID and assign a new clOrdID
-        String origClOrdID = order.getIntId();
         String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
 
         OrderCancelRequest message = this.messageFactory.createOrderCancelMessage(order, clOrdID);
@@ -101,6 +94,6 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
         cancelOrder(order, message);
 
         // send the message
-        sendOrder(order, message);
+        sendOrder(order, message, false);
     }
 }

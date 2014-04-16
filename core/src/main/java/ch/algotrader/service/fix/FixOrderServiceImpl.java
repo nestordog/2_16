@@ -45,7 +45,7 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
     }
 
     @Override
-    protected void handleSendOrder(Order order, Message message) throws Exception {
+    protected void handleSendOrder(Order order, Message message, boolean propagate) throws Exception {
 
         // send the message to the FixClient
         getFixAdapter().sendMessage(message, order.getAccount());
@@ -59,6 +59,10 @@ public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
             logger.info("sent order cancellation: " + order);
         } else {
             throw new IllegalArgumentException("unsupported messagetype: " + msgType);
+        }
+
+        if (propagate) {
+            getOrderService().propagateOrder(order);
         }
     }
 }
