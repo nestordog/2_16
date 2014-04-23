@@ -21,7 +21,9 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
@@ -118,6 +120,8 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         contract.m_exchange = securityFamily.getMarket(Broker.IB);
 
         contract.m_secType = "STK";
+
+        logger.debug("retrieving stock " + symbol);
 
         getIBSession().reqContractDetails(requestId, contract);
 
@@ -221,34 +225,40 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
     private void retrieveStocks(SecurityFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws Exception {
 
         // get all current stocks
-        Set<Stock> existingStocks = new TreeSet<Stock>(getComparator());
-        existingStocks.addAll(getStockDao().findStocksBySecurityFamily(securityFamily.getId()));
+        Map<String,Stock> existingStocks = new HashMap<String,Stock>();
+
+        for (Stock stock : getStockDao().findStocksBySecurityFamily(securityFamily.getId())) {
+            existingStocks.put(stock.getSymbol(), stock);
+        }
 
         // contractDetailsList most likely only contains one entry
         Set<Stock> newStocks = new TreeSet<Stock>();
         for (ContractDetails contractDetails : contractDetailsSet) {
-
-            Stock stock = Stock.Factory.newInstance();
 
             Contract contract = contractDetails.m_summary;
 
             String symbol = contract.m_symbol;
             String conid = String.valueOf(contract.m_conId);
 
-            stock.setSymbol(symbol);
-            stock.setConid(conid);
-            stock.setSecurityFamily(securityFamily);
-            stock.setUnderlying(securityFamily.getUnderlying());
+            // update stocks (conid) that already exist
+            if (existingStocks.containsKey(symbol)) {
 
-            // ignore stocks that already exist
-            if (!existingStocks.contains(stock)) {
+                Stock stock = existingStocks.get(symbol);
+                stock.setConid(conid);
+
+            } else {
+
+                Stock stock = Stock.Factory.newInstance();
+                stock.setSymbol(symbol);
+                stock.setConid(conid);
+                stock.setSecurityFamily(securityFamily);
+                stock.setUnderlying(securityFamily.getUnderlying());
+
                 newStocks.add(stock);
             }
         }
 
         getStockDao().create(newStocks);
-
-        logger.debug("retrieved stocks for securityfamily: " + securityFamily.getName() + " " + newStocks);
     }
 
     private Comparator<Security> getComparator() {
