@@ -52,6 +52,7 @@ import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
+import ch.algotrader.util.collection.Pair;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.ExpirePositionVO;
 
@@ -381,14 +382,14 @@ public class PositionServiceImpl extends PositionServiceBase {
         Collection<Transaction> transactions = getTransactionDao().findAllTradesInclSecurity();
 
         // process all transactions to establis current position states
-        Map<Security, Position> positionMap = new HashMap<Security, Position>();
+        Map<Pair<Security,Strategy>, Position> positionMap = new HashMap<Pair<Security,Strategy>, Position>();
         for (Transaction transaction : transactions) {
 
             // crate a position if we come across a security for the first time
-            Position position = positionMap.get(transaction.getSecurity());
+            Position position = positionMap.get(new Pair<Security,Strategy>(transaction.getSecurity(),transaction.getStrategy()));
             if (position == null) {
                 position = PositionUtil.processFirstTransaction(transaction);
-                positionMap.put(position.getSecurity(), position);
+                positionMap.put(new Pair<Security,Strategy>(position.getSecurity(), position.getStrategy()), position);
             } else {
                 PositionUtil.processTransaction(position, transaction);
             }
