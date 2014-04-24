@@ -20,19 +20,20 @@ package ch.algotrader.adapter.fix.fix44;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import quickfix.FieldNotFound;
+import quickfix.SessionID;
+import quickfix.field.ClOrdID;
+import quickfix.field.OrdStatus;
+import quickfix.field.OrigClOrdID;
+import quickfix.field.Text;
+import quickfix.fix44.ExecutionReport;
+import quickfix.fix44.OrderCancelReject;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.util.MyLogger;
-import quickfix.FieldNotFound;
-import quickfix.SessionID;
-import quickfix.field.ClOrdID;
-import quickfix.field.OrigClOrdID;
-import quickfix.field.Text;
-import quickfix.fix44.ExecutionReport;
-import quickfix.fix44.OrderCancelReject;
 
 /**
  * Abstract FIX44 order message handler implementing generic functionality common to all broker specific
@@ -53,7 +54,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
     }
 
     public LookupService getLookupService() {
-        return lookupService;
+        return this.lookupService;
     }
 
     protected abstract boolean discardReport(ExecutionReport executionReport) throws FieldNotFound;
@@ -116,7 +117,8 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
     public void onMessage(final OrderCancelReject reject, final SessionID sessionID) throws FieldNotFound {
 
-        if (LOGGER.isEnabledFor(Level.ERROR)) {
+        if (LOGGER.isEnabledFor(Level.WARN)) {
+
             StringBuilder buf = new StringBuilder();
             buf.append("Order cancel/replace has been rejected");
             if (reject.isSetField(ClOrdID.FIELD)) {
@@ -131,7 +133,14 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
                 String text = reject.getText().getValue();
                 buf.append(": ").append(text);
             }
-            LOGGER.error(buf.toString());
+
+            // warning only if order was already filled
+            OrdStatus ordStatus = reject.getOrdStatus();
+            if (ordStatus.getValue() == OrdStatus.FILLED) {
+                LOGGER.warn(buf.toString());
+            } else {
+                LOGGER.error(buf.toString());
+            }
         }
     }
 
