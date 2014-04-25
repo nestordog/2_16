@@ -110,9 +110,10 @@ public class DefaultFixAdapter implements FixAdapter {
                 SessionID sessionId = i.next();
                 if (sessionId.getSessionQualifier().equals(sessionQualifier)) {
                     Session session = Session.lookupSession(sessionId);
-                    if (session != null && createNew) {
-
-                        throw new IllegalStateException("existing session with qualifier " + sessionQualifier + " please add 'Inactive=Y' to session config");
+                    if (session != null) {
+                        if (createNew) {
+                            throw new IllegalStateException("existing session with qualifier " + sessionQualifier + " please add 'Inactive=Y' to session config");
+                        }
                     } else {
 
                         this.socketInitiator.createDynamicSession(sessionId);
