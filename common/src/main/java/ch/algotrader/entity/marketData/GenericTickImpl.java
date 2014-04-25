@@ -35,12 +35,20 @@ public class GenericTickImpl extends GenericTick {
 
     @Override
     public BigDecimal getCurrentValue() {
-        return null;
+        if (getMoneyValue() != null) {
+            return getMoneyValue();
+        } else if (getDoubleValue() != null) {
+            return new BigDecimal(getDoubleValue());
+        } else if (getIntValue() != null) {
+            return new BigDecimal(getIntValue());
+        } else {
+            return new BigDecimal(0);
+        }
     }
 
     @Override
     public BigDecimal getMarketValue(Direction direction) {
-        return null;
+        return getCurrentValue();
     }
 
     @Override
