@@ -88,6 +88,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     private @Value("${simulation.roundDigits}") int roundDigits;
     private @Value("${dataSource.dataSetLocation}") String dataSetLocation;
     private @Value("${dataSource.feedGenericEvents}") boolean feedGenericEvents;
+    private @Value("${dataSource.feedAllMarketDataFiles}") boolean feedAllMarketDataFiles;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -206,61 +207,85 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             }
         }
 
-        Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategies();
-        for (Security security : securities) {
 
-            MarketDataType marketDataType = getConfiguration().getDataSetType();
-            String path = baseDir + marketDataType.toString().toLowerCase() + "data" + File.separator + dataSet + File.separator;
+        MarketDataType marketDataType = getConfiguration().getDataSetType();
+        String path = baseDir + marketDataType.toString().toLowerCase() + "data" + File.separator + dataSet + File.separator;
 
-            // try to find the security by isin, symbol, bbgid, ric conid or id
-            File file = null;
-            if (security.getIsin() != null) {
-                file = new File(path + security.getIsin() + ".csv");
-            }
+        if (this.feedAllMarketDataFiles) {
 
-            if ((file == null || !file.exists()) && security.getSymbol() != null) {
-                file = new File(path + security.getSymbol() + ".csv");
-            }
-
-            if ((file == null || !file.exists()) && security.getBbgid() != null) {
-                file = new File(path + security.getBbgid() + ".csv");
-            }
-
-            if ((file == null || !file.exists()) && security.getRic() != null) {
-                file = new File(path + security.getRic() + ".csv");
-            }
-
-            if ((file == null || !file.exists()) && security.getConid() != null) {
-                file = new File(path + security.getConid() + ".csv");
-            }
-
-            if (file == null || !file.exists()) {
-                file = new File(path + security.getId() + ".csv");
-            }
-
-            if (file == null || !file.exists()) {
-                logger.warn("no data available for " + security.getSymbol() + " in " + path);
-                continue;
+            File dir = new File(path);
+            if (dir == null || !dir.exists() || !dir.isDirectory()) {
+                logger.warn("no market data events available");
             } else {
-                logger.info("data available for " + security.getSymbol());
+
+                // coordinate all files
+                for (File file : dir.listFiles()) {
+
+                    feedFile(marketDataType, file);
+                }
             }
 
-            CSVInputAdapterSpec spec;
-            if (MarketDataType.TICK.equals(marketDataType)) {
-                spec = new CsvTickInputAdapterSpec(file);
-            } else if (MarketDataType.BAR.equals(marketDataType)) {
-                spec = new CsvBarInputAdapterSpec(file, getConfiguration().getBarSize());
-            } else {
-                throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
+        } else {
+
+            Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategies();
+            for (Security security : securities) {
+
+                // try to find the security by isin, symbol, bbgid, ric conid or id
+                File file = null;
+                if (security.getIsin() != null) {
+                    file = new File(path + security.getIsin() + ".csv");
+                }
+
+                if ((file == null || !file.exists()) && security.getSymbol() != null) {
+                    file = new File(path + security.getSymbol() + ".csv");
+                }
+
+                if ((file == null || !file.exists()) && security.getBbgid() != null) {
+                    file = new File(path + security.getBbgid() + ".csv");
+                }
+
+                if ((file == null || !file.exists()) && security.getRic() != null) {
+                    file = new File(path + security.getRic() + ".csv");
+                }
+
+                if ((file == null || !file.exists()) && security.getConid() != null) {
+                    file = new File(path + security.getConid() + ".csv");
+                }
+
+                if (file == null || !file.exists()) {
+                    file = new File(path + security.getId() + ".csv");
+                }
+
+                if (file == null || !file.exists()) {
+                    logger.warn("no data available for " + security.getSymbol() + " in " + path);
+                    continue;
+                } else {
+                    logger.info("data available for " + security.getSymbol());
+                }
+
+                feedFile(marketDataType, file);
             }
-
-            EngineLocator.instance().getBaseEngine().coordinate(spec);
-
-            logger.debug("started simulation for security " + security.getSymbol());
         }
 
 
         EngineLocator.instance().getBaseEngine().startCoordination();
+    }
+
+    private CSVInputAdapterSpec feedFile(MarketDataType marketDataType, File file) {
+
+        CSVInputAdapterSpec spec;
+        if (MarketDataType.TICK.equals(marketDataType)) {
+            spec = new CsvTickInputAdapterSpec(file);
+        } else if (MarketDataType.BAR.equals(marketDataType)) {
+            spec = new CsvBarInputAdapterSpec(file, getConfiguration().getBarSize());
+        } else {
+            throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
+        }
+
+        EngineLocator.instance().getBaseEngine().coordinate(spec);
+
+        logger.debug("started simulation for file " + file.getName());
+        return spec;
     }
 
     @Override
