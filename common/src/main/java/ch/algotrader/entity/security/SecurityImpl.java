@@ -209,7 +209,8 @@ public abstract class SecurityImpl extends Security {
             return ObjectUtil.equals(this.getIsin(), that.getIsin()) &&
                     ObjectUtil.equals(this.getBbgid(), that.getBbgid()) &&
                     ObjectUtil.equals(this.getRic(), that.getRic()) &&
-                    ObjectUtil.equals(this.getConid(), that.getConid());
+                    ObjectUtil.equals(this.getConid(), that.getConid()) &&
+                    ObjectUtil.equalsNonZero(this.getId(), that.getId());
 
         } else {
             return false;
