@@ -169,7 +169,7 @@ public final class DatabaseModel implements IDatabaseModel {
                 }
             }
         } else {
-            return "";
+            return ",";
         }
     }
 
