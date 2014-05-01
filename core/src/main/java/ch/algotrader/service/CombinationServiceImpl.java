@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
@@ -64,6 +65,9 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
         // create the combination
         Combination combination = Combination.Factory.newInstance();
+
+        // set the uuid since combinations have no other unique identifier
+        combination.setUuid(UUID.randomUUID().toString());
         combination.setType(type);
 
         // attach the security family

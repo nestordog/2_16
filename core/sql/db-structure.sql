@@ -194,6 +194,7 @@ DROP TABLE IF EXISTS `commodity`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `commodity` (
   `ID` int(11) NOT NULL,
+  `UUID` char(36) NOT NULL,
   `TYPE` enum('ENERGY','INDUSTRIAL_METALS','PRECIOUS_METALS','AGRICULTURE','LIVESTOCK') NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `COMMODITYIFKC` (`ID`),
