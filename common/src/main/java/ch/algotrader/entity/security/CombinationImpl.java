@@ -137,7 +137,7 @@ public class CombinationImpl extends Combination {
         }
         if (obj instanceof Combination) {
             Combination that = (Combination) obj;
-            return ObjectUtil.equalsNonZero(this.getId(), that.getId());
+            return ObjectUtil.equals(this.getUuid(), that.getUuid());
         } else {
             return false;
         }
@@ -147,7 +147,7 @@ public class CombinationImpl extends Combination {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + this.getId();
+        hash = hash * 37 + this.getUuid().hashCode();
         return hash;
     }
 }

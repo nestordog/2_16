@@ -30,23 +30,59 @@ public class SecurityTest {
     @Test
     public void testEqualsIsin() {
 
-        Security security1 = new StockImpl();
-        Security security2 = new StockImpl();
+        Assert.assertNotEquals(getSecurity(0, null, null, null, null, null, null), getSecurity(0, "abc", null, null, null, null, null));
+        Assert.assertEquals(getSecurity(0, "abc", null, null, null, null, null), getSecurity(0, "abc", null, null, null, null, null));
 
-        Assert.assertEquals(security1, security2);
+    }
 
-        security1.setIsin("AAA");
+    @Test
+    public void testEqualsBbgdi() {
 
-        Assert.assertNotEquals(security1, security2);
+        Assert.assertNotEquals(getSecurity(0, null, null, null, null, null, null), getSecurity(0, null, "abc", null, null, null, null));
+        Assert.assertEquals(getSecurity(0, null, "abc", null, null, null, null), getSecurity(0, null, "abc", null, null, null, null));
 
-        security2.setIsin("BBB");
+    }
 
-        Assert.assertNotEquals(security1, security2);
+    @Test
+    public void testEqualsRic() {
 
-        Security security3 = new StockImpl();
+        Assert.assertNotEquals(getSecurity(0, null, null, null, null, null, null), getSecurity(0, null, null, "abc", null, null, null));
+        Assert.assertEquals(getSecurity(0, null, null, "abc", null, null, null), getSecurity(0, null, null, "abc", null, null, null));
 
-        security3.setIsin("AAA");
+    }
 
-        Assert.assertEquals(security1, security3);
+    @Test
+    public void testEqualsConin() {
+
+        Assert.assertNotEquals(getSecurity(0, null, null, null, null, null, null), getSecurity(0, null, null, null, "abc", null, null));
+        Assert.assertEquals(getSecurity(0, null, null, null, "abc", null, null), getSecurity(0, null, null, null, "abc", null, null));
+    }
+
+    @Test
+    public void testEqualsLmaxid() {
+
+        Assert.assertNotEquals(getSecurity(0, null, null, null, null, null, null), getSecurity(0, null, null, null, null, "abc", null));
+        Assert.assertEquals(getSecurity(0, null, null, null, null, "abc", null), getSecurity(0, null, null, null, null, "abc", null));
+
+    }
+
+    @Test
+    public void testEqualsSymbol() {
+
+        Assert.assertNotEquals(getSecurity(0, null, null, null, null, null, null), getSecurity(0, null, null, null, null, null, "abc"));
+        Assert.assertEquals(getSecurity(0, null, null, null, null, null, "abc"), getSecurity(0, null, null, null, null, null, "abc"));
+    }
+
+    private Security getSecurity(int id, String isin, String bbgid, String ric, String conid, String lmaxid, String Symbol) {
+
+        Security security = new StockImpl();
+        security.setId(id);
+        security.setIsin(isin);
+        security.setBbgid(bbgid);
+        security.setRic(ric);
+        security.setConid(conid);
+        security.setLmaxid(lmaxid);
+        security.setSymbol(Symbol);
+        return security;
     }
 }

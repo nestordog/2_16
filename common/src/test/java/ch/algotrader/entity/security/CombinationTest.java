@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import java.util.UUID;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,20 +32,22 @@ public class CombinationTest {
     @Test
     public void testEqualsId() {
 
-        Security security1 = new CombinationImpl();
-        Security security2 = new CombinationImpl();
+        Combination security1 = new CombinationImpl();
+        Combination security2 = new CombinationImpl();
+
+        Assert.assertEquals(security1, security2);
+
+        String uuid1 = UUID.randomUUID().toString();
+        security1.setUuid(uuid1);
 
         Assert.assertNotEquals(security1, security2);
 
-        security1.setId(1);
+        String uuid2 = UUID.randomUUID().toString();
+        security2.setUuid(uuid2);
 
         Assert.assertNotEquals(security1, security2);
 
-        security2.setId(2);
-
-        Assert.assertNotEquals(security1, security2);
-
-        security2.setId(1);
+        security2.setUuid(uuid1);
 
         Assert.assertEquals(security1, security2);
     }

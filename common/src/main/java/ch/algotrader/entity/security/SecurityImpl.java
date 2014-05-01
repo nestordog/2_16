@@ -207,9 +207,11 @@ public abstract class SecurityImpl extends Security {
         if (obj instanceof Security) {
             Security that = (Security) obj;
             return ObjectUtil.equals(this.getIsin(), that.getIsin()) &&
-                    ObjectUtil.equals(this.getBbgid(), that.getBbgid()) &&
-                    ObjectUtil.equals(this.getRic(), that.getRic()) &&
-                    ObjectUtil.equals(this.getConid(), that.getConid());
+                        ObjectUtil.equals(this.getBbgid(), that.getBbgid()) &&
+                        ObjectUtil.equals(this.getRic(), that.getRic()) &&
+                        ObjectUtil.equals(this.getConid(), that.getConid()) &&
+                        ObjectUtil.equals(this.getLmaxid(), that.getLmaxid()) &&
+                        ObjectUtil.equals(this.getSymbol(), that.getSymbol());
 
         } else {
             return false;
@@ -223,6 +225,8 @@ public abstract class SecurityImpl extends Security {
         hash = hash * 37 + ObjectUtil.hashCode(this.getBbgid());
         hash = hash * 37 + ObjectUtil.hashCode(this.getRic());
         hash = hash * 37 + ObjectUtil.hashCode(this.getConid());
+        hash = hash * 37 + ObjectUtil.hashCode(this.getLmaxid());
+        hash = hash * 37 + ObjectUtil.hashCode(this.getSymbol());
         return hash;
     }
 }

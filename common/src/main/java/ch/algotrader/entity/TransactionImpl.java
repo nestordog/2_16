@@ -230,6 +230,9 @@ public class TransactionImpl extends Transaction {
         }
     }
 
+    /**
+     * WARNING: hashCode changes when inserting a new transaction into the database, therefore uncommitted transaction should not be added to a collection
+     */
     @Override
     public int hashCode() {
 
