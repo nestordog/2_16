@@ -50,6 +50,7 @@ import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.TickwiseIncrementalOrder;
 import ch.algotrader.entity.trade.VariableIncrementalOrder;
+import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.enumeration.Side;
@@ -437,15 +438,31 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     }
 
     @Override
-    protected void handleSetComponentQuantity(String combination, String component, long quantity) throws Exception {
+    protected int handleCreateCombination(String combinationType, int securityFamilyId, String underlying) throws Exception {
 
-        getCombinationService().setComponentQuantity(getSecurityId(combination), getSecurityId(component), quantity);
+        if ("".equals(underlying)) {
+            return getCombinationService().createCombination(CombinationType.fromString(combinationType), securityFamilyId).getId();
+        } else {
+            return getCombinationService().createCombination(CombinationType.fromString(combinationType), securityFamilyId, getSecurityId(underlying)).getId();
+        }
     }
 
     @Override
-    protected void handleRemoveComponent(String combination, String component) {
+    protected void handleSetComponentQuantity(int combinationId, String component, long quantity) throws Exception {
 
-        getCombinationService().removeComponent(getSecurityId(combination), getSecurityId(component));
+        getCombinationService().setComponentQuantity(combinationId, getSecurityId(component), quantity);
+    }
+
+    @Override
+    protected void handleRemoveComponent(int combinationId, String component) {
+
+        getCombinationService().removeComponent(combinationId, getSecurityId(component));
+    }
+
+    @Override
+    protected void handleDeleteCombination(int combinationId) throws Exception {
+
+        getCombinationService().deleteCombination(combinationId);
     }
 
     @Override
