@@ -322,7 +322,7 @@
         <java.version>1.6</java.version>
         <andromda.version>3.4</andromda.version>
         <spring.version>3.2.6.RELEASE</spring.version>
-        <spring.integration.version>2.2.6</spring.integration.version>
+        <spring.integration.version>3.0.2</spring.integration.version>
         <esper.version>4.11.0</esper.version>
         <esperee.version>4.11.0</esperee.version>
         <grails.version>2.2.4</grails.version>
