@@ -634,6 +634,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     }
 
     @Override
+    protected BigDecimal handleGetLastIntOrderId(String sessionQualifier) throws Exception {
+
+        return getTransactionDao().findLastIntOrderId(sessionQualifier);
+    }
+
+    @Override
     protected Account handleGetAccountByName(String accountName) throws Exception {
 
         return getAccountDao().findByName(accountName);

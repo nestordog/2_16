@@ -17,18 +17,13 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.util.Arrays;
+import java.math.BigDecimal;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.collection.IntegerMap;
-import quickfix.FileUtil;
 import quickfix.SessionID;
+import ch.algotrader.service.LookupService;
+import ch.algotrader.util.collection.IntegerMap;
 
 /**
  * File backed implementation of {@link FixOrderIdGenerator}.
@@ -39,15 +34,17 @@ import quickfix.SessionID;
  */
 class DefaultFixOrderIdGenerator implements FixOrderIdGenerator {
 
-    private static Logger logger = MyLogger.getLogger(DefaultFixOrderIdGenerator.class.getName());
-
-    private final File rootDir;
     private final IntegerMap<String> orderIds;
+    private LookupService lookupService;
 
     public DefaultFixOrderIdGenerator() {
-        this.rootDir = new File("log");
         this.orderIds = new IntegerMap<String>();
     }
+
+    public void setLookupService(LookupService lookupService) {
+        this.lookupService = lookupService;
+    }
+
 
     /**
      * Gets the next {@code orderId} for the specified {@code account}
@@ -93,57 +90,7 @@ class DefaultFixOrderIdGenerator implements FixOrderIdGenerator {
 
         String sessionQualifier = sessionID.getSessionQualifier();
 
-        File file = new File(rootDir, FileUtil.sessionIdFileName(sessionID) + ".messages.log");
-        StringBuilder sb = new StringBuilder();
-
-        try {
-            RandomAccessFile fileHandler = new RandomAccessFile(file, "r");
-            try {
-                long fileLength = file.length() - 1;
-
-                byte[] bytes = new byte[4];
-                byte[] clOrdId = new byte[] { 0x1, 0x31, 0x31, 0x3D };
-                long pointer;
-                for (pointer = fileLength; pointer != -1; pointer--) {
-                    fileHandler.seek(pointer);
-                    fileHandler.read(bytes);
-                    if (Arrays.equals(bytes, clOrdId)) {
-                        break;
-                    }
-                }
-
-                if (pointer == -1) {
-                    this.orderIds.put(sessionQualifier, 1); // no last orderId
-                    return;
-                }
-
-                for (; pointer != fileLength; pointer++) {
-                    int readByte = fileHandler.readByte();
-                    if (readByte == 0x1) {
-                        break;
-                    }
-                    sb.append((char) readByte);
-                }
-
-            } finally {
-                try {
-                    fileHandler.close();
-                } catch (IOException e) {
-                    logger.error("problem finding last orderId", e);
-                }
-            }
-        } catch (IOException e) {
-            logger.error("problem finding last orderId", e);
-        }
-
-        // strip out the session qualifier
-        String value = sb.toString().replaceAll("[a-z]", "");
-
-        // strip out child order number
-        if (value.contains(".")) {
-            value = value.split("\\.")[0];
-        }
-
-        this.orderIds.put(sessionQualifier, Integer.valueOf(value));
+        BigDecimal orderId = this.lookupService.getLastIntOrderId(sessionQualifier);
+        this.orderIds.put(sessionQualifier, orderId != null ? orderId.intValue() : 0);
     }
 }

@@ -273,9 +273,11 @@
             <property name="eventScheduler">
                 <bean class="ch.algotrader.adapter.fix.DefaultFixEventScheduler"/>
             </property>
-            <property name="orderIdGenerator">
-                <bean class="ch.algotrader.adapter.fix.DefaultFixOrderIdGenerator"/>
-            </property>
+            <property name="orderIdGenerator" ref="orderIdGenerator"/>
+        </bean>
+
+        <bean id="orderIdGenerator" class="ch.algotrader.adapter.fix.DefaultFixOrderIdGenerator">
+            <property name="lookupService" ref="lookupService"/>
         </bean>
 
     </beans>
