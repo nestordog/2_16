@@ -21,11 +21,10 @@ import org.apache.commons.math.ConvergenceException;
 import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.log4j.Logger;
 
-import ch.algotrader.service.SimulationServiceImpl;
-import ch.algotrader.util.MyLogger;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.service.SimulationService;
+import ch.algotrader.service.SimulationServiceImpl;
+import ch.algotrader.util.MyLogger;
 
 /**
  * Main Starter Class for running simulations.

@@ -19,11 +19,6 @@ package ch.algotrader.adapter.lmax;
 
 import java.util.Date;
 
-import quickfix.FieldNotFound;
-import quickfix.field.CumQty;
-import quickfix.field.ExecType;
-import quickfix.field.OrderQty;
-import quickfix.fix44.ExecutionReport;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix44.AbstractFix44OrderMessageHandler;
 import ch.algotrader.entity.trade.Fill;
@@ -32,6 +27,11 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.util.RoundUtil;
+import quickfix.FieldNotFound;
+import quickfix.field.CumQty;
+import quickfix.field.ExecType;
+import quickfix.field.OrderQty;
+import quickfix.fix44.ExecutionReport;
 
 /**
  * LMFX specific Fix44MessageHandler.

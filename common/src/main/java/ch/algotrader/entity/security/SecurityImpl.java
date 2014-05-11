@@ -24,6 +24,9 @@ import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.espertech.esper.event.WrapperEventBean;
+import com.espertech.esper.event.bean.BeanEventBean;
+
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
@@ -32,9 +35,6 @@ import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.metric.MetricsUtil;
-
-import com.espertech.esper.event.WrapperEventBean;
-import com.espertech.esper.event.bean.BeanEventBean;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

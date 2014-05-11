@@ -29,6 +29,14 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
+import com.bloomberglp.blpapi.Element;
+import com.bloomberglp.blpapi.Event;
+import com.bloomberglp.blpapi.Message;
+import com.bloomberglp.blpapi.Request;
+import com.bloomberglp.blpapi.Schema.Datatype;
+import com.bloomberglp.blpapi.Service;
+import com.bloomberglp.blpapi.Session;
+
 import ch.algotrader.adapter.bb.BBConstants;
 import ch.algotrader.adapter.bb.BBMessageHandler;
 import ch.algotrader.adapter.bb.BBSession;
@@ -44,14 +52,6 @@ import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
-
-import com.bloomberglp.blpapi.Element;
-import com.bloomberglp.blpapi.Event;
-import com.bloomberglp.blpapi.Message;
-import com.bloomberglp.blpapi.Request;
-import com.bloomberglp.blpapi.Schema.Datatype;
-import com.bloomberglp.blpapi.Service;
-import com.bloomberglp.blpapi.Session;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

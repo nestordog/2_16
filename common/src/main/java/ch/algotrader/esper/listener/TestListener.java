@@ -19,10 +19,10 @@ package ch.algotrader.esper.listener;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
+
+import ch.algotrader.util.MyLogger;
 
 /**
  * Prints all values to the Log by using the {@code toString} method of the event object.

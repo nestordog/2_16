@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.ib.client.Contract;
+
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
@@ -31,8 +33,6 @@ import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.util.MyLogger;
-
-import com.ib.client.Contract;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

@@ -22,9 +22,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.algotrader.entity.property.Property;
-import ch.algotrader.entity.property.PropertyHolder;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *

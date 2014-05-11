@@ -17,11 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import quickfix.Message;
-import quickfix.SessionNotFound;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.OrderServiceType;
+import quickfix.Message;
+import quickfix.SessionNotFound;
 
 /**
  * Main entry point to Fix sessions.

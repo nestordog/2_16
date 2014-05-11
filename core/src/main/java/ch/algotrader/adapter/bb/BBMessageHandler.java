@@ -19,12 +19,12 @@ package ch.algotrader.adapter.bb;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-
 import com.bloomberglp.blpapi.Event;
 import com.bloomberglp.blpapi.EventHandler;
 import com.bloomberglp.blpapi.Message;
 import com.bloomberglp.blpapi.Session;
+
+import ch.algotrader.util.MyLogger;
 
 /**
  * Abstract Bloomberg MessageHandler.

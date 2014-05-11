@@ -31,11 +31,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import quickfix.DataDictionary;
-import quickfix.field.ClOrdID;
-import quickfix.field.ExecType;
-import quickfix.fix44.ExecutionReport;
-import quickfix.fix44.Reject;
 import ch.algotrader.adapter.fix.FixTestUtils;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
@@ -51,6 +46,11 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
+import quickfix.DataDictionary;
+import quickfix.field.ClOrdID;
+import quickfix.field.ExecType;
+import quickfix.fix44.ExecutionReport;
+import quickfix.fix44.Reject;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>

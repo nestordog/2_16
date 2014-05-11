@@ -17,12 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.service.dc;
 
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.dc.DCFixMarketDataRequestFactory;
 import ch.algotrader.adapter.dc.DCUtil;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * DukasCopy market data service implementation.

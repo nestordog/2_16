@@ -17,12 +17,13 @@
  ***********************************************************************************/
 package ch.algotrader.esper.io.jms;
 
-import ch.algotrader.ServiceLocator;
 import com.espertech.esper.adapter.Adapter;
 import com.espertech.esper.adapter.AdapterSPI;
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.plugin.PluginLoader;
 import com.espertech.esper.plugin.PluginLoaderInitContext;
+
+import ch.algotrader.ServiceLocator;
 
 /**
  * Loader for Spring-configured input and output adapters.

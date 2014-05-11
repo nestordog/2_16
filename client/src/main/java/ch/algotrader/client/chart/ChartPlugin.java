@@ -27,8 +27,9 @@ import javax.management.ObjectName;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
-import ch.algotrader.vo.ChartDataVO;
 import com.sun.tools.jconsole.JConsolePlugin;
+
+import ch.algotrader.vo.ChartDataVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

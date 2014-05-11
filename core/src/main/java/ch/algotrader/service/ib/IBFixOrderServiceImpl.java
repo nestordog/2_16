@@ -19,6 +19,10 @@ package ch.algotrader.service.ib;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.service.InitializingServiceI;
 import quickfix.field.Account;
 import quickfix.field.AllocationGroup;
 import quickfix.field.AllocationMethod;
@@ -31,10 +35,6 @@ import quickfix.field.OpenClose;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
-import ch.algotrader.entity.security.Option;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.InitializingServiceI;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

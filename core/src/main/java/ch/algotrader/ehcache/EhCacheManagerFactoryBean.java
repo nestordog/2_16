@@ -10,15 +10,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -30,6 +26,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 
 /**
  * Class based on spring's EhCacheManagerFactoryBean class.
@@ -105,13 +104,11 @@ public class EhCacheManagerFactoryBean implements FactoryBean<CacheManager>, Ini
     /**
      * This method merge ehcache xml configuration files as an inputstream
      * @return the inputStream
-     * @throws XmlMappingException
      * @throws IOException
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws TransformerFactoryConfigurationError
      * @throws TransformerException
-     * @throws TransformerConfigurationException
      */
     private InputStream getInputStream() throws IOException, ParserConfigurationException, SAXException, TransformerException, TransformerFactoryConfigurationError {
 

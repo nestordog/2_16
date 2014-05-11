@@ -21,9 +21,9 @@ import java.math.BigDecimal;
 
 import org.apache.commons.lang.Validate;
 
-import quickfix.SessionID;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.util.collection.IntegerMap;
+import quickfix.SessionID;
 
 /**
  * File backed implementation of {@link FixOrderIdGenerator}.

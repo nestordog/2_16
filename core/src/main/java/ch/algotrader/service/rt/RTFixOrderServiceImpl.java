@@ -19,6 +19,8 @@ package ch.algotrader.service.rt;
 
 import java.util.Date;
 
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.OrderServiceType;
 import quickfix.field.Account;
 import quickfix.field.ExecInst;
 import quickfix.field.HandlInst;
@@ -27,8 +29,6 @@ import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.OrderServiceType;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>

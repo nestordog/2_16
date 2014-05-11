@@ -24,17 +24,17 @@ import java.util.Map;
 import org.apache.commons.collections15.map.SingletonMap;
 import org.apache.commons.lang.math.NumberUtils;
 
+import com.espertech.esper.collection.Pair;
+
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.esper.EngineLocator;
@@ -43,8 +43,6 @@ import ch.algotrader.service.PortfolioService;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.vo.RawBarVO;
 import ch.algotrader.vo.RawTickVO;
-
-import com.espertech.esper.collection.Pair;
 
 /**
  * Provides static Lookup methods based mainly on the {@link ch.algotrader.service.LookupService}
@@ -62,7 +60,7 @@ public class LookupUtil {
 
     /**
      * Gets a Security by its {@code id} and initializes {@link Subscription Subscriptions}, {@link
-     * Position Positions}, Underlying {@link Security} and {@link SecurityFamily} to make sure that
+     * Position Positions}, Underlying {@link Security} and {@link ch.algotrader.entity.security.SecurityFamily} to make sure that
      * they are available when the Hibernate Session is closed and this Security is in a detached
      * state.
      */
@@ -93,7 +91,7 @@ public class LookupUtil {
     }
 
     /**
-     * Gets a {@link SecurityFamily} id by the {@code securityId} of one of its Securities
+     * Gets a {@link ch.algotrader.entity.security.SecurityFamily} id by the {@code securityId} of one of its Securities
      */
     public static int getSecurityFamilyIdBySecurity(int securityId) {
 
@@ -246,7 +244,7 @@ public class LookupUtil {
     }
 
     /**
-     * Returns true if the statement {@code CURRENT_MARKET_DATA_EVENT} contains any {@link MarketDataEvent MarketDataEvents}
+     * Returns true if the statement {@code CURRENT_MARKET_DATA_EVENT} contains any {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents}
      */
     public static boolean hasCurrentMarketDataEvents() {
 

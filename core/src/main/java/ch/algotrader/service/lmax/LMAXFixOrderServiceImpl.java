@@ -17,13 +17,13 @@
  ***********************************************************************************/
 package ch.algotrader.service.lmax;
 
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelReplaceRequest;
-import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
 import ch.algotrader.adapter.lmax.LMAXFixOrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelReplaceRequest;
+import quickfix.fix44.OrderCancelRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

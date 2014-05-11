@@ -22,17 +22,6 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import quickfix.FieldNotFound;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.field.ClOrdID;
-import quickfix.field.CumQty;
-import quickfix.field.ExecTransType;
-import quickfix.field.ExecType;
-import quickfix.field.OrigClOrdID;
-import quickfix.field.Text;
-import quickfix.fix42.ExecutionReport;
-import quickfix.fix42.OrderCancelReject;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.trade.Fill;
@@ -43,6 +32,16 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
+import quickfix.FieldNotFound;
+import quickfix.SessionID;
+import quickfix.field.ClOrdID;
+import quickfix.field.CumQty;
+import quickfix.field.ExecTransType;
+import quickfix.field.ExecType;
+import quickfix.field.OrigClOrdID;
+import quickfix.field.Text;
+import quickfix.fix42.ExecutionReport;
+import quickfix.fix42.OrderCancelReject;
 
 /**
  * Generic Fix42OrderMessageHandler. Needs to be overwritten by specific broker interfaces.

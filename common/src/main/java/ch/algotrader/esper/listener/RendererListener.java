@@ -19,13 +19,13 @@ package ch.algotrader.esper.listener;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.util.XMLEventRenderer;
+
+import ch.algotrader.util.MyLogger;
 
 /**
  * Prints all values to the Log in XML format.

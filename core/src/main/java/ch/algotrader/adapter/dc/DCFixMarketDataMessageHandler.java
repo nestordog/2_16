@@ -25,6 +25,10 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
+import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.vo.AskVO;
+import ch.algotrader.vo.BidVO;
 import quickfix.FieldNotFound;
 import quickfix.Group;
 import quickfix.SessionID;
@@ -35,10 +39,6 @@ import quickfix.field.MDEntryType;
 import quickfix.field.NoMDEntries;
 import quickfix.field.Symbol;
 import quickfix.fix44.MarketDataSnapshotFullRefresh;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
 
 /**
  * DukasCopy specific FIX market data handler.

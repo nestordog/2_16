@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
+import com.ib.client.Contract;
+
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.security.Security;
@@ -31,8 +33,6 @@ import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.TimePeriod;
-
-import com.ib.client.Contract;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

@@ -25,14 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.CtNewMethod;
-import javassist.NotFoundException;
-
 import org.apache.commons.collections15.buffer.CircularFifoBuffer;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
@@ -49,6 +41,14 @@ import com.tictactec.ta.lib.meta.annotation.OptInputParameterInfo;
 import com.tictactec.ta.lib.meta.annotation.OptInputParameterType;
 import com.tictactec.ta.lib.meta.annotation.OutputParameterInfo;
 import com.tictactec.ta.lib.meta.annotation.OutputParameterType;
+
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
 
 /**
  * Factory class needed for {@link GenericTALibFunction}

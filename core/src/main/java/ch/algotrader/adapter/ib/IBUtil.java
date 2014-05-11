@@ -23,6 +23,9 @@ import java.util.Date;
 
 import org.apache.commons.lang.Validate;
 
+import com.ib.client.Contract;
+import com.ib.client.Execution;
+
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Index;
@@ -37,9 +40,6 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
-
-import com.ib.client.Contract;
-import com.ib.client.Execution;
 
 /**
  * Utility class providing conversion methods for IB specific types.

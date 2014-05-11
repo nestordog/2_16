@@ -22,8 +22,6 @@ import java.util.List;
 
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.ForexDaoBase;
 import ch.algotrader.enumeration.Currency;
 
 /**

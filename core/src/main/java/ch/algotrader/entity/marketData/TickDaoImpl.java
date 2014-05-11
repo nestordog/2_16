@@ -24,14 +24,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.espertech.esper.collection.Pair;
+
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.vo.RawTickVO;
 import ch.algotrader.vo.TickVO;
-
-import com.espertech.esper.collection.Pair;
 
 @SuppressWarnings("unchecked")
 /**

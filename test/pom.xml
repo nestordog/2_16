@@ -8,6 +8,15 @@
     <artifactId>algotrader-test</artifactId>
     <packaging>jar</packaging>
     <name>AlgoTrader Integration Tests</name>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

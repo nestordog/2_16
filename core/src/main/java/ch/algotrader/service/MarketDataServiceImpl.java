@@ -36,6 +36,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import com.espertech.esper.collection.Pair;
+
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEvent;
@@ -49,8 +51,6 @@ import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvTickWriter;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.GenericEventVO;
-
-import com.espertech.esper.collection.Pair;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

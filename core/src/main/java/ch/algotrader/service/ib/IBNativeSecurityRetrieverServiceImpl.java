@@ -30,6 +30,9 @@ import java.util.concurrent.BlockingQueue;
 
 import org.apache.log4j.Logger;
 
+import com.ib.client.Contract;
+import com.ib.client.ContractDetails;
+
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.Option;
@@ -43,9 +46,6 @@ import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
-
-import com.ib.client.Contract;
-import com.ib.client.ContractDetails;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

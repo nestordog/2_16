@@ -29,8 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.ehcache.CacheManager;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.ConvergenceException;
@@ -48,6 +46,8 @@ import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+
+import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Position;
@@ -68,8 +68,7 @@ import ch.algotrader.vo.PerformanceKeysVO;
 import ch.algotrader.vo.PeriodPerformanceVO;
 import ch.algotrader.vo.SimulationResultVO;
 import ch.algotrader.vo.TradesVO;
-
-import com.espertech.esperio.csv.CSVInputAdapterSpec;
+import net.sf.ehcache.CacheManager;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

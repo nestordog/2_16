@@ -23,13 +23,13 @@ import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.metric.MetricsUtil;
-
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.StatementAwareUpdateListener;
+
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * Prints all values as a comma-separated-list (CSV) to Log.

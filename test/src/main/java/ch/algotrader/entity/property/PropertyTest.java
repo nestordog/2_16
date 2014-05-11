@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.EntityTest;
-import ch.algotrader.entity.property.PropertyDao;
 
 /**
  * @author <a href="mailto:amasood@algotrader.ch">Ahmad Masood</a>

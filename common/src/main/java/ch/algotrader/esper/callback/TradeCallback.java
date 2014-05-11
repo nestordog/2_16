@@ -27,13 +27,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
- * Base Esper Callback Class that will be invoked as soon as all {@code orders} passed to {@link Engine#addTradeCallback} have been
+ * Base Esper Callback Class that will be invoked as soon as all {@code orders} passed to {@link ch.algotrader.esper.Engine#addTradeCallback} have been
  * fully executed or cancelled.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

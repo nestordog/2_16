@@ -19,13 +19,13 @@ package ch.algotrader.adapter.fix.fix42;
 
 import org.apache.log4j.Logger;
 
+import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.MDReqID;
 import quickfix.field.MDReqRejReason;
 import quickfix.field.Text;
 import quickfix.fix42.MarketDataRequestReject;
-import ch.algotrader.util.MyLogger;
 
 /**
  * Generic Fix42MarketDataMessageHandler. Needs to be overwritten by specific broker interfaces.

@@ -25,12 +25,12 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
+import com.ib.client.EClientSocket;
+
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.util.MyLogger;
-
-import com.ib.client.EClientSocket;
 
 /**
  * Represents on IB (socket) connection.

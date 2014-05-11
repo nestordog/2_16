@@ -31,8 +31,6 @@ import org.hibernate.persister.entity.AbstractEntityPersister;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.Type;
 
-import ch.algotrader.util.MyLogger;
-
 /**
  * Provides static Hibernate utility methods.
  *

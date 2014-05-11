@@ -17,11 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.service.lmax;
 
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.lmax.LMAXFixMarketDataRequestFactory;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

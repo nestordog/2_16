@@ -20,10 +20,9 @@ package ch.algotrader.esper.callback;
 import java.util.List;
 
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.esper.Engine;
 
 /**
- * Esper Callback Class that will throw an exception unluss all {@code orders} passed to {@link Engine#addTradeCallback} have been fully exectured.
+ * Esper Callback Class that will throw an exception unluss all {@code orders} passed to {@link ch.algotrader.esper.Engine#addTradeCallback} have been fully exectured.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *

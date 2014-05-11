@@ -11,6 +11,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.FixConfigUtils;
+import ch.algotrader.adapter.fix.NoopSessionStateListener;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.ForexImpl;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.SecurityFamilyImpl;
+import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.enumeration.Currency;
+import ch.algotrader.esper.AbstractEngine;
+import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.vo.AskVO;
+import ch.algotrader.vo.BidVO;
 import quickfix.DefaultSessionFactory;
 import quickfix.LogFactory;
 import quickfix.MemoryStoreFactory;
@@ -27,19 +40,6 @@ import quickfix.field.SubscriptionRequestType;
 import quickfix.field.Symbol;
 import quickfix.fix44.MarketDataRequest;
 import quickfix.fix44.MarketDataSnapshotFullRefresh;
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
-import ch.algotrader.adapter.fix.FixConfigUtils;
-import ch.algotrader.adapter.fix.NoopSessionStateListener;
-import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.ForexImpl;
-import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.security.SecurityFamilyImpl;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.enumeration.Currency;
-import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
 
 public class FXCMFixFeedMessageHandlerTest {
 

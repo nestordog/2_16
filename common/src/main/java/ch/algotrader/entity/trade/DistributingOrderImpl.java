@@ -22,13 +22,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-
 import ch.algotrader.entity.strategy.Allocation;
-import ch.algotrader.entity.trade.DistributingOrder;
-import ch.algotrader.entity.trade.MarketOrder;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderValidationException;
+import ch.algotrader.util.MyLogger;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

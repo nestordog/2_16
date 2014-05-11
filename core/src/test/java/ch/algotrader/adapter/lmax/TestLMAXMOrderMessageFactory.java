@@ -6,18 +6,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import quickfix.field.ClOrdID;
-import quickfix.field.OrdType;
-import quickfix.field.OrderQty;
-import quickfix.field.OrigClOrdID;
-import quickfix.field.Price;
-import quickfix.field.SecurityID;
-import quickfix.field.SecurityIDSource;
-import quickfix.field.StopPx;
-import quickfix.field.TimeInForce;
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelReplaceRequest;
-import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
@@ -36,6 +24,18 @@ import ch.algotrader.entity.trade.StopOrderImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
+import quickfix.field.ClOrdID;
+import quickfix.field.OrdType;
+import quickfix.field.OrderQty;
+import quickfix.field.OrigClOrdID;
+import quickfix.field.Price;
+import quickfix.field.SecurityID;
+import quickfix.field.SecurityIDSource;
+import quickfix.field.StopPx;
+import quickfix.field.TimeInForce;
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelReplaceRequest;
+import quickfix.fix44.OrderCancelRequest;
 
 public class TestLMAXMOrderMessageFactory {
 

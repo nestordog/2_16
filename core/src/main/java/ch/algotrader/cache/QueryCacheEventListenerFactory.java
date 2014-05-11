@@ -19,16 +19,15 @@ package ch.algotrader.cache;
 
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.util.MyLogger;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
-
-import org.apache.log4j.Logger;
-
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.util.MyLogger;
 
 /**
  * EhCache CacheEventListenerFactory that creates a {@link CacheEventListener} which notifies when the UpdateTimestampsCache is being updated in the 2nd level cache.

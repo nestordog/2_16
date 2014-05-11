@@ -21,18 +21,17 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import com.espertech.esper.client.time.CurrentTimeEvent;
+import com.espertech.esperio.csv.CSVInputAdapterSpec;
+
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.esper.callback.ClosePositionCallback;
 import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.vo.GenericEventVO;
-
-import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 @Deprecated
 /**
@@ -51,7 +50,7 @@ public class EsperManager {
      * <li>{@code corresponding esper-xxx.cfg.xml} files are loaded from the classpath</li>
      * <li>Esper variables are initilized</li>
      * <li>Esper threading is configured</li>
-     * <li>The {@link Strategy} itself is configured as an Esper variable {@code engineStrategy}</li>
+     * <li>The {@link ch.algotrader.entity.strategy.Strategy} itself is configured as an Esper variable {@code engineStrategy}</li>
      * <li>Esper Time is set to zero</li>
      * </ul>
      */

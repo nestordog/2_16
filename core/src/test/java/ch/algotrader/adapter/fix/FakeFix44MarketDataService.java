@@ -17,12 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import quickfix.field.MDReqID;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceBase;
+import quickfix.field.MDReqID;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * Mock FIX 4.4 market data service

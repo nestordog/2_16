@@ -17,11 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
+import ch.algotrader.enumeration.ConnectionState;
 import quickfix.Application;
 import quickfix.ConfigError;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
-import ch.algotrader.enumeration.ConnectionState;
 
 /**
  * FIX {@link Application} factory.

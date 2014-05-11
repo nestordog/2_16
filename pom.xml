@@ -162,6 +162,38 @@
                         <tagBase>svn+ssh://repo.algotrader.ch/var/svn/repository/tags</tagBase>
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>2.9.1</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>algotrader</groupId>
+                            <artifactId>algotrader-stylecheck</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>validate</id>
+                            <phase>validate</phase>
+                            <configuration>
+                                <configLocation>at-stylecheck/default.xml</configLocation>
+                                <consoleOutput>true</consoleOutput>
+                                <failsOnError>true</failsOnError>
+                                <linkXRef>false</linkXRef>
+                            </configuration>
+                            <goals>
+                                <goal>checkstyle</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
             </plugins>
         </pluginManagement>
 
@@ -239,6 +271,7 @@
     </profiles>
 
     <modules>
+        <module>stylecheck</module>
         <module>mda</module>
         <module>common</module>
         <module>core</module>

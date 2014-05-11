@@ -19,6 +19,9 @@ package ch.algotrader.service.jpm;
 
 import java.util.Date;
 
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.Broker;
+import ch.algotrader.enumeration.OrderServiceType;
 import quickfix.field.Account;
 import quickfix.field.ExDestination;
 import quickfix.field.HandlInst;
@@ -27,9 +30,6 @@ import quickfix.field.TransactTime;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.Broker;
-import ch.algotrader.enumeration.OrderServiceType;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

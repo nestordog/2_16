@@ -21,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.entity.PositionDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

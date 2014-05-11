@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import ch.algotrader.entity.security.GenericFutureFamilyDaoBase;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *

@@ -21,6 +21,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.ib.client.Contract;
+
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
@@ -28,8 +30,6 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
-
-import com.ib.client.Contract;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

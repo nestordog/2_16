@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.lmax;
 
+import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.entity.security.Security;
 import quickfix.field.MDEntryType;
 import quickfix.field.MDReqID;
 import quickfix.field.MDUpdateType;
@@ -25,8 +27,6 @@ import quickfix.field.SecurityID;
 import quickfix.field.SecurityIDSource;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
-import ch.algotrader.adapter.fix.FixApplicationException;
-import ch.algotrader.entity.security.Security;
 
 /**
  * LMAX market data request factory.

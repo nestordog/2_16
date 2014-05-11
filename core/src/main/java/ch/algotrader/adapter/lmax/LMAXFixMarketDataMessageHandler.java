@@ -23,6 +23,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
+import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.vo.AskVO;
+import ch.algotrader.vo.BidVO;
 import quickfix.FieldNotFound;
 import quickfix.Group;
 import quickfix.SessionID;
@@ -37,10 +41,6 @@ import quickfix.field.NoMDEntries;
 import quickfix.field.SecurityID;
 import quickfix.fix44.MarketDataRequestReject;
 import quickfix.fix44.MarketDataSnapshotFullRefresh;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
 
 /**
  * LMAX specific FIX market data handler.

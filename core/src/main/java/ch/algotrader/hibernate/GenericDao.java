@@ -34,8 +34,6 @@ import org.hibernate.persister.collection.CollectionPersister;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import ch.algotrader.entity.security.Combination;
-import ch.algotrader.entity.security.Component;
 import ch.algotrader.entity.security.Security;
 
 /**
@@ -49,7 +47,8 @@ public class GenericDao extends HibernateDaoSupport {
 
     /**
      * gets any Entity by its {@code class} and {@code id}.
-     * Securities will get initialzed. For {@link Combination Combinations} all {@link Component Components} will get initialized.
+     * Securities will get initialzed. For {@link ch.algotrader.entity.security.Combination Combinations} all
+     * {@link ch.algotrader.entity.security.Component Components} will get initialized.
      */
     public Object get(final Class<?> clazz, final Serializable id) {
 

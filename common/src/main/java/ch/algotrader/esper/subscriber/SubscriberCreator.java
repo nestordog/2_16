@@ -17,16 +17,15 @@
  ***********************************************************************************/
 package ch.algotrader.esper.subscriber;
 
+import org.apache.commons.lang.StringUtils;
+
+import ch.algotrader.ServiceLocator;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.Modifier;
-
-import org.apache.commons.lang.StringUtils;
-
-import ch.algotrader.ServiceLocator;
 
 /**
  * Generate Subscriber classes on the fly using <a href="http://www.javassist.org/">Javaassist</a>.

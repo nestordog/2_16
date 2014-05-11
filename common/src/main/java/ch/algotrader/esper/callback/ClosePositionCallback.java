@@ -19,14 +19,13 @@ package ch.algotrader.esper.callback;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.ClosePositionVO;
 
 /**
- * Base Esper Callback Class that will be invoked as soon as a Position on the given Security passed to {@link Engine#addClosePositionCallback} has been closed.
+ * Base Esper Callback Class that will be invoked as soon as a Position on the given Security passed to {@link ch.algotrader.esper.Engine#addClosePositionCallback} has been closed.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *

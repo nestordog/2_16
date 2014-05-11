@@ -28,14 +28,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * Base Esper Callback Class that will be invoked as soon as at least one Tick has arrived for each of the {@code securities}
- * passed to {@link Engine#addFirstTickCallback}
+ * passed to {@link ch.algotrader.esper.Engine#addFirstTickCallback}
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *

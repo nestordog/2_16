@@ -25,10 +25,10 @@ import javax.management.JMX;
 import javax.management.ObjectName;
 import javax.swing.SwingWorker;
 
-import sun.tools.jconsole.WarningProducer;
 import ch.algotrader.service.ChartProvidingService;
 import ch.algotrader.service.ManagementService;
 import ch.algotrader.vo.ChartDataVO;
+import sun.tools.jconsole.WarningProducer;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

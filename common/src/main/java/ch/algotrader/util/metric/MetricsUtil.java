@@ -23,9 +23,8 @@ import java.util.Map;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.util.MyLogger;
 
 /**
  * Utility class for recording and logging of performance metrics

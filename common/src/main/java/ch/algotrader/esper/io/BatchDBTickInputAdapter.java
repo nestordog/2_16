@@ -24,14 +24,14 @@ import java.util.List;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.entity.marketData.Tick;
-
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esperio.AbstractCoordinatedAdapter;
 import com.espertech.esperio.SendableEvent;
+
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.marketData.Tick;
 
 /**
  * A {@link com.espertech.esperio.CoordinatedAdapter} used to input {@link ch.algotrader.entity.marketData.Tick Ticks}

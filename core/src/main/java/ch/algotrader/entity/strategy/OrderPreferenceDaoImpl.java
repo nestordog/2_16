@@ -17,9 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import ch.algotrader.entity.strategy.OrderPreferenceDaoBase;
-
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *

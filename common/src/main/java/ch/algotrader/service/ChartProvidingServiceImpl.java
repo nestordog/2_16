@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import ch.algotrader.service.ChartProvidingServiceBase;
 import ch.algotrader.vo.AnnotationVO;
 import ch.algotrader.vo.BarVO;
 import ch.algotrader.vo.ChartDefinitionVO;

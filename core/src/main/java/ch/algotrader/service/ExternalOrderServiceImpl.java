@@ -19,7 +19,6 @@ package ch.algotrader.service;
 
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.ExternalOrderServiceBase;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

@@ -17,9 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
+import ch.algotrader.esper.EngineLocator;
 import quickfix.Session;
 import quickfix.SessionID;
-import ch.algotrader.esper.EngineLocator;
 
 /**
  * Default {@link FixEventScheduler} implementation based on Esper {@link ch.algotrader.esper.Engine} .

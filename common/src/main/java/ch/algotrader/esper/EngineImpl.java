@@ -43,32 +43,6 @@ import org.apache.log4j.Logger;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.esper.annotation.Condition;
-import ch.algotrader.esper.annotation.Listeners;
-import ch.algotrader.esper.annotation.RunTimeOnly;
-import ch.algotrader.esper.annotation.SimulationOnly;
-import ch.algotrader.esper.annotation.Subscriber;
-import ch.algotrader.esper.callback.ClosePositionCallback;
-import ch.algotrader.esper.callback.OpenPositionCallback;
-import ch.algotrader.esper.callback.TickCallback;
-import ch.algotrader.esper.callback.TradeCallback;
-import ch.algotrader.esper.io.BatchDBTickInputAdapter;
-import ch.algotrader.esper.io.CollectionInputAdapter;
-import ch.algotrader.esper.io.CsvBarInputAdapter;
-import ch.algotrader.esper.io.CsvBarInputAdapterSpec;
-import ch.algotrader.esper.io.CsvTickInputAdapter;
-import ch.algotrader.esper.io.CsvTickInputAdapterSpec;
-import ch.algotrader.esper.io.CustomSender;
-import ch.algotrader.esper.subscriber.SubscriberCreator;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.metric.MetricsUtil;
-
 import com.espertech.esper.adapter.InputAdapter;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationEngineDefaults.Threading;
@@ -107,6 +81,32 @@ import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.csv.CSVInputAdapter;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
+
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.esper.annotation.Condition;
+import ch.algotrader.esper.annotation.Listeners;
+import ch.algotrader.esper.annotation.RunTimeOnly;
+import ch.algotrader.esper.annotation.SimulationOnly;
+import ch.algotrader.esper.annotation.Subscriber;
+import ch.algotrader.esper.callback.ClosePositionCallback;
+import ch.algotrader.esper.callback.OpenPositionCallback;
+import ch.algotrader.esper.callback.TickCallback;
+import ch.algotrader.esper.callback.TradeCallback;
+import ch.algotrader.esper.io.BatchDBTickInputAdapter;
+import ch.algotrader.esper.io.CollectionInputAdapter;
+import ch.algotrader.esper.io.CsvBarInputAdapter;
+import ch.algotrader.esper.io.CsvBarInputAdapterSpec;
+import ch.algotrader.esper.io.CsvTickInputAdapter;
+import ch.algotrader.esper.io.CsvTickInputAdapterSpec;
+import ch.algotrader.esper.io.CustomSender;
+import ch.algotrader.esper.subscriber.SubscriberCreator;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.collection.CollectionUtil;
+import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * Esper based implementation of an {@link Engine}

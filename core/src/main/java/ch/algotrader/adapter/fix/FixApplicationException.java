@@ -17,14 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import org.apache.log4j.Logger;
-
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.util.MyLogger;
-import quickfix.Message;
-import quickfix.StringField;
-import quickfix.field.MsgType;
-
 /**
  * Signals generic FIX application exception.
  *

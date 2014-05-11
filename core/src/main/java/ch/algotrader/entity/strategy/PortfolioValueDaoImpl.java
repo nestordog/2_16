@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import ch.algotrader.entity.strategy.PortfolioValue;
-import ch.algotrader.entity.strategy.PortfolioValueDaoBase;
 import ch.algotrader.vo.PortfolioValueVO;
 
 /**

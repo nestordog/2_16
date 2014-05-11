@@ -19,12 +19,12 @@ package ch.algotrader.esper.listener;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.StatementAwareUpdateListener;
+
+import ch.algotrader.util.MyLogger;
 
 /**
  * Prints all values including the statement name to the Log by using the {@code toString} method of the event object.

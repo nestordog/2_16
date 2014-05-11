@@ -4,14 +4,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import quickfix.Group;
-import quickfix.field.MDEntryType;
-import quickfix.field.NoMDEntryTypes;
-import quickfix.field.NoRelatedSym;
-import quickfix.field.SecurityID;
-import quickfix.field.SecurityIDSource;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
@@ -22,6 +14,14 @@ import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.security.StockImpl;
 import ch.algotrader.enumeration.Currency;
+import quickfix.Group;
+import quickfix.field.MDEntryType;
+import quickfix.field.NoMDEntryTypes;
+import quickfix.field.NoRelatedSym;
+import quickfix.field.SecurityID;
+import quickfix.field.SecurityIDSource;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 public class TestLMAXMarketDataRequestFactory {
 

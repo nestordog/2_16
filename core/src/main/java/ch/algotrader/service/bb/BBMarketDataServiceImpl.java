@@ -23,6 +23,10 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
+import com.bloomberglp.blpapi.CorrelationID;
+import com.bloomberglp.blpapi.Subscription;
+import com.bloomberglp.blpapi.SubscriptionList;
+
 import ch.algotrader.adapter.bb.BBIdGenerator;
 import ch.algotrader.adapter.bb.BBSession;
 import ch.algotrader.entity.marketData.Tick;
@@ -32,10 +36,6 @@ import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.ib.IBNativeMarketDataServiceException;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
-
-import com.bloomberglp.blpapi.CorrelationID;
-import com.bloomberglp.blpapi.Subscription;
-import com.bloomberglp.blpapi.SubscriptionList;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

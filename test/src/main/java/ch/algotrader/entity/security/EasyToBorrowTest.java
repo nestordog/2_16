@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.EntityTest;
-import ch.algotrader.entity.security.EasyToBorrowDao;
 import ch.algotrader.enumeration.Broker;
 
 /**

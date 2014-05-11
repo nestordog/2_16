@@ -38,6 +38,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
 
+import com.ib.client.Contract;
+import com.ib.client.ContractDetails;
+import com.ib.client.EWrapperMsgGenerator;
+import com.ib.client.Execution;
+
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
@@ -50,11 +55,6 @@ import ch.algotrader.service.LookupService;
 import ch.algotrader.service.ib.IBNativeMarketDataService;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
-
-import com.ib.client.Contract;
-import com.ib.client.ContractDetails;
-import com.ib.client.EWrapperMsgGenerator;
-import com.ib.client.Execution;
 
 /**
  * Esper specific MessageHandler.

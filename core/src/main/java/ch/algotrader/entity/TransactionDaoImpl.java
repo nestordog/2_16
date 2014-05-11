@@ -21,9 +21,6 @@ import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.entity.Account;
-import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.TransactionDaoBase;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.vo.TransactionVO;
 

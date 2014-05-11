@@ -22,9 +22,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.Assert;
 
-import quickfix.SessionID;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.service.LocalServiceTest;
+import quickfix.SessionID;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

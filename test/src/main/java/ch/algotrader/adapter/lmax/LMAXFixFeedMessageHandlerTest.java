@@ -11,17 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import quickfix.DefaultSessionFactory;
-import quickfix.LogFactory;
-import quickfix.MemoryStoreFactory;
-import quickfix.ScreenLogFactory;
-import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
-import quickfix.fix44.MarketDataSnapshotFullRefresh;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
 import ch.algotrader.adapter.fix.FixConfigUtils;
@@ -36,6 +25,17 @@ import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
+import quickfix.DefaultSessionFactory;
+import quickfix.LogFactory;
+import quickfix.MemoryStoreFactory;
+import quickfix.ScreenLogFactory;
+import quickfix.Session;
+import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.SocketInitiator;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
+import quickfix.fix44.MarketDataSnapshotFullRefresh;
 
 public class LMAXFixFeedMessageHandlerTest {
 

@@ -34,13 +34,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.Account;
 import quickfix.field.FAConfigurationAction;
 import quickfix.field.FARequestID;
 import quickfix.field.SubMsgType;
 import quickfix.field.XMLContent;
 import quickfix.fix42.IBFAModification;
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.entity.Account;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

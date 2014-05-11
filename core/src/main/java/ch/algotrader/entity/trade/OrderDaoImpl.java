@@ -23,9 +23,9 @@ import java.util.Map;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Transformer;
 
-import ch.algotrader.esper.EngineLocator;
-
 import com.espertech.esper.collection.Pair;
+
+import ch.algotrader.esper.EngineLocator;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

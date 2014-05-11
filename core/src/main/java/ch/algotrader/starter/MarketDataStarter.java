@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.starter;
 
-import ch.algotrader.starter.BaseStarter;
-
 import ch.algotrader.ServiceLocator;
 
 /**

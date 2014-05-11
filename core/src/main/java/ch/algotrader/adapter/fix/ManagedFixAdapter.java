@@ -30,10 +30,10 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import quickfix.Session;
-import quickfix.SessionID;
 import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.util.collection.IntegerMap;
+import quickfix.Session;
+import quickfix.SessionID;
 
 /**
  * Manageable implementation of {@link FixAdapter}.

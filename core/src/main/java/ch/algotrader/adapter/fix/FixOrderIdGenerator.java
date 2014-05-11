@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import quickfix.SessionID;
 import ch.algotrader.util.collection.IntegerMap;
+import quickfix.SessionID;
 
 /**
  * Order ID generator.

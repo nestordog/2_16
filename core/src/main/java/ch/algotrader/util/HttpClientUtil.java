@@ -27,8 +27,6 @@ import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 
-import ch.algotrader.util.ConfigurationUtil;
-
 /**
  * Provides HttpClient utility methods.
  *

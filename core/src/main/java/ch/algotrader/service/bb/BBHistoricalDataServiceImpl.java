@@ -10,6 +10,13 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
+import com.bloomberglp.blpapi.Element;
+import com.bloomberglp.blpapi.Event;
+import com.bloomberglp.blpapi.Message;
+import com.bloomberglp.blpapi.Request;
+import com.bloomberglp.blpapi.Service;
+import com.bloomberglp.blpapi.Session;
+
 import ch.algotrader.adapter.bb.BBConstants;
 import ch.algotrader.adapter.bb.BBMessageHandler;
 import ch.algotrader.adapter.bb.BBSession;
@@ -21,13 +28,6 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
-
-import com.bloomberglp.blpapi.Element;
-import com.bloomberglp.blpapi.Event;
-import com.bloomberglp.blpapi.Message;
-import com.bloomberglp.blpapi.Request;
-import com.bloomberglp.blpapi.Service;
-import com.bloomberglp.blpapi.Session;
 
 public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase implements DisposableBean {
 

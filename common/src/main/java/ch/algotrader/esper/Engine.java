@@ -21,14 +21,14 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import com.espertech.esperio.csv.CSVInputAdapterSpec;
+
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.esper.callback.ClosePositionCallback;
 import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TradeCallback;
-
-import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 /**
  * Interface representing a CEP Engine.

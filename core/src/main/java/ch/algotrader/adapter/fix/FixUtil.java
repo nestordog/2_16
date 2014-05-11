@@ -17,9 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import quickfix.field.OrdType;
-import quickfix.field.Symbol;
-import quickfix.field.TimeInForce;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Option;
@@ -33,6 +30,9 @@ import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
+import quickfix.field.OrdType;
+import quickfix.field.Symbol;
+import quickfix.field.TimeInForce;
 
 /**
  * Utility class providing conversion methods for Fix specific types.

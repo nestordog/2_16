@@ -20,6 +20,12 @@ package ch.algotrader.adapter.fix.fix44;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.service.LookupService;
+import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ClOrdID;
@@ -28,12 +34,6 @@ import quickfix.field.OrigClOrdID;
 import quickfix.field.Text;
 import quickfix.fix44.ExecutionReport;
 import quickfix.fix44.OrderCancelReject;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.service.LookupService;
-import ch.algotrader.util.MyLogger;
 
 /**
  * Abstract FIX44 order message handler implementing generic functionality common to all broker specific

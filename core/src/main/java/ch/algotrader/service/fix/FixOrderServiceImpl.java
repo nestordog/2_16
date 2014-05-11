@@ -19,11 +19,11 @@ package ch.algotrader.service.fix;
 
 import org.apache.log4j.Logger;
 
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.util.MyLogger;
 import quickfix.Message;
 import quickfix.StringField;
 import quickfix.field.MsgType;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.util.MyLogger;
 
 /**
  * Generic FIX order service

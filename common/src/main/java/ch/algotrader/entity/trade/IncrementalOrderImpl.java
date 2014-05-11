@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-import ch.algotrader.entity.trade.IncrementalOrder;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
