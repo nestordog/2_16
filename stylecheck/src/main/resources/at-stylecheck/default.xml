@@ -11,4 +11,7 @@
     <module name="UnusedImports"/>
     <module name="EqualsHashCode"/>
   </module>
+  <module name="FileTabCharacter">
+    <property name="eachLine" value="true"/>
+  </module>
 </module>
