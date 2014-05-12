@@ -8,6 +8,14 @@
     <artifactId>algotrader-client</artifactId>
     <name>AlgoTrader Client</name>
 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

@@ -10,8 +10,10 @@
     <module name="RedundantImport" />
     <module name="UnusedImports"/>
     <module name="EqualsHashCode"/>
+    <module name="FileContentsHolder"/>
   </module>
   <module name="FileTabCharacter">
     <property name="eachLine" value="true"/>
   </module>
+  <module name="SuppressionCommentFilter"/>
 </module>

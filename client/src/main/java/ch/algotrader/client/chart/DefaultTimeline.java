@@ -79,4 +79,9 @@ public class DefaultTimeline implements Timeline, Serializable {
         }
         return false;
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

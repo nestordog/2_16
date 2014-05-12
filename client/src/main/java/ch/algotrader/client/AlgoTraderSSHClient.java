@@ -17,11 +17,13 @@
  ***********************************************************************************/
 package ch.algotrader.client;
 
+// CHECKSTYLE:OFF
+import sun.tools.jconsole.JConsole;
+
+// CHECKSTYLE:ON
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.UserInfo;
-
-import sun.tools.jconsole.JConsole;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

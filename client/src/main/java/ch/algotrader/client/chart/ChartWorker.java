@@ -25,10 +25,13 @@ import javax.management.JMX;
 import javax.management.ObjectName;
 import javax.swing.SwingWorker;
 
+// CHECKSTYLE:OFF
+import sun.tools.jconsole.WarningProducer;
+
+// CHECKSTYLE:ON
 import ch.algotrader.service.ChartProvidingService;
 import ch.algotrader.service.ManagementService;
 import ch.algotrader.vo.ChartDataVO;
-import sun.tools.jconsole.WarningProducer;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
