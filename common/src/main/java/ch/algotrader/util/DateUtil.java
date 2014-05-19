@@ -82,6 +82,23 @@ public class DateUtil {
     }
 
     /**
+     * Returns a Date based on the specified year, month (starting at 1) and day
+     */
+    public static java.util.Date dateForYMD(int year, int month, int day) {
+        return dateForYMDHMS(year, month, day, 0, 0, 0);
+    }
+
+    /**
+     * Returns a Date based on the specified year, month (starting at 1), day, hour, minute and second
+     */
+    public static java.util.Date dateForYMDHMS(int year, int month, int day, int hour, int minute, int second) {
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.clear();
+        cal.set(year, month - 1, day, hour, minute, second);
+        return cal.getTime();
+    }
+
+    /**
      * Returns the last day of the specified {@code date}
      */
     public static Date getLastDayOfMonth(Date date) {
