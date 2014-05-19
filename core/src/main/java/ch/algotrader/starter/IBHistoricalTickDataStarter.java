@@ -91,9 +91,10 @@ public class IBHistoricalTickDataStarter {
 
         for (int securityId : securityIds) {
 
-            Security security = ServiceLocator.instance().getLookupService().getSecurity(securityId);
+            Security security = ServiceLocator.instance().getLookupService().getSecurityInclFamilyAndUnderlying(securityId);
 
-            CsvTickWriter writer = new CsvTickWriter(security.getIsin());
+            String fileName = security.getIsin() != null ? security.getIsin() : security.getSymbol() != null ? security.getSymbol() : String.valueOf(security.getId());
+            CsvTickWriter writer = new CsvTickWriter(fileName);
 
             download1MinTicksForSecurity(security, barTypes, startDate, endDate, writer);
 
@@ -150,7 +151,7 @@ public class IBHistoricalTickDataStarter {
             }
 
             // to make sure we don't get a pacing error
-            Thread.sleep(10000);
+            Thread.sleep(11000);
 
             for (Bar bar : bars) {
 
