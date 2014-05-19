@@ -36,8 +36,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import com.espertech.esper.collection.Pair;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEvent;
@@ -51,6 +49,8 @@ import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvTickWriter;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.GenericEventVO;
+
+import com.espertech.esper.collection.Pair;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -211,7 +211,7 @@ public class MarketDataServiceImpl extends MarketDataServiceBase implements Appl
         synchronized (this.csvWriters) {
             csvWriter = this.csvWriters.get(security);
             if (csvWriter == null) {
-                String fileName = security.getIsin() != null ? security.getIsin() : String.valueOf(security.getId());
+                String fileName = security.getIsin() != null ? security.getIsin() : security.getSymbol() != null ? security.getSymbol() : String.valueOf(security.getId());
                 csvWriter = new CsvTickWriter(fileName);
                 this.csvWriters.put(security, csvWriter);
             }
