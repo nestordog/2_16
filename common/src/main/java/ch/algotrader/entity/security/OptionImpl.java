@@ -65,7 +65,7 @@ public class OptionImpl extends Option {
 
             double optionSettlement = optionMarketDataEvent.getCurrentValueDouble();
             double underlyingSettlement = underlyingMarketDataEvent.getCurrentValueDouble();
-            int contractSize = getSecurityFamily().getContractSize();
+            double contractSize = getSecurityFamily().getContractSize();
             try {
                 marginPerContract = OptionUtil.getMaintenanceMargin(this, optionSettlement, underlyingSettlement) * contractSize;
             } catch (MathException e) {

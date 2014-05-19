@@ -68,7 +68,7 @@ public class PositionUtil {
         long qty = transaction.getQuantity();
         double price = transaction.getPrice().doubleValue();
         double totalCharges = transaction.getTotalChargesDouble();
-        int contractSize = transaction.getSecurity().getSecurityFamily().getContractSize();
+        double contractSize = transaction.getSecurity().getSecurityFamily().getContractSize();
 
         // calculate opening and closing quantity
         long closingQty = MathUtils.sign(oldQty) != MathUtils.sign(qty) ? Math.min(Math.abs(oldQty), Math.abs(qty)) * MathUtils.sign(qty) : 0;

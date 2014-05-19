@@ -164,7 +164,7 @@ public class TickImpl extends Tick {
                 throw new IllegalStateException("SpreadSlope and SpreadConstant have to be defined to validate a tradeable security");
             }
 
-            int contractSize = family.getContractSize();
+            double contractSize = family.getContractSize();
             double maxSpreadSlope = family.getMaxSpreadSlope();
             double maxSpreadConstant = family.getMaxSpreadConstant();
 
