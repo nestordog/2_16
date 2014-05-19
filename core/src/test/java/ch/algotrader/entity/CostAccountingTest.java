@@ -56,7 +56,7 @@ public class CostAccountingTest {
         Strategy strategy = new StrategyImpl();
 
         SecurityFamily family = new SecurityFamilyImpl();
-        family.setContractSize(10);
+        family.setContractSize(10.0);
         family.setScale(2);
 
         Security security = new StockImpl();
