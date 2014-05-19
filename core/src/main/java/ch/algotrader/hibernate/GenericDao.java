@@ -32,6 +32,7 @@ import org.hibernate.impl.SessionFactoryImpl;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import ch.algotrader.entity.security.Security;
@@ -115,7 +116,9 @@ public class GenericDao extends HibernateDaoSupport {
      */
     public List<?> find(String queryString) {
 
-        return getHibernateTemplate().find(queryString);
+        HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        hibernateTemplate.setCacheQueries(true);
+        return hibernateTemplate.find(queryString);
     }
 
     /**
@@ -133,7 +136,9 @@ public class GenericDao extends HibernateDaoSupport {
             index++;
         }
 
-        return getHibernateTemplate().findByNamedParam(queryString, paramNames, values);
+        HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        hibernateTemplate.setCacheQueries(true);
+        return hibernateTemplate.findByNamedParam(queryString, paramNames, values);
     }
 
     /**
