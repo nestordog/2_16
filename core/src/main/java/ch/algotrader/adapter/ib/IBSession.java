@@ -25,12 +25,12 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
-import com.ib.client.EClientSocket;
-
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.util.MyLogger;
+
+import com.ib.client.EClientSocket;
 
 /**
  * Represents on IB (socket) connection.
@@ -154,6 +154,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
             return true;
         } catch (ConnectException e) {
             // do nothing, gateway is down
+            logger.info("please start IB Gateway / TWS on port: " + this.port);
             return false;
         } catch (IOException e) {
             logger.error("connection error", e);
