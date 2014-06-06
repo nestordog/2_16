@@ -22,9 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.collections15.map.SingletonMap;
-import org.apache.commons.lang.math.NumberUtils;
-
-import com.espertech.esper.collection.Pair;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.cache.CacheManager;
@@ -44,6 +41,8 @@ import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.vo.RawBarVO;
 import ch.algotrader.vo.RawTickVO;
 
+import com.espertech.esper.collection.Pair;
+
 /**
  * Provides static Lookup methods based mainly on the {@link ch.algotrader.service.LookupService}
  *
@@ -56,7 +55,6 @@ public class LookupUtil {
     private static final LookupService lookupService = ServiceLocator.instance().getLookupService();
     private static final PortfolioService portfolioService = ServiceLocator.instance().getPortfolioService();
     private static final CacheManager cacheManager = ServiceLocator.instance().containsService("cacheManager") ? ServiceLocator.instance().getService("cacheManager", CacheManager.class) : null;
-    private static final Map<String, Integer> securityIds = new HashMap<String, Integer>();
 
     /**
      * Gets a Security by its {@code id} and initializes {@link Subscription Subscriptions}, {@link
@@ -327,36 +325,8 @@ public class LookupUtil {
 
     private static Security getSecurity(String securityString) {
 
-        // check if the security is cached
-        Integer securityId = securityIds.get(securityString);
-
-        // try to find the security by isin, symbol, bbgid, ric conid or id
-        Security security;
-        if (securityId == null) {
-            security = lookupService.getSecurityByIsin(securityString);
-            if (security == null) {
-                security = lookupService.getSecurityBySymbol(securityString);
-                if (security == null) {
-                    security = lookupService.getSecurityByBbgid(securityString);
-                    if (security == null) {
-                        security = lookupService.getSecurityByRic(securityString);
-                        if (security == null) {
-                            security = lookupService.getSecurityByConid(securityString);
-                            if (security == null && NumberUtils.isDigits(securityString)) {
-                                security = lookupService.getSecurity(Integer.parseInt(securityString));
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (security != null) {
-                securityId = security.getId();
-                securityIds.put(securityString, securityId);
-            } else {
-                throw new IllegalStateException("Security could not be found: " + securityString);
-            }
-        }
+        // lookup the securityId
+        int securityId = lookupService.getSecurityIdBySecurityString(securityString);
 
         // get the fully initialized security
         return cacheManager.get(SecurityImpl.class, securityId);

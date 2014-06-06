@@ -29,6 +29,7 @@ import java.util.Set;
 import javax.jms.IllegalStateException;
 
 import org.apache.commons.collections.map.MultiValueMap;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.entity.Account;
@@ -84,6 +85,13 @@ public class LookupServiceImpl extends LookupServiceBase {
     private @Value("${misc.transactionDisplayCount}") int transactionDisplayCount;
     private @Value("${misc.intervalDays}") int intervalDays;
 
+    private Map<String, Integer> securitySymbolMap = new HashMap<String, Integer>();
+    private Map<String, Integer> securityIsinMap = new HashMap<String, Integer>();
+    private Map<String, Integer> securityBbgidMap = new HashMap<String, Integer>();
+    private Map<String, Integer> securityRicMap = new HashMap<String, Integer>();
+    private Map<String, Integer> securityConidMap = new HashMap<String, Integer>();
+    private Map<String, Integer> securityIdMap = new HashMap<String, Integer>();
+
     @Override
     protected Security handleGetSecurity(int id) throws java.lang.Exception {
 
@@ -137,6 +145,77 @@ public class LookupServiceImpl extends LookupServiceBase {
         }
 
         return security;
+    }
+
+    @Override
+    protected int handleGetSecurityIdBySecurityString(String securityString) throws Exception {
+
+        // try to find it in the local hashMap cache by symbol, isin, bbgid, ric conid or id
+        if (this.securitySymbolMap.containsKey(securityString)) {
+            return this.securitySymbolMap.get(securityString);
+        }
+
+        if (this.securityIsinMap.containsKey(securityString)) {
+            return this.securityIsinMap.get(securityString);
+        }
+
+        if (this.securityBbgidMap.containsKey(securityString)) {
+            return this.securityBbgidMap.get(securityString);
+        }
+
+        if (this.securityRicMap.containsKey(securityString)) {
+            return this.securityRicMap.get(securityString);
+        }
+
+        if (this.securityConidMap.containsKey(securityString)) {
+            return this.securityConidMap.get(securityString);
+        }
+
+        if (this.securityIdMap.containsKey(securityString)) {
+            return this.securityIdMap.get(securityString);
+        }
+
+        // try to find the security by symbol, isin, bbgid, ric conid or id
+        Security security = getSecurityDao().findBySymbol(securityString);
+        if (security != null) {
+            this.securitySymbolMap.put(security.getSymbol(), security.getId());
+            return security.getId();
+        }
+
+        security = getSecurityDao().findByIsin(securityString);
+        if (security != null) {
+            this.securityIsinMap.put(security.getIsin(), security.getId());
+            return security.getId();
+        }
+
+        security = getSecurityDao().findByBbgid(securityString);
+        if (security != null) {
+            this.securityBbgidMap.put(security.getBbgid(), security.getId());
+            return security.getId();
+        }
+
+        security = getSecurityDao().findByRic(securityString);
+        if (security != null) {
+            this.securityRicMap.put(security.getRic(), security.getId());
+            return security.getId();
+        }
+
+        security = getSecurityDao().findByConid(securityString);
+        if (security != null) {
+            this.securityConidMap.put(security.getConid(), security.getId());
+            return security.getId();
+        }
+
+        if (NumberUtils.isDigits(securityString)) {
+
+            security = getSecurityDao().get(Integer.parseInt(securityString));
+            if (security != null) {
+                this.securitySymbolMap.put(Integer.toString(security.getId()), security.getId());
+                return security.getId();
+            }
+        }
+
+        throw new IllegalStateException("Security could not be found: " + securityString);
     }
 
     @Override
@@ -924,5 +1003,35 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List handleGet(String query, Map namedParameters) throws Exception {
 
         return getGenericDao().find(query, namedParameters);
+    }
+
+    @Override
+    protected void handleInitSecurityStrings() throws Exception {
+
+
+        for (Security security : getSecurityDao().findSubscribedForAutoActivateStrategies()) {
+
+            this.securityIdMap.put(Integer.toString(security.getId()), security.getId());
+
+            if (security.getSymbol() != null) {
+                this.securitySymbolMap.put(security.getSymbol(), security.getId());
+            }
+
+            if (security.getIsin() != null) {
+                this.securityIsinMap.put(security.getIsin(), security.getId());
+            }
+
+            if (security.getBbgid() != null) {
+                this.securityBbgidMap.put(security.getBbgid(), security.getId());
+            }
+
+            if (security.getRic() != null) {
+                this.securityRicMap.put(security.getRic(), security.getId());
+            }
+
+            if (security.getConid() != null) {
+                this.securityConidMap.put(security.getConid(), security.getId());
+            }
+        }
     }
 }

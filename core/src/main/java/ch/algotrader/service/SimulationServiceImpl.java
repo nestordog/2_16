@@ -206,9 +206,10 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             }
         }
 
-
         MarketDataType marketDataType = getConfiguration().getDataSetType();
         String path = baseDir + marketDataType.toString().toLowerCase() + "data" + File.separator + dataSet + File.separator;
+
+        Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategies();
 
         if (this.feedAllMarketDataFiles) {
 
@@ -226,17 +227,17 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         } else {
 
-            Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategies();
             for (Security security : securities) {
 
                 // try to find the security by isin, symbol, bbgid, ric conid or id
                 File file = null;
-                if (security.getIsin() != null) {
-                    file = new File(path + security.getIsin() + ".csv");
+
+                if (security.getSymbol() != null) {
+                    file = new File(path + security.getSymbol() + ".csv");
                 }
 
-                if ((file == null || !file.exists()) && security.getSymbol() != null) {
-                    file = new File(path + security.getSymbol() + ".csv");
+                if ((file == null || !file.exists()) && security.getIsin() != null) {
+                    file = new File(path + security.getIsin() + ".csv");
                 }
 
                 if ((file == null || !file.exists()) && security.getBbgid() != null) {
@@ -266,6 +267,12 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             }
         }
 
+        // initialize all securityStrings for subscribed securities
+        getLookupService().initSecurityStrings();
+
+        for (Security security : securities) {
+            getCacheManager().put(security);
+        }
 
         EngineLocator.instance().getBaseEngine().startCoordination();
     }
