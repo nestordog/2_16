@@ -113,6 +113,14 @@ public class CacheManagerImpl implements CacheManager {
     }
 
     @Override
+    public Object put(Object obj) {
+
+        AbstractHandler handler = getHandler(obj.getClass());
+
+        return handler.put(obj);
+    }
+
+    @Override
     public boolean contains(Class<?> clazz, Serializable key) {
 
         EntityCacheKey cacheKey = new EntityCacheKey(clazz, key);
@@ -175,16 +183,6 @@ public class CacheManagerImpl implements CacheManager {
         }
 
         return result;
-    }
-
-    /**
-     * Adds an object recursively into the Cache and returns the existingObject if it was already in the Cache
-     */
-    Object put(Object obj) {
-
-        AbstractHandler handler = getHandler(obj.getClass());
-
-        return handler.put(obj);
     }
 
     /**

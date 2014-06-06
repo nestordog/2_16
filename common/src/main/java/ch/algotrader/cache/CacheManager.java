@@ -38,12 +38,17 @@ public interface CacheManager {
     public <T> T get(Class<T> clazz, Serializable key);
 
     /**
+     * Adds an object recursively into the Cache and returns the existingObject if it was already in the Cache
+     */
+    public Object put(Object obj);
+
+    /**
      * checks whether an object of the given {@code clazz} and {@code key} is in the cache
      */
     public boolean contains(Class<?> clazz, Serializable key);
 
     /**
-     * lazy-initilazes the give {@code key} of the specified {@code entity}
+     * lazy-initializes the give {@code key} of the specified {@code entity}
      */
     public Object initialze(BaseEntityI entity, String key);
 
