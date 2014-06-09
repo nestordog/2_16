@@ -105,10 +105,10 @@ public class DefaultFix44OrderMessageFactory implements Fix44OrderMessageFactory
             Option option = (Option) security;
 
             message.set(new SecurityType(SecurityType.OPTION));
-            message.set(new Currency(option.getSecurityFamily().getCurrency().toString()));
+            message.set(new Currency(option.getSecurityFamilyInitialized().getCurrency().toString()));
             message.set(new CFICode("O" + (OptionType.PUT.equals(option.getType()) ? "P" : "C")));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
-            message.set(new ContractMultiplier(option.getSecurityFamily().getContractSize()));
+            message.set(new ContractMultiplier(option.getSecurityFamilyInitialized().getContractSize()));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
             message.set(new MaturityDate(formatYMD(option.getExpiration())));
 
@@ -117,21 +117,21 @@ public class DefaultFix44OrderMessageFactory implements Fix44OrderMessageFactory
             Future future = (Future) security;
 
             message.set(new SecurityType(SecurityType.FUTURE));
-            message.set(new Currency(future.getSecurityFamily().getCurrency().toString()));
+            message.set(new Currency(future.getSecurityFamilyInitialized().getCurrency().toString()));
             message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
             message.set(new MaturityDate(formatYMD(future.getExpiration())));
 
         } else if (security instanceof Forex) {
 
             message.set(new SecurityType(SecurityType.CASH));
-            message.set(new Currency(security.getSecurityFamily().getCurrency().getValue()));
+            message.set(new Currency(security.getSecurityFamilyInitialized().getCurrency().getValue()));
 
         } else if (security instanceof Stock) {
 
             Stock stock = (Stock) security;
 
             message.set(new SecurityType(SecurityType.COMMON_STOCK));
-            message.set(new Currency(stock.getSecurityFamily().getCurrency().toString()));
+            message.set(new Currency(stock.getSecurityFamilyInitialized().getCurrency().toString()));
         }
 
         //set the limit price if order is a limit order or stop limit order
