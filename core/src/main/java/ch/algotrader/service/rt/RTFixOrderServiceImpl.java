@@ -17,15 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.service.rt;
 
-import java.util.Date;
-
+import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
+import ch.algotrader.adapter.rt.RTFixOrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import quickfix.field.Account;
-import quickfix.field.ExecInst;
-import quickfix.field.HandlInst;
-import quickfix.field.LocateReqd;
-import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
@@ -39,51 +34,23 @@ public class RTFixOrderServiceImpl extends RTFixOrderServiceBase {
 
     private static final long serialVersionUID = 1030392480992545177L;
 
+    // TODO: this is a work-around required due to the existing class hierarchy
+    // TODO: Implementation class should be injectable through constructor
     @Override
-    protected void handleSendOrder(final SimpleOrder order, final NewOrderSingle newOrder) throws Exception {
-
-        newOrder.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC));
-        newOrder.set(new LocateReqd(true));
-
-        if (order.isDirect()) {
-            newOrder.set(new ExecInst(String.valueOf(ExecInst.HELD)));
-        } else {
-            newOrder.set(new ExecInst(String.valueOf(ExecInst.NOT_HELD)));
-        }
-
-        // handling for accounts
-        if (order.getAccount().getExtAccount() != null) {
-            newOrder.set(new Account(order.getAccount().getExtAccount()));
-        }
+    protected Fix44OrderMessageFactory createMessageFactory() {
+        return new RTFixOrderMessageFactory();
     }
 
     @Override
-    protected void handleModifyOrder(final SimpleOrder order, final OrderCancelReplaceRequest replaceRequest) throws Exception {
-
-        replaceRequest.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC));
-        replaceRequest.set(new LocateReqd(true));
-
-        if (order.isDirect()) {
-            replaceRequest.set(new ExecInst(String.valueOf(ExecInst.HELD)));
-        } else {
-            replaceRequest.set(new ExecInst(String.valueOf(ExecInst.NOT_HELD)));
-        }
-
-        // handling for accounts
-        if (order.getAccount().getExtAccount() != null) {
-            replaceRequest.set(new Account(order.getAccount().getExtAccount()));
-        }
+    protected void handleSendOrder(SimpleOrder order, NewOrderSingle newOrder) throws Exception {
     }
 
     @Override
-    protected void handleCancelOrder(final SimpleOrder order, final OrderCancelRequest cancelRequest) throws Exception {
+    protected void handleModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) throws Exception {
+    }
 
-        // handling for accounts
-        if (order.getAccount().getExtAccount() != null) {
-            cancelRequest.set(new Account(order.getAccount().getExtAccount()));
-        }
-
-        cancelRequest.set(new TransactTime(new Date()));
+    @Override
+    protected void handleCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) throws Exception {
     }
 
     @Override
