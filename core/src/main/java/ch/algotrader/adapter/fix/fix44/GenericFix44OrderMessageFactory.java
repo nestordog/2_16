@@ -55,12 +55,12 @@ import quickfix.fix44.OrderCancelRequest;
  *
  * @version $Revision$ $Date$
  */
-public class DefaultFix44OrderMessageFactory implements Fix44OrderMessageFactory {
+public class GenericFix44OrderMessageFactory implements Fix44OrderMessageFactory {
 
     private final SimpleDateFormat monthFormat;
     private final SimpleDateFormat dayFormat;
 
-    public DefaultFix44OrderMessageFactory() {
+    public GenericFix44OrderMessageFactory() {
         this.monthFormat = new SimpleDateFormat("yyyyMM");
         this.dayFormat = new SimpleDateFormat("yyyyMMdd");
     }

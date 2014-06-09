@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service.fix.fix44;
 
-import ch.algotrader.adapter.fix.fix44.DefaultFix44OrderMessageFactory;
+import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
 import quickfix.fix44.NewOrderSingle;
@@ -43,7 +43,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
     // TODO: this is a work-around required due to the existing class hierarchy
     // TODO: Implementation class should be injectable through constructor
     protected Fix44OrderMessageFactory createMessageFactory() {
-        return new DefaultFix44OrderMessageFactory();
+        return new GenericFix44OrderMessageFactory();
     }
 
     @Override

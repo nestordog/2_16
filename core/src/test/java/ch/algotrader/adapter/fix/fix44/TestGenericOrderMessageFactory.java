@@ -1,4 +1,4 @@
-package ch.algotrader.adapter.rt;
+package ch.algotrader.adapter.fix.fix44;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
@@ -51,14 +52,14 @@ import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
 
-public class TestRTOrderMessageFactory {
+public class TestGenericOrderMessageFactory {
 
-    private RTFixOrderMessageFactory requestFactory;
+    private GenericFix44OrderMessageFactory requestFactory;
 
     @Before
     public void setup() throws Exception {
 
-        this.requestFactory = new RTFixOrderMessageFactory();
+        this.requestFactory = new GenericFix44OrderMessageFactory();
     }
 
     @Test
@@ -678,7 +679,6 @@ public class TestRTOrderMessageFactory {
 
         Assert.assertNotNull(message);
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
-        Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertEquals(new OrderQty(2000), message.getOrderQty());
@@ -717,7 +717,6 @@ public class TestRTOrderMessageFactory {
 
         Assert.assertNotNull(message);
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
-        Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertEquals(new OrderQty(2000), message.getOrderQty());
@@ -749,7 +748,6 @@ public class TestRTOrderMessageFactory {
 
         Assert.assertNotNull(message);
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
-        Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new Symbol("APPL"), message.getSymbol());
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.SELL), message.getSide());
         Assert.assertEquals(new OrderQty(10), message.getOrderQty());
@@ -782,7 +780,6 @@ public class TestRTOrderMessageFactory {
 
         Assert.assertNotNull(message);
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
-        Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new Symbol("EUR"), message.getSymbol());
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertEquals(new OrderQty(2000), message.getOrderQty());
