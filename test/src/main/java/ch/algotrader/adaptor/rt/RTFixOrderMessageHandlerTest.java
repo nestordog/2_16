@@ -133,6 +133,7 @@ public class RTFixOrderMessageHandlerTest {
             Assert.fail("Session logon failed");
         }
 
+        // Purge the queue
         while (eventQueue.poll(5, TimeUnit.SECONDS) != null) {
         }
     }
