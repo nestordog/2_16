@@ -113,7 +113,7 @@ public class DefaultFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
             fill.setExtDateTime(extDateTime);
             fill.setSide(side);
             fill.setQuantity(quantity);
-            fill.setPrice(RoundUtil.getBigDecimal(price, order.getSecurity().getSecurityFamily().getScale()));
+            fill.setPrice(RoundUtil.getBigDecimal(price, order.getSecurityInitialized().getSecurityFamilyInitialized().getScale()));
             fill.setExtId(extId);
 
             return fill;
