@@ -39,7 +39,7 @@ import quickfix.fix44.ExecutionReport;
  *
  * @version $Revision$ $Date$
  */
-public class DefaultFix44OrderMessageHandler extends AbstractFix44OrderMessageHandler {
+public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
     @Override
     protected boolean discardReport(final ExecutionReport executionReport) throws FieldNotFound {
