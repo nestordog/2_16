@@ -45,12 +45,14 @@ public class DateUtil {
      */
     public static Date getCurrentEPTime() {
 
-        String strategyName = ServiceLocator.instance().getConfiguration().getStartedStrategyName();
-        if (EngineLocator.instance().hasEngine(strategyName) && !EngineLocator.instance().getEngine(strategyName).isInternalClock()) {
-            return new Date(EngineLocator.instance().getEngine(strategyName).getCurrentTime());
-        } else {
-            return new Date();
+        if (ServiceLocator.instance().isInitialized()) {
+            String strategyName = ServiceLocator.instance().getConfiguration().getStartedStrategyName();
+            if (EngineLocator.instance().hasEngine(strategyName) && !EngineLocator.instance().getEngine(strategyName).isInternalClock()) {
+                return new Date(EngineLocator.instance().getEngine(strategyName).getCurrentTime());
+            }
         }
+
+        return new Date();
     }
 
     /**
