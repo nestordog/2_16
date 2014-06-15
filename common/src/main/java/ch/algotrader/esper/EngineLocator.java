@@ -33,11 +33,12 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.BaseConfig;
+import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.spring.Configuration;
 import ch.algotrader.vo.GenericEventVO;
 import ch.algotrader.vo.StatementMetricVO;
 
@@ -53,9 +54,7 @@ public class EngineLocator {
     private static final Logger logger = MyLogger.getLogger(EngineLocator.class.getName());
     private static final EngineLocator instance = new EngineLocator();
 
-    private static boolean simulation = false;
-    private static String startedStrategyName = StrategyImpl.BASE;
-    private static boolean singleVM = true;
+    private static BaseConfig CONFIG;
 
     private Map<String, Engine> engines = new HashMap<String, Engine>();
 
@@ -63,14 +62,7 @@ public class EngineLocator {
 
     public static final EngineLocator instance() {
 
-        ServiceLocator serviceLocator = ServiceLocator.instance();
-        if (serviceLocator.isInitialized()) {
-            Configuration configuration = serviceLocator.getConfiguration();
-            simulation = configuration.getSimulation();
-            startedStrategyName = configuration.getStartedStrategyName();
-            singleVM = configuration.getBoolean("misc.singleVM");
-        }
-
+        CONFIG = ConfigLocator.instance().getBaseConfig();
         return instance;
     }
 
@@ -136,7 +128,7 @@ public class EngineLocator {
      */
     public void sendEvent(String engineName, Object obj) {
 
-        if (simulation || singleVM) {
+        if (CONFIG.isSimulation() || CONFIG.isSingleVM()) {
 
             if (hasEngine(engineName)) {
                 getEngine(engineName).sendEvent(obj);
@@ -145,7 +137,7 @@ public class EngineLocator {
         } else {
 
             // check if it is the localStrategy
-            if (startedStrategyName.equals(engineName)) {
+            if (CONFIG.getStrategyName().equals(engineName)) {
 
                 getEngine(engineName).sendEvent(obj);
 
@@ -163,7 +155,7 @@ public class EngineLocator {
      */
     public void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
 
-        if (simulation || singleVM) {
+        if (CONFIG.isSimulation() || CONFIG.isSingleVM()) {
             for (Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
                 if (!subscription.getStrategyInitialized().getName().equals(StrategyImpl.BASE)) {
                     String strategyName = subscription.getStrategy().getName();
@@ -195,7 +187,7 @@ public class EngineLocator {
      */
     public void sendGenericEvent(final GenericEventVO event) {
 
-        if (simulation || singleVM) {
+        if (CONFIG.isSimulation() || CONFIG.isSingleVM()) {
             for (Engine engine : this.engines.values()) {
                 String engineName = engine.getName();
                 if (!engineName.equals(StrategyImpl.BASE) && !engineName.equals(event.getStrategyName())) {
