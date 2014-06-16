@@ -1,11 +1,21 @@
 set db=algotrader
 
-mysqldump.exe --skip-triggers --no-data -u root -ppassword -r ^
+mysqldump.exe ^
+--skip-triggers ^
+--skip-set-charset ^
+--no-data ^
+-u root ^
+-ppassword -r ^
 db-structure.sql ^
 %db%
 
 mysqldump.exe ^
---skip-extended-insert  --skip-triggers ^
+--complete-insert ^
+--no-create-info ^
+--skip-add-locks ^
+--skip-disable-keys ^
+--skip-extended-insert ^
+--skip-triggers ^
 --ignore-table=%db%.bar ^
 --ignore-table=%db%.cash_balance ^
 --ignore-table=%db%.combination ^
@@ -19,7 +29,8 @@ mysqldump.exe ^
 --ignore-table=%db%.synthetic_index ^
 --ignore-table=%db%.tick ^
 --where="id<1000" ^
---complete-insert --no-create-info -u root -ppassword ^
+-u root ^
+-ppassword ^
 -r db-data.sql ^
 %db%
 
