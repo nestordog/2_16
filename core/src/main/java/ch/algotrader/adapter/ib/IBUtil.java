@@ -21,10 +21,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.Validate;
-
-import com.ib.client.Contract;
-import com.ib.client.Execution;
 
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
@@ -40,6 +38,9 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
+
+import com.ib.client.Contract;
+import com.ib.client.Execution;
 
 /**
  * Utility class providing conversion methods for IB specific types.
@@ -119,6 +120,9 @@ public class IBUtil {
                 contract.m_symbol = security.getSymbol();
                 contract.m_secType = "IND";
                 contract.m_exchange = security.getSecurityFamily().getMarket(Broker.IB);
+            } else {
+
+                throw new IllegalArgumentException("unsupported security type " + ClassUtils.getShortClassName(security.getClass()));
             }
         }
 

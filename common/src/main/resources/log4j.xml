@@ -99,6 +99,10 @@
         <level value="warn" />
     </logger>
 
+    <logger name="org.apache.http">
+        <level value="warn" />
+    </logger>
+
     <logger name="org.apache.activemq">
         <level value="warn" />
     </logger>

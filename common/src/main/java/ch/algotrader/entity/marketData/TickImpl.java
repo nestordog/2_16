@@ -108,10 +108,14 @@ public class TickImpl extends Tick {
             if (this.getSecurity().getSecurityFamily().isTradeable() || this.getSecurity().getSecurityFamily().isSynthetic()) {
 
                 // options just before expiration might not have a BID anymore
-                if (getBid() != null) {
+                if (getBid() != null && getAsk() != null) {
                     return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0, scale);
+                } else if (getBid() != null) {
+                    return RoundUtil.getBigDecimal(getBid().doubleValue(), scale);
+                } else if (getAsk() != null) {
+                    return RoundUtil.getBigDecimal(getAsk().doubleValue(), scale);
                 } else {
-                    return RoundUtil.getBigDecimal(getAsk().doubleValue() / 2.0, scale);
+                    return getLast();
                 }
 
             } else {
