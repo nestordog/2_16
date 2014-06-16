@@ -1,5 +1,8 @@
 set db=algotrader
 
+SET mypath=%~dp0
+cd %mypath:~0,-1%
+
 mysqldump.exe ^
 --skip-triggers ^
 --skip-set-charset ^
