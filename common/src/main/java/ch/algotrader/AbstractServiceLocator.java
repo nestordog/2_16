@@ -41,7 +41,6 @@ public abstract class AbstractServiceLocator {
     // The default bean reference factory ID, referencing beanRefFactory.
     private static final String DEFAULT_BEAN_REFERENCE_ID = "beanRefFactory";
 
-
     // The different bean reference types
     public static final String LOCAL_BEAN_REFERENCE_LOCATION = "Local";
     public static final String SINGLE_BEAN_REFERENCE_LOCATION = "Single";
