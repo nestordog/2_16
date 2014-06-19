@@ -68,7 +68,6 @@ public abstract class AbstractServiceLocator {
         this.beanFactoryReference = null;
     }
 
-
     /**
      * Gets the Spring ApplicationContext.
      * @return beanFactoryReference.getFactory()
