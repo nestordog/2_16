@@ -22,10 +22,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.lang.Validate;
-import org.springframework.beans.factory.annotation.Value;
 
 /**
- * Generic bean factory for config beans annotated with {@link org.springframework.beans.factory.annotation.Value} annotation.
+ * Generic bean factory for config beans annotated with {@link ch.algotrader.config.ConfigName} annotation.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
@@ -58,10 +57,10 @@ public final class ConfigBeanFactory {
 
             Class<?> paramType = parameterTypes[i];
             Annotation[] annotations = parameterAnnotations[i];
-            Value configName = null;
+            ConfigName configName = null;
             for (Annotation annotation: annotations) {
-                if (annotation.annotationType().equals(Value.class)) {
-                    configName = (Value) annotation;
+                if (annotation.annotationType().equals(ConfigName.class)) {
+                    configName = (ConfigName) annotation;
                     break;
                 }
             }

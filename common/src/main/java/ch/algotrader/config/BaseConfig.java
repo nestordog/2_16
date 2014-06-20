@@ -19,8 +19,6 @@ package ch.algotrader.config;
 
 import java.math.BigDecimal;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.MarketDataType;
@@ -46,15 +44,15 @@ public final class BaseConfig {
 
 
     public BaseConfig(
-            @Value("strategyName") final String strategyName,
-            @Value("dataSource.dataSet") final String dataSet,
-            @Value("dataSource.dataSetType") final MarketDataType dataSetType,
-            @Value("dataSource.barSize") final Duration barSize,
-            @Value("simulation") final boolean simulation,
-            @Value("simulation.initialBalance") final BigDecimal simulationInitialBalance,
-            @Value("misc.singleVM") final boolean singleVM,
-            @Value("misc.portfolioDigits") final int portfolioDigits,
-            @Value("misc.portfolioBaseCurrency") final Currency portfolioBaseCurrency) {
+            @ConfigName("strategyName") final String strategyName,
+            @ConfigName("dataSource.dataSet") final String dataSet,
+            @ConfigName("dataSource.dataSetType") final MarketDataType dataSetType,
+            @ConfigName("dataSource.barSize") final Duration barSize,
+            @ConfigName("simulation") final boolean simulation,
+            @ConfigName("simulation.initialBalance") final BigDecimal simulationInitialBalance,
+            @ConfigName("misc.singleVM") final boolean singleVM,
+            @ConfigName("misc.portfolioDigits") final int portfolioDigits,
+            @ConfigName("misc.portfolioBaseCurrency") final Currency portfolioBaseCurrency) {
         this.strategyName = strategyName;
         this.dataSet = dataSet;
         this.dataSetType = dataSetType;
