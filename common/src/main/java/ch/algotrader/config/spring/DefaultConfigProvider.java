@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.config.spring;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -67,6 +68,10 @@ public class DefaultConfigProvider implements ConfigProvider {
             // Attempt direct cast as the last resort
             return clazz.cast(param);
         }
+    }
+
+    public Map<String, ?> getMap() {
+        return new HashMap<String, Object>(this.paramMap);
     }
 
     @Override
