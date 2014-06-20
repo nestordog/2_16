@@ -36,6 +36,10 @@ public final class ConfigParams {
         this.configProvider = configProvider;
     }
 
+    public ConfigProvider getConfigProvider() {
+        return configProvider;
+    }
+
     public <T> T getParameter(final String name, final Class<T> clazz) {
         return this.configProvider.getParameter(name, clazz);
     }

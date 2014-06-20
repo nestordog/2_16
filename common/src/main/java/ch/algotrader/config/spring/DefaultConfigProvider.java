@@ -17,8 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.config.spring;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.core.convert.ConversionService;
@@ -70,8 +71,9 @@ public class DefaultConfigProvider implements ConfigProvider {
         }
     }
 
-    public Map<String, ?> getMap() {
-        return new HashMap<String, Object>(this.paramMap);
+    @Override
+    public Set<String> getNames() {
+        return new HashSet<String>(this.paramMap.keySet());
     }
 
     @Override

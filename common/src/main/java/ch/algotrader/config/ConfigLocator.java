@@ -17,8 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.config;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
@@ -105,6 +107,10 @@ public final class ConfigLocator {
             return null;
         }
 
+        @Override
+        public Set<String> getNames() {
+            return Collections.emptySet();
+        }
     }
 
     private static ConfigLocator standaloneInit() throws Exception {

@@ -17,14 +17,17 @@
  ***********************************************************************************/
 package ch.algotrader.config.spring;
 
-import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.util.Assert;
 
+import ch.algotrader.config.ConfigParams;
+import ch.algotrader.config.ConfigProvider;
+
 /**
- * Spring factory bean for Config beans such as {@link ch.algotrader.config.BaseConfig}.
+ * Spring factory bean that can export config values as {@link java.util.Properties}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
@@ -32,19 +35,22 @@ import org.springframework.util.Assert;
  */
 public class ConfigPropertiesFactoryBean implements FactoryBean<Properties> {
 
-    private final DefaultConfigProvider defaultConfigProvider;
+    private final ConfigParams configParams;
 
-    public ConfigPropertiesFactoryBean(final DefaultConfigProvider defaultConfigProvider) {
-        Assert.notNull(defaultConfigProvider, "DefaultConfigProvider is null");
-        this.defaultConfigProvider = defaultConfigProvider;
+    public ConfigPropertiesFactoryBean(final ConfigParams configParams) {
+        Assert.notNull(configParams, "ConfigParams is null");
+        this.configParams = configParams;
     }
 
     @Override
     public Properties getObject() throws Exception {
         Properties props = new Properties();
-        Map<String, ?> paramMap = this.defaultConfigProvider.getMap();
-        for (Map.Entry<String, ?> entry: paramMap.entrySet()) {
-            props.setProperty(entry.getKey(), entry.getValue() != null ? entry.getValue().toString() : null);
+        ConfigProvider configProvider = this.configParams.getConfigProvider();
+        Set<String> names = configProvider.getNames();
+        if (names != null) {
+            for (String name: names) {
+                props.setProperty(name, configProvider.getParameter(name, String.class));
+            }
         }
         return props;
     }

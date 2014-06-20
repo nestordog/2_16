@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.config;
 
+import java.util.Set;
+
 /**
  * Generic provider of typed configuration parameters.
  *
@@ -27,5 +29,7 @@ package ch.algotrader.config;
 public interface ConfigProvider {
 
     <T> T getParameter(String name, Class<T> clazz);
+
+    Set<String> getNames();
 
 }
