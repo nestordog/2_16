@@ -33,7 +33,7 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.config.BaseConfig;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEvent;
@@ -54,7 +54,7 @@ public class EngineLocator {
     private static final Logger logger = MyLogger.getLogger(EngineLocator.class.getName());
     private static final EngineLocator instance = new EngineLocator();
 
-    private static BaseConfig CONFIG;
+    private static CommonConfig CONFIG;
 
     private Map<String, Engine> engines = new HashMap<String, Engine>();
 
@@ -62,7 +62,7 @@ public class EngineLocator {
 
     public static final EngineLocator instance() {
 
-        CONFIG = ConfigLocator.instance().getBaseConfig();
+        CONFIG = ConfigLocator.instance().getCommonConfig();
         return instance;
     }
 

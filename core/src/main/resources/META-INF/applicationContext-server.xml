@@ -16,10 +16,15 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
         http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd">
 
-    <!-- =========================================== Cache ================================================ -->
+    <!-- =========================================== Cache & Config ======================================= -->
 
     <bean id="cacheManager" class="ch.algotrader.cache.CacheManagerImpl">
         <property name="genericDao" ref="genericDao"/>
+    </bean>
+
+    <bean id="coreConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
+        <constructor-arg index="0" ref="configLocator"/>
+        <constructor-arg index="1" value="ch.algotrader.config.CoreConfig"/>
     </bean>
 
     <!-- =========================================== JMX ================================================ -->

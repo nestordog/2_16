@@ -55,7 +55,7 @@ public class ConfigBeanFactoryTest {
         ConfigParams configParams = new ConfigParams(configProvider);
 
         ConfigBeanFactory factory = new ConfigBeanFactory();
-        BaseConfig atConfig = factory.create(configParams, BaseConfig.class);
+        CommonConfig atConfig = factory.create(configParams, CommonConfig.class);
         Assert.assertNotNull(atConfig);
         Assert.assertEquals("SOME_STRATEGY", atConfig.getStrategyName());
         Assert.assertEquals("someDataSet", atConfig.getDataSet());
@@ -79,7 +79,7 @@ public class ConfigBeanFactoryTest {
 
         ConfigBeanFactory factory = new ConfigBeanFactory();
         try {
-            factory.create(configParams, BaseConfig.class);
+            factory.create(configParams, CommonConfig.class);
         } catch (ConfigBeanCreationException ex) {
             Assert.assertEquals("Config parameter 'dataSource.dataSet' is undefined", ex.getMessage());
             throw ex;

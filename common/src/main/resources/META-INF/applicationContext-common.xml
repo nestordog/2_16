@@ -33,9 +33,9 @@
         <constructor-arg index="0" ref="configParams"/>
     </bean>
 
-    <bean id="baseConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
+    <bean id="commonConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
         <constructor-arg index="0" ref="configLocator"/>
-        <constructor-arg index="1" value="ch.algotrader.config.BaseConfig"/>
+        <constructor-arg index="1" value="ch.algotrader.config.CommonConfig"/>
     </bean>
 
     <bean id="configuration" class="ch.algotrader.util.spring.Configuration"/>

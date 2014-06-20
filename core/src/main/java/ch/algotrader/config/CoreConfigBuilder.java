@@ -30,7 +30,7 @@ import ch.algotrader.enumeration.MarketDataType;
  *
  * @version $Revision$ $Date$
  */
-public final class BaseConfigBuilder {
+public final class CoreConfigBuilder {
 
     private String strategyName;
     private String dataSet;
@@ -42,7 +42,7 @@ public final class BaseConfigBuilder {
     private int portfolioDigits;
     private Currency portfolioBaseCurrency;
 
-    BaseConfigBuilder() {
+    CoreConfigBuilder() {
         this.strategyName = "BASE";
         this.dataSet = "current";
         this.dataSetType = MarketDataType.TICK;
@@ -54,57 +54,57 @@ public final class BaseConfigBuilder {
         this.portfolioBaseCurrency = Currency.USD;
     }
 
-    public static BaseConfigBuilder create() {
-        return new BaseConfigBuilder();
+    public static CoreConfigBuilder create() {
+        return new CoreConfigBuilder();
     }
 
-    public BaseConfigBuilder setStrategyName(final String strategyName) {
+    public CoreConfigBuilder setStrategyName(final String strategyName) {
         this.strategyName = strategyName;
         return this;
     }
 
-    public BaseConfigBuilder setDataSet(final String dataSet) {
+    public CoreConfigBuilder setDataSet(final String dataSet) {
         this.dataSet = dataSet;
         return this;
     }
 
-    public BaseConfigBuilder setDataSetType(final MarketDataType dataSetType) {
+    public CoreConfigBuilder setDataSetType(final MarketDataType dataSetType) {
         this.dataSetType = dataSetType;
         return this;
     }
 
-    public BaseConfigBuilder setBarSize(final Duration barSize) {
+    public CoreConfigBuilder setBarSize(final Duration barSize) {
         this.barSize = barSize;
         return this;
     }
 
-    public BaseConfigBuilder setSimulation(final boolean simulation) {
+    public CoreConfigBuilder setSimulation(final boolean simulation) {
         this.simulation = simulation;
         return this;
     }
 
-    public BaseConfigBuilder setSimulationInitialBalance(final BigDecimal simulationInitialBalance) {
+    public CoreConfigBuilder setSimulationInitialBalance(final BigDecimal simulationInitialBalance) {
         this.simulationInitialBalance = simulationInitialBalance;
         return this;
     }
 
-    public BaseConfigBuilder setSingleVM(boolean singleVM) {
+    public CoreConfigBuilder setSingleVM(boolean singleVM) {
         this.singleVM = singleVM;
         return this;
     }
 
-    public BaseConfigBuilder setPortfolioDigits(final int portfolioDigits) {
+    public CoreConfigBuilder setPortfolioDigits(final int portfolioDigits) {
         this.portfolioDigits = portfolioDigits;
         return this;
     }
 
-    public BaseConfigBuilder setPortfolioBaseCurrency(final Currency portfolioBaseCurrency) {
+    public CoreConfigBuilder setPortfolioBaseCurrency(final Currency portfolioBaseCurrency) {
         this.portfolioBaseCurrency = portfolioBaseCurrency;
         return this;
     }
 
-    public BaseConfig build() {
-        return new BaseConfig(
+    public CoreConfig build() {
+        return new CoreConfig(
                 strategyName, dataSet, dataSetType, barSize, simulation, simulationInitialBalance, singleVM, portfolioDigits,
                 portfolioBaseCurrency);
     }

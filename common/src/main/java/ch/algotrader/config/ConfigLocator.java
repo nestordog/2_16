@@ -46,22 +46,22 @@ public final class ConfigLocator {
     private static ConfigLocator INSTANCE;
 
     private final ConfigParams configParams;
-    private final BaseConfig baseConfig;
+    private final CommonConfig commonConfig;
     private final Map<Class<?>, Object> beanMap;
 
-    private ConfigLocator(final ConfigParams configParams, final BaseConfig baseConfig) {
+    private ConfigLocator(final ConfigParams configParams, final CommonConfig commonConfig) {
         this.configParams = configParams;
-        this.baseConfig = baseConfig;
+        this.commonConfig = commonConfig;
         this.beanMap = new HashMap<Class<?>, Object>();
-        this.beanMap.put(BaseConfig.class, this.baseConfig);
+        this.beanMap.put(CommonConfig.class, this.commonConfig);
     }
 
     public ConfigParams getConfigParams() {
         return this.configParams;
     }
 
-    public BaseConfig getBaseConfig() {
-        return this.baseConfig;
+    public CommonConfig getCommonConfig() {
+        return this.commonConfig;
     }
 
     public <T> T getConfig(final Class<T> clazz) {
@@ -78,11 +78,11 @@ public final class ConfigLocator {
         }
     }
 
-    public synchronized static void initialize(final ConfigParams configParams, final BaseConfig baseConfig) {
+    public synchronized static void initialize(final ConfigParams configParams, final CommonConfig commonConfig) {
 
         Validate.notNull(configParams, "ConfigParams is null");
-        Validate.notNull(baseConfig, "ATConfig is null");
-        INSTANCE = new ConfigLocator(configParams, baseConfig);
+        Validate.notNull(commonConfig, "ATConfig is null");
+        INSTANCE = new ConfigLocator(configParams, commonConfig);
     }
 
     public synchronized static ConfigLocator instance() {
@@ -94,7 +94,7 @@ public final class ConfigLocator {
             } catch (Exception ex) {
 
                 LOGGER.error("Unexpected I/O error reading configuration", ex);
-                INSTANCE = new ConfigLocator(new ConfigParams(new NoOpConfigProvider()), BaseConfigBuilder.create().build());
+                INSTANCE = new ConfigLocator(new ConfigParams(new NoOpConfigProvider()), CommonConfigBuilder.create().build());
             }
         }
         return INSTANCE;
@@ -118,8 +118,8 @@ public final class ConfigLocator {
         DefaultConfigLoader loader = new DefaultConfigLoader(patternResolver);
         DefaultSystemConfigProvider configProvider = new DefaultSystemConfigProvider(loader.getParams(), new DefaultConversionService());
         ConfigParams configParams = new ConfigParams(configProvider);
-        BaseConfig baseConfig = new ConfigBeanFactory().create(configParams, BaseConfig.class);
-        return new ConfigLocator(configParams, baseConfig);
+        CommonConfig commonConfig = new ConfigBeanFactory().create(configParams, CommonConfig.class);
+        return new ConfigLocator(configParams, commonConfig);
     }
 
 }

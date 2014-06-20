@@ -20,7 +20,7 @@ package ch.algotrader.config.spring;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.util.Assert;
 
-import ch.algotrader.config.BaseConfig;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigBeanFactory;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.config.ConfigParams;
@@ -36,7 +36,7 @@ public class ConfigLocatorFactoryBean implements FactoryBean<ConfigLocator> {
 
     public ConfigLocatorFactoryBean(final ConfigParams configParams) {
         Assert.notNull(configParams, "ConfigParams is null");
-        ConfigLocator.initialize(configParams, new ConfigBeanFactory().create(configParams, BaseConfig.class));
+        ConfigLocator.initialize(configParams, new ConfigBeanFactory().create(configParams, CommonConfig.class));
     }
 
     @Override

@@ -20,11 +20,11 @@ package ch.algotrader.config.spring;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.util.Assert;
 
-import ch.algotrader.config.BaseConfig;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 
 /**
- * Spring factory bean for Config beans such as {@link ch.algotrader.config.BaseConfig}.
+ * Spring factory bean for Config beans such as {@link ch.algotrader.config.CommonConfig}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
@@ -49,7 +49,7 @@ public class ConfigBeanFactoryBean<T> implements FactoryBean<T> {
 
     @Override
     public Class<?> getObjectType() {
-        return BaseConfig.class;
+        return CommonConfig.class;
     }
 
     @Override

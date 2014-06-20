@@ -24,13 +24,13 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.MarketDataType;
 
 /**
- * Algotrader standard platform configuration object.
+ * Algotrader common configuration object.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public final class BaseConfig {
+public final class CommonConfig {
 
     private final String strategyName;
     private final String dataSet;
@@ -43,7 +43,7 @@ public final class BaseConfig {
     private final Currency portfolioBaseCurrency;
 
 
-    public BaseConfig(
+    public CommonConfig(
             @ConfigName("strategyName") final String strategyName,
             @ConfigName("dataSource.dataSet") final String dataSet,
             @ConfigName("dataSource.dataSetType") final MarketDataType dataSetType,
@@ -65,53 +65,53 @@ public final class BaseConfig {
     }
 
     public String getStrategyName() {
-        return strategyName;
+        return this.strategyName;
     }
 
     public String getDataSet() {
-        return dataSet;
+        return this.dataSet;
     }
 
     public MarketDataType getDataSetType() {
-        return dataSetType;
+        return this.dataSetType;
     }
 
     public Duration getBarSize() {
-        return barSize;
+        return this.barSize;
     }
 
     public boolean isSimulation() {
-        return simulation;
+        return this.simulation;
     }
 
     public BigDecimal getSimulationInitialBalance() {
-        return simulationInitialBalance;
+        return this.simulationInitialBalance;
     }
 
     public boolean isSingleVM() {
-        return singleVM;
+        return this.singleVM;
     }
 
     public int getPortfolioDigits() {
-        return portfolioDigits;
+        return this.portfolioDigits;
     }
 
     public Currency getPortfolioBaseCurrency() {
-        return portfolioBaseCurrency;
+        return this.portfolioBaseCurrency;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("[");
-        sb.append("strategyName='").append(strategyName).append('\'');
-        sb.append(", dataSet='").append(dataSet).append('\'');
-        sb.append(", dataSetType=").append(dataSetType);
-        sb.append(", barSize=").append(barSize);
-        sb.append(", simulation=").append(simulation);
-        sb.append(", simulationInitialBalance=").append(simulationInitialBalance);
-        sb.append(", singleVM=").append(singleVM);
-        sb.append(", portfolioDigits=").append(portfolioDigits);
-        sb.append(", portfolioBaseCurrency=").append(portfolioBaseCurrency);
+        sb.append("strategyName='").append(this.strategyName).append('\'');
+        sb.append(", dataSet='").append(this.dataSet).append('\'');
+        sb.append(", dataSetType=").append(this.dataSetType);
+        sb.append(", barSize=").append(this.barSize);
+        sb.append(", simulation=").append(this.simulation);
+        sb.append(", simulationInitialBalance=").append(this.simulationInitialBalance);
+        sb.append(", singleVM=").append(this.singleVM);
+        sb.append(", portfolioDigits=").append(this.portfolioDigits);
+        sb.append(", portfolioBaseCurrency=").append(this.portfolioBaseCurrency);
         sb.append(']');
         return sb.toString();
     }
